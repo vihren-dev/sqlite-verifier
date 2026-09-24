@@ -103,3 +103,20 @@ with the absolute pinned compiler and a 30-second timeout per module. All three
 bundles passed. `timeout 60s lake build` passes eleven jobs, with only the three
 allowed foundational axioms in both positive universal proof closures.
 End-to-end sealed-driver checks of these same bundles remain pending integration.
+
+## Explicit safe-failure example
+
+`Execution.runFrom_append` proves prefix composition without assuming success.
+`FailureDemonstration.lean` proves a separate, explicit policy that permits exactly
+statement 2's table-exists error. The first two changes stay committed; statement
+3 is skipped. The failure interpretation reads the resulting prefix's invoice
+rows and amounts. The proof quantifies every admitted starting database and uses
+only the three foundational axioms. `examples/allowed_failure` includes its own
+clearly distinguished approved policy; the first three examples' approved files
+are unchanged.
+
+`timeout 60s lake build` passes twelve jobs. The actual four-statement SQL was
+parsed and translated by the production frontend; the generated SqlInputs and
+all supplied modules compiled in a fresh temporary directory with 30-second
+per-module timeouts. Independent review and sealed-driver integration remain
+pending for this newly added example.

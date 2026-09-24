@@ -91,4 +91,19 @@ theorem Executes.result (execution : Executes position script database outcome) 
   | failure h => simp [runFrom, h]
   | next h _ ih => simpa [runFrom, h] using ih
 
+/-- Appending statements resumes after a successful prefix and preserves its errors. -/
+theorem runFrom_append (initial suffix : List Statement) (database : Database) (position : Nat) :
+    runFrom position (initial ++ suffix) database =
+      match runFrom position initial database with
+      | .success result => runFrom (position + initial.length) suffix result
+      | .failure index reason result => .failure index reason result := by
+  induction initial generalizing database position with
+  | nil => simp [runFrom]
+  | cons statement rest ih =>
+    simp only [List.cons_append, runFrom]
+    cases outcome : step statement database position with
+    | failure index reason result => rfl
+    | success result => simpa [Nat.add_assoc, Nat.add_comm, Nat.add_left_comm] using
+        (ih result (position + 1))
+
 end SqliteVerifier

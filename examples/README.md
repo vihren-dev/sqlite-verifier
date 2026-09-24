@@ -1,7 +1,7 @@
 # Reusable engineering examples
 
 These are synthetic engineering examples, not real-pilot acceptance evidence.
-All three candidates use the exact same files in `approved/`: a current schema,
+The first three candidates use the exact same files in `approved/`: a current schema,
 logical requirements, and current interpretation. No database contents are given.
 The proofs quantify every admitted set of invoice rows, identities, and amounts.
 
@@ -27,3 +27,10 @@ The public proof implementations are `SqliteVerifier/Demonstration.lean` and
 `SqliteVerifier/ReverseDemonstration.lean`. The named projection, coverage,
 schema-update, and verification primitives remain available for adapting the
 requirements or writing a different proof.
+
+`allowed_failure` is a separate policy example with its own `approved/` files.
+It permits precisely a table-exists error at zero-based statement position 2.
+Both earlier changes remain committed, the fourth statement is skipped, and the
+failed outcome reads the same protected invoice projection from resulting storage.
+This demonstrates the general failure contract; it does not weaken or replace
+the successful-applicability requirements shared by the other three examples.
