@@ -65,3 +65,11 @@ Validation: actionlint 1.7.12 (including ShellCheck) passed for the workflow;
 DONE locally, pending independent review and hosted execution. Actual hosted CI execution,
 including the Linux user-namespace preflight, remains for coordinator observation
 after review and push; this macOS host cannot claim those results.
+
+## CI review correction — 2026-09-24
+
+Coordinator review found the workflow repeated `just check` through both a
+standalone step and the `package: check` dependency. Collapsed these into one
+shared-checks-and-packaging step invoking `just package`; the same checks run
+once. Updated CI documentation accordingly. Actionlint and ShellCheck pass after
+the YAML edit; the unchanged Nix test suite was not redundantly rerun.

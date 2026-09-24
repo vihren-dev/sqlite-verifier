@@ -1,8 +1,9 @@
 # Continuous integration
 
 `.github/workflows/ci.yml` runs on pull requests, pushes to `main`, and manual
-requests. Both jobs enter the committed Nix environment and run `just setup`,
-`just check`, and `just package`. Adding checks to the shared recipes extends CI.
+requests. Both jobs enter the committed Nix environment and run `just setup`
+and `just package`. The `package: check` dependency runs the shared build and
+tests once before archiving. Adding checks to the shared recipes extends CI.
 Jobs have a 30-minute timeout; individual tests keep their own shorter limits.
 
 The matrix follows GitHub's documented native runner architectures:
