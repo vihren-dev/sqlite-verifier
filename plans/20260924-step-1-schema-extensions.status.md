@@ -207,6 +207,14 @@ cannot disappear during replay and fall through to the negative target. The
 gate fixture negates an inconsistent admitted-state contract; the product
 example will refute an actual standing resulting-schema requirement instead.
 
+Integrated independently reviewed concrete native/model conformance `6eaf2cb2`.
+All five authored cases pass through production parsing/translation and compare
+separate expected data against native SQLite and kernel-checked Lean equalities.
+Cases cover rowid/multiplicity/old-cell preservation, appended NULLs, ordered
+committed failure prefixes, and max-column error precedence. A false empty-target
+assertion is rejected. Coordinator reproduced the suite; lead approved it.
+Original upstream fixture results remain explicitly model-unchecked.
+
 Formal-core integration, CLI semantic admission, proof checking, conformance
 corpus, protected CI baseline, installable releases, approved pilot requirements,
 pilot evidence, and completion review remain.
