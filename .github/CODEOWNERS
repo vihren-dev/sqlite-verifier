@@ -1,4 +1,4 @@
-# These ownership requests need a branch ruleset requiring code-owner approval.
+# Main ruleset 23934665 requires these code-owner approvals.
 /examples/**/approved/ @tzanko-matev
 /examples/approved/ @tzanko-matev
 /SqliteVerifier/ @tzanko-matev

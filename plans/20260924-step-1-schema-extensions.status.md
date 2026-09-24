@@ -48,8 +48,8 @@ and checks the independent kernel gate. `VERIFIED`, checked `VIOLATED`,
 `UNVERIFIED`, `UNSUPPORTED`, and `INPUT_ERROR` remain distinct. Compiler success
 alone never verifies. Optional baseline checks pin the complete approved Lean
 source closure; hashes do not create human approval. SQL/profile bind each
-invocation separately. The baseline workflow and CODEOWNERS need actual remote
-activation/rules before being called enforced.
+invocation separately. Target-owned baseline checks and CODEOWNERS now have active remote workflow
+policy and main-branch rules; only the named owner has audited bypass.
 
 See [execution profile](../docs/execution-profile.md),
 [semantic subset](../docs/semantic-subset.md),
@@ -96,7 +96,9 @@ not a proof of SQLite's C implementation.
   Linux; the integration engineer is diagnosing the Linux failure before release.
 - Baseline integration regression passes (0.906 seconds). Its workflow/code were
   independently reviewed and authorized by the technical lead; remote event-policy
-  and branch-rule activation remain.
+  and branch rules are active (policy 5478, ruleset 23934665). Hosted unchanged
+  baseline run 35992619415 passed; self-approval attack run 35992739741 failed as
+  expected. Probe PR #1 was closed unmerged and its temporary branch removed.
 - Original fixture results remain explicitly model-unchecked because their view
   dependency is unsupported. Five separately derived model cases do not change
   that status or imply general native refinement.
@@ -106,7 +108,9 @@ not a proof of SQLite's C implementation.
 The lead is building installable native archives, offline Nix runtime transport,
 extracted-package smoke tests, and a tag-triggered checked prerelease. Exact loader
 roots must remain compatible with the narrowed sandbox. Coordinator is integrating
-protected-baseline CI and observing hosted complete-driver checks. Release and
+coverage reporting and observing hosted complete-driver checks. The Linux failure
+was traced to Nix-patched Lean ELF loader paths; the lead is adding exact trusted
+loader roots to source builds without granting the full Nix store. Release and
 latest-platform evidence must pass before the engineering milestone is complete.
 
 ## Product-owner input and final acceptance
@@ -123,3 +127,12 @@ engineering but cannot replace the actual pilot. If no pilot is available, only
 an explicit owner decision and roadmap change can replace that completion criterion.
 Routine implementation choices continue autonomously; material product decisions
 and genuine environment/specification blockers require an owner sync.
+
+## Repository enforcement checkpoint
+
+The technical lead authorized the main ruleset after review. GitHub's applied
+branch-rules API confirms the three strict Actions checks, current code-owner
+review and stale-review dismissal, plus deletion/force-push protection. Only
+owner user 6329237 has audited bypass; no automation app does. This documentation
+commit and subsequent reviewed initial engineering integration use that already
+authorized owner access. No approved logical source or baseline changes here.

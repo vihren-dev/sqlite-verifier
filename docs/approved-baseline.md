@@ -49,16 +49,35 @@ calling the check enforced; see GitHub
 [workflow execution protections](https://github.blog/changelog/2026-09-17-workflow-execution-protections-in-github-actions-generally-available/)
 and [safe target-event usage](https://docs.github.com/en/actions/reference/security/securely-using-pull_request_target).
 
-Proposed repository rules, **not configured by these files**:
+The public repository's [main ruleset](https://github.com/vihren-dev/sqlite-verifier/rules/23934665)
+was activated and read back on 2026-09-24. Its rules are:
 
-- Require PRs, current code-owner approval, and dismiss stale approvals after pushes.
+- Require PRs, one current approving review, code-owner approval, approval of the
+  latest push by another actor, and resolved review threads. Dismiss stale approvals.
 - Require `Protected approved baseline` plus both platform build/check jobs,
   and require branches to be up to date before merging. Retargeted PRs rerun the
   baseline workflow; a stale target-branch baseline must not authorize a merge.
-- Restrict bypass to designated maintainers; record why the baseline change was
-  authorized. Do not grant a general automation-token bypass.
+- Only `@tzanko-matev` (user ID 6329237) has an audited maintainer bypass. No
+  automation app or general repository role has bypass. Deletion and force pushes
+  are blocked for ordinary contributors. Record the reason for each bypass.
 - Protect `.github/CODEOWNERS`, workflows, the baseline checker, trusted compiler,
   parser, proof gate, formal library and toolchain pins under `@tzanko-matev`.
 
-CODEOWNERS requests reviews; it does not enforce them without repository rules.
-Human owners must also review changes to the check's target-branch implementation.
+The three status checks are bound to GitHub Actions (app ID 15368), and
+[workflow event policy 5478](https://github.com/vihren-dev/sqlite-verifier/settings/actions/rules/5478)
+allows `pull_request_target` only for this baseline workflow. CODEOWNERS requests
+are enforced by the ruleset. Human owners still review changes to the check's
+trusted target-branch implementation.
+
+[Probe PR #1](https://github.com/vihren-dev/sqlite-verifier/pull/1) was closed
+without merging. Its unchanged baseline
+[passed](https://github.com/vihren-dev/sqlite-verifier/actions/runs/35992619415);
+its next candidate changed approved source, rewrote its manifest, and replaced
+the candidate checker with unconditional success, yet the trusted workflow
+[rejected it](https://github.com/vihren-dev/sqlite-verifier/actions/runs/35992739741).
+
+Initial engineering integration uses the owner's already-authorized repository
+access and records technical-lead review in the dated status files. This
+maintainer bypass is not product-owner approval of changed logical requirements;
+such changes still require the explicit semantic review described above.
+
