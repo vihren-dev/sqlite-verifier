@@ -200,6 +200,13 @@ connection to fail. This makes Linux connection refusal meaningful evidence of
 host-network separation. Local macOS regression passes (0.678 seconds); hosted
 Linux evidence remains pending. Production sandbox policy is unchanged.
 
+Lead-reviewed gate refutation support passed its complete regression suite:
+closed positive and negative proofs accepted with distinct codes; unfinished
+negative proofs and prior attacks rejected. An unsafe positive declaration
+cannot disappear during replay and fall through to the negative target. The
+gate fixture negates an inconsistent admitted-state contract; the product
+example will refute an actual standing resulting-schema requirement instead.
+
 Formal-core integration, CLI semantic admission, proof checking, conformance
 corpus, protected CI baseline, installable releases, approved pilot requirements,
 pilot evidence, and completion review remain.

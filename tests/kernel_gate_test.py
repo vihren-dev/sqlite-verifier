@@ -72,7 +72,20 @@ def main() -> None:
         compile_module(candidate, "Proofs", "import Generated\ntheorem Proofs.migrationCorrect : Generated.expected := trivial", environment)
         result = run([str(CHECKER), str(LIBRARY), str(trusted), str(candidate)], root, environment)
         assert result.returncode != 0 and "reconstructed" in result.stderr, result.stderr
-    print("Kernel gate: honest proof accepted, initializer ignored; eight trust-boundary attacks rejected.")
+        # A checked negative contract gets a distinct result; missing/sorry negatives do not.
+        interpretation = (FIXTURES / "Interpretation.lean").read_text().replace("Prop := True", "Prop := False")
+        compile_module(trusted, "Interpretation", interpretation, environment)
+        for module in ("NextInterpretation", "Generated"):
+            compile_module(candidate, module, (FIXTURES / f"{module}.lean").read_text(), environment)
+        negative = ("import Generated\ntheorem Proofs.migrationViolated : ¬ Generated.expected := by\n"
+                    "  intro correct\n  obtain ⟨database, admitted⟩ := correct.nonempty\n  exact admitted.2\n")
+        compile_module(candidate, "Proofs", negative, environment)
+        result = run([str(CHECKER), str(LIBRARY), str(trusted), str(candidate)], root, environment)
+        assert result.returncode == 2, result.stderr
+        compile_module(candidate, "Proofs", "import Generated\ntheorem Proofs.migrationViolated : ¬ Generated.expected := by sorry", environment)
+        result = run([str(CHECKER), str(LIBRARY), str(trusted), str(candidate)], root, environment)
+        assert result.returncode == 1 and "sorryAx" in result.stderr, result.stderr
+    print("Kernel gate: honest proof/refutation accepted, initializer ignored; forged/unfinished proofs rejected.")
 
 
 if __name__ == "__main__":

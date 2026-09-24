@@ -45,6 +45,13 @@ The kernel checks the proof body and checks its inferred type is definitionally
 equal to the reconstructed proposition. Exit zero means these checks succeeded;
 no printed sentinel or compiler exit status substitutes for them.
 
+If `Proofs.migrationCorrect` is absent, a closed `Proofs.migrationViolated` may
+prove the negation of that same independently reconstructed contract. All replay,
+dependency, and body checks remain identical. The gate returns 2 only for this
+checked model-contract refutation, 0 for the positive proof, and 1 for rejection.
+A rejected, missing, or unfinished proof cannot produce `VIOLATED`. A negative
+argument is not reported as a native counterexample.
+
 Run `python3 tests/kernel_gate_test.py` after building the formal library and
 checker. `KERNEL_GATE_LIBRARY` can select an immutable library build for component
 testing. Compiler/checker subprocesses have 30-second limits. Tests include an

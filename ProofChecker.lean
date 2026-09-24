@@ -79,7 +79,7 @@ def expectedTarget (env : Environment) : IO Expr := do
   return target
 
 /-- Replay user-stage declarations against the pinned library, then check the actual proof. -/
-def checkProof (library trusted candidate : System.FilePath) : IO Unit := do
+def checkProof (library trusted candidate : System.FilePath) : IO UInt32 := do
   let some sysroot ← IO.getEnv "LEAN_SYSROOT"
     | throw <| IO.userError "LEAN_SYSROOT must identify the pinned trusted Lean installation"
   for directory in [System.FilePath.mk sysroot, library, trusted, candidate] do
@@ -95,10 +95,13 @@ def checkProof (library trusted candidate : System.FilePath) : IO Unit := do
   searchPathRef.set (builtin ++ [library, trusted, candidate])
   let imported ← importData #[`Proofs]
   let checked ← trustedEnv.replay (← additions trustedEnv imported)
-  let target ← expectedTarget checked
-  let proof ← closedConstant checked `Proofs.migrationCorrect
-  audit checked (`Proofs.migrationCorrect :: target.getUsedConstants.toList)
-  let some info := checked.toKernelEnv.find? `Proofs.migrationCorrect
+  let expected ← expectedTarget checked
+  let positive := (imported.toKernelEnv.find? `Proofs.migrationCorrect).isSome
+  let name := if positive then `Proofs.migrationCorrect else `Proofs.migrationViolated
+  let target := if positive then expected else mkApp (mkConst ``Not) expected
+  let proof ← closedConstant checked name
+  audit checked (name :: target.getUsedConstants.toList)
+  let some info := checked.toKernelEnv.find? name
     | throw <| IO.userError "proof declaration disappeared"
   let some body := info.value? (allowOpaque := true)
     | throw <| IO.userError "proof must have a checked body"
@@ -106,6 +109,7 @@ def checkProof (library trusted candidate : System.FilePath) : IO Unit := do
   discard <| kernelResult (Kernel.check checked {} proof)
   unless ← kernelResult (Kernel.isDefEq checked {} actualType target) do
     throw <| IO.userError "proof does not establish the reconstructed verification target"
+  return if positive then 0 else 2
 
 /-- Exit zero only after replay, axiom audit, and the fixed target comparison all succeed. -/
 def main (arguments : List String) : IO UInt32 := do
@@ -113,7 +117,6 @@ def main (arguments : List String) : IO UInt32 := do
     match arguments with
     | [library, trusted, candidate] =>
       checkProof library trusted candidate
-      return 0
     | _ =>
       throw <| IO.userError
         "usage: migration-proof-checker LIBRARY_DIR TRUSTED_DIR CANDIDATE_DIR"
