@@ -22,10 +22,18 @@ def store_path(path: Path) -> Path:
     return Path(*resolved.parts[:4])
 
 
+def is_elf(path: Path) -> bool:
+    """Distinguish Linux shared objects from linker scripts that also use .so names."""
+    with path.open("rb") as source:
+        return source.read(4) == b"\x7fELF"
+
+
 def native_dependencies(executables: list[Path], lean: Path) -> tuple[set[Path], str]:
     """Retain Nix loader references; permit only bundled-relative or platform system libraries."""
     libraries = [path for path in (lean / "lib").rglob("*")
                  if path.is_file() and (path.name.endswith((".dylib", ".so")) or ".so." in path.name)]
+    if platform.system() == "Linux":
+        libraries = [path for path in libraries if is_elf(path)]
     roots: set[Path] = set()
     reports: list[str] = []
     for binary in executables + libraries:
