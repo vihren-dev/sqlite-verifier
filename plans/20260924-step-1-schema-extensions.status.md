@@ -145,3 +145,14 @@ records loader roots from trusted native binaries; the same validated roots feed
 compiler and gate sandboxes. Source and packaged layouts share that collector.
 The full store remains inaccessible. Three focused regressions pass after root integration. The real isolated-compiler
 recheck also passes; hosted Linux confirmation remains pending. The merged build succeeds on macOS (15 Lean jobs).
+
+## Coverage reporting integration
+
+Reviewed change `33278b91` adds a bounded report with separate proof, grammar,
+documentation, fixture and native/model scopes. Root reproduced all five
+failure/denominator regressions and the actual pinned report: six named theorem
+probes, 409 default grammar productions, 20 grammar smoke scripts, three imported
+assertion instances, and five derived native/model matches. These observations
+are neither universal coverage nor native refinement. Missing/duplicate evidence
+fails and leaves discrepancy counts unknown. Shared-command/CI artifact wiring
+will land with the independently checked runtime packaging change.
