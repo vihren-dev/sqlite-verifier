@@ -3,9 +3,18 @@
 An in-development Lean verifier for SQLite schema extensions. The engineering
 contract is in [the brief](sqlite-migration-verifier-engineering-brief.md), with
 acceptance tracked in [the Step 1 task](plans/20260924-step-1-schema-extensions.task.md).
-The current CLI verifies the documented schema-extension subset. Step 1 acceptance
-still requires release evidence and an actual pilot; the checked-in examples are
-engineering demonstrations.
+The CLI verifies the documented schema-extension subset. Step 1 acceptance
+still requires release evidence, an actual pilot, and product-owner review; the
+checked-in examples are engineering demonstrations.
+
+## Install
+
+Native archives support Apple Silicon macOS and x86_64 Linux. They include the
+pinned Lean runtime and an offline Nix cache; Nix must already be installed.
+Follow [the installation guide](docs/install.md), then try the bundled examples.
+[GitHub Releases](https://github.com/vihren-dev/sqlite-verifier/releases) publishes
+archives only after both platform checks and extracted-installation tests pass.
+Prereleases are engineering previews; they do not establish pilot acceptance.
 
 ## Development
 
@@ -33,9 +42,10 @@ These native checks are evidence, not a proof of correspondence with SQLite C.
 independent kernel checker.
 `just test` runs the available checks; `just check` combines build and tests.
 Commands run under explicit timeouts and are also the entry points for CI.
-`just package` creates a development source archive in `dist/`; it is not a
-user-installable verifier release. Runtime packaging and release instructions
-will accompany the checked CLI and its acceptance examples.
+`just coverage` refreshes the [bounded coverage report](docs/coverage.md).
+`just package` runs the shared checks, builds a native runtime archive in `dist/`,
+and tests its actual installed entrypoint before retaining a source snapshot.
+See [CI and release procedure](docs/ci.md).
 
 ## Verify one migration
 

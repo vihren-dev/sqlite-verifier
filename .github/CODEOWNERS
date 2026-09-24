@@ -5,6 +5,8 @@
 /SqliteVerifier.lean @tzanko-matev
 /ProofChecker.lean @tzanko-matev
 /migration_check/ @tzanko-matev
+/bin/ @tzanko-matev
+/packaging/ @tzanko-matev
 /parser/ @tzanko-matev
 /tests/baseline_ci.py @tzanko-matev
 /tests/test_baseline_ci.py @tzanko-matev

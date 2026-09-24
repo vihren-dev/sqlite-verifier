@@ -93,7 +93,8 @@ not a proof of SQLite's C implementation.
 - Hosted run `35990227855` (`b67516ab`) passed on x86_64-linux and aarch64-darwin,
   including real containment and kernel gate tests.
 - Hosted complete-CLI run `35991726213` (`c2288ede`) passed macOS and failed
-  Linux; the integration engineer is diagnosing the Linux failure before release.
+  Linux; exact loader roots and ELF-library classification corrections are now
+  integrated for the next hosted run.
 - Baseline integration regression passes (0.906 seconds). Its workflow/code were
   independently reviewed and authorized by the technical lead; remote event-policy
   and branch rules are active (policy 5478, ruleset 23934665). Hosted unchanged
@@ -105,13 +106,11 @@ not a proof of SQLite's C implementation.
 
 ## Remaining engineering work
 
-The lead is building installable native archives, offline Nix runtime transport,
-extracted-package smoke tests, and a tag-triggered checked prerelease. Exact loader
-roots must remain compatible with the narrowed sandbox. Coordinator is integrating
-coverage reporting and observing hosted complete-driver checks. The Linux failure
-was traced to Nix-patched Lean ELF loader paths; the lead is adding exact trusted
-loader roots to source builds without granting the full Nix store. Release and
-latest-platform evidence must pass before the engineering milestone is complete.
+Native archive building, offline installation, shared coverage reporting and a
+checked prerelease workflow are integrated. The independently tested macOS
+archive passes real installed verification. The next hosted run must confirm
+both Linux fixes and its extracted archive, followed by a fresh version-tag run
+that publishes the checked platform assets. No release is claimed at this checkpoint.
 
 ## Product-owner input and final acceptance
 
@@ -156,3 +155,28 @@ assertion instances, and five derived native/model matches. These observations
 are neither universal coverage nor native refinement. Missing/duplicate evidence
 fails and leaves discrepancy counts unknown. Shared-command/CI artifact wiring
 will land with the independently checked runtime packaging change.
+
+## Native packaging integration
+
+Reviewed author change `50cbec70` adds installable archives, full Lean runtime,
+signature-checked offline Nix cache, pinned isolated launcher and GC roots. Author
+and independent conformance reviewer tested exact macOS archive SHA-256
+`8637aa7b94853511cee995b082280e7333d370d0c70a2b374663c470724170aa`:
+installation into paths with spaces, actual VERIFIED/VIOLATED/UNSUPPORTED cases,
+and poisoned ambient runtime variables all pass. Installer races and URI paths
+have bounded regressions. The package is about 972 MiB and is not claimed to be
+bit-for-bit reproducible. Nix and platform kernel/system libraries are prerequisites.
+
+Hosted source run `35993515065` exposed a second Linux collector issue: Lean's
+`libc++.so` is a linker script. Reviewed fix `cf2dde6d` inspects only actual ELF
+library files while keeping executable inspection strict. Three focused tests
+pass; the next Linux hosted run remains necessary.
+
+Shared `just check` now includes the bounded coverage report; CI retains it and
+installable archives and tests the extracted package before upload. Version tags
+run the same checks, then publish assets only after both platforms pass. Root
+README and CODEOWNERS now cover installation and the trusted launcher/packager;
+the technical lead authorized these additions. No logical baseline was changed.
+The complete integrated `nix develop --command just check` passes: build, pinned
+engine/grammar, native/model, kernel gate, isolated compiler, all 16 CLI cases,
+five coverage regressions, 11 discovered regressions, and refreshed coverage report.

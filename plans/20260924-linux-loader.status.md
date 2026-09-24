@@ -27,3 +27,27 @@ explicit broad/ancestor/non-store-root rejection. The source writer records zero
 extra roots on macOS, and the actual CLI positive example returns VERIFIED with
 the resulting source manifest. The earlier shared macOS suite passed; hosted
 Linux evidence remains pending this correction.
+
+## 2026-09-24: non-ELF library names
+
+Hosted run `35993515065` at `bc1b02c8` next failed during loader collection:
+`ldd` rejected Lean's `lib/libc++.so` as not a dynamic executable. Library-name
+suffixes also match linker scripts. Linux collection now reads only the first
+four bytes and inspects ELF library candidates; explicit executables are still
+inspected strictly. Versioned libraries and symlinks to ELF libraries remain
+included. The regression supplies a textual linker script beside an ELF-header
+versioned library and verifies the exact inspection set. Unresolved and foreign
+references still reject.
+
+`nix develop --command timeout 15 python3 -m unittest tests.test_native_dependencies`
+passed all three tests in 0.077 seconds. The initial real collector invocation
+found this workspace's parser artifact absent; the shared `just build` recipe
+was then used to produce local artifacts and exercise the real collector.
+Hosted Linux end-to-end confirmation remains pending; no successful Linux run
+is inferred from these classification regressions.
+
+The shared `nix develop --command timeout 180 just build` passed on macOS,
+including the actual collector (zero additional store roots). Linker warnings
+about Lean's prebuilt static objects targeting newer macOS were emitted; the
+build completed successfully. Local code correction is DONE; hosted evidence
+remains pending the new revision.

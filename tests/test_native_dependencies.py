@@ -46,7 +46,9 @@ class NativeDependenciesTest(unittest.TestCase):
             executable = lean / "bin/lean"
             executable.touch()
             bundled = lean / "lib/libleanshared.so.1"
-            bundled.touch()
+            bundled.write_bytes(b"\x7fELF" + b"versioned shared object fixture")
+            linker_script = lean / "lib/libc++.so"
+            linker_script.write_text("INPUT(libc++.so.1 -lunwind)\n", encoding="utf-8")
             alias = lean / "lib/libleanshared.so"
             alias.symlink_to(bundled.name)
             loader = Path("/nix/store/00000000000000000000000000000000-glibc/lib/ld-linux-x86-64.so.2")
@@ -62,6 +64,8 @@ class NativeDependenciesTest(unittest.TestCase):
                 self.assertEqual(roots, {store})
                 self.assertNotIn(Path("/nix/store"), roots)
                 self.assertIn(str(loader), reports)
+                self.assertEqual({Path(call.args[0][1]) for call in run.call_args_list},
+                                 {executable, bundled, alias})
                 self.assertTrue(all(call.args[0][0] == "ldd" for call in run.call_args_list))
                 self.assertTrue(all(call.args == (loader,) for call in store_path.call_args_list))
             for failure, diagnostic in (("libLean.so => not found", "Unresolved"),
