@@ -8,7 +8,7 @@ setup:
 
 # Compile the public proof library entry point.
 build: parser
-    timeout 120 lake build
+    timeout 120 lake build SqliteVerifier migration-proof-checker
 
 # Compile the pinned complete SQLite grammar and tokenizer.
 parser:
@@ -22,6 +22,7 @@ smoke:
 test: smoke
     timeout 30 python3 tests/parser_test.py
     timeout 20 python3 tests/conformance_native_test.py
+    timeout 180 python3 tests/kernel_gate_test.py
     timeout 30 python3 -m unittest discover -s tests -p 'test_*.py'
 
 check: build test

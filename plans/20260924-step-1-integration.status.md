@@ -73,3 +73,35 @@ standalone step and the `package: check` dependency. Collapsed these into one
 shared-checks-and-packaging step invoking `just package`; the same checks run
 once. Updated CI documentation accordingly. Actionlint and ShellCheck pass after
 the YAML edit; the unchanged Nix test suite was not redundantly rerun.
+
+## Kernel-gate assignment — 2026-09-24
+
+Owner: product/integration engineer. Reviewer: Ultra technical lead, with parent
+integration review. Base: CI follow-up `3fac0a6a`; functional dependency: formal
+core `66e7cc19c1d2`. Status: DONE for implementation and local tests; awaiting
+independent review and integration.
+
+Implemented `ProofChecker.lean` and Lake executable `migration-proof-checker`.
+The agreed three-directory interface plus parent-set `LEAN_SYSROOT`, protected
+`SqlInputs` data module, reconstructed target and full declaration-collision
+checks are documented in `docs/kernel-gate.md`. Candidate extension caches and
+initializers are not loaded. Actual type/body axiom traversal, kernel replay and
+definitional equality checks replace compiler-success acceptance.
+
+A live formal workspace changed its barrel during the first test run, causing a
+missing `Library.olean` import. Reproduced using an immutable source snapshot of
+formal commit `66e7cc19c1d2` instead; that snapshot builds successfully. A valid
+proof initially exposed Lean's elaborator `Environment.find?` missing replayed
+map2 constants; switched all gate lookups to `toKernelEnv.find?` and confirmed the
+real proof passes. These failures were resolved without weakening any check.
+
+Evidence: checker build passed; the full immutable-core regression accepted an
+actual closed empty-script VC proof and ignored a harmless candidate initializer.
+It rejected wrong theorem, sorry, transitive axiom, protected contract/SQL changes,
+unsafe proof, a debug.skipKernelTC forged theorem body, and a forged expected
+alias. Each external test process has a 30-second limit. No malicious serialized
+axiom-cache mutation fixture was attempted; code never reads that extension.
+Final rebuilt-checker suite also passed missing-sysroot and relative-directory
+rejection checks; the full security regression was rerun successfully. The parent owns
+sandboxed compilation, shared recipe integration, Linux execution, and product
+end-to-end tests. No product completion or native-refinement claim is made.

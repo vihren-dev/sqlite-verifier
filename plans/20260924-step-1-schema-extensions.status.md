@@ -179,6 +179,19 @@ The merged local shared suite passed: ten Lean jobs, original native assertions,
 grammar tests, semantic admission, and macOS isolation (four unittest cases in
 0.790 seconds). Kernel-gate integration and user-facing driver checks follow.
 
+The lead independently reviewed and reproduced kernel gate `f664abda` before
+accepting integration. It reconstructs the exact VC, replays declaration bodies
+through Lean's kernel, rejects protected constant substitutions and unauthorized
+axioms, and ignores candidate initializer execution. Shared checks now build the
+gate and run its valid-proof and eight attack regressions under bounded timeouts.
+Integration exposed an elan-shim timeout when the fixture compiler ran outside
+the repository's pinned-toolchain directory. The suite now uses the resolved
+absolute pinned compiler, matching the production compiler design. Direct pinned
+compilation succeeded; no dependency installation or global setting was needed.
+With that test fix, the gate suite passed: honest VC accepted, initializer
+ignored, eight trust attacks rejected. Other shared checks had already passed
+against this unchanged integrated library; the gate build passed all 13 jobs.
+
 Formal-core integration, CLI semantic admission, proof checking, conformance
 corpus, protected CI baseline, installable releases, approved pilot requirements,
 pilot evidence, and completion review remain.
