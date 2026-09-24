@@ -180,3 +180,14 @@ the technical lead authorized these additions. No logical baseline was changed.
 The complete integrated `nix develop --command just check` passes: build, pinned
 engine/grammar, native/model, kernel gate, isolated compiler, all 16 CLI cases,
 five coverage regressions, 11 discovered regressions, and refreshed coverage report.
+
+## Runtime SDK boundary correction
+
+Hosted run `35994734528` reached Linux dependency inspection and exposed accidental
+inspection of Lean's compiler-only glibc SDK. Reviewed fix `522b2b57` shares one
+runtime file selection between inspection and copying: direct `lib` files and
+the complete `lib/lean` module tree. Reported dependencies outside the copied
+bundle still reject. Root and conformance independently reproduced the three
+focused regressions and the actual macOS collector. This preserves all 12,424
+required runtime files in the inspected macOS inventory and omits only an unused
+compiler-SDK dylib. Rebuilt macOS archive and new hosted Linux evidence are pending.
