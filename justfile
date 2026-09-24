@@ -27,11 +27,21 @@ test: smoke
     timeout 180 python3 tests/kernel_gate_test.py
     timeout 180 python3 -m tests.compilation_test
     timeout 600 python3 tests/cli_test.py
+    timeout 15 python3 tests/coverage_test.py
     timeout 30 python3 -m unittest discover -s tests -p 'test_*.py'
 
-check: build test
+# Refresh bounded proof, grammar and native/model evidence.
+coverage: build
+    timeout 420 python3 conformance/coverage_report.py --output build/coverage.json
 
-# A development source snapshot; installable verifier artifacts follow the CLI.
-package: check
+check: build test coverage
+
+# Build a native offline archive and verify its actual installed entrypoint.
+runtime-package:
+    timeout 600 python3 packaging/build_runtime.py
+    timeout 600 python3 tests/runtime_package_test.py "dist/sqlite-verifier-$(nix eval --impure --raw --expr builtins.currentSystem).tar.gz"
+
+# Keep a source snapshot alongside the checked installable runtime.
+package: check runtime-package
     mkdir -p dist
     tar --exclude='./.jj' --exclude='./.git' --exclude='./.lake' --exclude='./.direnv' --exclude='./dist' --exclude='./build' --exclude='__pycache__' --exclude='./result*' -czf dist/sqlite-verifier-source.tar.gz .

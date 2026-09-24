@@ -102,7 +102,9 @@ SqlInputs and six Lean modules were compiled in isolated temporary directories
 with the absolute pinned compiler and a 30-second timeout per module. All three
 bundles passed. `timeout 60s lake build` passes eleven jobs, with only the three
 allowed foundational axioms in both positive universal proof closures.
-End-to-end sealed-driver checks of these same bundles remain pending integration.
+The coordinator's complete macOS sealed-driver suite checks these same bundles,
+including the negative theorem and separate allowed-failure policy. Hosted Linux
+validation remains pending its scoped native-loader fix.
 
 ## Explicit safe-failure example
 
@@ -118,5 +120,6 @@ are unchanged.
 `timeout 60s lake build` passes twelve jobs. The actual four-statement SQL was
 parsed and translated by the production frontend; the generated SqlInputs and
 all supplied modules compiled in a fresh temporary directory with 30-second
-per-module timeouts. Independent review and sealed-driver integration remain
-pending for this newly added example.
+per-module timeouts. Independent conformance review accepted both new example units and reproduced
+the twelve-job build, including the exact failure position and non-vacuous
+negative argument. The coordinator's macOS sealed-driver tests subsequently passed.

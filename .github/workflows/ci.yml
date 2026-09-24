@@ -4,6 +4,7 @@ on:
   pull_request:
   push:
     branches: [main]
+    tags: ["v*"]
   workflow_dispatch:
 
 permissions:
@@ -53,8 +54,16 @@ jobs:
               fi
               touch /tmp/sandbox-write-probe
             '
-      - name: Run shared checks and package development sources
+      - name: Run shared checks and package native runtime
         run: nix develop --command just package
+      - name: Retain bounded coverage evidence
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: coverage-${{ matrix.system }}
+          path: build/coverage.json
+          if-no-files-found: warn
+          retention-days: 14
       - name: Retain development source snapshot
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
@@ -62,3 +71,41 @@ jobs:
           path: dist/sqlite-verifier-source.tar.gz
           if-no-files-found: error
           retention-days: 14
+      - name: Retain checked native runtime
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: runtime-${{ matrix.system }}
+          compression-level: 0
+          path: |
+            dist/sqlite-verifier-${{ matrix.system }}.tar.gz
+            dist/sqlite-verifier-${{ matrix.system }}.tar.gz.sha256
+          if-no-files-found: error
+          retention-days: 14
+
+  release:
+    name: Publish checked native archives
+    if: startsWith(github.ref, 'refs/tags/v')
+    needs: check
+    runs-on: ubuntu-22.04
+    timeout-minutes: 10
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          persist-credentials: false
+      - uses: actions/download-artifact@634f93cb2916e3fdff6788551b99b062d0335ce0 # v5
+        with:
+          pattern: runtime-*
+          path: release-assets
+          merge-multiple: true
+      - name: Verify asset checksums and create release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RELEASE_TAG: ${{ github.ref_name }}
+        run: |
+          (cd release-assets && sha256sum --check ./*.sha256)
+          flags=()
+          if [[ "$RELEASE_TAG" == *-* ]]; then flags+=(--prerelease); fi
+          gh release create "$RELEASE_TAG" "${flags[@]}" --verify-tag --title "SQLite verifier $RELEASE_TAG" \
+            --notes-file docs/release-notes.md release-assets/*.tar.gz release-assets/*.sha256
