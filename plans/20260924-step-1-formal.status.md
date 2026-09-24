@@ -1,0 +1,46 @@
+# Step 1 formal core status
+
+Created: 2026-09-24. Status: IN PROGRESS — not DONE.
+
+Task: [Step 1 acceptance](20260924-step-1-schema-extensions.task.md).
+Source contract: engineering brief revision 0.5 and roadmap proposal v0.1.
+Owner: `technical_lead`; challenger: `conformance_review`.
+Workspace: `/Users/tzankomatev/work/sqlite-verifier-formal`.
+Base revision: `2eb0b74a`; toolchain: Lean `leanprover/lean4:v4.33.0`.
+
+## Checked unit: stored model and ordered execution
+
+- `SqliteVerifier/Model.lean` represents ordinary nullable columns, actual signed
+  64-bit rowids, arbitrary tagged stored values, finite exact schemas, and rows.
+  Type declarations in this first subset are INTEGER, REAL, TEXT, BLOB, NUMERIC.
+  No primary key, NOT NULL, other constraints, defaults, indexes, triggers, or
+  rowid-shadowing column declarations are claimed supported.
+- `Execution.lean` defines CREATE TABLE and ADD COLUMN, stopping at the first
+  modeled statement error. The failure state retains committed earlier changes.
+  The executable evaluator and inductive outcome relation are proved equivalent;
+  every script has an outcome for every starting database.
+- `Preservation.lean` proves every old table, row identity, multiplicity, and old
+  cell survives every modeled success or failure. Added cells are NULL. These
+  theorems quantify arbitrary databases, not only the regression fixture.
+- `Examples.lean` checks multi-statement success, duplicate application values,
+  NULL materialization, failure prefixes, missing/duplicate schema names, rowid
+  limits, ASCII-only normalization, and the forbidden-name admission rules.
+
+Validation commands use `timeout 30s lean +leanprover/lean4:v4.33.0` for each
+module, with preceding compiled modules on `LEAN_PATH`. No SQL axioms,
+`sorry`, or native proof-evaluation mechanism were introduced.
+After integrating the pinned foundation, `timeout 60s lake build` passed all
+seven jobs. The universal execution/preservation proofs report only `propext`,
+`Classical.choice`, and `Quot.sound` as foundational axioms.
+
+## Pending integration and review
+
+General interpretation/requirements contracts, generated theorem binding, richer
+schema support, native/model correspondence, and independent source/proof review
+remain outstanding. The native engine is not proved to implement this model.
+Concrete examples are engineering regressions, not real-pilot acceptance evidence.
+
+The lead approved foundation `2eb0b74a` for integration after the coordinator's
+independent review and repeated successful Nix checks. The formal branch is
+rebased onto it; the public barrel's imports supersede
+the foundation's comment-only placeholder.
