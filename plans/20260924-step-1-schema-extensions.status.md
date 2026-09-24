@@ -1,258 +1,125 @@
 # Step 1 status
 
 Created: 2026-09-24. Status: IN PROGRESS — not DONE.
-
 Task: [Verified SQLite schema extensions](20260924-step-1-schema-extensions.task.md).
 
-## References
+## Governing sources and roles
 
-- [Engineering brief](../sqlite-migration-verifier-engineering-brief.md)
-- [Roadmap](../sqlite-migration-verifier-roadmap.md)
-- [Team agreement](../sqlite-migration-verifier-team-guide.md)
-- Governing workspace rules: `/Users/tzankomatev/work/AGENTS.md`.
+- [Engineering brief](../sqlite-migration-verifier-engineering-brief.md), rev 0.5.
+- [Roadmap](../sqlite-migration-verifier-roadmap.md), proposal 0.1.
+- [Team agreement](../sqlite-migration-verifier-team-guide.md), version 0.2.
+- Workspace rules: `/Users/tzankomatev/work/AGENTS.md`.
+- Product owner: Tzanko Matev, through the current conversation.
+- Technical/formal lead: GPT-6 Astra Ultra; owns architecture and main integration.
+- Conformance and integration engineers: GPT-6 Astra Medium; independent review.
+- Coordinator: repository integration delegate, validation, durable records and owner sync.
 
-Current integrated sources: `flake.nix`, `justfile`, the Lean library entry point,
-`migration_check/sandbox.py`, the upstream-derived parser, CI workflow, and their
-checks under `tests/`. Formal-core and proof-gate work proceeds in isolated
-workspaces until reviewed integration.
+Authors do not accept their own substantive changes. Isolated `jj` workspaces
+live under `~/work`; the technical lead authorizes reviewed integration.
+Initial task/status records preceded implementation. Original design documents
+were saved by the owner and remain authoritative. Review found no specification
+contradiction. Detailed component evidence lives in the other dated status files;
+prior progress versions remain in `jj` history.
 
-## Roles for this work
+## Integrated implementation
 
-- Product owner: Tzanko Matev, through the current project conversation.
-- Technical/formal-methods lead: `technical_lead`, GPT-6 Astra, Ultra reasoning.
-  Owns formal architecture and integration acceptance.
-- SQLite/conformance reviewer: `conformance_review`, GPT-6 Astra, Medium reasoning.
-  Independently challenges semantic claims and native evidence.
-- Coordinator: root agent, responsible for repository setup, durable records,
-  and product-owner communication. Product/integration engineering uses Medium
-  or lower reasoning for bounded implementation assignments.
+The owner explicitly authorized the public repository and publication.
+Origin: `git@github.com:vihren-dev/sqlite-verifier.git`.
+Local root: `/Users/tzankomatev/work/sqlite-verifier`.
+The pinned Nix/direnv environment uses Lean 4.33.0 and official SQLite 3.51.0,
+with MIT license, retained upstream notices, and shared `just` commands.
 
-Authors do not accept their own substantive changes. Implementation assignments
-will name a qualified challenger and a base revision. Additional `jj` workspaces
-may live under `~/work`; the technical lead owns integration into `main`.
+| Component | Reviewed source/change | Evidence |
+| --- | --- | --- |
+| Foundation and CI | `2eb0b74a`, `3fac0a6a` | Pinned build/native smoke; workflow lint |
+| Upstream parser | `2f5a83f5` | All 409 default grammar productions; 20 script regressions plus boundaries |
+| SQL admission | `fe5f0ba9` | Complete CST traversal, source spans, 29 unsupported forms; native name comparisons |
+| Formal core/contracts | `1f0c28bf2e2e` | Inductive/executable correspondence, all-outcome VC and arbitrary-data preservation |
+| Original fixture slice | `c62b6d1d` | Three unchanged upstream assertions, inherited view/configuration/final state retained |
+| Kernel gate/refutation | `f664abda`, `8f55b7f7` | Replay, protected declarations, exact target, transitive axiom audit, positive/negative proofs |
+| Derived conformance | `6eaf2cb2` | Five native/model cases through production translation; false lost-row assertion rejected |
+| Reusable examples | `2b134df2`, `874f0d36` | Two successful orders share approved meaning; schema refutation and separate allowed-failure policy |
+| Isolated source compiler | `93313668` | Real sandbox checks, exact import closure, sealed stages and validated artifacts |
+| Complete CLI | `c2288ede` | All 16 end-to-end invocations passed; profile diagnostics and inspection exports |
+| Protected baseline CI | `faabe8b4` | Target-owned Git-object inspection; adversarial regression independently reproduced |
 
-## Evidence and progress
+The CLI accepts all seven required inputs, generates/seals SQL and obligations,
+and checks the independent kernel gate. `VERIFIED`, checked `VIOLATED`,
+`UNVERIFIED`, `UNSUPPORTED`, and `INPUT_ERROR` remain distinct. Compiler success
+alone never verifies. Optional baseline checks pin the complete approved Lean
+source closure; hashes do not create human approval. SQL/profile bind each
+invocation separately. The baseline workflow and CODEOWNERS need actual remote
+activation/rules before being called enforced.
 
-- The user saved engineering brief revision 0.5, roadmap proposal v0.1, and team
-  guide version 0.2 into the initialized `jj` repository.
-- Both reviewers read the documents independently. Neither found a demonstrated
-  specification contradiction. Full grammar targeting does not require full
-  semantic coverage in Step 1.
-- Environment preflight found Nix, direnv, just, Lean, Lake, elan, GitHub CLI,
-  and SQLite. The Nix daemon responds outside the execution sandbox; the sandbox
-  denial was resolved through the normal escalation mechanism.
-- Observed installed Lean version: 4.33.0. Observed system SQLite version:
-  3.51.0 with an Apple build identifier. Neither observation selects the project's
-  pinned toolchain or engine build.
-- GitHub CLI authentication is available. `vihren-dev/sqlite-verifier` did not
-  exist during preflight; it was subsequently created with explicit owner approval.
-- Recorded the Step 1 observable acceptance criteria, required verification
-  suite, and implementation constraints before coding.
-- At the initial planning checkpoint, no implementation checks had run.
+See [execution profile](../docs/execution-profile.md),
+[semantic subset](../docs/semantic-subset.md),
+[trust boundary](../docs/trust-boundary.md),
+[source staging](../docs/source-staging.md), and
+[kernel gate](../docs/kernel-gate.md) for exact guarantees and exclusions.
 
-## Independent review findings
+## Independent review and corrected defects
 
-The conformance reviewer identified required adversarial coverage: case-insensitive
-name collisions, `IF NOT EXISTS` against incompatible tables, rowid shadowing,
-partial script success, and changed transitive requirement dependencies.
-Applicability must be nonvacuous; whole-script atomicity must not be inferred
-from a single input file. Existing-schema dependencies need admission checks.
+- SQLite column count and duplicate-name error precedence now match native evidence.
+- All starting-schema dependencies are inspected; views/triggers/indexes are
+  unsupported. Whole-script rollback is never inferred from one SQL file.
+- Source aliases on case-insensitive filesystems and hardlinks cannot introduce
+  candidate-only files into the approved closure.
+- Artifact symlinks, including parent directories, and hardlinks are rejected
+  before the unsandboxed parent reads compiler output.
+- Blanket Nix-store access was removed. Runtime/input trees are read-only and
+  disjoint from writable scratch; requested runtime aliases preserve those bounds.
+- Containment tests cover approved writes, private reads, live host-network
+  separation, credentials, output limits, timeout and Linux descendant cleanup.
+- Linux denial errno differences were test defects, fixed without weakening
+  production policy. The host-listener probe replaced an ambiguous closed port.
+- Gate tests now invoke the absolute pinned compiler outside the repository,
+  avoiding elan's unrelated default-toolchain lookup.
+- Negative-proof selection checks the imported positive declaration before replay,
+  so an unsafe positive cannot disappear and fall through to a negative target.
+- Arbitrary custom readers still need human meaning/provenance review; a type
+  signature alone cannot prevent a constant reader. Current additive primitives
+  separately preserve every old physical row/cell; rebuilding is unsupported.
 
-Both reviewers identified the pilot as a completion dependency. Synthetic
-examples are useful engineering checks but do not satisfy the roadmap's real
-pilot use and human-effort evidence. This is an input need, not a contradiction
-or an environmental blocker.
+Per-file output limits are 16 MiB and returned streams 1 MiB. These are not total
+scratch-disk quotas or VM isolation. Native correspondence is tested/documented,
+not a proof of SQLite's C implementation.
 
-The technical lead independently reviewed the task/status records against all
-three source documents. The acceptance criteria are faithful; the changed-input
-test explicitly concerns stale or mismatched proofs, not legitimate newly proved
-migrations. This initial commit records planning and review only.
-The conformance reviewer separately checked the provisional contract below and
-found no blocking objection; prefix guarantees apply to modeled statement errors.
+## Validation state
 
-## Provisional pilot contract and proof architecture
+- Local merged Lean build: 15 jobs pass, with only allowed foundational axioms.
+- Local parser/native/model/gate/compiler/CLI suites pass under pinned Nix.
+- CLI cases include changed SQL/interpretation, sorry, unproved premise, custom
+  axiom, forged target alias, unsupported dependencies and changed approved helper.
+- Hosted run `35990227855` (`b67516ab`) passed on x86_64-linux and aarch64-darwin,
+  including real containment and kernel gate tests.
+- Hosted complete-CLI run `35991726213` (`c2288ede`) passed macOS and failed
+  Linux; the integration engineer is diagnosing the Linux failure before release.
+- Baseline integration regression passes (0.906 seconds). Its workflow/code were
+  independently reviewed and authorized by the technical lead; remote event-policy
+  and branch-rule activation remain.
+- Original fixture results remain explicitly model-unchecked because their view
+  dependency is unsupported. Five separately derived model cases do not change
+  that status or imply general native refinement.
 
-These are technical proposals for review, not owner-approved requirements or
-implemented guarantees. Ground the exact supported schema in real pilot input.
+## Remaining engineering work
 
-- Reuse approved logical requirements across actual ordinary-table creation and
-  nullable-column additions. A minimal addition has an implicit NULL default;
-  other defaults, generated columns, checks, references, and relevant unmodeled
-  dependencies remain unsupported until their behavior is established.
-- Preserve every approved row identity and designated old field value for
-  arbitrary admissible data. New columns read NULL. Required target tables and
-  columns are explicit; preservation does not promise unchanged `SELECT *`.
-- Proposed initial execution policy: no ambient transaction; execute statements
-  in order and stop on the first error. For modeled statement errors, a later
-  failure retains the committed successful prefix. Explicit transactions may
-  initially be unsupported.
-  Concurrency, resource failures, and crashes need explicit profile boundaries.
-- Define supported statements and ordered success/failure transitions in Lean,
-  then derive schema and projection-preservation lemmas. Retain general logical
-  predicates and interpretation primitives beneath keyed-table conveniences.
-- Generate the exact theorem from the parsed inputs and profile; check its proof
-  and transitive dependency/axiom policy. Use the pinned grammar for recognition
-  independently of the smaller semantic subset and retain source locations.
-- A useful pilot contract can require successful applicability for every admitted
-  starting state as well as outcome coverage and failure safety. This stronger
-  guarantee is a proposal, not a universal rule imposed by the engineering brief.
+The lead is building installable native archives, offline Nix runtime transport,
+extracted-package smoke tests, and a tag-triggered checked prerelease. Exact loader
+roots must remain compatible with the narrowed sandbox. Coordinator is integrating
+protected-baseline CI and observing hosted complete-driver checks. Release and
+latest-platform evidence must pass before the engineering milestone is complete.
 
-## Product-owner input needed
+## Product-owner input and final acceptance
 
-Identify the first pilot and provide the existing schema, representative actual
-table-creation/nullable-column migrations, and the properties that must be
-preserved. A path to a local project or sanitized SQL is sufficient for the
-team to inspect; the team can help formalize the requirements. The owner can act
-as the pilot and later perform the acceptance session.
+A real pilot needs its existing schema, actual creation/nullable-column migrations,
+and the logical rows/fields/properties to preserve. A local project path or
+sanitized SQL is enough to begin; the team can help formalize requirements.
+Measure actual human authoring/review/repair effort separately from agent effort,
+then obtain owner acceptance and update the roadmap before marking Step 1 DONE.
 
-If no actual pilot material is available, changing the completion criterion to a
-demonstration-only release requires an explicit owner decision and corresponding
-roadmap update. Do not silently make that substitution.
-
-The initial pause incorrectly treated final pilot evidence as a prerequisite to
-all engineering. The source documents do not require that dependency. Engineering
-continues with clearly labeled examples; real pilot evidence and owner review
-remain required before Step 1 is complete. No product requirement was waived.
-
-## Current work
-
-The Ultra technical lead is defining the formal core and shared interfaces.
-The Medium conformance engineer is evaluating upstream grammar reuse and native
-evidence. Repository/environment setup can proceed independently of pilot input.
-Material product tradeoffs and genuine environment/specification blockers still
-require a product-owner sync; routine implementation choices do not.
-
-## Integrated engineering evidence
-
-- The owner explicitly authorized creating and publishing the public GitHub
-  repository. `origin` is `git@github.com:vihren-dev/sqlite-verifier.git`; the
-  published planning baseline was verified on its `main` branch.
-- The lead accepted foundation `2eb0b74a` after independent coordinator review
-  and a reproduced `nix develop --command just check` on aarch64-darwin. It pins
-  Lean 4.33.0 and upstream SQLite 3.51.0, includes the MIT license, and provides
-  source packaging. It is not yet an installable migration verifier.
-- Proof-process containment uses macOS Seatbelt or Linux bubblewrap, disjoint
-  input/output trees, a fresh environment, timeouts, and bounded captured output.
-  The macOS regression demonstrates approved-input write denial, unrelated-data
-  read denial, network denial, forbidden subprocess creation, output limits, and
-  timeout handling. Linux isolation and descendant cleanup await hosted CI.
-- Independent containment review found overlapping read/write trees and
-  unbounded output as actual risks; both were corrected and regression-tested.
-  Parent only admits trusted Lean search-path environment settings. Containment
-  is one part of the trust boundary, not evidence of proof acceptance.
-- Limits currently bound each file to 16 MiB and each returned output stream to
-  1 MiB. They do not claim a total-disk quota or VM-level resource isolation.
-
-## Remaining work
-
-The lead authorized integration of parser `2f5a83f5`, containment `84596cfc`, and
-CI `3fac0a6a` after independent review. Shared checks now compile the pinned
-upstream grammar/tokenizer and test syntax families, malformed input, limits,
-and UTF-8 source spans. CI runs shared checks on aarch64-darwin and x86_64-linux;
-hosted results are pending. Development source archives exclude generated builds.
-The integrated `nix develop --command just check` passed on aarch64-darwin:
-parser build/20 grammar scripts and boundary cases, Lean build, pinned native
-smoke, and real macOS isolation regression (0.618 seconds).
-
-The production CST translator now admits the documented canonical-type subset,
-checks all starting-schema dependencies, preserves UTF-8 spans, and computes the
-same ordered schema/error prefix. Independent conformance review found no
-blocker after 12 admission attacks, 10 native quoted-identifier comparisons, and
-exact Lean string-escaping checks. Three regression methods exercise supported
-multi-statement input, 29 unsupported forms/dependencies, and parser failure
-classes. This unit generates sealed SQL source but does not itself accept proofs.
-The combined local suite passed (four unittest cases, 0.807 seconds).
-
-First hosted integration run: macOS passed. Linux correctly denied a write to a
-protected input with `EROFS`; the regression expected only `PermissionError`.
-The test now accepts the actual read-only-filesystem denial explicitly while
-still failing if a write succeeds. Linux will be rerun; no platform pass is
-inferred from this diagnosis.
-
-Integrated formal `1f0c28bf2e2e` and upstream-fixture `c62b6d1d`, both independently
-reviewed and lead-accepted. The former includes an inductive execution relation,
-executable correspondence, all-outcome verification contract, named projection
-helpers, and a full arbitrary-data preservation example. The latter reproduces
-three unchanged upstream assertions and inherited state on pinned SQLite; it
-explicitly remains native evidence rather than a claimed formal-model match.
-The merged local shared suite passed: ten Lean jobs, original native assertions,
-grammar tests, semantic admission, and macOS isolation (four unittest cases in
-0.790 seconds). Kernel-gate integration and user-facing driver checks follow.
-
-The lead independently reviewed and reproduced kernel gate `f664abda` before
-accepting integration. It reconstructs the exact VC, replays declaration bodies
-through Lean's kernel, rejects protected constant substitutions and unauthorized
-axioms, and ignores candidate initializer execution. Shared checks now build the
-gate and run its valid-proof and eight attack regressions under bounded timeouts.
-Integration exposed an elan-shim timeout when the fixture compiler ran outside
-the repository's pinned-toolchain directory. The suite now uses the resolved
-absolute pinned compiler, matching the production compiler design. Direct pinned
-compilation succeeded; no dependency installation or global setting was needed.
-With that test fix, the gate suite passed: honest VC accepted, initializer
-ignored, eight trust attacks rejected. Other shared checks had already passed
-against this unchanged integrated library; the gate build passed all 13 jobs.
-
-Second hosted run: macOS passed; Linux reached network isolation and returned
-ECONNREFUSED inside its separate network namespace. The regression previously
-used an unused host port. It now creates a known-listening host endpoint, proves
-that endpoint is reachable outside the sandbox, and requires the contained
-connection to fail. This makes Linux connection refusal meaningful evidence of
-host-network separation. Local macOS regression passes (0.678 seconds); hosted
-Linux evidence remains pending. Production sandbox policy is unchanged.
-
-Lead-reviewed gate refutation support passed its complete regression suite:
-closed positive and negative proofs accepted with distinct codes; unfinished
-negative proofs and prior attacks rejected. An unsafe positive declaration
-cannot disappear during replay and fall through to the negative target. The
-gate fixture negates an inconsistent admitted-state contract; the product
-example will refute an actual standing resulting-schema requirement instead.
-
-Integrated independently reviewed concrete native/model conformance `6eaf2cb2`.
-All five authored cases pass through production parsing/translation and compare
-separate expected data against native SQLite and kernel-checked Lean equalities.
-Cases cover rowid/multiplicity/old-cell preservation, appended NULLs, ordered
-committed failure prefixes, and max-column error precedence. A false empty-target
-assertion is rejected. Coordinator reproduced the suite; lead approved it.
-Original upstream fixture results remain explicitly model-unchecked.
-
-Integrated lead-authored, independently reviewed formal/example units `2b134df2`
-and `874f0d36`. Two successful candidates reuse identical logical requirements
-and current interpretation in different statement orders. A checked negative
-example refutes the unchanged required-note-column condition. A separate explicit
-failure policy proves the third statement fails, skips the fourth, and preserves
-actual old-row observations in the committed prefix. These remain engineering
-examples, not pilot evidence or human-approved application requirements.
-The integrated build passes all 15 jobs. Hosted run `35990227855` for `b67516ab`
-passed on both x86_64-linux and aarch64-darwin, including the kernel gate and
-actual Linux isolation/descendant-cleanup regression. Later driver/model-example
-changes still need their own hosted checks.
-
-Integrated independently reviewed compiler `93313668`: official Lean import
-parsing determines reachable source closures, approved and candidate compilation
-remain separate, each compiler process has its own writable output, and only
-validated ordinary artifacts are sealed. Review exposed case/physical-file
-aliases and nested artifact symlinks; both are fixed and regression-tested.
-Blanket Nix-store read access was removed. Transitive approved-source hashes
-are available to the caller's protected baseline. macOS compiler/gate tests pass;
-Linux execution of this new layer awaits CI.
-Coordinator reproduced the merged standalone compiler suite successfully under
-the pinned Nix shell; the lead authorized integration after reviewing fixes.
-
-The seven-input CLI is implemented and independently reviewed. All 16 complete
-CLI test invocations passed, covering reused approved requirements, checked
-schema refutation, permitted prefix failure, malformed/empty/unsupported SQL,
-changed SQL/interpretation, unfinished proof, unproved premise, custom axiom,
-forged generated alias, and changed transitive approved dependency. Fast profile
-diagnostics also pass. Inspection exports contain generated SQL/target source
-and exact hashes; optional baseline comparison never silently changes approval.
-The lead reviewed the execution-profile/trust documentation and authorized this
-integration. Runtime alias mounts retain resolved-path overlap checks and grant
-only the already authorized read-only roots; macOS alias regression passes.
-
-Installable packaging, protected baseline CI activation, latest hosted driver
-checks, release artifacts, actual pilot input/effort, and owner completion
-review remain. The CLI examples alone do not complete Step 1.
-
-Formal-core integration, CLI semantic admission, proof checking, conformance
-corpus, protected CI baseline, installable releases, approved pilot requirements,
-pilot evidence, and completion review remain.
+The initial pause incorrectly treated pilot evidence as a prerequisite to all
+engineering. Work resumed; no requirement was waived. Synthetic examples enable
+engineering but cannot replace the actual pilot. If no pilot is available, only
+an explicit owner decision and roadmap change can replace that completion criterion.
+Routine implementation choices continue autonomously; material product decisions
+and genuine environment/specification blockers require an owner sync.

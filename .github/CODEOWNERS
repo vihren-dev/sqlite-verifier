@@ -1,0 +1,17 @@
+# These ownership requests need a branch ruleset requiring code-owner approval.
+/examples/**/approved/ @tzanko-matev
+/examples/approved/ @tzanko-matev
+/SqliteVerifier/ @tzanko-matev
+/SqliteVerifier.lean @tzanko-matev
+/ProofChecker.lean @tzanko-matev
+/migration_check/ @tzanko-matev
+/parser/ @tzanko-matev
+/tests/baseline_ci.py @tzanko-matev
+/tests/test_baseline_ci.py @tzanko-matev
+/.github/ @tzanko-matev
+/flake.nix @tzanko-matev
+/flake.lock @tzanko-matev
+/lean-toolchain @tzanko-matev
+/lakefile.toml @tzanko-matev
+/justfile @tzanko-matev
+/docs/approved-baseline.md @tzanko-matev
