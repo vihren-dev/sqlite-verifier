@@ -1,0 +1,76 @@
+{
+  "source": "sqlite-src-3510000/test/alter3.test",
+  "profile": "3.51.0",
+  "coverage": {
+    "selected_call_instances": 3,
+    "selected_distinct_ids": 2,
+    "upstream_textual_call_sites": 59,
+    "upstream_distinct_textual_ids": 55
+  },
+  "connection_setup": [
+    {
+      "upstream": "sqlite3_db_config db LEGACY_FILE_FORMAT 1",
+      "shell": ".dbconfig legacy_file_format on"
+    }
+  ],
+  "prerequisite_setup": [
+    {
+      "upstream_id": "alter3-2.1",
+      "sql": "\n    CREATE TABLE t1(a, b);\n    INSERT INTO t1 VALUES(1,2);"
+    },
+    {
+      "upstream_id": "alter3-2.4",
+      "sql": "\n    ALTER TABLE t1 ADD c NOT NULL DEFAULT 10;"
+    },
+    {
+      "upstream_id": "alter3-2.5",
+      "sql": "\n      CREATE VIEW v1 AS SELECT * FROM t1;"
+    },
+    {
+      "upstream_id": "alter3-2.99",
+      "sql": "\n    DROP TABLE t1;"
+    }
+  ],
+  "cases": [
+    {
+      "upstream_id": "alter3-3.1",
+      "occurrence": 1,
+      "source_start_line": 164,
+      "source_end_line": 171,
+      "sql": "\n    CREATE TABLE t1(a, b);\n    INSERT INTO t1 VALUES(1, 100);\n    INSERT INTO t1 VALUES(2, 300);\n    SELECT * FROM t1;",
+      "expected_tcl": "1 100 2 300",
+      "expected_flat": [
+        "1",
+        "100",
+        "2",
+        "300"
+      ]
+    },
+    {
+      "upstream_id": "alter3-3.1",
+      "occurrence": 2,
+      "source_start_line": 172,
+      "source_end_line": 176,
+      "sql": "\n    PRAGMA schema_version = 10;",
+      "expected_tcl": "",
+      "expected_flat": []
+    },
+    {
+      "upstream_id": "alter3-3.2",
+      "occurrence": 1,
+      "source_start_line": 177,
+      "source_end_line": 182,
+      "sql": "\n    ALTER TABLE t1 ADD c;\n    SELECT * FROM t1;",
+      "expected_tcl": "1 100 {} 2 300 {}",
+      "expected_flat": [
+        "1",
+        "100",
+        "",
+        "2",
+        "300",
+        ""
+      ]
+    }
+  ],
+  "model_status": "NOT_YET_MODEL_CHECKED"
+}
