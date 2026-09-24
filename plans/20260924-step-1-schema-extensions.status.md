@@ -169,6 +169,16 @@ The test now accepts the actual read-only-filesystem denial explicitly while
 still failing if a write succeeds. Linux will be rerun; no platform pass is
 inferred from this diagnosis.
 
+Integrated formal `1f0c28bf2e2e` and upstream-fixture `c62b6d1d`, both independently
+reviewed and lead-accepted. The former includes an inductive execution relation,
+executable correspondence, all-outcome verification contract, named projection
+helpers, and a full arbitrary-data preservation example. The latter reproduces
+three unchanged upstream assertions and inherited state on pinned SQLite; it
+explicitly remains native evidence rather than a claimed formal-model match.
+The merged local shared suite passed: ten Lean jobs, original native assertions,
+grammar tests, semantic admission, and macOS isolation (four unittest cases in
+0.790 seconds). Kernel-gate integration and user-facing driver checks follow.
+
 Formal-core integration, CLI semantic admission, proof checking, conformance
 corpus, protected CI baseline, installable releases, approved pilot requirements,
 pilot evidence, and completion review remain.

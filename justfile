@@ -21,6 +21,7 @@ smoke:
 # Run real process-isolation checks and the independently expected native smoke.
 test: smoke
     timeout 30 python3 tests/parser_test.py
+    timeout 20 python3 tests/conformance_native_test.py
     timeout 30 python3 -m unittest discover -s tests -p 'test_*.py'
 
 check: build test
