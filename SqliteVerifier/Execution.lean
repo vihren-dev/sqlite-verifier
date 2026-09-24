@@ -17,6 +17,7 @@ inductive ExecutionError where
   | tableExists (name : String)
   | missingTable (name : String)
   | columnExists (table column : String)
+  | tooManyColumns (table : String)
   deriving Repr, DecidableEq
 
 /-- Failure carries the zero-based statement position and resulting database. -/
@@ -45,6 +46,8 @@ def step (statement : Statement) (database : Database) (position : Nat := 0) : O
       | some table =>
         if table.columns.any (fun old => old.name == column.name) then
           .failure position (.columnExists name column.name) database
+        else if table.columns.length ≥ maximumColumns then
+          .failure position (.tooManyColumns name) database
         else .success (database.set name (table.appendColumns [column]))
 
 /-- The file is an ordered script, not an implicit transaction. -/

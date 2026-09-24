@@ -28,6 +28,10 @@ def failureInfo : Outcome → Option (Nat × ExecutionError)
   | .success _ => none
   | .failure position reason _ => some (position, reason)
 
+/-- The configured column limit is deterministic behavior, not a resource exclusion. -/
+def maximalTable : Table :=
+  ⟨(List.range maximumColumns).map (fun index => ⟨s!"column{index}", .text⟩), []⟩
+
 -- Physical bounds and identifier comparison are independent admission checks.
 example : validRowid (-9223372036854775808) := by unfold validRowid; decide
 example : validRowid 9223372036854775807 := by unfold validRowid; decide
@@ -54,6 +58,9 @@ example : ¬validRowid 9223372036854775808 := by unfold validRowid; decide
   some (0, .missingTable "absent")
 #guard failureInfo (run [.addColumn "invoices" ⟨"amount", .text⟩] initial) =
   some (0, .columnExists "invoices" "amount")
+#guard supportedColumns (maximalTable.columns ++ [⟨"extra", .text⟩]) = false
+#guard failureInfo (run [.addColumn "full" ⟨"extra", .text⟩]
+  (Database.set (fun _ => none) "full" maximalTable)) = some (0, .tooManyColumns "full")
 
 /-- Fixture-independent execution exists for every script and starting state. -/
 theorem all_scripts_execute (script : List Statement) (database : Database) :

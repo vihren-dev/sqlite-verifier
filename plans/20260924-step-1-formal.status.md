@@ -35,6 +35,13 @@ seven jobs. The universal execution/preservation proofs report only `propext`,
 
 ## Pending integration and review
 
+Independent conformance review reproduced all seven build jobs and found a
+missing deterministic SQLite column limit. The model now admits at most 2000
+columns and models an ADD beyond that limit as a state-preserving error; boundary
+regressions cover the fix. Stored values are explicitly an opaque conservative
+superset; Conforms states model-schema validity, not exact native representability.
+The reviewer found no further mathematical blocker in the preservation unit.
+
 General interpretation/requirements contracts, generated theorem binding, richer
 schema support, native/model correspondence, and independent source/proof review
 remain outstanding. The native engine is not proved to implement this model.

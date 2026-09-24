@@ -90,7 +90,9 @@ theorem step_extends (statement : Statement) (database : Database) (position : N
         simp only
         split
         · exact DatabaseExtends.refl database
-        · exact DatabaseExtends.add database name table [column] h
+        · split
+          · exact DatabaseExtends.refl database
+          · exact DatabaseExtends.add database name table [column] h
 
 /-- A later error retains the already committed prefix and all original data. -/
 theorem runFrom_extends (script : List Statement) (database : Database) (position : Nat) :

@@ -10,7 +10,8 @@ inductive Affinity where
   | integer | real | text | blob | numeric
   deriving Repr, DecidableEq
 
-/-- Tagged stored values preserve bytes and real bits without re-evaluating SQL. -/
+/-- An opaque superset of stored values; preservation never evaluates/coerces them.
+Native conformance supplies an embedding, not a claim that every tag is native data. -/
 inductive Value where
   | null
   | integer (value : Int)
@@ -58,9 +59,13 @@ def supportedColumn (column : Column) : Bool :=
   column.name != "" && normalizeIdentifier column.name == column.name &&
     !(["rowid", "_rowid_", "oid"].contains column.name)
 
-/-- Empty, duplicate, and hidden-rowid column definitions are not admitted. -/
+/-- The profile fixes SQLite's ordinary-table column limit at its default value. -/
+def maximumColumns : Nat := 2000
+
+/-- Empty, duplicate, over-limit, and hidden-rowid columns are not admitted. -/
 def supportedColumns (columns : List Column) : Bool :=
-  !columns.isEmpty && columns.all supportedColumn &&
+  !columns.isEmpty && columns.length ≤ maximumColumns && columns.all supportedColumn &&
+    -- ponytail: quadratic duplicate check is bounded at 2000; use a set if profiling warrants it.
     (columns.map Column.name).eraseDups.length == columns.length
 
 /-- Internal SQLite objects and empty names are outside this backend subset. -/
@@ -86,7 +91,7 @@ def Schema.Valid (schema : Schema) : Prop :=
 def Schema.lookup (schema : Schema) (name : String) : Option (List Column) :=
   (schema.find? fun entry => entry.name == name).map TableSchema.columns
 
-/-- Starting data are arbitrary valid rows with exactly the supplied schema. -/
+/-- Model-schema conformance; native representability is a separate embedding claim. -/
 def Conforms (schema : Schema) (database : Database) : Prop :=
   schema.Valid ∧ ∀ name,
     (database name).map Table.columns = schema.lookup name ∧
