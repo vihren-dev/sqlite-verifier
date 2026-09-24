@@ -16,3 +16,5 @@ def contract : SqliteVerifier.LogicalContract LogicalState where
   applicability := SqliteVerifier.requiresSuccess
 
 end Requirements
+
+-- Deliberately changed input for hosted protection probe; never merge.
