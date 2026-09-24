@@ -98,3 +98,29 @@ This commit adds diagnostic evidence only and does not claim to fix libgcc looku
 
 The older run `35994734528` has now completed: macOS passed all checks, packaging
 and installed smoke tests; Linux failed the previously identified SDK scan.
+
+## 2026-09-24: preserve Nix dependency aliases
+
+Diagnostic run `35997069355` retained the actual checker dependency report.
+It names `604gsr59rj7dzd0nrhp143rpvf7gyiaz-gcc-15.3.0-lib/lib/libgcc_s.so.1`,
+but the manifest contained only the resolved split-output package
+`wkiqjb44n5k0fwhmc523dvflspd47q3b-gcc-15.3.0-libgcc`. The collector had resolved
+the library symlink before extracting its package root, dropping the package
+path used during loader lookup. Both cache-probe variants returned exit 127
+with the same missing-library message, refuting the host-cache hypothesis.
+
+Collection now retains the referenced package root and resolved target package
+root. This preserves the library alias and its target in the existing exact-root
+sandbox/package policy. No loader environment variables, host cache, broad
+store permission or additional production runtime policy are added. CI removes
+the now-unneeded cache probe and keeps labeled loader-report artifacts.
+
+The split-output regression requires both immediate roots and excludes the
+whole store; all three bounded Nix loader tests pass (0.085 seconds).
+Actionlint 1.7.12 and ShellCheck 0.11.0 pass after probe removal. Actual hosted
+Linux startup and full installed-package acceptance remain pending the fix.
+
+Independent conformance review accepted the final exact-root change and reran
+all three tests in pinned Nix (0.080 seconds). Its review confirms the retained
+loader report matches the symlink traversal mechanism and that strict metadata
+validation and sandbox boundaries remain in place.

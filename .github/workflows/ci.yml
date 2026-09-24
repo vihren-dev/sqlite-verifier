@@ -56,29 +56,6 @@ jobs:
             '
       - name: Run shared checks and package native runtime
         run: nix develop --command just package
-      - name: Diagnose Linux loader-cache lookup after a failed check
-        if: failure() && runner.os == 'Linux'
-        timeout-minutes: 1
-        run: |
-          nix develop --command timeout 45 python3 - <<'PYTHON'
-          from pathlib import Path
-          from tempfile import TemporaryDirectory
-          from migration_check.runtime import Runtime
-          from migration_check.sandbox import run_sandboxed
-          runtime = Runtime.locate()
-          cache = Path('/etc/ld.so.cache')
-          for label, extra in [('current policy', []), ('exact loader-cache probe', [cache])]:
-              if any(not path.is_file() for path in extra):
-                  print(label, 'cache unavailable')
-                  continue
-              with TemporaryDirectory(prefix='loader-probe-') as temporary:
-                  result = run_sandboxed([str(runtime.checker)],
-                      read_roots=[*runtime.read_roots(), *extra], write_root=Path(temporary),
-                      environment={'LEAN_SYSROOT': str(runtime.sysroot)}, timeout=10)
-                  print(label, 'exit', result.returncode, result.stdout, result.stderr)
-                  print(label, 'checker reached main:',
-                      result.returncode == 1 and 'usage: migration-proof-checker' in result.stderr)
-          PYTHON
       - name: Retain native loader diagnostics
         if: always()
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4

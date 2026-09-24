@@ -81,7 +81,21 @@ class NativeDependenciesTest(unittest.TestCase):
                 self.assertEqual({Path(call.args[0][1]) for call in run.call_args_list},
                                  {executable, bundled, alias, module})
                 self.assertTrue(all(call.args[0][0] == "ldd" for call in run.call_args_list))
-                self.assertTrue(all(call.args == (loader,) for call in store_path.call_args_list))
+                self.assertEqual({call.args[0] for call in store_path.call_args_list}, {loader, store})
+            referenced = Path("/nix/store/11111111111111111111111111111111-gcc-lib")
+            resolved = Path("/nix/store/22222222222222222222222222222222-libgcc")
+            alias_file = referenced / "lib/libgcc_s.so.1"
+
+            def alias_store_path(path: Path) -> Path:
+                """Model a loader-visible GCC package symlink into its split libgcc output."""
+                return resolved if path == alias_file else path
+
+            with patch.object(collector.platform, "system", return_value="Linux"), \
+                    patch.object(collector, "run", return_value=f"libgcc_s.so.1 => {alias_file} (0x1234)"), \
+                    patch.object(collector, "store_path", side_effect=alias_store_path):
+                roots, _ = collector.native_dependencies([executable], lean)
+                self.assertEqual(roots, {referenced, resolved})
+                self.assertNotIn(Path("/nix/store"), roots)
             package_spec = importlib.util.spec_from_file_location(
                 "build_runtime_under_test", ROOT / "packaging/build_runtime.py")
             assert package_spec is not None and package_spec.loader is not None

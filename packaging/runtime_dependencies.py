@@ -48,7 +48,10 @@ def native_dependencies(executables: list[Path], lean: Path) -> tuple[set[Path],
             if reference == str(binary) + ":":
                 continue
             if reference.startswith("/nix/store/"):
-                roots.add(store_path(Path(reference)))
+                dependency = Path(reference)
+                # ELF lookup may name a package whose library symlink targets another package.
+                roots.add(store_path(Path(*dependency.parts[:4])))
+                roots.add(store_path(dependency))
             elif Path(reference).resolve() in bundled:
                 continue
             elif reference.startswith(("@rpath/", "@loader_path/", "@executable_path/",
