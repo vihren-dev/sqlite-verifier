@@ -25,6 +25,7 @@ test: smoke
     timeout 180 python3 tests/conformance_model_test.py
     timeout 180 python3 tests/kernel_gate_test.py
     timeout 180 python3 -m tests.compilation_test
+    timeout 600 python3 tests/cli_test.py
     timeout 30 python3 -m unittest discover -s tests -p 'test_*.py'
 
 check: build test

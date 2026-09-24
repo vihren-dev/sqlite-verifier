@@ -31,7 +31,8 @@ def sandbox_command(
     output = write_root.resolve(strict=True)
     if not executable.is_file() or not output.is_dir():
         raise ValueError("The executable must be a file and output must be a directory")
-    roots = sorted({path.resolve(strict=True) for path in read_roots})
+    bindings = sorted({(path.resolve(strict=True), Path(os.path.abspath(path))) for path in read_roots})
+    roots = sorted({resolved for resolved, _ in bindings})
     if output == Path("/") or any(root == Path("/") for root in roots):
         raise ValueError("The filesystem root cannot be exposed to a proof process")
     if executable.is_relative_to(output) or any(
@@ -65,6 +66,9 @@ def sandbox_command(
         wrapped = [launcher, "--unshare-all", "--die-with-parent", "--new-session"]
         for root in roots:
             wrapped.extend(["--ro-bind", str(root), str(root)])
+        for resolved, requested in bindings:
+            if requested != resolved:
+                wrapped.extend(["--ro-bind", str(resolved), str(requested)])
         wrapped.extend([
             "--proc", "/proc", "--dev", "/dev", "--bind", str(output), str(output),
             "--chdir", str(output), "--", *command,

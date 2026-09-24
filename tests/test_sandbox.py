@@ -30,6 +30,8 @@ class SandboxTest(unittest.TestCase):
             outputs.mkdir()
             protected = inputs / "approved.txt"
             protected.write_text("approved", encoding="utf-8")
+            alias = root / "input-alias"
+            alias.symlink_to(inputs, target_is_directory=True)
             private = root / "private.txt"
             private.write_text("secret", encoding="utf-8")
             program = inputs / "check.py"
@@ -37,6 +39,7 @@ class SandboxTest(unittest.TestCase):
                 "import os, pathlib, socket\n"
                 f"protected = pathlib.Path({str(protected)!r})\n"
                 "assert protected.read_text() == 'approved'\n"
+                f"assert pathlib.Path({str(alias / 'approved.txt')!r}).read_text() == 'approved'\n"
                 "try:\n protected.write_text('changed')\n"
                 "except OSError as error:\n assert error.errno in (1, 13, 30), repr(error)\n"
                 "else:\n raise AssertionError('wrote approved input')\n"
@@ -54,7 +57,7 @@ class SandboxTest(unittest.TestCase):
             )
             executable = Path(sys.executable).resolve()
             runtime = Path(sys.base_prefix).resolve()
-            roots = [inputs, runtime, executable.parent]
+            roots = [inputs, alias, runtime, executable.parent]
             if Path("/nix/store").exists():
                 roots.append(Path("/nix/store"))
             for system_root in ("/usr/lib", "/lib", "/lib64"):

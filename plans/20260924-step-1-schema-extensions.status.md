@@ -238,6 +238,21 @@ Linux execution of this new layer awaits CI.
 Coordinator reproduced the merged standalone compiler suite successfully under
 the pinned Nix shell; the lead authorized integration after reviewing fixes.
 
+The seven-input CLI is implemented and independently reviewed. All 16 complete
+CLI test invocations passed, covering reused approved requirements, checked
+schema refutation, permitted prefix failure, malformed/empty/unsupported SQL,
+changed SQL/interpretation, unfinished proof, unproved premise, custom axiom,
+forged generated alias, and changed transitive approved dependency. Fast profile
+diagnostics also pass. Inspection exports contain generated SQL/target source
+and exact hashes; optional baseline comparison never silently changes approval.
+The lead reviewed the execution-profile/trust documentation and authorized this
+integration. Runtime alias mounts retain resolved-path overlap checks and grant
+only the already authorized read-only roots; macOS alias regression passes.
+
+Installable packaging, protected baseline CI activation, latest hosted driver
+checks, release artifacts, actual pilot input/effort, and owner completion
+review remain. The CLI examples alone do not complete Step 1.
+
 Formal-core integration, CLI semantic admission, proof checking, conformance
 corpus, protected CI baseline, installable releases, approved pilot requirements,
 pilot evidence, and completion review remain.
