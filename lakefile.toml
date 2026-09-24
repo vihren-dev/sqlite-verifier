@@ -1,0 +1,6 @@
+name = "sqliteVerifier"
+version = "0.1.0"
+defaultTargets = ["SqliteVerifier"]
+
+[[lean_lib]]
+name = "SqliteVerifier"

@@ -11,7 +11,10 @@ Task: [Verified SQLite schema extensions](20260924-step-1-schema-extensions.task
 - [Team agreement](../sqlite-migration-verifier-team-guide.md)
 - Governing workspace rules: `/Users/tzankomatev/work/AGENTS.md`.
 
-There are no implementation source files yet.
+Current integrated sources: `flake.nix`, `justfile`, the Lean library entry point,
+`migration_check/sandbox.py`, the upstream-derived parser, CI workflow, and their
+checks under `tests/`. Formal-core and proof-gate work proceeds in isolated
+workspaces until reviewed integration.
 
 ## Roles for this work
 
@@ -42,11 +45,10 @@ may live under `~/work`; the technical lead owns integration into `main`.
   3.51.0 with an Apple build identifier. Neither observation selects the project's
   pinned toolchain or engine build.
 - GitHub CLI authentication is available. `vihren-dev/sqlite-verifier` did not
-  resolve during preflight; creation and remote configuration remain pending.
+  exist during preflight; it was subsequently created with explicit owner approval.
 - Recorded the Step 1 observable acceptance criteria, required verification
   suite, and implementation constraints before coding.
-- No code, proof, conformance, CI, packaging, or release checks have run. No
-  supported subset or native/model correspondence has been demonstrated.
+- At the initial planning checkpoint, no implementation checks had run.
 
 ## Independent review findings
 
@@ -120,8 +122,46 @@ evidence. Repository/environment setup can proceed independently of pilot input.
 Material product tradeoffs and genuine environment/specification blockers still
 require a product-owner sync; routine implementation choices do not.
 
+## Integrated engineering evidence
+
+- The owner explicitly authorized creating and publishing the public GitHub
+  repository. `origin` is `git@github.com:vihren-dev/sqlite-verifier.git`; the
+  published planning baseline was verified on its `main` branch.
+- The lead accepted foundation `2eb0b74a` after independent coordinator review
+  and a reproduced `nix develop --command just check` on aarch64-darwin. It pins
+  Lean 4.33.0 and upstream SQLite 3.51.0, includes the MIT license, and provides
+  source packaging. It is not yet an installable migration verifier.
+- Proof-process containment uses macOS Seatbelt or Linux bubblewrap, disjoint
+  input/output trees, a fresh environment, timeouts, and bounded captured output.
+  The macOS regression demonstrates approved-input write denial, unrelated-data
+  read denial, network denial, forbidden subprocess creation, output limits, and
+  timeout handling. Linux isolation and descendant cleanup await hosted CI.
+- Independent containment review found overlapping read/write trees and
+  unbounded output as actual risks; both were corrected and regression-tested.
+  Parent only admits trusted Lean search-path environment settings. Containment
+  is one part of the trust boundary, not evidence of proof acceptance.
+- Limits currently bound each file to 16 MiB and each returned output stream to
+  1 MiB. They do not claim a total-disk quota or VM-level resource isolation.
+
 ## Remaining work
 
-All implementation, approved pilot requirements, pinned environment, upstream
-parser evaluation, proof checking, conformance corpus, protected CI baseline,
-GitHub setup, release artifacts, pilot evidence, and completion review remain.
+The lead authorized integration of parser `2f5a83f5`, containment `84596cfc`, and
+CI `3fac0a6a` after independent review. Shared checks now compile the pinned
+upstream grammar/tokenizer and test syntax families, malformed input, limits,
+and UTF-8 source spans. CI runs shared checks on aarch64-darwin and x86_64-linux;
+hosted results are pending. Development source archives exclude generated builds.
+The integrated `nix develop --command just check` passed on aarch64-darwin:
+parser build/20 grammar scripts and boundary cases, Lean build, pinned native
+smoke, and real macOS isolation regression (0.618 seconds).
+
+The production CST translator now admits the documented canonical-type subset,
+checks all starting-schema dependencies, preserves UTF-8 spans, and computes the
+same ordered schema/error prefix. Independent conformance review found no
+blocker after 12 admission attacks, 10 native quoted-identifier comparisons, and
+exact Lean string-escaping checks. Three regression methods exercise supported
+multi-statement input, 29 unsupported forms/dependencies, and parser failure
+classes. This unit generates sealed SQL source but does not itself accept proofs.
+
+Formal-core integration, CLI semantic admission, proof checking, conformance
+corpus, protected CI baseline, installable releases, approved pilot requirements,
+pilot evidence, and completion review remain.
