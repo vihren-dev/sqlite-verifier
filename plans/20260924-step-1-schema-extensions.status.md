@@ -227,6 +227,17 @@ passed on both x86_64-linux and aarch64-darwin, including the kernel gate and
 actual Linux isolation/descendant-cleanup regression. Later driver/model-example
 changes still need their own hosted checks.
 
+Integrated independently reviewed compiler `93313668`: official Lean import
+parsing determines reachable source closures, approved and candidate compilation
+remain separate, each compiler process has its own writable output, and only
+validated ordinary artifacts are sealed. Review exposed case/physical-file
+aliases and nested artifact symlinks; both are fixed and regression-tested.
+Blanket Nix-store read access was removed. Transitive approved-source hashes
+are available to the caller's protected baseline. macOS compiler/gate tests pass;
+Linux execution of this new layer awaits CI.
+Coordinator reproduced the merged standalone compiler suite successfully under
+the pinned Nix shell; the lead authorized integration after reviewing fixes.
+
 Formal-core integration, CLI semantic admission, proof checking, conformance
 corpus, protected CI baseline, installable releases, approved pilot requirements,
 pilot evidence, and completion review remain.
