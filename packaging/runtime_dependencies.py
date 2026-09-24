@@ -41,7 +41,7 @@ def native_dependencies(executables: list[Path], lean: Path) -> tuple[set[Path],
     for binary in executables + libraries:
         command = ["otool", "-L", str(binary)] if platform.system() == "Darwin" else ["ldd", str(binary)]
         report = run(command)
-        reports.append(report)
+        reports.append(f"Binary: {binary}\n{report}")
         if "not found" in report:
             raise RuntimeError(f"Unresolved native dependency: {report}")
         for reference in re.findall(r"(?:/|@(?:rpath|loader_path|executable_path)/)[^\s()]+", report):

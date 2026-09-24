@@ -56,6 +56,16 @@ jobs:
             '
       - name: Run shared checks and package native runtime
         run: nix develop --command just package
+      - name: Retain native loader diagnostics
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: native-loader-${{ matrix.system }}
+          path: |
+            build/native-dependencies.txt
+            build/nix-runtime-roots
+          if-no-files-found: warn
+          retention-days: 14
       - name: Retain bounded coverage evidence
         if: always()
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4

@@ -77,6 +77,7 @@ class NativeDependenciesTest(unittest.TestCase):
                 self.assertEqual(roots, {store})
                 self.assertNotIn(Path("/nix/store"), roots)
                 self.assertIn(str(loader), reports)
+                self.assertIn(f"Binary: {executable}\n", reports)
                 self.assertEqual({Path(call.args[0][1]) for call in run.call_args_list},
                                  {executable, bundled, alias, module})
                 self.assertTrue(all(call.args[0][0] == "ldd" for call in run.call_args_list))

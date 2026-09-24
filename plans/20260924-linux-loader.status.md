@@ -81,3 +81,20 @@ files; the only previously selected removal is compiler-SDK
 `lib/libc/libc++.dylib`. The coordinator independently accepted the source diff.
 A rebuilt macOS archive/installed smoke is assigned to the technical lead, and
 Linux hosted confirmation remains required.
+
+## 2026-09-24: retain exact loader evidence
+
+Run `35995826585` at `67af9026` successfully records two exact Linux store roots
+and passes the actual sandboxed compilation suite. Its first CLI proof check
+then fails loading `libgcc_s.so.1` inside the checker sandbox. The exact host/Nix
+resolution in ldd's report must be examined before choosing a lookup-policy fix.
+No additional runtime read permission or inherited loader variable is granted.
+
+CI now retains `build/native-dependencies.txt` and `build/nix-runtime-roots`
+on success or failure, tolerating files absent after an earlier build failure.
+Each native report labels the inspected binary. Actionlint 1.7.12 with
+ShellCheck 0.11.0 passed; the three bounded loader tests passed in 0.097 seconds.
+This commit adds diagnostic evidence only and does not claim to fix libgcc lookup.
+
+The older run `35994734528` has now completed: macOS passed all checks, packaging
+and installed smoke tests; Linux failed the previously identified SDK scan.
