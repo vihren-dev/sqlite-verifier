@@ -51,3 +51,33 @@ including the actual collector (zero additional store roots). Linker warnings
 about Lean's prebuilt static objects targeting newer macOS were emitted; the
 build completed successfully. Local code correction is DONE; hosted evidence
 remains pending the new revision.
+
+## 2026-09-24: interpreter runtime scope
+
+Run `35994734528` at `e9b457d0` passed the linker-script boundary but Linux then
+failed inspecting bundled `lib/glibc/librt.so`: its compiler-sysroot GLIBC_PRIVATE
+references conflict with Nix's runtime glibc. Recursively inspecting every ELF
+file under `lib` incorrectly included compiler SDKs.
+
+The pinned Lean source `Lake/Config/InstallPath.lean` defines sharedLibPath as
+Lean's `lib/lean` directory and direct `lib` system-library directory. A shared
+`lean_runtime_files` selection now preserves every runtime artifact recursively
+under `lib/lean` plus direct `lib` runtime files. Both collector and package copy
+use it; compiler SDK trees are excluded without blacklisting failing filenames.
+The actual executable dependency reports remain strict. A bundled dependency is
+accepted only if its resolved file is among those copied, so references into an
+excluded SDK reject rather than yielding an incomplete package.
+
+Focused Nix tests passed (three tests, 0.093 seconds, 15-second outer timeout).
+Regressions cover nested shared modules, private objects and IR, exact package
+copy agreement, excluded glibc/clang/libc SDK fixtures, and rejection of a reported
+runtime dependency into an excluded SDK. The actual macOS collector also passes
+under its 30-second timeout, with zero extra store roots. Full hosted Linux and
+installed-package results remain pending a run containing this correction.
+
+Independent conformance review accepted the final selection and reproduced all
+three tests in 0.090 seconds. Its real macOS inventory retains 12,424 runtime
+files; the only previously selected removal is compiler-SDK
+`lib/libc/libc++.dylib`. The coordinator independently accepted the source diff.
+A rebuilt macOS archive/installed smoke is assigned to the technical lead, and
+Linux hosted confirmation remains required.

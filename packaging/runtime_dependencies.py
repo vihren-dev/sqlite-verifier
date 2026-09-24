@@ -30,8 +30,10 @@ def is_elf(path: Path) -> bool:
 
 def native_dependencies(executables: list[Path], lean: Path) -> tuple[set[Path], str]:
     """Retain Nix loader references; permit only bundled-relative or platform system libraries."""
-    libraries = [path for path in (lean / "lib").rglob("*")
-                 if path.is_file() and (path.name.endswith((".dylib", ".so")) or ".so." in path.name)]
+    files = lean_runtime_files(lean)
+    bundled = {path.resolve(strict=True) for path in files}
+    libraries = [path for path in files
+                 if path.name.endswith((".dylib", ".so")) or ".so." in path.name]
     if platform.system() == "Linux":
         libraries = [path for path in libraries if is_elf(path)]
     roots: set[Path] = set()
@@ -47,7 +49,7 @@ def native_dependencies(executables: list[Path], lean: Path) -> tuple[set[Path],
                 continue
             if reference.startswith("/nix/store/"):
                 roots.add(store_path(Path(reference)))
-            elif Path(reference).resolve().is_relative_to(lean / "lib") and runtime_file(Path(reference)):
+            elif Path(reference).resolve() in bundled:
                 continue
             elif reference.startswith(("@rpath/", "@loader_path/", "@executable_path/",
                                        "/usr/lib/", "/System/", "/lib/", "/lib64/")):
@@ -63,3 +65,10 @@ def runtime_file(path: Path) -> bool:
     """Keep kernel-private objects, interpreter IR and shared libraries; omit build/editor data."""
     return path.name.endswith((".olean", ".olean.private", ".olean.server", ".ir", ".ir.sig",
                                ".dylib", ".so")) or ".so." in path.name
+
+
+def lean_runtime_files(lean: Path) -> list[Path]:
+    """Keep Lean's documented lib/lean import tree and direct lib system libraries, not compiler SDKs."""
+    library = lean / "lib"
+    paths = [*library.iterdir(), *(library / "lean").rglob("*")]
+    return [path for path in paths if path.is_file() and runtime_file(path)]

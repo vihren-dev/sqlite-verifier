@@ -51,6 +51,19 @@ class NativeDependenciesTest(unittest.TestCase):
             linker_script.write_text("INPUT(libc++.so.1 -lunwind)\n", encoding="utf-8")
             alias = lean / "lib/libleanshared.so"
             alias.symlink_to(bundled.name)
+            module = lean / "lib/lean/Lean/Nested.so"
+            module.parent.mkdir(parents=True)
+            module.write_bytes(b"\x7fELFmodule")
+            for compiler_directory in ("glibc", "clang", "libc"):
+                sdk = lean / "lib" / compiler_directory / "sdk.so"
+                sdk.parent.mkdir()
+                sdk.write_bytes(b"\x7fELFcompiler sysroot, not an interpreter library")
+            private_object = module.with_suffix(".olean.private")
+            private_object.write_bytes(b"complete import surface")
+            ir = module.with_suffix(".ir")
+            ir.write_bytes(b"interpreter IR")
+            self.assertEqual(set(collector.lean_runtime_files(lean)),
+                             {bundled, alias, linker_script, module, private_object, ir})
             loader = Path("/nix/store/00000000000000000000000000000000-glibc/lib/ld-linux-x86-64.so.2")
             store = loader.parent.parent
             report = ("linux-vdso.so.1 (0x0001)\n"
@@ -65,11 +78,22 @@ class NativeDependenciesTest(unittest.TestCase):
                 self.assertNotIn(Path("/nix/store"), roots)
                 self.assertIn(str(loader), reports)
                 self.assertEqual({Path(call.args[0][1]) for call in run.call_args_list},
-                                 {executable, bundled, alias})
+                                 {executable, bundled, alias, module})
                 self.assertTrue(all(call.args[0][0] == "ldd" for call in run.call_args_list))
                 self.assertTrue(all(call.args == (loader,) for call in store_path.call_args_list))
+            package_spec = importlib.util.spec_from_file_location(
+                "build_runtime_under_test", ROOT / "packaging/build_runtime.py")
+            assert package_spec is not None and package_spec.loader is not None
+            package = importlib.util.module_from_spec(package_spec)
+            with patch.dict(sys.modules, {"runtime_dependencies": collector}):
+                package_spec.loader.exec_module(package)
+            destination = lean / "copied"
+            package.copy_runtime(lean / "lib", destination, collector.lean_runtime_files(lean))
+            self.assertEqual({path.relative_to(destination) for path in destination.rglob("*") if path.is_file()},
+                             {path.relative_to(lean / "lib") for path in collector.lean_runtime_files(lean)})
             for failure, diagnostic in (("libLean.so => not found", "Unresolved"),
-                                        ("/home/runner/private/lib.so (0x1234)", "Nonportable")):
+                                        ("/home/runner/private/lib.so (0x1234)", "Nonportable"),
+                                        (f"{lean}/lib/glibc/sdk.so (0x1234)", "Nonportable")):
                 with patch.object(collector.platform, "system", return_value="Linux"), \
                         patch.object(collector, "run", return_value=failure):
                     with self.assertRaisesRegex(RuntimeError, diagnostic):

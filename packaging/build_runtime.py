@@ -1,5 +1,6 @@
 """Build a native offline runtime archive after the shared verification checks pass."""
 
+from collections.abc import Iterable
 import hashlib
 import os
 from pathlib import Path
@@ -9,14 +10,14 @@ import sys
 import tarfile
 from tempfile import TemporaryDirectory
 
-from runtime_dependencies import native_dependencies, run, runtime_file, store_path
+from runtime_dependencies import lean_runtime_files, native_dependencies, run, runtime_file, store_path
 
 ROOT = Path(__file__).resolve().parents[1]
 
 
-def copy_runtime(source: Path, destination: Path) -> None:
+def copy_runtime(source: Path, destination: Path, files: Iterable[Path] | None = None) -> None:
     """Preserve the complete supported Lean import surface and executable permissions."""
-    for path in source.rglob("*"):
+    for path in (source.rglob("*") if files is None else files):
         if path.is_file() and runtime_file(path):
             target = destination / path.relative_to(source)
             target.parent.mkdir(parents=True, exist_ok=True)
@@ -53,7 +54,7 @@ def build() -> Path:
         for name in ("LICENSE", "lean-toolchain"):
             shutil.copy2(ROOT / name, payload / name)
         copy_runtime(ROOT / ".lake/build/lib/lean", payload / ".lake/build/lib/lean")
-        copy_runtime(lean / "lib", payload / "lean/lib")
+        copy_runtime(lean / "lib", payload / "lean/lib", lean_runtime_files(lean))
         for notice in ("LICENSE", "LICENSES"):
             shutil.copy2(lean / notice, payload / "lean" / notice)
         for source, relative in [(lean / "bin/lean", "lean/bin/lean"),
