@@ -1,6 +1,6 @@
 # Step 1 status
 
-Created: 2026-09-24. Status: AWAITING PILOT INPUT — not DONE.
+Created: 2026-09-24. Status: IN PROGRESS — not DONE.
 
 Task: [Verified SQLite schema extensions](20260924-step-1-schema-extensions.task.md).
 
@@ -21,8 +21,8 @@ There are no implementation source files yet.
 - SQLite/conformance reviewer: `conformance_review`, GPT-6 Astra, Medium reasoning.
   Independently challenges semantic claims and native evidence.
 - Coordinator: root agent, responsible for repository setup, durable records,
-  and product-owner communication. Assign a product/integration engineer at
-  Medium or lower for bounded implementation work after this initial sync.
+  and product-owner communication. Product/integration engineering uses Medium
+  or lower reasoning for bounded implementation assignments.
 
 Authors do not accept their own substantive changes. Implementation assignments
 will name a qualified challenger and a base revision. Additional `jj` workspaces
@@ -107,8 +107,18 @@ If no actual pilot material is available, changing the completion criterion to a
 demonstration-only release requires an explicit owner decision and corresponding
 roadmap update. Do not silently make that substitution.
 
-The user's instruction is to stop whenever owner feedback is needed, so this
-initial product sync precedes implementation. Work has not been marked complete.
+The initial pause incorrectly treated final pilot evidence as a prerequisite to
+all engineering. The source documents do not require that dependency. Engineering
+continues with clearly labeled examples; real pilot evidence and owner review
+remain required before Step 1 is complete. No product requirement was waived.
+
+## Current work
+
+The Ultra technical lead is defining the formal core and shared interfaces.
+The Medium conformance engineer is evaluating upstream grammar reuse and native
+evidence. Repository/environment setup can proceed independently of pilot input.
+Material product tradeoffs and genuine environment/specification blockers still
+require a product-owner sync; routine implementation choices do not.
 
 ## Remaining work
 
