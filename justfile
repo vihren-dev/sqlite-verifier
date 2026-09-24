@@ -14,8 +14,9 @@ build:
 smoke:
     timeout 15 python3 tests/toolchain_smoke.py
 
-# Extended formal/conformance suites are added by their owning changes.
+# Run real process-isolation checks and the independently expected native smoke.
 test: smoke
+    timeout 30 python3 -m unittest discover -s tests -p 'test_*.py'
 
 check: build test
 

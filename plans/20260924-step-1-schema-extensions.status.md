@@ -11,7 +11,9 @@ Task: [Verified SQLite schema extensions](20260924-step-1-schema-extensions.task
 - [Team agreement](../sqlite-migration-verifier-team-guide.md)
 - Governing workspace rules: `/Users/tzankomatev/work/AGENTS.md`.
 
-There are no implementation source files yet.
+Current integrated sources: `flake.nix`, `justfile`, the Lean library entry point,
+`migration_check/sandbox.py`, and their checks under `tests/`. Formal-core and
+parser work proceeds in the named isolated workspaces until reviewed integration.
 
 ## Roles for this work
 
@@ -45,8 +47,7 @@ may live under `~/work`; the technical lead owns integration into `main`.
   resolve during preflight; creation and remote configuration remain pending.
 - Recorded the Step 1 observable acceptance criteria, required verification
   suite, and implementation constraints before coding.
-- No code, proof, conformance, CI, packaging, or release checks have run. No
-  supported subset or native/model correspondence has been demonstrated.
+- At the initial planning checkpoint, no implementation checks had run.
 
 ## Independent review findings
 
@@ -119,6 +120,27 @@ The Medium conformance engineer is evaluating upstream grammar reuse and native
 evidence. Repository/environment setup can proceed independently of pilot input.
 Material product tradeoffs and genuine environment/specification blockers still
 require a product-owner sync; routine implementation choices do not.
+
+## Integrated engineering evidence
+
+- The owner explicitly authorized creating and publishing the public GitHub
+  repository. `origin` is `git@github.com:vihren-dev/sqlite-verifier.git`; the
+  published planning baseline was verified on its `main` branch.
+- The lead accepted foundation `2eb0b74a` after independent coordinator review
+  and a reproduced `nix develop --command just check` on aarch64-darwin. It pins
+  Lean 4.33.0 and upstream SQLite 3.51.0, includes the MIT license, and provides
+  source packaging. It is not yet an installable migration verifier.
+- Proof-process containment uses macOS Seatbelt or Linux bubblewrap, disjoint
+  input/output trees, a fresh environment, timeouts, and bounded captured output.
+  The macOS regression demonstrates approved-input write denial, unrelated-data
+  read denial, network denial, forbidden subprocess creation, output limits, and
+  timeout handling. Linux isolation and descendant cleanup await hosted CI.
+- Independent containment review found overlapping read/write trees and
+  unbounded output as actual risks; both were corrected and regression-tested.
+  Parent only admits trusted Lean search-path environment settings. Containment
+  is one part of the trust boundary, not evidence of proof acceptance.
+- Limits currently bound each file to 16 MiB and each returned output stream to
+  1 MiB. They do not claim a total-disk quota or VM-level resource isolation.
 
 ## Remaining work
 
