@@ -50,9 +50,27 @@ store roots replace whole-store sandbox access.
 Exact roots were split into checked commit `101809c4` to unblock source Linux CI.
 Nix elan patches Linux's ELF interpreter to a store path, so `just build` emits
 project-owned loader metadata and the compiler/checker consume it. The packaging
-unit is based on integrated `bc1b02c8`. Latest hosted Linux then exposed a separate
-collector issue: LLVM's libc++.so is a linker script. The integration engineer
-owns the ELF-library filter and regression in a separate checked change.
+unit was based on integrated `bc1b02c8`. Hosted Linux exposed LLVM linker scripts
+and compiler SDK libraries being scanned as runtime objects. Reviewed fixes
+`cf2dde6d` and `522b2b57` now share the runtime copy/inspection selection: direct
+system libraries and the complete `lib/lean` import tree. Actual absolute bundled
+dependencies must belong to that copied set; unresolved or excluded SDK
+dependencies remain errors. Root, technical lead and conformance review accepted
+the changes. The three focused regressions and actual macOS collector pass.
+
+A fresh macOS archive build and installed smoke against exact `522b2b57` passed
+after the new copy selection. `just build && just runtime-package` completed with
+exit zero, including native binaries, loader manifest, offline cache signatures,
+extraction/installation and isolated VERIFIED, VIOLATED and UNSUPPORTED cases.
+The rebuilt archive SHA-256 is
+`3f89e1c416a1781423c9565de78ba508189409c8a53ec4b7d63be572b89c562e`
+(972 MiB). This is author acceptance of the changed copy set; the independently
+accepted earlier checksum above describes the earlier archive.
+
+Hosted Linux run `35995826585` passed the corrected collector and real sandboxed
+compilation, then exposed checker lookup of `libgcc_s.so.1` inside the sandbox.
+The integration engineer is collecting the exact native dependency report before
+choosing the loader-search correction; no Linux archive success is claimed.
 
 Hosted Linux package execution and coordinated engineering prerelease publication
 remain pending; this task remains IN PROGRESS. No bit-for-bit reproducible archive
