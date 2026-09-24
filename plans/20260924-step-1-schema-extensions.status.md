@@ -161,6 +161,13 @@ blocker after 12 admission attacks, 10 native quoted-identifier comparisons, and
 exact Lean string-escaping checks. Three regression methods exercise supported
 multi-statement input, 29 unsupported forms/dependencies, and parser failure
 classes. This unit generates sealed SQL source but does not itself accept proofs.
+The combined local suite passed (four unittest cases, 0.807 seconds).
+
+First hosted integration run: macOS passed. Linux correctly denied a write to a
+protected input with `EROFS`; the regression expected only `PermissionError`.
+The test now accepts the actual read-only-filesystem denial explicitly while
+still failing if a write succeeds. Linux will be rerun; no platform pass is
+inferred from this diagnosis.
 
 Formal-core integration, CLI semantic admission, proof checking, conformance
 corpus, protected CI baseline, installable releases, approved pilot requirements,

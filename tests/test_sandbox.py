@@ -32,7 +32,7 @@ class SandboxTest(unittest.TestCase):
                 f"protected = pathlib.Path({str(protected)!r})\n"
                 "assert protected.read_text() == 'approved'\n"
                 "try:\n protected.write_text('changed')\n"
-                "except PermissionError:\n pass\n"
+                "except OSError as error:\n assert error.errno in (1, 13, 30), repr(error)\n"
                 "else:\n raise AssertionError('wrote approved input')\n"
                 f"private = pathlib.Path({str(private)!r})\n"
                 "try:\n private.read_text()\n"
