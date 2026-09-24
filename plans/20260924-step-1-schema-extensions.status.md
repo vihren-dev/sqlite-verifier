@@ -192,6 +192,14 @@ With that test fix, the gate suite passed: honest VC accepted, initializer
 ignored, eight trust attacks rejected. Other shared checks had already passed
 against this unchanged integrated library; the gate build passed all 13 jobs.
 
+Second hosted run: macOS passed; Linux reached network isolation and returned
+ECONNREFUSED inside its separate network namespace. The regression previously
+used an unused host port. It now creates a known-listening host endpoint, proves
+that endpoint is reachable outside the sandbox, and requires the contained
+connection to fail. This makes Linux connection refusal meaningful evidence of
+host-network separation. Local macOS regression passes (0.678 seconds); hosted
+Linux evidence remains pending. Production sandbox policy is unchanged.
+
 Formal-core integration, CLI semantic admission, proof checking, conformance
 corpus, protected CI baseline, installable releases, approved pilot requirements,
 pilot evidence, and completion review remain.

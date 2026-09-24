@@ -2,6 +2,7 @@
 
 from pathlib import Path
 import platform
+import socket
 import subprocess
 import sys
 from tempfile import TemporaryDirectory
@@ -16,7 +17,12 @@ class SandboxTest(unittest.TestCase):
 
     def test_isolation_and_timeout(self) -> None:
         """Check writes, private reads, networking, credentials, and bounded execution."""
-        with TemporaryDirectory() as temporary:
+        with TemporaryDirectory() as temporary, socket.socket() as endpoint:
+            endpoint.bind(("127.0.0.1", 0))
+            endpoint.listen()
+            port = endpoint.getsockname()[1]
+            with socket.create_connection(("127.0.0.1", port), timeout=1):
+                pass
             root = Path(temporary).resolve()
             inputs = root / "inputs"
             outputs = root / "outputs"
@@ -38,9 +44,9 @@ class SandboxTest(unittest.TestCase):
                 "try:\n private.read_text()\n"
                 "except (PermissionError, FileNotFoundError):\n pass\n"
                 "else:\n raise AssertionError('read private data')\n"
-                "try:\n socket.socket().connect(('127.0.0.1', 9))\n"
+                f"try:\n socket.socket().connect(('127.0.0.1', {port}))\n"
                 "except OSError as error:\n"
-                " assert error.errno in (1, 13, 101, 113), repr(error)\n"
+                " assert error.errno in (1, 13, 101, 111, 113), repr(error)\n"
                 "else:\n raise AssertionError('network access allowed')\n"
                 "assert 'GITHUB_TOKEN' not in os.environ\n"
                 "pathlib.Path('result.txt').write_text('isolated')\n",
