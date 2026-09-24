@@ -46,3 +46,22 @@ Integrate formal source, parser build/tests, and CLI acceptance checks into the
 shared recipes. Product runtime packaging, release CI and actual pilot evidence
 remain outstanding. Lean is pinned via elan's checked-in toolchain file; initial
 installation requires network. Package dependencies are pinned by `flake.lock`.
+
+## CI follow-up — 2026-09-24
+
+Owner: product/integration engineer. Reviewer: coordinator, then technical lead.
+Base: foundation commit `2eb0b74a`.
+
+Added a thin GitHub Actions matrix for the two declared native systems, with
+full action commit pins verified against official tag refs, job timeouts,
+read-only token permissions, architecture assertion, and shared Nix/just recipes.
+The Linux runner must pass an unprivileged bubblewrap capability preflight;
+no privileged host-policy changes or failure skips are present. Development
+source archives are retained with explicit labels; no release trigger or
+installable verifier claim was added. See `docs/ci.md` for source references.
+
+Validation: actionlint 1.7.12 (including ShellCheck) passed for the workflow;
+`nix develop --command just check` passed on aarch64-darwin. CI assignment is
+DONE locally, pending independent review and hosted execution. Actual hosted CI execution,
+including the Linux user-namespace preflight, remains for coordinator observation
+after review and push; this macOS host cannot claim those results.

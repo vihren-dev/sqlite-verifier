@@ -1,0 +1,66 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    name: Check (${{ matrix.system }})
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - runner: ubuntu-22.04
+            system: x86_64-linux
+          - runner: macos-14
+            system: aarch64-darwin
+    runs-on: ${{ matrix.runner }}
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          persist-credentials: false
+      - uses: cachix/install-nix-action@13d8dd58da0234aa297dedd986986ccb8e7f3e24 # v31
+        with:
+          enable_kvm: false
+          set_as_trusted_user: false
+      - name: Confirm native runner architecture
+        run: test "$(nix eval --impure --raw --expr builtins.currentSystem)" = '${{ matrix.system }}'
+      - name: Install pinned Lean toolchain
+        run: nix develop --command just setup
+      - name: Require unprivileged Linux sandbox capability
+        if: runner.os == 'Linux'
+        timeout-minutes: 1
+        run: |
+          # Variables in the inner script expand only inside the sandbox.
+          # shellcheck disable=SC2016
+          nix develop --command timeout 15 bwrap \
+            --unshare-user --unshare-pid --unshare-net --die-with-parent --new-session \
+            --ro-bind / / --proc /proc --dev /dev --tmpfs /tmp \
+            --setenv HOST_NETWORK "$(readlink /proc/self/ns/net)" \
+            --setenv PROTECTED_WORKSPACE "$GITHUB_WORKSPACE" \
+            sh -euc '
+              test "$(readlink /proc/self/ns/net)" != "$HOST_NETWORK"
+              if touch "$PROTECTED_WORKSPACE/.sandbox-write-probe"; then
+                echo "Workspace unexpectedly writable inside sandbox" >&2
+                exit 1
+              fi
+              touch /tmp/sandbox-write-probe
+            '
+      - name: Run shared build and checks
+        run: nix develop --command just check
+      - name: Package checked development sources
+        run: nix develop --command just package
+      - name: Retain development source snapshot
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: development-source-${{ matrix.system }}
+          path: dist/sqlite-verifier-source.tar.gz
+          if-no-files-found: error
+          retention-days: 14
