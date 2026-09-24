@@ -12,8 +12,9 @@ Task: [Verified SQLite schema extensions](20260924-step-1-schema-extensions.task
 - Governing workspace rules: `/Users/tzankomatev/work/AGENTS.md`.
 
 Current integrated sources: `flake.nix`, `justfile`, the Lean library entry point,
-`migration_check/sandbox.py`, and their checks under `tests/`. Formal-core and
-parser work proceeds in the named isolated workspaces until reviewed integration.
+`migration_check/sandbox.py`, the upstream-derived parser, CI workflow, and their
+checks under `tests/`. Formal-core and proof-gate work proceeds in isolated
+workspaces until reviewed integration.
 
 ## Roles for this work
 
@@ -44,7 +45,7 @@ may live under `~/work`; the technical lead owns integration into `main`.
   3.51.0 with an Apple build identifier. Neither observation selects the project's
   pinned toolchain or engine build.
 - GitHub CLI authentication is available. `vihren-dev/sqlite-verifier` did not
-  resolve during preflight; creation and remote configuration remain pending.
+  exist during preflight; it was subsequently created with explicit owner approval.
 - Recorded the Step 1 observable acceptance criteria, required verification
   suite, and implementation constraints before coding.
 - At the initial planning checkpoint, no implementation checks had run.
@@ -144,6 +145,15 @@ require a product-owner sync; routine implementation choices do not.
 
 ## Remaining work
 
-All implementation, approved pilot requirements, pinned environment, upstream
-parser evaluation, proof checking, conformance corpus, protected CI baseline,
-GitHub setup, release artifacts, pilot evidence, and completion review remain.
+The lead authorized integration of parser `2f5a83f5`, containment `84596cfc`, and
+CI `3fac0a6a` after independent review. Shared checks now compile the pinned
+upstream grammar/tokenizer and test syntax families, malformed input, limits,
+and UTF-8 source spans. CI runs shared checks on aarch64-darwin and x86_64-linux;
+hosted results are pending. Development source archives exclude generated builds.
+The integrated `nix develop --command just check` passed on aarch64-darwin:
+parser build/20 grammar scripts and boundary cases, Lean build, pinned native
+smoke, and real macOS isolation regression (0.618 seconds).
+
+Formal-core integration, CLI semantic admission, proof checking, conformance
+corpus, protected CI baseline, installable releases, approved pilot requirements,
+pilot evidence, and completion review remain.
