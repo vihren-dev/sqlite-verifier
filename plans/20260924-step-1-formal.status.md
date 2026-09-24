@@ -54,8 +54,25 @@ conditions establish the current invariant. A starting witness and total outcome
 relation prevent vacuity. Failure readers receive resulting storage, not old-data
 copies. `VerificationConditions.of_run` removes inductive-execution boilerplate.
 The regression suite proves that contradictory initial conditions cannot satisfy
-the generated contract. Independent contract review and a full protected-data
-example remain pending.
+the generated contract. Conformance review accepted the contract after reproducing
+the eight-job build and checking the limit-error correction.
+
+## Public projection library and complete proof
+
+`Library.lean` supplies partial whole-table readers, named-field coverage,
+projection invariants, conformance-update lemmas, an empty-state witness, and
+named-projection preservation. `Demonstration.lean` proves the complete VC for
+adding an invoice note column then creating an audit table. All admitted starting
+invoice rows, rowids, and amount values are quantified; the same named projection
+is read from actual resulting storage. `timeout 60s lake build` passes ten jobs;
+the complete VC theorem uses only propext, Classical.choice, and Quot.sound.
+
+The reader signature alone does not enforce storage provenance: constant or
+captured readers remain typeable. This subset independently preserves every old
+table/row/cell, and its projection builder reads represented storage with explicit
+coverage. A later deleting/rebuilding backend needs stronger provenance/coverage
+obligations before claiming the general interpretation restriction is enforced.
+Independent review of the new library and complete example is pending.
 
 Generated theorem binding, richer
 schema support, native/model correspondence, and independent source/proof review
