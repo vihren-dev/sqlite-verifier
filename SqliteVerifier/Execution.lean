@@ -44,10 +44,10 @@ def step (statement : Statement) (database : Database) (position : Nat := 0) : O
     else match database name with
       | none => .failure position (.missingTable name) database
       | some table =>
-        if table.columns.any (fun old => old.name == column.name) then
-          .failure position (.columnExists name column.name) database
-        else if table.columns.length ≥ maximumColumns then
+        if table.columns.length ≥ maximumColumns then
           .failure position (.tooManyColumns name) database
+        else if table.columns.any (fun old => old.name == column.name) then
+          .failure position (.columnExists name column.name) database
         else .success (database.set name (table.appendColumns [column]))
 
 /-- The file is an ordered script, not an implicit transaction. -/

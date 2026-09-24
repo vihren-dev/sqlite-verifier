@@ -41,8 +41,23 @@ columns and models an ADD beyond that limit as a state-preserving error; boundar
 regressions cover the fix. Stored values are explicitly an opaque conservative
 superset; Conforms states model-schema validity, not exact native representability.
 The reviewer found no further mathematical blocker in the preservation unit.
+Follow-up source review aligned ADD error precedence: SQLite checks the column
+limit before duplicate names; the model and a combined-failure regression do so.
 
-General interpretation/requirements contracts, generated theorem binding, richer
+## General verification contract
+
+`Contract.lean` defines LogicalContract, partial Interpretation, explicit
+FailureRepresentation, and the exact VerificationConditions proposition. The
+requirements select applicability and allowed failure/change relations. Each
+invariant implies schema conformance, definedness, and logical validity; starting
+conditions establish the current invariant. A starting witness and total outcome
+relation prevent vacuity. Failure readers receive resulting storage, not old-data
+copies. `VerificationConditions.of_run` removes inductive-execution boilerplate.
+The regression suite proves that contradictory initial conditions cannot satisfy
+the generated contract. Independent contract review and a full protected-data
+example remain pending.
+
+Generated theorem binding, richer
 schema support, native/model correspondence, and independent source/proof review
 remain outstanding. The native engine is not proved to implement this model.
 Concrete examples are engineering regressions, not real-pilot acceptance evidence.

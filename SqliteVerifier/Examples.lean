@@ -1,4 +1,4 @@
-import SqliteVerifier.Preservation
+import SqliteVerifier.Contract
 
 /-! Runnable engineering regressions, not claimed pilot migrations or evidence
 that the native SQLite implementation refines these definitions. -/
@@ -61,6 +61,8 @@ example : ¬validRowid 9223372036854775808 := by unfold validRowid; decide
 #guard supportedColumns (maximalTable.columns ++ [⟨"extra", .text⟩]) = false
 #guard failureInfo (run [.addColumn "full" ⟨"extra", .text⟩]
   (Database.set (fun _ => none) "full" maximalTable)) = some (0, .tooManyColumns "full")
+#guard failureInfo (run [.addColumn "full" ⟨"column0", .text⟩]
+  (Database.set (fun _ => none) "full" maximalTable)) = some (0, .tooManyColumns "full")
 
 /-- Fixture-independent execution exists for every script and starting state. -/
 theorem all_scripts_execute (script : List Statement) (database : Database) :
@@ -69,6 +71,16 @@ theorem all_scripts_execute (script : List Statement) (database : Database) :
 /-- Fixture-independent preservation also covers every failure prefix. -/
 theorem all_scripts_preserve (script : List Statement) (database : Database) :
     DatabaseExtends database (run script database).database := run_extends script database
+
+/-- Contradictory approved conditions cannot make the expected theorem vacuous. -/
+example {Logical : Type} (startSchema nextSchema : Schema) (script : List Statement)
+    (contract : LogicalContract Logical) (before after : Interpretation Logical)
+    (failures : FailureRepresentation Logical) :
+    ¬ VerificationConditions startSchema nextSchema script (fun _ => False)
+      contract before after failures := by
+  intro alleged
+  obtain ⟨_, _, impossible⟩ := alleged.nonempty
+  exact impossible
 
 #print axioms all_scripts_execute
 #print axioms all_scripts_preserve
