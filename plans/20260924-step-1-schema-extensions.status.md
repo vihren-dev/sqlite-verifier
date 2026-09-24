@@ -136,3 +136,12 @@ review and stale-review dismissal, plus deletion/force-push protection. Only
 owner user 6329237 has audited bypass; no automation app does. This documentation
 commit and subsequent reviewed initial engineering integration use that already
 authorized owner access. No approved logical source or baseline changes here.
+
+## Native loader integration
+
+Lead change `101809c4` fixes the observed Linux compiler startup failure: Nix's
+elan rewrites Lean's ELF interpreter to an exact store path. `just build` now
+records loader roots from trusted native binaries; the same validated roots feed
+compiler and gate sandboxes. Source and packaged layouts share that collector.
+The full store remains inaccessible. Three focused regressions pass after root integration. The real isolated-compiler
+recheck also passes; hosted Linux confirmation remains pending. The merged build succeeds on macOS (15 Lean jobs).

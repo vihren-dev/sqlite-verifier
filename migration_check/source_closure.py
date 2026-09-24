@@ -9,6 +9,7 @@ from pathlib import Path
 from tempfile import TemporaryDirectory
 
 from .sandbox import run_sandboxed
+from .runtime import native_runtime_roots
 
 
 class CompileError(RuntimeError):
@@ -58,7 +59,7 @@ def module_path(name: str) -> Path:
 def lean_process(sysroot: Path, library: Path, search: Sequence[Path], source: Path,
                  output: Path, arguments: Sequence[str], phase: str, timeout: float = 30) -> str:
     """Run only the pinned executable, with explicit paths and no ambient project settings."""
-    runtime = [sysroot, library, source.parent, *search]
+    runtime = [sysroot, library, source.parent, *search, *native_runtime_roots(sysroot, library)]
     runtime += [Path(path) for path in ("/usr/lib", "/lib", "/lib64")
                 if Path(path).exists()]
     result = run_sandboxed(
