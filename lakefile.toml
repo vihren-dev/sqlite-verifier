@@ -4,3 +4,7 @@ defaultTargets = ["SqliteVerifier"]
 
 [[lean_lib]]
 name = "SqliteVerifier"
+
+[[lean_exe]]
+name = "migration-proof-checker"
+root = "ProofChecker"
