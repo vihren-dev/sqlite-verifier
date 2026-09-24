@@ -9,6 +9,7 @@ setup:
 # Compile the public proof library entry point.
 build: parser
     timeout 120 lake build SqliteVerifier migration-proof-checker
+    timeout 30 python3 packaging/write_runtime_roots.py
 
 # Compile the pinned complete SQLite grammar and tokenizer.
 parser:
