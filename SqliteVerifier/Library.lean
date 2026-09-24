@@ -102,6 +102,15 @@ theorem Conforms.set {schema nextSchema : Schema} {database : Database} {name : 
     exact ⟨trivial, fun result equal => by cases equal; exact tableValid⟩
   · simpa only [Database.set, same, ↓reduceIte, lookup] using conforms.2 other
 
+/-- Independent table updates commute without an assumption about their rows. -/
+theorem Database.set_comm (database : Database) (first second : String)
+    (firstTable secondTable : Table) (different : first ≠ second) :
+    (database.set first firstTable).set second secondTable =
+      (database.set second secondTable).set first firstTable := by
+  funext name
+  by_cases a : name = first <;> by_cases b : name = second <;>
+    simp_all [Database.set]
+
 /-- Every requested old column remains covered after appending new columns. -/
 theorem TableExtends.covers (extension : TableExtends before after)
     (covered : Covers before names) : Covers after names := by

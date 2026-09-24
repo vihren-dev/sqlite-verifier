@@ -215,6 +215,18 @@ committed failure prefixes, and max-column error precedence. A false empty-targe
 assertion is rejected. Coordinator reproduced the suite; lead approved it.
 Original upstream fixture results remain explicitly model-unchecked.
 
+Integrated lead-authored, independently reviewed formal/example units `2b134df2`
+and `874f0d36`. Two successful candidates reuse identical logical requirements
+and current interpretation in different statement orders. A checked negative
+example refutes the unchanged required-note-column condition. A separate explicit
+failure policy proves the third statement fails, skips the fourth, and preserves
+actual old-row observations in the committed prefix. These remain engineering
+examples, not pilot evidence or human-approved application requirements.
+The integrated build passes all 15 jobs. Hosted run `35990227855` for `b67516ab`
+passed on both x86_64-linux and aarch64-darwin, including the kernel gate and
+actual Linux isolation/descendant-cleanup regression. Later driver/model-example
+changes still need their own hosted checks.
+
 Formal-core integration, CLI semantic admission, proof checking, conformance
 corpus, protected CI baseline, installable releases, approved pilot requirements,
 pilot evidence, and completion review remain.

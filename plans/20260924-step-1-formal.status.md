@@ -72,7 +72,8 @@ captured readers remain typeable. This subset independently preserves every old
 table/row/cell, and its projection builder reads represented storage with explicit
 coverage. A later deleting/rebuilding backend needs stronger provenance/coverage
 obligations before claiming the general interpretation restriction is enforced.
-Independent review of the new library and complete example is pending.
+Independent conformance review accepted the library and complete example after
+reproducing the build and checking that omitted rows or fields fail the projection.
 
 Generated theorem binding, richer
 schema support, native/model correspondence, and independent source/proof review
@@ -83,3 +84,39 @@ The lead approved foundation `2eb0b74a` for integration after the coordinator's
 independent review and repeated successful Nix checks. The formal branch is
 rebased onto it; the public barrel's imports supersede
 the foundation's comment-only placeholder.
+
+## Reusable input bundles and checked refutation
+
+`ReverseDemonstration.lean` proves the alternate statement order with the exact
+same logical requirements, current interpretation, and target interpretation.
+`VerificationConditions.congr_run` reuses obligations only after admitted-state
+run equivalence is established. `violates_required_schema` derives a checked
+negative VC from a schema contradiction under explicitly required success.
+
+`examples/approved` contains candidate-independent requirements, current schema,
+and current interpretation. Both positive candidate bundles reuse these files;
+`missing_required_column` gives a checked refutation of that unchanged contract.
+They are synthetic examples, not pilot evidence. All actual SQL files were run
+through the integrated production parser and translator, then their generated
+SqlInputs and six Lean modules were compiled in isolated temporary directories
+with the absolute pinned compiler and a 30-second timeout per module. All three
+bundles passed. `timeout 60s lake build` passes eleven jobs, with only the three
+allowed foundational axioms in both positive universal proof closures.
+End-to-end sealed-driver checks of these same bundles remain pending integration.
+
+## Explicit safe-failure example
+
+`Execution.runFrom_append` proves prefix composition without assuming success.
+`FailureDemonstration.lean` proves a separate, explicit policy that permits exactly
+statement 2's table-exists error. The first two changes stay committed; statement
+3 is skipped. The failure interpretation reads the resulting prefix's invoice
+rows and amounts. The proof quantifies every admitted starting database and uses
+only the three foundational axioms. `examples/allowed_failure` includes its own
+clearly distinguished approved policy; the first three examples' approved files
+are unchanged.
+
+`timeout 60s lake build` passes twelve jobs. The actual four-statement SQL was
+parsed and translated by the production frontend; the generated SqlInputs and
+all supplied modules compiled in a fresh temporary directory with 30-second
+per-module timeouts. Independent review and sealed-driver integration remain
+pending for this newly added example.

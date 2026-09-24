@@ -96,4 +96,44 @@ theorem VerificationConditions.of_run
   have same : run script database = outcome := execution.result
   simpa only [same] using checked database admitted
 
+/-- Equivalent runs reuse approved obligations, including all failure positions. -/
+theorem VerificationConditions.congr_run
+    {Logical : Type u} {startSchema nextSchema : Schema} {oldScript newScript : List Statement}
+    {approvedConditions : Database → Prop} {contract : LogicalContract Logical}
+    {before after : Interpretation Logical} {failures : FailureRepresentation Logical}
+    (checked : VerificationConditions startSchema nextSchema oldScript approvedConditions
+      contract before after failures)
+    (same : ∀ database, Admitted startSchema approvedConditions database →
+      run newScript database = run oldScript database) :
+    VerificationConditions startSchema nextSchema newScript approvedConditions
+      contract before after failures := by
+  apply VerificationConditions.of_run checked.nonempty checked.beforeSound checked.afterSound
+    checked.failuresSound checked.starting
+  intro database admitted
+  rw [same database admitted]
+  exact checked.outcomes database admitted _ (runFrom_executes oldScript database 0)
+
+/-- A checked schema contradiction refutes a success-required contract; this is
+a model argument, distinct from failed proof search or a native counterexample. -/
+theorem violates_required_schema
+    {Logical : Type u} {startSchema nextSchema : Schema} {script : List Statement}
+    {approvedConditions : Database → Prop} {contract : LogicalContract Logical}
+    {before after : Interpretation Logical} {failures : FailureRepresentation Logical}
+    (successRequired : contract.applicability = requiresSuccess)
+    (schemaViolation : ¬contract.schemaRequirement nextSchema) :
+    ¬VerificationConditions startSchema nextSchema script approvedConditions
+      contract before after failures := by
+  intro checked
+  obtain ⟨database, admitted⟩ := checked.nonempty
+  obtain ⟨logical, observed, _⟩ := (checked.beforeSound database (checked.starting database admitted)).2
+  have obligations := checked.outcomes database admitted _ (runFrom_executes script database 0)
+  cases outcome : runFrom 0 script database with
+  | failure position reason result =>
+    have impossible := obligations.1
+    simp [outcome, successRequired, requiresSuccess] at impossible
+  | success result =>
+    have post := obligations.2 logical observed
+    rw [outcome] at post
+    exact schemaViolation post.2.1
+
 end SqliteVerifier
