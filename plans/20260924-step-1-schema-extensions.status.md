@@ -154,6 +154,14 @@ The integrated `nix develop --command just check` passed on aarch64-darwin:
 parser build/20 grammar scripts and boundary cases, Lean build, pinned native
 smoke, and real macOS isolation regression (0.618 seconds).
 
+The production CST translator now admits the documented canonical-type subset,
+checks all starting-schema dependencies, preserves UTF-8 spans, and computes the
+same ordered schema/error prefix. Independent conformance review found no
+blocker after 12 admission attacks, 10 native quoted-identifier comparisons, and
+exact Lean string-escaping checks. Three regression methods exercise supported
+multi-statement input, 29 unsupported forms/dependencies, and parser failure
+classes. This unit generates sealed SQL source but does not itself accept proofs.
+
 Formal-core integration, CLI semantic admission, proof checking, conformance
 corpus, protected CI baseline, installable releases, approved pilot requirements,
 pilot evidence, and completion review remain.
