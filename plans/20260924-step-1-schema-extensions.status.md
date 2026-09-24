@@ -42,6 +42,7 @@ with MIT license, retained upstream notices, and shared `just` commands.
 | Isolated source compiler | `93313668` | Real sandbox checks, exact import closure, sealed stages and validated artifacts |
 | Complete CLI | `c2288ede` | All 16 end-to-end invocations passed; profile diagnostics and inspection exports |
 | Protected baseline CI | `faabe8b4` | Target-owned Git-object inspection; adversarial regression independently reproduced |
+| Bounded coverage | `33278b91` | Five failure/denominator regressions; refreshed independent scopes and explicit exclusions |
 
 The CLI accepts all seven required inputs, generates/seals SQL and obligations,
 and checks the independent kernel gate. `VERIFIED`, checked `VIOLATED`,
@@ -109,7 +110,7 @@ not a proof of SQLite's C implementation.
 Native archive building, offline installation, shared coverage reporting and a
 checked prerelease workflow are integrated. The independently tested macOS
 archive passes real installed verification. The next hosted run must confirm
-both Linux fixes and its extracted archive, followed by a fresh version-tag run
+Linux loader lookup and its extracted archive, followed by a fresh version-tag run
 that publishes the checked platform assets. No release is claimed at this checkpoint.
 
 ## Product-owner input and final acceptance
@@ -135,26 +136,6 @@ review and stale-review dismissal, plus deletion/force-push protection. Only
 owner user 6329237 has audited bypass; no automation app does. This documentation
 commit and subsequent reviewed initial engineering integration use that already
 authorized owner access. No approved logical source or baseline changes here.
-
-## Native loader integration
-
-Lead change `101809c4` fixes the observed Linux compiler startup failure: Nix's
-elan rewrites Lean's ELF interpreter to an exact store path. `just build` now
-records loader roots from trusted native binaries; the same validated roots feed
-compiler and gate sandboxes. Source and packaged layouts share that collector.
-The full store remains inaccessible. Three focused regressions pass after root integration. The real isolated-compiler
-recheck also passes; hosted Linux confirmation remains pending. The merged build succeeds on macOS (15 Lean jobs).
-
-## Coverage reporting integration
-
-Reviewed change `33278b91` adds a bounded report with separate proof, grammar,
-documentation, fixture and native/model scopes. Root reproduced all five
-failure/denominator regressions and the actual pinned report: six named theorem
-probes, 409 default grammar productions, 20 grammar smoke scripts, three imported
-assertion instances, and five derived native/model matches. These observations
-are neither universal coverage nor native refinement. Missing/duplicate evidence
-fails and leaves discrepancy counts unknown. Shared-command/CI artifact wiring
-will land with the independently checked runtime packaging change.
 
 ## Native packaging integration
 
@@ -188,6 +169,25 @@ inspection of Lean's compiler-only glibc SDK. Reviewed fix `522b2b57` shares one
 runtime file selection between inspection and copying: direct `lib` files and
 the complete `lib/lean` module tree. Reported dependencies outside the copied
 bundle still reject. Root and conformance independently reproduced the three
-focused regressions and the actual macOS collector. This preserves all 12,424
-required runtime files in the inspected macOS inventory and omits only an unused
-compiler-SDK dylib. Rebuilt macOS archive and new hosted Linux evidence are pending.
+focused regressions and the actual macOS collector. This preserves 12,424 runtime files in the inspected macOS inventory and omits
+only an unused compiler-SDK dylib. The rebuilt archive subsequently passed its
+actual installed smoke, recorded in the next checkpoint.
+
+## Current cross-platform checkpoint
+
+MacOS hosted run `35994734528` passed full source checks, native archive building,
+and extracted installation smoke. Linux advanced in `35995826585`: dependency
+collection, independent kernel gate tests and real sandboxed source compilation
+pass. The full CLI then exposes a checker startup error: `libgcc_s.so.1` lookup
+fails inside the sandbox. This is unresolved; no release tag has been created.
+
+The narrowed macOS archive independently from this Linux issue passed the lead's
+fresh `just build && just runtime-package`; SHA-256:
+`3f89e1c416a1781423c9565de78ba508189409c8a53ec4b7d63be572b89c562e`.
+Lead status commit `e2fb9979` records that result. Diagnostics change `8be78edb`
+labels and retains native dependency reports. A bounded failure-only Linux probe
+compares trusted checker startup with current roots versus the exact loader-cache
+file. It supplies no proof inputs and does not change production permissions.
+Exit 1 with the expected usage diagnostic means startup reached main, not proof
+acceptance. Original CI failure remains a failure. Three focused regressions and
+Actionlint/ShellCheck pass after integration; the technical lead authorized it.
