@@ -1,6 +1,6 @@
 # Step 1: verified SQLite schema extensions
 
-Created: 2026-09-24. Status: OPEN — not implemented.
+Created: 2026-09-24. Status: IN PROGRESS — engineering preview, pilot acceptance pending.
 
 ## Outcome and governing documents
 

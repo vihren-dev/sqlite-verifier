@@ -162,32 +162,28 @@ The complete integrated `nix develop --command just check` passes: build, pinned
 engine/grammar, native/model, kernel gate, isolated compiler, all 16 CLI cases,
 five coverage regressions, 11 discovered regressions, and refreshed coverage report.
 
-## Runtime SDK boundary correction
-
-Hosted run `35994734528` reached Linux dependency inspection and exposed accidental
-inspection of Lean's compiler-only glibc SDK. Reviewed fix `522b2b57` shares one
-runtime file selection between inspection and copying: direct `lib` files and
-the complete `lib/lean` module tree. Reported dependencies outside the copied
-bundle still reject. Root and conformance independently reproduced the three
-focused regressions and the actual macOS collector. This preserves 12,424 runtime files in the inspected macOS inventory and omits
-only an unused compiler-SDK dylib. The rebuilt archive subsequently passed its
-actual installed smoke, recorded in the next checkpoint.
-
 ## Current cross-platform checkpoint
 
-MacOS hosted run `35994734528` passed full source checks, native archive building,
-and extracted installation smoke. Linux advanced in `35995826585`: dependency
-collection, independent kernel gate tests and real sandboxed source compilation
-pass. The full CLI then exposes a checker startup error: `libgcc_s.so.1` lookup
-fails inside the sandbox. This is unresolved; no release tag has been created.
-
-The narrowed macOS archive independently from this Linux issue passed the lead's
-fresh `just build && just runtime-package`; SHA-256:
+Reviewed fix `522b2b57` shares one runtime selection between inspection and
+copying: direct `lib` files and the complete `lib/lean` tree, excluding compiler
+SDKs. Absolute dependencies outside the copied set still reject. Hosted macOS
+run `35995826585` passes full source checks, archive building and installed smoke.
+Lead and independent conformance review also installed the narrowed archive:
 `3f89e1c416a1781423c9565de78ba508189409c8a53ec4b7d63be572b89c562e`.
-Lead status commit `e2fb9979` records that result. Diagnostics change `8be78edb`
-labels and retains native dependency reports. A bounded failure-only Linux probe
-compares trusted checker startup with current roots versus the exact loader-cache
-file. It supplies no proof inputs and does not change production permissions.
-Exit 1 with the expected usage diagnostic means startup reached main, not proof
-acceptance. Original CI failure remains a failure. Three focused regressions and
-Actionlint/ShellCheck pass after integration; the technical lead authorized it.
+
+Linux run `35997069355` identifies the remaining checker startup cause: the
+collector retained a library symlink's resolved Nix package but dropped the
+referenced package path. Both loader-cache probes fail identically; adding the
+cache is not a fix. Change `5ab817ec` retains both exact package roots, with no
+broader runtime permissions. Independent conformance review reproduces all three
+focused tests. The temporary cache probe is removed; labeled loader artifacts
+remain. See [loader evidence](20260924-linux-loader.status.md) for exact paths.
+The lead authorized integration; root's three focused tests pass (0.078 seconds),
+and Actionlint/ShellCheck pass on the integrated workflow.
+Full hosted Linux package confirmation remains pending; no release tag exists.
+
+The lead's final requirements audit found no additional engineering gap beyond
+cross-platform package evidence and prerelease publication. The stale task header
+now reflects implementation progress. The authorized engineering preview is
+`v0.1.0-rc.1` after both main jobs pass, followed by its own checked tag workflow.
+Stable release and Step 1 DONE still require the actual pilot and owner acceptance.
