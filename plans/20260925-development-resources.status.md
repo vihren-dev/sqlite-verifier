@@ -42,3 +42,12 @@ comparison commands or nested `nix develop`. Root comparison output is retained
 at `build/resources-coverage.json`; the command trace is
 `build/resources-check-dry-run.txt`. Incremental parser and full package/hosted
 checks remain pending before the repair is complete.
+
+The incremental parser unit `215e06c5` is integrated, with its five invalidation
+checks and native no-tool reuse check included in the shared recipe. The repair
+was also backported onto public `e094a5ff` without any pending approved-baseline
+changes. That isolated tree passed the complete macOS package and offline
+installed-runtime checks; its source remains 3264 bytes after packaging.
+Public [PR #2](https://github.com/vihren-dev/sqlite-verifier/pull/2), revision
+`1f4b3d7e`, is running both native platforms; its target-owned baseline check
+passes. Disk capacity recovered externally; Atuin development has resumed.

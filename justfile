@@ -30,6 +30,8 @@ smoke:
 # Run real process-isolation checks and the independently expected native smoke.
 test: smoke coverage
     timeout 150 python3 tests/environment_snapshot_test.py
+    timeout 30 python3 -m unittest tests.parser_build_test
+    timeout 30 python3 tests/parser_build_test.py --native-reuse
     timeout 15 python3 tests/docs_test.py
     timeout 75 python3 tests/schema_generation_test.py
     timeout 180 python3 tests/conformance_atuin_model_test.py
