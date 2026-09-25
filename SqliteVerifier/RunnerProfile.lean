@@ -5,7 +5,9 @@ import SqliteVerifier.Execution
 legacy_alter_table=writable_schema=ignore_check_constraints=recursive_triggers=0,
 trusted_schema=1, 2000 columns, 1e9 length/SQL length, expression depth 1000,
 busy/acquire timeout 5s, 4MiB journal limit, 4096 pages, WAL autocheckpoint 1000,
-regexp enabled and optimize-on-close enabled. No concurrent application writer,
+regexp enabled and optimize-on-close enabled. Migrator defaults retain transactions,
+locking and _sqlx_migrations, reject missing catalog entries, and hash all SQL bytes;
+the source -- no-transaction prefix is outside this mode. No concurrent application writer,
 external schema mutation, corruption or crash behavior is inferred from the model.
 The corresponding native capture records all remaining compile/config identities. -/
 

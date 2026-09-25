@@ -17,7 +17,7 @@ approved stage, then candidate stage, in that order.
 The trusted stage contains approved `Requirements` and `Interpretation` modules
 and their approved dependencies. Separately generated `SqlInputs.lean` imports
 only the pinned library and defines `Generated.startSchema`, `Generated.nextSchema`,
-and `Generated.script`. The frontend's parsing and literal generation belong to
+`Generated.script`, and the fixed `Generated.profile`. The frontend's parsing and literal generation belong to
 the trusted boundary. Candidate `NextInterpretation`, `Generated`, and `Proofs`
 modules never become approved by being compiled or copied into a sealed directory.
 
@@ -33,7 +33,7 @@ The expected proposition is constructed directly as
 `SqliteVerifier.VerificationConditions`, applied to `Requirements.LogicalState`,
 the three protected SQL constants, `Interpretation.admitted`,
 `Requirements.contract`, `Interpretation.current`, `NextInterpretation.next`, and
-`NextInterpretation.failures`. The logical state's concrete universe is inferred
+`NextInterpretation.failures`, followed by the sealed execution profile. The logical state's concrete universe is inferred
 by the kernel. Input constants and `Proofs.migrationCorrect` must be closed,
 without uninstantiated universe parameters. The candidate's `Generated.expected`
 is an authoring convenience and is never the gate's acceptance target.
@@ -57,7 +57,8 @@ checker. `KERNEL_GATE_LIBRARY` can select an immutable library build for compone
 testing. Compiler/checker subprocesses have 30-second limits. Tests include an
 actual empty-script model proof, wrong and unfinished proofs, transitive axioms,
 protected declaration substitutions, unsafe proofs, a forged kernel body, a
-forged expected alias, and a harmless initializer marker that must not execute.
+forged expected alias, an old autocommit proof against a sealed SQLx profile,
+and a harmless initializer marker that must not execute.
 The fixture is a gate regression, not a SQL frontend acceptance or pilot example.
 
 The parent driver owns time/resource limits, compilation sandboxing, source

@@ -15,7 +15,7 @@ namespace Generated
 /-- Authoring convenience; the trusted gate reconstructs this proposition independently. -/
 def expected : Prop := SqliteVerifier.VerificationConditions
   startSchema nextSchema script Interpretation.admitted Requirements.contract
-  Interpretation.current NextInterpretation.next NextInterpretation.failures
+  Interpretation.current NextInterpretation.next NextInterpretation.failures profile
 end Generated
 """
 
