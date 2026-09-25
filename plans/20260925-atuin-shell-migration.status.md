@@ -162,3 +162,7 @@ Published the lead-approved integration at `e094a5ffa770`; hosted run
 `36105736197` completed successfully on both platforms, confirming the aggregate
 kernel-test timeout adjustment. Parser/coverage documentation now distinguishes
 the two independently pinned grammars and their evidence scopes.
+Prepared a draft owner review packet at `docs/atuin-pilot-review.md`, describing
+protected fields, explicit readiness, committed-error behavior and statistics
+scope. Its engineering results, human effort and acceptance remain visibly
+pending until the actual proof bundle and pilot review are complete.
