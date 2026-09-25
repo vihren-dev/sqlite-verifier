@@ -1,6 +1,6 @@
 # SQL-only core cleanup status
 
-Created: 2026-09-25. Status: IN PROGRESS.
+Created: 2026-09-25. Status: DONE (implementation and local validation).
 
 Task: [sql-only-core.task.md](20260925-sql-only-core.task.md).
 Authority: owner's explicit SQL-file universal-interface correction, 2026-09-25.
@@ -187,3 +187,22 @@ cache/reuse checks, seven coverage-unit checks and36 unit tests. Generated-schem
 compilation/gate and ordinary CLI checks passed at their component checkpoints.
 The runtime archive was rebuilt once (974MiB) after a successful space preflight;
 installed offline/isolated entrypoint and typed Atuin checks are now running.
+
+Completed: 2026-09-25. Final implementation checkpoint19266332 plus this status
+update. The rebuilt974MiB aarch64-darwin archive installed offline and passed the
+actual isolated executable's ordinary positive/refuted/unsupported checks plus
+typed Atuin verification and all13 negatives (build/business-installed-runtime.log,
+exit0). Ambient Python/Lean settings were poisoned and build tools removed from
+the installed check's PATH. This validates the delivered runtime, not just source
+compilation. The archive was built once; no global cache/database/volume cleanup
+was performed. The small Nix environment source remains2944bytes.
+
+All required engineering work for this correction is complete: SQL-only boundary,
+typed business History and equality requirement, schema-generated interpretation
+binding without a handwritten copy, example-only migration invariants, generic
+SQL semantics, protected schema/source input checks, source-backed README, universal
+model proof, adversarial checks and installed runtime. Independent reviews found
+no concrete correctness/vacuity blocker. The application contract remains proposed
+for owner review; Step1 product acceptance and publication to protected public main
+are separate, not inferred from passing tests. This change was checked locally on
+aarch64-darwin; no new hosted Linux run is claimed.

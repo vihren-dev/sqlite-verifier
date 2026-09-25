@@ -1,6 +1,6 @@
 # Restore the SQL-only product boundary
 
-Created: 2026-09-25. Status: IN PROGRESS.
+Created: 2026-09-25. Status: DONE (implementation and local validation).
 
 ## Required outcome
 

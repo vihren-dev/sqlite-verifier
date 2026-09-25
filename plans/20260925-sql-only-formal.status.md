@@ -1,7 +1,7 @@
 # SQL-only formal component status
 
-Created: 2026-09-25. Status: IN PROGRESS — formal certificate checked; integrated
-CLI/package validation and owner review remain with the coordinating task.
+Created: 2026-09-25. Status: DONE (formal component and integrated local validation).
+Application-contract owner acceptance remains a separate review decision.
 
 Task: [SQL-only core](20260925-sql-only-core.task.md). The owner's SQL-only and
 independent-business-model corrections supersede the earlier framework model.
@@ -39,3 +39,7 @@ universal theorem covers arbitrary admitted history and catalog rows for the
 explicit BEGIN/ALTER/INSERT/COMMIT/UPDATE SQL. Native-engine refinement and live
 framework behavior are not claimed. Public CLI staging and installed acceptance
 will be checked after integration with the separately reviewed schema-only gate.
+
+Coordinator integration passed the public CLI with the protected seven-module and
+schema baseline, all13 negative CLI cases, and the actual offline installed runtime.
+See the coordinating SQL-only status for complete evidence and platform limits.
