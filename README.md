@@ -1,11 +1,12 @@
 # SQLite migration verifier
 
-An in-development Lean verifier for preserving business information across SQLite migrations. The engineering
+A Lean verifier for preserving business information across SQLite migrations. The engineering
 contract is in [the brief](sqlite-migration-verifier-engineering-brief.md), with
 acceptance tracked in [the Step 1 task](plans/20260924-step-1-schema-extensions.task.md).
-The CLI verifies the documented schema-extension subset. Step 1 acceptance
-still requires an actual pilot and product-owner review; the
-checked-in examples are engineering demonstrations.
+The CLI verifies the documented schema-extension subset. The owner accepted the
+source-backed Atuin case study and preservation contract on 2026-09-25; see the
+[acceptance review](docs/atuin-pilot-review.md). Release v0.1.0 is pending final
+cross-platform validation and publication.
 
 ## Install
 
@@ -14,7 +15,7 @@ pinned Lean runtime and an offline Nix cache; Nix must already be installed.
 Follow [the installation guide](docs/install.md), then try the bundled examples.
 [GitHub Releases](https://github.com/vihren-dev/sqlite-verifier/releases) publishes
 archives only after both platform checks and extracted-installation tests pass.
-Prereleases are engineering previews; they do not establish pilot acceptance.
+Prereleases are engineering previews; product acceptance is recorded separately.
 The first checked preview is [v0.1.0-rc.1](https://github.com/vihren-dev/sqlite-verifier/releases/tag/v0.1.0-rc.1).
 
 ## Development

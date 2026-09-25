@@ -58,20 +58,21 @@ A passing engineering workflow does not mean roadmap Step 1 is complete.
 The separate target-owned `Protected approved baseline` workflow is unchanged.
 Documentation routing does not authorize changed approved sources or manifests.
 
-## Maintainer prerelease
+## Maintainer release
 
 From the primary checkout, after reviewed `main` CI is green and release notes
-are current, create a fresh engineering prerelease tag and transport it:
+are current, create a fresh release tag and transport it (use a hyphenated version for a prerelease):
 
 ```sh
-jj tag set v0.1.0-rc.1 -r main
-git push origin refs/tags/v0.1.0-rc.1
+jj tag set v0.1.0 -r main
+git push origin refs/tags/v0.1.0
 ```
 
 The installed Jujutsu supports tag creation, but its push command transports
 bookmarks; Git is used for this tag-only push. The tag workflow reruns both
 platform checks and marks hyphenated version tags as prereleases. Watch that run
 and verify both published archives and checksum files before announcing it.
-Never move or reuse a released or failed release tag; use the next RC tag after
-a fix. A stable release remains pending real-pilot/product-owner acceptance.
-No release tag has been created by the packaging implementation itself.
+Never move or reuse a released or failed release tag; use a fresh version after
+a fix. The owner accepted the current Step 1 product on 2026-09-25; stable release
+publication still depends on successful checks of the tagged revision. Existing
+v0.1.0-rc.1 is an earlier engineering preview, not the current implementation.

@@ -39,9 +39,10 @@ store to a proof process. The installation and its metadata are trusted code. So
 writes the equivalent `build/nix-runtime-roots` manifest because Nix-installed
 elan may patch the Linux Lean executable to use a Nix store ELF interpreter.
 
-The examples are synthetic engineering cases, not evidence of real-pilot
-acceptance. `VERIFIED` applies to the supplied contract and documented restricted
-SQL model. See the repository's semantic-subset and kernel-gate documentation.
+The examples include synthetic engineering cases and the source-backed Atuin
+case study; its [acceptance review](atuin-pilot-review.md) records owner approval.
+`VERIFIED` applies to the supplied contract and documented restricted SQL model.
+See the [semantic subset](semantic-subset.md) and [kernel gate](kernel-gate.md).
 
 Nix's [copy command](https://nix.dev/manual/nix/2.32/command-ref/new-cli/nix3-copy)
 provides the local binary-cache transport; the installer does not disable its

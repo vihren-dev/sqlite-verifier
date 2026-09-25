@@ -1,6 +1,6 @@
 **Lean Migration Verifier — Product Roadmap**
 
-Proposal v0.1 · 24 September 2026
+Revision v0.2 · 25 September 2026
 
 This roadmap accompanies the engineering brief. Each step releases a usable migration-verification product with a complete workflow and a bounded guarantee. The releases are cumulative. Only the next release receives a detailed implementation commitment; subsequent releases are hypotheses to revise after each completed step.
 
@@ -10,8 +10,9 @@ imports, ORM adapters, migration-framework execution or invocation certification
 Profiles contain SQLite semantic settings; application data assumptions belong in
 requirements and interpretations. Necessary transaction and data operations must
 be explicit SQL with reusable semantics, never implicit framework effects.
-Examples separate typed business entities and business requirements from their
-schema-pinned interpretations. schema.sql is the single authored complete schema;
+The primary workflow protects the approved old business model without anticipating
+new fields or prescribing a target schema. Examples separate typed business
+entities and business requirements from their schema-pinned interpretations. schema.sql is the single authored complete schema;
 its generated Lean definition is shared with the approved interpretation.
 
 “Viable” means a target user can obtain useful results without waiting for a later release. Commercial demand must be validated through adoption and willingness to pay.
@@ -30,7 +31,28 @@ Start with a small set of operations: creating ordinary tables and adding nullab
 
 Full compatibility with the pinned SQLite grammar remains the parser target. Semantic coverage is deliberately narrower. For supported migrations, provide reusable proofs or proof-producing automation so users mainly declare their requirements. Preservation applies to specified data projections; adding a column does not imply unchanged results for every application query.
 
-Completion evidence: a pilot user can verify real schema-extension migrations, adapt requirements through the public library, and repair rejected examples from diagnostics. CI accepts valid proofs, rejects unapproved changes to the approved requirements/preconditions and mismatched artifacts, and reports unsupported cases accurately. CI must identify the approved baseline; legitimate requirement changes follow the human approval workflow. Measure human authoring and review effort against the pilot’s existing workflow.
+Completion evidence: a pilot user can verify real schema-extension migrations, adapt requirements through the public library, and repair rejected examples from diagnostics. CI accepts valid proofs, rejects unapproved changes to the approved requirements/preconditions and mismatched artifacts, and reports unsupported cases accurately. CI must identify the approved baseline; legitimate requirement changes follow the human approval workflow. Record human authoring and review effort against the pilot’s existing workflow
+when available, and distinguish missing measurements from qualitative acceptance.
+
+**Step 1 acceptance checkpoint (25 September 2026).** The owner accepted the
+current implementation and the source-backed Atuin case study. Agents executed
+the real SQL payload and its public verification workflow; the owner guided and
+refined the old-history business model. The approved contract proves successful
+modeled execution and complete recovery of old histories from resulting storage,
+without a new-shell requirement or target-schema prescription. Two positive CLI
+cases reuse the protected inputs; eleven negative cases exercise diagnostics and
+rejection boundaries. Local full checks pass; v0.1.0 awaits final cross-platform
+validation and publication. See the [acceptance review](docs/atuin-pilot-review.md)
+and [release task](plans/20260925-step1-release.task.md).
+
+Human time and previous-workflow effort were not measured comparably. Acceptance
+is qualitative; agent execution is not independent human pilot use, productivity
+improvement, adoption or willingness-to-pay evidence. Owner approval closes the
+product gate without requiring another pilot or framework integration. SQLx
+remains trusted, application-query compatibility is unproved, and native tests
+remain finite evidence. The decision is to finish and release Step 1 within this
+accepted scope. Step 2 is a future proposal, not an automatically started or
+committed implementation; its scope and success measures require a later decision.
 
 **Step 2 — Verified SQLite table rebuilds.** Target users whose migrations create a replacement table, copy data, drop the original, and rename the replacement. This is a documented SQLite migration pattern and a useful expansion beyond additive changes.
 

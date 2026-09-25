@@ -3,8 +3,8 @@
 This example selects the shell migration at Atuin commit
 [`5b10eb09c664d316b7384210399b02e6127f4027`](https://github.com/atuinsh/atuin/tree/5b10eb09c664d316b7384210399b02e6127f4027).
 It supplies ordinary SQLite schema and migration SQL. It does not import/build
-Atuin, integrate with SQLx, or certify a live framework invocation. Proposed
-requirements and interpretations still require owner review.
+Atuin, integrate with SQLx, or certify a live framework invocation. The product owner reviewed and accepted this preservation example on
+2026-09-25; see the [pilot review](../../docs/atuin-pilot-review.md).
 
 ## Database operations
 
@@ -31,7 +31,7 @@ behavior; none of those operations is reproduced or certified here. No implicit
 framework operation is added by the SQLite profile. Concurrency, resource failures
 and crash recovery remain outside the fixed execution model.
 
-## Application meaning and proposed guarantee
+## Application meaning and accepted guarantee
 
 The independent [HistoryModel](approved/HistoryModel.lean) contains
 pre-migration business histories, with no shell field, SQL values, physical rowids or

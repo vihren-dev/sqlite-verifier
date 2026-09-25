@@ -4,6 +4,8 @@ The invoice examples below are synthetic engineering examples, not real-pilot ac
 The source-backed [Atuin example](atuin/README.md) demonstrates the primary
 preservation contract: the resulting schema still represents the same old business
 histories, without prescribing new fields or verifying framework bookkeeping.
+Its [acceptance review](../docs/atuin-pilot-review.md) records owner approval,
+agent-executed checks and the limits of the available productivity evidence.
 The first three candidates use the exact same files in `approved/`: a current schema,
 logical requirements, and current interpretation. No database contents are given.
 The proofs quantify every admitted set of invoice rows, identities, and amounts.

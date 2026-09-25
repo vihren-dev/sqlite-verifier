@@ -1,6 +1,6 @@
 # Step 1: verified SQLite schema extensions
 
-Created: 2026-09-24. Status: IN PROGRESS — engineering preview, pilot acceptance pending.
+Created: 2026-09-24. Status: OWNER ACCEPTED — final release validation pending.
 
 ## Outcome and governing documents
 
@@ -9,7 +9,7 @@ script, checked against reusable human-approved Lean requirements and current
 interpretation. A script may contain multiple statements. Completion requires
 engineering evidence and a pilot's actual use; neither substitutes for the other.
 
-- [Engineering brief, revision 0.5](../sqlite-migration-verifier-engineering-brief.md)
+- [Engineering brief, revision 0.7](../sqlite-migration-verifier-engineering-brief.md)
 - [Product roadmap, proposal v0.1](../sqlite-migration-verifier-roadmap.md)
 - [Team agreement, version 0.2](../sqlite-migration-verifier-team-guide.md)
 - [Progress and decisions](20260924-step-1-schema-extensions.status.md)
@@ -65,7 +65,10 @@ required third-party notices.
 
 A pilot verifies real schema-extension migrations, adapts the public requirements,
 and repairs rejected examples using diagnostics. Record human authoring/review
-effort against the previous workflow separately from agent effort. Completion
+effort against the previous workflow separately from agent effort. Historical
+measurements that were not collected must be marked unavailable. The owner
+accepted the current product and example on 2026-09-25; that acceptance is
+qualitative and does not establish a measured productivity improvement. Completion
 includes product-owner review and a roadmap update recording evidence,
 limitations, and the next decision. Do not mark this task DONE before that review.
 
@@ -98,8 +101,8 @@ only for checks that require them.
 
 ## Constraints and implementation tensions
 
-The repository initially contains only the three design documents; no source,
-generated obligations, fixtures, or executable test suite exists yet.
+At task creation the repository contained only the three design documents.
+The implementation and its current evidence are now recorded in the status file.
 
 SQLite's prepare API is not a public AST interface. Evaluate tokenizer/Lemon
 reuse before choosing the parser; do not replace script parsing with semicolon

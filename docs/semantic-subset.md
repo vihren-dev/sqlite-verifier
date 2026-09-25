@@ -70,7 +70,7 @@ remains open. A final uncommitted transaction cannot be reported as a committed
 successful migration. Resource, concurrency and crash failures remain outside
 the fixed execution assumptions.
 
-The [Atuin example](../examples/atuin/README.md) uses these generic operations.
-Its literal timestamp and elapsed duration represent one documented SQL instance;
-the verifier does not supply a clock, interpret a framework catalog, or execute
-the application.
+The [Atuin example](../examples/atuin/README.md) supplies only the upstream
+nullable shell-column ALTER payload and proves recovery of the approved old
+histories. It does not use transaction or literal DML wrappers; SQLx catalog
+maintenance and invocation remain trusted and outside the verified payload.
