@@ -8,6 +8,23 @@ The implementation being checked is a `(schema, interpretation)` pair. Interpret
 
 SQLite is the first backend. Preserve a path to PostgreSQL through backend-independent interfaces and reusable relational libraries, without requiring its implementation in the initial delivery.
 
+**SQL-only product boundary.** Schema and migration SQL files are the universal
+interface. The core does not integrate with ORMs or migration frameworks, read
+their catalogs, or add their bookkeeping and transaction operations implicitly.
+Execution profiles describe SQLite settings that affect semantics; application
+data assumptions and migration-history facts belong in approved requirements and
+interpretation invariants. Any database operation covered by the claim must be
+explicit in the supplied SQL and checked using reusable SQL semantics.
+
+Real-project examples need only reasonable schema and migration SQL, source-backed
+requirements and interpretations, proofs, and a README linking to a pinned upstream
+commit and relevant source/documentation fragments. Explain why the SQL represents
+the selected migration and why the logical model matches application behavior.
+Do not require importing or building the application, reproducing its framework,
+or certifying a live runner. Explicitly document any runtime-value instantiation
+and limits of the SQL example's equivalence claim. Framework integrations and
+invocation certification are outside this stage's scope.
+
 **Development and distribution.** The engineer must establish the following as part of project setup:
 
 - **Repository:** create the local Jujutsu (`jj`) repository at `~/work/sqlite-verifier` and connect it to the public GitHub repository `vihren-dev/sqlite-verifier`. Create and configure both repositories; use `jj` for local version control.
