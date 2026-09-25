@@ -75,3 +75,6 @@ input-limit and UTF-8 byte-span checks. A RAISE-expression test additionally
 distinguishes the actual pre-3.47 grammar from 3.51.0. Native CLI version/source-id
 checks pass for both releases. Runtime packaging and loader-root collection now
 include both parsers; installed archive confirmation remains pending.
+The coverage collector separately inventories the 3.46.0 generated grammar and
+requires its own parser-regression denominator. This adds syntax evidence only;
+it does not relabel existing 3.51.0 native/model observations as 3.46.0 evidence.
