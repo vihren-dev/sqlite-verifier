@@ -64,6 +64,8 @@ class CoverageTest(unittest.TestCase):
         self.assertEqual(report["native_model"]["authored_case_denominator"], len(cases()))
         self.assertEqual(report["proofs"]["status"], "NOT_RUN")
         self.assertEqual(report["proofs"]["denominator"], len(THEOREMS))
+        self.assertEqual(len(report["semantic_support"]["modeled_statement_forms"]), 5)
+        self.assertFalse(report["semantic_support"]["inventory_is_coverage_denominator"])
         imported = report["upstream_fixtures"]
         self.assertEqual((imported["selected_call_instances"], imported["upstream_textual_call_sites"]), (3, 59))
         self.assertEqual((imported["selected_distinct_ids"], imported["upstream_distinct_textual_ids"]), (2, 55))

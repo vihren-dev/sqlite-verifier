@@ -49,3 +49,7 @@ Root independently reviewed the source and reproduced all six native SQL cases
 and seven coverage regressions in the pinned default environment; accepted.
 The generic formal example and its final invariant documentation remain peer
 work; this status does not claim the overall SQL-only task is complete.
+
+Root-requested follow-up updates the named semantic support inventory to include
+explicit transactions and bounded literal INSERT/UPDATE, without treating that
+list as a denominator for SQLite semantics. Seven coverage regressions pass.
