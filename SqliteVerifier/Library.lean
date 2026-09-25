@@ -42,18 +42,16 @@ theorem Schema.emptyDatabase_conforms (valid : schema.Valid) :
     Conforms schema schema.emptyDatabase := by
   refine ⟨valid, ?_⟩
   intro name
-  cases found : schema.lookup name with
-  | none => simp [Schema.emptyDatabase, found]
-  | some columns =>
-    refine ⟨by simp [Schema.emptyDatabase, found], ?_⟩
+  cases found : schema.find? (fun entry => entry.name == name) with
+  | none => simp [Schema.emptyDatabase, Schema.lookup, found]
+  | some entry =>
+    refine ⟨by simp [Schema.emptyDatabase, Schema.lookup, found], ?_⟩
     intro table present
-    have equal : table = ⟨columns, []⟩ := by
+    have equal : table = { columns := entry.columns, rows := [], properties := entry.properties } := by
       simpa [Schema.emptyDatabase, found] using present.symm
     subst table
-    unfold Schema.lookup at found
-    obtain ⟨entry, entryFound, rfl⟩ := Option.map_eq_some_iff.mp found
-    have supported := (valid.2 entry (List.mem_of_find?_eq_some entryFound)).2
-    exact ⟨supported, by simp, by simp⟩
+    have supported := (valid.2 entry (List.mem_of_find?_eq_some found)).2.1
+    exact ⟨⟨supported, by simp, by simp⟩, by simp [Schema.lookupProperties, found]⟩
 
 /-- Schema lookup and conformance recover the actual stored table and its validity. -/
 theorem Conforms.table (conforms : Conforms schema database)
@@ -63,7 +61,7 @@ theorem Conforms.table (conforms : Conforms schema database)
   cases present : database name with
   | none => simp [present, lookup] at shape
   | some table =>
-    refine ⟨table, rfl, ?_, valid table present⟩
+    refine ⟨table, rfl, ?_, (valid table present).1⟩
     simpa [present, lookup] using shape
 
 /-- Validity of a selected logical view remains an explicit user obligation. -/
@@ -74,7 +72,7 @@ theorem projectedInterpretation_sound (contract : LogicalContract LogicalRows)
   intro database invariant
   obtain ⟨conforms, table, present, covered⟩ := invariant
   exact ⟨conforms, table.project fields, by simp [projectedInterpretation, observeTable, present],
-    valid table ((conforms.2 name).2 table present) covered⟩
+    valid table ((conforms.2 name).2 table present).1 covered⟩
 
 /-- NULL extension preserves native rowid validity and exact schema widths. -/
 theorem Table.Valid.appendColumns {table : Table} {columns : List Column} (valid : table.Valid)
@@ -92,15 +90,19 @@ theorem Conforms.set {schema nextSchema : Schema} {database : Database} {name : 
     {table : Table} (conforms : Conforms schema database) (schemaValid : nextSchema.Valid)
     (tableValid : table.Valid)
     (lookup : ∀ other, nextSchema.lookup other =
-      if other = name then some table.columns else schema.lookup other) :
+      if other = name then some table.columns else schema.lookup other)
+    (properties : ∀ other, nextSchema.lookupProperties other =
+      if other = name then some table.properties else schema.lookupProperties other) :
     Conforms nextSchema (database.set name table) := by
   refine ⟨schemaValid, ?_⟩
   intro other
   by_cases same : other = name
   · subst other
     simp only [Database.set, ↓reduceIte, Option.map_some, lookup]
-    exact ⟨trivial, fun result equal => by cases equal; exact tableValid⟩
-  · simpa only [Database.set, same, ↓reduceIte, lookup] using conforms.2 other
+    exact ⟨trivial, fun result equal => by
+      cases equal
+      exact ⟨tableValid, by simp [properties]⟩⟩
+  · simpa only [Database.set, same, ↓reduceIte, lookup, properties] using conforms.2 other
 
 /-- Independent table updates commute without an assumption about their rows. -/
 theorem Database.set_comm (database : Database) (first second : String)

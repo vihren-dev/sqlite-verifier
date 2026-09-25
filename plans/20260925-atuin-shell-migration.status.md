@@ -151,6 +151,24 @@ reproduction: upstream sqlite3.c constructs it solely from compiler identity
 macros. The actual compiler string is retained in raw options and its own field;
 all other compile flags and runtime limits remain exact comparisons. Fresh
 platform capture is retained at build/atuin-capture.json for CI inspection.
+
+## Independent payload native/model comparisons
+
+Merged immutable frontend8e35b418 and formal66a8e381 with the captured native
+profile. Three independently specified stored-value fixtures (empty, singleton,
+three rows) pass real SQLx before/after/post-close comparisons and production
+3.46 parser/translation into Lean. Kernel assertions establish schema validity,
+concrete row validity, model Conforms, successful payload result, exact expected
+NULL-extended history and unchanged other modeled tables. A false empty expected
+result is rejected. The full ten-object captured schema and native profile remain
+bound. Non-history model rows are explicitly abstracted empty in this payload
+unit; full SQLx readiness/bookkeeping/statistics relation is NOT_YET_COMPARED.
+
+Normal standalone test passed in11.883s; existing capture/adversarial tests passed
+in0.216s. Native subprocesses have30s limits, Lean checks45s, suite180s. Reports
+and actual generated proofs are retained under build/atuin-model-payload*. Root
+owns shared command/coverage integration. Full runner relation comparison follows
+the independently provided runner8ca23cd5 interface; no owner acceptance implied.
 The Ultra lead accepted parser, coverage and complete capture checkpoints through
 `9e65f66a`. Root merged them, preserving both progress records; CI retains the
 fresh complete capture alongside runner receipts. Formal/profile integration

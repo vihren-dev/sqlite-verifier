@@ -51,7 +51,7 @@ class Tree:
                          start=node.start, end=node.end)
 
 
-def parse(parser: Path, sql: bytes, source: str) -> Tree:
+def parse(parser: Path, sql: bytes, source: str, expected_profile: str = "3.51.0") -> Tree:
     """Parse a copied snapshot, never a caller-controlled file that may change mid-run."""
     with TemporaryDirectory(prefix="migration-parse-") as directory:
         snapshot = Path(directory) / "input.sql"
@@ -67,7 +67,7 @@ def parse(parser: Path, sql: bytes, source: str) -> Tree:
             status = "UNVERIFIED" if payload["status"] == "RESOURCE_LIMIT" else "INPUT_ERROR"
             raise Rejection(status, str(payload.get("message", "SQL parser rejected input")),
                             source=source, start=int(payload.get("offset", 0)))
-        if result.returncode != 0 or payload["profile"] != "3.51.0":
+        if result.returncode != 0 or payload["profile"] != expected_profile:
             raise ValueError("Parser build/profile mismatch")
         nodes = tuple(Node(item["symbol"], item["start"], item["end"], tuple(item["children"]))
                       for item in payload["nodes"])

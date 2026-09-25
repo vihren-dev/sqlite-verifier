@@ -73,6 +73,13 @@ class TranslationTests(unittest.TestCase):
         self.assertEqual(duplicate.exception.status, "INPUT_ERROR")
         self.assertEqual(starting_schema(tree('-- empty\n;')), ())
 
+    def test_wrong_parser_profile_is_rejected(self) -> None:
+        """Selecting a different engine cannot silently consume the current grammar binary."""
+        with self.assertRaises(Rejection) as rejected:
+            parse(PARSER, b'CREATE TABLE t(x TEXT);', 'fixture.sql', expected_profile='3.46.0')
+        self.assertEqual(rejected.exception.status, 'UNVERIFIED')
+        self.assertIn('profile mismatch', str(rejected.exception))
+
     def test_parser_failure_classes(self) -> None:
         """Resource exhaustion does not become a syntax error or a violated theorem."""
         for sql, status in [("CREATE TABLE", "INPUT_ERROR"), (" " * (1024 * 1024 + 1), "UNVERIFIED")]:

@@ -11,7 +11,7 @@ def contract : SqliteVerifier.LogicalContract LogicalState where
   valid := fun _ => True
   change := Eq
   schemaRequirement schema := schema.lookup "invoices" =
-    some [⟨"amount", .integer⟩, ⟨"note", .text⟩]
+    some [{ name := "amount", affinity := .integer }, { name := "note", affinity := .text }]
   failure := fun before _ _ after => before = after
   applicability := fun _ outcome =>
     match outcome with

@@ -33,13 +33,13 @@ def Outcome.database : Outcome → Database
 def step (statement : Statement) (database : Database) (position : Nat := 0) : Outcome :=
   match statement with
   | .createTable name columns =>
-    if !(supportedTableName name && supportedColumns columns) then
+    if !(supportedTableName name && supportedColumns columns && columns.all Column.plain) then
       .failure position .invalidDefinition database
     else match database name with
       | some _ => .failure position (.tableExists name) database
-      | none => .success (database.set name ⟨columns, []⟩)
+      | none => .success (database.set name { columns := columns, rows := [] })
   | .addColumn name column =>
-    if !(supportedTableName name && supportedColumn column) then
+    if !(supportedTableName name && supportedColumn column && column.plain) then
       .failure position .invalidDefinition database
     else match database name with
       | none => .failure position (.missingTable name) database

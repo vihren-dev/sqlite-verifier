@@ -1,14 +1,10 @@
-import Std
+import SqliteVerifier.Declarations
 
 /-! Stored observations for the restricted ordinary-table backend. No coercions,
-SQL expressions, constraints, or native-engine correctness are assumed here. -/
+SQL expressions or native-engine correctness are assumed here. Existing schema
+properties are retained exactly; Valid deliberately overapproximates native data. -/
 
 namespace SqliteVerifier
-
-/-- Supported declarations; the frontend accepts exactly these type names. -/
-inductive Affinity where
-  | integer | real | text | blob | numeric
-  deriving Repr, DecidableEq
 
 /-- An opaque superset of stored values; preservation never evaluates/coerces them.
 Native conformance supplies an embedding, not a claim that every tag is native data. -/
@@ -18,12 +14,6 @@ inductive Value where
   | real (bits : UInt64)
   | text (bytes : List UInt8)
   | blob (bytes : List UInt8)
-  deriving Repr, DecidableEq
-
-/-- A column in this subset is nullable and has no constraint or explicit default. -/
-structure Column where
-  name : String
-  affinity : Affinity
   deriving Repr, DecidableEq
 
 /-- Row identity is the actual SQLite rowid, independently of application keys. -/
@@ -36,12 +26,14 @@ structure Row where
 structure Table where
   columns : List Column
   rows : List Row
+  properties : TableProperties := {}
   deriving Repr, DecidableEq
 
 /-- Finite input schema entry; names arrive decoded and ASCII-normalized. -/
 structure TableSchema where
   name : String
   columns : List Column
+  properties : TableProperties := {}
   deriving Repr, DecidableEq
 
 /-- Schema order is retained for generated artifacts; lookup uses unique names. -/
@@ -57,7 +49,7 @@ def normalizeIdentifier (name : String) : String :=
 /-- This subset excludes aliases that would hide its rowid observations. -/
 def supportedColumn (column : Column) : Bool :=
   column.name != "" && normalizeIdentifier column.name == column.name &&
-    !(["rowid", "_rowid_", "oid"].contains column.name)
+    !(["rowid", "_rowid_", "oid"].contains column.name) && declaredTypeMatches column
 
 /-- The profile fixes SQLite's ordinary-table column limit at its default value. -/
 def maximumColumns : Nat := 2000
@@ -72,6 +64,31 @@ def supportedColumns (columns : List Column) : Bool :=
 def supportedTableName (name : String) : Bool :=
   name != "" && normalizeIdentifier name == name && !name.startsWith "sqlite_"
 
+/-- Keys use existing, distinct named columns; NULL behavior is not rewritten. -/
+def supportedKey (columns : List Column) (key : List String) : Bool :=
+  !key.isEmpty && key.eraseDups.length == key.length &&
+    key.all (fun name => columns.any (fun column => column.name == name))
+
+/-- Ordinary rowid tables exclude the special single INTEGER PRIMARY KEY alias. -/
+def supportedProperties (columns : List Column) (properties : TableProperties) : Bool :=
+  (properties.primaryKey.isEmpty || supportedKey columns properties.primaryKey) &&
+  !(properties.primaryKey.length == 1 && columns.any (fun column =>
+    properties.primaryKey == [column.name] && column.declaredType == .canonical &&
+      column.affinity == .integer)) &&
+  properties.uniqueKeys.all (supportedKey columns) &&
+  properties.indexes.all (fun index => supportedTableName index.name &&
+    supportedKey columns index.columns)
+
+/-- Engine-managed statistics have exactly these typeless ordinary columns. -/
+def statisticsColumns (names : List String) : List Column :=
+  names.map fun name => { name := name, affinity := .blob, declaredType := .untyped }
+
+/-- Admit existing engine statistics without allowing arbitrary reserved schemas. -/
+def supportedExistingTable (entry : TableSchema) : Bool :=
+  supportedTableName entry.name ||
+    entry == { name := "sqlite_stat1", columns := statisticsColumns ["tbl", "idx", "stat"] } ||
+    entry == { name := "sqlite_stat4", columns := statisticsColumns ["tbl", "idx", "neq", "nlt", "ndlt", "sample"] }
+
 /-- SQLite rowids are signed 64-bit integers, not proof-only synthetic keys. -/
 def validRowid (rowid : Int) : Prop := -(2 ^ 63 : Int) ≤ rowid ∧ rowid < 2 ^ 63
 
@@ -84,22 +101,29 @@ def Table.Valid (table : Table) : Prop :=
 /-- Exact schemas have no duplicate or unsupported table definitions. -/
 def Schema.Valid (schema : Schema) : Prop :=
   (schema.map TableSchema.name).Nodup ∧
-  ∀ entry ∈ schema, supportedTableName entry.name = true ∧
-    supportedColumns entry.columns = true
+  ∀ entry ∈ schema, supportedExistingTable entry = true ∧
+    supportedColumns entry.columns = true ∧ supportedProperties entry.columns entry.properties = true ∧
+    (schema.flatMap (fun table => table.name :: table.properties.indexes.map IndexDefinition.name)).Nodup
 
 /-- Public lookup supports schema requirements without selecting a canonical DB. -/
 def Schema.lookup (schema : Schema) (name : String) : Option (List Column) :=
   (schema.find? fun entry => entry.name == name).map TableSchema.columns
 
+/-- Metadata lookup is separate from the legacy column-only convenience lookup. -/
+def Schema.lookupProperties (schema : Schema) (name : String) : Option TableProperties :=
+  (schema.find? fun entry => entry.name == name).map TableSchema.properties
+
 /-- Model-schema conformance; native representability is a separate embedding claim. -/
 def Conforms (schema : Schema) (database : Database) : Prop :=
   schema.Valid ∧ ∀ name,
     (database name).map Table.columns = schema.lookup name ∧
-    ∀ table, database name = some table → table.Valid
+    ∀ table, database name = some table → table.Valid ∧
+      schema.lookupProperties name = some table.properties
 
 /-- A finite empty representative is useful for executable schema calculations. -/
 def Schema.emptyDatabase (schema : Schema) : Database :=
-  fun name => (schema.lookup name).map fun columns => ⟨columns, []⟩
+  fun name => (schema.find? fun entry => entry.name == name).map fun entry =>
+    { columns := entry.columns, rows := [], properties := entry.properties }
 
 /-- Replace one named table; untouched names retain their exact stored data. -/
 def Database.set (database : Database) (name : String) (table : Table) : Database :=
@@ -111,7 +135,9 @@ def Row.appendNulls (row : Row) (count : Nat) : Row :=
 
 /-- Add columns without altering any existing cell or physical row identity. -/
 def Table.appendColumns (table : Table) (columns : List Column) : Table :=
-  ⟨table.columns ++ columns, table.rows.map (·.appendNulls columns.length)⟩
+  { table with
+    columns := table.columns ++ columns
+    rows := table.rows.map (·.appendNulls columns.length) }
 
 /-- Exact reads return none for absent columns, never invented cell values. -/
 def Table.project (table : Table) (names : List String) : List (Int × List (Option Value)) :=

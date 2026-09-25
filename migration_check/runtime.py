@@ -38,8 +38,11 @@ class Runtime:
     checker: Path
 
     @classmethod
-    def locate(cls) -> "Runtime":
+    def locate(cls, sqlite_version: str = "3.51.0") -> "Runtime":
         """Resolve a development/install runtime, never a candidate Lake configuration."""
+        parsers = {"3.51.0": "sqlite-parser", "3.46.0": "sqlite-parser-3.46.0"}
+        if sqlite_version not in parsers:
+            raise Rejection("UNSUPPORTED", f"No installed parser for SQLite {sqlite_version}")
         root = Path(__file__).resolve().parent.parent
         configured = os.environ.get("MIGRATION_CHECK_LEAN_SYSROOT")
         if configured:
@@ -52,7 +55,7 @@ class Runtime:
                                  capture_output=True, text=True, check=True, timeout=5)
         if not version.stdout.startswith("Lean (version 4.33.0,"):
             raise Rejection("INPUT_ERROR", "The verifier requires the pinned Lean 4.33.0 runtime")
-        runtime = cls(root, sysroot, root / ".lake/build/lib/lean", root / "build/sqlite-parser",
+        runtime = cls(root, sysroot, root / ".lake/build/lib/lean", root / "build" / parsers[sqlite_version],
                       root / ".lake/build/bin/migration-proof-checker")
         if not runtime.library.is_dir() or not runtime.parser.is_file() or not runtime.checker.is_file():
             raise Rejection("INPUT_ERROR", "Verifier runtime is incomplete; run just build or reinstall")
