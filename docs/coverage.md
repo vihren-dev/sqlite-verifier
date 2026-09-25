@@ -35,14 +35,15 @@ The report keeps these scopes separate:
 | Imported fixtures | Three selected assertion instances of 59 textual alter3.test call sites; two distinct IDs of 55. Not runtime-expanded Tcl cases or the whole SQLite corpus. The inherited view is retained, so model checking remains unsupported. |
 | Semantic support | Named restricted statement forms, including explicit transactions and literal writes, as defined in semantic-subset.md; this inventory is not a coverage denominator. |
 | Native/model observations | All five authored derived cases compared against independent expected results through the production parser/translator and Lean checks. Zero discrepancies means only those completed comparisons. |
-| Atuin SQL (`atuin_sql`, SQLite 3.46.0) | Six independent native SQL cases: empty/singleton/three-row histories, negative metadata rowids and NULL keys, maximum-rowid allocation, and statement ABORT followed by explicit ROLLBACK. These are SQL-mechanics tests, not framework traces or witnesses of the example's approved assumptions. |
+| Atuin SQL (`atuin_sql`, SQLite 3.46.0) | Three independent native SQL cases: empty, singleton and three-row histories. Each checks preservation of all old stored fields under the supplied payload. These are bounded storage observations, not framework traces or witnesses of the example's approved assumptions. |
 
-The fresh Atuin wrapper output must have the complete case identities, source SQL
-hashes, expected schema count and native-only status labels. Missing, duplicated,
+The fresh Atuin test output must have the complete case identities, source SQL
+hashes and native-only status labels. Missing, duplicated,
 failed or altered observations leave comparison counts unknown. It runs once per
 aggregate check and writes `build/atuin-sql.json` for inspection; an old file is
-never substituted for its current output. One case deliberately exercises SQLite's
-random rowid-allocation boundary outside the deterministic model's admitted domain.
+never substituted for its current output. Native fixtures include adversarial
+storage values outside the business decoder's admitted domain; their preservation
+is additional finite evidence, not an application interpretation witness.
 `model_status` remains `NOT_COMPARED_BY_THIS_TEST`: these observations are not
 presented as native/model refinement proofs. Public CLI and kernel checks separately
 establish whether the supplied example proof is accepted.

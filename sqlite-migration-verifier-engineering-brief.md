@@ -1,8 +1,8 @@
 **Lean SQLite Migration Verifier — Engineering Brief**
 
-Revision 0.6 · 25 September 2026
+Revision 0.7 · 25 September 2026
 
-Build a tool that verifies one migration SQL file against reusable human-approved requirements. The human approves the logical model, requirements, current interpretation, and assumptions. The agent supplies the migration, resulting interpretation, and proofs. Check them under the supplied execution profile; return `0` on success and nonzero with diagnostics otherwise. One migration may contain multiple SQL statements.
+Build a tool that verifies one migration SQL file against reusable human-approved requirements. The primary product promise is preservation of existing business information while an agent changes its database representation. The human approves the logical model, requirements, current interpretation, and assumptions. The agent supplies the migration, resulting interpretation, and proofs. Check them under the supplied execution profile; return `0` on success and nonzero with diagnostics otherwise. One migration may contain multiple SQL statements.
 
 The implementation being checked is a `(schema, interpretation)` pair. Interpretations map concrete database states to the fixed logical model and declare their representation invariants; they may remain unchanged across a migration. Requirements stay independent of candidate migrations and can be reused in separate invocations. Generated obligations and proofs are migration-specific.
 
@@ -76,9 +76,35 @@ decoders and representation invariants, and proves their compatibility with the
 generated schema. Do not require users to maintain a duplicate Lean schema.
 Schema-only generated definitions may be visible to approved models; candidate
 migration definitions and resulting schemas must not shape approved requirements.
-Application migration-history facts are representation invariants, not engine
-settings or business entities by default. Decoding assumptions and abstractions
+Migration-framework correctness is not a prerequisite for business preservation.
+A project may trust its framework and supply only the SQL payload to verify.
+Any application migration-history facts explicitly requested by a user belong
+in representation invariants, not engine settings; do not add them by default. Decoding assumptions and abstractions
 from application source must be explicit, with no silently omitted protected rows.
+
+**Preservation-first workflow.** Approve the pre-migration business model and its
+current interpretation before knowing the proposed schema change. The model must
+not anticipate new fields such as Atuin's shell. The agent supplies SQL and an
+interpretation of the resulting schema into that same old model, proving
+`α_after(D′) = α_before(D)` for every admitted starting state and covered outcome.
+No predetermined resulting schema or correctness requirement for a new feature is
+necessary. The actual resulting schema remains bound to the supplied SQL and the
+resulting interpretation must be defined and valid against it.
+
+This establishes recoverability of the protected business information from
+resulting storage. Agreement with the updated application's own reads needs a
+separate connection; neither feature correctness nor all stored bytes are covered
+merely by business equality. New fields may be added to a future approved model,
+but are not retroactively part of the old preservation obligation. Preserve record
+coverage and multiplicity; state the selected ordering semantics explicitly.
+
+The initial preservation example proves successful completion for all admitted
+states, rather than ignoring failures. More general policies may accept failures
+only with their explicit safety obligations. Framework catalog management,
+selection, checksums and wrapper behavior may be trusted and excluded; document
+that boundary and never claim the payload proof verifies the surrounding runner.
+The existing general allowed-change, schema and outcome predicates remain
+available for users who deliberately need stronger contracts.
 
 **Interpretation contract.** Fix logical state type `L`, validity predicate `I : L → Prop`, and reusable preservation/allowed-change predicate `Q : L → L → Prop`, relating the migration's before and after states. Define current and resulting representation invariants `V_before`, `V_after` and interpretations `α_before`, `α_after`. Each invariant must imply conformance to its schema, interpretation definedness, and logical validity. Cover all required entities/fields; do not silently discard malformed or unmatched protected records. Interpretations read the represented database and approved fixed context; proof-only copies of old data cannot substitute for data lost from resulting storage.
 

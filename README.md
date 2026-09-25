@@ -1,6 +1,6 @@
 # SQLite migration verifier
 
-An in-development Lean verifier for SQLite schema extensions. The engineering
+An in-development Lean verifier for preserving business information across SQLite migrations. The engineering
 contract is in [the brief](sqlite-migration-verifier-engineering-brief.md), with
 acceptance tracked in [the Step 1 task](plans/20260924-step-1-schema-extensions.task.md).
 The CLI verifies the documented schema-extension subset. Step 1 acceptance
@@ -83,6 +83,10 @@ including transitive dependencies. That baseline compares only `approved/` Lean
 hashes; SQL and profile are bound to each invocation separately. Protect the
 baseline, trusted verifier installation, and any additional desired inputs in
 the calling project/CI.
+
+The [Atuin example](examples/atuin/README.md) protects the pre-migration history
+model while allowing the new schema to evolve. Its contract does not prescribe
+the new shell field or verify SQLx bookkeeping.
 
 Start with the [examples](examples/README.md), [semantic subset](docs/semantic-subset.md),
 [fixed execution profile](docs/execution-profile.md), and
