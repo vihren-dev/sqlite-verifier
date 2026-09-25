@@ -1,6 +1,6 @@
 # Native runtime packaging
 
-Created: 2026-09-24. Status: IN PROGRESS.
+Created: 2026-09-24. Status: DONE — both native archives published and verified on 2026-09-25.
 
 The declared macOS ARM64 and Linux x86-64 platforms have installable verifier
 archives containing the checked CLI, pinned parser/checker/library, and Lean

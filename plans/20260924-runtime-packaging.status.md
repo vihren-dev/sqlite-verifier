@@ -1,6 +1,6 @@
 # Native runtime packaging status
 
-Created: 2026-09-24. Status: IN PROGRESS — not DONE.
+Created: 2026-09-24. Status: DONE — published engineering prerelease on 2026-09-25.
 Task: [runtime packaging](20260924-runtime-packaging.task.md).
 Source: Step 1 task, engineering brief v0.5, roadmap proposal v0.1.
 Owner: technical_lead; independent reviewers: root and conformance_review.
@@ -64,15 +64,30 @@ exit zero, including native binaries, loader manifest, offline cache signatures,
 extraction/installation and isolated VERIFIED, VIOLATED and UNSUPPORTED cases.
 The rebuilt archive SHA-256 is
 `3f89e1c416a1781423c9565de78ba508189409c8a53ec4b7d63be572b89c562e`
-(972 MiB). This is author acceptance of the changed copy set; the independently
-accepted earlier checksum above describes the earlier archive.
+(972 MiB). Author and independent conformance reviewer both accepted this exact
+archive after installed smoke tests; the earlier checksum describes its predecessor.
 
-Hosted Linux run `35995826585` passed the corrected collector and real sandboxed
-compilation, then exposed checker lookup of `libgcc_s.so.1` inside the sandbox.
-The integration engineer is collecting the exact native dependency report before
-choosing the loader-search correction; no Linux archive success is claimed.
+Hosted Linux diagnostics identified a missing lexical Nix package root when a
+library symlink resolves into another package. Reviewed fix `5ab817ec` retains
+both exact roots. No loader-cache permission or whole-store access was added.
+Run [35998140680](https://github.com/vihren-dev/sqlite-verifier/actions/runs/35998140680)
+at integrated `c840b0434186` passes both platform jobs, including complete source
+checks, coverage, native packaging and actual offline installed smoke tests.
 
-Hosted Linux package execution and coordinated engineering prerelease publication
-remain pending; this task remains IN PROGRESS. No bit-for-bit reproducible archive
+Tag `v0.1.0-rc.1` names that checked commit. Its independent release workflow
+[36102477873](https://github.com/vihren-dev/sqlite-verifier/actions/runs/36102477873)
+passes both platform checks and the publication job. The
+[public prerelease](https://github.com/vihren-dev/sqlite-verifier/releases/tag/v0.1.0-rc.1)
+contains exactly two native archives and their checksum files; it is not a draft.
+The publishing job rehashed both archives before publication. The integration
+engineer downloaded the two checksum files and matched their names/hashes against
+GitHub's archive SHA-256 digests, also verifying the exact tag commit.
+
+| Platform | Archive bytes | SHA-256 |
+| --- | ---: | --- |
+| aarch64-darwin | 1,019,234,481 | `8a4b9000558936dc9b352ca3eb0f2e65c5f0c88d28f5e5a96d905a7f1f2d7346` |
+| x86_64-linux | 1,002,219,755 | `cfae408d23d539bfebe723f872f685e9baa9ceba3b2a6922152784ddcec4af27` |
+
+Packaging and coordinated publication are DONE. No bit-for-bit reproducible archive
 claim is made: tar/gzip metadata and native build timestamps are not normalized.
 Real-pilot acceptance and product-owner review remain separate Step 1 requirements.

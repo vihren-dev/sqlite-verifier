@@ -1,6 +1,6 @@
 # Linux sandbox loader regression
 
-Created: 2026-09-24. Status: IN PROGRESS pending packaging integration and hosted rerun.
+Created: 2026-09-24. Status: DONE — confirmed by hosted source and installed-package checks.
 Task: [Step 1](20260924-step-1-schema-extensions.task.md).
 Owner: integration engineer (diagnosis/regression); technical lead (runtime implementation).
 
@@ -124,3 +124,12 @@ Independent conformance review accepted the final exact-root change and reran
 all three tests in pinned Nix (0.080 seconds). Its review confirms the retained
 loader report matches the symlink traversal mechanism and that strict metadata
 validation and sandbox boundaries remain in place.
+
+## 2026-09-25: hosted acceptance
+
+Run [35998140680](https://github.com/vihren-dev/sqlite-verifier/actions/runs/35998140680)
+at `c840b043418682ed549ae077d7c349e0aa84696e` passes on both declared platforms.
+Linux records three exact runtime roots; real isolated compilation, the complete
+CLI suite, bounded coverage, native packaging and offline installed positive,
+refuted and unsupported checks pass. MacOS passes the same package checks.
+This regression is DONE. Actual pilot acceptance remains a separate Step 1 gate.

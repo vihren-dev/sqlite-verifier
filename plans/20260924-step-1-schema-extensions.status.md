@@ -91,11 +91,8 @@ not a proof of SQLite's C implementation.
 - Local parser/native/model/gate/compiler/CLI suites pass under pinned Nix.
 - CLI cases include changed SQL/interpretation, sorry, unproved premise, custom
   axiom, forged target alias, unsupported dependencies and changed approved helper.
-- Hosted run `35990227855` (`b67516ab`) passed on x86_64-linux and aarch64-darwin,
-  including real containment and kernel gate tests.
-- Hosted complete-CLI run `35991726213` (`c2288ede`) passed macOS and failed
-  Linux; exact loader roots and ELF-library classification corrections are now
-  integrated for the next hosted run.
+- Hosted run `35998140680` (`c840b0434186`) passes on both declared platforms,
+  including containment, complete CLI, native packaging and installed smoke tests.
 - Baseline integration regression passes (0.906 seconds). Its workflow/code were
   independently reviewed and authorized by the technical lead; remote event-policy
   and branch rules are active (policy 5478, ruleset 23934665). Hosted unchanged
@@ -105,19 +102,28 @@ not a proof of SQLite's C implementation.
   dependency is unsupported. Five separately derived model cases do not change
   that status or imply general native refinement.
 
-## Remaining engineering work
+## Engineering release checkpoint
 
 Native archive building, offline installation, shared coverage reporting and a
-checked prerelease workflow are integrated. The independently tested macOS
-archive passes real installed verification. The next hosted run must confirm
-Linux loader lookup and its extracted archive, followed by a fresh version-tag run
-that publishes the checked platform assets. No release is claimed at this checkpoint.
+checked prerelease workflow are integrated. Full hosted checks and extracted
+archive installation pass on both platforms at `c840b0434186`, run
+[35998140680](https://github.com/vihren-dev/sqlite-verifier/actions/runs/35998140680).
+Tag `v0.1.0-rc.1` names that exact checked commit. Its independent version-tag
+workflow passes both platform checks and publication. The
+[public prerelease](https://github.com/vihren-dev/sqlite-verifier/releases/tag/v0.1.0-rc.1)
+has two checked native archives and matching checksum files. Exact hashes and
+publication evidence are in [packaging status](20260924-runtime-packaging.status.md).
 
 ## Product-owner input and final acceptance
 
 A real pilot needs its existing schema, actual creation/nullable-column migrations,
 and the logical rows/fields/properties to preserve. A local project path or
 sanitized SQL is enough to begin; the team can help formalize requirements.
+On 2026-09-25 the owner requested a popular open-source pilot instead. The
+[candidate research](../docs/pilot-candidates.md) recommends Atuin's actual history
+migration, while identifying existing constraints, indexes and runner behavior
+outside our current subset. Pilot selection and compatibility scope need owner
+input; no semantics or original requirements were changed by the research.
 Measure actual human authoring/review/repair effort separately from agent effort,
 then obtain owner acceptance and update the roadmap before marking Step 1 DONE.
 
@@ -148,10 +154,8 @@ and poisoned ambient runtime variables all pass. Installer races and URI paths
 have bounded regressions. The package is about 972 MiB and is not claimed to be
 bit-for-bit reproducible. Nix and platform kernel/system libraries are prerequisites.
 
-Hosted source run `35993515065` exposed a second Linux collector issue: Lean's
-`libc++.so` is a linker script. Reviewed fix `cf2dde6d` inspects only actual ELF
-library files while keeping executable inspection strict. Three focused tests
-pass; the next Linux hosted run remains necessary.
+The collector inspects only actual ELF library files while keeping executable
+inspection strict; LLVM linker scripts are not treated as shared objects.
 
 Shared `just check` now includes the bounded coverage report; CI retains it and
 installable archives and tests the extracted package before upload. Version tags
@@ -180,10 +184,12 @@ focused tests. The temporary cache probe is removed; labeled loader artifacts
 remain. See [loader evidence](20260924-linux-loader.status.md) for exact paths.
 The lead authorized integration; root's three focused tests pass (0.078 seconds),
 and Actionlint/ShellCheck pass on the integrated workflow.
-Full hosted Linux package confirmation remains pending; no release tag exists.
+Full hosted Linux package confirmation now passes in run `35998140680`, as does
+macOS. The source, coverage, loader and runtime artifacts are retained.
 
 The lead's final requirements audit found no additional engineering gap beyond
 cross-platform package evidence and prerelease publication. The stale task header
 now reflects implementation progress. The authorized engineering preview is
-`v0.1.0-rc.1` after both main jobs pass, followed by its own checked tag workflow.
+`v0.1.0-rc.1`; it was tagged on 2026-09-25 after both main jobs passed and started
+[release run 36102477873](https://github.com/vihren-dev/sqlite-verifier/actions/runs/36102477873).
 Stable release and Step 1 DONE still require the actual pilot and owner acceptance.

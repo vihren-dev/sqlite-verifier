@@ -4,7 +4,7 @@ An in-development Lean verifier for SQLite schema extensions. The engineering
 contract is in [the brief](sqlite-migration-verifier-engineering-brief.md), with
 acceptance tracked in [the Step 1 task](plans/20260924-step-1-schema-extensions.task.md).
 The CLI verifies the documented schema-extension subset. Step 1 acceptance
-still requires release evidence, an actual pilot, and product-owner review; the
+still requires an actual pilot and product-owner review; the
 checked-in examples are engineering demonstrations.
 
 ## Install
@@ -15,6 +15,7 @@ Follow [the installation guide](docs/install.md), then try the bundled examples.
 [GitHub Releases](https://github.com/vihren-dev/sqlite-verifier/releases) publishes
 archives only after both platform checks and extracted-installation tests pass.
 Prereleases are engineering previews; they do not establish pilot acceptance.
+The first checked preview is [v0.1.0-rc.1](https://github.com/vihren-dev/sqlite-verifier/releases/tag/v0.1.0-rc.1).
 
 ## Development
 
