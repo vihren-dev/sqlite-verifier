@@ -42,3 +42,18 @@ comparison commands or nested `nix develop`. Root comparison output is retained
 at `build/resources-coverage.json`; the command trace is
 `build/resources-check-dry-run.txt`. Incremental parser and full package/hosted
 checks remain pending before the repair is complete.
+
+Repair-only integration is based on public `e094a5ff`, applying reviewed units
+`eb6b728e`, `d10e7eb3` and `215e06c5`. Backport conflict resolution retains the
+public test inventory and excludes unfinished Atuin payload/model files. The
+former separate CI capture step is included once in the shared check instead.
+Protected example sources/manifests and the target-owned baseline workflow are
+unchanged. The five incremental parser tests are part of the shared recipe;
+the author and Ultra reviewer observed fresh-shell cache hits on macOS.
+Full repair-only `just package` passed on aarch64-darwin, including the complete
+verifier checks, archive creation and offline installed positive/refuted/unsupported
+checks (`build/resources-package-1.log`, exit 0). After packaging, the real Nix
+regression still reports the same 3264-byte source for both fixture types. Both
+native parser outputs were reused without any compiler or generator calls; this
+check now runs in the shared recipe on each platform. All five invalidation tests
+and authored documentation checks pass. Both hosted platforms remain pending.

@@ -174,5 +174,16 @@ class IncrementalBuildTests(unittest.TestCase):
                 self.assertFalse(build_cache.stable_environment(environment), environment)
 
 
+def native_reuse() -> None:
+    """Require the default pinned platform to reuse real build outputs without invoking tools."""
+    with patch.object(build, "run", side_effect=AssertionError("Unchanged pinned parser invoked a build tool")):
+        build.build("3.51.0", "upstream", "sqlite-parser")
+        build.build("3.46.0", "upstream-3.46.0", "sqlite-parser-3.46.0")
+    print("Both pinned native parsers reused their checked outputs without build-tool calls.")
+
+
 if __name__ == "__main__":
-    unittest.main()
+    if sys.argv[1:] == ["--native-reuse"]:
+        native_reuse()
+    else:
+        unittest.main()
