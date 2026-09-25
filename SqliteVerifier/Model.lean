@@ -79,6 +79,16 @@ def supportedProperties (columns : List Column) (properties : TableProperties) :
   properties.indexes.all (fun index => supportedTableName index.name &&
     supportedKey columns index.columns)
 
+/-- Engine-managed statistics have exactly these typeless ordinary columns. -/
+def statisticsColumns (names : List String) : List Column :=
+  names.map fun name => { name := name, affinity := .blob, declaredType := .untyped }
+
+/-- Admit existing engine statistics without allowing arbitrary reserved schemas. -/
+def supportedExistingTable (entry : TableSchema) : Bool :=
+  supportedTableName entry.name ||
+    entry == { name := "sqlite_stat1", columns := statisticsColumns ["tbl", "idx", "stat"] } ||
+    entry == { name := "sqlite_stat4", columns := statisticsColumns ["tbl", "idx", "neq", "nlt", "ndlt", "sample"] }
+
 /-- SQLite rowids are signed 64-bit integers, not proof-only synthetic keys. -/
 def validRowid (rowid : Int) : Prop := -(2 ^ 63 : Int) ≤ rowid ∧ rowid < 2 ^ 63
 
@@ -91,7 +101,7 @@ def Table.Valid (table : Table) : Prop :=
 /-- Exact schemas have no duplicate or unsupported table definitions. -/
 def Schema.Valid (schema : Schema) : Prop :=
   (schema.map TableSchema.name).Nodup ∧
-  ∀ entry ∈ schema, supportedTableName entry.name = true ∧
+  ∀ entry ∈ schema, supportedExistingTable entry = true ∧
     supportedColumns entry.columns = true ∧ supportedProperties entry.columns entry.properties = true ∧
     (schema.flatMap (fun table => table.name :: table.properties.indexes.map IndexDefinition.name)).Nodup
 

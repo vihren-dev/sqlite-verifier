@@ -12,7 +12,7 @@ inductive Affinity where
 
 /-- Canonical names are determined by affinity; aliases retain rowid-relevant spelling. -/
 inductive DeclaredType where
-  | canonical | bigInt | timestamp | boolean
+  | canonical | bigInt | timestamp | boolean | untyped
   deriving Repr, DecidableEq
 
 /-- Existing timestamp defaults are recorded but never evaluated by nullable ADD. -/
@@ -49,6 +49,7 @@ def declaredTypeMatches (column : Column) : Bool :=
   | .canonical => true
   | .bigInt => column.affinity == .integer
   | .timestamp | .boolean => column.affinity == .numeric
+  | .untyped => column.affinity == .blob
 
 /-- New columns preserve the existing restricted, nullable, default-free semantics. -/
 def Column.plain (column : Column) : Bool :=

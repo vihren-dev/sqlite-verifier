@@ -27,6 +27,9 @@ def table : Table := { columns := [textKey], rows := [⟨-9, [.null]⟩], proper
 #guard !timestamp.plain
 #guard !supportedColumn { version with affinity := .text }
 #guard !supportedProperties [textKey] { uniqueKeys := [["missing"]] }
+#guard supportedExistingTable { name := "sqlite_stat1", columns := statisticsColumns ["tbl", "idx", "stat"] }
+#guard !supportedExistingTable { name := "sqlite_stat1", columns := [textKey] }
+#guard !supportedTableName "sqlite_stat1"
 
 /-- The full schema detects collisions between table names and named indexes. -/
 example : ¬Schema.Valid [{ name := "key_index", columns := [textKey], properties := properties }] := by

@@ -46,3 +46,17 @@ after COMMIT, and bind catalog/version/checksum readiness explicitly. Add actual
 captured-schema proofs and reusable pilot inputs, independent native/model tests,
 end-to-end gate checks and installed-package evidence. No pilot verification or
 owner acceptance is claimed by this schema unit.
+
+## Persisted statistics schema follow-up
+
+Native SQLx optimize-on-close evidence revealed `sqlite_stat1` and `sqlite_stat4`
+in the persisted baseline after the previous six migrations. `DeclaredType`
+therefore includes omitted types with BLOB affinity, and existing-schema validity
+admits precisely those two engine-defined column/property layouts. This does not
+admit arbitrary `sqlite_*` objects or permit migration statements to alter them.
+The frontend and complete capture are being updated independently. Statistics
+row maintenance belongs in the forthcoming disjoint runner footprint.
+
+Validation: `timeout 60s lake build` again passed all 15 jobs. Additional guards
+accept the exact stat1 layout, reject a altered layout, and reject reserved names
+as migration targets. No final SQLx proof or package claim is made here.
