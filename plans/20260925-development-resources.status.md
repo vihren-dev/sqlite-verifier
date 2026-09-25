@@ -57,3 +57,14 @@ Atuin integration. The complete root check passes with real native cache reuse
 and all new environment-admission regressions. Public repair PR #2 remains
 separate from the pending logical-baseline approval. Its first macOS package run
 passed; the corrected commit is running both platforms in hosted run 36115583804.
+
+Final hosted run 36115583804 passes both native package/install jobs at `f879a1e4`
+(Linux 10m34s, macOS 14m15s); the protected-baseline check also passes. A read-only
+Nix-store scan finds no remaining project source snapshots containing release
+archives. No cleanup was performed by this team.
+
+Automatic approval review rejected the proposed protected-main/admin merge of
+PR #2 because explicit merge/bypass authorization was missing. The PR remains
+open at the fully checked revision, with no merge or alternate push attempted.
+The owner has been asked for that narrow integration authorization separately
+from the Atuin contract review. Public integration and task DONE remain pending.

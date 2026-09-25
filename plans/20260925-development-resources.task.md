@@ -16,8 +16,8 @@ The integration engineer owns build resources and release correctness. Before
 expensive toolchain/package work, a bounded check rejects less than 10 GiB free
 with an actionable diagnostic; unexpectedly large environment inputs also reject.
 Artifact output remains outside environment inputs. Cache retention and cleanup
-authority are explicit and never include user databases or volumes. Reclaiming
-the already identified unreferenced project snapshots awaits owner approval.
+authority are explicit and never include user databases or volumes. Any remaining
+targeted deletion requires the owner's separate scoped approval.
 
 Routine work runs focused tests; integration runs complete checks on both native
 platforms. Packaging/runtime changes and release candidates retain complete

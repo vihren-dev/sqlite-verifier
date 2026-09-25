@@ -1,6 +1,6 @@
 # Incremental parser compilation
 
-Created: 2026-09-25. Status: IN PROGRESS.
+Created: 2026-09-25. Status: DONE.
 Task: [development resources](20260925-development-resources.task.md).
 
 The root task authorizes incremental parser builds while preserving upstream
@@ -58,3 +58,10 @@ shell with every build-tool call forbidden reused both outputs. Five focused tes
 passed in 0.138 seconds, followed by both complete existing parser regression
 suites. Unknown overrides and purity-enforced environments retain conservative
 rebuild behavior; no claim of incremental reuse for arbitrary external tools.
+
+Hosted Linux exposed the pinned shell's absent output RPATH. Integration's reviewed
+correction `f879a1e4` retains conservative search-path admission and checks policy
+again after compilation. Seven focused tests pass independently. Complete native
+Linux and macOS CI in run 36115583804 now demonstrate actual no-tool parser reuse,
+both grammar suites and installed-runtime success. Parent integration awaits
+explicit authorization for the protected-main merge.
