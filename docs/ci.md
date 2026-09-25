@@ -39,6 +39,8 @@ Lean proof artifacts and verification results are outside the cache; every run
 rebuilds and checks them. A miss uses the ordinary pinned Nix build. Hosted cold
 and warm package runs must establish whether restoration and saving pay for
 themselves; the timing report records measured results rather than assuming a gain.
+See [CI performance measurements](ci-performance.md) for complete runs and the
+per-invocation import reuse that reduces checker work without caching verdicts.
 
 The matrix follows GitHub's documented native runner architectures:
 `ubuntu-22.04` is x64 (`x86_64-linux`), and `macos-14` is Apple Silicon

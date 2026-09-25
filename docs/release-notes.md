@@ -4,8 +4,10 @@ Initial stable release of the owner-accepted Step 1 product.
 
 Protected baseline mismatches reject before module compilation using the exact
 sealed source closure. Matching inputs still undergo complete compilation and
-independent kernel verification. CI overlaps two independent suites, reuses pinned
-Nix dependencies and exposes package timings while retaining all installed tests.
+independent kernel verification. The checker reuses loaded Lean modules within
+one invocation while retaining every declaration comparison and proof check.
+CI overlaps two independent suites on Linux, reuses pinned Nix dependencies and
+exports archives with zstd while retaining all installed tests.
 The earlier v0.1.0 tag did not publish because a hosted test checker exceeded its
 deadline; v0.1.1 retains every adversarial case with bounded test-only headroom.
 

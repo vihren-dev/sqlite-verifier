@@ -58,3 +58,9 @@ gate. Its tag is preserved. The owner requested CI performance work from the
 timing report while that run was active; see
 [CI performance status](20260925-ci-performance.status.md). The next immutable
 release tag will be v0.1.1 after the fixes pass both hosted platforms.
+
+2026-09-28: sequential macOS full source checks passed at54ea013a, but the installed
+positive still exceeded the production checker deadline (run36144746026).
+Release remains pending. CI work now fixes repeated imports within the gate,
+preserving all proof checks and the30s production limit; see the performance
+status for controlled measurements and independent review.

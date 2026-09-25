@@ -32,6 +32,12 @@ then approved-source additions, then candidate additions. Even approved sources
 cannot substitute a different definition for the supplied starting schema. Lookup uses the kernel environment so replayed
 constants cannot disappear behind elaborator visibility maps.
 
+One invocation carries Lean's import state through these four stages. Previously
+loaded modules retain their declaration objects, avoiding repeated library reads
+and comparisons of separately loaded copies. Each stage still rebuilds its import
+environment, compares every protected declaration and replays every addition.
+The state is discarded after that invocation; no proof result is cached.
+
 The expected proposition is constructed directly as
 `SqliteVerifier.VerificationConditions`, applied to `Requirements.LogicalState`,
 the three protected SQL constants, `Interpretation.admitted`,

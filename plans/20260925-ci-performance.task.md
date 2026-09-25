@@ -37,3 +37,10 @@ migration_check/{cli,compile,baseline,source_closure}.py, justfile,
 and docs/ci.md. Use small path:./nix inputs, resource checks and existing test
 isolation. Do not cache proof verdicts or weaken any trust boundary. v0.1.0 is
 already tagged and its running publication workflow must retain its immutable tag.
+
+2026-09-28 measured refinement: even sequential macOS installed checks exposed
+repeated library import/comparison cost in ProofChecker.lean. Reusing immutable
+import data within one invocation must preserve staged search precedence, private
+data-only imports, all protected-declaration comparisons, replay and final checks.
+Existing real adversarial kernel/CLI suites and offline installation validate
+this boundary; a native fixed-fixture comparison measures the reduction.

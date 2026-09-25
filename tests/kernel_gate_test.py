@@ -60,10 +60,10 @@ def main() -> None:
             "wrong theorem": ("import Generated\ntheorem Proofs.migrationCorrect : True := trivial", "reconstructed"),
             "sorry": ("import Generated\ntheorem Proofs.migrationCorrect : Generated.expected := by sorry", "sorryAx"),
             "transitive axiom": ("import Generated\naxiom forbidden : Generated.expected\ndef helper := forbidden\ntheorem Proofs.migrationCorrect : Generated.expected := helper", "forbidden"),
-            "changed protected contract": ("import Lean\ndef Requirements.contract : Nat := 0\ntheorem Proofs.migrationCorrect : True := trivial", "modified protected"),
-            "changed protected SQL": ("import Lean\ndef Generated.script : Nat := 0\ntheorem Proofs.migrationCorrect : True := trivial", "modified protected"),
-            "changed protected schema": ("import Lean\ndef Generated.startSchema : Nat := 0\ntheorem Proofs.migrationCorrect : True := trivial", "modified protected"),
-            "changed protected profile": ("import Lean\ndef Generated.profile : Nat := 0\ntheorem Proofs.migrationCorrect : True := trivial", "modified protected"),
+            "changed protected contract": ("import Lean\ndef Requirements.contract : Nat := 0\ntheorem Proofs.migrationCorrect : True := trivial", "Requirements.contract"),
+            "changed protected SQL": ("import Lean\ndef Generated.script : Nat := 0\ntheorem Proofs.migrationCorrect : True := trivial", "Generated.script"),
+            "changed protected schema": ("import Lean\ndef Generated.startSchema : Nat := 0\ntheorem Proofs.migrationCorrect : True := trivial", "Generated.startSchema"),
+            "changed protected profile": ("import Lean\ndef Generated.profile : Nat := 0\ntheorem Proofs.migrationCorrect : True := trivial", "Generated.profile"),
             "unsafe proof": ("import Generated\nunsafe def Proofs.migrationCorrect : True := True.intro", "Proofs.migrationCorrect"),
         }
         for label, (source, diagnostic) in cases.items():
@@ -72,6 +72,9 @@ def main() -> None:
             result = run([str(CHECKER), str(LIBRARY), str(trusted), str(candidate)], root, environment)
             assert (result.returncode == 0) == (label in ("valid", "initializer ignored")), (label, result.stdout, result.stderr)
             assert diagnostic in result.stderr, (label, result.stderr)
+            if label.startswith("changed protected"):
+                # Shared imports can reject the collision before declaration comparison.
+                assert "already contains" in result.stderr or "modified protected" in result.stderr, result.stderr
             assert "CANDIDATE_INITIALIZER_RAN" not in result.stdout + result.stderr
         # Approved source is authoritative for meaning, never for generated SQL inputs.
         print("Kernel gate case: approved source substitutes supplied schema", flush=True)

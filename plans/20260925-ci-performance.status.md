@@ -61,3 +61,31 @@ all production and suite deadlines. Two focused real-process runner regressions
 passed in1.764s, including serial continuation after a sibling failure. Linux's
 new dependency cache exists; macOS did not save a cache from its failed job.
 Final revision needs both-platform complete validation and a repeated warm run.
+
+2026-09-28: run36144746026 at54ea013a passed Linux complete packaging in12m31s
+with a14s Nix cache hit and1.02s zstd export. Sequential macOS source suites passed
+but the first installed positive hit the unchanged30s checker deadline. This is
+failed acceptance evidence; overlap was not the sole cause. Native profiling
+showed repeated library imports and comparisons dominate. ProofChecker now threads
+ImportState through the four stages within one invocation, retaining all checks.
+Independent Medium source review approved the trust boundary. The initial empty
+state uses Lean's public `default`, matching ImportStateM.run; no private constructor.
+Same-fixture native profile: original17.582s then10.656s; reuse2.599s then2.475s.
+The first original sample includes colder filesystem state; no global cache or
+production deadline increase is introduced. Full adversarial/source validation
+and both-platform package measurements remain pending.
+
+Local validation passed before integration: full library/checker build, fresh
+native/model coverage, environment snapshot identity, parser incremental checks,
+schema generation, ordinary CLI (76.40s), full kernel attack suite, compilation
+isolation, early baseline (16.55s), all13 Atuin cases, coverage validation and
+38 Python unit tests (10.042s). Logs: build/checker-reuse-check.log,
+checker-reuse-check-rest.log and checker-reuse-check-final.log (final exit0).
+The first kernel test run rejected a substitution earlier during import; its four
+assertions now require the exact protected name and either duplicate-import or
+protected-modification rejection. Independent Medium review approved this change;
+the final complete attack suite passed. Production and suite deadlines unchanged.
+The aggregate documentation scan encountered unrelated uncommitted ADR drafts
+and an active editor lock. Those files remain untouched and excluded from this
+commit. The same Markdown validator passes against the full publication file
+set, including changed documentation. Hosted clean-checkout validation is next.

@@ -47,10 +47,16 @@ end ProofChecker
 
 open ProofChecker
 
-/-- Import only kernel data: candidate extension caches and initializers never execute. -/
-def importData (modules : Array Name) : IO Environment :=
-  importModules (modules.map fun name => { module := name }) {}
-    (trustLevel := 0) (plugins := #[]) (loadExts := false) (level := .private)
+/-- Reuse loaded module data only within one check, avoiding repeated trusted-library
+reads and structural comparisons of separately loaded copies. Every stage still
+compares and replays declarations; no plugins, extensions or initializers execute. -/
+def importData (modules : Array Name) (state : ImportState) :
+    IO (Environment × ImportState) := withImporting do
+  let imports := modules.map fun name => { module := name : Import }
+  let (_, state) ← (importModulesCore (globalLevel := .private) imports).run state
+  let environment ← finalizeImport state imports {} 0
+    (leakEnv := false) (loadExts := false) (level := .private)
+  return (environment, state)
 
 /-- Require closed input constants; no implicit extra universe or value assumptions. -/
 def closedConstant (env : Environment) (name : Name) : IO Expr := do
@@ -88,15 +94,15 @@ def checkProof (library trusted candidate : System.FilePath) : IO UInt32 := do
   let builtin ← getBuiltinSearchPath sysroot
   -- Deliberately ignore LEAN_PATH and never search a candidate directory before trusted roots.
   searchPathRef.set (builtin ++ [library])
-  let base ← importData #[`Lean, `SqliteVerifier]
+  let (base, state) ← importData #[`Lean, `SqliteVerifier] default
   searchPathRef.set (builtin ++ [library, trusted])
   -- Fix generated inputs first: even approved definitions cannot replace the supplied schema.
-  let inputs ← importData #[`SchemaInputs, `SqlInputs]
+  let (inputs, state) ← importData #[`SchemaInputs, `SqlInputs] state
   let inputEnv ← base.replay (← additions base inputs)
-  let approved ← importData #[`Requirements, `Interpretation]
+  let (approved, state) ← importData #[`Requirements, `Interpretation] state
   let trustedEnv ← inputEnv.replay (← additions inputEnv approved)
   searchPathRef.set (builtin ++ [library, trusted, candidate])
-  let imported ← importData #[`Proofs]
+  let (imported, _) ← importData #[`Proofs] state
   let checked ← trustedEnv.replay (← additions trustedEnv imported)
   let expected ← expectedTarget checked
   let positive := (imported.toKernelEnv.find? `Proofs.migrationCorrect).isSome
