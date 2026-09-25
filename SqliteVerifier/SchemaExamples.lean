@@ -1,15 +1,15 @@
 import SqliteVerifier.SchemaPreservation
 
-/-! Bounded structural regressions, not a substituted Atuin pilot. Real captured
-schemas and native correspondence are checked separately by the pilot workflow. -/
+/-! Bounded structural regressions for the reusable schema model. Native SQL
+comparisons and complete application examples are checked separately. -/
 
 namespace SqliteVerifier.SchemaExamples
 
 /-- Ordinary TEXT primary keys remain nullable unless explicitly constrained. -/
 def textKey : Column := { name := "id", affinity := .text }
-/-- BIGINT preserves SQLx's spelling and must not become INTEGER rowid aliasing. -/
+/-- BIGINT must not become INTEGER PRIMARY KEY rowid aliasing. -/
 def version : Column := { name := "version", affinity := .integer, declaredType := .bigInt }
-/-- Existing SQLx defaults are retained without being evaluated by ADD COLUMN. -/
+/-- Existing timestamp defaults are retained without being evaluated by ADD COLUMN. -/
 def timestamp : Column := {
   name := "installed_on", affinity := .numeric, declaredType := .timestamp
   notNull := true, defaultValue := some .currentTimestamp }
