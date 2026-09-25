@@ -13,7 +13,7 @@ from .baseline import check_baseline
 from .runtime import Runtime
 from .profiles import profile
 from .sandbox import SandboxUnavailable, run_sandboxed
-from .sql_model import sql_inputs
+from .sql_model import schema_inputs, sql_inputs
 from .sql_tree import parse
 from .translate import starting_schema, statements
 
@@ -61,10 +61,12 @@ def verify(options: argparse.Namespace) -> dict[str, object]:
         raise Rejection("INPUT_ERROR", "Migration must contain at least one statement", source=str(options.migration))
     from .compile import CompileError, EXPECTED_SOURCE, compile_project
 
+    starting = schema_inputs(schema)
     generated = sql_inputs(schema, script, selected)
     if options.artifacts is not None:
         options.artifacts.mkdir(parents=True, exist_ok=False)
         (options.artifacts / "SqlInputs.lean").write_text(generated, encoding="utf-8")
+        (options.artifacts / "SchemaInputs.lean").write_text(starting, encoding="utf-8")
         (options.artifacts / "Generated.lean").write_text(EXPECTED_SOURCE, encoding="utf-8")
     with TemporaryDirectory(prefix="migration-check-") as temporary:
         workspace = Path(temporary).resolve()
@@ -72,7 +74,7 @@ def verify(options: argparse.Namespace) -> dict[str, object]:
             compiled = compile_project(
                 sysroot=runtime.sysroot, library=runtime.library, requirements=options.requirements,
                 interpretation=options.interpretation, next_interpretation=options.next_interpretation,
-                proofs=options.proofs, sql_inputs=generated, workspace=workspace)
+                proofs=options.proofs, schema_inputs=starting, sql_inputs=generated, workspace=workspace)
         except CompileError as error:
             raise Rejection("UNVERIFIED", str(error)) from error
         hashes = dict(compiled.hashes)

@@ -39,12 +39,19 @@ def main() -> None:
         work = Path(temporary)
         artifacts = work / "artifacts"
         invoke(candidate, approved, "VERIFIED", extra=("--artifacts", str(artifacts)))
-        assert {path.name for path in artifacts.iterdir()} == {"SqlInputs.lean", "Generated.lean", "inputs.json"}
+        assert {path.name for path in artifacts.iterdir()} == {"SchemaInputs.lean", "SqlInputs.lean", "Generated.lean", "inputs.json"}
+        assert "def startSchema" in (artifacts / "SchemaInputs.lean").read_text()
+        assert "def startSchema" not in (artifacts / "SqlInputs.lean").read_text()
         assert ".addColumn" in (artifacts / "SqlInputs.lean").read_text()
         assert "VerificationConditions" in (artifacts / "Generated.lean").read_text()
         baseline = artifacts / "inputs.json"
         invoke(EXAMPLES / "table_then_column", approved, "VERIFIED",
                extra=("--approved-baseline", str(baseline)))
+        changed_start = work / "same-schema-new-bytes.sql"
+        changed_start.write_bytes((approved / "schema.sql").read_bytes() + b"\n-- requires schema-pin review\n")
+        pinned = invoke(candidate, approved, "INPUT_ERROR", replacements={"schema": changed_start},
+                        extra=("--approved-baseline", str(baseline)))
+        assert "schema.sql" in str(pinned["message"])
         invoke(EXAMPLES / "missing_required_column", approved, "VIOLATED")
         invoke(EXAMPLES / "allowed_failure", EXAMPLES / "allowed_failure/approved", "VERIFIED")
         changed_profile = work / "runner.json"

@@ -8,7 +8,7 @@ from tempfile import TemporaryDirectory
 ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT))
 
-from migration_check.sql_model import sql_inputs
+from migration_check.sql_model import schema_inputs, sql_inputs
 from migration_check.profiles import ExecutionProfile
 from migration_check.sql_tree import parse
 from migration_check.translate import starting_schema, statements
@@ -44,11 +44,11 @@ example : (Generated.startSchema.lookup "events").bind (fun cs => cs.head?.map C
 """
     with TemporaryDirectory(prefix="schema-generation-") as temporary:
         source = Path(temporary) / "GeneratedSchema.lean"
-        source.write_text(emissions[0] + assertion)
+        source.write_text(schema_inputs(schema) + emissions[0].replace("import SchemaInputs\n", "") + assertion)
         result = subprocess.run(['lake', 'env', 'lean', str(source)], cwd=ROOT,
                                 capture_output=True, text=True, timeout=30)
         assert result.returncode == 0, result.stdout + result.stderr
-        source.write_text(literal_source + """
+        source.write_text(schema_inputs(literal_schema) + literal_source.replace("import SchemaInputs\n", "") + """
 example : Generated.profile = .sqlite346 := rfl
 example : Generated.script.length = 4 := by decide +kernel
 example : Generated.nextSchema = Generated.startSchema := rfl

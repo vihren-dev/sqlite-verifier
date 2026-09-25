@@ -2,8 +2,8 @@
 
 `migration_check.compile.compile_project` accepts the pinned Lean sysroot and
 library directory, four selected Lean source paths (`requirements`,
-`interpretation`, `next_interpretation`, `proofs`), parent-generated `sql_inputs`
-source, and an empty private `workspace`. Its result contains `trusted` and
+`interpretation`, `next_interpretation`, `proofs`), parent-generated `schema_inputs` and `sql_inputs`
+sources, and an empty private `workspace`. Its result contains `trusted` and
 `candidate` artifact directories, source `hashes`, and compiler `diagnostics`.
 `CompileError` identifies the failed phase and source; malformed dependency
 closures raise `ValueError`. `EXPECTED_SOURCE` provides the fixed convenience
@@ -17,16 +17,24 @@ sources are rejected. Physical file identities prevent case aliases and hardlink
 from bypassing selected-file exclusions. Explicitly supplying the same source for
 multiple roles authorizes that source for those roles.
 
-Approved Requirements and Interpretation closures compile without access to
-candidate sources or outputs. SqlInputs compiles separately with only the pinned
-library available. Candidate NextInterpretation, Generated and Proofs then compile
-with approved artifacts read-only. Each compiler gets a fresh writable scratch
+`SchemaInputs` compiles first with only the pinned library. It exports only
+`Generated.startSchema`, generated structurally from the supplied starting SQL.
+Approved Requirements and Interpretation closures may import this sealed module
+but cannot access candidate sources, scripts, result schemas or outputs. Local
+SchemaInputs sources cannot shadow the generated module; case/path variants and
+selected source roles using that reserved name reject.
+
+`SqlInputs` imports SchemaInputs and compiles separately with only its artifacts
+and the pinned library. It defines the script, next schema and profile. Candidate
+NextInterpretation, Generated and Proofs then compile with all protected artifacts
+read-only. Each compiler gets a fresh writable scratch
 directory and a bounded sandboxed process. After it exits, the parent copies only
 expected regular artifact companions, rejecting symlinks (including ancestors),
 hardlinks, and paths outside scratch. No generated executable is run.
 
 Hash keys identify exact source snapshots as `approved/<module>.lean`,
-`candidate/<module>.lean`, and `generated/SqlInputs.lean`. These include transitive
+`candidate/<module>.lean`, `generated/SchemaInputs.lean`, and
+`generated/SqlInputs.lean`. These include transitive
 source dependencies and the fixed target alias. The caller controls sysroot,
 library, generated SQL data, and workspace ownership; it must subsequently invoke
 the independent kernel gate. Successful compilation alone is not verification.

@@ -123,9 +123,11 @@ def discover_sources(*, initial: dict[str, Source], roots: Sequence[Path],
         graph[name] = set()
         for dependency in dependencies:
             dep_path = module_path(dependency)
+            if dependency in available:
+                continue
             if dep_path.parts[0].casefold() in forbidden_folded:
                 raise ValueError(f"Protected source {name} imports reserved module {dependency}")
-            if dependency in available or any((base / dep_path).with_suffix(
+            if any((base / dep_path).with_suffix(
                     dep_path.suffix + ".olean").is_file() for base in (sysroot / "lib/lean", library)):
                 continue
             if dependency not in sources:

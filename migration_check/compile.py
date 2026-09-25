@@ -76,7 +76,7 @@ def compile_modules(*, order: tuple[str, ...], sources: Path, destination: Path,
 
 def compile_project(*, sysroot: Path, library: Path, requirements: Path,
                     interpretation: Path, next_interpretation: Path, proofs: Path,
-                    sql_inputs: str, workspace: Path) -> CompiledProject:
+                    schema_inputs: str, sql_inputs: str, workspace: Path) -> CompiledProject:
     """Compile source-only dependency closures, keeping candidate code out of approved stages."""
     sysroot, library, workspace = (path.resolve(strict=True) for path in (sysroot, library, workspace))
     if not all(path.is_dir() for path in (sysroot, library, workspace)):
@@ -87,6 +87,8 @@ def compile_project(*, sysroot: Path, library: Path, requirements: Path,
                 "Interpretation": interpretation.resolve(strict=True),
                 "NextInterpretation": next_interpretation.resolve(strict=True),
                 "Proofs": proofs.resolve(strict=True)}
+    if any(path.stem.casefold() == "schemainputs" for path in selected.values()):
+        raise ValueError("SchemaInputs is reserved for generated starting schema")
     if not all(path.is_file() for path in selected.values()):
         raise ValueError("Lean inputs must be regular source files")
     trusted, candidate = workspace / "trusted", workspace / "candidate"
@@ -112,30 +114,38 @@ def compile_project(*, sysroot: Path, library: Path, requirements: Path,
         excluded={selected[name] for name in ("NextInterpretation", "Proofs")
                   if file_identity(selected[name]) not in {file_identity(selected["Requirements"]),
                                                          file_identity(selected["Interpretation"])}},
-        forbidden={"NextInterpretation", "Generated", "Proofs", "SqlInputs"}, available=set(),
+        forbidden={"NextInterpretation", "Generated", "Proofs", "SqlInputs", "SchemaInputs"},
+        available={"SchemaInputs"},
         directory=approved_sources, sysroot=sysroot, library=library, workspace=workspace)
     # Snapshot candidates before any elaboration, but do not expose them to approved processes.
     proposed, proposed_order = discover_sources(
         initial={**{name: initial[name] for name in ("NextInterpretation", "Proofs")},
                  "Generated": Source(None, EXPECTED_SOURCE.encode())},
         roots=tuple(dict.fromkeys(path.parent for path in selected.values())), excluded=set(),
-        forbidden=set(), available=set(approved) | {"SqlInputs"}, directory=candidate_sources,
+        forbidden={"SchemaInputs", "SqlInputs"}, available=set(approved) | {"SchemaInputs", "SqlInputs"}, directory=candidate_sources,
         sysroot=sysroot, library=library, workspace=workspace)
-    diagnostics = compile_modules(order=approved_order, sources=approved_sources,
-        destination=trusted, previous=(), sysroot=sysroot, library=library, workspace=workspace)
+    # Starting schema has no access to approved or candidate sources/artifacts.
+    (sql_sources / "SchemaInputs.lean").write_text(schema_inputs, encoding="utf-8")
+    schema_output = workspace / "schema-output"
+    schema_output.mkdir()
+    diagnostics = compile_modules(order=("SchemaInputs",), sources=sql_sources,
+        destination=schema_output, previous=(), sysroot=sysroot, library=library, workspace=workspace)
+    diagnostics += compile_modules(order=approved_order, sources=approved_sources,
+        destination=trusted, previous=(schema_output,), sysroot=sysroot, library=library, workspace=workspace)
     (sql_sources / "SqlInputs.lean").write_text(sql_inputs, encoding="utf-8")
-    # Generated SQL data has no access to any approved or candidate source/artifact.
     sql_output = workspace / "sql-output"
     sql_output.mkdir()
     diagnostics += compile_modules(order=("SqlInputs",), sources=sql_sources,
-        destination=sql_output, previous=(), sysroot=sysroot, library=library, workspace=workspace)
-    for artifact in sql_output.iterdir():
-        (trusted / artifact.name).write_bytes(artifact.read_bytes())
-        (trusted / artifact.name).chmod(0o444)
+        destination=sql_output, previous=(schema_output,), sysroot=sysroot, library=library, workspace=workspace)
+    for directory in (schema_output, sql_output):
+        for artifact in directory.iterdir():
+            (trusted / artifact.name).write_bytes(artifact.read_bytes())
+            (trusted / artifact.name).chmod(0o444)
     diagnostics += compile_modules(order=proposed_order, sources=candidate_sources,
         destination=candidate, previous=(trusted,), sysroot=sysroot, library=library, workspace=workspace)
     hashes = {f"{stage}/{module_path(name)}.lean": hashlib.sha256(source.contents).hexdigest()
               for stage, collection in (("approved", approved), ("candidate", proposed))
               for name, source in collection.items()}
+    hashes["generated/SchemaInputs.lean"] = hashlib.sha256(schema_inputs.encode()).hexdigest()
     hashes["generated/SqlInputs.lean"] = hashlib.sha256(sql_inputs.encode()).hexdigest()
     return CompiledProject(trusted, candidate, hashes, tuple(text for text in diagnostics if text))

@@ -11,8 +11,9 @@ checksums, prior migration records and application data assumptions are not
 profile fields. They belong in ordinary SQL and approved Lean requirements or
 interpretations, according to whether they describe operations or state facts.
 
-`SqlInputs.lean` binds the parsed schema, script, resulting schema and SQLite
-profile. The independent gate reconstructs the expected theorem from those
+`SchemaInputs.lean` binds the parsed starting schema and is available to approved
+interpretations. `SqlInputs.lean` imports it and binds the script, resulting schema
+and SQLite profile. The independent gate reconstructs the expected theorem from those
 sealed inputs. A profile never inserts statements, wraps a transaction or updates
 bookkeeping. Explicit transaction control in a migration is ordinary SQL.
 
