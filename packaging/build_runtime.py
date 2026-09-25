@@ -13,6 +13,8 @@ from tempfile import TemporaryDirectory
 from runtime_dependencies import lean_runtime_files, native_dependencies, run, runtime_file, store_path
 
 ROOT = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(ROOT))
+from tools.check_resources import check_resources
 
 
 def copy_runtime(source: Path, destination: Path, files: Iterable[Path] | None = None) -> None:
@@ -26,6 +28,7 @@ def copy_runtime(source: Path, destination: Path, files: Iterable[Path] | None =
 
 def build() -> Path:
     """Bundle pinned interpreter, proof checker, grammar, Python and sandbox dependencies."""
+    check_resources(ROOT)
     systems = {("Darwin", "arm64"): "aarch64-darwin", ("Linux", "x86_64"): "x86_64-linux"}
     system = systems[(platform.system(), platform.machine())]
     python = Path(sys.executable).resolve(strict=True)

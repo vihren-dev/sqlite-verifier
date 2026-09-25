@@ -19,23 +19,30 @@ The first checked preview is [v0.1.0-rc.1](https://github.com/vihren-dev/sqlite-
 
 ## Development
 
-Install Nix with `nix-command` and `flakes` enabled, then enter:
+Install Nix with `nix-command` and `flakes` enabled and a bootstrap Python 3,
+then enter the capture environment once for a batch:
 
 ```sh
-nix develop
+python3 tools/check_resources.py
+nix develop path:./nix#capture
 just setup
 just check
 ```
 
 Alternatively, install direnv with Nix-flake integration and run `direnv allow`.
-The committed lock fixes Nix dependencies. Nix supplies elan; `just setup`
+The committed `nix/flake.lock` fixes Nix dependencies. The two-file `nix/`
+directory is the complete environment source; always use the explicit `path:`
+reference, including from non-Git Jujutsu workspaces. For focused non-Rust work,
+`nix develop path:./nix` provides the smaller default shell. See the
+[resource and cleanup policy](sqlite-migration-verifier-team-guide.md#development-resources).
+The resource check rejects less than 10 GiB free before expensive work. Nix supplies elan; `just setup`
 downloads the exact official Lean release in `lean-toolchain` into elan's cache.
 That initial installation needs network access. No Mathlib is required.
 
 The supported development systems are Apple Silicon macOS (`aarch64-darwin`)
 and Intel/AMD Linux (`x86_64-linux`). Lean is pinned to 4.33.0; native SQLite is
 built from the official 3.51.0 autoconf archive with its default configuration
-and readline disabled. `nix build .#sqlite` builds that engine independently.
+and readline disabled. `nix build path:./nix#sqlite` builds that engine independently.
 SQLite's compile settings can be inspected with `sqlite3 :memory: 'PRAGMA compile_options;'`.
 These native checks are evidence, not a proof of correspondence with SQLite C.
 

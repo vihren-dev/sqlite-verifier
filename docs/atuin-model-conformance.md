@@ -30,7 +30,7 @@ require a separate comparison with the actual bookkeeping and statistics data.
 After building the pinned parsers, Lean library and locked capture binaries:
 
 ```sh
-nix develop .#capture --command timeout 180 python3 tests/conformance_atuin_model_test.py
+nix develop path:./nix#capture --command timeout 180 python3 tests/conformance_atuin_model_test.py
 ```
 
 Individual native invocations have 30-second limits; each Lean check has a
