@@ -1,6 +1,6 @@
 **Lean SQLite Migration Verifier — Engineering Brief**
 
-Revision 0.5 · 24 September 2026
+Revision 0.6 · 25 September 2026
 
 Build a tool that verifies one migration SQL file against reusable human-approved requirements. The human approves the logical model, requirements, current interpretation, and assumptions. The agent supplies the migration, resulting interpretation, and proofs. Check them under the supplied execution profile; return `0` on success and nonzero with diagnostics otherwise. One migration may contain multiple SQL statements.
 

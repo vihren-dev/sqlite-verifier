@@ -157,3 +157,12 @@ substitution of Generated.startSchema from candidate and approved source. The
 approved substitution is rejected already by Lean import conflict; the test accepts
 that earlier rejection as well as protected replay rejection. Existing positive,
 refutation, initializer, forged-body, axiom and profile-substitution cases still pass.
+
+Integrated frontend staging0046f2a2 with checked gate6ec109ad in03e5f7c6. Root
+independently passed real sandbox compilation/gate tests and both optional-schema
+baseline suites (build/business-staging-tests.log and business-baseline-tests.log).
+Source review of the revised model boundary finds business History separate from
+SQLite, Q as business equality, actual canonical decoder checks on results, and
+migration catalog facts confined to representation invariants. The generated
+schema helper only performs lookups and derives the expected nullable extension.
+The complete example proof and final CLI/package validation remain pending.

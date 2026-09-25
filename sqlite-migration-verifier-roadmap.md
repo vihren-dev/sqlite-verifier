@@ -10,6 +10,9 @@ imports, ORM adapters, migration-framework execution or invocation certification
 Profiles contain SQLite semantic settings; application data assumptions belong in
 requirements and interpretations. Necessary transaction and data operations must
 be explicit SQL with reusable semantics, never implicit framework effects.
+Examples separate typed business entities and business requirements from their
+schema-pinned interpretations. schema.sql is the single authored complete schema;
+its generated Lean definition is shared with the approved interpretation.
 
 “Viable” means a target user can obtain useful results without waiting for a later release. Commercial demand must be validated through adoption and willingness to pay.
 
