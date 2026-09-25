@@ -51,11 +51,10 @@ def main() -> None:
         changed_profile.write_text(json.dumps({
             "kind": "sqlite-3.46.0-sqlx-0.9.0-wal-normal-optimize-v1",
             "migration": {"version": 20, "description": "new column"}, "previous": []}))
-        invoke(candidate, approved, "UNSUPPORTED", execution_profile=str(changed_profile))
+        invoke(candidate, approved, "INPUT_ERROR", execution_profile=str(changed_profile))
         no_transaction = work / "no-transaction.sql"
-        no_transaction.write_bytes(b"-- no-transaction\nALTER TABLE invoices ADD note TEXT;\n")
-        invoke(candidate, approved, "UNSUPPORTED", execution_profile=str(changed_profile),
-               replacements={"migration": no_transaction})
+        no_transaction.write_bytes(b"-- no-transaction\n" + (candidate / "migration.sql").read_bytes())
+        invoke(candidate, approved, "VERIFIED", replacements={"migration": no_transaction})
 
         modified = work / "candidate"
         shutil.copytree(candidate, modified)

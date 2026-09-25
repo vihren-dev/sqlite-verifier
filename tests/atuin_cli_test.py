@@ -1,7 +1,8 @@
-"""Exercise the unchanged real migration and reject semantic/input-baseline drift."""
+"""Exercise the explicit source-backed SQL example and reject protected-meaning drift."""
 
 import hashlib
 import json
+import re
 from pathlib import Path
 import shutil
 import subprocess
@@ -9,15 +10,13 @@ import sys
 from tempfile import TemporaryDirectory
 
 ROOT = Path(__file__).resolve().parents[1]
-# Identity of upstream 5b10eb09c664d316b7384210399b02e6127f4027's shell migration.
-UPSTREAM_SQL_SHA256 = '3e998a7f7df2cdcc4593e3a8b0a4e3cc7da3f798869021e27638793ef17c589e'
 
 
 def invoke(runtime: Path, pilot: Path, expected: str, label: str,
            artifacts: Path | None = None) -> dict[str, object]:
     """Use exactly the public inputs and protected closure, with bounded child execution."""
     command = [str(runtime / 'bin/migration-check'), 'verify', '--format', 'json',
-               '--profile', str(pilot / 'profile.json'), '--schema', str(pilot / 'schema.sql'),
+               '--profile', '3.46.0', '--schema', str(pilot / 'schema.sql'),
                '--migration', str(pilot / 'migration.sql'),
                '--requirements', str(pilot / 'approved/Requirements.lean'),
                '--interpretation', str(pilot / 'approved/Interpretation.lean'),
@@ -46,18 +45,20 @@ def main(runtime: Path) -> None:
         shutil.copytree(runtime / 'examples/atuin', pilot)
         migration = pilot / 'migration.sql'
         original_sql = migration.read_bytes()
-        assert hashlib.sha256(original_sql).hexdigest() == UPSTREAM_SQL_SHA256
+        assert b'ALTER TABLE history ADD COLUMN shell TEXT;' in original_sql
         artifacts = work / 'artifacts'
-        report = invoke(runtime, pilot, 'VERIFIED', 'unchanged migration and protected closure', artifacts)
+        report = invoke(runtime, pilot, 'VERIFIED', 'explicit SQL and protected closure', artifacts)
+        assert report['statements'] == 5 and report['profile'] == '3.46.0'
         inputs = report['inputs']
         assert isinstance(inputs, dict)
         baseline = json.loads((pilot / 'approved/baseline.json').read_text())
         approved = {key: value for key, value in inputs.items() if key.startswith('approved/')}
         assert approved == baseline
         assert {'approved/AtuinSchema.lean', 'approved/AtuinCatalog.lean'} <= set(approved)
-        for name in ('schema.sql', 'migration.sql', 'profile.json'):
+        for name in ('schema.sql', 'migration.sql'):
             assert inputs[name] == hashlib.sha256((pilot / name).read_bytes()).hexdigest()
-        assert '.sqlite346Sqlx' in (artifacts / 'SqlInputs.lean').read_text()
+        assert 'def profile : ExecutionProfile := .sqlite346' in (artifacts / 'SqlInputs.lean').read_text()
+        assert 'profile.json' not in inputs
         assert json.loads((artifacts / 'inputs.json').read_text()) == inputs
 
         migration.write_bytes(original_sql.replace(b'shell', b'other'))
@@ -71,20 +72,28 @@ def main(runtime: Path) -> None:
         invoke(runtime, pilot, 'UNVERIFIED', 'omitted original primary key')
         schema.write_text(original_schema)
 
-        profile = pilot / 'profile.json'
-        original_profile = profile.read_bytes()
-        data = json.loads(original_profile)
-        checksum = data['previous'][0]['checksum']
-        data['previous'][0]['checksum'] = ('0' if checksum[0] != '0' else '1') + checksum[1:]
-        profile.write_text(json.dumps(data))
-        invoke(runtime, pilot, 'UNVERIFIED', 'altered prior catalog checksum')
-        profile.write_bytes(original_profile)
+        checksum = re.search(rb"X'([0-9A-Fa-f]+)'", original_sql)
+        assert checksum is not None
+        offset = checksum.start(1)
+        changed = b'0' if original_sql[offset:offset + 1] != b'0' else b'1'
+        migration.write_bytes(original_sql[:offset] + changed + original_sql[offset + 1:])
+        invoke(runtime, pilot, 'UNVERIFIED', 'altered inserted bookkeeping identity')
+        migration.write_bytes(original_sql)
+
+        migration.write_bytes(original_sql.replace(b'ADD COLUMN shell TEXT;', b"ADD COLUMN shell TEXT DEFAULT 'wrong';"))
+        invoke(runtime, pilot, 'UNSUPPORTED', 'incorrect non-NULL shell initialization')
+        migration.write_bytes(original_sql)
 
         next_meaning = pilot / 'NextInterpretation.lean'
         original_meaning = next_meaning.read_text()
         assert 'AtuinSchema.fields' in original_meaning
         next_meaning.write_text(original_meaning.replace('AtuinSchema.fields', '(AtuinSchema.fields.drop 1)'))
         invoke(runtime, pilot, 'UNVERIFIED', 'candidate omits old stored id')
+        next_meaning.write_text(original_meaning)
+        assert 'invariant := Conforms Generated.nextSchema' in original_meaning
+        next_meaning.write_text(original_meaning.replace('invariant := Conforms Generated.nextSchema',
+                                                       'invariant := fun _ => True'))
+        invoke(runtime, pilot, 'UNVERIFIED', 'weakened resulting representation invariant')
         next_meaning.write_text(original_meaning)
 
         catalog = pilot / 'approved/AtuinCatalog.lean'
@@ -97,7 +106,7 @@ def main(runtime: Path) -> None:
         (pilot / 'Proofs.lean').write_text(
             'import Generated\ntheorem Proofs.migrationCorrect : Generated.expected := by sorry\n')
         invoke(runtime, pilot, 'UNVERIFIED', 'unfinished proof')
-    print('Atuin CLI: unchanged migration verified; schema, catalog, interpretation and proof drift rejected')
+    print('Atuin CLI: explicit SQL verified; schema, bookkeeping, initialization, interpretation and proof drift rejected')
 
 
 if __name__ == '__main__':
