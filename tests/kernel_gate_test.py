@@ -45,7 +45,7 @@ def main() -> None:
         assert bad_path.returncode != 0 and "absolute existing directory" in bad_path.stderr
         environment["LEAN_PATH"] = os.pathsep.join(map(str, (LIBRARY, trusted)))
         print("Kernel gate: compiling common fixtures", flush=True)
-        for module in ("Requirements", "Interpretation", "SqlInputs"):
+        for module in ("SchemaInputs", "Requirements", "Interpretation", "SqlInputs"):
             compile_module(trusted, module, (FIXTURES / f"{module}.lean").read_text(), environment)
         environment["LEAN_PATH"] += os.pathsep + str(candidate)
         for module in ("NextInterpretation", "Generated"):
@@ -60,6 +60,7 @@ def main() -> None:
             "transitive axiom": ("import Generated\naxiom forbidden : Generated.expected\ndef helper := forbidden\ntheorem Proofs.migrationCorrect : Generated.expected := helper", "forbidden"),
             "changed protected contract": ("import Lean\ndef Requirements.contract : Nat := 0\ntheorem Proofs.migrationCorrect : True := trivial", "modified protected"),
             "changed protected SQL": ("import Lean\ndef Generated.script : Nat := 0\ntheorem Proofs.migrationCorrect : True := trivial", "modified protected"),
+            "changed protected schema": ("import Lean\ndef Generated.startSchema : Nat := 0\ntheorem Proofs.migrationCorrect : True := trivial", "modified protected"),
             "changed protected profile": ("import Lean\ndef Generated.profile : Nat := 0\ntheorem Proofs.migrationCorrect : True := trivial", "modified protected"),
             "unsafe proof": ("import Generated\nunsafe def Proofs.migrationCorrect : True := True.intro", "Proofs.migrationCorrect"),
         }
@@ -70,6 +71,15 @@ def main() -> None:
             assert (result.returncode == 0) == (label in ("valid", "initializer ignored")), (label, result.stdout, result.stderr)
             assert diagnostic in result.stderr, (label, result.stderr)
             assert "CANDIDATE_INITIALIZER_RAN" not in result.stdout + result.stderr
+        # Approved source is authoritative for meaning, never for generated SQL inputs.
+        print("Kernel gate case: approved source substitutes supplied schema", flush=True)
+        original_requirements = (FIXTURES / "Requirements.lean").read_text()
+        compile_module(trusted, "Requirements", original_requirements +
+                       "\ndef Generated.startSchema : Nat := 0\n", environment)
+        result = run([str(CHECKER), str(LIBRARY), str(trusted), str(candidate)], root, environment)
+        assert result.returncode == 1 and "Generated.startSchema" in result.stderr, result.stderr
+        assert "already contains" in result.stderr or "modified protected" in result.stderr, result.stderr
+        compile_module(trusted, "Requirements", original_requirements, environment)
         # A forged convenience alias must not replace the reconstructed target.
         print("Kernel gate case: forged convenience target", flush=True)
         compile_module(candidate, "Generated", "import SqlInputs\nimport NextInterpretation\ndef Generated.expected : Prop := True", environment)

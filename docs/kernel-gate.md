@@ -15,9 +15,11 @@ It searches the pinned Lean standard library, packaged `SqliteVerifier` library,
 approved stage, then candidate stage, in that order.
 
 The trusted stage contains approved `Requirements` and `Interpretation` modules
-and their approved dependencies. Separately generated `SqlInputs.lean` imports
-only the pinned library and defines `Generated.startSchema`, `Generated.nextSchema`,
-`Generated.script`, and the fixed `Generated.profile`. The frontend's parsing and literal generation belong to
+and their approved dependencies. Generated `SchemaInputs.lean` imports only the
+pinned library and defines `Generated.startSchema`. Approved interpretations may
+refer to this sealed starting schema. Separately generated `SqlInputs.lean` imports
+SchemaInputs and defines `Generated.nextSchema`, `Generated.script`, and the fixed
+`Generated.profile`; approved source compilation cannot access those candidate-dependent inputs. The frontend's parsing and literal generation belong to
 the trusted boundary. Candidate `NextInterpretation`, `Generated`, and `Proofs`
 modules never become approved by being compiled or copied into a sealed directory.
 
@@ -25,8 +27,9 @@ The gate imports only declaration data, with no plugins, extension loading, or
 candidate initializer execution. It compares complete declaration records on all
 name collisions, including bodies, safety flags, constructor/recursor fields and
 universe parameters; Lean expression comparison uses alpha equivalence. It
-kernel-replays approved-stage additions against the pinned library, then candidate
-additions against that result. Lookup uses the kernel environment so replayed
+kernel-replays generated schema/SQL inputs against the pinned library first,
+then approved-source additions, then candidate additions. Even approved sources
+cannot substitute a different definition for the supplied starting schema. Lookup uses the kernel environment so replayed
 constants cannot disappear behind elaborator visibility maps.
 
 The expected proposition is constructed directly as

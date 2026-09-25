@@ -90,8 +90,11 @@ def checkProof (library trusted candidate : System.FilePath) : IO UInt32 := do
   searchPathRef.set (builtin ++ [library])
   let base ← importData #[`Lean, `SqliteVerifier]
   searchPathRef.set (builtin ++ [library, trusted])
-  let sealed ← importData #[`Requirements, `Interpretation, `SqlInputs]
-  let trustedEnv ← base.replay (← additions base sealed)
+  -- Fix generated inputs first: even approved definitions cannot replace the supplied schema.
+  let inputs ← importData #[`SchemaInputs, `SqlInputs]
+  let inputEnv ← base.replay (← additions base inputs)
+  let approved ← importData #[`Requirements, `Interpretation]
+  let trustedEnv ← inputEnv.replay (← additions inputEnv approved)
   searchPathRef.set (builtin ++ [library, trusted, candidate])
   let imported ← importData #[`Proofs]
   let checked ← trustedEnv.replay (← additions trustedEnv imported)

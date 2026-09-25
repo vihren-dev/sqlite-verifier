@@ -148,3 +148,12 @@ schema copy. Local immutable-Git tests pass for all three configured example roo
 including changed schema and schema-symlink rejection, with existing source,
 manifest and candidate-checker protections retained. Driver-side optional schema
 hash enforcement is a separate integration component pending merge.
+
+Independent gate now seals/replays generated schema and SQL inputs before approved
+project declarations, then candidate declarations. Kernel fixtures split SchemaInputs
+from SqlInputs and use the generated schema in the approved interpretation. The
+complete bounded gate suite passed (build/business-gate-tests.log, exit 0), including
+substitution of Generated.startSchema from candidate and approved source. The
+approved substitution is rejected already by Lean import conflict; the test accepts
+that earlier rejection as well as protected replay rejection. Existing positive,
+refutation, initializer, forged-body, axiom and profile-substitution cases still pass.
