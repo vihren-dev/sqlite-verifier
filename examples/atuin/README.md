@@ -50,58 +50,65 @@ No omitted framework operation is silently added by the SQLite version setting.
 
 ## Application meaning and proposed guarantee
 
-Atuin's [History fields](https://github.com/atuinsh/atuin/blob/5b10eb09c664d316b7384210399b02e6127f4027/crates/atuin-client/src/history.rs#L313-L339)
-represent commands, execution time/duration/status, location/session/host,
-soft deletion, author/intent, and an optional shell. The
-[database decoder](https://github.com/atuinsh/atuin/blob/5b10eb09c664d316b7384210399b02e6127f4027/crates/atuin-client/src/database.rs#L287-L318)
-reads missing or NULL shell as None. The
-[shell filter](https://github.com/atuinsh/atuin/blob/5b10eb09c664d316b7384210399b02e6127f4027/crates/atuin-client/src/database.rs#L163-L188)
-uses SQL NULL to represent commands without recorded shell information.
+The independent [HistoryModel](approved/HistoryModel.lean) contains business
+histories, with no SQL values, physical rowids or bookkeeping records. Its field
+mapping follows Atuin's [History definition and UUID decoder](https://github.com/atuinsh/atuin/blob/5b10eb09c664d316b7384210399b02e6127f4027/crates/atuin-client/src/history.rs#L217-L343)
+and [database decoder](https://github.com/atuinsh/atuin/blob/5b10eb09c664d316b7384210399b02e6127f4027/crates/atuin-client/src/database.rs#L287-L318):
 
-The proposed logical history preserves all eleven old stored fields and physical
-row identities. Before migration, the missing shell field is normalized to the
-same logical unknown/NULL value represented afterward by a stored SQL NULL.
-`Requirements.change` (Q) preserves this logical history. The resulting reader
-reads actual shell values; it does not invent NULL values independently of storage.
+| Business field | Stored column and interpretation |
+|---|---|
+| `id` | `id`: application UUID identity, admitted as canonical 32 lowercase hexadecimal characters. |
+| `timestampNanos` | `timestamp`: signed 64-bit Unix nanoseconds. |
+| `durationNanos` | `duration`: signed 64-bit nanoseconds; negative values, including the unfinished-command sentinel, remain representable. |
+| `exit` | `exit`: signed 64-bit status. |
+| `command`, `cwd`, `session` | Corresponding UTF-8 text; session is not required to be a UUID. |
+| `origin` | `hostname`: split at the first colon into host/user; without a colon, user is `unknown-user`. |
+| `author` | Nonblank author text, otherwise hostname's user component; without a colon, the fallback is the original hostname. |
+| `intent` | Nullable text; Unicode-whitespace-only text becomes absent. |
+| `deletedAtNanos` | `deleted_at`: absent or signed 64-bit Unix nanoseconds. |
+| `shell` | Missing before migration means unknown; afterward SQL NULL means unknown, and text remains unchanged, including empty or whitespace-only strings. |
 
-The approved [requirements](approved/Requirements.lean) also define
-`Requirements.resultValid`, which checks the actual resulting shell projection
-and requires every existing row's shell to be NULL. The contract's outcome
-applicability requires this predicate. That independent storage check prevents a
-candidate constant reader from hiding incorrect shell initialization, even if its
-logical output appears to satisfy Q.
+Nonblank author and intent retain surrounding whitespace: upstream tests
+trim-emptiness without replacing the original text. The
+[database builder](https://github.com/atuinsh/atuin/blob/5b10eb09c664d316b7384210399b02e6127f4027/crates/atuin-client/src/history/builder.rs#L138-L155)
+does not apply capture-time normalization. Host/user handling follows
+[CmdOrigin](https://github.com/atuinsh/atuin/blob/5b10eb09c664d316b7384210399b02e6127f4027/crates/atuin-domain/src/record/cmd_origin.rs#L133-L182).
+The entire signed nanosecond timestamp range is supported by upstream's
+[time conversion](https://github.com/atuinsh/atuin/blob/5b10eb09c664d316b7384210399b02e6127f4027/crates/atuin-common/src/time/offset_date_time.rs#L107-L125);
+[duration display and recording](https://github.com/atuinsh/atuin/blob/5b10eb09c664d316b7384210399b02e6127f4027/crates/atuin/src/command/client/history.rs#L320-L321)
+also use nanoseconds.
 
-These are proposed definitions for owner review; the revised SQL-only proof bundle
-is still being checked. The intended declarations are
-`Interpretation.admitted` and `Interpretation.current.invariant` in the approved
-[initial interpretation](approved/Interpretation.lean), and
-`NextInterpretation.next.invariant` in the candidate
-[resulting interpretation](NextInterpretation.lean).
-The logical state contains normalized history and actual bookkeeping rows.
+[HistoryDecoding](approved/HistoryDecoding.lean) is a partial, all-row decoder.
+It rejects the entire observation if a row has missing required columns, invalid
+UTF-8, noncanonical UUID text, wrong storage classes or out-of-range integers.
+It never filters out bad rows. This is an explicit conservative admitted domain:
+upstream accepts additional UUID spellings and swallows optional field decoding
+errors, whereas this example requires optional stored fields to be valid TEXT/NULL
+(or INTEGER/NULL for deletion time). Nullable SQL primary keys therefore do not
+imply that NULL application identifiers satisfy this interpretation.
 
-The example-only approved [AtuinCatalog](approved/AtuinCatalog.lean) supplies
-`prior`, `target`, `recorded`, and `Invariant`. The initial invariant requires
-exactly six successful version/checksum identities; the resulting invariant
-requires those same six plus the selected successful shell migration. Old
-metadata fields and physical rowids remain arbitrary within the generic admitted
-SQLite data domain. The SQL's INSERT and UPDATE must preserve all old records and
-produce the explicit new record. These catalog conditions are application
-requirements, not fields in the core engine profile or implicit SQL operations.
+The approved interpretation is pinned to the sealed translation of `schema.sql`.
+Its field mapping names columns without duplicating their full SQL declarations.
+The before reader maps missing shell to unknown, and the after reader decodes
+actual shell cells. The proposed business requirement is equality of the decoded
+history list. `Requirements.resultValid` independently applies the approved
+mapping to actual before/after databases, so a candidate reader cannot hide a
+changed business value or invent a missing shell value.
 
-Preserving old history fields preserves inputs to the application's decoder and
-filters; unknown shell continues to mean “shell not recorded.” This is a storage
-and interpretation guarantee, not a formalization of the Rust decoder, UUID
-validity, timestamp conversions, author fallback/normalization, or every query.
-The full pinned revision's HISTORY_COLUMNS also includes later author_kind;
-this example covers the selected intermediate migration and does not promise
-compatibility with every query at that revision. Native edge-case fixtures need
-not all be decodable as History.
+Bookkeeping belongs to representation invariants, not the business `History`
+type. The example-only approved [AtuinCatalog](approved/AtuinCatalog.lean) requires
+exactly six successful version/checksum identities before and those six plus the
+selected target afterward. The generic SQL proof and finite native tests can
+establish stronger storage facts, including unchanged old metadata and physical
+rowids; those facts are not independent business requirements. Normal metadata
+rowid allocation is admitted only below the signed maximum; the native random
+fallback is outside the modeled INSERT domain.
 
-Bookkeeping insertion, constraints, rowid allocation and timing update use
-generic SQL semantics and explicit data assumptions. Ordinary rowid allocation
-is admitted when the metadata table's maximum physical rowid is below the signed
-64-bit maximum; negative maxima and empty tables retain SQLite's actual behavior.
-The random allocation fallback at the maximum lies outside that modeled domain.
+These are proposed requirements for owner review. The revised typed proof bundle
+is still being checked. The full pinned application revision also has the later
+`author_kind` field; this example covers the selected intermediate migration,
+not compatibility with every query at the pinned revision. The source-backed
+abstraction is not a formal proof of the Rust decoder or its external libraries.
 
 ## Checking
 
