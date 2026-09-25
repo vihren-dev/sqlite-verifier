@@ -38,3 +38,15 @@ bounds. Existing full native/model comparison and false-empty negative passed
 locally after this adjustment (build/step1-model-budget.log, exit0). No proof,
 semantics or admitted domain changed. Fresh hosted package checks will validate
 the repaired harness; the failed run is not passing release evidence.
+
+Hosted full package run36138251243 PASSED on e850287697ea883ddfd3fc832860da340bb493ca:
+aarch64-darwin23m28s, x86_64-linux18m33s. Both jobs passed the complete source
+suite, built native archives, installed them offline in isolated environments,
+and passed the real installed-entrypoint and Atuin checks. Logs and structured
+result: build/step1-{macos,linux}-package.log and step1-package-result.json.
+Artifacts were uploaded on both platforms. The duplicate ordinary run36138213594
+was explicitly cancelled in favor of this full package run at the same revision.
+
+Documentation-only preparation for v0.1.0 now records those results. Runtime
+code remains exactly the checked e8502876 implementation. The next gate is the
+version-tag workflow and verification of its published native assets/checksums.

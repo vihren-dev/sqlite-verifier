@@ -41,8 +41,8 @@ refined the old-history business model. The approved contract proves successful
 modeled execution and complete recovery of old histories from resulting storage,
 without a new-shell requirement or target-schema prescription. Two positive CLI
 cases reuse the protected inputs; eleven negative cases exercise diagnostics and
-rejection boundaries. Local full checks pass; v0.1.0 awaits final cross-platform
-validation and publication. See the [acceptance review](docs/atuin-pilot-review.md)
+rejection boundaries. Local full checks and hosted source/installed-package checks on both platforms
+pass at e8502876 (run36138251243); v0.1.0 awaits publication. See the [acceptance review](docs/atuin-pilot-review.md)
 and [release task](plans/20260925-step1-release.task.md).
 
 Human time and previous-workflow effort were not measured comparably. Acceptance

@@ -5,8 +5,8 @@ contract is in [the brief](sqlite-migration-verifier-engineering-brief.md), with
 acceptance tracked in [the Step 1 task](plans/20260924-step-1-schema-extensions.task.md).
 The CLI verifies the documented schema-extension subset. The owner accepted the
 source-backed Atuin case study and preservation contract on 2026-09-25; see the
-[acceptance review](docs/atuin-pilot-review.md). Release v0.1.0 is pending final
-cross-platform validation and publication.
+[acceptance review](docs/atuin-pilot-review.md). Native release artifacts pass
+cross-platform validation and installed-package tests before publication.
 
 ## Install
 

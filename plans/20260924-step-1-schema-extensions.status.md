@@ -66,8 +66,9 @@ Concurrency, resource failures and crash recovery remain outside the fixed model
   Evidence: build/preservation-check.log and the
   [preservation status](20260925-business-preservation.status.md).
 - Independent technical/conformance review found no blocking proof or packaging
-  defect. Final two-platform installed-package validation and stable publication
-  are in progress under the separate release record.
+  defect. Hosted full package run36138251243 now passes on both declared platforms at
+  e8502876, including offline installed-entrypoint checks. Stable publication
+  remains in progress under the separate release record.
 
 Public repository: vihren-dev/sqlite-verifier. Owner authorization includes public
 publication and integration of the reviewed protected baseline. Existing branch
