@@ -78,7 +78,7 @@ theorem step_extends (statement : Statement) (database : Database) (position : N
     split
     · exact DatabaseExtends.refl database
     · cases h : database name with
-      | none => exact DatabaseExtends.create database name ⟨columns, []⟩ h
+      | none => exact DatabaseExtends.create database name { columns := columns, rows := [] } h
       | some table => exact DatabaseExtends.refl database
   | addColumn name column =>
     simp only [step]

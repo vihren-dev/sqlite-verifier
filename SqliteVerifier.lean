@@ -7,5 +7,7 @@ import SqliteVerifier.Examples
 import SqliteVerifier.Demonstration
 import SqliteVerifier.ReverseDemonstration
 import SqliteVerifier.FailureDemonstration
+import SqliteVerifier.SchemaPreservation
+import SqliteVerifier.SchemaExamples
 
 /-! Public entry point for the restricted SQLite model and reusable proofs. -/
