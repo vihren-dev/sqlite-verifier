@@ -11,7 +11,11 @@ trusted code and require their own review.
 Pass the appropriate protected file to `migration-check verify
 --approved-baseline PATH`. The driver compares the complete compiled approved
 source closure, including added, removed and changed dependencies, before accepting
-a proof. An `--artifacts` `inputs.json` export is inspectable evidence, not an
+a proof. An optional `schema.sql` SHA-256 entry also pins the exact authored
+starting SQL bytes. The Atuin example uses that entry to bind its interpretation
+to its schema without maintaining a second schema declaration in Lean. Baselines
+without this entry continue to protect reusable requirements across supplied
+schemas. An `--artifacts` `inputs.json` export is inspectable evidence, not an
 approval: copying it over a baseline does not authorize new requirements.
 
 ## CI boundary
@@ -30,7 +34,8 @@ allowed-failure and Atuin approved directories. This conservatively includes unu
 actual import closure; all application dependencies should live within the
 reviewed approved tree. The separate driver check uses the exact compiled closure.
 Any changed baseline, changed source, added source, removed source or source
-symlink fails CI. A newly introduced workflow cannot enforce itself before it
+symlink fails CI. When the target manifest pins `schema.sql`, its configured
+example schema must also remain an unchanged regular Git file. A newly introduced workflow cannot enforce itself before it
 exists on the target branch; bootstrap requires direct owner review.
 
 ## Deliberate changes

@@ -141,3 +141,10 @@ review. Core regression batch passed: generated schema, kernel gate, compilation
 isolation, legacy CLI and 35 unit tests (build/sql-only-core-regressions.log, exit 0).
 The whole revised example is still pending; prior component proofs are not claimed
 as evidence for its new business contract.
+
+The target-owned baseline CI now supports an optional exact schema.sql hash,
+preserving the reviewed schema/interpretation pair after removal of the handwritten
+schema copy. Local immutable-Git tests pass for all three configured example roots,
+including changed schema and schema-symlink rejection, with existing source,
+manifest and candidate-checker protections retained. Driver-side optional schema
+hash enforcement is a separate integration component pending merge.

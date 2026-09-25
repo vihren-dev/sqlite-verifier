@@ -8,6 +8,8 @@ import subprocess
 from pathlib import Path
 
 APPROVED_ROOTS = ("examples/approved", "examples/allowed_failure/approved", "examples/atuin/approved")
+SCHEMA_PATHS = {root: f"{root}/schema.sql" for root in APPROVED_ROOTS}
+SCHEMA_PATHS["examples/atuin/approved"] = "examples/atuin/schema.sql"
 
 
 def git(repository: Path, *arguments: str) -> bytes:
@@ -39,6 +41,15 @@ def source_hashes(repository: Path, revision: str, root: str) -> dict[str, str]:
     return result
 
 
+def schema_hash(repository: Path, revision: str, path: str) -> str:
+    """Pin the authored SQL bytes rather than a handwritten duplicate Lean schema."""
+    record = git(repository, "ls-tree", "-z", revision, "--", path).removesuffix(b"\0")
+    if not record or record.split(b"\t", 1)[0].split()[:2] not in (
+            [b"100644", b"blob"], [b"100755", b"blob"]):
+        raise ValueError(f"Protected schema must be a regular Git file: {path}")
+    return hashlib.sha256(blob(repository, revision, path)).hexdigest()
+
+
 def check(repository: Path, base: str, head: str) -> None:
     """Reject self-approved manifest changes and any changed, added or missing source."""
     if any(re.fullmatch(r"[0-9a-f]{40}|[0-9a-f]{64}", revision) is None
@@ -52,12 +63,15 @@ def check(repository: Path, base: str, head: str) -> None:
         expected: object = json.loads(trusted)
         if not isinstance(expected, dict) or not {
             "approved/Requirements.lean", "approved/Interpretation.lean"
-        } <= expected.keys() or any(not isinstance(name, str) or not name.startswith("approved/")
+        } <= expected.keys() or any(not isinstance(name, str) or
+                                   (not name.startswith("approved/") and name != "schema.sql")
                                    or not isinstance(digest, str)
                                    or re.fullmatch(r"[0-9a-f]{64}", digest) is None
                                    for name, digest in expected.items()):
             raise ValueError(f"Invalid target-branch baseline: {path}")
         actual = source_hashes(repository, head, root)
+        if "schema.sql" in expected:
+            actual["schema.sql"] = schema_hash(repository, head, SCHEMA_PATHS[root])
         changed = sorted(name for name in expected.keys() | actual.keys()
                          if expected.get(name) != actual.get(name))
         if changed:

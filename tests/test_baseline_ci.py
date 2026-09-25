@@ -7,7 +7,7 @@ import subprocess
 from tempfile import TemporaryDirectory
 import unittest
 
-from tests.baseline_ci import APPROVED_ROOTS, check, git
+from tests.baseline_ci import APPROVED_ROOTS, SCHEMA_PATHS, check, git
 
 
 class BaselineProtectionTest(unittest.TestCase):
@@ -25,6 +25,9 @@ class BaselineProtectionTest(unittest.TestCase):
                     (approved / f"{name}.lean").write_text(f"-- {name}\n", encoding="utf-8")
                 hashes = {f"approved/{path.name}": hashlib.sha256(path.read_bytes()).hexdigest()
                           for path in approved.glob("*.lean")}
+                schema = root / SCHEMA_PATHS[directory]
+                schema.write_text("CREATE TABLE history(command TEXT);\n", encoding="utf-8")
+                hashes["schema.sql"] = hashlib.sha256(schema.read_bytes()).hexdigest()
                 (approved / "baseline.json").write_text(json.dumps(hashes), encoding="utf-8")
 
             def commit() -> str:
@@ -36,6 +39,17 @@ class BaselineProtectionTest(unittest.TestCase):
 
             base = commit()
             check(root, base, base)
+            for directory in APPROVED_ROOTS:
+                schema = root / SCHEMA_PATHS[directory]
+                schema.write_text("CREATE TABLE history(command BLOB);\n", encoding="utf-8")
+                with self.assertRaisesRegex(ValueError, "schema.sql"):
+                    check(root, base, commit())
+                git(root, "reset", "--hard", base)
+            schema.unlink()
+            schema.symlink_to("approved/Requirements.lean")
+            with self.assertRaisesRegex(ValueError, "regular Git file"):
+                check(root, base, commit())
+            git(root, "reset", "--hard", base)
             for directory in APPROVED_ROOTS:
                 helper = root / directory / "Helper.lean"
                 helper.write_text("-- changed imported semantics\n", encoding="utf-8")
