@@ -1,4 +1,4 @@
-"""Bounded ordinary SQL comparison, with no application or framework dependency."""
+"""Bounded native old-data preservation check of the supplied application SQL."""
 import json
 import os
 from pathlib import Path

@@ -54,7 +54,7 @@ def origin (hostname : String) : Origin :=
 def author (hostname : String) (stored : Option String) : String :=
   (nonblank stored).getD ((originParts hostname).2.getD hostname)
 
-/-- Decode exactly the eleven protected old columns; missing shell means unknown. -/
+/-- Decode exactly the eleven protected pre-migration columns. -/
 def decodeOld : List (Option Value) → Option History
   | [some id, some timestamp, some duration, some exit, some command, some cwd,
       some session, some hostname, some deleted, some storedAuthor, some intent] => do
@@ -71,7 +71,7 @@ def decodeOld : List (Option Value) → Option History
       let storedAuthor ← optionalText storedAuthor
       let intent ← optionalText intent
       pure ⟨⟨id⟩, timestamp, duration, exit, command, cwd, session, origin hostname,
-        author hostname storedAuthor, nonblank intent, deleted, none⟩
+        author hostname storedAuthor, nonblank intent, deleted⟩
   | _ => none
 
 /-- Every physical row contributes one business entry or the whole interpretation fails. -/
@@ -82,15 +82,6 @@ def decodeRows : List (Int × List (Option Value)) → Option (List History)
     let entries ← decodeRows rest
     pure (entry :: entries)
 
-/-- Attach actual nullable shell values one-for-one, without trimming or filtering. -/
-def attachShell : List History → List (Int × List (Option Value)) → Option (List History)
-  | [], [] => some []
-  | entry :: rest, (_, [some cell]) :: shells => do
-    let shell ← optionalText cell
-    let entries ← attachShell rest shells
-    pure ({ entry with shell := shell } :: entries)
-  | _, _ => none
-
 /-- Integer decoding establishes the signed business domain. -/
 theorem integer_valid (decoded : integer value = some n) : signed64 n = true := by
   unfold integer at decoded
@@ -98,9 +89,9 @@ theorem integer_valid (decoded : integer value = some n) : signed64 n = true := 
   rcases decoded with ⟨valid, rfl⟩
   exact valid
 
-/-- Successful decoding establishes business validity and missing-shell normalization. -/
-theorem decodeOld_properties (decoded : decodeOld cells = some entry) :
-    entry.Valid ∧ entry.shell = none := by
+/-- Successful decoding establishes business validity. -/
+theorem decodeOld_valid (decoded : decodeOld cells = some entry) :
+    entry.Valid := by
   unfold decodeOld at decoded
   split at decoded
   · simp only [bind, Option.bind_eq_some_iff] at decoded
@@ -110,7 +101,7 @@ theorem decodeOld_properties (decoded : decodeOld cells = some entry) :
     · simp only [pure, Option.bind_eq_some_iff, Option.some.injEq] at decoded
       obtain ⟨timestamp, ht, duration, hd, exit, he, command, hc, cwd, hw,
         session, hs, hostname, hh, deleted, hdel, storedAuthor, ha, intent, hi, rfl⟩ := decoded
-      refine ⟨⟨?_, integer_valid ht, integer_valid hd, integer_valid he, ?_⟩, rfl⟩
+      refine ⟨?_, integer_valid ht, integer_valid hd, integer_valid he, ?_⟩
       · simp_all
       · unfold optionalInteger at hdel
         split at hdel
@@ -142,54 +133,7 @@ theorem decodeRows_valid (decoded : decodeRows projected = some entries) :
     obtain ⟨entry, head, tail, decodedTail, rfl⟩ := decoded
     intro item member
     rcases List.mem_cons.mp member with rfl | member
-    · exact (decodeOld_properties head).1
+    · exact decodeOld_valid head
     · exact ih decodedTail item member
-
-/-- The actual NULL extension preserves the normalized business history. -/
-theorem attachShell_null (decoded : decodeRows projected = some entries) :
-    attachShell entries (nullExtension projected) = some entries := by
-  induction projected generalizing entries with
-  | nil => simp [decodeRows] at decoded; subst entries; rfl
-  | cons pair rest ih =>
-    rcases pair with ⟨rowid, cells⟩
-    simp only [decodeRows, bind, pure, Option.bind_eq_some_iff, Option.some.injEq] at decoded
-    obtain ⟨entry, head, tail, decodedTail, rfl⟩ := decoded
-    have shell := (decodeOld_properties head).2
-    have tailAttached := ih decodedTail
-    unfold nullExtension at tailAttached
-    have unchanged : { entry with shell := none } = entry := by
-      cases entry
-      simp_all
-    simpa [nullExtension, attachShell, optionalText, tailAttached] using
-      congrArg (fun item => some (item :: tail)) unchanged
-
-/-- Reading a shell value cannot invalidate the independent business fields. -/
-theorem attachShell_valid (valid : ∀ entry ∈ entries, entry.Valid)
-    (decoded : attachShell entries shells = some result) : ∀ entry ∈ result, entry.Valid := by
-  induction entries generalizing shells result with
-  | nil =>
-    cases shells <;> simp [attachShell] at decoded
-    subst result
-    simp
-  | cons entry rest ih =>
-    cases shells with
-    | nil => simp [attachShell] at decoded
-    | cons pair tails =>
-      rcases pair with ⟨rowid, cells⟩
-      cases cells with
-      | nil => simp [attachShell] at decoded
-      | cons cell more =>
-        cases more with
-        | cons _ _ => simp [attachShell] at decoded
-        | nil =>
-          cases cell with
-          | none => simp [attachShell] at decoded
-          | some value =>
-            simp only [attachShell, bind, pure, Option.bind_eq_some_iff, Option.some.injEq] at decoded
-            obtain ⟨shell, hs, tail, ht, rfl⟩ := decoded
-            intro item member
-            rcases List.mem_cons.mp member with rfl | member
-            · simpa [History.Valid] using valid entry (by simp)
-            · exact ih (fun item member => valid item (List.mem_cons_of_mem entry member)) ht item member
 
 end HistoryDecoding

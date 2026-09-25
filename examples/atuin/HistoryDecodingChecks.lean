@@ -26,7 +26,6 @@ def expected : History where
   author := "user:extra"
   intent := some "  reason  "
   deletedAtNanos := none
-  shell := none
 
 /-- All eleven columns decode into a typed domain object with actual source semantics. -/
 theorem decoded : decodeOld cells = some expected := by decide +kernel
@@ -36,12 +35,6 @@ theorem valid : expected.Valid := by unfold History.Valid; decide +kernel
 theorem populated : decodeRows [(-1, cells), (7, cells)] = some [expected, expected] := by decide +kernel
 /-- Empty business history is a defined observation. -/
 theorem empty : decodeRows [] = some [] := rfl
-/-- Missing shell and actual NULL both represent the same unknown shell. -/
-theorem null_shell : attachShell [expected, expected] [(-1, [some .null]), (7, [some .null])] =
-    some [expected, expected] := by decide +kernel
-/-- Unlike author/intent, shell whitespace is retained by the database reader. -/
-theorem blank_shell : attachShell [expected] [(7, [some (.text [32, 32])])] =
-    some [{ expected with shell := some "  " }] := by decide +kernel
 /-- Host-only author fallback differs deliberately from the origin's default username. -/
 theorem legacy_origin : origin "legacy" = ⟨"legacy", "unknown-user"⟩ ∧
     author "legacy" none = "legacy" := by decide +kernel
@@ -60,9 +53,4 @@ theorem malformed_numeric : decodeOld (cells.set 1 (some (.text [49]))) = none �
     decodeOld (cells.set 1 (some (.integer 9223372036854775808))) = none := by decide +kernel
 /-- A bad later row cannot disappear while earlier rows still decode. -/
 theorem no_row_filtering : decodeRows [(1, cells), (2, cells.set 0 none)] = none := by decide +kernel
-/-- An absent, malformed or mismatched shell projection cannot invent unknown values. -/
-theorem malformed_shell : attachShell [expected] [] = none ∧
-    attachShell [expected] [(1, [none])] = none ∧
-    attachShell [expected] [(1, [some (.text [0xFF])])] = none := by decide +kernel
-
 end HistoryDecodingChecks

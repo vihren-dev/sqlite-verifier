@@ -85,6 +85,15 @@ def requiresSuccess (_ : Database) : Outcome → Prop
   | .failure _ _ _ => False
   | .pending .. => False
 
+/-- Preserve an existing logical model through successful storage changes.
+No future schema is prescribed; the candidate still proves sound representation. -/
+def LogicalContract.preservation (valid : Logical → Prop) : LogicalContract Logical where
+  valid := valid
+  change := fun before after => after = before
+  schemaRequirement _ := True
+  failure := fun _ _ _ _ => False
+  applicability := requiresSuccess
+
 /-- Clients can prove the executable result instead of inspecting inductive derivations. -/
 theorem VerificationConditions.of_run
     {Logical : Type u} {startSchema nextSchema : Schema} {script : List Statement}

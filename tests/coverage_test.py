@@ -25,12 +25,11 @@ def atuin_rows(root: Path) -> list[dict[str, object]]:
     folder.mkdir(parents=True, exist_ok=True)
     (folder/"schema.sql").write_bytes(b"CREATE TABLE t(x);\r\n")
     (folder/"migration.sql").write_bytes(b"ALTER TABLE t ADD y;\r\n")
-    return [{"case":case, "schema_objects":8, "profile":"3.46.0",
+    return [{"case":case, "profile":"3.46.0",
         "status":"NATIVE_SQL_EXPECTATIONS_PASSED", "model_status":"NOT_COMPARED_BY_THIS_TEST",
         "schema_sha256":hashlib.sha256((folder/"schema.sql").read_bytes()).hexdigest(),
         "migration_sha256":hashlib.sha256((folder/"migration.sql").read_bytes()).hexdigest(),
-        "domain":"random-rowid boundary outside deterministic model"
-            if case == "metadata-max-rowid-random" else "ordinary SQL"} for case in CASES]
+        "domain":"old application data preservation"} for case in CASES]
 
 
 class CoverageTest(unittest.TestCase):
@@ -123,12 +122,11 @@ class CoverageTest(unittest.TestCase):
             rows = atuin_rows(root)
             good = {"status":"PASSED", "stdout":json.dumps(rows)}
             report = sql_report(root, good)
-            self.assertEqual(report["completed_matching_cases"], 6)
-            self.assertEqual(report["random_rowid_case_denominator"], 1)
+            self.assertEqual(report["completed_matching_cases"], 3)
             variants = [[], rows[:-1], [rows[0]]*len(rows)]
             for field, value in (("schema_sha256", "0"*64), ("migration_sha256", "0"*64),
                     ("model_status", "KERNEL_CHECKED"), ("status", "FAILED"),
-                    ("profile", "3.51.0"), ("domain", "universal"), ("schema_objects", 10)):
+                    ("profile", "3.51.0"), ("domain", "universal")):
                 altered = deepcopy(rows); altered[0][field] = value; variants.append(altered)
             for value in variants:
                 with self.subTest(value=value):

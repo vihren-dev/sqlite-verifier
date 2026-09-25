@@ -16,7 +16,7 @@ structure Origin where
   user : String
   deriving Repr, DecidableEq
 
-/-- The business fields at the selected shell migration, before later author_kind. -/
+/-- The business fields before the selected migration, independent of later additions. -/
 structure History where
   id : HistoryId
   timestampNanos : Int
@@ -29,7 +29,6 @@ structure History where
   author : String
   intent : Option String
   deletedAtNanos : Option Int
-  shell : Option String
   deriving Repr, DecidableEq
 
 /-- SQLite INTEGER and Atuin's i64 nanosecond conversion share this exact range. -/
@@ -40,7 +39,7 @@ def canonicalId (value : String) : Bool :=
   value.length == 32 && value.toList.all (fun c =>
     ('0' ≤ c && c ≤ '9') || ('a' ≤ c && c ≤ 'f'))
 
-/-- Domain validity does not invent positivity, UUID session constraints or nonempty shell. -/
+/-- Domain validity does not invent positivity, UUID session constraints. -/
 def History.Valid (history : History) : Prop :=
   canonicalId history.id.canonical = true ∧ signed64 history.timestampNanos = true ∧
   signed64 history.durationNanos = true ∧ signed64 history.exit = true ∧

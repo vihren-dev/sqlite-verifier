@@ -2,7 +2,6 @@
 
 import hashlib
 import json
-import re
 from pathlib import Path
 import shutil
 import subprocess
@@ -55,15 +54,14 @@ def main(runtime: Path) -> None:
         assert b'alter table history add column shell text;' in original_sql
         artifacts = work / 'artifacts'
         report = invoke(runtime, pilot, 'VERIFIED', 'explicit SQL and protected closure', artifacts)
-        assert report['statements'] == 5 and report['profile'] == '3.46.0'
+        assert report['statements'] == 1 and report['profile'] == '3.46.0'
         inputs = report['inputs']
         assert isinstance(inputs, dict)
         baseline = json.loads((pilot / 'approved/baseline.json').read_text())
         approved = {key: value for key, value in inputs.items() if key.startswith('approved/')}
         assert approved == {key: value for key, value in baseline.items() if key.startswith('approved/')}
         assert {'approved/SchemaBinding.lean', 'approved/HistoryModel.lean',
-                'approved/HistoryDecoding.lean', 'approved/HistoryMapping.lean',
-                'approved/AtuinCatalog.lean'} <= set(approved)
+                'approved/HistoryDecoding.lean', 'approved/HistoryMapping.lean'} <= set(approved)
         assert inputs['schema.sql'] == baseline['schema.sql']
         assert 'candidate/HistoryDecodingChecks.lean' in inputs
         assert 'def startSchema' in (artifacts / 'SchemaInputs.lean').read_text()
@@ -74,7 +72,16 @@ def main(runtime: Path) -> None:
         assert json.loads((artifacts / 'inputs.json').read_text()) == inputs
 
         replace_bytes(migration, original_sql, b'add column shell text;', b'add column other text;')
-        invoke(runtime, pilot, 'UNVERIFIED', 'changed added column')
+        invoke(runtime, pilot, 'UNVERIFIED', 'changed SQL with stale candidate proof')
+        facts = pilot / 'AtuinFacts.lean'
+        original_facts = facts.read_bytes()
+        replace_bytes(facts, original_facts, b'name := "shell"', b'name := "other"')
+        alternative = invoke(runtime, pilot, 'VERIFIED', 'different new field, same old business contract')
+        alternative_inputs = alternative['inputs']
+        assert isinstance(alternative_inputs, dict)
+        assert {key: value for key, value in alternative_inputs.items()
+                if key.startswith('approved/')} == approved
+        facts.write_bytes(original_facts)
         migration.write_bytes(original_sql)
 
         schema = pilot / 'schema.sql'
@@ -84,28 +91,18 @@ def main(runtime: Path) -> None:
         invoke(runtime, pilot, 'INPUT_ERROR', 'omitted protected original primary key')
         schema.write_text(original_schema)
 
-        checksum = re.search(rb"X'([0-9A-Fa-f]+)'", original_sql)
-        assert checksum is not None
-        offset = checksum.start(1)
-        changed = b'0' if original_sql[offset:offset + 1] != b'0' else b'1'
-        altered_checksum = original_sql[:offset] + changed + original_sql[offset + 1:]
-        assert altered_checksum != original_sql
-        migration.write_bytes(altered_checksum)
-        invoke(runtime, pilot, 'UNVERIFIED', 'altered inserted bookkeeping identity')
-        migration.write_bytes(original_sql)
-
         replace_bytes(migration, original_sql, b'add column shell text;',
-                      b"add column shell text DEFAULT 'wrong';")
-        invoke(runtime, pilot, 'UNSUPPORTED', 'incorrect non-NULL shell initialization')
+                      b"add column shell text DEFAULT 'new';")
+        invoke(runtime, pilot, 'UNSUPPORTED', 'default semantics remain outside the supported subset')
         migration.write_bytes(original_sql)
 
         next_meaning = pilot / 'NextInterpretation.lean'
         original_meaning = next_meaning.read_text()
-        reader = b'observe := HistoryMapping.observe true'
+        reader = b'observe := HistoryMapping.observe'
         for replacement, label in (
-            (b'observe := fun database => (HistoryMapping.observe true database).map (List.drop 1)',
+            (b'observe := fun database => (HistoryMapping.observe database).map (List.drop 1)',
              'candidate drops a protected business history'),
-            (b'observe := fun database => (HistoryMapping.observe true database).map '
+            (b'observe := fun database => (HistoryMapping.observe database).map '
              b'(fun histories => histories.map (fun history => { history with command := "" }))',
              'candidate erases protected command text'),
         ):
@@ -118,12 +115,7 @@ def main(runtime: Path) -> None:
                     original_meaning[invariant_end:])
         assert weakened != original_meaning
         next_meaning.write_text(weakened)
-        invoke(runtime, pilot, 'UNVERIFIED', 'candidate omits actual migration-history invariant')
-        # This combined attack may reject at sealed script equality before the
-        # approved actual-storage guard; it does not isolate the latter's proof.
-        migration.write_bytes(altered_checksum)
-        invoke(runtime, pilot, 'UNVERIFIED', 'wrong checksum hidden behind weakened representation')
-        migration.write_bytes(original_sql)
+        invoke(runtime, pilot, 'UNVERIFIED', 'candidate omits schema and decoding invariant')
         next_meaning.write_text(original_meaning)
 
         schema.write_text(original_schema + '\n-- changed schema approval bytes\n')
@@ -137,17 +129,17 @@ def main(runtime: Path) -> None:
             assert f'approved/{name}.lean' in str(rejected['message'])
             protected.write_bytes(original)
 
-        catalog = pilot / 'approved/AtuinCatalog.lean'
-        original_catalog = catalog.read_bytes()
-        catalog.write_bytes(original_catalog + b'\n-- A new review is required even for source-only drift.\n')
+        mapping = pilot / 'approved/HistoryMapping.lean'
+        original_mapping = mapping.read_bytes()
+        mapping.write_bytes(original_mapping + b'\n-- Protected interpretation dependency changed.\n')
         rejected = invoke(runtime, pilot, 'INPUT_ERROR', 'transitive approved dependency changed')
-        assert 'approved/AtuinCatalog.lean' in str(rejected['message'])
-        catalog.write_bytes(original_catalog)
+        assert 'approved/HistoryMapping.lean' in str(rejected['message'])
+        mapping.write_bytes(original_mapping)
 
         (pilot / 'Proofs.lean').write_text(
             'import Generated\ntheorem Proofs.migrationCorrect : Generated.expected := by sorry\n')
         invoke(runtime, pilot, 'UNVERIFIED', 'unfinished proof')
-    print('Atuin CLI: explicit SQL verified; schema, bookkeeping, initialization, interpretation and proof drift rejected')
+    print('Atuin CLI: two migrations preserve the same old business contract; stale proofs and protected-meaning drift rejected')
 
 
 if __name__ == '__main__':

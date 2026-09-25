@@ -1,17 +1,17 @@
 import Interpretation
 import SqlInputs
 
-/-! The new schema reads real shell cells into the same independent business model. -/
+/-! The candidate reads the old business model solely from resulting storage.
+New columns need not be business fields in the protected pre-migration model. -/
 namespace NextInterpretation
 open SqliteVerifier
 
-/-- The proposed representation includes the new actual column and seventh successful identity. -/
+/-- Recover all pre-migration business fields from the actual resulting schema. -/
 def next : Interpretation Requirements.LogicalState where
-  invariant := HistoryMapping.representation Generated.nextSchema true
-    (AtuinCatalog.prior ++ [AtuinCatalog.target])
-  observe := HistoryMapping.observe true
+  invariant := HistoryMapping.representation Generated.nextSchema
+  observe := HistoryMapping.observe
 
-/-- Success is established by the complete SQL proof, not assumed from an empty failure relation. -/
+/-- Successful execution is proved separately; no failing state is assumed inhabited. -/
 def failures : FailureRepresentation Requirements.LogicalState := unreachableFailures
 
 end NextInterpretation

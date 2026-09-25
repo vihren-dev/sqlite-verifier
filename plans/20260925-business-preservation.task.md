@@ -1,6 +1,6 @@
 # Business preservation contract
 
-Created: 2026-09-25. Status: ACTIVE.
+Created: 2026-09-25. Status: DONE (implementation and local validation).
 
 ## Required outcome
 
