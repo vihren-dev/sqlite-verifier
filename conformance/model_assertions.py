@@ -35,9 +35,14 @@ def assertions(case: Case) -> str:
         initial = f"Database.set ({initial}) {lean_string(table.name)} {table_literal(table)}"
     lines.append(initial)
     lines.extend([
-        "def observed := run Generated.script before",
+        "def observed := runSql Generated.script before",
+        "example : SupportedSql Generated.startSchema Generated.script before := by unfold SupportedSql; decide +kernel",
+        "def closed : Outcome → Bool",
+        "  | .pending .. => false", "  | _ => true",
+        "example : closed observed = true := by decide +kernel",
         "def failureInfo : Outcome → Option (Nat × ExecutionError)",
         "  | .success _ => none", "  | .failure position reason _ => some (position, reason)",
+        "  | .pending _ _ error => error",
         f"theorem checkedOutcome : failureInfo observed = {case.lean_failure} := by decide +kernel",
     ])
     expected_schema = "[" + ",".join(f"{{ name := {lean_string(table.name)}, columns := {columns(table)} }}"

@@ -109,3 +109,11 @@ frontend source. Root independently passed emitted Lean schema/execution checks
 and 13 profile/write/schema-translation tests. Component evidence also includes
 the full legacy CLI suite. Aggregate coverage is running; the revised Atuin proof
 bundle and its public CLI negatives remain pending.
+
+Aggregate coverage exposed one stale generated assertion path: it still called the
+legacy DDL evaluator and lacked the new pending-outcome constructor. Updated the
+shared comparison generator to use public runSql, prove SupportedSql admission,
+and assert closed outcomes for its existing fixtures. The focused bounded
+native/model comparison passed (exit 0, build/sql-only-model-comparison.log).
+The failed aggregate report is not treated as passing evidence; rerun follows
+final example integration.
