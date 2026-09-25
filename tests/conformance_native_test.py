@@ -10,7 +10,7 @@ import sys
 ROOT = Path(__file__).resolve().parent.parent
 
 
-def main() -> None:
+def main() -> dict[str, object]:
     """Exercise original expectations, inherited state, and honest coverage/status fields."""
     upstream = ROOT / "conformance/upstream"
     hashes: dict[str, str] = json.loads((upstream / "sha256.json").read_text())
@@ -29,7 +29,7 @@ def main() -> None:
         selected = "".join(source[case["source_start_line"] - 1:case["source_end_line"]])
         assert case["sql"] in selected and case["expected_tcl"] in selected
     result = subprocess.run(
-        [sys.executable, "conformance/native_fixture.py", os.environ.get("SQLITE3", "sqlite3"),
+        [sys.executable, "conformance/native_fixture.py", sys.argv[1] if len(sys.argv) == 2 else os.environ.get("SQLITE3", "sqlite3"),
          str(ROOT / "build/sqlite-parser")], cwd=ROOT, text=True, capture_output=True,
         timeout=12, check=True)
     report = json.loads(result.stdout)
@@ -44,8 +44,8 @@ def main() -> None:
     assert [(row["type"], row["name"]) for row in schema] == [("table", "t1"), ("view", "v1")]
     assert report["coverage"] == {"selected_call_instances": 3, "selected_distinct_ids": 2,
                                    "upstream_textual_call_sites": 59, "upstream_distinct_textual_ids": 55}
-    print("conformance: 3 selected upstream assertions match pinned native observations; model unchecked")
+    return report
 
 
 if __name__ == "__main__":
-    main()
+    print(json.dumps(main(), indent=2))

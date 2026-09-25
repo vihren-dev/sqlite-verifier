@@ -1,6 +1,7 @@
 """Verify native/model agreement through production translation, plus a failing model assertion."""
 
 from dataclasses import replace
+import json
 import os
 from pathlib import Path
 import subprocess
@@ -19,10 +20,10 @@ from model_cases import cases, schema_sql
 from model_check import run
 
 
-def main() -> None:
+def main() -> list[dict[str, object]]:
     """Check all five explicit cases, then demonstrate that lost rows cannot prove equal."""
     parser = ROOT / "build/sqlite-parser"
-    reports = run(os.environ.get("SQLITE3", "sqlite3"), parser)
+    reports = run(sys.argv[1] if len(sys.argv) == 2 else os.environ.get("SQLITE3", "sqlite3"), parser)
     assert [report["case"] for report in reports] == [case.name for case in cases()]
     assert len(reports) == 5
     assert all(report["model_status"] == "KERNEL_CHECKED_CONCRETE_ASSERTIONS" for report in reports)
@@ -38,8 +39,8 @@ def main() -> None:
                                   text=True, capture_output=True, timeout=30)
     assert rejected.returncode != 0, "False empty-target expectation received an accepted proof"
     assert "false" in rejected.stdout.lower(), rejected.stdout + rejected.stderr
-    print("conformance: 5 derived native/model cases pass; false empty-target assertion rejected")
+    return reports
 
 
 if __name__ == "__main__":
-    main()
+    print(json.dumps(main(), indent=2))

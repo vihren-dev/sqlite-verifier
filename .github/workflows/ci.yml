@@ -10,6 +10,10 @@ on:
 permissions:
   contents: read
 
+concurrency:
+  group: ${{ github.workflow }}-${{ (startsWith(github.ref, 'refs/tags/') || github.event_name == 'workflow_dispatch') && github.run_id || github.ref }}
+  cancel-in-progress: ${{ !startsWith(github.ref, 'refs/tags/') && github.event_name != 'workflow_dispatch' }}
+
 jobs:
   check:
     name: Check (${{ matrix.system }})
@@ -27,37 +31,51 @@ jobs:
       - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
         with:
           persist-credentials: false
+          fetch-depth: 0
+      - name: Select complete checks for the changed inputs
+        id: scope
+        run: python3 tests/ci_scope.py
+      - name: Check documentation and CI routing
+        if: steps.scope.outputs.scope == 'docs'
+        run: |
+          python3 tests/docs_test.py
+          python3 -m unittest tests.test_ci_scope
       - uses: cachix/install-nix-action@13d8dd58da0234aa297dedd986986ccb8e7f3e24 # v31
+        if: steps.scope.outputs.scope != 'docs'
         with:
           enable_kvm: false
           set_as_trusted_user: false
-      - name: Confirm native runner architecture
-        run: test "$(nix eval --impure --raw --expr builtins.currentSystem)" = '${{ matrix.system }}'
-      - name: Install pinned Lean toolchain
-        run: nix develop --command just setup
-      - name: Require unprivileged Linux sandbox capability
-        if: runner.os == 'Linux'
-        timeout-minutes: 1
+      - name: Run checks in one pinned environment
+        if: steps.scope.outputs.scope != 'docs'
+        env:
+          CHECK_SCOPE: ${{ steps.scope.outputs.scope }}
+          EXPECTED_SYSTEM: ${{ matrix.system }}
         run: |
-          # Variables in the inner script expand only inside the sandbox.
-          # shellcheck disable=SC2016
-          nix develop --command timeout 15 bwrap \
-            --unshare-user --unshare-pid --unshare-net --die-with-parent --new-session \
-            --ro-bind / / --proc /proc --dev /dev --tmpfs /tmp \
-            --setenv HOST_NETWORK "$(readlink /proc/self/ns/net)" \
-            --setenv PROTECTED_WORKSPACE "$GITHUB_WORKSPACE" \
-            sh -euc '
-              test "$(readlink /proc/self/ns/net)" != "$HOST_NETWORK"
-              if touch "$PROTECTED_WORKSPACE/.sandbox-write-probe"; then
-                echo "Workspace unexpectedly writable inside sandbox" >&2
-                exit 1
-              fi
-              touch /tmp/sandbox-write-probe
-            '
-      - name: Run shared checks and package native runtime
-        run: nix develop --command just package
+          python3 tools/check_resources.py
+          nix develop path:./nix#capture --command bash -euo pipefail <<'SH'
+          test "$SQLITE_VERIFIER_SYSTEM" = "$EXPECTED_SYSTEM"
+          just setup
+          if [[ "$RUNNER_OS" == Linux ]]; then
+            # Variables in the inner script expand only inside the sandbox.
+            # shellcheck disable=SC2016
+            timeout 15 bwrap \
+              --unshare-user --unshare-pid --unshare-net --die-with-parent --new-session \
+              --ro-bind / / --proc /proc --dev /dev --tmpfs /tmp \
+              --setenv HOST_NETWORK "$(readlink /proc/self/ns/net)" \
+              --setenv PROTECTED_WORKSPACE "$GITHUB_WORKSPACE" \
+              sh -euc '
+                test "$(readlink /proc/self/ns/net)" != "$HOST_NETWORK"
+                if touch "$PROTECTED_WORKSPACE/.sandbox-write-probe"; then
+                  echo "Workspace unexpectedly writable inside sandbox" >&2
+                  exit 1
+                fi
+                touch /tmp/sandbox-write-probe
+              '
+          fi
+          just "$CHECK_SCOPE"
+          SH
       - name: Retain native loader diagnostics
-        if: always()
+        if: always() && steps.scope.outputs.scope != 'docs'
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
           name: native-loader-${{ matrix.system }}
@@ -67,7 +85,7 @@ jobs:
           if-no-files-found: warn
           retention-days: 14
       - name: Retain bounded coverage evidence
-        if: always()
+        if: always() && steps.scope.outputs.scope != 'docs'
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
           name: coverage-${{ matrix.system }}
@@ -75,7 +93,7 @@ jobs:
           if-no-files-found: warn
           retention-days: 14
       - name: Retain Atuin runner evidence
-        if: always()
+        if: always() && steps.scope.outputs.scope != 'docs'
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
           name: atuin-runner-${{ matrix.system }}
@@ -87,6 +105,7 @@ jobs:
           if-no-files-found: warn
           retention-days: 14
       - name: Retain development source snapshot
+        if: steps.scope.outputs.scope == 'package'
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
           name: development-source-${{ matrix.system }}
@@ -94,6 +113,7 @@ jobs:
           if-no-files-found: error
           retention-days: 14
       - name: Retain checked native runtime
+        if: steps.scope.outputs.scope == 'package'
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
           name: runtime-${{ matrix.system }}

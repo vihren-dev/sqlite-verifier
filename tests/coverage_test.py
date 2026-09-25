@@ -19,6 +19,23 @@ from model_cases import cases
 class CoverageTest(unittest.TestCase):
     """Reporting must preserve unavailable evidence rather than fabricate zero discrepancies."""
 
+    def test_single_fresh_invocation_ignores_old_report(self) -> None:
+        """A prior success file cannot replace failed fresh comparisons or cause a rerun."""
+        with TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            (root / "build").mkdir()
+            (root / "build/coverage.json").write_text(json.dumps({
+                "status": "EVIDENCE_CHECKS_PASSED", "native_model": {"observed_discrepancies": 0}}))
+            with patch("coverage_report.command", return_value={"status": "FAILED"}) as runner:
+                report = collect(root, "selected-native")
+            commands = [call.args[0] for call in runner.call_args_list]
+        for script in ("tests/parser_test.py", "tests/conformance_native_test.py",
+                       "tests/conformance_model_test.py"):
+            self.assertEqual(sum(script in command for command in commands), 1, commands)
+        self.assertFalse(any("conformance/model_check.py" in command for command in commands))
+        self.assertEqual(report["status"], "EVIDENCE_CHECKS_FAILED")
+        self.assertIsNone(report["native_model"]["observed_discrepancies"])
+
     def test_failed_evidence_keeps_counts_separate(self) -> None:
         """A failed runner leaves comparison counts unknown while import denominators remain exact."""
         with TemporaryDirectory() as temporary, patch("coverage_report.command", return_value={"status": "FAILED"}):
@@ -41,9 +58,9 @@ class CoverageTest(unittest.TestCase):
         """Exit-zero JSON cannot substitute for the selected case set."""
         def incomplete(arguments: Sequence[str], root: Path, timeout: int) -> dict[str, object]:
             """Supply well-formed but incomplete runner output without running external tools."""
-            if any(name.endswith("model_check.py") for name in arguments):
+            if any(name.endswith("conformance_model_test.py") for name in arguments):
                 return {"status": "PASSED", "stdout": "[]"}
-            if any(name.endswith("native_fixture.py") for name in arguments):
+            if any(name.endswith("conformance_native_test.py") for name in arguments):
                 return {"status": "PASSED", "stdout": "{}"}
             return {"status": "FAILED"}
         with TemporaryDirectory() as temporary, patch("coverage_report.command", side_effect=incomplete):
@@ -61,9 +78,9 @@ class CoverageTest(unittest.TestCase):
                               "native_status": "MATCHES_UPSTREAM", "grammar_status": "PARSED"}] * 3}
         def duplicated(arguments: Sequence[str], root: Path, timeout: int) -> dict[str, object]:
             """Return repeated successful observations with the expected list lengths."""
-            if any(name.endswith("model_check.py") for name in arguments):
+            if any(name.endswith("conformance_model_test.py") for name in arguments):
                 return {"status": "PASSED", "stdout": json.dumps(derived)}
-            if any(name.endswith("native_fixture.py") for name in arguments):
+            if any(name.endswith("conformance_native_test.py") for name in arguments):
                 return {"status": "PASSED", "stdout": json.dumps(upstream)}
             return {"status": "FAILED"}
         with TemporaryDirectory() as temporary, patch("coverage_report.command", side_effect=duplicated):

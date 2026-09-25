@@ -39,12 +39,11 @@ def grammar_inventory(root: Path, version: str, directory: str, exported: dict[s
 
 def collect(root: Path, native: str) -> dict[str, object]:
     """Refresh existing evidence; an unavailable comparison is never reported as a match."""
-    parser = root / "build/sqlite-parser"
     checks = {
         "proof_build": command(["lake", "build", "SqliteVerifier"], root, 60),
         "parser_regressions": command([sys.executable, "tests/parser_test.py"], root, 30),
-        "upstream_native": command([sys.executable, "conformance/native_fixture.py", native, str(parser)], root, 20),
-        "derived_native_model": command([sys.executable, "conformance/model_check.py", native, str(parser)], root, 180),
+        "upstream_native": command([sys.executable, "tests/conformance_native_test.py", native], root, 20),
+        "derived_native_model": command([sys.executable, "tests/conformance_model_test.py", native], root, 180),
         "grammar_export": command([str(root / "build/parser/lemon"), "-g",
                                    str(root / "parser/upstream/parse.y")], root, 5),
         "grammar_346_export": command([str(root / "build/parser-3.46.0/lemon"), "-g",
