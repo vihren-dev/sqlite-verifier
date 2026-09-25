@@ -1,4 +1,4 @@
-import SqliteVerifier.Preservation
+import SqliteVerifier.RunnerExecution
 
 /-! General proof obligations are separate from additive proof conveniences.
 Approved predicates determine permitted changes, applicability, and failure safety. -/
@@ -53,11 +53,12 @@ def OutcomeSatisfies (nextSchema : Schema) (contract : LogicalContract Logical)
 
 /-- This exact proposition is reconstructed from the supplied, bound inputs.
 The witness prevents inconsistent starting assumptions from vacuously verifying.
-Outcome coverage comes from runFrom_executes; success is required only when the
+Outcome coverage comes from ProfileExecutes.total; success is required only when the
 approved applicability predicate says so. -/
 structure VerificationConditions (startSchema nextSchema : Schema) (script : List Statement)
     (approvedConditions : Database → Prop) (contract : LogicalContract Logical)
-    (before after : Interpretation Logical) (failures : FailureRepresentation Logical) : Prop where
+    (before after : Interpretation Logical) (failures : FailureRepresentation Logical)
+    (profile : ExecutionProfile := .sqlite351Autocommit) : Prop where
   nonempty : ∃ database, Admitted startSchema approvedConditions database
   beforeSound : SoundRepresentation contract startSchema before
   afterSound : SoundRepresentation contract nextSchema after
@@ -65,8 +66,9 @@ structure VerificationConditions (startSchema nextSchema : Schema) (script : Lis
     SoundRepresentation contract (failures.schema position reason)
       (failures.interpretation position reason)
   starting : ∀ database, Admitted startSchema approvedConditions database → before.invariant database
+  ready : ∀ database, Admitted startSchema approvedConditions database → profile.ready script database
   outcomes : ∀ database, Admitted startSchema approvedConditions database →
-    ∀ outcome, Executes 0 script database outcome →
+    ∀ outcome, ProfileExecutes profile script database outcome →
       contract.applicability database outcome ∧
       OutcomeSatisfies nextSchema contract before after failures database outcome
 
@@ -91,9 +93,9 @@ theorem VerificationConditions.of_run
       contract.applicability database (run script database) ∧
       OutcomeSatisfies nextSchema contract before after failures database (run script database)) :
     VerificationConditions startSchema nextSchema script approvedConditions contract before after failures := by
-  refine ⟨nonempty, beforeSound, afterSound, failuresSound, starting, ?_⟩
+  refine ⟨nonempty, beforeSound, afterSound, failuresSound, starting, fun _ _ => trivial, ?_⟩
   intro database admitted outcome execution
-  have same : run script database = outcome := execution.result
+  have same : run script database = outcome := execution.legacy.result
   simpa only [same] using checked database admitted
 
 /-- Equivalent runs reuse approved obligations, including all failure positions. -/
@@ -111,7 +113,7 @@ theorem VerificationConditions.congr_run
     checked.failuresSound checked.starting
   intro database admitted
   rw [same database admitted]
-  exact checked.outcomes database admitted _ (runFrom_executes oldScript database 0)
+  exact checked.outcomes database admitted _ (.autocommit (runFrom_executes oldScript database 0))
 
 /-- A checked schema contradiction refutes a success-required contract; this is
 a model argument, distinct from failed proof search or a native counterexample. -/
@@ -126,7 +128,7 @@ theorem violates_required_schema
   intro checked
   obtain ⟨database, admitted⟩ := checked.nonempty
   obtain ⟨logical, observed, _⟩ := (checked.beforeSound database (checked.starting database admitted)).2
-  have obligations := checked.outcomes database admitted _ (runFrom_executes script database 0)
+  have obligations := checked.outcomes database admitted _ (.autocommit (runFrom_executes script database 0))
   cases outcome : runFrom 0 script database with
   | failure position reason result =>
     have impossible := obligations.1

@@ -11,6 +11,11 @@ inductive Statement where
   | addColumn (table : String) (column : Column)
   deriving Repr, DecidableEq
 
+/-- Runner stages distinguish pre-transaction failures from errors after COMMIT. -/
+inductive RunnerPhase where
+  | preflight | beginTransaction | bookkeepingInsert | commit | timingUpdate | cacheClear
+  deriving Repr, DecidableEq
+
 /-- Modeled errors retain the state committed before the offending statement. -/
 inductive ExecutionError where
   | invalidDefinition
@@ -18,6 +23,7 @@ inductive ExecutionError where
   | missingTable (name : String)
   | columnExists (table column : String)
   | tooManyColumns (table : String)
+  | runnerFailure (phase : RunnerPhase) (committed : Bool)
   deriving Repr, DecidableEq
 
 /-- Failure carries the zero-based statement position and resulting database. -/
@@ -33,13 +39,13 @@ def Outcome.database : Outcome → Database
 def step (statement : Statement) (database : Database) (position : Nat := 0) : Outcome :=
   match statement with
   | .createTable name columns =>
-    if !(supportedTableName name && supportedColumns columns) then
+    if !(supportedTableName name && supportedColumns columns && columns.all Column.plain) then
       .failure position .invalidDefinition database
     else match database name with
       | some _ => .failure position (.tableExists name) database
-      | none => .success (database.set name ⟨columns, []⟩)
+      | none => .success (database.set name { columns := columns, rows := [] })
   | .addColumn name column =>
-    if !(supportedTableName name && supportedColumn column) then
+    if !(supportedTableName name && supportedColumn column && column.plain) then
       .failure position .invalidDefinition database
     else match database name with
       | none => .failure position (.missingTable name) database

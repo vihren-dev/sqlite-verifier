@@ -7,21 +7,21 @@ namespace SqliteVerifier.Examples
 
 /-- Duplicate application values still denote distinct physical rows. -/
 def originalTable : Table :=
-  ⟨[⟨"amount", .integer⟩], [⟨-4, [.integer 7]⟩, ⟨9, [.integer 7]⟩]⟩
+  { columns := [{ name := "amount", affinity := .integer }], rows := [⟨-4, [.integer 7]⟩, ⟨9, [.integer 7]⟩] }
 
 /-- One ordinary table provides a concrete execution witness. -/
 def initial : Database := fun name => if name = "invoices" then some originalTable else none
 
 /-- A useful multi-statement addition over an existing table. -/
 def additions : List Statement :=
-  [.addColumn "invoices" ⟨"note", .text⟩,
-   .createTable "audit" [⟨"message", .text⟩]]
+  [.addColumn "invoices" { name := "note", affinity := .text },
+   .createTable "audit" [{ name := "message", affinity := .text }]]
 
 /-- Repeating a creation fails after the previous column addition committed. -/
 def failedPrefix : List Statement :=
-  [.addColumn "invoices" ⟨"note", .text⟩,
-   .createTable "invoices" [⟨"replacement", .text⟩],
-   .createTable "unreached" [⟨"value", .blob⟩]]
+  [.addColumn "invoices" { name := "note", affinity := .text },
+   .createTable "invoices" [{ name := "replacement", affinity := .text }],
+   .createTable "unreached" [{ name := "value", affinity := .blob }]]
 
 /-- Inspect the outcome without comparing database functions. -/
 def failureInfo : Outcome → Option (Nat × ExecutionError)
@@ -30,15 +30,15 @@ def failureInfo : Outcome → Option (Nat × ExecutionError)
 
 /-- The configured column limit is deterministic behavior, not a resource exclusion. -/
 def maximalTable : Table :=
-  ⟨(List.range maximumColumns).map (fun index => ⟨s!"column{index}", .text⟩), []⟩
+  { columns := (List.range maximumColumns).map (fun index => { name := s!"column{index}", affinity := .text }), rows := [] }
 
 -- Physical bounds and identifier comparison are independent admission checks.
 example : validRowid (-9223372036854775808) := by unfold validRowid; decide
 example : validRowid 9223372036854775807 := by unfold validRowid; decide
 example : ¬validRowid 9223372036854775808 := by unfold validRowid; decide
 #guard normalizeIdentifier "ÄInvoices" = "Äinvoices"
-#guard supportedColumns [⟨"x", .text⟩, ⟨"x", .integer⟩] = false
-#guard supportedColumn ⟨"rowid", .integer⟩ = false
+#guard supportedColumns [{ name := "x", affinity := .text }, { name := "x", affinity := .integer }] = false
+#guard supportedColumn { name := "rowid", affinity := .integer } = false
 #guard supportedTableName "sqlite_sequence" = false
 
 -- Every old row is retained, NULL is materialized, and the new table is empty.
@@ -54,14 +54,14 @@ example : ¬validRowid 9223372036854775808 := by unfold validRowid; decide
 #guard ((run failedPrefix initial).database "invoices").map Table.rows =
   some [⟨-4, [.integer 7, .null]⟩, ⟨9, [.integer 7, .null]⟩]
 #guard ((run failedPrefix initial).database "unreached").isNone
-#guard failureInfo (run [.addColumn "absent" ⟨"x", .text⟩] initial) =
+#guard failureInfo (run [.addColumn "absent" { name := "x", affinity := .text }] initial) =
   some (0, .missingTable "absent")
-#guard failureInfo (run [.addColumn "invoices" ⟨"amount", .text⟩] initial) =
+#guard failureInfo (run [.addColumn "invoices" { name := "amount", affinity := .text }] initial) =
   some (0, .columnExists "invoices" "amount")
-#guard supportedColumns (maximalTable.columns ++ [⟨"extra", .text⟩]) = false
-#guard failureInfo (run [.addColumn "full" ⟨"extra", .text⟩]
+#guard supportedColumns (maximalTable.columns ++ [{ name := "extra", affinity := .text }]) = false
+#guard failureInfo (run [.addColumn "full" { name := "extra", affinity := .text }]
   (Database.set (fun _ => none) "full" maximalTable)) = some (0, .tooManyColumns "full")
-#guard failureInfo (run [.addColumn "full" ⟨"column0", .text⟩]
+#guard failureInfo (run [.addColumn "full" { name := "column0", affinity := .text }]
   (Database.set (fun _ => none) "full" maximalTable)) = some (0, .tooManyColumns "full")
 
 /-- Fixture-independent execution exists for every script and starting state. -/

@@ -151,17 +151,40 @@ reproduction: upstream sqlite3.c constructs it solely from compiler identity
 macros. The actual compiler string is retained in raw options and its own field;
 all other compile flags and runtime limits remain exact comparisons. Fresh
 platform capture is retained at build/atuin-capture.json for CI inspection.
+
+## Independent payload native/model comparisons
+
+Merged immutable frontend8e35b418 and formal66a8e381 with the captured native
+profile. Three independently specified stored-value fixtures (empty, singleton,
+three rows) pass real SQLx before/after/post-close comparisons and production
+3.46 parser/translation into Lean. Kernel assertions establish schema validity,
+concrete row validity, model Conforms, successful payload result, exact expected
+NULL-extended history and unchanged other modeled tables. A false empty expected
+result is rejected. The full ten-object captured schema and native profile remain
+bound. Non-history model rows are explicitly abstracted empty in this payload
+unit; full SQLx readiness/bookkeeping/statistics relation is NOT_YET_COMPARED.
+
+Normal standalone test passed in11.883s; existing capture/adversarial tests passed
+in0.216s. Native subprocesses have30s limits, Lean checks45s, suite180s. Reports
+and actual generated proofs are retained under build/atuin-model-payload*. Root
+owns shared command/coverage integration. Full runner relation comparison follows
+the independently provided runner8ca23cd5 interface; no owner acceptance implied.
 The Ultra lead accepted parser, coverage and complete capture checkpoints through
 `9e65f66a`. Root merged them, preserving both progress records; CI retains the
 fresh complete capture alongside runner receipts. Formal/profile integration
 remains active in separate workspaces.
 The merged shared native entry point passed both suites in 0.227s after a
 2.22-second incremental build; workflow actionlint/shellcheck passed again.
-Published the lead-approved integration at `e094a5ffa770`; hosted run
-`36107075735` is now reproducing the capture on both platforms. Earlier run
-`36105736197` completed successfully on both platforms, confirming the aggregate
-kernel-test timeout adjustment. Parser/coverage documentation now distinguishes
-the two independently pinned grammars and their evidence scopes.
+Published the lead-approved integration at `e094a5ffa770`; hosted runs
+`36107075735` and `36105736197` passed on both platforms, including complete
+native capture, adversarial outcomes and installed packaging smoke. The merged
+formal runner and payload comparison pass a 21-job Lean/checker build, both
+parser/schema checks, eight native runner checks and three payload model cases
+plus false-expectation rejection (8.688s). `just check` now includes these bounded
+Atuin checks; CI retains their JSON and generated Lean evidence. The shared
+native command selects the pinned capture shell internally. Workflow lint passed.
+Parser/coverage documentation distinguishes the two independently pinned grammars
+and their evidence scopes; complete runner/model comparison remains pending.
 Prepared a draft owner review packet at `docs/atuin-pilot-review.md`, describing
 protected fields, explicit readiness, committed-error behavior and statistics
 scope. Its engineering results, human effort and acceptance remain visibly

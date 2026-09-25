@@ -22,8 +22,10 @@ smoke:
 # Run real process-isolation checks and the independently expected native smoke.
 test: smoke
     timeout 30 python3 tests/parser_test.py
+    timeout 75 python3 tests/schema_generation_test.py
     timeout 20 python3 tests/conformance_native_test.py
     timeout 180 python3 tests/conformance_model_test.py
+    timeout 180 python3 tests/conformance_atuin_model_test.py
     timeout 360 python3 tests/kernel_gate_test.py
     timeout 180 python3 -m tests.compilation_test
     timeout 600 python3 tests/cli_test.py
@@ -34,12 +36,12 @@ test: smoke
 coverage: build
     timeout 420 python3 conformance/coverage_report.py --output build/coverage.json
 
-check: build test coverage
+check: build atuin-native test coverage
 
-# Reproduce the real SQLx runner; run this entry point inside nix develop .#capture.
+# Reproduce the real SQLx runner using its separately pinned build environment.
 atuin-native:
-    CARGO_HOME="${CARGO_HOME:-$PWD/build/atuin-cargo-home}" CARGO_TARGET_DIR="$PWD/build/atuin-cargo-target" timeout 600 cargo build --locked --manifest-path conformance/atuin_capture/Cargo.toml
-    timeout 45 python3 -m unittest discover -s tests -p 'atuin_*test.py'
+    nix develop .#capture --command env CARGO_HOME="${CARGO_HOME:-$PWD/build/atuin-cargo-home}" CARGO_TARGET_DIR="$PWD/build/atuin-cargo-target" timeout 600 cargo build --locked --manifest-path conformance/atuin_capture/Cargo.toml
+    timeout 45 python3 -m unittest tests.atuin_capture_test tests.atuin_runner_test
 
 # Build a native offline archive and verify its actual installed entrypoint.
 runtime-package:

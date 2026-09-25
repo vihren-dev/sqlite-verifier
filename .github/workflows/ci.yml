@@ -54,9 +54,6 @@ jobs:
               fi
               touch /tmp/sandbox-write-probe
             '
-      - name: Reproduce complete Atuin runner and adversarial outcomes
-        timeout-minutes: 12
-        run: nix develop .#capture --command just atuin-native
       - name: Run shared checks and package native runtime
         run: nix develop --command just package
       - name: Retain native loader diagnostics
@@ -85,6 +82,8 @@ jobs:
           path: |
             build/atuin-capture.json
             build/atuin-runner-receipts.json
+            build/atuin-model-payload.json
+            build/atuin-model-payload/
           if-no-files-found: warn
           retention-days: 14
       - name: Retain development source snapshot

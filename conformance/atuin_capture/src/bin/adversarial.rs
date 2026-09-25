@@ -41,7 +41,9 @@ async fn inject(conn: &mut SqliteConnection, scenario: &str) -> Result<(), Box<d
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn Error>> {
     let args: Vec<String> = std::env::args().collect();
-    if args.len()!=4 { return Err("usage: adversarial NEW_DB MIGRATIONS SCENARIO".into()); }
+    if args.len()!=4 && args.len()!=5 {
+        return Err("usage: adversarial NEW_DB MIGRATIONS SCENARIO [0|1|3]".into());
+    }
     if Path::new(&args[1]).exists() { return Err("database must not exist".into()); }
     let migrator = sqlx::migrate::Migrator::new(Path::new(&args[2])).await?;
     let pool = open(Path::new(&args[1])).await?;
@@ -51,6 +53,13 @@ async fn main() -> Result<(), Box<dyn Error>> {
     // embedded NUL text, non-UTF8 BLOB, and numeric TEXT-affinity conversions.
     sqlx::query("INSERT INTO history(rowid,id,timestamp,duration,exit,command,cwd,session,hostname,deleted_at,author,intent) VALUES(-9223372036854775808,NULL,1,'not-an-integer',X'00FF','same','/a','session','host',NULL,NULL,NULL),(-1,NULL,2,1.25,0,'same','/a','session','host','unparsed',X'80FF',CAST(X'610062' AS TEXT)),(9223372036854775807,'',X'0102',-2,0,X'00FF',123,456,789,NULL,'author','intent')")
         .execute(&mut *conn).await?;
+    match args.get(4).map(String::as_str).unwrap_or("3") {
+        "0" => { sqlx::query("DELETE FROM history").execute(&mut *conn).await?; }
+        "1" => { sqlx::query("DELETE FROM history WHERE rowid != -9223372036854775808")
+            .execute(&mut *conn).await?; }
+        "3" => (),
+        _ => return Err("row count must be 0, 1 or 3".into()),
+    }
     drop(conn);
     pool.close().await;
     let pool = open(Path::new(&args[1])).await?;

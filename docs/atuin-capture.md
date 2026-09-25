@@ -18,9 +18,10 @@ timeout 600 cargo build --locked --manifest-path conformance/atuin_capture/Cargo
 timeout 40 python3 tests/atuin_capture_test.py
 ```
 
-The shared CI entry point is `nix develop .#capture --command just atuin-native`.
-It builds the locked harness and runs both capture and adversarial checks with
-bounded timeouts. Each native platform retains its regenerated runner receipts.
+The shared entry point is `nix develop --command just atuin-native`. It selects
+the capture shell for the locked Rust build, then runs both native suites with
+bounded timeouts. `just check` and CI run it before the native/model comparisons;
+each platform retains its regenerated capture and runner receipts.
 
 For a new raw capture, supply a nonexistent database path and the migration
 directory to `build/atuin-cargo-target/debug/atuin-sqlx-capture`. The runner first

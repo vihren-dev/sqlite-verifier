@@ -35,7 +35,7 @@ theorem failureMigrationCorrect :
     obtain ⟨logical, read, _⟩ :=
       (migrationCorrect.beforeSound database (migrationCorrect.starting database admitted)).2
     have obligations := migrationCorrect.outcomes database admitted _
-      (runFrom_executes script database 0)
+      (.autocommit (runFrom_executes script database 0))
     cases executed : runFrom 0 script database with
     | failure position reason result =>
       have impossible := obligations.1
@@ -45,11 +45,12 @@ theorem failureMigrationCorrect :
       rw [executed] at preserved
       have conforming := (migrationCorrect.afterSound result (preserved logical read).1).1
       obtain ⟨audit, present, _, _⟩ := conforming.table (name := "audit") (by rfl)
-      have supported : (supportedTableName "audit" && supportedColumns [message]) = true := by
-        decide +kernel
+      have auditName : supportedTableName "audit" = true := by decide +kernel
+      have auditColumns : supportedColumns [message] = true := by decide +kernel
+      have messagePlain : message.plain = true := by decide +kernel
       have failed : run failureScript database = .failure 2 (.tableExists "audit") result := by
         simp only [run, failureScript, runFrom_append, executed]
-        simp [runFrom, script, step, supported, present]
+        simp [runFrom, script, step, auditName, auditColumns, messagePlain, present]
       rw [failed]
       refine ⟨trivial, ?_⟩
       intro original observed
