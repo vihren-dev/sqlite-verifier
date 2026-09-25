@@ -113,7 +113,8 @@ raise SystemExit(main(sys.argv[1:]))
         print(f"Runtime payload copying: {monotonic() - started:.2f}s", flush=True)
         started = monotonic()
         run(["nix", "--extra-experimental-features", "nix-command", "--offline", "copy",
-             "--to", (bundle / "nix-cache").as_uri(), *map(str, sorted(roots))], timeout=300)
+             "--to", (bundle / "nix-cache").as_uri() + "?compression=zstd",
+             *map(str, sorted(roots))], timeout=300)
         print(f"Runtime Nix export: {monotonic() - started:.2f}s", flush=True)
         started = monotonic()
         run(["nix", "--extra-experimental-features", "nix-command", "--offline", "store", "verify",

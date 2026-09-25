@@ -54,12 +54,28 @@ class IndependentSuiteTests(unittest.TestCase):
             self.assertIn("before timeout", result.stdout)
             self.assertIn("other suite completed", result.stdout)
 
-    def invoke(self, directory: Path, suites: tuple[tuple[str, float], ...]) -> subprocess.CompletedProcess[str]:
+    def test_serial_mode_finishes_failed_first_suite_before_second(self) -> None:
+        """The macOS fallback still runs the next suite after a completed failure."""
+        with TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            first, second = root / "first.py", root / "second.py"
+            first.write_text("from pathlib import Path\nimport time\ntime.sleep(0.2)\n"
+                             "Path('first-finished').touch()\nraise SystemExit(7)\n")
+            second.write_text("from pathlib import Path\nassert Path('first-finished').exists()\n"
+                              "print('second ran after first finished')\n")
+            result = self.invoke(root, ((str(first), 3), (str(second), 3)), max_workers=1)
+            self.assertEqual(result.returncode, 1, result.stdout + result.stderr)
+            self.assertIn("exit 7", result.stdout)
+            self.assertIn("exit 0", result.stdout)
+            self.assertIn("second ran after first finished", result.stdout)
+
+    def invoke(self, directory: Path, suites: tuple[tuple[str, float], ...], *,
+               max_workers: int = 2) -> subprocess.CompletedProcess[str]:
         """Bound the runner itself so a regression cannot hang the test process."""
         return subprocess.run(
             [sys.executable, "-c", f"import sys; sys.path.insert(0, {str(ROOT)!r}); "
              "from tools.run_independent_suites import run_suites; "
-             f"raise SystemExit(run_suites({suites!r}))"],
+             f"raise SystemExit(run_suites({suites!r}, max_workers={max_workers}))"],
             cwd=directory, capture_output=True, text=True, timeout=10)
 
 

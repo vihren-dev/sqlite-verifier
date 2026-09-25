@@ -36,3 +36,28 @@ and warm package measurements remain required before completion.
 Source Atuin public CLI suite passed in the same pinned environment: both
 positive migrations and every existing negative case. Evidence: build/ci-atuin-local.log
 and exit0. Documentation checks passed; no approved contract bytes changed.
+
+Local instrumented archive experiment found the remaining construction cost:
+xz payload copying19.22s, Nix export274.73s, signature/content verification3.97s,
+outer gzip24.53s. Changing only Nix's supported export compression to zstd gave
+copy21.07s, export9.80s, verification0.69s, outer gzip28.30s. Final archive is
+1,127,206,947 bytes, under the2GB guard. This is a local controlled experiment,
+not a hosted end-to-end speedup claim. Native installation/Atuin validation
+passed before committing the one-line export setting. Independent compatibility
+review confirms installers delegate decoding to Nix metadata; all-content and
+signature checks remain enabled. No installer or trust-policy change is needed.
+
+The zstd offline installed runtime PASSED all native parser, isolated CLI and
+Atuin cases (installed Atuin113.45s); extraction/installation22.53s. Logs:
+build/ci-runtime-zstd-{local,installed}.log, both exit0. The final export setting
+is now the ordinary Nix URI compression parameter; no codec/installer abstraction.
+
+Hosted experiment run36143187396 at0cef4339: Linux complete package PASSED in
+11m46s including cache save; pair160.16s (CLI127.46s, kernel160.15s). macOS
+FAILED because overlapping suites made a valid production CLI checker exceed30s;
+kernel completed328.38s. This is failed experimental evidence, not acceptance.
+The runner therefore retains2workers only on Linux and uses1on macOS, preserving
+all production and suite deadlines. Two focused real-process runner regressions
+passed in1.764s, including serial continuation after a sibling failure. Linux's
+new dependency cache exists; macOS did not save a cache from its failed job.
+Final revision needs both-platform complete validation and a repeated warm run.

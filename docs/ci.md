@@ -20,11 +20,15 @@ tags and manual runs have unique concurrency groups and are never auto-cancelled
 Jobs have a 30-minute timeout; individual tests keep their own shorter limits.
 
 After shared build and coverage prerequisites, kernel-gate and ordinary CLI suites
-run with two workers. Each keeps its own deadline (360 and 600 seconds), private
+run with two workers on Linux. macOS runs them sequentially: hosted overlap caused
+a valid proof to hit the unchanged production checker deadline. Each suite keeps
+its own deadline (360 and 600 seconds), private
 test directories and complete log under `build/test-logs/`. Both children are
 awaited; either failure fails CI. Other suites remain sequential. Logs are retained
 on failure as well as success. Runtime packaging reports copying, Nix export,
 signature verification and compression times; installed Atuin output streams live.
+The offline Nix cache uses its native zstd encoding; the outer archive remains
+gzip level1. Nix verifies the decoded contents and signatures before archiving.
 
 The pinned [cache-nix-action v7](https://github.com/nix-community/cache-nix-action/tree/7df957e333c1e5da7721f60227dbba6d06080569)
 reuses the Nix store with an exact platform and `nix/flake.nix`/`nix/flake.lock`

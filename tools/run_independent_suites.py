@@ -24,16 +24,17 @@ def run_suite(script: str, timeout: float, logs: Path) -> tuple[Path, int, float
     return log, code, monotonic() - started
 
 
-def run_suites(suites: tuple[tuple[str, float], ...] = SUITES) -> int:
+def run_suites(suites: tuple[tuple[str, float], ...] = SUITES, *, max_workers: int = 2) -> int:
     """Await every suite even after failure, printing complete logs and measured durations."""
     logs = Path("build/test-logs")
     logs.mkdir(parents=True, exist_ok=True)
     started = monotonic()
     failed = False
-    with ThreadPoolExecutor(max_workers=2) as workers:
+    print(f"Independent suites: {max_workers} worker(s)", flush=True)
+    with ThreadPoolExecutor(max_workers=max_workers) as workers:
         futures = {}
         for script, timeout in suites:
-            print(f"Starting {script} (timeout {timeout}s)", flush=True)
+            print(f"Scheduling {script} (timeout {timeout}s)", flush=True)
             futures[workers.submit(run_suite, script, timeout, logs)] = script
         for future in as_completed(futures):
             log, code, elapsed = future.result()
@@ -45,4 +46,5 @@ def run_suites(suites: tuple[tuple[str, float], ...] = SUITES) -> int:
 
 
 if __name__ == "__main__":
-    raise SystemExit(run_suites())
+    # Hosted macOS overlap exceeded the unchanged 30s CLI kernel-check deadline.
+    raise SystemExit(run_suites(max_workers=2 if sys.platform == "linux" else 1))
