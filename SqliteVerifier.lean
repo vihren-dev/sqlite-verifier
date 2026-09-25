@@ -10,5 +10,7 @@ import SqliteVerifier.FailureDemonstration
 import SqliteVerifier.SchemaPreservation
 import SqliteVerifier.SchemaExamples
 import SqliteVerifier.RunnerProfile
+import SqliteVerifier.SchemaExtension
+import SqliteVerifier.NullableProjection
 
 /-! Public entry point for the restricted SQLite model and reusable proofs. -/

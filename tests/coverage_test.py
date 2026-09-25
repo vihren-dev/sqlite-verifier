@@ -35,6 +35,7 @@ class CoverageTest(unittest.TestCase):
         self.assertEqual(imported["model_status"], "NOT_YET_MODEL_CHECKED")
         self.assertIsNone(report["documented_claims"]["sqlite_documentation_total"])
         self.assertEqual(report["grammar"]["production_execution_coverage"], "NOT_INSTRUMENTED")
+        self.assertIsNone(report["additional_grammars"]["3.46.0"]["generated_productions"])
 
     def test_incomplete_reports_are_not_passing_coverage(self) -> None:
         """Exit-zero JSON cannot substitute for the selected case set."""

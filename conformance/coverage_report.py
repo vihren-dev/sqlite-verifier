@@ -16,6 +16,27 @@ from model_cases import cases
 ROOT = Path(__file__).resolve().parents[1]
 
 
+def grammar_inventory(root: Path, version: str, directory: str, exported: dict[str, object],
+                      regression: dict[str, object]) -> dict[str, object]:
+    """Count each independently generated grammar without claiming executed-rule coverage."""
+    try:
+        generated = sum("::=" in line for line in (root / directory / "syntax.y").read_text().splitlines())
+    except OSError:
+        generated = None
+    upstream_count = (sum("::=" in line for line in str(exported["stdout"]).splitlines())
+                      if exported["status"] == "PASSED" else None)
+    if generated is None or generated == 0 or generated != upstream_count:
+        exported.update(status="FAILED", diagnostic="Generated/default grammar inventories unavailable or differ")
+    smoke = re.search(re.escape(version) + r" parser checks passed: (\d+) grammar scripts",
+                      str(regression.get("stdout", "")))
+    if regression["status"] == "PASSED" and smoke is None:
+        regression.update(status="FAILED", diagnostic=f"{version} parser script denominator missing")
+    return {"generated_productions": generated, "upstream_default_productions": upstream_count,
+            "inventory_is_equivalence_proof": False, "production_execution_coverage": "NOT_INSTRUMENTED",
+            "regression_scripts": int(smoke[1]) if smoke else None,
+            "regression_scope": "authored smoke scripts, not production or semantic coverage"}
+
+
 def collect(root: Path, native: str) -> dict[str, object]:
     """Refresh existing evidence; an unavailable comparison is never reported as a match."""
     parser = root / "build/sqlite-parser"
@@ -26,6 +47,8 @@ def collect(root: Path, native: str) -> dict[str, object]:
         "derived_native_model": command([sys.executable, "conformance/model_check.py", native, str(parser)], root, 180),
         "grammar_export": command([str(root / "build/parser/lemon"), "-g",
                                    str(root / "parser/upstream/parse.y")], root, 5),
+        "grammar_346_export": command([str(root / "build/parser-3.46.0/lemon"), "-g",
+                                       str(root / "parser/upstream-3.46.0/parse.y")], root, 5),
     }
     checks["named_proofs"] = (proof_probe(root) if checks["proof_build"]["status"] == "PASSED"
                               else {"status": "NOT_RUN", "diagnostic": "Library build failed"})
@@ -54,28 +77,15 @@ def collect(root: Path, native: str) -> dict[str, object]:
         and {row["case"] for row in derived} == expected_names)
     if checks["derived_native_model"]["status"] == "PASSED" and not complete:
         checks["derived_native_model"].update(status="FAILED", diagnostic="Incomplete concrete comparison report")
-    try:
-        generated = sum("::=" in line for line in (root / "build/parser/syntax.y").read_text().splitlines())
-    except OSError:
-        generated = None
-    exported = checks["grammar_export"]
-    upstream_count = (sum("::=" in line for line in str(exported["stdout"]).splitlines())
-                      if exported["status"] == "PASSED" else None)
-    if generated is None or generated == 0 or generated != upstream_count:
-        exported.update(status="FAILED", diagnostic="Generated/default grammar inventories unavailable or differ")
-    smoke = re.search(r"parser checks passed: (\d+) grammar scripts", str(checks["parser_regressions"].get("stdout", "")))
-    if checks["parser_regressions"]["status"] == "PASSED" and smoke is None:
-        checks["parser_regressions"].update(status="FAILED", diagnostic="Parser script denominator missing")
+    grammar = grammar_inventory(root, "3.51.0", "build/parser", checks["grammar_export"], checks["parser_regressions"])
+    grammar346 = grammar_inventory(root, "3.46.0", "build/parser-3.46.0", checks["grammar_346_export"], checks["parser_regressions"])
     return {
         "report_version": 1, "profile": "3.51.0",
         "status": "EVIDENCE_CHECKS_PASSED" if all(row["status"] == "PASSED" for row in checks.values()) else "EVIDENCE_CHECKS_FAILED",
         "proofs": {"scope": list(THEOREMS), "denominator": len(THEOREMS),
                    "unit": "explicitly catalogued model theorems; not all library declarations",
                    "status": checks["named_proofs"]["status"], "product_gate": "NOT_RUN_BY_THIS_REPORT"},
-        "grammar": {"generated_productions": generated, "upstream_default_productions": upstream_count,
-                    "inventory_is_equivalence_proof": False, "production_execution_coverage": "NOT_INSTRUMENTED",
-                    "regression_scripts": int(smoke[1]) if smoke else None,
-                    "regression_scope": "authored smoke scripts, not production or semantic coverage"},
+        "grammar": grammar, "additional_grammars": {"3.46.0": grammar346},
         "documented_claims": {"catalogued_entries": len(CLAIMS), "upstream_requirement_ids": 3,
                               "sqlite_documentation_total": None, "entries": CLAIMS,
                               "status": "TRACEABILITY_INVENTORY_NOT_PROOF_COMPLETION"},

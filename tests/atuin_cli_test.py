@@ -31,6 +31,10 @@ def invoke(runtime: Path, pilot: Path, expected: str, label: str,
     report: dict[str, object] = json.loads(result.stdout)
     assert report['status'] == expected, (label, report, result.stderr)
     assert result.returncode == (0 if expected == 'VERIFIED' else 1), (label, result)
+    if expected == 'UNVERIFIED':
+        diagnostic = str(report.get('message', ''))
+        assert 'error:' in diagnostic or 'unapproved axiom:' in diagnostic, (label, report)
+        assert 'timed out' not in diagnostic.lower(), (label, report)
     return report
 
 

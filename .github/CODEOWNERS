@@ -11,8 +11,9 @@
 /tests/baseline_ci.py @tzanko-matev
 /tests/test_baseline_ci.py @tzanko-matev
 /.github/ @tzanko-matev
-/flake.nix @tzanko-matev
-/flake.lock @tzanko-matev
+/nix/ @tzanko-matev
+/tools/ @tzanko-matev
+/.envrc @tzanko-matev
 /lean-toolchain @tzanko-matev
 /lakefile.toml @tzanko-matev
 /justfile @tzanko-matev

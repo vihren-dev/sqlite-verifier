@@ -107,3 +107,38 @@ Do not ask the owner to debug implementation details that the team can resolve. 
 While awaiting a response, continue already-authorized work that does not depend on the decision. Pause only affected commitments and keep any exploratory alternatives clearly provisional. Silence is not approval of changed guarantees, assumptions, scope, or resource commitments. Record the owner's answer and its consequences so every member resumes from the same decision.
 
 **Maintaining this agreement.** At each roadmap review, examine where collaboration failed: late integration, weak challenges, repeated misunderstandings, missing expertise, excessive interruptions, or problems escalated too late. Adjust role allocation and working rules accordingly. Keep the shared records sufficient for another person or agent to understand the current goal, accepted decisions, evidence, and next action.
+
+## Development resources
+
+The integration engineer owns development storage and release-resource checks.
+Use `python3 tools/check_resources.py` before environment setup or expensive work.
+It requires 10 GiB free on the actual workspace-output, temporary, elan/Cargo-cache and
+Nix-store filesystems. It rejects symlinks, unexpected files and more than 1 MiB
+of environment inputs. Failure stops the expensive operation with a diagnostic;
+no check deletes anything. Bootstrap Python 3 is required before environment
+entry; the pinned shell supplies Python for subsequent commands.
+
+The complete environment input is `nix/flake.nix` plus `nix/flake.lock`. Always
+use explicit `path:./nix` references; `./nix` alone can discover a parent Git
+repository, while a root path flake can copy a whole non-Git workspace. Never put
+build outputs, archives, workspace metadata or application data in `nix/`.
+
+Enter `nix develop path:./nix#capture` once for full checks, Rust capture or a batch
+of related work. `nix develop path:./nix` suffices for focused non-Rust checks.
+Inside the shell, run the relevant recipe directly. `just check` and
+`just atuin-native` require the capture shell and do not enter Nix again.
+Keep artifacts in `dist/`, `build/` and `.lake/`, outside the environment boundary.
+The real snapshot regression is `python3 tests/environment_snapshot_test.py`;
+it uses only tiny explicit path-flake metadata operations and no builds.
+
+Routine work runs focused checks. Integration checkpoints run the complete
+verification suite on both supported platforms. Packaging/runtime changes and
+release candidates also build and test installed archives. Retain current useful
+local evidence; after integration, identify superseded task-owned generated
+outputs by exact path and ask before deleting them. The integration engineer
+proposes retention/cleanup; the owner authorizes the concrete deletion scope.
+
+The previously identified unreferenced project snapshots require the owner's
+separate explicit cleanup approval. This policy grants no blanket Nix garbage
+collection, cache purging, user-database deletion or volume cleanup. A low-space
+failure requires a targeted request, not an automatic cleanup workaround.
