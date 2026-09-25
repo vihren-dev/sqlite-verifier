@@ -189,3 +189,8 @@ Prepared a draft owner review packet at `docs/atuin-pilot-review.md`, describing
 protected fields, explicit readiness, committed-error behavior and statistics
 scope. Its engineering results, human effort and acceptance remain visibly
 pending until the actual proof bundle and pilot review are complete.
+
+Integrated independently reviewed CLI `a3e57f08`: selected engine grammar, exact
+SQL checksum and profile snapshot bind the verdict. Its full legacy/negative
+CLI, kernel-gate and generated-schema checks passed; the merged fast profile and
+schema tests also passed. Actual Atuin positive verification remains pending.
