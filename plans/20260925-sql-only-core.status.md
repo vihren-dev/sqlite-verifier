@@ -130,3 +130,14 @@ SQLx input binding. Arbitrary-row ADD preservation and both representation
 soundness proofs compile against isolated exact snapshots of the lead's revised
 approved files and production-generated SqlInputs (`build/sql-only-facts`).
 These component proofs do not yet constitute the complete example certificate.
+
+Owner clarified and authorized the intended architecture: a separate typed History
+business model, schema-pinned interpretations, business-level requirements and no
+handwritten duplicate complete schema. Updated the task and engineering brief.
+The previous storage-projection example rewrite is superseded; its generic SQL
+lemmas and tests remain useful. Formal lead owns the corrected example; integration
+owns sealed starting-schema staging; conformance owns source fidelity and adversarial
+review. Core regression batch passed: generated schema, kernel gate, compilation
+isolation, legacy CLI and 35 unit tests (build/sql-only-core-regressions.log, exit 0).
+The whole revised example is still pending; prior component proofs are not claimed
+as evidence for its new business contract.

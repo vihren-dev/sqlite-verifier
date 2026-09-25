@@ -67,6 +67,19 @@ Offline verification quantifies over starting databases satisfying approved cond
 
 Discover configuration dependencies during development. Fix and document supported values, adding profile fields only when needed; defer a comprehensive configuration format. Account for relevant build/runtime settings, functions, collations, extensions, and connection behavior before verifying dependent features. Model or reject SQL that changes these settings. Align native tests with the model's environment assumptions. Offline checking assumes the declared environment; a future execution command checks the actual environment.
 
+**Business model and schema ownership.** Define application entities independently
+of database rows and physical layout. Requirements primarily constrain these
+entities and their allowed changes. The supplied schema.sql is the single authored
+complete schema declaration; the tool generates its Lean representation and binds
+the approved interpretation to it. An interpretation supplies table/column mappings,
+decoders and representation invariants, and proves their compatibility with the
+generated schema. Do not require users to maintain a duplicate Lean schema.
+Schema-only generated definitions may be visible to approved models; candidate
+migration definitions and resulting schemas must not shape approved requirements.
+Application migration-history facts are representation invariants, not engine
+settings or business entities by default. Decoding assumptions and abstractions
+from application source must be explicit, with no silently omitted protected rows.
+
 **Interpretation contract.** Fix logical state type `L`, validity predicate `I : L → Prop`, and reusable preservation/allowed-change predicate `Q : L → L → Prop`, relating the migration's before and after states. Define current and resulting representation invariants `V_before`, `V_after` and interpretations `α_before`, `α_after`. Each invariant must imply conformance to its schema, interpretation definedness, and logical validity. Cover all required entities/fields; do not silently discard malformed or unmatched protected records. Interpretations read the represented database and approved fixed context; proof-only copies of old data cannot substitute for data lost from resulting storage.
 
 The human approves the current meaning; the agent may author its definitions and proofs. The proposed interpretation requires proof against the supplied current representation under the fixed contract. Establish starting validity from approved conditions or justified runtime checks. Where schema constraints do not enforce representation invariants, document the additional conditions and prove that this migration respects them.

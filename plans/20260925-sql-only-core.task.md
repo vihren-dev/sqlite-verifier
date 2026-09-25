@@ -27,6 +27,26 @@ capture dependencies and obsolete evidence/documentation. Existing core examples
 and protected-input checks continue to work. Requirements express the actual
 application meaning rather than merely restating the candidate SQL.
 
+## Business model and schema binding (owner clarification, 2026-09-25)
+
+The Atuin example has a typed business History model, justified by the pinned
+application source, separate from SQLite rows and column metadata. Requirements
+primarily describe valid business states and preserved/allowed business changes.
+Physical rowids and raw bookkeeping rows must not become business entities merely
+because the proof library exposes them. Six prior successful migrations and the
+additional completed migration are representation invariants associated with the
+before/after schemas.
+
+schema.sql is the only handwritten complete schema declaration. Its generated
+starting-schema definition is available to approved models through a sealed
+schema-only boundary; candidate SQL, resulting schema and proof modules remain
+unavailable to approved compilation. Interpretations declare column mappings,
+decoding and data assumptions against that exact schema, without copying its full
+tables, constraints or indexes. Candidate interpretation proofs must preserve
+meaning and coverage, not manufacture values or discard malformed protected rows.
+Any decoder-definedness assumptions and deliberate source abstractions are explicit.
+The README explains the business model, representation and resulting guarantee.
+
 ## Verification
 
 Bounded checks cover ordinary supported SQL and failures, generated-input binding,
@@ -34,7 +54,10 @@ kernel rejection of unfinished/substituted proofs, existing examples and the
 revised Atuin example. Native SQLite execution of the supplied example SQL checks
 schema and data effects on empty and populated histories. Atuin negative cases
 must detect lost protected data, incorrect shell initialization and weakened
-interpretation assumptions. The normal aggregate suite runs without Rust, Cargo,
+interpretation assumptions. Checks cover generated starting-schema availability,
+local module shadowing, candidate input isolation, and exact schema binding.
+Business-level examples cover empty and populated histories, optional data,
+malformed-row handling, and unchanged meaning through the shell extension. The normal aggregate suite runs without Rust, Cargo,
 application source downloads or framework capture. Documentation links resolve.
 
 ## Relevant constraints
