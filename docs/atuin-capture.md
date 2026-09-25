@@ -68,6 +68,10 @@ Primary sources: [Atuin Cargo.lock](https://github.com/atuinsh/atuin/blob/5b10eb
 [Atuin migration wrapper](https://github.com/atuinsh/atuin/blob/5b10eb09c664d316b7384210399b02e6127f4027/crates/atuin-common/src/db/mod.rs),
 [SQLx SQLite migration implementation](https://docs.rs/crate/sqlx-sqlite/0.9.0/source/src/migrate.rs).
 The downloaded crate archives were checked against the original lock checksums.
+Compile-option comparison excludes only `COMPILER=` while recording its actual
+value separately. Bundled SQLite's `sqlite3.c` lines 21969–21975 construct this
+entry from compiler version macros; it identifies the build tool. Every other
+compile option and every captured runtime limit remains an exact match.
 
 ## Native adversarial outcomes
 

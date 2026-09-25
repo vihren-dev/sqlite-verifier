@@ -145,3 +145,15 @@ observations; they are not yet a proof/model comparison or pilot acceptance.
 The exact shared command passed both native suites (0.263s); actionlint and
 shellcheck accepted the workflow. Earlier run `36105736197` has passed Linux;
 macOS remains in progress. No hosted Atuin result is claimed yet.
+
+The lead approved separating only SQLite's `COMPILER=` option for cross-platform
+reproduction: upstream sqlite3.c constructs it solely from compiler identity
+macros. The actual compiler string is retained in raw options and its own field;
+all other compile flags and runtime limits remain exact comparisons. Fresh
+platform capture is retained at build/atuin-capture.json for CI inspection.
+The Ultra lead accepted parser, coverage and complete capture checkpoints through
+`9e65f66a`. Root merged them, preserving both progress records; CI retains the
+fresh complete capture alongside runner receipts. Formal/profile integration
+remains active in separate workspaces.
+The merged shared native entry point passed both suites in 0.227s after a
+2.22-second incremental build; workflow actionlint/shellcheck passed again.
