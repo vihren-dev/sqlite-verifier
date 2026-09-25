@@ -60,6 +60,10 @@ def main(archive: Path) -> None:
         result = subprocess.run(arguments, env=environment, capture_output=True, text=True, timeout=30)
         assert result.returncode != 0 and json.loads(result.stdout)["status"] == "UNSUPPORTED", result
         assert (destination / ".nix-roots").is_dir()
+        # Reuse the actual pilot's public-interface checks with ambient tools removed.
+        pilot = checked([sys.executable, "-I", str(Path(__file__).with_name("atuin_cli_test.py")),
+                         str(destination)], environment, timeout=1500)
+        print(pilot.stdout, end="")
         print("Runtime package: offline installation, isolated positive/refuted/unsupported checks passed")
 
 

@@ -3,7 +3,11 @@
 The original autocommit profile string is exactly `3.51.0`. The separate SQLx
 profile is selected by a validated JSON manifest, described below; bare
 `3.46.0` does not implicitly select a runner. Unsupported versions reject.
-Lean is independently pinned to 4.33.0. Native evidence uses the official SQLite
+Lean is independently pinned to 4.33.0.
+
+## SQLite 3.51.0 autocommit
+
+Native evidence uses the official SQLite
 source ID `fb2c931ae597f8d00a37574ff67aeed3eced4e5547f9120744ae4bfa8e74527b`,
 with source/archive hashes recorded under `parser/upstream/` and Nix.
 
@@ -27,6 +31,8 @@ I/O errors, process crashes, power loss, and interference. It makes no crash or
 whole-script rollback guarantee. Applicability and every modeled outcome remain
 explicit proof obligations under the supplied approved contract.
 
+## Shared storage model
+
 Schemas record normalized object names, ordered columns, supported declarations,
 affinities, nullability, defaults, keys and indexes. Preserving an existing key's
 old column projections preserves any predicate over those projections; this
@@ -40,7 +46,7 @@ Physical rowids are unique signed 64-bit values; rowid-shadowing columns are
 rejected. Logical projection helpers retain row identity and every designated
 cell; native observation tests explicitly order by rowid.
 
-The profile's native correspondence is supported by pinned documentation and
+Native correspondence is supported by pinned documentation and
 tests, separately from Lean proof acceptance. The SQLite C implementation has
 not been formally verified. Coverage and exclusions are reported separately in
 [upstream fixture evidence](conformance-fixtures.md) and
@@ -62,7 +68,9 @@ have matching successful metadata, the target is pending, both statistics
 tables have their exact definitions and the payload consists of supported ADD
 statements outside bookkeeping. Readiness is a checked obligation. This profile
 does not support concurrent application writers, external schema mutation,
-corruption or crash/power-loss recovery.
+resource exhaustion, interruptions, I/O faults, corruption or crash/power-loss
+recovery. Named runner-stage outcomes do not establish a general refinement
+theorem for those excluded mechanisms.
 
 The runner begins a transaction, executes the payload, inserts successful
 metadata with execution_time=-1, commits, then updates the elapsed duration.
@@ -77,5 +85,6 @@ at close, but their definitions and every other table remain protected.
 Application requirements must handle each modeled outcome explicitly. A reported
 runner error does not by itself mean the migration was unapplied. This relation
 is a source-informed model, not a proof of the SQLx or SQLite implementations;
-finite [native/model comparisons](atuin-model-conformance.md) state their exact
-scope and any fault instrumentation separately.
+finite [payload comparisons](atuin-model-conformance.md) and
+[complete runner traces](atuin-runner-conformance.md) state their exact scope and
+any fault instrumentation separately.

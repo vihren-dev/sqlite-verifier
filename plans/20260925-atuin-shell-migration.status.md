@@ -194,3 +194,81 @@ Integrated independently reviewed CLI `a3e57f08`: selected engine grammar, exact
 SQL checksum and profile snapshot bind the verdict. Its full legacy/negative
 CLI, kernel-gate and generated-schema checks passed; the merged fast profile and
 schema tests also passed. Actual Atuin positive verification remains pending.
+
+## Complete certificate and installed pilot checkpoint
+
+Integrated independently accepted formal `1c3f167d`, complete native runner/model
+`6f2ff655` and public CLI `0bd91b4d`. The universal certificate covers arbitrary
+admitted stored history, with explicit empty/nonempty and committed/error
+witnesses. The independent gate accepts only the permitted three Lean axioms.
+All seven source CLI cases passed; the four-module baseline is still proposed
+for human review, not implicitly approved by the checked proof.
+
+Root's merged 23-job library/checker build passes. One real macOS archive was
+created and installed offline, then all seven Atuin checks ran through its own
+entrypoint with ambient Lean/Python selection poisoned. The existing installed
+positive/refuted/unsupported cases also pass. The full log is
+`build/atuin-installed-package.log`, exit 0. The shared runtime smoke retains
+180-second individual CLI limits, with 1,500-second pilot and 1,800-second outer
+aggregate bounds. Ultra reviewed this hook and the corrected profile/subset
+documentation; no source-tree runtime fallback or weakened negative check exists.
+
+The review packet now links every actual source and proposed baseline, separates
+application guarantees from runner bookkeeping/statistics, and records actual
+source/installed evidence. Aggregate integration, hosted platforms and human
+requirements/effort acceptance remain pending. Public main is unchanged by this
+checkpoint; protected-baseline approval is still required.
+
+## Complete finite runner correspondence
+
+The separate full-runner evidence unit now includes real normal success and a
+clearly labeled authorizer-instrumented post-COMMIT timing failure. Complete
+metadata rows (physical rowids1–6 then1–7) and statistics rows participate in
+kernel-checked readiness/conformance/ProfileExecutes; no empty metadata
+abstraction remains in this unit. The wrong inserted-version negative fails as
+expected, and exact named theorem/allowed-axiom audits pass. The payload-only
+three-case denominator remains separate. Ultra independently reproduced the
+full-trace test in15.553s and accepted its source. Details and limits are in
+`docs/atuin-runner-conformance.md` and the dated runner-conformance status.
+
+## Universal pilot certificate and inhabitation checkpoint
+
+The formal bundle under `examples/atuin/` now proves the exact generated VC for
+all admitted history rows, all complete captured schema definitions and every
+modeled SQLx outcome. Approved modules bind the independent complete schema and
+six-entry catalog, and read all eleven old fields plus physical rowids. The
+candidate reads actual resulting shell cells; successful and committed-error
+outcomes establish the same old projection and actual NULL extension. Rolled-back
+outcomes read unchanged history. No premise hides successful applicability.
+
+Reusable `NullableProjection` and `SchemaExtension` helpers prove actual stored
+NULL observations and full-schema lookup/property preservation independently of
+the concrete schema size. Explicit empty and populated readiness witnesses include
+real-shaped six-row bookkeeping. The populated witness has two nullable TEXT
+primary keys with distinct physical rowids. Separate committed-success and
+post-commit timing-failure witnesses append exactly the bound seventh metadata
+record and retain the appropriate elapsed value or `-1` sentinel. They are model
+inhabitation witnesses, not substituted native correspondence evidence.
+
+After the resource repair, validation used one persistent shell from the explicit
+tiny `path:/Users/tzankomatev/work/sqlite-verifier/nix#capture` environment; the
+resource preflight passed. `timeout 60 lake build SqliteVerifier` passed 20 jobs.
+Every bundle module compiled under bounded individual Lean invocations. The
+universal certificate and both committed traces use only `propext`,
+`Classical.choice`, and `Quot.sound`. A fresh source-only sandbox compilation of
+12 modules/dependency inputs followed by the independent kernel checker returned
+exit 0. Public CLI/adversarial integration and independent bundle review follow;
+owner approval of the concrete logical contract remains pending.
+
+
+## Public CLI engineering checkpoint
+
+The unchanged upstream payload now passes the public seven-input CLI with the
+complete captured schema, selected SQLx profile and exact four-module proposed
+baseline. Generated artifacts bind SQL/schema/profile and approved dependency
+hashes. Six adversarial invocations reject altered column, omitted primary key,
+prior checksum, omitted old stored id, transitive approved-source drift and sorry.
+The final bounded suite requires real proof-error/axiom diagnostics, not timeout
+failures. Ultra independently reviewed the harness and recomputed baseline hashes.
+This is engineering evidence, not human approval of the proposed requirements.
+See [CLI integration status](20260925-atuin-cli-integration.status.md).

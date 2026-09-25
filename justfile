@@ -38,6 +38,7 @@ test: smoke coverage
     timeout 360 python3 tests/kernel_gate_test.py
     timeout 180 python3 -m tests.compilation_test
     timeout 600 python3 tests/cli_test.py
+    timeout 1500 python3 tests/atuin_cli_test.py
     timeout 15 python3 tests/coverage_test.py
     timeout 30 python3 -m unittest discover -s tests -p 'test_*.py'
 
@@ -55,7 +56,7 @@ atuin-native: capture-shell resources
 # Build a native offline archive and verify its actual installed entrypoint.
 runtime-package: resources
     timeout 600 python3 packaging/build_runtime.py
-    timeout 600 python3 tests/runtime_package_test.py "dist/sqlite-verifier-${SQLITE_VERIFIER_SYSTEM:?Enter nix develop path:./nix#capture}.tar.gz"
+    timeout 1800 python3 tests/runtime_package_test.py "dist/sqlite-verifier-${SQLITE_VERIFIER_SYSTEM:?Enter nix develop path:./nix#capture}.tar.gz"
 
 # Keep a source snapshot alongside the checked installable runtime.
 package: check runtime-package

@@ -1,8 +1,8 @@
 # Atuin pilot: product-owner review
 
-Status: DRAFT — implementation and proof evidence are still being integrated.
-This document records the proposed meaning for review; it is not an approval or
-a completed Step 1 pilot. The final review must identify the checked revision.
+Status: DRAFT — the formal certificate, source CLI and installed macOS runtime
+have passed review and checks; aggregate/platform evidence is being integrated. This document
+records proposed meaning, not owner approval or a completed Step 1 pilot.
 
 ## Migration and logical meaning
 
@@ -18,16 +18,18 @@ and every old stored field: `id`, `timestamp`, `duration`, `exit`, `command`,
 histories are not excluded, and TEXT primary keys are not assumed non-NULL.
 Existing legal storage classes and byte values must survive unchanged.
 
-For a committed migration, the proposed requirements are:
+For a committed migration, the proposed application requirements are:
 
 - Keep every old history row and all its protected observations; introduce no
   additional history rows.
 - Add `shell TEXT`, with NULL on every old row.
 - Retain old declarations, NOT NULL constraints, primary/unique keys and indexes.
-- Retain existing migration bookkeeping rows and insert the target's successful
-  row with its version, description and checksum of the original migration SQL.
-- Permit SQLite to update statistics rows, while retaining their definitions
-  and preserving application history.
+
+The sealed runner profile additionally retains existing migration bookkeeping
+rows and inserts the target's successful row with its version, description and
+checksum of the original SQL. It permits statistics rows to change while
+retaining their definitions. These guarantees belong to the execution profile;
+`Requirements.contract` protects history, NULL extension and the exact schema.
 
 The two statistics tables are part of the complete ten-object persisted schema.
 They are not removed to simplify the input. The native capture is documented in
@@ -43,7 +45,8 @@ requirements and proof, not facts inferred from the schema alone.
 
 The complete schema must match the supported captured definitions. The execution
 profile excludes concurrent application writers, external schema changes,
-corruption and crash recovery. It does not certify Atuin synchronization,
+resource exhaustion, interruptions, I/O faults, corruption and crash recovery.
+It does not certify Atuin synchronization,
 encrypted record storage or every application query.
 
 Before commit, a modeled failure leaves the original application history and
@@ -60,16 +63,47 @@ a proof of the SQLite C implementation or SQLx itself.
 
 ## Review and effort record
 
-The final packet must link the complete SQL/schema/profile, approved Lean
-requirements and interpretation, proposed interpretation, proof, gate result,
-adversarial results and installed-package result. Until then, approval is pending.
-Existing synthetic examples also need a review record for their equivalent
-source-syntax changes and replacement baseline hashes.
+The proposed artifact set is inspectable:
+
+- [Complete starting schema](../examples/atuin/schema.sql),
+  [unchanged migration](../examples/atuin/migration.sql) and
+  [execution profile](../examples/atuin/profile.json).
+- [Application requirements](../examples/atuin/approved/Requirements.lean),
+  [current interpretation and readiness](../examples/atuin/approved/Interpretation.lean),
+  [complete schema](../examples/atuin/approved/AtuinSchema.lean) and
+  [migration catalog](../examples/atuin/approved/AtuinCatalog.lean).
+- [Proposed result interpretation](../examples/atuin/NextInterpretation.lean),
+  [universal certificate](../examples/atuin/Proofs.lean) and
+  [empty/nonempty readiness witnesses](../examples/atuin/AtuinWitness.lean).
+- [Four-source hash map](../examples/atuin/approved/baseline.json), proposed for
+  approval; the directory name `approved` does not record human acceptance.
+- [Three payload comparisons](atuin-model-conformance.md),
+  [two complete runner traces](atuin-runner-conformance.md) and
+  [seven public CLI checks](../tests/atuin_cli_test.py).
+
+The certificate at formal revision `1c3f167d` and source CLI unit `0bd91b4d`
+pass independent review. The universal theorem and independent kernel gate use
+only `propext`, `Classical.choice` and `Quot.sound`. The unchanged input verifies;
+changed column, omitted primary key, changed prior checksum, omitted old field,
+changed approved helper and unfinished proof all reject for their intended
+reasons. The actual macOS archive also passes all seven cases after offline
+installation under an isolated, poisoned ambient environment, alongside the
+existing positive/refuted/unsupported package checks. Its local log is
+`build/atuin-installed-package.log` (exit 0). Integrated platform results remain
+pending; the packaging recipe repeats these installed checks on each platform.
+
+The two existing sets of synthetic requirements also replace positional records with named fields to
+compile against the richer schema type; their intended observations and failure
+policies are unchanged. Their replacement source hashes are in
+[the ordinary baseline](../examples/approved/baseline.json) and
+[the allowed-failure baseline](../examples/allowed_failure/approved/baseline.json).
+Approval must cover those source changes too; the baseline gate is not bypassed
+merely because the examples compile.
 
 | Activity | Current evidence |
 | --- | --- |
 | Project and migration selection | Product owner selected Atuin and authorized the support extension. |
-| Requirements/proof implementation | Agent work; final checked bundle pending. |
+| Requirements/proof implementation | Agent work; arbitrary-data proof and seven source CLI cases checked. |
 | Human requirements authoring or adaptation | Not yet measured. |
 | Human repair of a rejected case using diagnostics | Not yet demonstrated or measured. |
 | Human requirements and proof review | Pending. |

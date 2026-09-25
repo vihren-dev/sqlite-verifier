@@ -24,6 +24,10 @@ async fn history(conn: &mut SqliteConnection) -> Result<Value, sqlx::Error> {
 
 /// Fault triggers are experimental perturbations, not admitted pilot schemas.
 async fn inject(conn: &mut SqliteConnection, scenario: &str) -> Result<(), Box<dyn Error>> {
+    if scenario == "timing_authorizer_failure" {
+        atuin_sqlx_capture::faults::deny_timing_updates(conn).await?;
+        return Ok(());
+    }
     let sql = match scenario {
         "success" | "payload_failure" | "already_applied" => return Ok(()),
         "metadata_insert_failure" => "CREATE TRIGGER reject_metadata BEFORE INSERT ON _sqlx_migrations BEGIN SELECT RAISE(ABORT,'injected metadata insert failure'); END",
@@ -71,11 +75,9 @@ async fn main() -> Result<(), Box<dyn Error>> {
     inject(&mut conn,&args[3]).await?;
     let before = snapshot(&mut conn).await?;
     let old_history = history(&mut conn).await?;
-    drop(conn);
-    let outcome = migrator.run(&pool).await;
-    let mut conn = pool.acquire().await?;
-    // Successful cache clearing is observed; no fictitious cache-failure injection.
-    conn.clear_cached_statements().await?;
+    let outcome = migrator.run(&mut *conn).await;
+    // Match Atuin's early error return: clear caches only after a successful run.
+    if outcome.is_ok() { conn.clear_cached_statements().await?; }
     let after = snapshot(&mut conn).await?;
     let new_history = history(&mut conn).await?;
     let has_shell: i64 = sqlx::query_scalar("SELECT count(*) FROM pragma_table_info('history') WHERE name='shell'")
@@ -96,7 +98,12 @@ async fn main() -> Result<(), Box<dyn Error>> {
         "scenario":args[3],"profile":engine,"error":outcome.err().map(|e|e.to_string()),
         "before":before,"after":after,"history_before":old_history,
         "history_after":new_history,"shell_nulls":shell_nulls,"integrity_check":integrity,
-        "post_close":post_close,"post_close_history":post_close_history
+        "post_close":post_close,"post_close_history":post_close_history,
+        "instrumentation": if args[3]=="timing_authorizer_failure" {
+            json!({"kind":"SQLITE_AUTHORIZER","denied_table":"_sqlx_migrations",
+                "denied_column":"execution_time","denied_updates":
+                atuin_sqlx_capture::faults::denied_timing_updates()})
+        } else { Value::Null }
     }))?);
     Ok(())
 }
