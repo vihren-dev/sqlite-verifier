@@ -60,3 +60,19 @@ row maintenance belongs in the forthcoming disjoint runner footprint.
 Validation: `timeout 60s lake build` again passed all 15 jobs. Additional guards
 accept the exact stat1 layout, reject a altered layout, and reject reserved names
 as migration targets. No final SQLx proof or package claim is made here.
+
+## Sealed runner configuration types
+
+`RunnerProfile.lean` supplies the agreed migration identity/configuration records,
+fixed legacy/SQLx profile constructors, exact bookkeeping declaration, and an
+explicit pending-target readiness predicate. Readiness checks the complete prior
+catalog/checksum multiset, successful metadata flags, already-existing statistics
+tables and plain ADD-only payload excluding bookkeeping. Version bounds/order and
+SHA-384 widths remain explicit. The SQLx constructor identifies the captured
+fixed engine/connection/configuration profile; it is not a version-string alias.
+
+Validation: `timeout 60s lake build` passed all 16 jobs, including rejection of
+dirty metadata, payload bookkeeping edits and CREATE under the transaction mode.
+These are reusable data/predicate interfaces only. They are not yet wired into
+the VC, gate or runner outcomes; those remain required before a profile proof can
+be accepted. Frontend implementation can now compile the generated records.
