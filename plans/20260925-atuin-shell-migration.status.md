@@ -81,3 +81,35 @@ metadata checksums/success and refusal to overwrite an existing database.
 Independent source/evidence review was requested from the technical lead.
 Runner failure/adversarial tests remain subsequent work. No model extension,
 invocation certificate, owner acceptance or DONE is claimed.
+
+## Native runner adversarial checkpoint
+
+Added a bounded real-SQLx adversarial executable and eight scenarios, with
+receipts and documented fault boundaries. Payload/metadata-insert failures
+roll back; timing-update failure retains committed ADD and metadata time=-1.
+Dirty/checksum/unknown-version checks reject unchanged, and already-applied
+target succeeds unchanged. Each preserves the exact old storage/rowids of a
+native-valid witness including two NULL primary keys, signed-rowid extremes,
+mixed storage classes and embedded-NUL text. Native integrity checks pass.
+Fault-trigger schemas are explicitly outside pilot admission. Cache-clear
+failure remains source-based evidence only. Shared native capture helpers
+avoid duplicating the selected connection profile.
+
+Locked offline build passed in 2.34s. Both capture and adversarial regression
+suites passed under a 45-second outer timeout; individual native subprocesses
+also have 30-second limits. No new formal/native correspondence claim is made.
+
+Root's post-close review found a material capture correction: actual
+optimize-on-close creates sqlite_stat1/stat4 even for the empty fixture. The
+earlier eight-object during-run export was incomplete as a persisted baseline.
+Following the lead's boundary decision, capture now closes after six migrations,
+reopens the actual ten-object baseline, executes the target, and records both
+invocation result and post-close state. Full statistics rows are retained as
+observations. Native runtime limits are queried read-only through SQLx's locked
+handle. Export bytes and compile options are checked against fresh reproduction.
+Adversarial runs begin with the persisted statistics-bearing baseline and check
+history after closing; no statistics object is silently removed.
+Final revised offline build passed in 1.96s; both native regression suites passed
+in 0.205s, including all eight adversarial scenarios. Tests reject stale schema
+exports or a mismatched compiler configuration rather than silently accepting
+a different native profile.

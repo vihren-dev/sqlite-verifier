@@ -4,56 +4,56 @@
       {
         "checksum_hex": "DE046D5BCA11549EB2991F9467F06B582D3029C54BEA151DFAAF7A65F55A8C78630F3B89992D3CA30D147B0F4290294D",
         "description": "create history",
-        "execution_time": 503750,
-        "installed_on": "2026-09-25 06:59:49",
+        "execution_time": 1099458,
+        "installed_on": "2026-09-25 07:12:02",
         "success": 1,
         "version": 20210422143411
       },
       {
         "checksum_hex": "554F5DB82678149648689CCDCAEAD3FA6F7C8AEC822E8E4BAB1D080309C5A1A22F0A04D2B0CC1CC52BB1A59D1B5014EC",
         "description": "create-events",
-        "execution_time": 239333,
-        "installed_on": "2026-09-25 06:59:49",
+        "execution_time": 366292,
+        "installed_on": "2026-09-25 07:12:02",
         "success": 1,
         "version": 20220505083406
       },
       {
         "checksum_hex": "F0C741A033A036E541B1F4D273248F1A341F096BA369CF5D28FE5F12CD9CBCD8967D5B6F312B942FE4C206BD332429EC",
         "description": "interactive search index",
-        "execution_time": 140208,
-        "installed_on": "2026-09-25 06:59:49",
+        "execution_time": 176375,
+        "installed_on": "2026-09-25 07:12:02",
         "success": 1,
         "version": 20220806155627
       },
       {
         "checksum_hex": "C6871DAF29C4A47C3C43952BBA53A0C1718CB9B1919185932948E04F605DB1D1746079989173F26B732070713C5468F1",
         "description": "drop-events",
-        "execution_time": 159541,
-        "installed_on": "2026-09-25 06:59:49",
+        "execution_time": 171417,
+        "installed_on": "2026-09-25 07:12:02",
         "success": 1,
         "version": 20230315220114
       },
       {
         "checksum_hex": "5CF1D54350C731C5765AF8250E1B5F16DC105637A951DBD7EFFD5C23D3695E8C3D9442FA4375234784D7D3D8C7689D93",
         "description": "deleted at",
-        "execution_time": 193875,
-        "installed_on": "2026-09-25 06:59:49",
+        "execution_time": 207000,
+        "installed_on": "2026-09-25 07:12:02",
         "success": 1,
         "version": 20230319185725
       },
       {
         "checksum_hex": "6AF518B6ECE5B98FD5C90269DCAC379DFA67E703B9D4C9A78C4F8E35B401A7E35474282CB15C46CD115D3926236EEAB4",
         "description": "history author intent",
-        "execution_time": 248667,
-        "installed_on": "2026-09-25 06:59:49",
+        "execution_time": 317417,
+        "installed_on": "2026-09-25 07:12:02",
         "success": 1,
         "version": 20260224000100
       },
       {
         "checksum_hex": "5376BB3DDC6A9956652BFF2B9807B64A83219A4201D1F1E7DE9F7760F2507F191856AE5F549A7613253D1284C9A1B988",
         "description": "shell",
-        "execution_time": 197916,
-        "installed_on": "2026-09-25 06:59:49",
+        "execution_time": 356458,
+        "installed_on": "2026-09-25 07:12:02",
         "success": 1,
         "version": 20260709214605
       }
@@ -114,8 +114,39 @@
         "sql": "CREATE TABLE history (\n\tid text primary key,\n\ttimestamp integer not null,\n\tduration integer not null,\n\texit integer not null,\n\tcommand text not null,\n\tcwd text not null,\n\tsession text not null,\n\thostname text not null, deleted_at integer, author text, intent text, shell text,\n\n\tunique(timestamp, cwd, command)\n)",
         "table": "history",
         "type": "table"
+      },
+      {
+        "name": "sqlite_stat1",
+        "rootpage": 9,
+        "sql": "CREATE TABLE sqlite_stat1(tbl,idx,stat)",
+        "table": "sqlite_stat1",
+        "type": "table"
+      },
+      {
+        "name": "sqlite_stat4",
+        "rootpage": 10,
+        "sql": "CREATE TABLE sqlite_stat4(tbl,idx,neq,nlt,ndlt,sample)",
+        "table": "sqlite_stat4",
+        "type": "table"
       }
-    ]
+    ],
+    "statistics": {
+      "sqlite_stat1": [
+        [
+          1,
+          "text",
+          "'_sqlx_migrations'",
+          "5F73716C785F6D6967726174696F6E73",
+          "text",
+          "'sqlite_autoindex__sqlx_migrations_1'",
+          "73716C6974655F6175746F696E6465785F5F73716C785F6D6967726174696F6E735F31",
+          "text",
+          "'6 1'",
+          "362031"
+        ]
+      ],
+      "sqlite_stat4": []
+    }
   },
   "atuin_revision": "5b10eb09c664d316b7384210399b02e6127f4027",
   "before": {
@@ -123,48 +154,48 @@
       {
         "checksum_hex": "DE046D5BCA11549EB2991F9467F06B582D3029C54BEA151DFAAF7A65F55A8C78630F3B89992D3CA30D147B0F4290294D",
         "description": "create history",
-        "execution_time": 503750,
-        "installed_on": "2026-09-25 06:59:49",
+        "execution_time": 1099458,
+        "installed_on": "2026-09-25 07:12:02",
         "success": 1,
         "version": 20210422143411
       },
       {
         "checksum_hex": "554F5DB82678149648689CCDCAEAD3FA6F7C8AEC822E8E4BAB1D080309C5A1A22F0A04D2B0CC1CC52BB1A59D1B5014EC",
         "description": "create-events",
-        "execution_time": 239333,
-        "installed_on": "2026-09-25 06:59:49",
+        "execution_time": 366292,
+        "installed_on": "2026-09-25 07:12:02",
         "success": 1,
         "version": 20220505083406
       },
       {
         "checksum_hex": "F0C741A033A036E541B1F4D273248F1A341F096BA369CF5D28FE5F12CD9CBCD8967D5B6F312B942FE4C206BD332429EC",
         "description": "interactive search index",
-        "execution_time": 140208,
-        "installed_on": "2026-09-25 06:59:49",
+        "execution_time": 176375,
+        "installed_on": "2026-09-25 07:12:02",
         "success": 1,
         "version": 20220806155627
       },
       {
         "checksum_hex": "C6871DAF29C4A47C3C43952BBA53A0C1718CB9B1919185932948E04F605DB1D1746079989173F26B732070713C5468F1",
         "description": "drop-events",
-        "execution_time": 159541,
-        "installed_on": "2026-09-25 06:59:49",
+        "execution_time": 171417,
+        "installed_on": "2026-09-25 07:12:02",
         "success": 1,
         "version": 20230315220114
       },
       {
         "checksum_hex": "5CF1D54350C731C5765AF8250E1B5F16DC105637A951DBD7EFFD5C23D3695E8C3D9442FA4375234784D7D3D8C7689D93",
         "description": "deleted at",
-        "execution_time": 193875,
-        "installed_on": "2026-09-25 06:59:49",
+        "execution_time": 207000,
+        "installed_on": "2026-09-25 07:12:02",
         "success": 1,
         "version": 20230319185725
       },
       {
         "checksum_hex": "6AF518B6ECE5B98FD5C90269DCAC379DFA67E703B9D4C9A78C4F8E35B401A7E35474282CB15C46CD115D3926236EEAB4",
         "description": "history author intent",
-        "execution_time": 248667,
-        "installed_on": "2026-09-25 06:59:49",
+        "execution_time": 317417,
+        "installed_on": "2026-09-25 07:12:02",
         "success": 1,
         "version": 20260224000100
       }
@@ -225,10 +256,331 @@
         "sql": "CREATE TABLE history (\n\tid text primary key,\n\ttimestamp integer not null,\n\tduration integer not null,\n\texit integer not null,\n\tcommand text not null,\n\tcwd text not null,\n\tsession text not null,\n\thostname text not null, deleted_at integer, author text, intent text,\n\n\tunique(timestamp, cwd, command)\n)",
         "table": "history",
         "type": "table"
+      },
+      {
+        "name": "sqlite_stat1",
+        "rootpage": 9,
+        "sql": "CREATE TABLE sqlite_stat1(tbl,idx,stat)",
+        "table": "sqlite_stat1",
+        "type": "table"
+      },
+      {
+        "name": "sqlite_stat4",
+        "rootpage": 10,
+        "sql": "CREATE TABLE sqlite_stat4(tbl,idx,neq,nlt,ndlt,sample)",
+        "table": "sqlite_stat4",
+        "type": "table"
       }
-    ]
+    ],
+    "statistics": {
+      "sqlite_stat1": [
+        [
+          1,
+          "text",
+          "'_sqlx_migrations'",
+          "5F73716C785F6D6967726174696F6E73",
+          "text",
+          "'sqlite_autoindex__sqlx_migrations_1'",
+          "73716C6974655F6175746F696E6465785F5F73716C785F6D6967726174696F6E735F31",
+          "text",
+          "'6 1'",
+          "362031"
+        ]
+      ],
+      "sqlite_stat4": []
+    }
   },
   "capture_kind": "real-sqlx-runner-harness",
+  "persisted_baseline": {
+    "metadata": [
+      {
+        "checksum_hex": "DE046D5BCA11549EB2991F9467F06B582D3029C54BEA151DFAAF7A65F55A8C78630F3B89992D3CA30D147B0F4290294D",
+        "description": "create history",
+        "execution_time": 1099458,
+        "installed_on": "2026-09-25 07:12:02",
+        "success": 1,
+        "version": 20210422143411
+      },
+      {
+        "checksum_hex": "554F5DB82678149648689CCDCAEAD3FA6F7C8AEC822E8E4BAB1D080309C5A1A22F0A04D2B0CC1CC52BB1A59D1B5014EC",
+        "description": "create-events",
+        "execution_time": 366292,
+        "installed_on": "2026-09-25 07:12:02",
+        "success": 1,
+        "version": 20220505083406
+      },
+      {
+        "checksum_hex": "F0C741A033A036E541B1F4D273248F1A341F096BA369CF5D28FE5F12CD9CBCD8967D5B6F312B942FE4C206BD332429EC",
+        "description": "interactive search index",
+        "execution_time": 176375,
+        "installed_on": "2026-09-25 07:12:02",
+        "success": 1,
+        "version": 20220806155627
+      },
+      {
+        "checksum_hex": "C6871DAF29C4A47C3C43952BBA53A0C1718CB9B1919185932948E04F605DB1D1746079989173F26B732070713C5468F1",
+        "description": "drop-events",
+        "execution_time": 171417,
+        "installed_on": "2026-09-25 07:12:02",
+        "success": 1,
+        "version": 20230315220114
+      },
+      {
+        "checksum_hex": "5CF1D54350C731C5765AF8250E1B5F16DC105637A951DBD7EFFD5C23D3695E8C3D9442FA4375234784D7D3D8C7689D93",
+        "description": "deleted at",
+        "execution_time": 207000,
+        "installed_on": "2026-09-25 07:12:02",
+        "success": 1,
+        "version": 20230319185725
+      },
+      {
+        "checksum_hex": "6AF518B6ECE5B98FD5C90269DCAC379DFA67E703B9D4C9A78C4F8E35B401A7E35474282CB15C46CD115D3926236EEAB4",
+        "description": "history author intent",
+        "execution_time": 317417,
+        "installed_on": "2026-09-25 07:12:02",
+        "success": 1,
+        "version": 20260224000100
+      }
+    ],
+    "schema": [
+      {
+        "name": "idx_history_command",
+        "rootpage": 8,
+        "sql": "CREATE INDEX idx_history_command on history(command)",
+        "table": "history",
+        "type": "index"
+      },
+      {
+        "name": "idx_history_command_timestamp",
+        "rootpage": 12,
+        "sql": "CREATE INDEX idx_history_command_timestamp on history(\n\tcommand,\n\ttimestamp\n)",
+        "table": "history",
+        "type": "index"
+      },
+      {
+        "name": "idx_history_timestamp",
+        "rootpage": 7,
+        "sql": "CREATE INDEX idx_history_timestamp on history(timestamp)",
+        "table": "history",
+        "type": "index"
+      },
+      {
+        "name": "sqlite_autoindex__sqlx_migrations_1",
+        "rootpage": 3,
+        "sql": null,
+        "table": "_sqlx_migrations",
+        "type": "index"
+      },
+      {
+        "name": "sqlite_autoindex_history_1",
+        "rootpage": 5,
+        "sql": null,
+        "table": "history",
+        "type": "index"
+      },
+      {
+        "name": "sqlite_autoindex_history_2",
+        "rootpage": 6,
+        "sql": null,
+        "table": "history",
+        "type": "index"
+      },
+      {
+        "name": "_sqlx_migrations",
+        "rootpage": 2,
+        "sql": "CREATE TABLE _sqlx_migrations (\n    version BIGINT PRIMARY KEY,\n    description TEXT NOT NULL,\n    installed_on TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,\n    success BOOLEAN NOT NULL,\n    checksum BLOB NOT NULL,\n    execution_time BIGINT NOT NULL\n)",
+        "table": "_sqlx_migrations",
+        "type": "table"
+      },
+      {
+        "name": "history",
+        "rootpage": 4,
+        "sql": "CREATE TABLE history (\n\tid text primary key,\n\ttimestamp integer not null,\n\tduration integer not null,\n\texit integer not null,\n\tcommand text not null,\n\tcwd text not null,\n\tsession text not null,\n\thostname text not null, deleted_at integer, author text, intent text,\n\n\tunique(timestamp, cwd, command)\n)",
+        "table": "history",
+        "type": "table"
+      },
+      {
+        "name": "sqlite_stat1",
+        "rootpage": 9,
+        "sql": "CREATE TABLE sqlite_stat1(tbl,idx,stat)",
+        "table": "sqlite_stat1",
+        "type": "table"
+      },
+      {
+        "name": "sqlite_stat4",
+        "rootpage": 10,
+        "sql": "CREATE TABLE sqlite_stat4(tbl,idx,neq,nlt,ndlt,sample)",
+        "table": "sqlite_stat4",
+        "type": "table"
+      }
+    ],
+    "statistics": {
+      "sqlite_stat1": [
+        [
+          1,
+          "text",
+          "'_sqlx_migrations'",
+          "5F73716C785F6D6967726174696F6E73",
+          "text",
+          "'sqlite_autoindex__sqlx_migrations_1'",
+          "73716C6974655F6175746F696E6465785F5F73716C785F6D6967726174696F6E735F31",
+          "text",
+          "'6 1'",
+          "362031"
+        ]
+      ],
+      "sqlite_stat4": []
+    }
+  },
+  "post_close": {
+    "metadata": [
+      {
+        "checksum_hex": "DE046D5BCA11549EB2991F9467F06B582D3029C54BEA151DFAAF7A65F55A8C78630F3B89992D3CA30D147B0F4290294D",
+        "description": "create history",
+        "execution_time": 1099458,
+        "installed_on": "2026-09-25 07:12:02",
+        "success": 1,
+        "version": 20210422143411
+      },
+      {
+        "checksum_hex": "554F5DB82678149648689CCDCAEAD3FA6F7C8AEC822E8E4BAB1D080309C5A1A22F0A04D2B0CC1CC52BB1A59D1B5014EC",
+        "description": "create-events",
+        "execution_time": 366292,
+        "installed_on": "2026-09-25 07:12:02",
+        "success": 1,
+        "version": 20220505083406
+      },
+      {
+        "checksum_hex": "F0C741A033A036E541B1F4D273248F1A341F096BA369CF5D28FE5F12CD9CBCD8967D5B6F312B942FE4C206BD332429EC",
+        "description": "interactive search index",
+        "execution_time": 176375,
+        "installed_on": "2026-09-25 07:12:02",
+        "success": 1,
+        "version": 20220806155627
+      },
+      {
+        "checksum_hex": "C6871DAF29C4A47C3C43952BBA53A0C1718CB9B1919185932948E04F605DB1D1746079989173F26B732070713C5468F1",
+        "description": "drop-events",
+        "execution_time": 171417,
+        "installed_on": "2026-09-25 07:12:02",
+        "success": 1,
+        "version": 20230315220114
+      },
+      {
+        "checksum_hex": "5CF1D54350C731C5765AF8250E1B5F16DC105637A951DBD7EFFD5C23D3695E8C3D9442FA4375234784D7D3D8C7689D93",
+        "description": "deleted at",
+        "execution_time": 207000,
+        "installed_on": "2026-09-25 07:12:02",
+        "success": 1,
+        "version": 20230319185725
+      },
+      {
+        "checksum_hex": "6AF518B6ECE5B98FD5C90269DCAC379DFA67E703B9D4C9A78C4F8E35B401A7E35474282CB15C46CD115D3926236EEAB4",
+        "description": "history author intent",
+        "execution_time": 317417,
+        "installed_on": "2026-09-25 07:12:02",
+        "success": 1,
+        "version": 20260224000100
+      },
+      {
+        "checksum_hex": "5376BB3DDC6A9956652BFF2B9807B64A83219A4201D1F1E7DE9F7760F2507F191856AE5F549A7613253D1284C9A1B988",
+        "description": "shell",
+        "execution_time": 356458,
+        "installed_on": "2026-09-25 07:12:02",
+        "success": 1,
+        "version": 20260709214605
+      }
+    ],
+    "schema": [
+      {
+        "name": "idx_history_command",
+        "rootpage": 8,
+        "sql": "CREATE INDEX idx_history_command on history(command)",
+        "table": "history",
+        "type": "index"
+      },
+      {
+        "name": "idx_history_command_timestamp",
+        "rootpage": 12,
+        "sql": "CREATE INDEX idx_history_command_timestamp on history(\n\tcommand,\n\ttimestamp\n)",
+        "table": "history",
+        "type": "index"
+      },
+      {
+        "name": "idx_history_timestamp",
+        "rootpage": 7,
+        "sql": "CREATE INDEX idx_history_timestamp on history(timestamp)",
+        "table": "history",
+        "type": "index"
+      },
+      {
+        "name": "sqlite_autoindex__sqlx_migrations_1",
+        "rootpage": 3,
+        "sql": null,
+        "table": "_sqlx_migrations",
+        "type": "index"
+      },
+      {
+        "name": "sqlite_autoindex_history_1",
+        "rootpage": 5,
+        "sql": null,
+        "table": "history",
+        "type": "index"
+      },
+      {
+        "name": "sqlite_autoindex_history_2",
+        "rootpage": 6,
+        "sql": null,
+        "table": "history",
+        "type": "index"
+      },
+      {
+        "name": "_sqlx_migrations",
+        "rootpage": 2,
+        "sql": "CREATE TABLE _sqlx_migrations (\n    version BIGINT PRIMARY KEY,\n    description TEXT NOT NULL,\n    installed_on TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,\n    success BOOLEAN NOT NULL,\n    checksum BLOB NOT NULL,\n    execution_time BIGINT NOT NULL\n)",
+        "table": "_sqlx_migrations",
+        "type": "table"
+      },
+      {
+        "name": "history",
+        "rootpage": 4,
+        "sql": "CREATE TABLE history (\n\tid text primary key,\n\ttimestamp integer not null,\n\tduration integer not null,\n\texit integer not null,\n\tcommand text not null,\n\tcwd text not null,\n\tsession text not null,\n\thostname text not null, deleted_at integer, author text, intent text, shell text,\n\n\tunique(timestamp, cwd, command)\n)",
+        "table": "history",
+        "type": "table"
+      },
+      {
+        "name": "sqlite_stat1",
+        "rootpage": 9,
+        "sql": "CREATE TABLE sqlite_stat1(tbl,idx,stat)",
+        "table": "sqlite_stat1",
+        "type": "table"
+      },
+      {
+        "name": "sqlite_stat4",
+        "rootpage": 10,
+        "sql": "CREATE TABLE sqlite_stat4(tbl,idx,neq,nlt,ndlt,sample)",
+        "table": "sqlite_stat4",
+        "type": "table"
+      }
+    ],
+    "statistics": {
+      "sqlite_stat1": [
+        [
+          1,
+          "text",
+          "'_sqlx_migrations'",
+          "5F73716C785F6D6967726174696F6E73",
+          "text",
+          "'sqlite_autoindex__sqlx_migrations_1'",
+          "73716C6974655F6175746F696E6465785F5F73716C785F6D6967726174696F6E735F31",
+          "text",
+          "'6 1'",
+          "362031"
+        ]
+      ],
+      "sqlite_stat4": []
+    }
+  },
   "profile": {
     "compile_options": [
       "ATOMIC_INTRINSICS=1",
@@ -297,6 +649,12 @@
       "trusted_schema": 1,
       "wal_autocheckpoint": 1000,
       "writable_schema": 0
+    },
+    "runtime_limits": {
+      "column": 2000,
+      "expression_depth": 1000,
+      "length": 1000000000,
+      "sql_length": 1000000000
     },
     "sqlite_source_id": "2024-05-23 13:25:27 96c92aba00c8375bc32fafcdf12429c58bd8aabfcadab6683e35bbb9cdebf19e",
     "sqlite_version": "3.46.0"
