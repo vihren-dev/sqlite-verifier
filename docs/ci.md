@@ -11,7 +11,7 @@ The matrix follows GitHub's documented native runner architectures:
 (`aarch64-darwin`). Each job also checks Nix's actual host system before building.
 See [GitHub's hosted runner reference](https://docs.github.com/en/actions/reference/runners/github-hosted-runners).
 Runner image updates remain controlled by GitHub; project dependencies are pinned
-separately in `flake.lock` and `lean-toolchain`.
+separately in `nix/flake.lock` and `lean-toolchain`.
 
 The Linux job requires unprivileged bubblewrap user/network namespaces, rejects
 workspace writes inside its test sandbox, and confirms temporary writes work.
