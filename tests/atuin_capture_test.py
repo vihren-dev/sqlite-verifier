@@ -30,10 +30,19 @@ class CaptureTest(unittest.TestCase):
             command = [str(BINARY), str(Path(directory) / "history.db"), str(CAPTURE / "migrations")]
             result = subprocess.run(command, capture_output=True, text=True, timeout=30, check=True)
             actual = json.loads(result.stdout)
+            (ROOT / "build/atuin-capture.json").write_text(result.stdout)
             expected = json.loads((CAPTURE / "capture.json").read_text())
             self.assertEqual(actual["profile"]["sqlite_source_id"], expected["profile"]["sqlite_source_id"])
             self.assertEqual(actual["profile"]["pragmas"], expected["profile"]["pragmas"])
-            self.assertEqual(actual["profile"]["compile_options"], expected["profile"]["compile_options"])
+            for profile in (actual["profile"], expected["profile"]):
+                compilers = [flag for flag in profile["compile_options"] if flag.startswith("COMPILER=")]
+                self.assertEqual(len(compilers), 1)
+                self.assertEqual(profile["compiler_identity"], compilers)
+            actual_flags = [flag for flag in actual["profile"]["compile_options"]
+                            if not flag.startswith("COMPILER=")]
+            expected_flags = [flag for flag in expected["profile"]["compile_options"]
+                              if not flag.startswith("COMPILER=")]
+            self.assertEqual(actual_flags, expected_flags)
             self.assertEqual(actual["profile"]["runtime_limits"], expected["profile"]["runtime_limits"])
             self.assertEqual(actual["post_close"]["schema"], expected["post_close"]["schema"])
             self.assertEqual(len(actual["post_close"]["schema"]), 10)

@@ -113,3 +113,9 @@ Final revised offline build passed in 1.96s; both native regression suites passe
 in 0.205s, including all eight adversarial scenarios. Tests reject stale schema
 exports or a mismatched compiler configuration rather than silently accepting
 a different native profile.
+
+The lead approved separating only SQLite's `COMPILER=` option for cross-platform
+reproduction: upstream sqlite3.c constructs it solely from compiler identity
+macros. The actual compiler string is retained in raw options and its own field;
+all other compile flags and runtime limits remain exact comparisons. Fresh
+platform capture is retained at build/atuin-capture.json for CI inspection.

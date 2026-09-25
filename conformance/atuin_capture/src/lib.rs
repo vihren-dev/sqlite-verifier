@@ -44,6 +44,7 @@ pub async fn profile(conn: &mut SqliteConnection) -> Result<Value, sqlx::Error> 
         .fetch_one(&mut *conn).await?;
     let options: Vec<String> = sqlx::query_scalar("PRAGMA compile_options")
         .fetch_all(&mut *conn).await?;
+    let compiler: Vec<&String> = options.iter().filter(|flag| flag.starts_with("COMPILER=")).collect();
     let mut pragmas = serde_json::Map::new();
     for name in ["foreign_keys", "synchronous", "journal_size_limit", "busy_timeout",
         "trusted_schema", "recursive_triggers", "legacy_alter_table", "writable_schema",
@@ -67,7 +68,7 @@ pub async fn profile(conn: &mut SqliteConnection) -> Result<Value, sqlx::Error> 
     }
     Ok(json!({"sqlite_version":row.get::<String,_>(0),
         "sqlite_source_id":row.get::<String,_>(1),"compile_options":options,"pragmas":pragmas,
-        "runtime_limits":limits}))
+        "runtime_limits":limits,"compiler_identity":compiler}))
 }
 
 /// Observe any optimize-on-close changes using a read-only connection without optimization.
