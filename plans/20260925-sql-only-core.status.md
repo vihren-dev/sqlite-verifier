@@ -166,3 +166,15 @@ SQLite, Q as business equality, actual canonical decoder checks on results, and
 migration catalog facts confined to representation invariants. The generated
 schema helper only performs lookups and derives the expected nullable extension.
 The complete example proof and final CLI/package validation remain pending.
+
+Integrated formal a84483b6, business model/README98c356be and conformance emitter
+repair c9a81caa. Resolved the single AtuinFacts conflict to the lead's new typed
+version, superseding the earlier storage-view soundness helper. Root built all
+25 library/checker jobs and independently ran the public Atuin CLI with the
+proposed baseline: VERIFIED, five statements, SQLite3.46.0, exact seven approved
+module hashes and schema.sql hash (build/business-atuin-verified.json). Both
+technical-lead and independent conformance source reviews accept the final
+universal proof and nonempty typed witness, with only allowed foundational axioms.
+README now reports this actual proof result and includes baseline enforcement.
+Negative CLI and installed-runtime checks remain pending; no owner acceptance
+or hosted-platform validation is inferred from the local result.

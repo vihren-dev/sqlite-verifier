@@ -88,3 +88,12 @@ Integration depends on lead's forthcoming revised approved source checkpoint.
 The earlier raw-row witness follow-up is superseded by the owner business-model
 correction; see 20260925-atuin-business-model.status.md. The final typed witness
 was handed to lead and is excluded from this component change.
+
+The generated SchemaInputs split is now handled by both single-source concrete
+comparison callsites: prepend the production schema module body and remove only
+the exact leading SchemaInputs import from the production migration module.
+No hand-authored schema or compatibility layer is introduced. Based on integrated
+03e5f7c6 plus business model 98c356be, one explicit small Nix session built the
+21-job core library and passed all five native/public-runSql comparisons and the
+false-empty-row rejection. Build/test outer timeouts were 90/180 seconds and
+individual Lean comparisons retain their existing 30-second timeouts.

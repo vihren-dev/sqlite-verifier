@@ -12,7 +12,7 @@ ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT))
 sys.path.insert(0, str(ROOT / "conformance"))
 
-from migration_check.sql_model import sql_inputs
+from migration_check.sql_model import schema_inputs, sql_inputs
 from migration_check.sql_tree import parse
 from migration_check.translate import starting_schema, statements
 from model_assertions import assertions
@@ -34,7 +34,8 @@ def main() -> list[dict[str, object]]:
     falsely_empty = replace(case, after=(replace(case.after[0], rows=()), case.after[1]))
     with TemporaryDirectory() as directory:
         proof = Path(directory) / "LostRows.lean"
-        proof.write_text(sql_inputs(before, migration) + assertions(falsely_empty))
+        generated = schema_inputs(before) + sql_inputs(before, migration).removeprefix("import SchemaInputs\n")
+        proof.write_text(generated + assertions(falsely_empty))
         rejected = subprocess.run(["lake", "env", "lean", str(proof)], cwd=ROOT,
                                   text=True, capture_output=True, timeout=30)
     assert rejected.returncode != 0, "False empty-target expectation received an accepted proof"

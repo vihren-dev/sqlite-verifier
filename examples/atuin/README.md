@@ -104,8 +104,9 @@ rowids; those facts are not independent business requirements. Normal metadata
 rowid allocation is admitted only below the signed maximum; the native random
 fallback is outside the modeled INSERT domain.
 
-These are proposed requirements for owner review. The revised typed proof bundle
-is still being checked. The full pinned application revision also has the later
+These are proposed requirements for owner review. The typed proof bundle passes
+the public CLI with its protected schema/source baseline and only the permitted
+foundational Lean axioms. The full pinned application revision also has the later
 `author_kind` field; this example covers the selected intermediate migration,
 not compatibility with every query at the pinned revision. The source-backed
 abstraction is not a formal proof of the Rust decoder or its external libraries.
@@ -121,7 +122,8 @@ bin/migration-check verify --profile 3.46.0 \
   --interpretation examples/atuin/approved/Interpretation.lean \
   --migration examples/atuin/migration.sql \
   --next-interpretation examples/atuin/NextInterpretation.lean \
-  --proofs examples/atuin/Proofs.lean --format json
+  --proofs examples/atuin/Proofs.lean \
+  --approved-baseline examples/atuin/approved/baseline.json --format json
 ```
 
 The ordinary native SQL comparison is separate evidence from proof status.

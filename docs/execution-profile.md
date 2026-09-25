@@ -27,8 +27,8 @@ the exact admitted transaction and data-operation forms.
 The verifier does not run migrations and cannot inspect a live connection to
 enforce these assumptions. A future execution command would need that boundary.
 
-The model includes table-exists, missing-table, duplicate-column, and column-limit
-errors. It excludes interruptions, memory/disk/resource exhaustion, corruption,
+The model includes table-exists, missing-table, duplicate-column, column-limit,
+transaction-already-active, no-active-transaction, and supported constraint errors. It excludes interruptions, memory/disk/resource exhaustion, corruption,
 I/O errors, process crashes, power loss, and interference. It makes no crash or
 whole-script rollback guarantee. Applicability and every modeled outcome remain
 explicit proof obligations under the supplied approved contract.
