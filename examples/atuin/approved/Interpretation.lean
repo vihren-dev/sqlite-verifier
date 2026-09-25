@@ -1,17 +1,20 @@
 import Requirements
-import AtuinCatalog
 
-/-! Current meaning and readiness depend only on approved inputs, never candidate modules. -/
+/-! The approved initial interpretation is pinned to generated schema.sql.
+Data facts and decoder-definedness are explicit conditions, never profile settings. -/
 namespace Interpretation
 open SqliteVerifier
 
-/-- Exact prior successful catalog and pending target, including preserved statistics schemas. -/
+/-- Complete decoding and six successful identities hold before the selected pending migration. -/
 def admitted (database : Database) : Prop :=
-  SqlxReady AtuinCatalog.config AtuinSchema.payload database
+  (∃ histories, HistoryMapping.observe false database = some histories) ∧
+  ∃ metadata, database "_sqlx_migrations" = some metadata ∧
+    AtuinCatalog.Invariant AtuinCatalog.prior metadata ∧
+    validRowid (LiteralData.nextRowid metadata.rows)
 
-/-- Every represented history row is read from the actual database under its complete schema. -/
+/-- The current business reader is attached to the exact generated starting representation. -/
 def current : Interpretation Requirements.LogicalState where
-  invariant := Conforms AtuinSchema.start
-  observe := observeNullable "history" AtuinSchema.fields none
+  invariant := HistoryMapping.representation Generated.startSchema false AtuinCatalog.prior
+  observe := HistoryMapping.observe false
 
 end Interpretation

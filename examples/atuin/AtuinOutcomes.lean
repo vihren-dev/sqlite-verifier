@@ -1,81 +1,68 @@
-import AtuinFacts
+import AtuinSql
 
-/-! Universal outcome obligations use the actual resulting history table. -/
+/-! Universal guarantees concern decoded business histories, not storage-layout entities. -/
 namespace AtuinOutcomes
 open SqliteVerifier
 
-/-- Reading the extended table retains all old fields and exposes actual NULLs. -/
-theorem changed {database result : Database} {table : Table}
-    (present : database "history" = some table)
-    (columns : table.columns = AtuinSchema.history.columns) (valid : table.Valid)
-    (stored : result "history" = some (table.appendColumns [AtuinSchema.shell])) :
-    ∀ original, Interpretation.current.observe database = some original →
-      ∃ logical, NextInterpretation.next.observe result = some logical ∧
-        Requirements.change original logical := by
-  intro original observed
-  have equal : original = ⟨table.project AtuinSchema.fields, none⟩ := by
-    simpa [Interpretation.current, observeNullable, present] using observed.symm
-  subst original
-  refine ⟨⟨(table.appendColumns [AtuinSchema.shell]).project AtuinSchema.fields,
-    some ((table.appendColumns [AtuinSchema.shell]).project ["shell"])⟩,
-    by simp [NextInterpretation.next, observeNullable, stored], ?_⟩
+/-- The NULL column extension leaves every complete business history unchanged. -/
+theorem observed (present : database "history" = some history)
+    (columns : history.columns = SchemaBinding.history.columns) (valid : history.Valid)
+    (before : HistoryMapping.observe false database = some logical) :
+    HistoryMapping.observe true (AtuinSql.result database history metadata) = some logical := by
+  have decoded : HistoryDecoding.decodeRows (history.project SchemaBinding.fields) = some logical := by
+    simpa [HistoryMapping.observe, present] using before
   have width := fun row member => (valid.2.2 row member).2
-  refine ⟨TableExtends.project ⟨[AtuinSchema.shell], rfl⟩ width (AtuinFacts.covers columns), ?_⟩
-  exact congrArg some (Table.project_newNullable width (by rw [columns]; decide +kernel))
+  have unchanged : (history.appendColumns [SchemaBinding.shell]).project SchemaBinding.fields =
+      history.project SchemaBinding.fields :=
+    TableExtends.project ⟨[SchemaBinding.shell], rfl⟩ width (AtuinFacts.covers columns)
+  have shell : (history.appendColumns [SchemaBinding.shell]).project ["shell"] =
+      nullExtension (history.project SchemaBinding.fields) :=
+    Table.project_newNullable width (by rw [columns]; decide +kernel)
+  simpa [HistoryMapping.observe, AtuinSql.history_stored, unchanged, shell, decoded] using
+    HistoryDecoding.attachShell_null decoded
 
-/-- Statistics maintenance cannot alter the old application view on rollback. -/
-theorem rolledBack {database result : Database}
-    (conforms : Conforms AtuinSchema.start database)
-    (maintenance : RowsChange statisticsNames database result)
-    (allowed : rollbackPhase phase = true) :
-    Requirements.contract.applicability database
-      (.failure (if phase = .preflight ∨ phase = .beginTransaction then 0 else 1)
-        (.runnerFailure phase false) result) ∧
+/-- Arbitrary admitted histories and prior catalog rows satisfy every reached statement and postcondition. -/
+theorem checked (database : Database)
+    (admitted : Admitted Generated.startSchema Interpretation.admitted database) :
+    SupportedSql Generated.startSchema Generated.script database ∧
+    Requirements.contract.applicability database (runSql Generated.script database) ∧
     OutcomeSatisfies Generated.nextSchema Requirements.contract Interpretation.current
-      NextInterpretation.next NextInterpretation.failures database
-      (.failure (if phase = .preflight ∨ phase = .beginTransaction then 0 else 1)
-        (.runnerFailure phase false) result) := by
-  refine ⟨by simp [Requirements.contract, Requirements.permitted, allowed], ?_⟩
-  intro original observed
-  refine ⟨maintenance.conforms conforms, original, ?_, rfl⟩
-  have unchanged := maintenance.other "history" (by decide +kernel)
-  simpa [NextInterpretation.failures, Requirements.committed, Interpretation.current,
-    observeNullable, unchanged] using observed
-
-/-- Every committed completion shares one complete-schema and logical postcondition. -/
-theorem committed {database result : Database} {table : Table}
-    (present : database "history" = some table)
-    (columns : table.columns = AtuinSchema.history.columns) (valid : table.Valid)
-    (stored : result "history" = some (table.appendColumns [AtuinSchema.shell]))
-    (conforms : Conforms AtuinSchema.next result) (completion : CommittedResult) :
-    Requirements.contract.applicability database (completion.outcome 1 result) ∧
-    OutcomeSatisfies Generated.nextSchema Requirements.contract Interpretation.current
-      NextInterpretation.next NextInterpretation.failures database (completion.outcome 1 result) := by
-  have invariant : NextInterpretation.next.invariant result := conforms
-  have change := changed present columns valid stored
-  cases completion <;> refine ⟨by simp [CommittedResult.outcome, Requirements.contract,
-    Requirements.permitted], ?_⟩
-  all_goals intro original observed
-  case success => exact ⟨invariant, rfl, change original observed⟩
-  all_goals exact ⟨invariant, change original observed⟩
-
-/-- No modeled runner outcome loses history, constraints, indexes or the required new NULLs. -/
-theorem all {database : Database} (admitted : Admitted AtuinSchema.start Interpretation.admitted database)
-    (execution : ProfileExecutes (.sqlite346Sqlx AtuinCatalog.config)
-      AtuinSchema.payload database outcome) :
-    Requirements.contract.applicability database outcome ∧
-    OutcomeSatisfies Generated.nextSchema Requirements.contract Interpretation.current
-      NextInterpretation.next NextInterpretation.failures database outcome := by
-  obtain ⟨table, present, columns, valid, payload, conforming⟩ := AtuinFacts.payload admitted.1
-  cases execution with
-  | rollback allowed maintenance => exact rolledBack admitted.1 maintenance allowed
-  | payloadFailure failed _ => rw [payload] at failed; cases failed
-  | committed succeeded metadataPresent inserted maintenance =>
-    rw [payload] at succeeded
-    cases succeeded
-    have resultConforms := maintenance.conforms (conforming.replaceRows metadataPresent
-      inserted.columns inserted.properties inserted.valid)
-    have stored := maintenance.other "history" (by decide +kernel)
-    exact committed present columns valid (by simpa [Database.set] using stored) resultConforms _
+      NextInterpretation.next NextInterpretation.failures database (runSql Generated.script database) := by
+  obtain ⟨defined, metadata, metadataStored, invariant, bounded⟩ := admitted.2
+  obtain ⟨history, historyStored, historyColumns, historyValid⟩ :=
+    admitted.1.table (name := "history") (by rfl)
+  have metadataColumns : metadata.columns = SchemaBinding.metadata.columns := by
+    have shape := (admitted.1.2 "_sqlx_migrations").1
+    rw [metadataStored] at shape
+    change some metadata.columns = some SchemaBinding.metadata.columns at shape
+    exact Option.some.inj shape
+  have metadataProperties : metadata.properties = SchemaBinding.metadata.properties := by
+    have shape := ((admitted.1.2 "_sqlx_migrations").2 metadata metadataStored).2
+    change some SchemaBinding.metadata.properties = some metadata.properties at shape
+    exact (Option.some.inj shape).symm
+  have executed := AtuinSql.executes historyStored historyColumns metadataStored
+    metadataColumns metadataProperties invariant bounded
+  have finalConforms := AtuinSql.conforms admitted.1 historyStored metadataStored metadataColumns bounded
+  have finalCatalog : HistoryMapping.catalog (AtuinCatalog.prior ++ [AtuinCatalog.target])
+      (AtuinSql.result database history metadata) :=
+    ⟨AtuinMetadata.extended metadata 1000000, AtuinSql.metadata_stored,
+      AtuinMetadata.extended_invariant metadataColumns metadataProperties invariant⟩
+  obtain ⟨logical, before⟩ := defined
+  have after := observed (metadata := metadata) historyStored historyColumns historyValid before
+  have representation : HistoryMapping.representation SchemaBinding.next true
+      (AtuinCatalog.prior ++ [AtuinCatalog.target]) (AtuinSql.result database history metadata) :=
+    ⟨finalConforms, ⟨logical, after⟩, finalCatalog⟩
+  rw [AtuinSql.inputs_bound.1]
+  refine ⟨executed.2, ?_⟩
+  rw [executed.1]
+  refine ⟨⟨representation, logical, before, after⟩, ?_⟩
+  intro original read
+  have same : original = logical := by
+    change HistoryMapping.observe false database = some original at read
+    rw [before] at read
+    exact (Option.some.inj read).symm
+  subst original
+  exact ⟨by simpa [NextInterpretation.next, AtuinFacts.next_bound] using representation,
+    AtuinFacts.next_bound, logical, after, rfl⟩
 
 end AtuinOutcomes

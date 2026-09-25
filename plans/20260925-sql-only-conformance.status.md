@@ -68,3 +68,23 @@ logical missing-shell normalization, independent actual-output resultValid check
 and example-only six-to-seven successful catalog identities. It explicitly marks
 the revised proof bundle as pending; peer code is still being checked. This is a
 documentation update, not a claim that the new proof has passed.
+
+
+Lead-delegated bounded witness follow-up replaces AtuinWitness.lean with a
+SQL-only file importing Interpretation. Six actual prior version/checksum rows
+are retained in emptyState and populatedState. The populated history has two
+NULL TEXT primary keys, distinct signed physical rowids, and distinct composite
+UNIQUE tuples. Proven obligations include both Admitted states, actual current
+invariants, and defined observations with zero/two history rows and six metadata
+records. No final VC is claimed by this witness file.
+
+Compiled exact live approved source snapshots into this workspace's
+build/sql-only-witness, using the read-only checked formal core library. The
+witness check passed in 2.15 seconds under a 30-second timeout, without warnings.
+All six public admission/invariant/observation theorem audits contain exactly
+propext, Classical.choice and Quot.sound. No author workspace files were written.
+Integration depends on lead's forthcoming revised approved source checkpoint.
+
+The earlier raw-row witness follow-up is superseded by the owner business-model
+correction; see 20260925-atuin-business-model.status.md. The final typed witness
+was handed to lead and is excluded from this component change.

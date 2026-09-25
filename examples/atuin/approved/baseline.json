@@ -1,6 +1,10 @@
 {
-  "approved/AtuinCatalog.lean": "b0a1942ac47af3e2cd5025bdad1597cdc1f2bfeb7747e5bc055f33df3fbb553f",
-  "approved/AtuinSchema.lean": "7f482385afd87e999282126a650c55512ab8bba1f5c21f06774468a0d00c2e90",
-  "approved/Interpretation.lean": "5dba7811ed32010b5830a341ec40fc409649a2f7225ed0346e7ed4cf61f3b754",
-  "approved/Requirements.lean": "26e92b3edef79e944da435ea30e72873eda28ab8a12e84067e05416c8172607e"
+  "approved/AtuinCatalog.lean": "c57658a77a63818cab1332290b1fab1f124adc6bda9ae86fcc70d0cd0b225f18",
+  "approved/HistoryDecoding.lean": "75021c05c24dd8a855301296de41c059a5fc4b745cb9934cd1bba50349e26cff",
+  "approved/HistoryMapping.lean": "3a345d7e3982aeba39575f89e4b1769870bdcf144c3a43a99cf51ffae525a17a",
+  "approved/HistoryModel.lean": "f93f4579c8255e1a7d8c8a1c345c6ae36263b9480fefa086c6beb32418921458",
+  "approved/Interpretation.lean": "fccce6153a5dc20ede9d87fab2de78536044f6339ed1292b78136f86d98e1002",
+  "approved/Requirements.lean": "82f9c969953d3d60785522395df0c5291f6009eb967821a535f6dfc32d11bc7c",
+  "approved/SchemaBinding.lean": "b512f80454fb2cf9ef19da15a5c19bc6cedb01f0224008bb85a9d9448b727edf",
+  "schema.sql": "4cdbe238339410d5d8cbdeb32b3710af955d75d9321ed41cabf5a9836aa5752b"
 }

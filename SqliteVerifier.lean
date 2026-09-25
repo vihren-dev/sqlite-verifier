@@ -13,5 +13,6 @@ import SqliteVerifier.SqlExecution
 import SqliteVerifier.SqlExamples
 import SqliteVerifier.SchemaExtension
 import SqliteVerifier.NullableProjection
+import SqliteVerifier.LiteralPreservation
 
 /-! Public entry point for the restricted SQLite model and reusable proofs. -/
