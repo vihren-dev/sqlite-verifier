@@ -57,3 +57,33 @@ regression still reports the same 3264-byte source for both fixture types. Both
 native parser outputs were reused without any compiler or generator calls; this
 check now runs in the shared recipe on each platform. All five invalidation tests
 and authored documentation checks pass. Both hosted platforms remain pending.
+
+## Linux native-cache correction (2026-09-25)
+
+Hosted Linux reached the real no-tool reuse gate after coverage, tiny snapshot
+identity and five fake-tool tests passed; reuse invoked a compiler unexpectedly.
+A bounded two-file pinned-environment diagnostic on existing vihren reproduced
+Linux's declared `NIX_LDFLAGS`: `-rpath $out/lib`, with out under the shell's
+workspace outputs/ directory. The directory is absent and not a symlink;
+NIX_ENFORCE_PURITY is unset. The earlier purity hypothesis is rejected.
+
+The correction admits only paired `-rpath` for exact absolute `$out/lib` while
+absent, binds `out` in the fingerprint, and checks post-build reusability as well
+as the hash before recording success. Creating that directory or a dangling
+symlink disables reuse. Mutable -L, -rpath-link, include/SDK paths and unknown
+flags still disable caching; the purity guard remains unchanged. The RPATH
+exception is not generalized because existing paths can supply indirect linker
+inputs. Seven focused tests pass, including appearance during compilation.
+
+Automatic approval review rejected a proposed parser-source/test transfer to
+vihren because that specific payload lacked export authorization. No transfer
+was retried or bypassed. Root directs native confirmation through the already
+authorized hosted PR workflow. Local tiny-environment validation passed: seven focused tests (0.145s), both
+real parser builds, tool-free native reuse and both 20-script grammar suites with
+malformed/limit/span checks. Ultra review additionally required strict paired include/link operands and
+rejection of RPATH lists or loader-variable expansion; these are implemented with
+regressions. Final pinned rerun passes seven tests (0.150s), both real builds and
+tool-free reuse. Ultra independently accepted the final source and reproduced all seven tests
+in 0.155s. Linux acceptance remains pending its unchanged hosted no-tool reuse
+gate. No
+full package rerun was started locally.

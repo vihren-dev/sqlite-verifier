@@ -10,7 +10,7 @@ import shutil
 import sys
 
 ENVIRONMENT = {
-    "CC", "PATH", "CFLAGS", "CPPFLAGS", "LDFLAGS", "CPATH", "C_INCLUDE_PATH",
+    "CC", "PATH", "out", "CFLAGS", "CPPFLAGS", "LDFLAGS", "CPATH", "C_INCLUDE_PATH",
     "CPLUS_INCLUDE_PATH", "OBJC_INCLUDE_PATH", "LIBRARY_PATH", "COMPILER_PATH",
     "GCC_EXEC_PREFIX", "SDKROOT", "DEVELOPER_DIR", "MACOSX_DEPLOYMENT_TARGET",
     "SOURCE_DATE_EPOCH", "CCC_OVERRIDE_OPTIONS", "CLANG_CONFIG_FILE_SYSTEM_DIR",
@@ -56,8 +56,26 @@ def stable_environment(environment: dict[str, str]) -> bool:
             return False
         if not name.startswith(("NIX_CFLAGS", "NIX_LDFLAGS")):
             continue
-        for token in shlex.split(value):
-            if immutable(token) or token in ("-isystem", "-I", "-L", "-rpath", "-rpath-link"):
+        tokens = iter(shlex.split(value))
+        for token in tokens:
+            if token in ("-isystem", "-I", "-L", "-rpath-link"):
+                if not immutable(next(tokens, "")):
+                    return False
+                continue
+            if token == "-rpath":
+                path = next(tokens, "")
+                if ":" in path or "$" in path:
+                    return False  # Lists/loader expansion are not one literal path.
+                if immutable(path):
+                    continue
+                output = environment.get("out", "")
+                # mkShell embeds its absent output directory; existing RPATHs can
+                # supply indirect linker dependencies and must never be reused.
+                if (output and Path(output).is_absolute() and path == str(Path(output) / "lib")
+                        and not os.path.lexists(path)):
+                    continue
+                return False
+            if immutable(token):
                 continue
             if token.startswith(("-I", "-L")) and immutable(token[2:]):
                 continue
