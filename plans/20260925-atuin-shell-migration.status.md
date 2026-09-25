@@ -1,6 +1,8 @@
 # Atuin shell migration status
 
-Created: 2026-09-25. Status: IN PROGRESS — not DONE.
+Created: 2026-09-25. Status: SUPERSEDED.
+The owner replaced this scope with the [SQL-only core cleanup](20260925-sql-only-core.task.md).
+The remainder records historical work, not current acceptance requirements.
 Task: [unchanged Atuin migration](20260925-atuin-shell-migration.task.md).
 Parent: [Step 1](20260924-step-1-schema-extensions.task.md).
 

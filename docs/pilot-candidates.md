@@ -1,3 +1,8 @@
+> Historical candidate research. The owner's SQL-only correction supersedes
+> the capture and framework-integration recommendations below. Current scope is
+> the [SQL-only core task](../plans/20260925-sql-only-core.task.md) and the
+> [source-linked Atuin example](../examples/atuin/README.md).
+
 # Open-source pilot candidates
 
 Research date: 2026-09-25. Status: Atuin selected; verification and acceptance pending.

@@ -1,44 +1,21 @@
-# Execution-profile input
+# SQLite profile input
 
-The `--profile` input selects both the native grammar and the formal execution
-policy. `--profile 3.51.0` preserves the original SQLite autocommit workflow.
-A bare `3.46.0` does not select a runner implicitly.
+`--profile` selects a supported pinned SQLite release: `3.51.0` or `3.46.0`.
+It selects the matching grammar and binds the version to the checked theorem.
+Unsupported versions return `UNSUPPORTED`; malformed versions and the retired
+framework JSON manifests return `INPUT_ERROR`.
 
-For the supported SQLx policy, pass a JSON file as the same input:
+Profiles contain only SQLite semantic settings. Supported settings are fixed
+and documented in [execution profiles](execution-profile.md). Migration identities,
+checksums, prior migration records and application data assumptions are not
+profile fields. They belong in ordinary SQL and approved Lean requirements or
+interpretations, according to whether they describe operations or state facts.
 
-```json
-{
-  "kind": "sqlite-3.46.0-sqlx-0.9.0-wal-normal-optimize-v1",
-  "migration": {"version": 20, "description": "new column"},
-  "previous": []
-}
-```
+`SqlInputs.lean` binds the parsed schema, script, resulting schema and SQLite
+profile. The independent gate reconstructs the expected theorem from those
+sealed inputs. A profile never inserts statements, wraps a transaction or updates
+bookkeeping. Explicit transaction control in a migration is ordinary SQL.
 
-The fixed kind identifies the pinned engine and runner configuration; it is not
-an arbitrary configuration override. Unknown fields or kinds reject. Previous
-migrations are listed in strictly increasing order, all before the target:
-
-```json
-{"version": 10, "checksum": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"}
-```
-
-Each prior checksum is exactly 48 bytes written in hexadecimal. Versions are
-signed 64-bit integers. Duplicate fields, duplicate/out-of-order versions and
-malformed values reject. The target description is bound as its exact UTF-8
-bytes. The verifier computes the target SHA-384 checksum from the unchanged SQL
-input bytes; the manifest cannot supply a replacement checksum.
-
-`SqlInputs.lean` seals the selected profile and catalog together with the parsed
-schemas and script. The independent gate reconstructs the target using that
-sealed profile. `inputs.json` records the exact profile-file SHA-256 for inspection;
-that export does not approve application requirements or prior catalog contents.
-The proof must establish the profile's readiness and all modeled outcomes.
-
-This mode checks one pending final migration after the listed successful prior
-migrations. Its payload contains only plain nullable, default-free ADD COLUMN
-statements outside the bookkeeping table. CREATE and an exact leading
-`-- no-transaction` byte prefix reject as unsupported. The prefix check follows
-SQLx exactly, without trimming whitespace or changing case. Out-of-order pending
-migrations and changed engine/runner configurations are outside this mode. The actual supported execution boundary and
-its native correspondence evidence are described in the execution-profile and
-pilot documentation.
+The [Atuin example](../examples/atuin/README.md) illustrates this interface with
+source-linked SQL and application assumptions. The verifier does not invoke an
+ORM, inspect an application checkout, or certify a framework invocation.

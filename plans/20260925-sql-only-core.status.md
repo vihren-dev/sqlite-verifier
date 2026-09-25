@@ -21,3 +21,11 @@ documentation points to the current example instead of asserting obsolete result
 Seven resource/CI-routing regressions pass. Real Nix source regression passes in
 Git-parent and non-Git directories: 2,944-byte source stays identical after changes
 to dist/, build/, .lake/ and workspace metadata. Full checks await component cleanup.
+
+Current interface agreement: profiles are SQLite versions only (`sqlite351`,
+`sqlite346`). The example uses explicit BEGIN, ALTER, literal INSERT, COMMIT and
+literal UPDATE. A documented timestamp/duration instantiate runtime values;
+no framework-wide equivalence is claimed. The reasonable baseline precedes
+optimizer-created statistics tables. Source review confirms missing or NULL
+shell decodes to no recorded shell; preserving old stored fields preserves
+decoder inputs, without claiming a formalization of every application query.

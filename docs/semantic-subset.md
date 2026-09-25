@@ -27,7 +27,7 @@ table definitions, retained as persisted baseline objects. Migration SQL cannot
 create or alter them. Quoted type names remain unsupported.
 
 The entire supplied starting schema must fall within this subset. An empty
-starting schema is allowed under the autocommit profile. The CLI must
+starting schema is allowed. The CLI must
 require at least one migration statement. Every command retains its original
 half-open UTF-8 byte span; semicolons in names and trigger bodies cannot split
 commands. Unsupported syntax wrappers, including EXPLAIN, are rejected.
@@ -38,10 +38,9 @@ retains the successful prefix under autocommit. Column-limit failure precedes du
 failure, matching the pinned native engine. If failure is inevitable, the
 generated next schema is that prefix; the formal contract must still establish
 the approved applicability and failure guarantees. Predicting an execution
-error alone never establishes `VIOLATED`. The separate SQLx profile permits only
-plain ADD statements and wraps the payload in the modeled transaction protocol;
-its failure representation can roll back the prefix. See
-[execution profiles](execution-profile.md) and [profile input](profile-inputs.md).
+error alone never establishes `VIOLATED`. No profile implicitly wraps the SQL
+in a transaction or changes bookkeeping. See [execution profiles](execution-profile.md)
+and [profile input](profile-inputs.md).
 
 `SqlInputs.lean` contains only structural schema/statement constructors and inert
 quoted names. The driver seals it separately from candidate definitions. A

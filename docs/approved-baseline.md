@@ -44,10 +44,10 @@ recorded maintainer bypass of the expected failing drift check. There is no
 automatic baseline refresh or approval inferred from compilation or successful
 proofs. Ordinary migration-only PRs must pass without a bypass.
 
-The proposed Atuin baseline protects Requirements, Interpretation, AtuinSchema
-and AtuinCatalog. Adding this third protected root and updating the two existing
-sets of source hashes requires the owner review recorded in the
-[pilot packet](atuin-pilot-review.md). Until that review is complete, these
+The proposed Atuin baseline protects its approved requirements, interpretation
+and their dependencies. Adding this third protected root and updating existing
+source hashes requires review of the [SQL example](../examples/atuin/README.md).
+Until that review is complete, these
 changes remain proposed and must not be integrated into public `main`.
 
 GitHub may disable `pull_request_target` through workflow event policy on public

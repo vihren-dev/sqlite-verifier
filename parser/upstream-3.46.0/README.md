@@ -22,8 +22,8 @@ The downloaded amalgamation's SHA3-256 is
 `094429ea827fcd32275e767134bc6c7b9ea394a2c5a9e653dd0a0690b2c11358`,
 matching the official release log: https://sqlite.org/releaselog/3_46_0.html
 
-This release matches Atuin's bundled SQLx engine. The syntax-only parser replaces
+This additional pinned SQLite release supports the Atuin SQL example. The syntax-only parser replaces
 grammar actions with generic CST construction, as for the existing 3.51 parser.
 Its grammar and token map are separately regenerated from these pinned sources.
-The native CLI is an independent engine check; the SQLx capture records the
-application runner's actual compile options and connection configuration.
+The native CLI supplies independent SQL observations. Parser selection does not
+import application source or select a migration framework.
