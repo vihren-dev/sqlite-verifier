@@ -1,6 +1,6 @@
 # SQL-only frontend integration
 
-Created: 2026-09-25. Status: IN PROGRESS.
+Created: 2026-09-25. Status: DONE (frontend and CLI integration subtask).
 Task: [SQL-only core](20260925-sql-only-core.task.md).
 
 Started a clean child of cfa94ddd, preserving prior Atuin integration and resource
@@ -69,3 +69,28 @@ the optional approval pin is enforced independently of a theorem mismatch.
 Root owns generated-input-first replay and conformance owns adapting single-file
 model emitters to schema_inputs + sql_inputs; integrate these coordinated units
 before the complete shared check.
+
+
+Typed example CLI integration (2026-09-25): based on immutable root 13b087f5,
+including the lead's a84483b6 certificate and conformance's 98c356be decoder unit.
+The actual public CLI suite passed one positive and thirteen negative cases under
+180-second child / 1500-second aggregate bounds. The positive includes the finite
+HistoryDecodingChecks dependency, exact seven approved source hashes plus schema
+SQL pin, original SQL hashes, and separate SchemaInputs/SqlInputs artifact export.
+
+Negative cases cover changed added column, removed protected PK, wrong checksum,
+unsupported non-NULL ADD default, dropped business row, erased command, weakened
+actual-history invariant, wrong checksum combined with that weakened invariant,
+and protected schema/model/decoder/catalog source drift plus sorry. INPUT_ERROR,
+UNSUPPORTED and UNVERIFIED are distinguished; proof negatives require compiler or
+axiom rejection diagnostics and explicitly exclude timeouts. Removed PK correctly
+rejects via schema approval hash: deriving the adapter from schema does not itself
+freeze that schema. Combined checksum/invariant rejection may occur at input
+binding before the approved storage guard and is not claimed to isolate that guard.
+
+A reader returning unknown shell is not intrinsically wrong for this ADD-NULL SQL;
+no unjustified rejection claim is made for that equivalent interpretation. The
+application example remains a proposed human-reviewed baseline, not framework
+certification. Existing shared/installed-runtime hooks invoke this same test.
+Frontend/schema staging and typed CLI subtask are DONE; root owns whole-task
+shared checks, owner review, publication and final task completion.

@@ -178,3 +178,12 @@ universal proof and nonempty typed witness, with only allowed foundational axiom
 README now reports this actual proof result and includes baseline enforcement.
 Negative CLI and installed-runtime checks remain pending; no owner acceptance
 or hosted-platform validation is inferred from the local result.
+
+Integrated checked CLI harness f250a962: one positive plus13 negative cases pass,
+with real rejection diagnostics distinguished from timeout. The aggregate check
+batch also passed: pinned toolchain smoke, fresh grammar/native/model/Atuin SQL
+coverage, both environment-source identity variants (2944bytes unchanged), parser
+cache/reuse checks, seven coverage-unit checks and36 unit tests. Generated-schema,
+compilation/gate and ordinary CLI checks passed at their component checkpoints.
+The runtime archive was rebuilt once (974MiB) after a successful space preflight;
+installed offline/isolated entrypoint and typed Atuin checks are now running.
