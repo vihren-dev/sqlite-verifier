@@ -29,3 +29,10 @@ no framework-wide equivalence is claimed. The reasonable baseline precedes
 optimizer-created statistics tables. Source review confirms missing or NULL
 shell decodes to no recorded shell; preserving old stored fields preserves
 decoder inputs, without claiming a formalization of every application query.
+
+Core review checkpoint: reusable literal DML explicitly checks lossless affinity,
+integer/NULL key comparisons, constraint validity and deterministic rowid allocation.
+Open-transaction outcomes distinguish persisted and visible storage. Old additive
+proof conveniences require a syntax guard before entering the generic semantics.
+The semantic-subset document records those restrictions. Markdown checks pass;
+Lean and example proof validation remain in progress in the formal workspace.
