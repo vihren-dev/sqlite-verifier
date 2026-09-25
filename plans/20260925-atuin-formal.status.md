@@ -76,3 +76,30 @@ dirty metadata, payload bookkeeping edits and CREATE under the transaction mode.
 These are reusable data/predicate interfaces only. They are not yet wired into
 the VC, gate or runner outcomes; those remain required before a profile proof can
 be accepted. Frontend implementation can now compile the generated records.
+
+## Checked runner relation and profile-bound gate
+
+`RunnerFootprint.lean` models exact metadata insertion (including version,
+description, checksum, TRUE, timestamp, elapsed value and existing rows), allowing
+native rowid allocation and enumeration. Statistics maintenance changes only rows
+of the two named statistics tables and preserves every definition and other table.
+`RunnerExecution.lean` distinguishes rollback, payload failure, committed success,
+timing/cache errors after commit, and conservative commit-error observations.
+Elapsed time uses SQLx's actual signed i64 cast, not an assumed nonnegative range.
+The arbitrary-storage preservation theorem retains every table outside the named
+bookkeeping/statistics footprint, with no new axioms.
+
+`VerificationConditions` now has a final profile parameter with the legacy
+profile as default, an explicit readiness obligation, and universal coverage of
+`ProfileExecutes`. Legacy of_run helpers and complete example theorems still pass.
+`ProofChecker.lean` reconstructs the target with sealed `Generated.profile`;
+`compile.EXPECTED_SOURCE` includes the same argument. The frontend must emit this
+constant before the combined public CLI integration can pass.
+
+Validation: `timeout 60s lake build` passed 18 jobs; the trusted checker built with
+`nix develop --command timeout 120s lake build migration-proof-checker`; the actual
+bounded kernel-gate suite passed under Nix. It accepts honest legacy proofs and
+checked refutations and rejects the existing attacks, protected-profile mutation,
+and an old autocommit proof hidden behind a candidate alias when the sealed input
+selects SQLx. Metadata success/committed-error trace witnesses and the full Atuin
+VC remain required; totality alone intentionally permits a safe rollback outcome.

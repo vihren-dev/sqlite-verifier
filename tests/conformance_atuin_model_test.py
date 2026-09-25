@@ -10,10 +10,20 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "conformance"))
 from atuin_cases import lean_rows
 from atuin_model_check import run
+from atuin_model_assertions import audit_axioms
 
 
 class PayloadModelTest(unittest.TestCase):
     """The real runner, grammar admission and model must agree on all three fixtures."""
+
+    def test_named_axiom_audit_rejects_unexpected_evidence(self) -> None:
+        """Missing, duplicated or forbidden-axiom theorem reports never count as success."""
+        valid = "'checked' depends on axioms: [propext, Classical.choice, Quot.sound]"
+        self.assertEqual(set(audit_axioms(valid, {"checked"})), {"checked"})
+        for output in ("", valid + "\n" + valid, valid.replace("propext", "invented"),
+                       valid.replace("checked", "other")):
+            with self.subTest(output=output), self.assertRaises(AssertionError):
+                audit_axioms(output, {"checked"})
 
     def test_observations_and_false_expected_rows(self) -> None:
         """An incorrect expected nonempty result must fail kernel checking."""

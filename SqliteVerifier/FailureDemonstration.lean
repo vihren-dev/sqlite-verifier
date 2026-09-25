@@ -35,7 +35,7 @@ theorem failureMigrationCorrect :
     obtain ⟨logical, read, _⟩ :=
       (migrationCorrect.beforeSound database (migrationCorrect.starting database admitted)).2
     have obligations := migrationCorrect.outcomes database admitted _
-      (runFrom_executes script database 0)
+      (.autocommit (runFrom_executes script database 0))
     cases executed : runFrom 0 script database with
     | failure position reason result =>
       have impossible := obligations.1

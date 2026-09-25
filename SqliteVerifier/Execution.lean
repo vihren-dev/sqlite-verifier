@@ -11,6 +11,11 @@ inductive Statement where
   | addColumn (table : String) (column : Column)
   deriving Repr, DecidableEq
 
+/-- Runner stages distinguish pre-transaction failures from errors after COMMIT. -/
+inductive RunnerPhase where
+  | preflight | beginTransaction | bookkeepingInsert | commit | timingUpdate | cacheClear
+  deriving Repr, DecidableEq
+
 /-- Modeled errors retain the state committed before the offending statement. -/
 inductive ExecutionError where
   | invalidDefinition
@@ -18,6 +23,7 @@ inductive ExecutionError where
   | missingTable (name : String)
   | columnExists (table column : String)
   | tooManyColumns (table : String)
+  | runnerFailure (phase : RunnerPhase) (committed : Bool)
   deriving Repr, DecidableEq
 
 /-- Failure carries the zero-based statement position and resulting database. -/
