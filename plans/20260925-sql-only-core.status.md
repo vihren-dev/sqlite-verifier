@@ -121,3 +121,12 @@ final example integration.
 Integrated the source-linked README follow-up d5bac0ce and made the documented
 transaction syntax match admission: deferred BEGIN and COMMIT/END/ROLLBACK only,
 without named transactions, other locking modes or savepoints.
+
+Aggregate conformance now passes (`build/sql-only-coverage.log`, exit 0).
+Rewrote AtuinFacts for the two-table SQL-only example and six/seven-record
+interpretation invariants. Retained explicit kernel-checked equality of generated
+starting/resulting schemas to the reviewed helper definitions; removed the old
+SQLx input binding. Arbitrary-row ADD preservation and both representation
+soundness proofs compile against isolated exact snapshots of the lead's revised
+approved files and production-generated SqlInputs (`build/sql-only-facts`).
+These component proofs do not yet constitute the complete example certificate.
