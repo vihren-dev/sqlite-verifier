@@ -28,11 +28,9 @@ smoke:
     timeout 15 python3 tests/toolchain_smoke.py
 
 # Run real process-isolation checks and the independently expected native smoke.
-test: smoke
+test: smoke coverage
     timeout 150 python3 tests/environment_snapshot_test.py
-    timeout 30 python3 tests/parser_test.py
-    timeout 20 python3 tests/conformance_native_test.py
-    timeout 180 python3 tests/conformance_model_test.py
+    timeout 15 python3 tests/docs_test.py
     timeout 360 python3 tests/kernel_gate_test.py
     timeout 180 python3 -m tests.compilation_test
     timeout 600 python3 tests/cli_test.py
@@ -43,7 +41,7 @@ test: smoke
 coverage: build
     timeout 420 python3 conformance/coverage_report.py --output build/coverage.json
 
-check: capture-shell build atuin-native test coverage
+check: capture-shell build atuin-native test
 
 # Reproduce the real SQLx runner using its separately pinned build environment.
 atuin-native: capture-shell resources

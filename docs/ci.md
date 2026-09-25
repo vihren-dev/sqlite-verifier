@@ -1,9 +1,22 @@
 # Continuous integration
 
 `.github/workflows/ci.yml` runs on pull requests, pushes to `main`, and manual
-requests. Both jobs enter the committed Nix environment and run `just setup`
-and `just package`. The package dependencies run the shared build and tests once,
-then build and install-smoke the native archive before archiving sources. Adding checks to the shared recipes extends CI.
+requests. The two required `Check` jobs remain present for every run. Their
+scope is selected from the complete changed-path list by `tests/ci_scope.py`:
+
+- Documentation-only changes check authored Markdown file links, without Nix or
+  archives. External URLs and section anchors are outside this bounded check.
+- Ordinary verifier, conformance and test changes run the full `just check` on
+  both platforms. Unknown paths also run full checks.
+- Packaging, CLI, parser, toolchain/environment, example and workflow changes run
+  `just package`, including the complete checks and installed-runtime tests.
+- Release tags and manual requests always run `just package`.
+
+Each build job enters `nix develop path:./nix#capture` once for setup, the Linux
+sandbox check and its selected recipe. This explicit path contains only the
+environment definition, even in additional Jujutsu workspaces. Adding checks to
+shared recipes extends CI. Superseded ordinary runs on the same ref are cancelled;
+tags and manual runs have unique concurrency groups and are never auto-cancelled.
 Jobs have a 30-minute timeout; individual tests keep their own shorter limits.
 
 The matrix follows GitHub's documented native runner architectures:
@@ -27,8 +40,9 @@ tag, dereferenced to its commit), and `actions/upload-artifact` v4. The workflow
 pins the full commits rather than floating tags. Checkout does not persist
 credentials, and the workflow requests read-only repository content permission.
 
-Successful jobs retain development-source snapshots and checked native runtime
-archives for 14 days. The fresh bounded `build/coverage.json` report is retained
+Successful packaging jobs retain development-source snapshots and checked native
+runtime archives for 14 days; ordinary checks do not create these archives.
+The fresh bounded `build/coverage.json` report is retained
 for each platform, including failed reports when the file is available. The runtime package smoke installs into a fresh directory
 with spaces and checks the real positive, refuted, and unsupported examples under
 a controlled environment without elan or ambient Python imports. The Nix local
@@ -40,6 +54,9 @@ GitHub Release. The publishing job alone has write permission. No existing relea
 is overwritten. The download-artifact v5 commit was resolved from the official
 repository tag on 2026-09-24. Tag creation remains a coordinated release action.
 A passing engineering workflow does not mean roadmap Step 1 is complete.
+
+The separate target-owned `Protected approved baseline` workflow is unchanged.
+Documentation routing does not authorize changed approved sources or manifests.
 
 ## Maintainer prerelease
 
