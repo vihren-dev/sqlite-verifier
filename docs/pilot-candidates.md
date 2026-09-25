@@ -1,6 +1,6 @@
 # Open-source pilot candidates
 
-Research date: 2026-09-25. Status: recommendation; no pilot selected or accepted.
+Research date: 2026-09-25. Status: Atuin selected; verification and acceptance pending.
 The owner requested a popular GitHub project with SQLite, migrations, exportable
 SQL and schema, and a manageable logical model. Star counts are observations from
 GitHub's API on that date, not quality or compatibility guarantees.
@@ -81,10 +81,12 @@ emits SQL for one migration against the configured database. Alembic's
 [offline mode](https://alembic.sqlalchemy.org/en/latest/offline.html) emits SQL,
 with [extra limits for SQLite batch rebuilding](https://alembic.sqlalchemy.org/en/latest/batch.html#working-in-offline-mode).
 
-None of the inspected complete starting schemas is accepted by the current
+None of the inspected complete starting schemas was accepted by the initial
 [semantic subset](semantic-subset.md). Constraints, indexes and runner behavior
 must not be discarded to make an example pass. Selecting Atuin and defining the
-required compatibility extension is the next product decision. This search does
-not alter the semantic model, execution profile, roadmap or approved baseline.
+required compatibility extension was authorized by the owner on 2026-09-25.
+The [implementation task](../plans/20260925-atuin-shell-migration.task.md) now
+tracks that work. The research itself did not alter the semantic model,
+execution profile, roadmap or approved baseline.
 A real case study also does not imply adoption or endorsement by upstream
 maintainers. Human authoring/review effort and owner acceptance remain necessary.

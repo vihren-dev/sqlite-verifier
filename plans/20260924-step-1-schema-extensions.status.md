@@ -122,8 +122,9 @@ sanitized SQL is enough to begin; the team can help formalize requirements.
 On 2026-09-25 the owner requested a popular open-source pilot instead. The
 [candidate research](../docs/pilot-candidates.md) recommends Atuin's actual history
 migration, while identifying existing constraints, indexes and runner behavior
-outside our current subset. Pilot selection and compatibility scope need owner
-input; no semantics or original requirements were changed by the research.
+outside our initial subset. The owner then selected Atuin and authorized the
+[compatibility extension](20260925-atuin-shell-migration.task.md); work has resumed.
+No original requirements were waived by that decision.
 Measure actual human authoring/review/repair effort separately from agent effort,
 then obtain owner acceptance and update the roadmap before marking Step 1 DONE.
 
