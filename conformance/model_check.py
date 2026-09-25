@@ -9,7 +9,7 @@ from tempfile import TemporaryDirectory
 ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT))
 
-from migration_check.sql_model import sql_inputs
+from migration_check.sql_model import schema_inputs, sql_inputs
 from migration_check.sql_tree import parse
 from migration_check.translate import starting_schema, statements
 from model_assertions import assertions
@@ -31,7 +31,7 @@ def run(native: str, parser: Path) -> list[dict[str, object]]:
         for case in cases():
             before = starting_schema(parse(parser, schema_sql(case.before).encode(), case.name + "/schema.sql"))
             migration = statements(parse(parser, case.migration.encode(), case.name + "/migration.sql"))
-            generated = sql_inputs(before, migration)
+            generated = schema_inputs(before) + sql_inputs(before, migration).removeprefix("import SchemaInputs\n")
             report = check(native, folder / (case.name + ".db"), case)
             proof = folder / (case.name + ".lean")
             proof.write_text(generated + "\n" + assertions(case))
