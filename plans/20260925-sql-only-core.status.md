@@ -101,3 +101,11 @@ vacuity blocker: admitted-state witness, reached-statement support, total outcom
 nullable uniqueness, negative/MAX rowid boundaries and open-transaction ABORT
 behavior were checked. Structural-example comments now describe generic SQLite
 regressions rather than the retired capture pipeline (comment-only change).
+
+Integrated frontend 76f75eec: only supported SQLite version strings select the
+profile; literal transaction/data statements are emitted from supplied SQL.
+No application/framework references remain in the production Lean or Python
+frontend source. Root independently passed emitted Lean schema/execution checks
+and 13 profile/write/schema-translation tests. Component evidence also includes
+the full legacy CLI suite. Aggregate coverage is running; the revised Atuin proof
+bundle and its public CLI negatives remain pending.

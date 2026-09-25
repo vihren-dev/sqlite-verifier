@@ -11,7 +11,7 @@ from collections.abc import Sequence
 from .diagnostics import Rejection
 from .baseline import check_baseline
 from .runtime import Runtime
-from .profiles import profile, SQLX_KIND
+from .profiles import profile
 from .sandbox import SandboxUnavailable, run_sandboxed
 from .sql_model import sql_inputs
 from .sql_tree import parse
@@ -32,7 +32,7 @@ def arguments(values: Sequence[str]) -> argparse.Namespace:
     commands = parser.add_subparsers(dest="command", required=True, parser_class=Arguments)
     verify = commands.add_parser("verify", help="Check one migration under approved Lean requirements")
     verify.add_argument("--profile", required=True,
-                        help="SQLite 3.51.0 or a supported execution-profile JSON file")
+                        help="Exact SQLite semantic version: 3.51.0 or 3.46.0")
     for name in ("schema", "interpretation", "migration", "next-interpretation", "requirements", "proofs"):
         verify.add_argument("--" + name, required=True, type=Path)
     verify.add_argument("--format", choices=("human", "json"), default="human")
@@ -61,7 +61,7 @@ def verify(options: argparse.Namespace) -> dict[str, object]:
         raise Rejection("INPUT_ERROR", "Migration must contain at least one statement", source=str(options.migration))
     from .compile import CompileError, EXPECTED_SOURCE, compile_project
 
-    generated = sql_inputs(schema, script, selected, migration_bytes)
+    generated = sql_inputs(schema, script, selected)
     if options.artifacts is not None:
         options.artifacts.mkdir(parents=True, exist_ok=False)
         (options.artifacts / "SqlInputs.lean").write_text(generated, encoding="utf-8")
@@ -78,9 +78,7 @@ def verify(options: argparse.Namespace) -> dict[str, object]:
         hashes = dict(compiled.hashes)
         hashes.update({"schema.sql": hashlib.sha256(schema_bytes).hexdigest(),
                        "migration.sql": hashlib.sha256(migration_bytes).hexdigest(),
-                       "profile": "3.51.0" if selected.engine == "3.51.0" else SQLX_KIND})
-        if selected.source_digest:
-            hashes["profile.json"] = selected.source_digest
+                       "profile": selected.engine})
         if options.approved_baseline is not None:
             check_baseline(options.approved_baseline, hashes)
         if options.artifacts is not None:

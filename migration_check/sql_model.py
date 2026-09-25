@@ -4,7 +4,7 @@ from dataclasses import dataclass, replace
 from typing import Literal
 
 from .profiles import ExecutionProfile, LEGACY_PROFILE
-from .diagnostics import Rejection
+from .sql_values import SqlValue, lean_value
 
 Affinity = Literal["integer", "real", "text", "blob", "numeric"]
 DeclaredType = Literal["canonical", "bigInt", "timestamp", "boolean", "untyped"]
@@ -81,24 +81,51 @@ class Table:
 class Statement:
     """One admitted command with original coordinates for generated diagnostics."""
 
-    kind: Literal["createTable", "addColumn"]
+    kind: Literal["createTable", "addColumn", "beginTransaction", "commit", "rollback", "insert", "update"]
     table: str
     columns: tuple[Column, ...]
     source: str
     start: int
     end: int
+    names: tuple[str, ...] = ()
+    values: tuple[SqlValue, ...] = ()
+    key: str = ""
+    equals: int = 0
 
     def lean(self) -> str:
         """Keep SQL strings inert when embedding the script in Lean."""
+        if self.kind in {'beginTransaction', 'commit', 'rollback'}:
+            return f'.{self.kind}'
+        if self.kind == 'insert':
+            values = '[' + ', '.join(map(lean_value, self.values)) + ']'
+            return f'.insert {lean_string(self.table)} {lean_names(self.names)} {values}'
+        if self.kind == 'update':
+            return (f'.update {lean_string(self.table)} {lean_string(self.names[0])} '
+                    f'({lean_value(self.values[0])}) {lean_string(self.key)} ({self.equals})')
         columns = ", ".join(column.lean() for column in self.columns)
         argument = f"[{columns}]" if self.kind == "createTable" else columns
         return f".{self.kind} {lean_string(self.table)} {argument}"
 
 
 def transition(schema: tuple[Table, ...], script: tuple[Statement, ...]) -> tuple[tuple[Table, ...], str]:
-    """Compute schema effects, stopping at the same first modeled error as execution."""
+    """Compute schema effects through static DDL/transaction errors; write errors depend on data."""
     tables = list(schema)
+    saved: tuple[Table, ...] | None = None
     for statement in script:
+        if statement.kind == 'beginTransaction':
+            if saved is not None:
+                return tuple(tables), 'transactionAlreadyActive'
+            saved = tuple(tables)
+            continue
+        if statement.kind in {'commit', 'rollback'}:
+            if saved is None:
+                return tuple(tables), 'noActiveTransaction'
+            if statement.kind == 'rollback':
+                tables = list(saved)
+            saved = None
+            continue
+        if statement.kind in {'insert', 'update'}:
+            continue
         found = next((i for i, table in enumerate(tables) if table.name == statement.table), None)
         if statement.kind == "createTable":
             if found is not None:
@@ -116,17 +143,12 @@ def transition(schema: tuple[Table, ...], script: tuple[Statement, ...]) -> tupl
 
 
 def sql_inputs(schema: tuple[Table, ...], script: tuple[Statement, ...],
-               execution_profile: ExecutionProfile = LEGACY_PROFILE, migration_bytes: bytes | None = None) -> str:
+               execution_profile: ExecutionProfile = LEGACY_PROFILE) -> str:
     """Bind the candidate-independent parsed inputs in a separately sealed module."""
     from .schema_translate import validate_migration
+    from .sql_admission import validate_writes
     validate_migration(schema, script)
-    if execution_profile.engine == "3.46.0":
-        if migration_bytes is not None and migration_bytes.startswith(b"-- no-transaction"):
-            raise Rejection("UNSUPPORTED", "SQLx no-transaction directives are outside the atomic runner profile")
-        for statement in script:
-            if statement.kind != "addColumn" or statement.table == "_sqlx_migrations":
-                raise Rejection("UNSUPPORTED", "SQLx payloads require plain ADD outside bookkeeping tables",
-                                source=statement.source, start=statement.start, end=statement.end)
+    validate_writes(schema, script)
     result, _ = transition(schema, script)
     start = ", ".join(table.lean() for table in schema)
     after = "startSchema" if result == schema else "[" + ", ".join(table.lean() for table in result) + "]"
@@ -135,4 +157,4 @@ def sql_inputs(schema: tuple[Table, ...], script: tuple[Statement, ...],
             f"def startSchema : Schema := [{start}]\n"
             f"def nextSchema : Schema := {after}\n"
             f"def script : List Statement := [{commands}]\n"
-            f"def profile : ExecutionProfile := {execution_profile.lean(migration_bytes)}\nend Generated\n")
+            f"def profile : ExecutionProfile := {execution_profile.lean()}\nend Generated\n")

@@ -22,10 +22,16 @@ def main() -> None:
         parser = ROOT / "build" / filename
         schema = starting_schema(parse(parser, BASELINE.encode(), "baseline.sql", version))
         script = statements(parse(parser, b'ALTER TABLE events ADD extra TEXT;', "migration.sql", version))
-        emissions.append(sql_inputs(schema, script))
-    assert emissions[0] == emissions[1], "Shared supported syntax has divergent structured meanings"
-    runner = ExecutionProfile('3.46.0', 20, b'new column', ())
-    runner_source = sql_inputs(schema, script, runner, b'ALTER TABLE events ADD extra TEXT;')
+        emissions.append(sql_inputs(schema, script, ExecutionProfile(version)))
+    assert emissions[0].replace(".sqlite351", ".sqlite346") == emissions[1], "Shared syntax changed meaning"
+    literal_schema = starting_schema(parse(parser,
+        b'CREATE TABLE ledger(version BIGINT PRIMARY KEY, label TEXT, stamp TIMESTAMP, ok BOOLEAN, data BLOB);',
+        'literal-schema.sql', version))
+    literal_script = statements(parse(parser,
+        b"BEGIN; INSERT INTO ledger(version,label,stamp,ok,data) "
+        b"VALUES(7,'shell','2026-09-25 00:00:00',1,X'00ff'); COMMIT; "
+        b"UPDATE ledger SET ok=-1 WHERE version=7;", 'literal-writes.sql', version))
+    literal_source = sql_inputs(literal_schema, literal_script, ExecutionProfile('3.46.0'))
     assertion = """
 open SqliteVerifier
 example : Generated.startSchema.all (fun t => supportedProperties t.columns t.properties) = true := by
@@ -42,10 +48,16 @@ example : (Generated.startSchema.lookup "events").bind (fun cs => cs.head?.map C
         result = subprocess.run(['lake', 'env', 'lean', str(source)], cwd=ROOT,
                                 capture_output=True, text=True, timeout=30)
         assert result.returncode == 0, result.stdout + result.stderr
-        source.write_text(runner_source + """
-example : (match Generated.profile with
-  | .sqlite346Sqlx config => config.migration.version == 20 && config.migration.checksum.length == 48
-  | _ => false) = true := by decide +kernel
+        source.write_text(literal_source + """
+example : Generated.profile = .sqlite346 := rfl
+example : Generated.script.length = 4 := by decide +kernel
+example : Generated.nextSchema = Generated.startSchema := rfl
+example : SqliteVerifier.SupportedSql Generated.startSchema Generated.script
+    Generated.startSchema.emptyDatabase := by constructor <;> decide +kernel
+example : (match SqliteVerifier.runSql Generated.script Generated.startSchema.emptyDatabase with
+    | .success database => (database "ledger").map (fun table =>
+        table.rows.map (fun row => (row.rowid, row.values[3]?))) = some [(1, some (.integer (-1)))]
+    | _ => False) := by rfl
 """)
         result = subprocess.run(['lake', 'env', 'lean', str(source)], cwd=ROOT,
                                 capture_output=True, text=True, timeout=30)

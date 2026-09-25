@@ -61,7 +61,7 @@ class TranslationTests(unittest.TestCase):
             'CREATE TABLE t(x TEXT); CREATE VIEW v AS SELECT * FROM t;',
             'CREATE TABLE t(x TEXT); CREATE INDEX i ON t(x);',
             'CREATE TABLE t(x TEXT); CREATE TRIGGER tr AFTER INSERT ON t BEGIN SELECT 1; END;',
-            'PRAGMA foreign_keys=ON;', 'BEGIN; CREATE TABLE t(x TEXT); COMMIT;',
+            'PRAGMA foreign_keys=ON;', 'BEGIN IMMEDIATE; CREATE TABLE t(x TEXT); COMMIT;',
             'EXPLAIN CREATE TABLE t(x TEXT);', 'SELECT 1;',
         ]
         for sql in cases:

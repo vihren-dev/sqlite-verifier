@@ -114,6 +114,7 @@ def commands(tree: Tree) -> list[Node]:
 
 def statements(tree: Tree) -> tuple[Statement, ...]:
     """Admit only the existing migration operations, independent of baseline richness."""
+    from .sql_dml import insert, transaction, update
     result: list[Statement] = []
     for command in commands(tree):
         symbols = [child.symbol for child in tree.children(command)]
@@ -121,6 +122,12 @@ def statements(tree: Tree) -> tuple[Statement, ...]:
             result.append(create(tree, command))
         elif symbols[:2] == ["ALTER", "TABLE"]:
             result.append(add(tree, command))
+        elif symbols and symbols[0] in {'BEGIN', 'COMMIT', 'END', 'ROLLBACK'}:
+            result.append(transaction(tree, command))
+        elif symbols[:2] == ['with', 'insert_cmd']:
+            result.append(insert(tree, command))
+        elif symbols[:2] == ['with', 'UPDATE']:
+            result.append(update(tree, command))
         else:
             raise tree.unsupported(command, "Statement semantics are not implemented")
     return tuple(result)
