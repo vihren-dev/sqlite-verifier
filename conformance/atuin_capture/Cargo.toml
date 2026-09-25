@@ -1,0 +1,12 @@
+[package]
+name = "atuin-sqlx-capture"
+version = "0.1.0"
+edition = "2024"
+publish = false
+
+# Exact versions from Atuin 5b10eb09c664d316b7384210399b02e6127f4027.
+[dependencies]
+sqlx = { version = "=0.9.0", default-features = false, features = ["sqlite", "migrate", "runtime-tokio", "regexp", "time", "uuid"] }
+libsqlite3-sys = { version = "=0.30.1", features = ["bundled"] }
+tokio = { version = "=1.52.3", features = ["macros", "rt-multi-thread"] }
+serde_json = "=1.0.151"

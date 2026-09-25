@@ -59,3 +59,25 @@ label immediately, so a subsequent timeout identifies its stage. Assertions
 and per-process limits remain unchanged. The original suite passes locally;
 the integration engineer independently accepted the aggregate-budget adjustment
 and reviewed the capture-shell definition. Hosted confirmation remains pending.
+
+## Real runner capture checkpoint
+
+Conformance implemented `conformance/atuin_capture`; repeat commands are in
+`docs/atuin-capture.md`. Actual SQLx 0.9.0 executes the preceding six migrations
+and unchanged shell migration. All 162 resolved registry dependencies match
+upstream lock identities. Native SQLite 3.46.0 source96c92aba, compile options
+and effective PRAGMAs are captured; no different engine was substituted.
+
+Each complete schema inventory contains eight objects: history and bookkeeping
+tables, three explicit indexes and three constraint indexes. Metadata contains
+six/seven successful SHA-384-bound migration rows. JSON retains implicit-index
+NULL SQL entries; DDL recreates them via constraints. The actual SQLx harness is
+explicitly distinguished from the complete Atuin executable and its background
+WAL housekeeping. Original SQL and upstream license are retained.
+
+Nix capture build passed in 21.10s; repeat native regression passed in 0.024s
+under a 40s timeout. It checks complete schemas, dependency/migration hashes,
+metadata checksums/success and refusal to overwrite an existing database.
+Independent source/evidence review was requested from the technical lead.
+Runner failure/adversarial tests remain subsequent work. No model extension,
+invocation certificate, owner acceptance or DONE is claimed.
