@@ -50,3 +50,11 @@ was explicitly cancelled in favor of this full package run at the same revision.
 Documentation-only preparation for v0.1.0 now records those results. Runtime
 code remains exactly the checked e8502876 implementation. The next gate is the
 version-tag workflow and verification of its published native assets/checksums.
+
+Tag v0.1.0 at8fb4f2d3 did not pass its macOS release check: the forged-kernel-body
+fixture exceeded the checker process's30-second harness deadline. The successful
+earlier run remains valid evidence but cannot override this failed publication
+gate. Its tag is preserved. The owner requested CI performance work from the
+timing report while that run was active; see
+[CI performance status](20260925-ci-performance.status.md). The next immutable
+release tag will be v0.1.1 after the fixes pass both hosted platforms.

@@ -9,7 +9,6 @@ from tempfile import TemporaryDirectory
 from collections.abc import Sequence
 
 from .diagnostics import Rejection
-from .baseline import check_baseline
 from .runtime import Runtime
 from .profiles import profile
 from .sandbox import SandboxUnavailable, run_sandboxed
@@ -61,6 +60,7 @@ def verify(options: argparse.Namespace) -> dict[str, object]:
         raise Rejection("INPUT_ERROR", "Migration must contain at least one statement", source=str(options.migration))
     from .compile import CompileError, EXPECTED_SOURCE, compile_project
 
+    schema_hash = hashlib.sha256(schema_bytes).hexdigest()
     starting = schema_inputs(schema)
     generated = sql_inputs(schema, script, selected)
     if options.artifacts is not None:
@@ -74,15 +74,14 @@ def verify(options: argparse.Namespace) -> dict[str, object]:
             compiled = compile_project(
                 sysroot=runtime.sysroot, library=runtime.library, requirements=options.requirements,
                 interpretation=options.interpretation, next_interpretation=options.next_interpretation,
-                proofs=options.proofs, schema_inputs=starting, sql_inputs=generated, workspace=workspace)
+                proofs=options.proofs, schema_inputs=starting, sql_inputs=generated, workspace=workspace,
+                approved_baseline=options.approved_baseline, schema_hash=schema_hash)
         except CompileError as error:
             raise Rejection("UNVERIFIED", str(error)) from error
         hashes = dict(compiled.hashes)
-        hashes.update({"schema.sql": hashlib.sha256(schema_bytes).hexdigest(),
+        hashes.update({"schema.sql": schema_hash,
                        "migration.sql": hashlib.sha256(migration_bytes).hexdigest(),
                        "profile": selected.engine})
-        if options.approved_baseline is not None:
-            check_baseline(options.approved_baseline, hashes)
         if options.artifacts is not None:
             (options.artifacts / "inputs.json").write_text(json.dumps(hashes, indent=2) + "\n", encoding="utf-8")
         output = workspace / "gate-output"

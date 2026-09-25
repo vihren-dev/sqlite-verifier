@@ -13,8 +13,10 @@ CHECKER = ROOT / ".lake/build/bin/migration-proof-checker"
 
 def run(arguments: list[str], directory: Path, environment: dict[str, str]) -> subprocess.CompletedProcess[str]:
     """Bound compiler and checker processes and capture diagnostics for failed assertions."""
+    # Hosted replay of forged declarations can exceed 30s; production limits stay unchanged.
+    deadline = 60 if arguments[0] == str(CHECKER) else 30
     return subprocess.run(arguments, cwd=directory, env=environment,
-                          capture_output=True, text=True, timeout=30)
+                          capture_output=True, text=True, timeout=deadline)
 
 
 def compile_module(directory: Path, module: str, source: str, environment: dict[str, str]) -> None:

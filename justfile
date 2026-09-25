@@ -30,9 +30,9 @@ test: smoke coverage
     timeout 30 python3 tests/parser_build_test.py --native-reuse
     timeout 15 python3 tests/docs_test.py
     timeout 75 python3 tests/schema_generation_test.py
-    timeout 360 python3 tests/kernel_gate_test.py
+    python3 tools/run_independent_suites.py
     timeout 180 python3 -m tests.compilation_test
-    timeout 600 python3 tests/cli_test.py
+    timeout 180 python3 -m tests.early_baseline_test
     timeout 1500 python3 tests/atuin_cli_test.py
     timeout 15 python3 tests/coverage_test.py
     timeout 30 python3 -m unittest discover -s tests -p 'test_*.py'

@@ -9,10 +9,15 @@ requirements. The approved library and verifier implementation are separate
 trusted code and require their own review.
 
 Pass the appropriate protected file to `migration-check verify
---approved-baseline PATH`. The driver compares the complete compiled approved
-source closure, including added, removed and changed dependencies, before accepting
-a proof. An optional `schema.sql` SHA-256 entry also pins the exact authored
-starting SQL bytes. The Atuin example uses that entry to bind its interpretation
+--approved-baseline PATH`. The driver compares the complete snapshotted approved
+source closure, including added, removed and changed dependencies, before compiling
+any modules. Comparison uses the exact sealed source bytes that compilation consumes, including transitive
+helpers; original files are not reread for compilation. A mismatch returns
+`INPUT_ERROR` before any later Lean elaboration error (`UNVERIFIED`). Import-header
+discovery still precedes comparison, so invalid or missing dependencies can fail
+first. Matching baselines still require full compilation and the independent kernel
+gate; omitting the baseline skips only this optional approval check. An optional
+`schema.sql` SHA-256 entry also pins the exact authored starting SQL bytes. The Atuin example uses that entry to bind its interpretation
 to its schema without maintaining a second schema declaration in Lean. Baselines
 without this entry continue to protect reusable requirements across supplied
 schemas. An `--artifacts` `inputs.json` export is inspectable evidence, not an

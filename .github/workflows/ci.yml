@@ -45,6 +45,12 @@ jobs:
         with:
           enable_kvm: false
           set_as_trusted_user: false
+      - name: Restore pinned Nix dependencies
+        if: steps.scope.outputs.scope != 'docs'
+        uses: nix-community/cache-nix-action@7df957e333c1e5da7721f60227dbba6d06080569 # v7
+        with:
+          primary-key: nix-v1-${{ matrix.system }}-${{ hashFiles('nix/flake.nix', 'nix/flake.lock') }}
+          save: ${{ github.ref == 'refs/heads/main' && github.event_name != 'pull_request' }}
       - name: Run checks in one pinned environment
         if: steps.scope.outputs.scope != 'docs'
         env:
@@ -90,6 +96,14 @@ jobs:
         with:
           name: coverage-${{ matrix.system }}
           path: build/coverage.json
+          if-no-files-found: warn
+          retention-days: 14
+      - name: Retain independent suite diagnostics
+        if: always() && steps.scope.outputs.scope != 'docs'
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: test-logs-${{ matrix.system }}
+          path: build/test-logs/*.log
           if-no-files-found: warn
           retention-days: 14
       - name: Retain development source snapshot

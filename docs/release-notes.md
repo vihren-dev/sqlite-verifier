@@ -1,6 +1,13 @@
-# v0.1.0 — Verified SQLite schema extensions
+# v0.1.1 — Verified SQLite schema extensions
 
 Initial stable release of the owner-accepted Step 1 product.
+
+Protected baseline mismatches reject before module compilation using the exact
+sealed source closure. Matching inputs still undergo complete compilation and
+independent kernel verification. CI overlaps two independent suites, reuses pinned
+Nix dependencies and exposes package timings while retaining all installed tests.
+The earlier v0.1.0 tag did not publish because a hosted test checker exceeded its
+deadline; v0.1.1 retains every adversarial case with bounded test-only headroom.
 
 The offline CLI checks exact SQL and Lean inputs for supported ordinary table
 creation and restricted nullable-column additions. Profiles pin SQLite 3.51.0 or
@@ -19,13 +26,13 @@ Synthetic examples additionally demonstrate reusable schema requirements,
 checked negative theorems and explicit permitted-failure contracts.
 
 The owner accepted Step 1's current state on 2026-09-25. The
-[acceptance review](https://github.com/vihren-dev/sqlite-verifier/blob/v0.1.0/docs/atuin-pilot-review.md) separates human business-model guidance
+[acceptance review](https://github.com/vihren-dev/sqlite-verifier/blob/v0.1.1/docs/atuin-pilot-review.md) separates human business-model guidance
 and approval from agent-executed checks. Human effort comparisons remain
 unmeasured; no productivity improvement is claimed.
 
 Native archives target Apple Silicon macOS and x86_64 Linux, with a pinned Lean
 runtime and offline Nix cache. Nix is an installation prerequisite; follow the
-archive README and [installation guide](https://github.com/vihren-dev/sqlite-verifier/blob/v0.1.0/docs/install.md). Publication requires both
+archive README and [installation guide](https://github.com/vihren-dev/sqlite-verifier/blob/v0.1.1/docs/install.md). Publication requires both
 platform checks and extracted-installation tests. See the
-[semantic subset](https://github.com/vihren-dev/sqlite-verifier/blob/v0.1.0/docs/semantic-subset.md), [execution profile](https://github.com/vihren-dev/sqlite-verifier/blob/v0.1.0/docs/execution-profile.md)
-and [trust boundary](https://github.com/vihren-dev/sqlite-verifier/blob/v0.1.0/docs/trust-boundary.md) for the precise supported scope.
+[semantic subset](https://github.com/vihren-dev/sqlite-verifier/blob/v0.1.1/docs/semantic-subset.md), [execution profile](https://github.com/vihren-dev/sqlite-verifier/blob/v0.1.1/docs/execution-profile.md)
+and [trust boundary](https://github.com/vihren-dev/sqlite-verifier/blob/v0.1.1/docs/trust-boundary.md) for the precise supported scope.

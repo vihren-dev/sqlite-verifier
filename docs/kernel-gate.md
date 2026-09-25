@@ -57,7 +57,9 @@ argument is not reported as a native counterexample.
 
 Run `python3 tests/kernel_gate_test.py` after building the formal library and
 checker. `KERNEL_GATE_LIBRARY` can select an immutable library build for component
-testing. Compiler/checker subprocesses have 30-second limits. Tests include an
+testing. Fixture compilers have 30-second limits; test checker processes have
+60 seconds for hosted replay of adversarial declarations. Production CLI checker
+limits are unchanged. Tests include an
 actual empty-script model proof, wrong and unfinished proofs, transitive axioms,
 protected declaration substitutions, unsafe proofs, a forged kernel body, a
 forged expected alias, a proof against a different sealed SQLite profile,

@@ -5,6 +5,7 @@ import hashlib
 from pathlib import Path
 from tempfile import TemporaryDirectory
 
+from .baseline import check_baseline
 from .source_closure import CompileError, Source, discover_sources, lean_process, module_path, file_identity
 
 EXPECTED_SOURCE = """import Requirements
@@ -76,8 +77,9 @@ def compile_modules(*, order: tuple[str, ...], sources: Path, destination: Path,
 
 def compile_project(*, sysroot: Path, library: Path, requirements: Path,
                     interpretation: Path, next_interpretation: Path, proofs: Path,
-                    schema_inputs: str, sql_inputs: str, workspace: Path) -> CompiledProject:
-    """Compile source-only dependency closures, keeping candidate code out of approved stages."""
+                    schema_inputs: str, sql_inputs: str, workspace: Path,
+                    approved_baseline: Path | None = None, schema_hash: str | None = None) -> CompiledProject:
+    """Check optional approval against sealed closures before isolated source compilation."""
     sysroot, library, workspace = (path.resolve(strict=True) for path in (sysroot, library, workspace))
     if not all(path.is_dir() for path in (sysroot, library, workspace)):
         raise ValueError("Toolchain, library and workspace must be directories")
@@ -124,6 +126,14 @@ def compile_project(*, sysroot: Path, library: Path, requirements: Path,
         roots=tuple(dict.fromkeys(path.parent for path in selected.values())), excluded=set(),
         forbidden={"SchemaInputs", "SqlInputs"}, available=set(approved) | {"SchemaInputs", "SqlInputs"}, directory=candidate_sources,
         sysroot=sysroot, library=library, workspace=workspace)
+    hashes = {f"{stage}/{module_path(name)}.lean": hashlib.sha256(source.contents).hexdigest()
+              for stage, collection in (("approved", approved), ("candidate", proposed))
+              for name, source in collection.items()}
+    hashes["generated/SchemaInputs.lean"] = hashlib.sha256(schema_inputs.encode()).hexdigest()
+    hashes["generated/SqlInputs.lean"] = hashlib.sha256(sql_inputs.encode()).hexdigest()
+    if approved_baseline is not None:
+        protected_hashes = {**hashes, **({"schema.sql": schema_hash} if schema_hash is not None else {})}
+        check_baseline(approved_baseline, protected_hashes)
     # Starting schema has no access to approved or candidate sources/artifacts.
     (sql_sources / "SchemaInputs.lean").write_text(schema_inputs, encoding="utf-8")
     schema_output = workspace / "schema-output"
@@ -143,9 +153,4 @@ def compile_project(*, sysroot: Path, library: Path, requirements: Path,
             (trusted / artifact.name).chmod(0o444)
     diagnostics += compile_modules(order=proposed_order, sources=candidate_sources,
         destination=candidate, previous=(trusted,), sysroot=sysroot, library=library, workspace=workspace)
-    hashes = {f"{stage}/{module_path(name)}.lean": hashlib.sha256(source.contents).hexdigest()
-              for stage, collection in (("approved", approved), ("candidate", proposed))
-              for name, source in collection.items()}
-    hashes["generated/SchemaInputs.lean"] = hashlib.sha256(schema_inputs.encode()).hexdigest()
-    hashes["generated/SqlInputs.lean"] = hashlib.sha256(sql_inputs.encode()).hexdigest()
     return CompiledProject(trusted, candidate, hashes, tuple(text for text in diagnostics if text))

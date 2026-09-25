@@ -19,6 +19,23 @@ shared recipes extends CI. Superseded ordinary runs on the same ref are cancelle
 tags and manual runs have unique concurrency groups and are never auto-cancelled.
 Jobs have a 30-minute timeout; individual tests keep their own shorter limits.
 
+After shared build and coverage prerequisites, kernel-gate and ordinary CLI suites
+run with two workers. Each keeps its own deadline (360 and 600 seconds), private
+test directories and complete log under `build/test-logs/`. Both children are
+awaited; either failure fails CI. Other suites remain sequential. Logs are retained
+on failure as well as success. Runtime packaging reports copying, Nix export,
+signature verification and compression times; installed Atuin output streams live.
+
+The pinned [cache-nix-action v7](https://github.com/nix-community/cache-nix-action/tree/7df957e333c1e5da7721f60227dbba6d06080569)
+reuses the Nix store with an exact platform and `nix/flake.nix`/`nix/flake.lock`
+hash key. Only successful `main` jobs save caches; pull requests and tags only
+restore. No prefix fallback, extra cached directories, cache purging, garbage
+collection or additional token permissions are enabled. Repository build outputs,
+Lean proof artifacts and verification results are outside the cache; every run
+rebuilds and checks them. A miss uses the ordinary pinned Nix build. Hosted cold
+and warm package runs must establish whether restoration and saving pay for
+themselves; the timing report records measured results rather than assuming a gain.
+
 The matrix follows GitHub's documented native runner architectures:
 `ubuntu-22.04` is x64 (`x86_64-linux`), and `macos-14` is Apple Silicon
 (`aarch64-darwin`). Each job also checks Nix's actual host system before building.
@@ -64,8 +81,8 @@ From the primary checkout, after reviewed `main` CI is green and release notes
 are current, create a fresh release tag and transport it (use a hyphenated version for a prerelease):
 
 ```sh
-jj tag set v0.1.0 -r main
-git push origin refs/tags/v0.1.0
+jj tag set v0.1.1 -r main
+git push origin refs/tags/v0.1.1
 ```
 
 The installed Jujutsu supports tag creation, but its push command transports

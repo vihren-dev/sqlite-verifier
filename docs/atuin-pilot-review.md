@@ -3,7 +3,7 @@
 Accepted by product owner Tzanko Matev on 2026-09-25: “As far as I am concerned,
 I approve the current state.” This closes Step 1 product acceptance. Hosted full package checks now pass on both platforms in
 [run36138251243](https://github.com/vihren-dev/sqlite-verifier/actions/runs/36138251243).
-Publication of v0.1.0 remains the final release gate, tracked in
+Publication of v0.1.1 remains the final release gate, tracked in
 [the release task](../plans/20260925-step1-release.task.md).
 
 ## Case study and accepted guarantee

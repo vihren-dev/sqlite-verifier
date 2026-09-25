@@ -9,6 +9,7 @@ import shutil
 import sys
 import tarfile
 from tempfile import TemporaryDirectory
+from time import monotonic
 
 from runtime_dependencies import lean_runtime_files, native_dependencies, run, runtime_file, store_path
 
@@ -64,6 +65,7 @@ def build() -> Path:
     dist.mkdir(exist_ok=True)
     archive = dist / f"sqlite-verifier-{system}.tar.gz"
     with TemporaryDirectory(prefix="runtime-bundle-") as temporary:
+        started = monotonic()
         bundle = Path(temporary) / f"sqlite-verifier-{system}"
         payload = bundle / "payload"
         payload.mkdir(parents=True)
@@ -108,12 +110,19 @@ raise SystemExit(main(sys.argv[1:]))
         (payload / "native-dependencies.txt").write_text(loader_report)
         (payload / "lean/nix-runtime-roots").write_text(
             "".join(str(path) + "\n" for path in sorted(loader_roots)))
+        print(f"Runtime payload copying: {monotonic() - started:.2f}s", flush=True)
+        started = monotonic()
         run(["nix", "--extra-experimental-features", "nix-command", "--offline", "copy",
              "--to", (bundle / "nix-cache").as_uri(), *map(str, sorted(roots))], timeout=300)
+        print(f"Runtime Nix export: {monotonic() - started:.2f}s", flush=True)
+        started = monotonic()
         run(["nix", "--extra-experimental-features", "nix-command", "--offline", "store", "verify",
              "--store", (bundle / "nix-cache").as_uri(), "--all", "--sigs-needed", "1"], timeout=300)
+        print(f"Runtime signature verification: {monotonic() - started:.2f}s", flush=True)
+        started = monotonic()
         with tarfile.open(archive, "w:gz", compresslevel=1) as output:
             output.add(bundle, arcname=bundle.name)
+        print(f"Runtime archive compression: {monotonic() - started:.2f}s", flush=True)
     if archive.stat().st_size >= 2_000_000_000:
         raise ValueError("Archive exceeds the release asset size limit")
     with archive.open("rb") as stream:
