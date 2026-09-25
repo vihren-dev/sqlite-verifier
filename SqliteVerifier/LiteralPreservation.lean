@@ -84,4 +84,41 @@ theorem LiteralData.uniqueRows_append (unique : uniqueRows table key rows = true
     rw [unique.1, ih unique.2 (fun item member => fresh item (List.mem_cons_of_mem row member))]
     rfl
 
+/-- Key equality depends on declared columns, never on unrelated rows in the table. -/
+theorem LiteralData.uniqueRows_columns (columns : before.columns = after.columns) :
+    uniqueRows before key rows = uniqueRows after key rows := by
+  have same : keyEqual before key = keyEqual after key := by
+    funext first second
+    simp [keyEqual, read, columns]
+  induction rows with
+  | nil => rfl
+  | cons row rest ih => simp [uniqueRows, same, ih]
+
+/-- An INSERT preserves ABORT constraints when its non-NULL and fresh-key checks hold. -/
+theorem LiteralData.inserted_constraints (old : constraints table = true)
+    (nonnull : (table.columns.zip values).all (fun (column, value) =>
+      !column.notNull || value != .null) = true)
+    (fresh : ∀ key ∈ table.properties.keys, ∀ row ∈ table.rows,
+      keyEqual table key row { rowid := nextRowid table.rows, values := values } = false) :
+    constraints (inserted table values) = true := by
+  simp only [constraints, Bool.and_eq_true] at old ⊢
+  constructor
+  · simpa [inserted, List.all_append, nonnull] using old.1
+  · apply List.all_eq_true.mpr
+    intro key member
+    change uniqueRows (inserted table values) key
+      (table.rows ++ [{ rowid := nextRowid table.rows, values := values }]) = true
+    rw [uniqueRows_columns (show (inserted table values).columns = table.columns from rfl)]
+    exact uniqueRows_append (List.all_eq_true.mp old.2 key member) (fresh key member)
+
+/-- New integer/NULL keys retain the comparison domain independently of other new fields. -/
+theorem LiteralData.inserted_comparison (old : comparisonReady table key = true)
+    (cell : (read table { rowid := nextRowid table.rows, values := values } key).any integerOrNull = true) :
+    comparisonReady (inserted table values) key = true := by
+  simp only [comparisonReady, Bool.and_eq_true] at old ⊢
+  refine ⟨old.1, ?_⟩
+  change (table.rows ++ [(⟨nextRowid table.rows, values⟩ : Row)]).all
+    (fun row => (read table row key).any integerOrNull) = true
+  simp [List.all_append, old.2, cell]
+
 end SqliteVerifier

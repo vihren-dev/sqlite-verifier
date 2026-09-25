@@ -26,3 +26,8 @@ constant-unknown result reader cannot mask incorrect initialization. All SQL
 effects, including INSERT/COMMIT/UPDATE, are supplied explicitly. Arbitrary old
 history remains admitted; rowid allocation restrictions concern the metadata
 table. No revised example proof or full aggregate success is claimed yet.
+
+Added checked reusable INSERT lemmas for comparison-domain preservation and actual
+ABORT constraints, parameterized by old validity and each new unique-key check.
+The complete 22-job library build passes. These support the example proof over
+arbitrary prior metadata; they do not infer native behavior for unsupported DML.
