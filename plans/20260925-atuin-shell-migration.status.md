@@ -175,3 +175,34 @@ fresh complete capture alongside runner receipts. Formal/profile integration
 remains active in separate workspaces.
 The merged shared native entry point passed both suites in 0.227s after a
 2.22-second incremental build; workflow actionlint/shellcheck passed again.
+Published the lead-approved integration at `e094a5ffa770`; hosted runs
+`36107075735` and `36105736197` passed on both platforms, including complete
+native capture, adversarial outcomes and installed packaging smoke. The merged
+formal runner and payload comparison pass a 21-job Lean/checker build, both
+parser/schema checks, eight native runner checks and three payload model cases
+plus false-expectation rejection (8.688s). `just check` now includes these bounded
+Atuin checks; CI retains their JSON and generated Lean evidence. The shared
+native command selects the pinned capture shell internally. Workflow lint passed.
+Parser/coverage documentation distinguishes the two independently pinned grammars
+and their evidence scopes; complete runner/model comparison remains pending.
+Prepared a draft owner review packet at `docs/atuin-pilot-review.md`, describing
+protected fields, explicit readiness, committed-error behavior and statistics
+scope. Its engineering results, human effort and acceptance remain visibly
+pending until the actual proof bundle and pilot review are complete.
+
+Integrated independently reviewed CLI `a3e57f08`: selected engine grammar, exact
+SQL checksum and profile snapshot bind the verdict. Its full legacy/negative
+CLI, kernel-gate and generated-schema checks passed; the merged fast profile and
+schema tests also passed. Actual Atuin positive verification remains pending.
+
+## Complete finite runner correspondence
+
+The separate full-runner evidence unit now includes real normal success and a
+clearly labeled authorizer-instrumented post-COMMIT timing failure. Complete
+metadata rows (physical rowids1–6 then1–7) and statistics rows participate in
+kernel-checked readiness/conformance/ProfileExecutes; no empty metadata
+abstraction remains in this unit. The wrong inserted-version negative fails as
+expected, and exact named theorem/allowed-axiom audits pass. The payload-only
+three-case denominator remains separate. Ultra independently reproduced the
+full-trace test in15.553s and accepted its source. Details and limits are in
+`docs/atuin-runner-conformance.md` and the dated runner-conformance status.

@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import json
+import hashlib
 from pathlib import Path
 import subprocess
 import sys
@@ -24,6 +25,11 @@ CAPTURE = ROOT / "conformance/atuin_capture"
 def run() -> list[dict[str, object]]:
     """Every metadata and statistics row participates in the complete concrete relation."""
     parser = ROOT / "build/sqlite-parser-3.46.0"
+    provenance = json.loads((CAPTURE / "provenance.json").read_text())
+    assert {path.name for path in (CAPTURE / "migrations").iterdir()} == set(provenance["migration_sha256"])
+    assert len(provenance["migration_sha256"]) == 7
+    for name, expected in provenance["migration_sha256"].items():
+        assert hashlib.sha256((CAPTURE / "migrations" / name).read_bytes()).hexdigest() == expected, name
     baseline = json.loads((CAPTURE / "capture.json").read_text())
     before = starting_schema(parse(parser, (CAPTURE / "before.sql").read_bytes(), "before.sql", "3.46.0"))
     after = starting_schema(parse(parser, (CAPTURE / "after.sql").read_bytes(), "after.sql", "3.46.0"))
@@ -69,10 +75,18 @@ def run() -> list[dict[str, object]]:
         if checked.returncode:
             raise AssertionError((scenario, checked.stdout, checked.stderr))
         axioms = audit_axioms(checked.stdout, {"checkedTrace", "checkedReady", "before_conforms"})
+        assert len(native["before"]["metadata"]) == 6 and len(native["post_close"]["metadata"]) == 7
         reports.append({"case":scenario,"model_status":"KERNEL_CHECKED_PROFILE_EXECUTES",
             "scope":"complete captured tables, physical rows, metadata and statistics",
             "native_configuration":"unmodified runner" if scenario=="success" else "authorizer-fault-instrumented",
-            "unmodified_profile_failure_claim":False,"schema_objects":10,"axioms":axioms})
+            "unmodified_profile_failure_claim":False,"schema_objects":10,"axioms":axioms,
+            "metadata_rowids": {stage:[row["rowid"] for row in native[stage]["metadata"]]
+                                for stage in ("before", "post_close")},
+            "statistics_rows": {stage:{name:len(rows) for name,rows in native[stage]["statistics"].items()}
+                                for stage in ("before", "post_close")},
+            "native_trace_sha256":hashlib.sha256(result.stdout.encode()).hexdigest(),
+            "proof_sha256":hashlib.sha256(proof.read_bytes()).hexdigest(),
+            "target_sql_sha256":hashlib.sha256(sql).hexdigest()})
     return reports
 
 

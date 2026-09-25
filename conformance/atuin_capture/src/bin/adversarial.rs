@@ -76,8 +76,8 @@ async fn main() -> Result<(), Box<dyn Error>> {
     let before = snapshot(&mut conn).await?;
     let old_history = history(&mut conn).await?;
     let outcome = migrator.run(&mut *conn).await;
-    // Successful cache clearing is observed; no fictitious cache-failure injection.
-    conn.clear_cached_statements().await?;
+    // Match Atuin's early error return: clear caches only after a successful run.
+    if outcome.is_ok() { conn.clear_cached_statements().await?; }
     let after = snapshot(&mut conn).await?;
     let new_history = history(&mut conn).await?;
     let has_shell: i64 = sqlx::query_scalar("SELECT count(*) FROM pragma_table_info('history') WHERE name='shell'")

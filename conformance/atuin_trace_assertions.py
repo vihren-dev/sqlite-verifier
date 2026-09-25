@@ -29,7 +29,9 @@ theorem {prefix}_conforms : Conforms {schema} {prefix} := by
   intro name
 {cases(body)}
   simp [{prefix}, Schema.lookup, Schema.lookupProperties, {schema}, List.find?,
-    h0, h1, h2, h3, Ne.symm h0, Ne.symm h1, Ne.symm h2, Ne.symm h3]
+    h0, h1, h2, h3, beq_eq_false_iff_ne.mpr (Ne.symm h0),
+    beq_eq_false_iff_ne.mpr (Ne.symm h1), beq_eq_false_iff_ne.mpr (Ne.symm h2),
+    beq_eq_false_iff_ne.mpr (Ne.symm h3)]
 """
 
 
@@ -89,8 +91,14 @@ theorem checkedMaintenance : RowsChange statisticsNames recorded after := by
 theorem checkedTrace : ProfileExecutes Generated.profile Generated.script before
     (completion.outcome Generated.script.length after) := by
   apply ProfileExecutes.committed (completion := completion) (payload := payload)
-  · change Outcome.success (before.set "history" (beforeHistory.appendColumns
-      [{{ name := "shell", affinity := .text }}])) = Outcome.success payload
+  · have valid : (supportedTableName "history" && supportedColumn
+        {{ name := "shell", affinity := .text }} &&
+        Column.plain {{ name := "shell", affinity := .text }}) = true := by decide +kernel
+    have lookup : before "history" = some beforeHistory := rfl
+    have room : ¬beforeHistory.columns.length ≥ maximumColumns := by decide +kernel
+    have fresh : beforeHistory.columns.any (fun c => c.name == "shell") = false := by decide +kernel
+    simp only [run, runFrom, Generated.script, step, valid, lookup, room, fresh,
+      Bool.not_true, Bool.false_eq_true, if_false]
     apply congrArg Outcome.success
     funext name
     by_cases same : name = "history"

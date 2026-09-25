@@ -1,6 +1,5 @@
 """Build the pinned upstream tokenizer and syntax-only Lemon parser."""
 
-import os
 import hashlib
 import json
 import re
@@ -8,6 +7,7 @@ import subprocess
 from pathlib import Path
 
 from generate import generate
+from build_cache import current, identity, record
 
 ROOT = Path(__file__).resolve().parent.parent
 
@@ -27,7 +27,15 @@ def build(version: str, source: str, executable: str) -> None:
     for filename, expected in hashes.items():
         if hashlib.sha256((upstream / filename).read_bytes()).hexdigest() != expected:
             raise ValueError(f"Pinned upstream file changed: {filename}")
-    cc = os.environ.get("CC", "cc")
+    cc, inputs, reusable = identity(ROOT, upstream, version, executable)
+    outputs = [directory / name for name in (
+        "lemon", "parse.c", "parse.h", "syntax.y", "syntax.c", "syntax.h",
+        "token_names.inc", "token_map.inc", "tokenizer.o", "syntax.o", "main.o")]
+    outputs.append(ROOT / "build" / executable)
+    stamp = directory / "build-state.json"
+    if reusable and current(stamp, inputs, outputs):
+        return
+    stamp.unlink(missing_ok=True)
     lemon = str(directory / "lemon")
     run([cc, str(upstream / "lemon.c"), "-o", lemon])
     original = str(upstream / "parse.y")
@@ -48,6 +56,10 @@ def build(version: str, source: str, executable: str) -> None:
              "-o", str(directory / (filename + ".o"))])
     run([cc, *(str(directory / (name + ".o")) for name in ["tokenizer", "syntax", "main"]),
          "-lm", "-lpthread", "-ldl", "-o", str(ROOT / "build" / executable)])
+    if identity(ROOT, upstream, version, executable)[1] != inputs:
+        raise RuntimeError("Parser inputs changed during compilation; retry the build")
+    if reusable:
+        record(stamp, inputs, outputs)
 
 
 if __name__ == "__main__":

@@ -11,16 +11,20 @@ rustc 1.98.0. `provenance.json` records source and migration hashes.
 Run from the repository root:
 
 ```sh
-nix develop .#capture
+python3 tools/check_resources.py
+nix develop path:./nix#capture
 export CARGO_HOME="$PWD/build/atuin-cargo-home"
 export CARGO_TARGET_DIR="$PWD/build/atuin-cargo-target"
 timeout 600 cargo build --locked --manifest-path conformance/atuin_capture/Cargo.toml
 timeout 40 python3 tests/atuin_capture_test.py
 ```
 
-The shared CI entry point is `nix develop .#capture --command just atuin-native`.
-It builds the locked harness and runs both capture and adversarial checks with
-bounded timeouts. Each native platform retains its regenerated runner receipts.
+The shared entry point inside that shell is `just atuin-native`. For one batch,
+use `nix develop path:./nix#capture --command just atuin-native` after the resource
+preflight. There is no nested environment entry. The recipe requires the capture
+shell for the locked Rust build, then runs both native suites with
+bounded timeouts. `just check` and CI run it before the native/model comparisons;
+each platform retains its regenerated capture and runner receipts.
 
 For a new raw capture, supply a nonexistent database path and the migration
 directory to `build/atuin-cargo-target/debug/atuin-sqlx-capture`. The runner first
