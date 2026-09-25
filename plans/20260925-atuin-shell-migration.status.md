@@ -62,3 +62,16 @@ and reviewed the capture-shell definition. Hosted confirmation remains pending.
 The test-harness-only follow-up now applies the reviewed 360-second aggregate
 budget and immediate case labels. Python compilation succeeds; all proof checks
 and individual child-process timeouts are preserved.
+
+The lead accepted all three planning/tooling/harness checkpoints and main was
+advanced to `e331c3a68170`. Hosted run `36105736197` is in progress.
+The real SQLx capture has now passed in the conformance workspace; its review
+and integration remain pending. Root is adding separately pinned SQLite 3.46.0
+grammar/tokenizer sources and an independently named native CLI, while retaining
+3.51.0. The downloaded 3.46.0 amalgamation's SHA3-256 matches the official release
+log; each incorporated upstream file and both archives have recorded SHA-256s.
+Both parsers now build and pass the same 20 grammar-family scripts, lexical,
+input-limit and UTF-8 byte-span checks. A RAISE-expression test additionally
+distinguishes the actual pre-3.47 grammar from 3.51.0. Native CLI version/source-id
+checks pass for both releases. Runtime packaging and loader-root collection now
+include both parsers; installed archive confirmation remains pending.
