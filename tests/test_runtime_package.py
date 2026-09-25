@@ -16,6 +16,26 @@ ROOT = Path(__file__).resolve().parents[1]
 class InstalledRuntimeTests(unittest.TestCase):
     """A trusted installation still rejects overbroad roots and preserves another installer's files."""
 
+    def test_deleted_modules_are_not_packaged(self) -> None:
+        """A stale compiled module must stay out of the archive after source deletion."""
+        sys.path.insert(0, str(ROOT / "packaging"))
+        from build_runtime import copy_runtime, project_runtime_files
+        with TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            (root / "SqliteVerifier").mkdir()
+            (root / "SqliteVerifier/Current.lean").write_text("-- current source\n")
+            library = root / ".lake/build/lib/lean"
+            (library / "SqliteVerifier").mkdir(parents=True)
+            for name in ("Current.olean", "Current.olean.private", "Current.ir", "Removed.olean"):
+                (library / "SqliteVerifier" / name).write_text("fixture")
+            destination = root / "packaged"
+            copy_runtime(library, destination, project_runtime_files(root))
+            self.assertEqual(sorted(path.name for path in destination.rglob("*") if path.is_file()),
+                             ["Current.ir", "Current.olean", "Current.olean.private"])
+            (root / "SqliteVerifier/Unbuilt.lean").write_text("-- not built\n")
+            with self.assertRaisesRegex(ValueError, "not been built"):
+                project_runtime_files(root)
+
     def test_installer_cache_uri(self) -> None:
         """Extraction directories with spaces, Unicode and URI delimiters remain literal paths."""
         with TemporaryDirectory(prefix="installer URI % # ü ") as temporary:

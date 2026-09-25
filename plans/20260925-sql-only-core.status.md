@@ -36,3 +36,10 @@ Open-transaction outcomes distinguish persisted and visible storage. Old additiv
 proof conveniences require a syntax guard before entering the generic semantics.
 The semantic-subset document records those restrictions. Markdown checks pass;
 Lean and example proof validation remain in progress in the formal workspace.
+
+Packaging cleanup: Lake retains compiled files when their source modules are
+deleted. The runtime archive now selects artifacts from the current project
+source-module inventory and rejects an unbuilt current module. A regression
+checks that an obsolete .olean is excluded while current kernel-private and IR
+files are retained. Six packaging/resource regressions pass in the pinned shell.
+This does not delete unrelated build outputs or caches.

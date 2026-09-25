@@ -26,6 +26,21 @@ def copy_runtime(source: Path, destination: Path, files: Iterable[Path] | None =
             shutil.copy2(path, target)
 
 
+def project_runtime_files(root: Path) -> list[Path]:
+    """Do not ship Lake artifacts left behind after a project module is deleted."""
+    library = root / ".lake/build/lib/lean"
+    files: list[Path] = []
+    for source in [*root.glob("*.lean"), *(root / "SqliteVerifier").rglob("*.lean")]:
+        module = library / source.relative_to(root).with_suffix("")
+        if not module.with_suffix(".olean").is_file():
+            raise ValueError(f"Current module has not been built: {source}")
+        for suffix in (".olean", ".olean.private", ".olean.server", ".ir", ".ir.sig"):
+            artifact = module.with_suffix(suffix)
+            if artifact.is_file():
+                files.append(artifact)
+    return files
+
+
 def build() -> Path:
     """Bundle pinned interpreter, proof checker, grammar, Python and sandbox dependencies."""
     check_resources(ROOT)
@@ -57,7 +72,8 @@ def build() -> Path:
                             ignore=shutil.ignore_patterns("__pycache__", "*.pyc"))
         for name in ("LICENSE", "lean-toolchain"):
             shutil.copy2(ROOT / name, payload / name)
-        copy_runtime(ROOT / ".lake/build/lib/lean", payload / ".lake/build/lib/lean")
+        copy_runtime(ROOT / ".lake/build/lib/lean", payload / ".lake/build/lib/lean",
+                     project_runtime_files(ROOT))
         copy_runtime(lean / "lib", payload / "lean/lib", lean_runtime_files(lean))
         for notice in ("LICENSE", "LICENSES"):
             shutil.copy2(lean / notice, payload / "lean" / notice)
