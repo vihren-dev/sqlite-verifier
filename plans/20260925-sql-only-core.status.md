@@ -43,3 +43,11 @@ source-module inventory and rejects an unbuilt current module. A regression
 checks that an obsolete .olean is excluded while current kernel-private and IR
 files are retained. Six packaging/resource regressions pass in the pinned shell.
 This does not delete unrelated build outputs or caches.
+
+Integrated conformance tip 14e8e958 (base unit 7cf73a25). Six ordinary native
+SQL cases and seven fresh-receipt/coverage regressions independently reproduced
+in the root pinned shell. Removed the Rust application/framework capture tree,
+vendored application migrations and old model trace adapters. The example README
+links pinned upstream code and explains concrete runtime values and scope.
+Coverage distinguishes native observations from formal proofs. Local Markdown
+links resolve. Generic core and frontend integration remain pending.

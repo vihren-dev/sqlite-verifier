@@ -1,4 +1,4 @@
-"""Independent stored-value expectations for the real-runner witness SQL."""
+"""Independent stored-value expectations for ordinary SQLite SQL fixtures."""
 from __future__ import annotations
 
 from dataclasses import dataclass
@@ -12,15 +12,6 @@ class Cell:
 
     kind: Literal["null", "integer", "real", "text", "blob"]
     value: int | bytes | None = None
-
-    def lean(self) -> str:
-        """Render independent expectations using inert stored-value constructors."""
-        if self.kind == "null":
-            return ".null"
-        if self.kind in ("integer", "real"):
-            return f"(.{self.kind} ({self.value}))"
-        assert isinstance(self.value, bytes)
-        return f".{self.kind} [" + ",".join(map(str, self.value)) + "]"
 
     def observation(self) -> list[str]:
         """Match native typeof/quote/hex observations, retaining bytes after embedded NUL."""
@@ -70,11 +61,15 @@ def native_rows(count: int) -> list[list[int | str]]:
             for rowid, cells in ROWS[:count]]
 
 
-def lean_rows(count: int, *, after: bool = False) -> str:
-    """Expected ADD results explicitly contain one trailing NULL for every old row."""
-    rows = []
-    for rowid, cells in ROWS[:count]:
-        values = (*cells, NULL) if after else cells
-        rows.append(f"{{ rowid := ({rowid}), values := [" +
-                    ",".join(cell.lean() for cell in values) + "] }")
-    return "[" + ",".join(rows) + "]"
+HISTORY_INSERT = """INSERT INTO history(rowid,id,timestamp,duration,exit,command,cwd,session,hostname,deleted_at,author,intent) VALUES
+(-9223372036854775808,NULL,1,'not-an-integer',X'00FF','same','/a','session','host',NULL,NULL,NULL),
+(-1,NULL,2,1.25,0,'same','/a','session','host','unparsed',X'80FF',CAST(X'610062' AS TEXT)),
+(9223372036854775807,'',X'0102',-2,0,X'00FF',123,456,789,NULL,'author','intent');"""
+
+
+def history_seed(count: int) -> str:
+    """Insert deliberately chosen independent fixture values, then select its prefix."""
+    if count == 0:
+        return ""
+    suffix = "" if count == 3 else "DELETE FROM history WHERE rowid != -9223372036854775808;"
+    return HISTORY_INSERT + "\n" + suffix
