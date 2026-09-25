@@ -1,14 +1,15 @@
-# SQLite 3.51.0 execution profile
+# Supported execution profiles
 
-The required profile string is exactly `3.51.0`. Another syntactically valid
-version is `UNSUPPORTED`; a missing or malformed version is `INPUT_ERROR`.
+The original autocommit profile string is exactly `3.51.0`. The separate SQLx
+profile is selected by a validated JSON manifest, described below; bare
+`3.46.0` does not implicitly select a runner. Unsupported versions reject.
 Lean is independently pinned to 4.33.0. Native evidence uses the official SQLite
 source ID `fb2c931ae597f8d00a37574ff67aeed3eced4e5547f9120744ae4bfa8e74527b`,
 with source/archive hashes recorded under `parser/upstream/` and Nix.
 
 The semantic subset is described in [semantic-subset.md](semantic-subset.md).
 It assumes one ordinary main database, valid SQLite storage, ordinary rowid
-tables, no extra schema objects, no ambient transaction, and the pinned default
+tables, only the admitted schema objects, no ambient transaction, and the pinned default
 build with DQS=0 and an effective column limit of 2000. No extensions, custom
 authorizers, concurrent connections, application callbacks, or custom collations
 may change supported statement behavior. Writable-schema mode is off. Other
@@ -26,7 +27,10 @@ I/O errors, process crashes, power loss, and interference. It makes no crash or
 whole-script rollback guarantee. Applicability and every modeled outcome remain
 explicit proof obligations under the supplied approved contract.
 
-Schemas record normalized object names, ordered columns, and canonical affinities.
+Schemas record normalized object names, ordered columns, supported declarations,
+affinities, nullability, defaults, keys and indexes. Preserving an existing key's
+old column projections preserves any predicate over those projections; this
+does not introduce an unproved native comparator or broaden CREATE support.
 Database values include NULL, integer, opaque real payloads, UTF-8-independent
 text bytes, and blobs. These value domains are conservative: this release does
 not prove native float encoding, coercion rules, schema-text identity, pragmas,
@@ -41,3 +45,37 @@ tests, separately from Lean proof acceptance. The SQLite C implementation has
 not been formally verified. Coverage and exclusions are reported separately in
 [upstream fixture evidence](conformance-fixtures.md) and
 [derived model comparisons](conformance-model.md).
+
+## SQLite 3.46.0 with SQLx 0.9.0
+
+The manifest kind `sqlite-3.46.0-sqlx-0.9.0-wal-normal-optimize-v1` selects the
+independently pinned 3.46 grammar and a sealed execution relation. It identifies
+the fixed configuration in [the complete capture](atuin-capture.md), including
+WAL/NORMAL, foreign keys enabled, the captured compile flags/runtime limits,
+SQLx's normal transactional migrator and optimization on close. The manifest
+binds the exact ordered prior catalog, target version and description; the
+verifier computes the target SHA-384 from original SQL bytes. See
+[profile inputs](profile-inputs.md) for its format and rejection rules.
+
+The approved admission predicate must establish that all listed prior versions
+have matching successful metadata, the target is pending, both statistics
+tables have their exact definitions and the payload consists of supported ADD
+statements outside bookkeeping. Readiness is a checked obligation. This profile
+does not support concurrent application writers, external schema mutation,
+corruption or crash/power-loss recovery.
+
+The runner begins a transaction, executes the payload, inserts successful
+metadata with execution_time=-1, commits, then updates the elapsed duration.
+Pre-commit stage errors and payload failure retain original application storage
+after rollback. A timing-update or later cache-clear failure may report an error
+after commit; a commit-stage error conservatively admits either observation.
+Committed outcomes retain old bookkeeping rows and add the exact target record.
+Elapsed durations are signed 64-bit values, matching SQLx's integer cast; the
+model does not assume the cast can never overflow. Statistics rows may change
+at close, but their definitions and every other table remain protected.
+
+Application requirements must handle each modeled outcome explicitly. A reported
+runner error does not by itself mean the migration was unapplied. This relation
+is a source-informed model, not a proof of the SQLx or SQLite implementations;
+finite [native/model comparisons](atuin-model-conformance.md) state their exact
+scope and any fault instrumentation separately.
