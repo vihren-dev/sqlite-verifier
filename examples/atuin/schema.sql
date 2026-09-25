@@ -20,10 +20,6 @@ CREATE TABLE history (
 	unique(timestamp, cwd, command)
 );
 
-CREATE TABLE sqlite_stat1(tbl,idx,stat);
-
-CREATE TABLE sqlite_stat4(tbl,idx,neq,nlt,ndlt,sample);
-
 CREATE INDEX idx_history_command on history(command);
 
 CREATE INDEX idx_history_command_timestamp on history(

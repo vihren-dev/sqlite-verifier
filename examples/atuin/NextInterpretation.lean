@@ -1,18 +1,17 @@
 import Interpretation
 import SqlInputs
 
-/-! Candidate meaning reads the resulting storage; no old database is captured. -/
+/-! The new schema reads real shell cells into the same independent business model. -/
 namespace NextInterpretation
 open SqliteVerifier
 
-/-- Successful and committed-error observations include actual resulting shell values. -/
+/-- The proposed representation includes the new actual column and seventh successful identity. -/
 def next : Interpretation Requirements.LogicalState where
-  invariant := Conforms Generated.nextSchema
-  observe := observeNullable "history" AtuinSchema.fields (some "shell")
+  invariant := HistoryMapping.representation Generated.nextSchema true
+    (AtuinCatalog.prior ++ [AtuinCatalog.target])
+  observe := HistoryMapping.observe true
 
-/-- Rolled-back errors retain the old representation; committed errors use the new one. -/
-def failures : FailureRepresentation Requirements.LogicalState where
-  schema _ reason := if Requirements.committed reason then Generated.nextSchema else AtuinSchema.start
-  interpretation _ reason := if Requirements.committed reason then next else Interpretation.current
+/-- Success is established by the complete SQL proof, not assumed from an empty failure relation. -/
+def failures : FailureRepresentation Requirements.LogicalState := unreachableFailures
 
 end NextInterpretation

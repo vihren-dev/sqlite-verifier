@@ -1,33 +1,41 @@
 # SQL-only formal component status
 
-Created: 2026-09-25. Status: IN PROGRESS.
+Created: 2026-09-25. Status: IN PROGRESS — formal certificate checked; integrated
+CLI/package validation and owner review remain with the coordinating task.
 
-Task: [SQL-only core](20260925-sql-only-core.task.md). Owner direction supersedes
-the previous framework-runner model. This component owns Lean semantics, generic
-proof helpers and the revised source-linked application example. It does not
-authorize publishing proposed application requirements or refreshing protected
-baselines without their separate review.
+Task: [SQL-only core](20260925-sql-only-core.task.md). The owner's SQL-only and
+independent-business-model corrections supersede the earlier framework model.
+This component does not authorize publishing proposed application requirements.
 
-The generic core is checked in 914188f4: version-only profiles, script-directed
-transactions, explicit pending versus persisted storage, restricted literal DML,
-and mandatory generic support obligations. Its complete kernel gate passed.
+The generic core is checked in 914188f4: version-only engines, supplied transaction
+statements, pending versus persisted outcomes, restricted lossless literal DML,
+and reached-state support obligations. Its complete kernel gate passed. Generic
+row/schema/constraint helpers in 1b376ccb and c7026d2a passed the 22-job library
+build without new SQL axioms.
 
-Added derived schema/row helpers in LiteralPreservation: replacing rows preserves
-schema conformance, normal next-rowid allocation exceeds every old rowid, bounded
-INSERT preserves widths and distinct signed rowids, and appending a fresh key
-preserves uniqueness. `timeout 60 lake build SqliteVerifier` passed 22 jobs. No new
-axioms, native allocation oracle or frame assumption is introduced.
+The revised example uses an independent typed History, strict complete decoding,
+and equality of business history lists. Physical rowids and raw bookkeeping are
+not business entities. Current/result representation invariants contain exactly
+six prior successful identities and those six plus the target. The approved
+actual-storage mapping guard prevents candidate readers from concealing changed
+business values. Required malformed rows reject the entire observation; optional
+wrong-type values and noncanonical UUID spellings are explicitly outside the
+selected decoder domain. Source fidelity and decoder/witness helpers received
+independent conformance-agent review and source-backed implementation.
 
-The example rewrite is in progress. The approved before/after invariants will
-retain exactly the six prior successful identities and those six plus the target.
-Missing shell and actual SQL NULL normalize to the same application observation;
-an approved resultValid predicate independently reads actual shell cells so a
-constant-unknown result reader cannot mask incorrect initialization. All SQL
-effects, including INSERT/COMMIT/UPDATE, are supplied explicitly. Arbitrary old
-history remains admitted; rowid allocation restrictions concern the metadata
-table. No revised example proof or full aggregate success is claimed yet.
+SchemaBinding derives table declarations from sealed SchemaInputs.startSchema
+(the constant is in namespace Generated) and derives the result by appendAt.
+schema.sql is the only handwritten full schema. The proposed baseline records
+all seven approved modules plus the schema bytes; these hashes are an engineering
+proposal and do not assert owner approval. Retired profile.json, copied
+AtuinSchema and framework-trace module were removed.
 
-Added checked reusable INSERT lemmas for comparison-domain preservation and actual
-ABORT constraints, parameterized by old validity and each new unique-key check.
-The complete 22-job library build passes. These support the example proof over
-arbitrary prior metadata; they do not infer native behavior for unsupported DML.
+Validation: freshly generated SchemaInputs/SqlInputs using the production pinned
+3.46.0 CST parser and frontend; compiled every approved/candidate module, decoder
+boundary checks, empty/populated admitted witnesses and final Proofs.migrationCorrect
+with exact Lean 4.33.0, bounded per-module timeouts (30/60 seconds). The final
+certificate depends only on propext, Classical.choice and Quot.sound. Its
+universal theorem covers arbitrary admitted history and catalog rows for the
+explicit BEGIN/ALTER/INSERT/COMMIT/UPDATE SQL. Native-engine refinement and live
+framework behavior are not claimed. Public CLI staging and installed acceptance
+will be checked after integration with the separately reviewed schema-only gate.

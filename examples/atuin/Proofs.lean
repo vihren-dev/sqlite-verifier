@@ -1,18 +1,25 @@
 import Generated
 import AtuinOutcomes
-import AtuinTraces
+import AtuinSound
+import AtuinWitness
+import HistoryDecodingChecks
 
-/-! The seven-input certificate covers every admitted history, not selected test rows. -/
+/-! A closed certificate for the supplied SQL over every admitted decoded history. -/
 namespace Proofs
 open SqliteVerifier
 
-/-- The unchanged upstream payload meets the approved projection for every runner outcome. -/
+/-- The complete explicit transaction preserves business history and establishes the new representation. -/
 theorem migrationCorrect : Generated.expected := by
-  refine ⟨⟨_, AtuinWitness.populated_admitted⟩, AtuinFacts.current_sound,
-    AtuinFacts.next_sound, AtuinFacts.failures_sound, fun _ admitted => admitted.1,
-    fun _ admitted => admitted.2, ?_⟩
-  intro database admitted outcome execution
-  exact AtuinOutcomes.all admitted execution
+  refine ⟨⟨_, AtuinWitness.populated_admitted⟩, AtuinSound.current,
+    AtuinSound.next, AtuinSound.failures, ?_, ?_, ?_⟩
+  · intro database admitted
+    obtain ⟨defined, metadata, stored, invariant, _⟩ := admitted.2
+    exact ⟨admitted.1, defined, metadata, stored, invariant⟩
+  · intro database admitted
+    exact (AtuinOutcomes.checked database admitted).1
+  · intro database admitted outcome execution
+    rw [← execution.result]
+    exact (AtuinOutcomes.checked database admitted).2
 
 #print axioms migrationCorrect
 end Proofs

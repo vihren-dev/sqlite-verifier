@@ -1,37 +1,37 @@
-import AtuinSchema
+import HistoryMapping
 
-/-! Proposed owner-reviewable guarantees for the selected real migration.
-This draft is mathematically checkable; human acceptance is recorded separately. -/
+/-! Business requirements preserve decoded command histories. Representation facts
+are kept in the mapping; canonical actual reads prevent candidate fabrication. -/
 namespace Requirements
-open SqliteVerifier
+open SqliteVerifier HistoryModel
 
-/-- Every old history field and physical rowid, plus the newly exposed shell field. -/
-abbrev LogicalState := NullableView
+/-- The application state consists of histories, independent of SQL bookkeeping and rowids. -/
+abbrev LogicalState := List History
 
-/-- Existing history is exact; every old row gains an actual SQL NULL shell value. -/
-def change (before after : LogicalState) : Prop :=
-  after.rows = before.rows ∧ after.added = some (nullExtension before.rows)
+/-- Application identifiers and numeric fields lie in the documented business domain. -/
+def valid (histories : LogicalState) : Prop := ∀ history ∈ histories, history.Valid
 
-/-- A runner failure explicitly identifies whether the migration committed. -/
-def committed : ExecutionError → Bool
-  | .runnerFailure _ yes => yes
-  | _ => false
+/-- The selected migration changes representation without changing business history. -/
+def change (before after : LogicalState) : Prop := after = before
 
-/-- Only the named runner-stage failures are permitted for this applicable payload. -/
-def permitted : Outcome → Prop
-  | .success _ => True
-  | .failure position (.runnerFailure phase done) _ =>
-    if done then position = 1 ∧ phase ∈ [.commit, .timingUpdate, .cacheClear]
-    else rollbackPhase phase = true ∧
-      position = if phase = .preflight ∨ phase = .beginTransaction then 0 else 1
-  | .failure _ _ _ => False
+/-- The actual new representation and actual business meaning satisfy the approved mapping. -/
+def resultValid (before after : Database) : Prop :=
+  HistoryMapping.representation SchemaBinding.next true
+    (AtuinCatalog.prior ++ [AtuinCatalog.target]) after ∧
+  ∃ histories, HistoryMapping.observe false before = some histories ∧
+    HistoryMapping.observe true after = some histories
 
-/-- Retain the complete schema and distinguish rolled-back from committed errors. -/
+/-- This example requires a closed successful script with unchanged actual business meaning. -/
+def applicable (before : Database) : Outcome → Prop
+  | .success result => resultValid before result
+  | _ => False
+
+/-- Business equality and independent representation checks constrain every accepted outcome. -/
 def contract : LogicalContract LogicalState where
-  valid := fun _ => True
+  valid := valid
   change := change
-  schemaRequirement schema := schema = AtuinSchema.next
-  failure before _ reason after := if committed reason then change before after else before = after
-  applicability _ outcome := permitted outcome
+  schemaRequirement schema := schema = SchemaBinding.next
+  failure := fun _ _ _ _ => False
+  applicability := applicable
 
 end Requirements
