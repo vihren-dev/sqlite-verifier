@@ -139,3 +139,9 @@ inventories; native capture integration and hosted platform checks follow.
 The integrated checkout independently rebuilt the locked SQLx harness offline
 in 14.99 seconds, reusing the conformance workspace's downloaded Cargo registry.
 Both complete capture and eight-scenario native runner tests passed in 0.234s.
+The `atuin-native` shared entry point and both-platform CI step reproduce the
+locked runner and retain fresh adversarial receipts. These are finite native
+observations; they are not yet a proof/model comparison or pilot acceptance.
+The exact shared command passed both native suites (0.263s); actionlint and
+shellcheck accepted the workflow. Earlier run `36105736197` has passed Linux;
+macOS remains in progress. No hosted Atuin result is claimed yet.

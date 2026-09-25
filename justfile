@@ -36,6 +36,11 @@ coverage: build
 
 check: build test coverage
 
+# Reproduce the real SQLx runner; run this entry point inside nix develop .#capture.
+atuin-native:
+    CARGO_HOME="${CARGO_HOME:-$PWD/build/atuin-cargo-home}" CARGO_TARGET_DIR="$PWD/build/atuin-cargo-target" timeout 600 cargo build --locked --manifest-path conformance/atuin_capture/Cargo.toml
+    timeout 45 python3 -m unittest discover -s tests -p 'atuin_*test.py'
+
 # Build a native offline archive and verify its actual installed entrypoint.
 runtime-package:
     timeout 600 python3 packaging/build_runtime.py
