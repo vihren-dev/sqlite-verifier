@@ -70,7 +70,7 @@ def expectedTarget (env : Environment) : IO Expr := do
     | throw <| IO.userError "Requirements.LogicalState must inhabit Type"
   let names := #[`Generated.startSchema, `Generated.nextSchema, `Generated.script,
     `Interpretation.admitted, `Requirements.contract, `Interpretation.current,
-    `NextInterpretation.next, `NextInterpretation.failures]
+    `NextInterpretation.next, `NextInterpretation.failures, `Generated.profile]
   let arguments ← names.mapM (closedConstant env)
   let target := mkAppN (mkConst `SqliteVerifier.VerificationConditions [logicalLevel])
     (#[logical] ++ arguments)

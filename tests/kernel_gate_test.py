@@ -60,6 +60,7 @@ def main() -> None:
             "transitive axiom": ("import Generated\naxiom forbidden : Generated.expected\ndef helper := forbidden\ntheorem Proofs.migrationCorrect : Generated.expected := helper", "forbidden"),
             "changed protected contract": ("import Lean\ndef Requirements.contract : Nat := 0\ntheorem Proofs.migrationCorrect : True := trivial", "modified protected"),
             "changed protected SQL": ("import Lean\ndef Generated.script : Nat := 0\ntheorem Proofs.migrationCorrect : True := trivial", "modified protected"),
+            "changed protected profile": ("import Lean\ndef Generated.profile : Nat := 0\ntheorem Proofs.migrationCorrect : True := trivial", "modified protected"),
             "unsafe proof": ("import Generated\nunsafe def Proofs.migrationCorrect : True := True.intro", "Proofs.migrationCorrect"),
         }
         for label, (source, diagnostic) in cases.items():
@@ -75,6 +76,17 @@ def main() -> None:
         compile_module(candidate, "Proofs", "import Generated\ntheorem Proofs.migrationCorrect : Generated.expected := trivial", environment)
         result = run([str(CHECKER), str(LIBRARY), str(trusted), str(candidate)], root, environment)
         assert result.returncode != 0 and "reconstructed" in result.stderr, result.stderr
+        # A candidate's old autocommit alias cannot erase a sealed SQLx policy.
+        sql_inputs = (FIXTURES / "SqlInputs.lean").read_text()
+        configured = sql_inputs.replace(".sqlite351Autocommit", 
+            '.sqlite346Sqlx { migration := { version := 1, description := [], checksum := [] }, previous := [] }')
+        compile_module(trusted, "SqlInputs", configured, environment)
+        legacy = (FIXTURES / "Generated.lean").read_text().replace("NextInterpretation.failures profile", "NextInterpretation.failures")
+        compile_module(candidate, "Generated", legacy, environment)
+        compile_module(candidate, "Proofs", valid, environment)
+        result = run([str(CHECKER), str(LIBRARY), str(trusted), str(candidate)], root, environment)
+        assert result.returncode == 1 and "reconstructed" in result.stderr, result.stderr
+        compile_module(trusted, "SqlInputs", sql_inputs, environment)
         # A checked negative contract gets a distinct result; missing/sorry negatives do not.
         print("Kernel gate case: checked and unfinished refutations", flush=True)
         interpretation = (FIXTURES / "Interpretation.lean").read_text().replace("Prop := True", "Prop := False")

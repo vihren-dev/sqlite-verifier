@@ -98,3 +98,25 @@ allowed-failure and adversarial cases with the equivalent approved fixture
 syntax. Rich schema/profile emission and all five native/model cases had passed
 against the same committed formal interfaces. No required failing check remains
 for this data-only checkpoint; profile-aware verdicts remain the next unit.
+
+## Profile-aware CLI integration
+
+Integrated lead revision `8ca23cd5`, which binds `Generated.profile` in both the
+convenience target and independent gate and models explicit readiness plus staged
+SQLx outcomes. The CLI now selects the parser from the validated profile, supplies
+original SQL bytes for the target checksum/directive check, and records the exact
+manifest digest. New CLI regressions require unsupported SQLx CREATE and the
+exact no-transaction directive to reject before proof compilation. The existing
+seven input categories are unchanged. Final integration checks are running;
+actual Atuin proof artifacts and owner review remain separate pending work.
+
+The integrated profile-aware build passed all 21 Lean/checker jobs. The full CLI
+suite passed with legacy verification/refutation/allowed-failure behavior plus
+SQLx scope/directive rejection. The full kernel-gate suite passed, including
+changed protected profile and forged convenience target attacks. The standalone
+both-parser schema/profile generation check also passed against this final API.
+Bounds remain 600 seconds for CLI, 360 for the gate suite, 75 for generated-schema
+checks, with unchanged bounded child processes. No timeout was raised for this
+unit. Positive verification of the actual Atuin bundle awaits the lead-authored
+proof and subsequent owner contract review; these engineering checks do not
+substitute for either.

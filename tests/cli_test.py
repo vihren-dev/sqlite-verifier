@@ -13,13 +13,14 @@ COMMAND = ROOT / "bin/migration-check"
 
 
 def invoke(candidate: Path, approved: Path, expected: str, *, extra: tuple[str, ...] = (),
+           execution_profile: str = "3.51.0",
            replacements: dict[str, Path] | None = None) -> dict[str, object]:
     """Assert both process exit and public JSON class under a bounded complete verification."""
     inputs = {"schema": approved / "schema.sql", "requirements": approved / "Requirements.lean",
               "interpretation": approved / "Interpretation.lean", "migration": candidate / "migration.sql",
               "next-interpretation": candidate / "NextInterpretation.lean", "proofs": candidate / "Proofs.lean"}
     inputs.update(replacements or {})
-    command = [str(COMMAND), "verify", "--profile", "3.51.0", "--format", "json"]
+    command = [str(COMMAND), "verify", "--profile", execution_profile, "--format", "json"]
     for name, path in inputs.items():
         command.extend(["--" + name, str(path)])
     result = subprocess.run([*command, *extra], cwd=ROOT, env=os.environ.copy(),
@@ -46,6 +47,15 @@ def main() -> None:
                extra=("--approved-baseline", str(baseline)))
         invoke(EXAMPLES / "missing_required_column", approved, "VIOLATED")
         invoke(EXAMPLES / "allowed_failure", EXAMPLES / "allowed_failure/approved", "VERIFIED")
+        changed_profile = work / "runner.json"
+        changed_profile.write_text(json.dumps({
+            "kind": "sqlite-3.46.0-sqlx-0.9.0-wal-normal-optimize-v1",
+            "migration": {"version": 20, "description": "new column"}, "previous": []}))
+        invoke(candidate, approved, "UNSUPPORTED", execution_profile=str(changed_profile))
+        no_transaction = work / "no-transaction.sql"
+        no_transaction.write_bytes(b"-- no-transaction\nALTER TABLE invoices ADD note TEXT;\n")
+        invoke(candidate, approved, "UNSUPPORTED", execution_profile=str(changed_profile),
+               replacements={"migration": no_transaction})
 
         modified = work / "candidate"
         shutil.copytree(candidate, modified)
