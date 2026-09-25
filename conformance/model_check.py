@@ -35,8 +35,10 @@ def run(native: str, parser: Path) -> list[dict[str, object]]:
             report = check(native, folder / (case.name + ".db"), case)
             proof = folder / (case.name + ".lean")
             proof.write_text(generated + "\n" + assertions(case))
+            # The 2,000-column kernel check exceeds 30s on hosted macOS; the
+            # collector still bounds the complete comparison suite to 180s.
             checked = subprocess.run(["lake", "env", "lean", str(proof)], cwd=ROOT,
-                                     text=True, capture_output=True, timeout=30)
+                                     text=True, capture_output=True, timeout=90)
             if checked.returncode:
                 raise AssertionError((case.name, checked.stdout, checked.stderr))
             assert "sorryAx" not in checked.stdout and "Lean.ofReduceBool" not in checked.stdout

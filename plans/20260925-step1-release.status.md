@@ -23,3 +23,18 @@ GitHub ruleset 23934665 remains active, with owner user6329237 as the existing
 audited bypass actor; authenticated owner identity confirmed. Intentional protected
 baseline changes are explicitly approved in this conversation. Final integration
 will use that authorization without changing the ruleset or baseline workflow.
+
+Integrated 7bc10f9978369f7bcd40aada73af774fc1081726 into public main using the
+existing owner bypass; GitHub recorded the protected-branch override. The exact
+new revision passes local self-consistency checks for all three protected example
+baselines. Hosted CI run36137322748 began complete package checks on both platforms.
+
+macOS exposed a harness deadline defect: the 2,000-column limit-before-duplicate
+comparison exceeded the per-file 30-second Lean deadline. No assertion failed.
+Evidence: build/step1-macos-coverage/coverage.json and step1-macos-job.log.
+Independent Ultra reviewer recommends only 90 seconds per concrete proof file,
+retaining the 30-second negative test, 180-second collector and 420-second aggregate
+bounds. Existing full native/model comparison and false-empty negative passed
+locally after this adjustment (build/step1-model-budget.log, exit0). No proof,
+semantics or admitted domain changed. Fresh hosted package checks will validate
+the repaired harness; the failed run is not passing release evidence.
