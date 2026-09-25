@@ -4,6 +4,13 @@ Proposal v0.1 · 24 September 2026
 
 This roadmap accompanies the engineering brief. Each step releases a usable migration-verification product with a complete workflow and a bounded guarantee. The releases are cumulative. Only the next release receives a detailed implementation commitment; subsequent releases are hypotheses to revise after each completed step.
 
+**Current boundary (25 September 2026).** Schema and migration SQL are the universal
+interface. Examples are source-linked SQL and Lean models, without application
+imports, ORM adapters, migration-framework execution or invocation certification.
+Profiles contain SQLite semantic settings; application data assumptions belong in
+requirements and interpretations. Necessary transaction and data operations must
+be explicit SQL with reusable semantics, never implicit framework effects.
+
 “Viable” means a target user can obtain useful results without waiting for a later release. Commercial demand must be validated through adoption and willingness to pay.
 
 | Step | Product | User value |

@@ -1,14 +1,10 @@
-# Shared entry points. Enter nix develop path:./nix#capture once for full checks.
+# Shared entry points. Enter nix develop path:./nix once for a batch of checks.
 default:
     @just --list
 
 # Resource checks never delete caches or user data.
 resources:
     python3 tools/check_resources.py
-
-# Full verification uses the pinned Rust tools without a nested environment entry.
-capture-shell:
-    python3 tools/check_resources.py --environment-only --capture
 
 # Elan reads the exact release from lean-toolchain.
 setup: resources
@@ -42,20 +38,15 @@ test: smoke coverage
     timeout 30 python3 -m unittest discover -s tests -p 'test_*.py'
 
 # Refresh bounded proof, grammar and native/model evidence.
-coverage: build atuin-native
+coverage: build
     timeout 420 python3 conformance/coverage_report.py --output build/coverage.json
 
-check: capture-shell build atuin-native test
-
-# Reproduce the real SQLx runner using its separately pinned build environment.
-atuin-native: capture-shell resources
-    env CARGO_HOME="${CARGO_HOME:-$PWD/build/atuin-cargo-home}" CARGO_TARGET_DIR="$PWD/build/atuin-cargo-target" timeout 600 cargo build --locked --manifest-path conformance/atuin_capture/Cargo.toml
-    timeout 45 python3 -m unittest tests.atuin_capture_test tests.atuin_runner_test
+check: build test
 
 # Build a native offline archive and verify its actual installed entrypoint.
 runtime-package: resources
     timeout 600 python3 packaging/build_runtime.py
-    timeout 1800 python3 tests/runtime_package_test.py "dist/sqlite-verifier-${SQLITE_VERIFIER_SYSTEM:?Enter nix develop path:./nix#capture}.tar.gz"
+    timeout 1800 python3 tests/runtime_package_test.py "dist/sqlite-verifier-${SQLITE_VERIFIER_SYSTEM:?Enter nix develop path:./nix}.tar.gz"
 
 # Keep a source snapshot alongside the checked installable runtime.
 package: check runtime-package

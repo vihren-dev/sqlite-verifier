@@ -41,12 +41,6 @@
             SQLITE_VERIFIER_SHELL = "default";
             SQLITE_VERIFIER_SYSTEM = system;
           };
-          # Capture upstream runner behavior with the Rust tools fixed by flake.lock.
-          capture = tools.pkgs.mkShell {
-            packages = runtimePackages ++ (with tools.pkgs; [ cargo rustc pkg-config ]);
-            SQLITE_VERIFIER_SHELL = "capture";
-            SQLITE_VERIFIER_SYSTEM = system;
-          };
         });
     };
 }

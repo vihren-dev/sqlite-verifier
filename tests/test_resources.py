@@ -43,7 +43,7 @@ class ResourceTests(unittest.TestCase):
             with self.assertRaisesRegex(ValueError, '/separate/tmp: 0.00 GiB'):
                 check_resources(Path.cwd())
         with patch('tools.check_resources.check_environment'), \
-             patch.dict(os.environ, {'CARGO_HOME': '/separate/tmp'}), \
+             patch.dict(os.environ, {'ELAN_HOME': '/separate/tmp'}), \
              patch('tools.check_resources.existing_parent', side_effect=destination), \
              patch('tools.check_resources.shutil.disk_usage', side_effect=capacity):
             with self.assertRaisesRegex(ValueError, '/separate/tmp: 0.00 GiB'):

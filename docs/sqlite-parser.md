@@ -43,8 +43,7 @@ This is default-build grammar recognition, not schema/name-resolution validity.
 For example, an uninstalled virtual-table module or unknown table still parses.
 Double-quoted tokens are recognized syntactically; the selected execution
 profile governs subsequent expression resolution. The existing 3.51.0 profile's
-DQS=0 rule must not be bypassed by the semantic translator. The distinct SQLx
-engine's actual compile configuration is recorded in [its capture](atuin-capture.md).
+DQS=0 rule must not be bypassed by the semantic translator. The second grammar selects SQLite 3.46.0 syntax; it does not select a migration framework.
 
 The semantic translator must inspect all commands and existing-schema objects,
 admit only its modeled forms, and report parsed unsupported forms as

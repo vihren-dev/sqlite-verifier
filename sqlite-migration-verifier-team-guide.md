@@ -112,7 +112,7 @@ While awaiting a response, continue already-authorized work that does not depend
 
 The integration engineer owns development storage and release-resource checks.
 Use `python3 tools/check_resources.py` before environment setup or expensive work.
-It requires 10 GiB free on the actual workspace-output, temporary, elan/Cargo-cache and
+It requires 10 GiB free on the actual workspace-output, temporary, elan-cache and
 Nix-store filesystems. It rejects symlinks, unexpected files and more than 1 MiB
 of environment inputs. Failure stops the expensive operation with a diagnostic;
 no check deletes anything. Bootstrap Python 3 is required before environment
@@ -123,10 +123,9 @@ use explicit `path:./nix` references; `./nix` alone can discover a parent Git
 repository, while a root path flake can copy a whole non-Git workspace. Never put
 build outputs, archives, workspace metadata or application data in `nix/`.
 
-Enter `nix develop path:./nix#capture` once for full checks, Rust capture or a batch
-of related work. `nix develop path:./nix` suffices for focused non-Rust checks.
-Inside the shell, run the relevant recipe directly. `just check` and
-`just atuin-native` require the capture shell and do not enter Nix again.
+Enter `nix develop path:./nix` once for a batch of related work.
+Inside the shell, run the relevant recipe directly. `just check` does not enter
+Nix again. Application and framework toolchains are not development dependencies.
 Keep artifacts in `dist/`, `build/` and `.lake/`, outside the environment boundary.
 The real snapshot regression is `python3 tests/environment_snapshot_test.py`;
 it uses only tiny explicit path-flake metadata operations and no builds.

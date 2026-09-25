@@ -1,6 +1,10 @@
 # Verify Atuin's unchanged shell-history migration
 
-Created: 2026-09-25. Status: IN PROGRESS.
+Created: 2026-09-25. Status: SUPERSEDED.
+
+The owner replaced the runner-capture/certification requirements with the
+[SQL-only core task](20260925-sql-only-core.task.md). The text below records
+the historical scope and is not the current acceptance contract.
 
 ## Outcome and authority
 

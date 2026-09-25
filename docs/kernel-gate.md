@@ -57,7 +57,7 @@ checker. `KERNEL_GATE_LIBRARY` can select an immutable library build for compone
 testing. Compiler/checker subprocesses have 30-second limits. Tests include an
 actual empty-script model proof, wrong and unfinished proofs, transitive axioms,
 protected declaration substitutions, unsafe proofs, a forged kernel body, a
-forged expected alias, an old autocommit proof against a sealed SQLx profile,
+forged expected alias, a proof against a different sealed SQLite profile,
 and a harmless initializer marker that must not execute.
 The fixture is a gate regression, not a SQL frontend acceptance or pilot example.
 

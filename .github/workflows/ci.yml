@@ -52,7 +52,7 @@ jobs:
           EXPECTED_SYSTEM: ${{ matrix.system }}
         run: |
           python3 tools/check_resources.py
-          nix develop path:./nix#capture --command bash -euo pipefail <<'SH'
+          nix develop path:./nix --command bash -euo pipefail <<'SH'
           test "$SQLITE_VERIFIER_SYSTEM" = "$EXPECTED_SYSTEM"
           just setup
           if [[ "$RUNNER_OS" == Linux ]]; then
@@ -90,20 +90,6 @@ jobs:
         with:
           name: coverage-${{ matrix.system }}
           path: build/coverage.json
-          if-no-files-found: warn
-          retention-days: 14
-      - name: Retain Atuin runner evidence
-        if: always() && steps.scope.outputs.scope != 'docs'
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
-        with:
-          name: atuin-runner-${{ matrix.system }}
-          path: |
-            build/atuin-capture.json
-            build/atuin-runner-receipts.json
-            build/atuin-model-payload.json
-            build/atuin-model-payload/
-            build/atuin-runner-model.json
-            build/atuin-runner-model/
           if-no-files-found: warn
           retention-days: 14
       - name: Retain development source snapshot

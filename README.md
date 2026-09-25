@@ -20,11 +20,11 @@ The first checked preview is [v0.1.0-rc.1](https://github.com/vihren-dev/sqlite-
 ## Development
 
 Install Nix with `nix-command` and `flakes` enabled and a bootstrap Python 3,
-then enter the capture environment once for a batch:
+then enter the development environment once for a batch:
 
 ```sh
 python3 tools/check_resources.py
-nix develop path:./nix#capture
+nix develop path:./nix
 just setup
 just check
 ```
@@ -32,8 +32,7 @@ just check
 Alternatively, install direnv with Nix-flake integration and run `direnv allow`.
 The committed `nix/flake.lock` fixes Nix dependencies. The two-file `nix/`
 directory is the complete environment source; always use the explicit `path:`
-reference, including from non-Git Jujutsu workspaces. For focused non-Rust work,
-`nix develop path:./nix` provides the smaller default shell. See the
+reference, including from non-Git Jujutsu workspaces. See the
 [resource and cleanup policy](sqlite-migration-verifier-team-guide.md#development-resources).
 The resource check rejects less than 10 GiB free before expensive work. Nix supplies elan; `just setup`
 downloads the exact official Lean release in `lean-toolchain` into elan's cache.

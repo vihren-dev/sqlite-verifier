@@ -43,8 +43,7 @@ def check_resources(root: Path = ROOT) -> None:
     """Check workspace, temporary, toolchain and Nix-store write destinations separately."""
     check_environment(root)
     destinations = [root / 'dist', root / 'build', root / '.lake', Path(tempfile.gettempdir()),
-                    Path(os.environ.get('ELAN_HOME', str(Path.home() / '.elan'))),
-                    Path(os.environ.get('CARGO_HOME', str(root / 'build/atuin-cargo-home')))]
+                    Path(os.environ.get('ELAN_HOME', str(Path.home() / '.elan')))]
     if Path('/nix/store').exists():
         destinations.append(Path('/nix/store'))
     failures: list[str] = []
@@ -67,15 +66,12 @@ def main() -> None:
     """Allow lightweight source-boundary checks without authorizing expensive work."""
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--environment-only', action='store_true')
-    parser.add_argument('--capture', action='store_true')
     args = parser.parse_args()
     try:
         if args.environment_only:
             check_environment(ROOT)
         else:
             check_resources(ROOT)
-        if args.capture and os.environ.get('SQLITE_VERIFIER_SHELL') != 'capture':
-            raise ValueError('Enter the capture shell once: nix develop path:./nix#capture; then run the batch there')
     except (OSError, ValueError) as error:
         raise SystemExit(str(error)) from error
 

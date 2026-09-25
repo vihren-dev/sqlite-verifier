@@ -12,7 +12,7 @@ scope is selected from the complete changed-path list by `tests/ci_scope.py`:
   `just package`, including the complete checks and installed-runtime tests.
 - Release tags and manual requests always run `just package`.
 
-Each build job enters `nix develop path:./nix#capture` once for setup, the Linux
+Each build job enters `nix develop path:./nix` once for setup, the Linux
 sandbox check and its selected recipe. This explicit path contains only the
 environment definition, even in additional Jujutsu workspaces. Adding checks to
 shared recipes extends CI. Superseded ordinary runs on the same ref are cancelled;
