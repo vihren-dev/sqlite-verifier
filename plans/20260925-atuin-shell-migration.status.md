@@ -59,3 +59,6 @@ label immediately, so a subsequent timeout identifies its stage. Assertions
 and per-process limits remain unchanged. The original suite passes locally;
 the integration engineer independently accepted the aggregate-budget adjustment
 and reviewed the capture-shell definition. Hosted confirmation remains pending.
+The test-harness-only follow-up now applies the reviewed 360-second aggregate
+budget and immediate case labels. Python compilation succeeds; all proof checks
+and individual child-process timeouts are preserved.
