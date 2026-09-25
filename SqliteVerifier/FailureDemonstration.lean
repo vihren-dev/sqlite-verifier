@@ -26,6 +26,7 @@ theorem failureMigrationCorrect :
     VerificationConditions startSchema nextSchema failureScript (fun _ => True)
       failureRequirements current next prefixRepresentation := by
   apply VerificationConditions.of_run (contract := failureRequirements)
+    (by decide +kernel) (by decide +kernel)
     migrationCorrect.nonempty migrationCorrect.beforeSound
     migrationCorrect.afterSound
   · intro _ _
@@ -35,7 +36,7 @@ theorem failureMigrationCorrect :
     obtain ⟨logical, read, _⟩ :=
       (migrationCorrect.beforeSound database (migrationCorrect.starting database admitted)).2
     have obligations := migrationCorrect.outcomes database admitted _
-      (.autocommit (runFrom_executes script database 0))
+      (.extensions (by decide +kernel) (runFrom_executes script database 0))
     cases executed : runFrom 0 script database with
     | failure position reason result =>
       have impossible := obligations.1
@@ -56,6 +57,9 @@ theorem failureMigrationCorrect :
       intro original observed
       obtain ⟨invariant, _, target, targetRead, unchanged⟩ := preserved original observed
       exact ⟨invariant, target, targetRead, unchanged⟩
+    | pending persisted visible error =>
+      have impossible := obligations.1
+      simp [executed, requirements, requiresSuccess] at impossible
 
 #print axioms failureMigrationCorrect
 

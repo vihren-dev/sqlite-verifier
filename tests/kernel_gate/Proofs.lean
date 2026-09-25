@@ -9,7 +9,7 @@ theorem sound : SoundRepresentation Requirements.contract [] Interpretation.curr
   exact ⟨conforms, (), rfl, True.intro⟩
 /-- The empty script establishes all six required obligations. -/
 theorem migrationCorrect : Generated.expected := by
-  apply VerificationConditions.of_run
+  apply VerificationConditions.of_run (by decide +kernel) (by decide +kernel)
   · exact ⟨fun _ => none, by
       simp [Admitted, Conforms, Schema.Valid, Schema.lookup,
         Generated.startSchema, Interpretation.admitted]⟩

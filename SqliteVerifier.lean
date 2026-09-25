@@ -9,7 +9,8 @@ import SqliteVerifier.ReverseDemonstration
 import SqliteVerifier.FailureDemonstration
 import SqliteVerifier.SchemaPreservation
 import SqliteVerifier.SchemaExamples
-import SqliteVerifier.RunnerProfile
+import SqliteVerifier.SqlExecution
+import SqliteVerifier.SqlExamples
 import SqliteVerifier.SchemaExtension
 import SqliteVerifier.NullableProjection
 

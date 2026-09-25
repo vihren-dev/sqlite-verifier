@@ -49,7 +49,7 @@ theorem next_valid : nextSchema.Valid := by
 theorem migrationCorrect :
     VerificationConditions startSchema nextSchema script (fun _ => True)
       requirements current next unreachableFailures := by
-  apply VerificationConditions.of_run
+  apply VerificationConditions.of_run (by decide +kernel) (by decide +kernel)
   · exact ⟨startSchema.emptyDatabase, startSchema.emptyDatabase_conforms start_valid, trivial⟩
   · exact projectedInterpretation_sound requirements startSchema "invoices" ["amount"]
       (by intros; trivial)
