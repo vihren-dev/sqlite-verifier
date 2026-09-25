@@ -25,10 +25,17 @@
     in {
       packages = forSystems (system: { inherit (packagesFor system) sqlite; });
       devShells = forSystems (system:
-        let tools = packagesFor system; in {
+        let
+          tools = packagesFor system;
+          runtimePackages = with tools.pkgs; [ elan just coreutils python3 tools.sqlite ]
+            ++ lib.optional stdenv.hostPlatform.isLinux bubblewrap;
+        in {
           default = tools.pkgs.mkShell {
-            packages = with tools.pkgs; [ elan just coreutils python3 tools.sqlite ]
-              ++ lib.optional stdenv.hostPlatform.isLinux bubblewrap;
+            packages = runtimePackages;
+          };
+          # Capture upstream runner behavior with the Rust tools fixed by flake.lock.
+          capture = tools.pkgs.mkShell {
+            packages = runtimePackages ++ (with tools.pkgs; [ cargo rustc pkg-config ]);
           };
         });
     };

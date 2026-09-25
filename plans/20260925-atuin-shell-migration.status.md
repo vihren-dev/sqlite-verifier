@@ -38,7 +38,24 @@ exact runner/dependency profile, faithful baseline representation and transactio
 boundary before implementing affected interfaces. No original requirements are
 waived, and no new semantics are claimed by this planning checkpoint.
 
+Source inspection identifies SQLx 0.9.0 with bundled SQLite 3.46.0 in the selected
+Atuin revision. The pilot must account for that actual engine, not silently use
+our existing 3.51.0 profile. SQLx commits the payload and metadata insert together,
+then updates execution time after commit; a later error can therefore follow a
+committed migration. The lead is defining the precise supported guarantee.
+The additional Nix `capture` shell uses the existing flake lock. Executed version
+checks report cargo 1.98.0, rustc 1.98.1 and pkg-config 0.29.2; the Rust patch
+version differs from Atuin's requested 1.98.0. It supplies a real pinned-SQLx
+runner harness; it will not be represented as the complete Atuin application.
+
 The later documentation CI run `36104000145` passed Linux but exhausted the
 180-second aggregate macOS kernel-gate test limit; all preceding build/parser/
 native/model checks passed. The tagged release's checks remain successful.
-Root is investigating this bounded-test failure; no cause or fix is yet claimed.
+The successful tagged macOS suite took 143.6 seconds (Linux 102.4), leaving
+little headroom under the 180-second aggregate limit. Each compiler/checker
+process already has a separate 30-second timeout. Root's proposed test-harness
+correction raises only the aggregate limit to 360 seconds and emits each case
+label immediately, so a subsequent timeout identifies its stage. Assertions
+and per-process limits remain unchanged. The original suite passes locally;
+the integration engineer independently accepted the aggregate-budget adjustment
+and reviewed the capture-shell definition. Hosted confirmation remains pending.
