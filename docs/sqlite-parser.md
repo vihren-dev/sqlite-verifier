@@ -1,10 +1,12 @@
 # SQLite syntax boundary
 
 Build: `python3 parser/build.py`. Test: `python3 tests/parser_test.py`.
-The executable `build/sqlite-parser INPUT.sql` reads one UTF-8 file and emits JSON.
+The executables `build/sqlite-parser INPUT.sql` (3.51.0) and
+`build/sqlite-parser-3.46.0 INPUT.sql` each read one UTF-8 file and emit JSON.
 No database is opened and no SQL is executed, prepared, or schema-resolved.
 
-Successful output is `PARSED`, never `VERIFIED`. It contains `profile: "3.51.0"`,
+Successful output is `PARSED`, never `VERIFIED`. It contains the actual upstream
+header's version as `profile` (`3.51.0` or `3.46.0`),
 a root node index, and a flat node array. Every node contains its upstream grammar
 symbol, `start`/`end` UTF-8 byte offsets (end exclusive), and ordered child indexes.
 Terminals have no children. Empty productions have zero-width spans. The implicit
@@ -39,9 +41,10 @@ that lexical check occurs in SQLite's expression action rather than its tokenize
 No `SQLITE_OMIT_*` or `SQLITE_ENABLE_UPDATE_DELETE_LIMIT` grammar switches are set.
 This is default-build grammar recognition, not schema/name-resolution validity.
 For example, an uninstalled virtual-table module or unknown table still parses.
-Double-quoted tokens are recognized syntactically; the execution profile's DQS=0
-rule governs subsequent expression resolution and must not be bypassed by the
-semantic translator.
+Double-quoted tokens are recognized syntactically; the selected execution
+profile governs subsequent expression resolution. The existing 3.51.0 profile's
+DQS=0 rule must not be bypassed by the semantic translator. The distinct SQLx
+engine's actual compile configuration is recorded in [its capture](atuin-capture.md).
 
 The semantic translator must inspect all commands and existing-schema objects,
 admit only its modeled forms, and report parsed unsupported forms as
@@ -52,12 +55,16 @@ equivalence proof.
 
 ## Coverage
 
-The generator includes all 409 productions in the pinned default grammar. The
-regression suite exercises 20 scripts across DDL, DML, CTEs, windows, triggers,
+Each pinned default grammar has 409 productions, independently generated from
+its release's sources. The regression suite exercises 20 scripts per release
+across DDL, DML, CTEs, windows, triggers,
 virtual tables, pragmas, transaction control, and EXPLAIN; malformed input,
 encoding/resource boundaries, determinism, and byte spans are separate checks.
 This script denominator is not production coverage or semantic completeness.
+A separate RAISE-expression case distinguishes the grammars: support introduced
+in 3.47 is accepted by 3.51 and rejected by 3.46, preventing version relabeling.
 Public native fixture imports and formal/native comparisons are separate work.
 
 Exact source/archive hashes and retained notices are recorded in
-`parser/upstream/README.md` and `parser/upstream/sha256.json`.
+`parser/upstream/{README.md,sha256.json}` and
+`parser/upstream-3.46.0/{README.md,sha256.json}`.

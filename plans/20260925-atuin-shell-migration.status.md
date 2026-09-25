@@ -157,3 +157,8 @@ fresh complete capture alongside runner receipts. Formal/profile integration
 remains active in separate workspaces.
 The merged shared native entry point passed both suites in 0.227s after a
 2.22-second incremental build; workflow actionlint/shellcheck passed again.
+Published the lead-approved integration at `e094a5ffa770`; hosted run
+`36107075735` is now reproducing the capture on both platforms. Earlier run
+`36105736197` completed successfully on both platforms, confirming the aggregate
+kernel-test timeout adjustment. Parser/coverage documentation now distinguishes
+the two independently pinned grammars and their evidence scopes.
