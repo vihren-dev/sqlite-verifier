@@ -32,7 +32,6 @@ test: smoke coverage
     timeout 150 python3 tests/environment_snapshot_test.py
     timeout 15 python3 tests/docs_test.py
     timeout 75 python3 tests/schema_generation_test.py
-    timeout 180 python3 tests/conformance_atuin_model_test.py
     timeout 360 python3 tests/kernel_gate_test.py
     timeout 180 python3 -m tests.compilation_test
     timeout 600 python3 tests/cli_test.py
@@ -40,7 +39,7 @@ test: smoke coverage
     timeout 30 python3 -m unittest discover -s tests -p 'test_*.py'
 
 # Refresh bounded proof, grammar and native/model evidence.
-coverage: build
+coverage: build atuin-native
     timeout 420 python3 conformance/coverage_report.py --output build/coverage.json
 
 check: capture-shell build atuin-native test

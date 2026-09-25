@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import json
+import hashlib
 from pathlib import Path
 import subprocess
 import sys
@@ -15,7 +16,7 @@ from migration_check.profiles import ExecutionProfile, MigrationIdentity
 from migration_check.sql_tree import parse
 from migration_check.translate import starting_schema, statements
 from atuin_cases import COUNTS, native_rows
-from atuin_model_assertions import assertions
+from atuin_model_assertions import assertions, audit_axioms
 
 CAPTURE = ROOT / "conformance/atuin_capture"
 
@@ -69,7 +70,7 @@ def run(parser: Path) -> list[dict[str, object]]:
                                      capture_output=True, text=True, timeout=45)
             if checked.returncode:
                 raise AssertionError((count, checked.stdout, checked.stderr))
-            assert "sorryAx" not in checked.stdout and "Lean.ofReduceBool" not in checked.stdout
+            axioms = audit_axioms(checked.stdout, {"checkedHistory", "checkedConformance"})
             reports.append({"case": f"history-{count}-rows", "scope": "payload-history-and-schema",
                 "native_status": "REAL_SQLX_RUNNER_MATCHED_INDEPENDENT_EXPECTATIONS",
                 "model_status": "KERNEL_CHECKED_CONCRETE_ASSERTIONS",
@@ -77,7 +78,10 @@ def run(parser: Path) -> list[dict[str, object]]:
                 "native_source_id": native["profile"]["sqlite_source_id"],
                 "full_runner_relation": "NOT_YET_COMPARED",
                 "non_history_model_rows": "abstracted empty; payload does not inspect them",
-                "axioms": checked.stdout.strip()})
+                "axioms": axioms,
+                "native_trace_sha256": hashlib.sha256(result.stdout.encode()).hexdigest(),
+                "proof_sha256": hashlib.sha256(proof.read_bytes()).hexdigest(),
+                "target_sql_sha256": hashlib.sha256(sql).hexdigest()})
     return reports
 
 

@@ -1,6 +1,7 @@
 # Bounded coverage report
 
-After building the parser and Lean library, run inside the pinned environment:
+After building both parsers, the Lean library and locked capture binaries, run
+inside the pinned `nix develop path:./nix#capture` environment:
 
 ```sh
 python3 conformance/coverage_report.py --output build/coverage.json
@@ -16,6 +17,9 @@ vendored-source/fixture checks and the rejected false-empty model assertion.
 Their freshly returned JSON feeds this report directly. The aggregate test recipe
 does not repeat those comparisons or parser regressions. Existing report files
 are never reused as evidence; standalone coverage performs the same fresh checks.
+`just coverage` prepares those prerequisites and runs the distinct native capture
+and adversarial runner suites once. Their observations are not counted as the
+payload or full-runner model comparisons.
 The top-level native/model profile remains 3.51.0. The `additional_grammars`
 entry separately reports 3.46.0 syntax evidence; it does not transfer the 3.51.0
 native/model observations to the older engine. Both grammar inventories and
@@ -32,6 +36,17 @@ The report keeps these scopes separate:
 | Imported fixtures | Three selected assertion instances of 59 textual alter3.test call sites; two distinct IDs of 55. Not runtime-expanded Tcl cases or the whole SQLite corpus. The inherited view is retained, so model checking remains unsupported. |
 | Semantic support | Two restricted statement forms, as defined in semantic-subset.md; no inferred denominator for all SQLite behavior. |
 | Native/model observations | All five authored derived cases compared against independent expected results through the production parser/translator and Lean checks. Zero discrepancies means only those completed comparisons. |
+| Atuin payload (`atuin.payload`, SQLite3.46.0) | Three independently expected empty/singleton/three-row histories. Checks payload schema/storage, with explicitly empty abstract non-history model rows; does not establish full runner readiness. |
+| Atuin full runner (`atuin.runner`, SQLite3.46.0) | Two complete finite traces: one unmodified success and one authorizer-instrumented timing failure. Actual six/seven metadata records and statistics rows participate. Instrumented failure is not unmodified native failure coverage. |
+
+Both Atuin wrappers retain their negative tests, and emit fresh JSON only after
+those checks pass. Exact case sets, profile/source identity, target SQL hash,
+named allowed-axiom sets and retained native/proof hashes are required. Missing,
+duplicate, failed or altered receipts leave the corresponding counts unknown.
+Raw evidence remains in `build/atuin-model-payload/` and
+`build/atuin-runner-model/`; CI retains both directories and summary JSON files.
+These comparisons do not count the separate universal Atuin certificate or its
+product-gate result as checked by this report.
 
 `conformance/coverage_catalog.py` links documentation claims to definitions,
 lemmas, and fixtures without treating a citation as a proof. Detailed native

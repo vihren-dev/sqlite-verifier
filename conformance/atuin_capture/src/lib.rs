@@ -1,4 +1,5 @@
 //! Capture the pinned real SQLx migrator with Atuin's logical connection profile.
+pub mod faults;
 use serde_json::{Value, json};
 use sqlx::sqlite::{SqliteConnectOptions, SqliteJournalMode, SqlitePoolOptions, SqliteSynchronous};
 use sqlx::{AssertSqlSafe, Connection, Row, SqliteConnection, SqlitePool};
@@ -13,12 +14,13 @@ pub async fn snapshot(conn: &mut SqliteConnection) -> Result<Value, sqlx::Error>
         "table": row.get::<String,_>(2), "rootpage": row.get::<i64,_>(3),
         "sql": row.get::<Option<String>,_>(4)
     })).collect();
-    let rows = sqlx::query("SELECT version,description,installed_on,success,hex(checksum),execution_time FROM _sqlx_migrations ORDER BY version")
+    let rows = sqlx::query("SELECT rowid,version,description,installed_on,success,hex(checksum),execution_time FROM _sqlx_migrations ORDER BY version")
         .fetch_all(&mut *conn).await?;
     let metadata: Vec<Value> = rows.iter().map(|row| json!({
-        "version": row.get::<i64,_>(0), "description": row.get::<String,_>(1),
-        "installed_on": row.get::<String,_>(2), "success": row.get::<i64,_>(3),
-        "checksum_hex": row.get::<String,_>(4), "execution_time": row.get::<i64,_>(5)
+        "rowid":row.get::<i64,_>(0),
+        "version": row.get::<i64,_>(1), "description": row.get::<String,_>(2),
+        "installed_on": row.get::<String,_>(3), "success": row.get::<i64,_>(4),
+        "checksum_hex": row.get::<String,_>(5), "execution_time": row.get::<i64,_>(6)
     })).collect();
     let mut statistics = serde_json::Map::new();
     for (table, columns) in [("sqlite_stat1",vec!["tbl","idx","stat"]),

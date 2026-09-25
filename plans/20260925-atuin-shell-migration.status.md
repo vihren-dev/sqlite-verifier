@@ -194,3 +194,15 @@ Integrated independently reviewed CLI `a3e57f08`: selected engine grammar, exact
 SQL checksum and profile snapshot bind the verdict. Its full legacy/negative
 CLI, kernel-gate and generated-schema checks passed; the merged fast profile and
 schema tests also passed. Actual Atuin positive verification remains pending.
+
+## Complete finite runner correspondence
+
+The separate full-runner evidence unit now includes real normal success and a
+clearly labeled authorizer-instrumented post-COMMIT timing failure. Complete
+metadata rows (physical rowids1–6 then1–7) and statistics rows participate in
+kernel-checked readiness/conformance/ProfileExecutes; no empty metadata
+abstraction remains in this unit. The wrong inserted-version negative fails as
+expected, and exact named theorem/allowed-axiom audits pass. The payload-only
+three-case denominator remains separate. Ultra independently reproduced the
+full-trace test in15.553s and accepted its source. Details and limits are in
+`docs/atuin-runner-conformance.md` and the dated runner-conformance status.

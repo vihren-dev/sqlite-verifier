@@ -1,8 +1,20 @@
 """Kernel assertions for payload-only comparisons with independently expected cells."""
 from __future__ import annotations
 
+import re
 from migration_check.sql_model import Table
 from atuin_cases import lean_rows
+
+
+def audit_axioms(output: str, names: set[str]) -> dict[str, list[str]]:
+    """Require the exact named theorem set and the gate's permitted axiom whitelist."""
+    rows = re.findall(r"'([^']+)' depends on axioms: \[([^\]]*)\]", output)
+    actual = {name: [item.strip() for item in axioms.split(",") if item.strip()]
+              for name, axioms in rows}
+    allowed = {"propext", "Classical.choice", "Quot.sound"}
+    if len(rows) != len(names) or set(actual) != names or any(set(items) - allowed for items in actual.values()):
+        raise AssertionError(("Named theorem/axiom audit mismatch", actual, names))
+    return actual
 
 
 def assertions(count: int, expected: Table) -> str:

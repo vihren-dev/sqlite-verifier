@@ -26,6 +26,9 @@ payload does not inspect them. It does not establish SQLx readiness from those
 abstract rows or pretend they equal the native bookkeeping/statistics rows.
 The report states `full_runner_relation: NOT_YET_COMPARED`. Full runner traces
 require a separate comparison with the actual bookkeeping and statistics data.
+That separate comparison is documented in
+[atuin-runner-conformance.md](atuin-runner-conformance.md); it does not change
+the scope or denominator of these payload-only cases.
 
 After building the pinned parsers, Lean library and locked capture binaries:
 
