@@ -1,4 +1,5 @@
 import SqliteVerifier.Contract
+import SqliteVerifier.Preservation
 
 /-! Named projections and representation lemmas hide routine proof bookkeeping
 without restricting the general logical/interpretation interfaces. -/

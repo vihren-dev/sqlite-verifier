@@ -9,5 +9,5 @@ def nextSchema : SqliteVerifier.Schema := []
 /-- An empty script isolates the proof-gate test from SQL frontend behavior. -/
 def script : List SqliteVerifier.Statement := []
 /-- Fixed execution policy is sealed alongside all SQL data. -/
-def profile : SqliteVerifier.ExecutionProfile := .sqlite351Autocommit
+def profile : SqliteVerifier.ExecutionProfile := .sqlite351
 end Generated

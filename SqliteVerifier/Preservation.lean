@@ -93,6 +93,11 @@ theorem step_extends (statement : Statement) (database : Database) (position : N
         · split
           · exact DatabaseExtends.refl database
           · exact DatabaseExtends.add database name table [column] h
+  | beginTransaction => exact DatabaseExtends.refl database
+  | commit => exact DatabaseExtends.refl database
+  | rollback => exact DatabaseExtends.refl database
+  | insert _ _ _ => exact DatabaseExtends.refl database
+  | update _ _ _ _ _ => exact DatabaseExtends.refl database
 
 /-- A later error retains the already committed prefix and all original data. -/
 theorem runFrom_extends (script : List Statement) (database : Database) (position : Nat) :
@@ -106,6 +111,7 @@ theorem runFrom_extends (script : List Statement) (database : Database) (positio
     | success result =>
       simp only [h, Outcome.database] at first
       simpa [runFrom, h] using first.trans (ih result (position + 1))
+    | pending persisted visible error => simpa [runFrom, h] using first
 
 /-- The reusable additive theorem holds for every initial database and outcome. -/
 theorem run_extends (script : List Statement) (database : Database) :
