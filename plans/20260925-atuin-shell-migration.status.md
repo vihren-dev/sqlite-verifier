@@ -219,6 +219,23 @@ source/installed evidence. Aggregate integration, hosted platforms and human
 requirements/effort acceptance remain pending. Public main is unchanged by this
 checkpoint; protected-baseline approval is still required.
 
+Integrated reviewed coverage `ad1639f5`, retaining all newer CLI/install/cache
+hooks and one invocation per comparison. Full root `just check` passes after
+the Linux cache correction: native capture, three payload and two complete
+runner/model comparisons, both grammar versions, schema generation, adversarial
+kernel gate, real compilation sandbox, legacy and all seven Atuin CLI cases,
+seven coverage regressions and 28 discovered regressions. Evidence is
+`build/atuin-complete-check.log` (exit 0) and `build/coverage.json` (all nine
+evidence checks PASSED). The retained owner demonstration is VERIFIED with its
+complete source closure in `build/atuin-pilot-review{.json,/}`.
+
+Prepared third-root baseline protection and tested drift in all three roots.
+Ultra independently reproduced its Git-object adversarial test (2.954s) and
+accepted the unchanged target-owned workflow. The proposed policy, Atuin map
+and syntax-only synthetic-map updates remain local pending explicit owner
+review. The plain-language packet is ready; no human approval, authoring effort,
+diagnostic-repair session or Step 1 completion is inferred from these results.
+
 ## Complete finite runner correspondence
 
 The separate full-runner evidence unit now includes real normal success and a

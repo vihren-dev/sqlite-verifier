@@ -56,7 +56,7 @@ def build(version: str, source: str, executable: str) -> None:
              "-o", str(directory / (filename + ".o"))])
     run([cc, *(str(directory / (name + ".o")) for name in ["tokenizer", "syntax", "main"]),
          "-lm", "-lpthread", "-ldl", "-o", str(ROOT / "build" / executable)])
-    if identity(ROOT, upstream, version, executable)[1] != inputs:
+    if identity(ROOT, upstream, version, executable)[1:] != (inputs, reusable):
         raise RuntimeError("Parser inputs changed during compilation; retry the build")
     if reusable:
         record(stamp, inputs, outputs)

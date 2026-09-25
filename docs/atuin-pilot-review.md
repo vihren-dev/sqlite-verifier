@@ -1,8 +1,9 @@
 # Atuin pilot: product-owner review
 
-Status: DRAFT — the formal certificate, source CLI and installed macOS runtime
-have passed review and checks; aggregate/platform evidence is being integrated. This document
-records proposed meaning, not owner approval or a completed Step 1 pilot.
+Status: READY FOR OWNER REVIEW — the formal certificate, complete local checks
+and installed macOS runtime pass. Atuin publication and hosted platform checks
+remain pending the baseline review. This document records proposed meaning, not
+owner approval or a completed Step 1 pilot.
 
 ## Migration and logical meaning
 
@@ -89,8 +90,13 @@ changed approved helper and unfinished proof all reject for their intended
 reasons. The actual macOS archive also passes all seven cases after offline
 installation under an isolated, poisoned ambient environment, alongside the
 existing positive/refuted/unsupported package checks. Its local log is
-`build/atuin-installed-package.log` (exit 0). Integrated platform results remain
-pending; the packaging recipe repeats these installed checks on each platform.
+`build/atuin-installed-package.log` (exit 0). The final combined `just check`
+also passes (`build/atuin-complete-check.log`, exit 0), including three payload
+and two runner/model comparisons, the adversarial gate and all CLI regressions.
+A retained actual `VERIFIED` response and compiled input closure are at
+`build/atuin-pilot-review.json` and `build/atuin-pilot-review/`. Hosted Atuin
+platform results remain pending; the packaging recipe repeats the installed
+checks on each platform after publication is authorized.
 
 The two existing sets of synthetic requirements also replace positional records with named fields to
 compile against the richer schema type; their intended observations and failure

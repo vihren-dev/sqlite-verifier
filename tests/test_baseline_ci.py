@@ -36,11 +36,14 @@ class BaselineProtectionTest(unittest.TestCase):
 
             base = commit()
             check(root, base, base)
+            for directory in APPROVED_ROOTS:
+                helper = root / directory / "Helper.lean"
+                helper.write_text("-- changed imported semantics\n", encoding="utf-8")
+                with self.assertRaisesRegex(ValueError, "Helper.lean"):
+                    check(root, base, commit())
+                git(root, "reset", "--hard", base)
             helper = root / APPROVED_ROOTS[0] / "Helper.lean"
-            helper.write_text("-- changed imported semantics\n", encoding="utf-8")
-            changed = commit()
-            with self.assertRaisesRegex(ValueError, "Helper.lean"):
-                check(root, base, changed)
+            helper.write_text("-- self-approved change\n", encoding="utf-8")
             baseline = helper.parent / "baseline.json"
             hashes = json.loads(baseline.read_text())
             hashes["approved/Helper.lean"] = hashlib.sha256(helper.read_bytes()).hexdigest()

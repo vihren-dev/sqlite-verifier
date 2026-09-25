@@ -7,7 +7,7 @@ import re
 import subprocess
 from pathlib import Path
 
-APPROVED_ROOTS = ("examples/approved", "examples/allowed_failure/approved")
+APPROVED_ROOTS = ("examples/approved", "examples/allowed_failure/approved", "examples/atuin/approved")
 
 
 def git(repository: Path, *arguments: str) -> bytes:

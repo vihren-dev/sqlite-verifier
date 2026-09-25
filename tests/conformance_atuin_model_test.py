@@ -42,6 +42,7 @@ class PayloadModelTest(unittest.TestCase):
                                      capture_output=True, text=True, timeout=45)
             self.assertNotEqual(checked.returncode, 0)
             self.assertIn("decide", checked.stdout)
+        print(json.dumps(reports, indent=2))
 
 
 if __name__ == "__main__":

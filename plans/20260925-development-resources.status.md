@@ -51,3 +51,9 @@ installed-runtime checks; its source remains 3264 bytes after packaging.
 Public [PR #2](https://github.com/vihren-dev/sqlite-verifier/pull/2), revision
 `1f4b3d7e`, is running both native platforms; its target-owned baseline check
 passes. Disk capacity recovered externally; Atuin development has resumed.
+
+Copied the independently reviewed Linux cache correction `f879a1e4` into the
+Atuin integration. The complete root check passes with real native cache reuse
+and all new environment-admission regressions. Public repair PR #2 remains
+separate from the pending logical-baseline approval. Its first macOS package run
+passed; the corrected commit is running both platforms in hosted run 36115583804.

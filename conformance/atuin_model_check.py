@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import json
+import hashlib
 from pathlib import Path
 import subprocess
 import sys
@@ -77,7 +78,10 @@ def run(parser: Path) -> list[dict[str, object]]:
                 "native_source_id": native["profile"]["sqlite_source_id"],
                 "full_runner_relation": "NOT_YET_COMPARED",
                 "non_history_model_rows": "abstracted empty; payload does not inspect them",
-                "axioms": axioms})
+                "axioms": axioms,
+                "native_trace_sha256": hashlib.sha256(result.stdout.encode()).hexdigest(),
+                "proof_sha256": hashlib.sha256(proof.read_bytes()).hexdigest(),
+                "target_sql_sha256": hashlib.sha256(sql).hexdigest()})
     return reports
 
 

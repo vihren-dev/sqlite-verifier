@@ -102,6 +102,8 @@ jobs:
             build/atuin-runner-receipts.json
             build/atuin-model-payload.json
             build/atuin-model-payload/
+            build/atuin-runner-model.json
+            build/atuin-runner-model/
           if-no-files-found: warn
           retention-days: 14
       - name: Retain development source snapshot

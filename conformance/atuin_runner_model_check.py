@@ -80,6 +80,7 @@ def run() -> list[dict[str, object]]:
             "scope":"complete captured tables, physical rows, metadata and statistics",
             "native_configuration":"unmodified runner" if scenario=="success" else "authorizer-fault-instrumented",
             "unmodified_profile_failure_claim":False,"schema_objects":10,"axioms":axioms,
+            "grammar_profile":"3.46.0", "native_source_id":native["profile"]["sqlite_source_id"],
             "metadata_rowids": {stage:[row["rowid"] for row in native[stage]["metadata"]]
                                 for stage in ("before", "post_close")},
             "statistics_rows": {stage:{name:len(rows) for name,rows in native[stage]["statistics"].items()}

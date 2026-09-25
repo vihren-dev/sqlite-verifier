@@ -10,6 +10,7 @@ import sys
 
 from coverage_catalog import CLAIMS, EXCLUSIONS, THEOREMS
 from coverage_evidence import command, proof_probe, structured
+from coverage_atuin import scope_report
 from import_fixture import fixture
 from model_cases import cases
 
@@ -44,6 +45,8 @@ def collect(root: Path, native: str) -> dict[str, object]:
         "parser_regressions": command([sys.executable, "tests/parser_test.py"], root, 30),
         "upstream_native": command([sys.executable, "tests/conformance_native_test.py", native], root, 20),
         "derived_native_model": command([sys.executable, "tests/conformance_model_test.py", native], root, 180),
+        "atuin_payload_model": command([sys.executable, "tests/conformance_atuin_model_test.py"], root, 180),
+        "atuin_runner_model": command([sys.executable, "tests/conformance_atuin_runner_model_test.py"], root, 240),
         "grammar_export": command([str(root / "build/parser/lemon"), "-g",
                                    str(root / "parser/upstream/parse.y")], root, 5),
         "grammar_346_export": command([str(root / "build/parser-3.46.0/lemon"), "-g",
@@ -78,6 +81,8 @@ def collect(root: Path, native: str) -> dict[str, object]:
         checks["derived_native_model"].update(status="FAILED", diagnostic="Incomplete concrete comparison report")
     grammar = grammar_inventory(root, "3.51.0", "build/parser", checks["grammar_export"], checks["parser_regressions"])
     grammar346 = grammar_inventory(root, "3.46.0", "build/parser-3.46.0", checks["grammar_346_export"], checks["parser_regressions"])
+    atuin = {"payload":scope_report(root, checks["atuin_payload_model"], payload=True),
+             "runner":scope_report(root, checks["atuin_runner_model"], payload=False)}
     return {
         "report_version": 1, "profile": "3.51.0",
         "status": "EVIDENCE_CHECKS_PASSED" if all(row["status"] == "PASSED" for row in checks.values()) else "EVIDENCE_CHECKS_FAILED",
@@ -85,6 +90,7 @@ def collect(root: Path, native: str) -> dict[str, object]:
                    "unit": "explicitly catalogued model theorems; not all library declarations",
                    "status": checks["named_proofs"]["status"], "product_gate": "NOT_RUN_BY_THIS_REPORT"},
         "grammar": grammar, "additional_grammars": {"3.46.0": grammar346},
+        "atuin": atuin,
         "documented_claims": {"catalogued_entries": len(CLAIMS), "upstream_requirement_ids": 3,
                               "sqlite_documentation_total": None, "entries": CLAIMS,
                               "status": "TRACEABILITY_INVENTORY_NOT_PROOF_COMPLETION"},

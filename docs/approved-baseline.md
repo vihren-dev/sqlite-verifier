@@ -1,9 +1,10 @@
 # Protecting approved requirements
 
-The engineering examples carry CLI-compatible `baseline.json` files in each
-`approved/` directory. They record the exact SHA-256 of Requirements,
-Interpretation and every local Lean helper. These initial maps describe synthetic
-engineering examples; they do not represent a pilot's approval of application
+The examples carry CLI-compatible `baseline.json` files in each `approved/`
+directory. They record the exact SHA-256 of Requirements, Interpretation and every
+local Lean helper. Two maps describe synthetic engineering requirements; the
+proposed Atuin map describes the actual application's pilot contract. None of
+these engineering snapshots substitutes for human approval of changed or new
 requirements. The approved library and verifier implementation are separate
 trusted code and require their own review.
 
@@ -24,8 +25,8 @@ or loads its build configuration. Full lowercase commit hashes are validated and
 passed as subprocess arguments. A PR cannot change its checker or manifest to
 approve itself.
 
-The target manifests pin the exact set of `.lean` files under both approved
-example directories. This conservatively includes unused helpers as well as the
+The target manifests pin the exact set of `.lean` files under the ordinary,
+allowed-failure and Atuin approved directories. This conservatively includes unused helpers as well as the
 actual import closure; all application dependencies should live within the
 reviewed approved tree. The separate driver check uses the exact compiled closure.
 Any changed baseline, changed source, added source, removed source or source
@@ -42,6 +43,12 @@ and its source changes may land together only after explicit owner approval and 
 recorded maintainer bypass of the expected failing drift check. There is no
 automatic baseline refresh or approval inferred from compilation or successful
 proofs. Ordinary migration-only PRs must pass without a bypass.
+
+The proposed Atuin baseline protects Requirements, Interpretation, AtuinSchema
+and AtuinCatalog. Adding this third protected root and updating the two existing
+sets of source hashes requires the owner review recorded in the
+[pilot packet](atuin-pilot-review.md). Until that review is complete, these
+changes remain proposed and must not be integrated into public `main`.
 
 GitHub may disable `pull_request_target` through workflow event policy on public
 repositories. Confirm this narrowly scoped, data-only workflow is allowed before
@@ -80,4 +87,3 @@ Initial engineering integration uses the owner's already-authorized repository
 access and records technical-lead review in the dated status files. This
 maintainer bypass is not product-owner approval of changed logical requirements;
 such changes still require the explicit semantic review described above.
-
