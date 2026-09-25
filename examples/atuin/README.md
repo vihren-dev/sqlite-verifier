@@ -1,30 +1,85 @@
-# Atuin shell-column pilot certificate
+# Atuin shell-column SQL example
 
-This bundle uses the unchanged migration from Atuin commit
-`5b10eb09c664d316b7384210399b02e6127f4027` and the complete persisted schema captured
-from its pinned SQLx runner. It is a proposed contract for owner review; a successful
-proof check does not constitute that review or complete the Step 1 pilot acceptance.
+This example selects the shell migration at Atuin commit
+[`5b10eb09c664d316b7384210399b02e6127f4027`](https://github.com/atuinsh/atuin/tree/5b10eb09c664d316b7384210399b02e6127f4027).
+It supplies ordinary SQLite schema and migration SQL. It does not import/build
+Atuin, integrate with SQLx, or certify a live framework invocation. Proposed
+requirements and interpretations still require owner review.
 
-The four represented tables retain all ten schema objects: history, SQLx metadata,
-two statistics tables, three explicit indexes and three implicit constraint indexes.
-Admission requires the exact six successful prior version/checksum records and a
-pending shell migration. It includes empty and nonempty history, nullable TEXT
-primary keys and distinct physical rowids. It does not claim all possible Atuin
-installation schemas, concurrent writers or crash recovery.
+## Database operations
 
-The approved reader selects every old history field and physical rowid from actual
-storage. The next reader also selects `shell`. The checked requirement preserves
-the old projection exactly and requires actual NULL shell values for every old row.
-Rollback errors retain the old view; committed errors satisfy the same extension
-as success. Runner semantics separately retain old metadata and add the exact bound
-target, with the `-1` timing sentinel when its post-commit update fails. Statistics
-rows may change while their definitions and all other storage remain intact.
+`schema.sql` describes a reasonable intermediate database immediately before the
+selected shell migration: history, its three explicit indexes, and bookkeeping.
+The three additional implicit indexes derive from the retained PRIMARY KEY and
+UNIQUE declarations. This is a pre-ANALYZE baseline without optimizer statistics,
+views, triggers, foreign keys or other application objects. It is not asserted
+to be every existing Atuin installation's schema.
 
-From the repository root, in the declared development environment:
+The history definition follows the upstream
+[initial schema](https://github.com/atuinsh/atuin/blob/5b10eb09c664d316b7384210399b02e6127f4027/crates/atuin-client/migrations/20210422143411_create_history.sql),
+[search index](https://github.com/atuinsh/atuin/blob/5b10eb09c664d316b7384210399b02e6127f4027/crates/atuin-client/migrations/20220806155627_interactive_search_index.sql),
+[soft-delete field](https://github.com/atuinsh/atuin/blob/5b10eb09c664d316b7384210399b02e6127f4027/crates/atuin-client/migrations/20230319185725_deleted_at.sql),
+and [author/intent fields](https://github.com/atuinsh/atuin/blob/5b10eb09c664d316b7384210399b02e6127f4027/crates/atuin-client/migrations/20260224000100_history_author_intent.sql).
+TEXT and BIGINT primary keys remain nullable ordinary rowid-table keys; neither
+is silently changed into an INTEGER PRIMARY KEY alias.
+
+`migration.sql` has five explicit statements: BEGIN, the unchanged upstream
+[nullable shell ALTER](https://github.com/atuinsh/atuin/blob/5b10eb09c664d316b7384210399b02e6127f4027/crates/atuin-client/migrations/20260709214605_shell.sql),
+a bookkeeping INSERT, COMMIT, and an elapsed-time UPDATE. Their order reflects
+SQLx's [apply and execute_migration implementations](https://github.com/launchbadge/sqlx/blob/003b698e99e024f3621b8043a2426fde5b741171/sqlx-sqlite/src/migrate.rs#L150-L274);
+that file also defines the bookkeeping table. Atuin's
+[lockfile](https://github.com/atuinsh/atuin/blob/5b10eb09c664d316b7384210399b02e6127f4027/Cargo.lock)
+pins SQLx 0.9.0. The SQLx release source identifies that source commit.
+
+The version is 20260709214605 and description is `'shell'`. The checksum literal
+is SHA-384 of the original 42-byte ALTER file, including its final newline—not
+of this five-statement wrapper. SQLx normally obtains installed_on from the
+CURRENT_TIMESTAMP default. This example explicitly inserts `'2026-09-25 00:00:00'`
+as one concrete instantiation of that clock value, and fixes the post-commit
+elapsed parameter at 1000000 nanoseconds. It does not claim those values were
+measured from an application execution. The initial execution_time remains -1,
+and the INSERT deliberately omits physical rowid so SQLite allocates it.
+
+This is a database-effect instance of the selected migration transaction and
+its timing update. It excludes framework readiness queries/catalog decisions,
+connection setup, cache management, pool closure/optimization, concurrent writers
+and crash recovery. It does not reproduce every SQLx outcome. In particular,
+plain BEGIN/COMMIT SQL does not encode a framework's implicit rollback on error;
+failed SQL is interpreted under the verifier's explicit SQLite execution policy.
+No omitted framework operation is silently added by the SQLite version setting.
+
+## Application meaning and proposed guarantee
+
+Atuin's [History fields](https://github.com/atuinsh/atuin/blob/5b10eb09c664d316b7384210399b02e6127f4027/crates/atuin-client/src/history.rs#L313-L339)
+represent commands, execution time/duration/status, location/session/host,
+soft deletion, author/intent, and an optional shell. The
+[database decoder](https://github.com/atuinsh/atuin/blob/5b10eb09c664d316b7384210399b02e6127f4027/crates/atuin-client/src/database.rs#L287-L318)
+reads missing or NULL shell as None. The
+[shell filter](https://github.com/atuinsh/atuin/blob/5b10eb09c664d316b7384210399b02e6127f4027/crates/atuin-client/src/database.rs#L163-L188)
+uses SQL NULL to represent commands without recorded shell information.
+
+The proposed requirement preserves all eleven old stored fields and physical
+row identities and gives every existing row an actual NULL shell. Preserving
+those fields preserves inputs to the application's decoder and filters; the new
+NULL continues to mean “shell not recorded.” This is a storage guarantee, not a
+formalization of the Rust decoder, UUID validity, timestamp conversions, author
+fallback/normalization, or every application query. The full pinned revision's
+HISTORY_COLUMNS also includes later author_kind; this example covers the selected
+intermediate migration and does not promise compatibility with every query at
+that revision. Native edge-case fixtures need not all be decodable as History.
+
+Bookkeeping is ordinary SQL on an ordinary table. Its insertion, constraints,
+rowid allocation and timing update must be covered by generic SQL semantics and
+approved data assumptions. No migration identities or history policy belong in
+the core engine profile. The candidate resulting reader must inspect actual
+resulting history; an empty or invented interpretation cannot substitute for it.
+
+## Checking
+
+From the repository root, using the declared SQLite environment:
 
 ```sh
-bin/migration-check verify \
-  --profile examples/atuin/profile.json \
+bin/migration-check verify --profile 3.46.0 \
   --schema examples/atuin/schema.sql \
   --requirements examples/atuin/approved/Requirements.lean \
   --interpretation examples/atuin/approved/Interpretation.lean \
@@ -33,14 +88,14 @@ bin/migration-check verify \
   --proofs examples/atuin/Proofs.lean --format json
 ```
 
-`Proofs.migrationCorrect` quantifies all admitted histories and all modeled runner
-outcomes. `AtuinWitness` establishes both empty and populated readiness;
-`AtuinTraces` establishes populated committed-success and timing-failure traces.
-Those concrete witnesses prevent impossible branch definitions from passing
-unnoticed; they are not substitutes for the universal proof. Native correspondence
-is documented separately in the capture and conformance reports.
+The ordinary native SQL comparison is separate evidence from proof status.
+It runs the supplied SQL on empty and populated history fixtures, preserving
+independent expected values and checking schema/bookkeeping effects. Finite
+native tests do not prove universal native-engine refinement or owner acceptance.
+Adapted upstream SQL retains Atuin's [MIT notice](UPSTREAM-LICENSE).
 
-`AtuinSchema` and `AtuinCatalog` are transitive approved inputs. They do not import
-candidate or generated modules. The verifier seals SQL/profile data and independently
-reconstructs the expected theorem. After owner review, an approved-source baseline
-can retain these exact source/dependency hashes for subsequent migration checks.
+The native fixture metadata is deliberately minimal and differs from the approved
+proof example. These are generic SQL-mechanics checks, not witnesses of the
+Atuin interpretation invariant or a complete migration catalog. The MAX_ROWID
+case observes native random allocation and is explicitly outside the proposed
+deterministic INSERT domain.
