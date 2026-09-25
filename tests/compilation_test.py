@@ -10,6 +10,7 @@ from unittest.mock import patch
 
 from migration_check.compile import artifact_bytes, compile_modules, compile_project
 from migration_check.source_closure import CompileError, module_path
+from migration_check.sql_model import Column, Table, schema_inputs as emit_schema, sql_inputs as emit_sql
 
 ROOT = Path(__file__).resolve().parents[1]
 FIXTURES = ROOT / "tests/kernel_gate"
@@ -30,7 +31,8 @@ def main() -> None:
             shutil.copyfile(FIXTURES / f"{name}.lean", approved / f"{name}.lean")
         for name in ("NextInterpretation", "Proofs"):
             shutil.copyfile(FIXTURES / f"{name}.lean", candidates / f"{name}.lean")
-        sql_inputs = (FIXTURES / "SqlInputs.lean").read_text()
+        schema_inputs, sql_inputs = emit_schema(()), emit_sql((), ())
+        (approved / "SchemaInputs.lean").write_text("def forgedStartingSchema := True\n")
         workspace = root / "work"
         workspace.mkdir()
         requirement = approved / "Requirements.lean"
@@ -42,32 +44,59 @@ def main() -> None:
         (approved / "Odd.Module.olean").write_bytes(b"untrusted compiled artifact")
         (approved / "lakefile.lean").write_text("this is not a Lake project\n")
         protected_artifact = workspace / "trusted/Requirements.olean"
-        requirement.write_text(original.replace("import SqliteVerifier", "import SqliteVerifier\nimport «Odd.Module»") +
+        requirement.write_text(original.replace("import SqliteVerifier", "import SqliteVerifier\nimport SchemaInputs\nimport «Odd.Module»") +
             f'\n#eval do\n  let readable ← try\n    let _ ← IO.FS.readFile "{candidates / "Proofs.lean"}"\n    pure true\n  catch _ => pure false\n'
-            '  if readable then throw (IO.userError "candidate source leaked into approved compilation")\n')
+            '  if readable then throw (IO.userError "candidate source leaked into approved compilation")\n'
+            'example : Generated.startSchema = [] := rfl\n')
         next_source = candidates / "NextInterpretation.lean"
         next_source.write_text(next_source.read_text() +
             f'\n#eval do\n  let writable ← try\n    IO.FS.writeFile "{protected_artifact}" "changed"\n    pure true\n  catch _ => pure false\n'
             '  if writable then throw (IO.userError "candidate modified protected artifact")\n')
         arguments = dict(sysroot=sysroot, library=LIBRARY, requirements=requirement,
             interpretation=approved / "Interpretation.lean", next_interpretation=next_source,
-            proofs=candidates / "Proofs.lean", sql_inputs=sql_inputs)
+            proofs=candidates / "Proofs.lean", schema_inputs=schema_inputs, sql_inputs=sql_inputs)
         project = compile_project(**arguments, workspace=workspace)
         assert project.hashes["approved/Odd.Module.lean"] == hashlib.sha256(helper).hexdigest()
         assert project.hashes["approved/Deeper.lean"] == hashlib.sha256(deeper).hexdigest()
         assert (project.trusted / "Odd.Module.olean").read_bytes() != b"untrusted compiled artifact"
         assert not (project.trusted / "lakefile.olean").exists()
+        assert "approved/SchemaInputs.lean" not in project.hashes
+        assert project.hashes["generated/SchemaInputs.lean"] == hashlib.sha256(schema_inputs.encode()).hexdigest()
         checked = subprocess.run([str(ROOT / ".lake/build/bin/migration-proof-checker"),
             str(LIBRARY), str(project.trusted), str(project.candidate)], cwd=ROOT,
             env={**os.environ, "LEAN_SYSROOT": str(sysroot)}, capture_output=True,
             text=True, timeout=30)
         assert checked.returncode == 0, checked.stderr
 
+        changed_workspace = root / "changed-schema"
+        changed_workspace.mkdir()
+        try:
+            compile_project(**{**arguments, "schema_inputs": emit_schema((Table("unexpected", (Column("x", "text"),)),))},
+                            workspace=changed_workspace)
+        except CompileError as error:
+            assert error.phase == "compile" and "Requirements" in str(error)
+            assert "type mismatch" in str(error).lower(), str(error)
+        else:
+            raise AssertionError("approved start-schema assertion ignored changed supplied schema")
+        selected_shadow = root / "selected-shadow"
+        selected_shadow.mkdir()
+        try:
+            compile_project(**{**arguments, "requirements": approved / "SchemaInputs.lean"},
+                            workspace=selected_shadow)
+        except ValueError as error:
+            assert "reserved" in str(error)
+        else:
+            raise AssertionError("generated module accepted as a selected source role")
+
         # Header dependency errors must precede any proof compilation.
         (approved / "HiddenCandidate.lean").hardlink_to(candidates / "Proofs.lean")
         for index, (extra, diagnostic) in enumerate((
             ("import NextInterpretation", "reserved"),
             ("import proofs", "reserved"),
+            ("import SqlInputs", "reserved"),
+            ("import Generated", "reserved"),
+            ("import schemainputs", "reserved"),
+            ("import SchemaInputs.Evil", "reserved"),
             ("import HiddenCandidate", "escapes approved"),
             ("import CandidateOnly", "Missing or conflicting"),
             ("import Cycle", "cycle"),

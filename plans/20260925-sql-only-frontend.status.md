@@ -45,3 +45,27 @@ Remaining: the revised Atuin example/adversarial CLI harness after the lead's
 new SQL-only example bundle. Its draft is preserved outside this checked unit;
 the existing Atuin harness is not asserted to pass in this intermediate state.
 No framework verification or human baseline approval is claimed.
+
+
+Starting-schema binding correction (2026-09-25), authorized under the SQL-only
+core task: SchemaInputs now exports only the generated starting schema to
+approved closures; candidate SQL/script/result inputs remain isolated. Local
+shadow sources are ignored, reserved aliases/imports reject, and a selected
+SchemaInputs source role rejects. SqlInputs imports the single shared definition.
+Both generated sources are hashed and exported. Optional schema.sql baseline
+pins protect schema-specific approvals without restricting reusable contracts.
+
+Checked correction: rich/literal generation kernel suite passed; real compiler
+staging and gate test passed, including changed-schema and selected-shadow
+rejections. Eighteen focused Python tests passed in 0.525s. The complete legacy
+CLI suite passed positive, refutation, allowed failure and hostile input cases.
+Root independently reviewed the source boundary with no finding. Root owns the
+independent schema-first gate replay and baseline CI enforcement; lead owns the
+business model/example rewrite. Atuin CLI draft remains preserved and unclaimed.
+
+The additional public CLI schema-pin regression passed: a comment-only schema
+change (same parsed meaning) rejects as INPUT_ERROR naming schema.sql. This shows
+the optional approval pin is enforced independently of a theorem mismatch.
+Root owns generated-input-first replay and conformance owns adapting single-file
+model emitters to schema_inputs + sql_inputs; integrate these coordinated units
+before the complete shared check.
