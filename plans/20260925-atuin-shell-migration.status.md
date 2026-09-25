@@ -38,7 +38,129 @@ exact runner/dependency profile, faithful baseline representation and transactio
 boundary before implementing affected interfaces. No original requirements are
 waived, and no new semantics are claimed by this planning checkpoint.
 
+Source inspection identifies SQLx 0.9.0 with bundled SQLite 3.46.0 in the selected
+Atuin revision. The pilot must account for that actual engine, not silently use
+our existing 3.51.0 profile. SQLx commits the payload and metadata insert together,
+then updates execution time after commit; a later error can therefore follow a
+committed migration. The lead is defining the precise supported guarantee.
+The additional Nix `capture` shell uses the existing flake lock. Executed version
+checks report cargo 1.98.0, rustc 1.98.1 and pkg-config 0.29.2; the Rust patch
+version differs from Atuin's requested 1.98.0. It supplies a real pinned-SQLx
+runner harness; it will not be represented as the complete Atuin application.
+
 The later documentation CI run `36104000145` passed Linux but exhausted the
 180-second aggregate macOS kernel-gate test limit; all preceding build/parser/
 native/model checks passed. The tagged release's checks remain successful.
-Root is investigating this bounded-test failure; no cause or fix is yet claimed.
+The successful tagged macOS suite took 143.6 seconds (Linux 102.4), leaving
+little headroom under the 180-second aggregate limit. Each compiler/checker
+process already has a separate 30-second timeout. Root's proposed test-harness
+correction raises only the aggregate limit to 360 seconds and emits each case
+label immediately, so a subsequent timeout identifies its stage. Assertions
+and per-process limits remain unchanged. The original suite passes locally;
+the integration engineer independently accepted the aggregate-budget adjustment
+and reviewed the capture-shell definition. Hosted confirmation remains pending.
+The test-harness-only follow-up now applies the reviewed 360-second aggregate
+budget and immediate case labels. Python compilation succeeds; all proof checks
+and individual child-process timeouts are preserved.
+
+The lead accepted all three planning/tooling/harness checkpoints and main was
+advanced to `e331c3a68170`. Hosted run `36105736197` is in progress.
+The real SQLx capture has now passed in the conformance workspace; its review
+and integration remain pending. Root is adding separately pinned SQLite 3.46.0
+grammar/tokenizer sources and an independently named native CLI, while retaining
+3.51.0. The downloaded 3.46.0 amalgamation's SHA3-256 matches the official release
+log; each incorporated upstream file and both archives have recorded SHA-256s.
+Both parsers now build and pass the same 20 grammar-family scripts, lexical,
+input-limit and UTF-8 byte-span checks. A RAISE-expression test additionally
+distinguishes the actual pre-3.47 grammar from 3.51.0. Native CLI version/source-id
+checks pass for both releases. Runtime packaging and loader-root collection now
+include both parsers; installed archive confirmation remains pending.
+
+## Real runner capture checkpoint
+
+Conformance implemented `conformance/atuin_capture`; repeat commands are in
+`docs/atuin-capture.md`. Actual SQLx 0.9.0 executes the preceding six migrations
+and unchanged shell migration. All 162 resolved registry dependencies match
+upstream lock identities. Native SQLite 3.46.0 source96c92aba, compile options
+and effective PRAGMAs are captured; no different engine was substituted.
+
+Each complete schema inventory contains eight objects: history and bookkeeping
+tables, three explicit indexes and three constraint indexes. Metadata contains
+six/seven successful SHA-384-bound migration rows. JSON retains implicit-index
+NULL SQL entries; DDL recreates them via constraints. The actual SQLx harness is
+explicitly distinguished from the complete Atuin executable and its background
+WAL housekeeping. Original SQL and upstream license are retained.
+
+Nix capture build passed in 21.10s; repeat native regression passed in 0.024s
+under a 40s timeout. It checks complete schemas, dependency/migration hashes,
+metadata checksums/success and refusal to overwrite an existing database.
+Independent source/evidence review was requested from the technical lead.
+Runner failure/adversarial tests remain subsequent work. No model extension,
+invocation certificate, owner acceptance or DONE is claimed.
+
+## Native runner adversarial checkpoint
+
+Added a bounded real-SQLx adversarial executable and eight scenarios, with
+receipts and documented fault boundaries. Payload/metadata-insert failures
+roll back; timing-update failure retains committed ADD and metadata time=-1.
+Dirty/checksum/unknown-version checks reject unchanged, and already-applied
+target succeeds unchanged. Each preserves the exact old storage/rowids of a
+native-valid witness including two NULL primary keys, signed-rowid extremes,
+mixed storage classes and embedded-NUL text. Native integrity checks pass.
+Fault-trigger schemas are explicitly outside pilot admission. Cache-clear
+failure remains source-based evidence only. Shared native capture helpers
+avoid duplicating the selected connection profile.
+
+Locked offline build passed in 2.34s. Both capture and adversarial regression
+suites passed under a 45-second outer timeout; individual native subprocesses
+also have 30-second limits. No new formal/native correspondence claim is made.
+
+Root's post-close review found a material capture correction: actual
+optimize-on-close creates sqlite_stat1/stat4 even for the empty fixture. The
+earlier eight-object during-run export was incomplete as a persisted baseline.
+Following the lead's boundary decision, capture now closes after six migrations,
+reopens the actual ten-object baseline, executes the target, and records both
+invocation result and post-close state. Full statistics rows are retained as
+observations. Native runtime limits are queried read-only through SQLx's locked
+handle. Export bytes and compile options are checked against fresh reproduction.
+Adversarial runs begin with the persisted statistics-bearing baseline and check
+history after closing; no statistics object is silently removed.
+Final revised offline build passed in 1.96s; both native regression suites passed
+in 0.205s, including all eight adversarial scenarios. Tests reject stale schema
+exports or a mismatched compiler configuration rather than silently accepting
+a different native profile.
+
+The lead approved separating only SQLite's `COMPILER=` option for cross-platform
+reproduction: upstream sqlite3.c constructs it solely from compiler identity
+macros. The actual compiler string is retained in raw options and its own field;
+all other compile flags and runtime limits remain exact comparisons. Fresh
+platform capture is retained at build/atuin-capture.json for CI inspection.
+
+## Universal pilot certificate and inhabitation checkpoint
+
+The formal bundle under `examples/atuin/` now proves the exact generated VC for
+all admitted history rows, all complete captured schema definitions and every
+modeled SQLx outcome. Approved modules bind the independent complete schema and
+six-entry catalog, and read all eleven old fields plus physical rowids. The
+candidate reads actual resulting shell cells; successful and committed-error
+outcomes establish the same old projection and actual NULL extension. Rolled-back
+outcomes read unchanged history. No premise hides successful applicability.
+
+Reusable `NullableProjection` and `SchemaExtension` helpers prove actual stored
+NULL observations and full-schema lookup/property preservation independently of
+the concrete schema size. Explicit empty and populated readiness witnesses include
+real-shaped six-row bookkeeping. The populated witness has two nullable TEXT
+primary keys with distinct physical rowids. Separate committed-success and
+post-commit timing-failure witnesses append exactly the bound seventh metadata
+record and retain the appropriate elapsed value or `-1` sentinel. They are model
+inhabitation witnesses, not substituted native correspondence evidence.
+
+After the resource repair, validation used one persistent shell from the explicit
+tiny `path:/Users/tzankomatev/work/sqlite-verifier/nix#capture` environment; the
+resource preflight passed. `timeout 60 lake build SqliteVerifier` passed 20 jobs.
+Every bundle module compiled under bounded individual Lean invocations. The
+universal certificate and both committed traces use only `propext`,
+`Classical.choice`, and `Quot.sound`. A fresh source-only sandbox compilation of
+12 modules/dependency inputs followed by the independent kernel checker returned
+exit 0. Public CLI/adversarial integration and independent bundle review follow;
+owner approval of the concrete logical contract remains pending.

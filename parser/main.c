@@ -1,6 +1,7 @@
 /* File-to-CST shell: no schema execution, filesystem SQL operations, or proofs. */
 #include "runtime.h"
 #include "syntax.h"
+#include "sqlite3.h"
 
 /* Map token identities explicitly instead of assuming regenerated number stability. */
 static int parser_token(int kind){
@@ -37,7 +38,7 @@ static void output(Context *ctx){
            ctx->error == 2 ? "RESOURCE_LIMIT" : "INPUT_ERROR", ctx->offset);
     return;
   }
-  printf("{\"status\":\"PARSED\",\"profile\":\"3.51.0\",\"root\":%d,\"nodes\":[", ctx->root);
+  printf("{\"status\":\"PARSED\",\"profile\":\"%s\",\"root\":%d,\"nodes\":[", SQLITE_VERSION, ctx->root);
   for(int i = 0; i < ctx->count; i++){
     Node *node = &ctx->nodes[i];
     printf("%s{\"symbol\":\"%s\",\"start\":%d,\"end\":%d,\"children\":[",

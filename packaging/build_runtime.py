@@ -38,7 +38,8 @@ def build() -> Path:
     lean = Path(run(["lean", "--print-prefix"]).strip()).resolve(strict=True)
     if not run([str(lean / "bin/lean"), "--version"]).startswith("Lean (version 4.33.0,"):
         raise ValueError("Pinned Lean runtime required")
-    native = [ROOT / "build/sqlite-parser", ROOT / ".lake/build/bin/migration-proof-checker"]
+    native = [ROOT / "build/sqlite-parser", ROOT / ".lake/build/bin/migration-proof-checker",
+              ROOT / "build/sqlite-parser-3.46.0"]
     loader_roots, loader_report = native_dependencies([*native, lean / "bin/lean"], lean)
     roots |= loader_roots
     dist = ROOT / "dist"
@@ -59,7 +60,8 @@ def build() -> Path:
             shutil.copy2(lean / notice, payload / "lean" / notice)
         for source, relative in [(lean / "bin/lean", "lean/bin/lean"),
                                  (native[0], "build/sqlite-parser"),
-                                 (native[1], ".lake/build/bin/migration-proof-checker")]:
+                                 (native[1], ".lake/build/bin/migration-proof-checker"),
+                                 (native[2], "build/sqlite-parser-3.46.0")]:
             target = payload / relative
             target.parent.mkdir(parents=True, exist_ok=True)
             shutil.copy2(source, target)

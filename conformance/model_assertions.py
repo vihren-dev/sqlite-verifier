@@ -15,7 +15,7 @@ def value(cell: Cell) -> str:
 
 def columns(table: ExpectedTable) -> str:
     """Use explicit trusted expected column declarations, not a model-produced schema."""
-    return "[" + ",".join(f"⟨{lean_string(name)}, .{kind.lower()}⟩"
+    return "[" + ",".join(f"{{ name := {lean_string(name)}, affinity := .{kind.lower()} }}"
                            for name, kind in table.columns) + "]"
 
 
@@ -23,7 +23,7 @@ def table_literal(table: ExpectedTable) -> str:
     """Preserve declared rowid order, multiplicity, and every expected cell."""
     rows = ",".join(f"⟨({row[0]}), [" + ",".join(value(cell) for cell in row[1:]) + "]⟩"
                     for row in table.rows)
-    return f"⟨{columns(table)}, [{rows}]⟩"
+    return f"{{ columns := {columns(table)}, rows := [{rows}] }}"
 
 
 def assertions(case: Case) -> str:
@@ -40,7 +40,7 @@ def assertions(case: Case) -> str:
         "  | .success _ => none", "  | .failure position reason _ => some (position, reason)",
         f"theorem checkedOutcome : failureInfo observed = {case.lean_failure} := by decide +kernel",
     ])
-    expected_schema = "[" + ",".join(f"⟨{lean_string(table.name)}, {columns(table)}⟩"
+    expected_schema = "[" + ",".join(f"{{ name := {lean_string(table.name)}, columns := {columns(table)} }}"
                                       for table in case.after) + "]"
     lines.append(f"example : Generated.nextSchema = {expected_schema} := by decide +kernel")
     for table in case.before:

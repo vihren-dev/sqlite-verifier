@@ -1,0 +1,33 @@
+{
+  "kind": "sqlite-3.46.0-sqlx-0.9.0-wal-normal-optimize-v1",
+  "migration": {
+    "version": 20260709214605,
+    "description": "shell"
+  },
+  "previous": [
+    {
+      "version": 20210422143411,
+      "checksum": "de046d5bca11549eb2991f9467f06b582d3029c54bea151dfaaf7a65f55a8c78630f3b89992d3ca30d147b0f4290294d"
+    },
+    {
+      "version": 20220505083406,
+      "checksum": "554f5db82678149648689ccdcaead3fa6f7c8aec822e8e4bab1d080309c5a1a22f0a04d2b0cc1cc52bb1a59d1b5014ec"
+    },
+    {
+      "version": 20220806155627,
+      "checksum": "f0c741a033a036e541b1f4d273248f1a341f096ba369cf5d28fe5f12cd9cbcd8967d5b6f312b942fe4c206bd332429ec"
+    },
+    {
+      "version": 20230315220114,
+      "checksum": "c6871daf29c4a47c3c43952bba53a0c1718cb9b1919185932948e04f605db1d1746079989173f26b732070713c5468f1"
+    },
+    {
+      "version": 20230319185725,
+      "checksum": "5cf1d54350c731c5765af8250e1b5f16dc105637a951dbd7effd5c23d3695e8c3d9442fa4375234784d7d3d8c7689d93"
+    },
+    {
+      "version": 20260224000100,
+      "checksum": "6af518b6ece5b98fd5c90269dcac379dfa67e703b9d4c9a78c4f8e35b401a7e35474282cb15c46cd115d3926236eeab4"
+    }
+  ]
+}

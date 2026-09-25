@@ -3,22 +3,24 @@
 import json
 import subprocess
 import tempfile
+from functools import partial
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
 
 
-def parse(sql: bytes, expected: str = "PARSED") -> dict[str, object]:
+def parse(sql: bytes, expected: str = "PARSED", *, executable: str, version: str) -> dict[str, object]:
     """Exercise the executable interface, checking every parse against its exit code."""
     with tempfile.TemporaryDirectory() as directory:
         path = Path(directory) / "input.sql"
         path.write_bytes(sql)
-        result = subprocess.run([str(ROOT / "build/sqlite-parser"), str(path)],
+        result = subprocess.run([str(ROOT / "build" / executable), str(path)],
                                 capture_output=True, text=True, timeout=3)
     value: dict[str, object] = json.loads(result.stdout)
     assert value["status"] == expected, (sql, result.returncode, value, result.stderr)
     assert result.returncode == (0 if expected == "PARSED" else 1), result
     if expected == "PARSED":
+        assert value["profile"] == version, value
         nodes = value["nodes"]
         assert isinstance(nodes, list)
         for node in nodes:
@@ -28,8 +30,9 @@ def parse(sql: bytes, expected: str = "PARSED") -> dict[str, object]:
     return value
 
 
-def main() -> None:
+def check(executable: str, version: str) -> None:
     """Cover full grammar families, lexical boundaries, and rejection without schema lookup."""
+    parse_release = partial(parse, executable=executable, version=version)
     valid = [
         "", "-- only a comment", "/* comment */ ; ;",
         "CREATE TABLE t(a TEXT); ALTER TABLE t ADD COLUMN b INTEGER;",
@@ -51,24 +54,29 @@ def main() -> None:
         '\ufeffCREATE TABLE "café"("наме" TEXT); /*終*/ ALTER TABLE "café" ADD "💡";',
     ]
     for sql in valid:
-        parse(sql.encode())
+        parse_release(sql.encode())
     for sql in [b"SELECT", b"CREATE TABLE t(", b"SELECT 'unterminated",
                 b"SELECT X'odd'", b"CREATE TABLE t(a); nonsense;",
                 b"SELECT 1\x00; DROP TABLE t;", b"SELECT '\xff';",
                 b"CREATE TRIGGER t AFTER INSERT ON x BEGIN SELECT 1;",
                 b"UPDATE t SET a=1 LIMIT 1", b"SELECT @;", b"SELECT '\xed\xa0\x80';",
                 b"SELECT 1__2", b"SELECT 1_", b"SELECT 0xA__B", b"SELECT 1_.2"]:
-        parse(sql, "INPUT_ERROR")
-    parse(b" " * (1024 * 1024 + 1), "RESOURCE_LIMIT")
+        parse_release(sql, "INPUT_ERROR")
+    parse_release(b" " * (1024 * 1024 + 1), "RESOURCE_LIMIT")
     text = 'CREATE TABLE "café"("💡" TEXT);'.encode()
-    result = parse(text)
-    assert result == parse(text), "CST output is nondeterministic"
+    result = parse_release(text)
+    assert result == parse_release(text), "CST output is nondeterministic"
     nodes = result["nodes"]
     assert isinstance(nodes, list)
     quoted = [text[node["start"]:node["end"]] for node in nodes if node["symbol"] == "ID"]
     assert '"café"'.encode() in quoted and '"💡"'.encode() in quoted, quoted
-    print(f"parser checks passed: {len(valid)} grammar scripts, malformed/limit and byte-span cases")
+    # RAISE expressions arrived in 3.47; prove the older grammar was not relabeled.
+    # https://sqlite.org/releaselog/3_47_0.html
+    parse_release(b"CREATE TRIGGER tr BEFORE INSERT ON t BEGIN SELECT RAISE(FAIL, 1+2); END;",
+                  "PARSED" if version == "3.51.0" else "INPUT_ERROR")
+    print(f"{version} parser checks passed: {len(valid)} grammar scripts, malformed/limit and byte-span cases")
 
 
 if __name__ == "__main__":
-    main()
+    check("sqlite-parser", "3.51.0")
+    check("sqlite-parser-3.46.0", "3.46.0")

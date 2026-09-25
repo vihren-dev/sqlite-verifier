@@ -2,8 +2,7 @@
 
 from typing import cast
 
-from .diagnostics import Rejection
-from .sql_model import Affinity, Column, Statement, Table, transition
+from .sql_model import Affinity, Column, Statement, Table
 from .sql_tree import Node, Tree
 
 
@@ -12,7 +11,7 @@ def normalize(value: str) -> str:
     return value.translate(str.maketrans("ABCDEFGHIJKLMNOPQRSTUVWXYZ", "abcdefghijklmnopqrstuvwxyz"))
 
 
-def identifier(tree: Tree, node: Node, *, table: bool = False) -> str:
+def identifier(tree: Tree, node: Node, *, table: bool = False, statistics: bool = False) -> str:
     """Dequote SQLite identifier tokens without treating their contents as code."""
     text = tree.text(node)
     if text[:1] in ('"', "'", "`"):
@@ -21,7 +20,9 @@ def identifier(tree: Tree, node: Node, *, table: bool = False) -> str:
     elif text.startswith("["):
         text = text[1:-1]
     name = normalize(text)
-    if not name or (table and name.startswith("sqlite_")) or (
+    reserved = table and name.startswith("sqlite_") and not (
+        statistics and name in {"sqlite_stat1", "sqlite_stat4"})
+    if not name or reserved or (
         not table and name in {"rowid", "_rowid_", "oid"}
     ):
         raise tree.unsupported(node, "Empty, reserved, or rowid-shadowing names are unsupported")
@@ -96,9 +97,9 @@ def add(tree: Tree, command: Node) -> Statement:
                      tree.source, command.start, command.end)
 
 
-def statements(tree: Tree) -> tuple[Statement, ...]:
-    """Visit every top-level command, preserving statement order and rejecting EXPLAIN."""
-    commands: list[Statement] = []
+def commands(tree: Tree) -> list[Node]:
+    """Retain every command and reject unsupported top-level wrappers."""
+    result: list[Node] = []
     for node in tree.walk(tree.nodes[tree.root]):
         if node.symbol != "ecmd":
             continue
@@ -107,25 +108,25 @@ def statements(tree: Tree) -> tuple[Statement, ...]:
             continue
         if [child.symbol for child in members] != ["cmdx", "SEMI"]:
             raise tree.unsupported(node, "Unsupported command wrapper (including EXPLAIN)")
-        command = tree.children(members[0])[0]
+        result.append(tree.children(members[0])[0])
+    return result
+
+
+def statements(tree: Tree) -> tuple[Statement, ...]:
+    """Admit only the existing migration operations, independent of baseline richness."""
+    result: list[Statement] = []
+    for command in commands(tree):
         symbols = [child.symbol for child in tree.children(command)]
         if symbols == ["create_table", "create_table_args"]:
-            commands.append(create(tree, command))
+            result.append(create(tree, command))
         elif symbols[:2] == ["ALTER", "TABLE"]:
-            commands.append(add(tree, command))
+            result.append(add(tree, command))
         else:
             raise tree.unsupported(command, "Statement semantics are not implemented")
-    return tuple(commands)
+    return tuple(result)
 
 
 def starting_schema(tree: Tree) -> tuple[Table, ...]:
-    """Require the entire supplied schema to consist of supported, distinct tables."""
-    script = statements(tree)
-    for statement in script:
-        if statement.kind != "createTable":
-            raise Rejection("UNSUPPORTED", "Starting schema must contain only table definitions",
-                            source=tree.source, start=statement.start, end=statement.end)
-    schema, failure = transition((), script)
-    if failure:
-        raise Rejection("INPUT_ERROR", "Starting schema contains duplicate table names", source=tree.source)
-    return schema
+    """Admit a complete declarative baseline, including modeled keys and indexes."""
+    from .schema_translate import schema
+    return schema(tree)

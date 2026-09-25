@@ -1,5 +1,5 @@
 /* Reuse exact SQLite tokenizer and its contextual window-keyword lookahead. */
-#include "upstream/sqlite3.c"
+#include "sqlite3.c"
 
 /* Keep the same lookahead rules as sqlite3RunParser, without preparing SQL. */
 int native_token(const char *text, int previous, int *kind){
@@ -31,7 +31,13 @@ const char *native_name(int kind){
 }
 
 /* The fixed profile permits comments as SQLite does by default. */
-int native_space(int kind){ return kind == TK_SPACE || kind == TK_COMMENT; }
+int native_space(int kind){
+  /* Older releases classify comments as TK_SPACE directly. */
+#ifdef TK_COMMENT
+  if(kind == TK_COMMENT) return 1;
+#endif
+  return kind == TK_SPACE;
+}
 
 /* Reject lexical errors before passing token numbers to Lemon. */
 int native_illegal(int kind){ return kind == TK_ILLEGAL; }

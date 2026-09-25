@@ -44,6 +44,7 @@ def main() -> None:
         bad_path = run([str(CHECKER), ".", str(trusted), str(candidate)], root, environment)
         assert bad_path.returncode != 0 and "absolute existing directory" in bad_path.stderr
         environment["LEAN_PATH"] = os.pathsep.join(map(str, (LIBRARY, trusted)))
+        print("Kernel gate: compiling common fixtures", flush=True)
         for module in ("Requirements", "Interpretation", "SqlInputs"):
             compile_module(trusted, module, (FIXTURES / f"{module}.lean").read_text(), environment)
         environment["LEAN_PATH"] += os.pathsep + str(candidate)
@@ -63,12 +64,14 @@ def main() -> None:
             "unsafe proof": ("import Generated\nunsafe def Proofs.migrationCorrect : True := True.intro", "Proofs.migrationCorrect"),
         }
         for label, (source, diagnostic) in cases.items():
+            print(f"Kernel gate case: {label}", flush=True)
             compile_module(candidate, "Proofs", source, environment)
             result = run([str(CHECKER), str(LIBRARY), str(trusted), str(candidate)], root, environment)
             assert (result.returncode == 0) == (label in ("valid", "initializer ignored")), (label, result.stdout, result.stderr)
             assert diagnostic in result.stderr, (label, result.stderr)
             assert "CANDIDATE_INITIALIZER_RAN" not in result.stdout + result.stderr
         # A forged convenience alias must not replace the reconstructed target.
+        print("Kernel gate case: forged convenience target", flush=True)
         compile_module(candidate, "Generated", "import SqlInputs\nimport NextInterpretation\ndef Generated.expected : Prop := True", environment)
         compile_module(candidate, "Proofs", "import Generated\ntheorem Proofs.migrationCorrect : Generated.expected := trivial", environment)
         result = run([str(CHECKER), str(LIBRARY), str(trusted), str(candidate)], root, environment)
@@ -85,6 +88,7 @@ def main() -> None:
         assert result.returncode == 1 and "reconstructed" in result.stderr, result.stderr
         compile_module(trusted, "SqlInputs", sql_inputs, environment)
         # A checked negative contract gets a distinct result; missing/sorry negatives do not.
+        print("Kernel gate case: checked and unfinished refutations", flush=True)
         interpretation = (FIXTURES / "Interpretation.lean").read_text().replace("Prop := True", "Prop := False")
         compile_module(trusted, "Interpretation", interpretation, environment)
         for module in ("NextInterpretation", "Generated"):

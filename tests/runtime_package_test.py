@@ -36,6 +36,10 @@ def main(archive: Path) -> None:
                             "MIGRATION_CHECK_LEAN_SYSROOT": str(poison), "PATH": "/usr/bin:/bin"})
         examples = destination / "examples"
         approved = examples / "approved"
+        for parser, version in (("sqlite-parser", "3.51.0"), ("sqlite-parser-3.46.0", "3.46.0")):
+            parsed = checked([str(destination / "build" / parser), str(approved / "schema.sql")],
+                             environment, timeout=10)
+            assert json.loads(parsed.stdout)["profile"] == version, parsed.stdout
         executable = destination / "bin/migration-check"
         for candidate, expected in (("add_column_then_table", "VERIFIED"),
                                     ("missing_required_column", "VIOLATED")):
