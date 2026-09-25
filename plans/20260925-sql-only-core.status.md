@@ -117,3 +117,7 @@ and assert closed outcomes for its existing fixtures. The focused bounded
 native/model comparison passed (exit 0, build/sql-only-model-comparison.log).
 The failed aggregate report is not treated as passing evidence; rerun follows
 final example integration.
+
+Integrated the source-linked README follow-up d5bac0ce and made the documented
+transaction syntax match admission: deferred BEGIN and COMMIT/END/ROLLBACK only,
+without named transactions, other locking modes or savepoints.

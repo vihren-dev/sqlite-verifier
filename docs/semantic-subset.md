@@ -49,8 +49,9 @@ translation result is not proof acceptance or evidence of native execution.
 ## Explicit transactions and literal data operations
 
 Transactions and data changes are supplied as SQL, not implied by a profile.
-The additional subset admits BEGIN, COMMIT and ROLLBACK, single-row literal
-INSERT with every column supplied in schema order, and one literal UPDATE
+The additional subset admits BEGIN (optionally DEFERRED), COMMIT/END and
+ROLLBACK, optionally with TRANSACTION, but no named transactions, IMMEDIATE,
+EXCLUSIVE or savepoints. It also admits single-row literal INSERT with every column supplied in schema order, and one literal UPDATE
 assignment selected by equality to an integer on a single-column unique key.
 These operations apply to ordinary supported tables irrespective of their names.
 
