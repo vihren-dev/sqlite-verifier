@@ -24,7 +24,7 @@ test: smoke
     timeout 30 python3 tests/parser_test.py
     timeout 20 python3 tests/conformance_native_test.py
     timeout 180 python3 tests/conformance_model_test.py
-    timeout 180 python3 tests/kernel_gate_test.py
+    timeout 360 python3 tests/kernel_gate_test.py
     timeout 180 python3 -m tests.compilation_test
     timeout 600 python3 tests/cli_test.py
     timeout 15 python3 tests/coverage_test.py

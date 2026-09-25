@@ -9,6 +9,6 @@ def admitted (_ : SqliteVerifier.Database) : Prop := True
 /-- Read every invoice's physical identity and amount directly from storage. -/
 def current : SqliteVerifier.Interpretation Requirements.LogicalState :=
   SqliteVerifier.projectedInterpretation
-    [⟨"invoices", [⟨"amount", .integer⟩]⟩] "invoices" ["amount"]
+    [{ name := "invoices", columns := [{ name := "amount", affinity := .integer }] }] "invoices" ["amount"]
 
 end Interpretation

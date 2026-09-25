@@ -29,6 +29,11 @@ def main() -> None:
         "SELECT id, value, extra IS NULL FROM records;",
     )
     assert result == "7|retained|1", result
+    assert run("sqlite3-3.46.0", ":memory:", "SELECT sqlite_version();") == "3.46.0"
+    assert run("sqlite3-3.46.0", ":memory:", "SELECT sqlite_source_id();") == (
+        "2024-05-23 13:25:27 "
+        "96c92aba00c8375bc32fafcdf12429c58bd8aabfcadab6683e35bbb9cdebf19e"
+    )
     print("Pinned Lean/Lake and SQLite schema-extension smoke checks passed.")
 
 
