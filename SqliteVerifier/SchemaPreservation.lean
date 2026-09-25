@@ -24,12 +24,6 @@ theorem TableExtends.declarations (extension : TableExtends before after) :
   obtain ⟨columns, rfl⟩ := extension
   simp [Table.appendColumns]
 
-/-- Key constraints include the nullable ordinary-table PK and explicit unique indexes. -/
-def TableProperties.keys (properties : TableProperties) : List (List String) :=
-  (if properties.primaryKey.isEmpty then [] else [properties.primaryKey]) ++
-    properties.uniqueKeys ++
-    (properties.indexes.filter IndexDefinition.unique).map IndexDefinition.columns
-
 /-- A supplied native key predicate can express SQLite comparison and NULL rules.
 This definition does not choose a comparator or require primary-key nonnullness. -/
 def Table.KeysValid (meaning : List String → LogicalRows → Prop) (table : Table) : Prop :=

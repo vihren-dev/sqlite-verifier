@@ -43,6 +43,12 @@ structure TableProperties where
   indexes : List IndexDefinition := []
   deriving Repr, DecidableEq
 
+/-- Ordinary PRIMARY KEY and UNIQUE declarations supply the same nullable key checks. -/
+def TableProperties.keys (properties : TableProperties) : List (List String) :=
+  (if properties.primaryKey.isEmpty then [] else [properties.primaryKey]) ++
+    properties.uniqueKeys ++
+    (properties.indexes.filter IndexDefinition.unique).map IndexDefinition.columns
+
 /-- Aliases have fixed SQLite affinity and never alias the physical rowid. -/
 def declaredTypeMatches (column : Column) : Bool :=
   match column.declaredType with

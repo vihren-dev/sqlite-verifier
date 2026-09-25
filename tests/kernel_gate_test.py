@@ -76,10 +76,9 @@ def main() -> None:
         compile_module(candidate, "Proofs", "import Generated\ntheorem Proofs.migrationCorrect : Generated.expected := trivial", environment)
         result = run([str(CHECKER), str(LIBRARY), str(trusted), str(candidate)], root, environment)
         assert result.returncode != 0 and "reconstructed" in result.stderr, result.stderr
-        # A candidate's old autocommit alias cannot erase a sealed SQLx policy.
+        # A candidate alias cannot substitute a different sealed SQLite version.
         sql_inputs = (FIXTURES / "SqlInputs.lean").read_text()
-        configured = sql_inputs.replace(".sqlite351Autocommit", 
-            '.sqlite346Sqlx { migration := { version := 1, description := [], checksum := [] }, previous := [] }')
+        configured = sql_inputs.replace(".sqlite351", ".sqlite346")
         compile_module(trusted, "SqlInputs", configured, environment)
         legacy = (FIXTURES / "Generated.lean").read_text().replace("NextInterpretation.failures profile", "NextInterpretation.failures")
         compile_module(candidate, "Generated", legacy, environment)

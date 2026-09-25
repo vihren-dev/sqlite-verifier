@@ -39,7 +39,7 @@ theorem reverse_runs (database : Database) (admitted : Admitted startSchema (fun
 theorem reverseMigrationCorrect :
     VerificationConditions startSchema nextSchema reverseScript (fun _ => True)
       requirements current next unreachableFailures :=
-  migrationCorrect.congr_run reverse_runs
+  migrationCorrect.congr_run (by decide +kernel) (by decide +kernel) (by decide +kernel) reverse_runs
 
 #print axioms reverseMigrationCorrect
 

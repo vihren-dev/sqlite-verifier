@@ -1,4 +1,5 @@
 import SqliteVerifier.Contract
+import SqliteVerifier.Preservation
 
 /-! Runnable engineering regressions, not claimed pilot migrations or evidence
 that the native SQLite implementation refines these definitions. -/
@@ -27,6 +28,7 @@ def failedPrefix : List Statement :=
 def failureInfo : Outcome → Option (Nat × ExecutionError)
   | .success _ => none
   | .failure position reason _ => some (position, reason)
+  | .pending _ _ error => error
 
 /-- The configured column limit is deterministic behavior, not a resource exclusion. -/
 def maximalTable : Table :=
