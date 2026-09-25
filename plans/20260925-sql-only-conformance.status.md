@@ -53,3 +53,18 @@ work; this status does not claim the overall SQL-only task is complete.
 Root-requested follow-up updates the named semantic support inventory to include
 explicit transactions and bounded literal INSERT/UPDATE, without treating that
 list as a denominator for SQLite semantics. Seven coverage regressions pass.
+
+
+Follow-up independent source review of checked core 914188f4 covered LiteralData,
+SqlExecution, SqlExamples, Contract and the legacy-extension bridge. No concrete
+native divergence or vacuity defect found: nonempty admitted states, Conforms,
+reached-state readiness and total runSql outcomes remain separate obligations.
+Pending outcomes retain both durable snapshot and visible data. Finite negative
+rowid, duplicate NULL, constraint ABORT and rollback checks agree with the native
+SQL evidence; builds were not redundantly repeated.
+
+README now describes lead-confirmed declaration names for the revised example,
+logical missing-shell normalization, independent actual-output resultValid check,
+and example-only six-to-seven successful catalog identities. It explicitly marks
+the revised proof bundle as pending; peer code is still being checked. This is a
+documentation update, not a claim that the new proof has passed.

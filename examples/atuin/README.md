@@ -58,21 +58,50 @@ reads missing or NULL shell as None. The
 [shell filter](https://github.com/atuinsh/atuin/blob/5b10eb09c664d316b7384210399b02e6127f4027/crates/atuin-client/src/database.rs#L163-L188)
 uses SQL NULL to represent commands without recorded shell information.
 
-The proposed requirement preserves all eleven old stored fields and physical
-row identities and gives every existing row an actual NULL shell. Preserving
-those fields preserves inputs to the application's decoder and filters; the new
-NULL continues to mean “shell not recorded.” This is a storage guarantee, not a
-formalization of the Rust decoder, UUID validity, timestamp conversions, author
-fallback/normalization, or every application query. The full pinned revision's
-HISTORY_COLUMNS also includes later author_kind; this example covers the selected
-intermediate migration and does not promise compatibility with every query at
-that revision. Native edge-case fixtures need not all be decodable as History.
+The proposed logical history preserves all eleven old stored fields and physical
+row identities. Before migration, the missing shell field is normalized to the
+same logical unknown/NULL value represented afterward by a stored SQL NULL.
+`Requirements.change` (Q) preserves this logical history. The resulting reader
+reads actual shell values; it does not invent NULL values independently of storage.
 
-Bookkeeping is ordinary SQL on an ordinary table. Its insertion, constraints,
-rowid allocation and timing update must be covered by generic SQL semantics and
-approved data assumptions. No migration identities or history policy belong in
-the core engine profile. The candidate resulting reader must inspect actual
-resulting history; an empty or invented interpretation cannot substitute for it.
+The approved [requirements](approved/Requirements.lean) also define
+`Requirements.resultValid`, which checks the actual resulting shell projection
+and requires every existing row's shell to be NULL. The contract's outcome
+applicability requires this predicate. That independent storage check prevents a
+candidate constant reader from hiding incorrect shell initialization, even if its
+logical output appears to satisfy Q.
+
+These are proposed definitions for owner review; the revised SQL-only proof bundle
+is still being checked. The intended declarations are
+`Interpretation.admitted` and `Interpretation.current.invariant` in the approved
+[initial interpretation](approved/Interpretation.lean), and
+`NextInterpretation.next.invariant` in the candidate
+[resulting interpretation](NextInterpretation.lean).
+The logical state contains normalized history and actual bookkeeping rows.
+
+The example-only approved [AtuinCatalog](approved/AtuinCatalog.lean) supplies
+`prior`, `target`, `recorded`, and `Invariant`. The initial invariant requires
+exactly six successful version/checksum identities; the resulting invariant
+requires those same six plus the selected successful shell migration. Old
+metadata fields and physical rowids remain arbitrary within the generic admitted
+SQLite data domain. The SQL's INSERT and UPDATE must preserve all old records and
+produce the explicit new record. These catalog conditions are application
+requirements, not fields in the core engine profile or implicit SQL operations.
+
+Preserving old history fields preserves inputs to the application's decoder and
+filters; unknown shell continues to mean “shell not recorded.” This is a storage
+and interpretation guarantee, not a formalization of the Rust decoder, UUID
+validity, timestamp conversions, author fallback/normalization, or every query.
+The full pinned revision's HISTORY_COLUMNS also includes later author_kind;
+this example covers the selected intermediate migration and does not promise
+compatibility with every query at that revision. Native edge-case fixtures need
+not all be decodable as History.
+
+Bookkeeping insertion, constraints, rowid allocation and timing update use
+generic SQL semantics and explicit data assumptions. Ordinary rowid allocation
+is admitted when the metadata table's maximum physical rowid is below the signed
+64-bit maximum; negative maxima and empty tables retain SQLite's actual behavior.
+The random allocation fallback at the maximum lies outside that modeled domain.
 
 ## Checking
 
