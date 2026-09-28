@@ -20,9 +20,12 @@ proof verdict or host sandbox/conformance/installed test result. Set
 `just package`. Fixtures make private writable copies of examples; reports remain
 in the checkout's `build/`, so the runtime itself needs no mutable staging copy.
 
-`python3 build-support/source_identity_test.py` checks edits, additions, deletions,
-renames and unrelated documentation against source store identities. Tests run
-bounded Nix evaluations on small temporary source trees, not whole checkouts.
+`just test-cases tests/test_source_identity.py` checks each declared input through
+real Nix source identities. Each declared input relation and component-level
+ignore rule is selectable; cases cover additions, edits, renames, deletions and
+missing required inputs. The
+ordinary source suite runs them on both native platforms. Fixtures contain tiny
+synthetic inputs; they never copy a checkout or build a package.
 
 Archive digests were taken from the official GitHub v4.33.0 release asset metadata
 and verified by downloading both actual native archives on 2026-09-28. Darwin
