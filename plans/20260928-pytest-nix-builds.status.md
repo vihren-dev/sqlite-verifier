@@ -16,17 +16,23 @@ Relevant sources: `justfile`, `tests/`, `conformance/coverage_report.py`,
   draft remains in the primary workspace and is excluded from implementation
   workspaces and commits. Preparation documentation links checked separately.
 
-## Outstanding
-
 - Development interpreter now includes pinned pytest 9.1.1; the archive builder
   requires an explicit bare pinned Python path passed by `just runtime-package`.
   Verified that the bare interpreter cannot import pytest, archive CLI describes
   the required option, and focused resource/loader/module-deletion tests pass.
   Nix environment still has exactly two files; one persistent shell is used.
+- Added the pytest catalogue, per-case runtime fixtures, bounded process runner
+  and separate source/installed phase reports. Fourteen real subprocess regressions
+  pass in 4.97s, covering absent tools during collection, bad metadata, setup and
+  teardown errors, malformed JSON, timeout cleanup and artifact separation.
+  Independent review caught and fixed installed Lean fallback to host tools;
+  a regression proves missing bundled Lean fails despite an available host compiler.
+  Harness checks are fresh integration evidence, excluded from pure-unit caching.
+  Existing suites are being converted separately; full discovery parity is pending.
 
 ## Remaining implementation
 
-Scenario inventory and review; pytest discovery, fixtures, reporting and complete
-case conversion; Nix targets and input tests; explicit runtime packaging; CI and
+Inventory reconciliation with actual collection; complete case conversion;
+integration of reviewed Nix targets and explicit runtime packaging; CI and
 cache transport; both-platform acceptance and benchmark matrix; final independent
-requirement-by-requirement review. No implementation or performance claim yet.
+requirement-by-requirement review. No end-to-end performance claim yet.
