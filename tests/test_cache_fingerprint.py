@@ -1,5 +1,6 @@
 """Cache transport keys cover all declared source membership without checkout metadata."""
 
+import hashlib
 import json
 from pathlib import Path
 import subprocess
@@ -7,7 +8,7 @@ import sys
 
 import pytest
 
-from tools.cache_fingerprint import ENVIRONMENT_FILES, SOURCE_FILES, SOURCE_TREES, cache_keys
+from tools.cache_fingerprint import ENVIRONMENT_FILES, SOURCE_FILES, SOURCE_TREES, cache_keys, source_files
 
 pytestmark = [pytest.mark.unit, pytest.mark.environment]
 
@@ -103,6 +104,11 @@ def test_executable_modes_and_selected_symlinks_are_not_silently_ignored(input_r
 
 def test_cli_outputs_are_canonical_and_safe_for_actions(input_root: Path) -> None:
     """A bounded subprocess emits identical JSON/action fields across repeated invocations."""
+    (input_root / "LICENSE").write_bytes(b"portable chunk boundary\x00" * 60000)
+    manifest = [(path.relative_to(input_root).as_posix(), hashlib.sha256(path.read_bytes()).hexdigest(),
+                 bool(path.stat().st_mode & 0o111)) for path in sorted(set(source_files(input_root)))]
+    expected = hashlib.sha256(json.dumps(manifest, ensure_ascii=True, separators=(",", ":")).encode()).hexdigest()
+    assert cache_keys(input_root, "aarch64-darwin")["source_hash"] == expected
     output = input_root / "github-output"
     script = Path(__file__).resolve().parents[1] / "tools/cache_fingerprint.py"
     command = [sys.executable, str(script), "--root", str(input_root), "--system", "aarch64-darwin",
