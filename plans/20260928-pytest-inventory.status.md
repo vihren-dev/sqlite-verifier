@@ -142,3 +142,54 @@ All 24 cases also passed when each was launched alone in a fresh pytest process
 and `build/test-results/source-boundaries-alone.log`. The heavyweight window was
 released to the formal reviewer after completion. No production file or shared
 plugin file changed in this source-boundary commit.
+
+## 2026-09-28 — bounded source orchestration (DONE)
+
+Task: `20260928-pytest-nix-builds.task.md`, accepted ADR0001. This delta is based
+on the lead's stable integrated `d1af75e6`; reviewers are root and
+formal_preservation. It owns justfile, the independent runner, source orchestration
+and reviewed unit-cache selection helpers, plus focused regression tests.
+
+Source collection now partitions exact node IDs, excludes installed package cases,
+and excludes only optional cached units whose current metadata, reviewed manifest,
+cache catalogue and all passed execution phases agree. Cached evidence remains in
+`build/cached-unit`; fresh children share one UUID and explicit runtime root.
+Kernel/CLI overlap only on Linux (two workers); macOS runs them serially. All
+siblings finish after a failure. Legacy suite deadlines and the 30-second original
+unittest group remain; new infrastructure groups have 60-second limits.
+
+`just test` builds required source parser reuse artifacts, skips checkout Lean
+builds when an explicit immutable runtime is supplied, executes pytest scenarios
+once, and asks the lead-owned coverage aggregator to consume that run's reports.
+`test-cases` forwards quoted arguments directly; `test-list` collects without
+building. Packaging passes the runtime root and exercises installed pytest cases
+under the existing 1800-second bound. Python-only docs entrypoints remain unchanged.
+
+Focused checks: 16 pytest scenarios and two retained subtests pass in 3.87s.
+Real child processes prove overlapping/serial joins, timeout diagnostics, exactly
+once source execution, installed exclusion, shared UUID/runtime and aggregation
+ordering. Nine cache mutations cover valid evidence and fail-closed invalid
+selection/metadata/phase/runtime cases. Python compilation, just dry runs and
+`just test-list` catalogue selection pass. A rapid rewritten fixture exposed Python
+bytecode timestamp reuse; disabling bytecode writes for those ephemeral child
+fixtures fixed the deterministic test harness without altering production behavior.
+No full Lean or source suite was run in this bounded orchestration commit; the
+lead integrates current run-ID/archive plugins and coverage before that final run.
+
+Independent review corrected three integration boundaries before commit: the
+installed pytest invocation omits the mutually exclusive runtime-root option;
+unit reuse additionally requires the exact current Nix unitChecks output identity,
+evaluated read-only under a 60-second bound; and source aggregation runs after
+failed suites as well, replacing stale coverage with this run's incomplete report.
+The previous coverage file is removed at run start, including collection failures.
+
+Final focused result: 18 scenarios and two retained subtests pass in 5.37 seconds,
+including stale derivation rejection and real failed-suite aggregation. Current
+unitChecks outPath evaluation succeeds without building. New scenario inventory
+entries reflect those two final additions (16 new infrastructure identities total).
+
+Final independent static review by formal_preservation is approved after all three
+findings were corrected. Exact 16 new inventory IDs match actual collection;
+quoted `just test-cases -k` forwarding selects the expected four cases and passes.
+The reviewed scope does not claim a full-source execution; integration remains
+with the lead.

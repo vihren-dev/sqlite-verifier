@@ -10,43 +10,40 @@ resources:
 setup: resources
     timeout 300 elan toolchain install "$(cat lean-toolchain)"
 
-# Compile the public proof library entry point.
+# Compile source parser reuse prerequisites; an explicit Nix runtime supplies Lean outputs.
 build: parser
-    timeout 120 lake build SqliteVerifier migration-proof-checker
-    timeout 30 python3 packaging/write_runtime_roots.py
+    if [ -z "${SQLITE_VERIFIER_RUNTIME_ROOT:-}" ]; then timeout 120 lake build SqliteVerifier migration-proof-checker && timeout 30 python3 packaging/write_runtime_roots.py; fi
 
 # Compile the pinned complete SQLite grammar and tokenizer.
 parser: resources
     timeout 120 python3 parser/build.py
 
-# Check pinned tools, and exercise the native engine independently of the model.
+# Run an explicitly selected scenario without rebuilding its prerequisites.
+[positional-arguments]
+test-cases *args:
+    python3 -m pytest --runtime-root "${SQLITE_VERIFIER_RUNTIME_ROOT:-$PWD}" "$@"
+
+# Catalogue selected scenarios without building or executing fixtures.
+[positional-arguments]
+test-list *args:
+    python3 -m pytest --catalog "$@"
+
+# Check pinned tools through the same scenario interface.
 smoke:
-    timeout 15 python3 tests/toolchain_smoke.py
+    timeout 15 python3 -m pytest tests/test_toolchain_smoke.py --runtime-root "${SQLITE_VERIFIER_RUNTIME_ROOT:-$PWD}" --suite smoke
 
-# Run real process-isolation checks and the independently expected native smoke.
-test: smoke coverage
-    timeout 150 python3 tests/environment_snapshot_test.py
-    timeout 30 python3 -m unittest tests.parser_build_test
-    timeout 30 python3 tests/parser_build_test.py --native-reuse
-    timeout 15 python3 tests/docs_test.py
-    timeout 75 python3 tests/schema_generation_test.py
-    python3 tools/run_independent_suites.py
-    timeout 180 python3 -m tests.compilation_test
-    timeout 180 python3 -m tests.early_baseline_test
-    timeout 1500 python3 tests/atuin_cli_test.py
-    timeout 15 python3 tests/coverage_test.py
-    timeout 30 python3 -m unittest discover -s tests -p 'test_*.py'
+# Execute source cases once, then aggregate only this invocation's fresh evidence.
+test: build
+    python3 -m tools.run_source_suite
 
-# Refresh bounded proof, grammar and native/model evidence.
-coverage: build
-    timeout 420 python3 conformance/coverage_report.py --output build/coverage.json
+coverage: test
 
-check: build test
+check: test
 
 # Build a native offline archive and verify its actual installed entrypoint.
 runtime-package: resources
-    timeout 600 python3 packaging/build_runtime.py --python "${SQLITE_VERIFIER_PYTHON:?Enter nix develop path:./nix}"
-    timeout 1800 python3 tests/runtime_package_test.py "dist/sqlite-verifier-${SQLITE_VERIFIER_SYSTEM:?Enter nix develop path:./nix}.tar.gz"
+    timeout 600 python3 packaging/build_runtime.py --python "${SQLITE_VERIFIER_PYTHON:?Enter nix develop path:./nix}" --runtime-root "${SQLITE_VERIFIER_RUNTIME_ROOT:-$PWD}"
+    timeout 1800 python3 -m pytest tests/runtime_package_test.py tests/atuin_cli_test.py --runtime-archive "dist/sqlite-verifier-${SQLITE_VERIFIER_SYSTEM:?Enter nix develop path:./nix}.tar.gz" --runtime-variant installed --suite installed --run-id "$(python3 -c 'import uuid; print(uuid.uuid4())')"
 
 # Keep a source snapshot alongside the checked installable runtime.
 package: check runtime-package

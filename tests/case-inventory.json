@@ -15,7 +15,8 @@
     "Installed Atuin uses the same thirteen IDs and separate runtime reports; never re-execute its legacy main wrapper.",
     "Coverage producer mappings include subprocesses and report completeness contracts, not cached success files.",
     "T4 converts the former SandboxTest method to seven independently selectable cases; docs_test/test_ci_scope remain stdlib-only and acquire pytest metadata through the shared plugin. Native-reuse remains source-build-only, while parser/internal translation/kernel-emission cases receive the selected artifact root explicitly.",
-    "Compilation17 and early-baseline7 now collect independently. Each graph/approval mutation owns a fresh fixture; compiler paths are explicit and only Runtime.locate is patched for imported verify(). Selected-generated-role and artifact aliases require no Lean/native/sandbox resources. Installed selection fails setup instead of using source imports as installed evidence."
+    "Compilation17 and early-baseline7 now collect independently. Each graph/approval mutation owns a fresh fixture; compiler paths are explicit and only Runtime.locate is patched for imported verify(). Selected-generated-role and artifact aliases require no Lean/native/sandbox resources. Installed selection fails setup instead of using source imports as installed evidence.",
+    "ADR0001 source orchestration additions are explicitly identified as infrastructure additions, not legacy baseline scenarios."
   ],
   "entrypoints": {
     "just smoke": [
@@ -623,7 +624,8 @@
           "source": "for marker in root.glob(\"*-finished\"):\n                        marker.unlink()"
         }
       ],
-      "collection_verified": true
+      "collection_verified": true,
+      "migration_notes": "Children now execute as actual pytest functions: failed case exit1 replaces former script exit7; success remains0, deadline remains124; sibling join and stream assertions retained."
     },
     {
       "source": "tests/test_independent_suites.py:57-70",
@@ -644,7 +646,8 @@
         "self.assertIn(\"second ran after first finished\", result.stdout)"
       ],
       "legacy_variants": [],
-      "collection_verified": true
+      "collection_verified": true,
+      "migration_notes": "Children now execute as actual pytest functions: failed case exit1 replaces former script exit7; success remains0, deadline remains124; sibling join and stream assertions retained."
     },
     {
       "source": "tests/test_native_dependencies.py:17-33",
@@ -1196,7 +1199,7 @@
       "assertions": [
         "self.assertEqual(scripts[0], scripts[1])",
         "self.assertEqual([item.kind for item in script], ['beginTransaction', 'insert', 'commit', 'update'])",
-        "self.assertEqual(script[1].values, (7, \"can't λ\", '2026-09-25 00:00:00', 1, b'\\0\\xff'))",
+        "self.assertEqual(script[1].values, (7, \"can't \u03bb\", '2026-09-25 00:00:00', 1, b'\\0\\xff'))",
         "self.assertIn('.insert \"ledger\"', generated)",
         "self.assertIn('.update \"ledger\" \"ok\" (.integer (-1)) \"version\" (7)', generated)",
         "self.assertEqual(transition(schema, script), (schema, ''))"
@@ -1204,7 +1207,7 @@
       "legacy_variants": [
         {
           "line": 32,
-          "source": "for version in ('3.51.0', '3.46.0'):\n            schema = starting_schema(tree(SCHEMA, version))\n            script = statements(tree(sql, version))\n            scripts.append(script)\n            self.assertEqual([item.kind for item in script], ['beginTransaction', 'insert', 'commit', 'update'])\n            self.assertEqual(script[1].values, (7, \"can't λ\", '2026-09-25 00:00:00', 1, b'\\0\\xff'))\n            generated = sql_inputs(schema, script, profile(version))\n            self.assertIn('.insert \"ledger\"', generated)\n            self.assertIn('.update \"ledger\" \"ok\" (.integer (-1)) \"version\" (7)', generated)\n            self.assertEqual(transition(schema, script), (schema, ''))"
+          "source": "for version in ('3.51.0', '3.46.0'):\n            schema = starting_schema(tree(SCHEMA, version))\n            script = statements(tree(sql, version))\n            scripts.append(script)\n            self.assertEqual([item.kind for item in script], ['beginTransaction', 'insert', 'commit', 'update'])\n            self.assertEqual(script[1].values, (7, \"can't \u03bb\", '2026-09-25 00:00:00', 1, b'\\0\\xff'))\n            generated = sql_inputs(schema, script, profile(version))\n            self.assertIn('.insert \"ledger\"', generated)\n            self.assertIn('.update \"ledger\" \"ok\" (.integer (-1)) \"version\" (7)', generated)\n            self.assertEqual(transition(schema, script), (schema, ''))"
         }
       ],
       "collection_verified": true
@@ -1340,17 +1343,17 @@
       ],
       "assertions": [
         "self.assertEqual(failure, \"\")",
-        "self.assertEqual([table.name for table in after], [\"café\", \"extra\"])",
-        "self.assertEqual(after[0].columns[-1].name, \"💡\")",
+        "self.assertEqual([table.name for table in after], [\"caf\u00e9\", \"extra\"])",
+        "self.assertEqual(after[0].columns[-1].name, \"\ud83d\udca1\")",
         "self.assertEqual(len(script), 2)",
         "self.assertTrue(sql.encode()[script[0].start:script[0].end].startswith(b\"ALTER TABLE\"))",
         "self.assertEqual(error, \"tableExists\")",
         "self.assertEqual(len(prefix), 1)",
         "self.assertEqual(prefix[0].columns[-1].name, \"new\")",
         "self.assertEqual(transition(schema, statements(tree('ALTER TABLE absent ADD x TEXT;')))[1],\n                         \"missingTable\")",
-        "self.assertEqual(transition(schema, statements(tree('ALTER TABLE \"café\" ADD N TEXT;')))[1],\n                         \"columnExists\")",
-        "self.assertIn('def script : List Statement := [.addColumn \"café\"', sql_inputs(schema, script))",
-        "self.assertEqual(normalize(\"ÄZ\"), \"Äz\")",
+        "self.assertEqual(transition(schema, statements(tree('ALTER TABLE \"caf\u00e9\" ADD N TEXT;')))[1],\n                         \"columnExists\")",
+        "self.assertIn('def script : List Statement := [.addColumn \"caf\u00e9\"', sql_inputs(schema, script))",
+        "self.assertEqual(normalize(\"\u00c4Z\"), \"\u00c4z\")",
         "self.assertEqual(lean_string('a\\b\\f\"\\\\\\n'), '\"a\\\\u0008\\\\u000c\\\\\"\\\\\\\\\\\\u000a\"')"
       ],
       "legacy_variants": [],
@@ -3018,7 +3021,7 @@
       ],
       "resources": [],
       "assertions": [
-        "assert module_path(\"Foo.«Bar.Baz»\") == Path(\"Foo/Bar.Baz\")"
+        "assert module_path(\"Foo.\u00abBar.Baz\u00bb\") == Path(\"Foo/Bar.Baz\")"
       ],
       "collection_verified": true,
       "runtime_scope": "source implementation imports with explicit selected artifact paths; installed variant fails setup"
@@ -4044,7 +4047,7 @@
     },
     {
       "source": "tests/parser_test.py:54-54",
-      "legacy": "'\\ufeffCREATE TABLE \"café\"(\"наме\" TEXT); /*終*/ ALTER TABLE \"café\" ADD \"💡\";'",
+      "legacy": "'\\ufeffCREATE TABLE \"caf\u00e9\"(\"\u043d\u0430\u043c\u0435\" TEXT); /*\u7d42*/ ALTER TABLE \"caf\u00e9\" ADD \"\ud83d\udca1\";'",
       "node_id": "tests/parser_test.py::test_valid_grammar[3.51.0-unicode_bom]",
       "runtimes": [
         "source"
@@ -4586,7 +4589,7 @@
       "assertions": [
         "assert result == parse_release(text), \"CST output is nondeterministic\"",
         "assert isinstance(nodes, list)",
-        "assert '\"café\"'.encode() in quoted and '\"💡\"'.encode() in quoted, quoted",
+        "assert '\"caf\u00e9\"'.encode() in quoted and '\"\ud83d\udca1\"'.encode() in quoted, quoted",
         "parse helper status/exit/profile/tree invariants; resource limit is RESOURCE_LIMIT; RAISE expression is PARSED in 3.51.0 and INPUT_ERROR in 3.46.0"
       ],
       "shared_assertions": {
@@ -5225,7 +5228,7 @@
     },
     {
       "source": "tests/parser_test.py:54-54",
-      "legacy": "'\\ufeffCREATE TABLE \"café\"(\"наме\" TEXT); /*終*/ ALTER TABLE \"café\" ADD \"💡\";'",
+      "legacy": "'\\ufeffCREATE TABLE \"caf\u00e9\"(\"\u043d\u0430\u043c\u0435\" TEXT); /*\u7d42*/ ALTER TABLE \"caf\u00e9\" ADD \"\ud83d\udca1\";'",
       "node_id": "tests/parser_test.py::test_valid_grammar[3.46.0-unicode_bom]",
       "runtimes": [
         "source"
@@ -5767,7 +5770,7 @@
       "assertions": [
         "assert result == parse_release(text), \"CST output is nondeterministic\"",
         "assert isinstance(nodes, list)",
-        "assert '\"café\"'.encode() in quoted and '\"💡\"'.encode() in quoted, quoted",
+        "assert '\"caf\u00e9\"'.encode() in quoted and '\"\ud83d\udca1\"'.encode() in quoted, quoted",
         "parse helper status/exit/profile/tree invariants; resource limit is RESOURCE_LIMIT; RAISE expression is PARSED in 3.51.0 and INPUT_ERROR in 3.46.0"
       ],
       "shared_assertions": {
@@ -6855,6 +6858,278 @@
       ],
       "assertions": [
         "Darwin os.fork raises PermissionError; Linux escaped session child starts but cannot write leaked marker after timeout and bounded wait"
+      ],
+      "collection_verified": true
+    },
+    {
+      "source": "tests/test_source_orchestration.py:18-26",
+      "legacy": "ADR0001 infrastructure addition; no legacy baseline scenario",
+      "node_id": "tests/test_source_orchestration.py::test_source_partition",
+      "runtimes": [
+        "source"
+      ],
+      "level": "unit",
+      "concerns": [
+        "environment"
+      ],
+      "resources": [],
+      "assertions": [
+        "Every uncached identity appears once, with legacy unit scripts grouped together."
+      ],
+      "collection_verified": true
+    },
+    {
+      "source": "tests/test_source_orchestration.py:34-37",
+      "legacy": "ADR0001 infrastructure addition; no legacy baseline scenario",
+      "node_id": "tests/test_source_orchestration.py::test_invalid_source_partition[duplicate]",
+      "runtimes": [
+        "source"
+      ],
+      "level": "unit",
+      "concerns": [
+        "environment"
+      ],
+      "resources": [],
+      "assertions": [
+        "Selection errors fail before a suite can silently omit or duplicate work."
+      ],
+      "collection_verified": true
+    },
+    {
+      "source": "tests/test_source_orchestration.py:34-37",
+      "legacy": "ADR0001 infrastructure addition; no legacy baseline scenario",
+      "node_id": "tests/test_source_orchestration.py::test_invalid_source_partition[installed]",
+      "runtimes": [
+        "source"
+      ],
+      "level": "unit",
+      "concerns": [
+        "environment"
+      ],
+      "resources": [],
+      "assertions": [
+        "Selection errors fail before a suite can silently omit or duplicate work."
+      ],
+      "collection_verified": true
+    },
+    {
+      "source": "tests/test_source_orchestration.py:34-37",
+      "legacy": "ADR0001 infrastructure addition; no legacy baseline scenario",
+      "node_id": "tests/test_source_orchestration.py::test_invalid_source_partition[unknown-cache]",
+      "runtimes": [
+        "source"
+      ],
+      "level": "unit",
+      "concerns": [
+        "environment"
+      ],
+      "resources": [],
+      "assertions": [
+        "Selection errors fail before a suite can silently omit or duplicate work."
+      ],
+      "collection_verified": true
+    },
+    {
+      "source": "tests/test_source_orchestration.py:43-84",
+      "legacy": "ADR0001 infrastructure addition; no legacy baseline scenario",
+      "node_id": "tests/test_source_orchestration.py::test_cached_unit_evidence[valid]",
+      "runtimes": [
+        "source"
+      ],
+      "level": "unit",
+      "concerns": [
+        "environment"
+      ],
+      "resources": [],
+      "assertions": [
+        "Only exact, currently resource-free units with all three passed phases can be excluded."
+      ],
+      "collection_verified": true
+    },
+    {
+      "source": "tests/test_source_orchestration.py:43-84",
+      "legacy": "ADR0001 infrastructure addition; no legacy baseline scenario",
+      "node_id": "tests/test_source_orchestration.py::test_cached_unit_evidence[manifest]",
+      "runtimes": [
+        "source"
+      ],
+      "level": "unit",
+      "concerns": [
+        "environment"
+      ],
+      "resources": [],
+      "assertions": [
+        "Only exact, currently resource-free units with all three passed phases can be excluded."
+      ],
+      "collection_verified": true
+    },
+    {
+      "source": "tests/test_source_orchestration.py:43-84",
+      "legacy": "ADR0001 infrastructure addition; no legacy baseline scenario",
+      "node_id": "tests/test_source_orchestration.py::test_cached_unit_evidence[catalogue]",
+      "runtimes": [
+        "source"
+      ],
+      "level": "unit",
+      "concerns": [
+        "environment"
+      ],
+      "resources": [],
+      "assertions": [
+        "Only exact, currently resource-free units with all three passed phases can be excluded."
+      ],
+      "collection_verified": true
+    },
+    {
+      "source": "tests/test_source_orchestration.py:43-84",
+      "legacy": "ADR0001 infrastructure addition; no legacy baseline scenario",
+      "node_id": "tests/test_source_orchestration.py::test_cached_unit_evidence[host-resource]",
+      "runtimes": [
+        "source"
+      ],
+      "level": "unit",
+      "concerns": [
+        "environment"
+      ],
+      "resources": [],
+      "assertions": [
+        "Only exact, currently resource-free units with all three passed phases can be excluded."
+      ],
+      "collection_verified": true
+    },
+    {
+      "source": "tests/test_source_orchestration.py:43-84",
+      "legacy": "ADR0001 infrastructure addition; no legacy baseline scenario",
+      "node_id": "tests/test_source_orchestration.py::test_cached_unit_evidence[integration]",
+      "runtimes": [
+        "source"
+      ],
+      "level": "unit",
+      "concerns": [
+        "environment"
+      ],
+      "resources": [],
+      "assertions": [
+        "Only exact, currently resource-free units with all three passed phases can be excluded."
+      ],
+      "collection_verified": true
+    },
+    {
+      "source": "tests/test_source_orchestration.py:43-84",
+      "legacy": "ADR0001 infrastructure addition; no legacy baseline scenario",
+      "node_id": "tests/test_source_orchestration.py::test_cached_unit_evidence[missing-phase]",
+      "runtimes": [
+        "source"
+      ],
+      "level": "unit",
+      "concerns": [
+        "environment"
+      ],
+      "resources": [],
+      "assertions": [
+        "Only exact, currently resource-free units with all three passed phases can be excluded."
+      ],
+      "collection_verified": true
+    },
+    {
+      "source": "tests/test_source_orchestration.py:43-84",
+      "legacy": "ADR0001 infrastructure addition; no legacy baseline scenario",
+      "node_id": "tests/test_source_orchestration.py::test_cached_unit_evidence[skipped]",
+      "runtimes": [
+        "source"
+      ],
+      "level": "unit",
+      "concerns": [
+        "environment"
+      ],
+      "resources": [],
+      "assertions": [
+        "Only exact, currently resource-free units with all three passed phases can be excluded."
+      ],
+      "collection_verified": true
+    },
+    {
+      "source": "tests/test_source_orchestration.py:43-84",
+      "legacy": "ADR0001 infrastructure addition; no legacy baseline scenario",
+      "node_id": "tests/test_source_orchestration.py::test_cached_unit_evidence[failed-exit]",
+      "runtimes": [
+        "source"
+      ],
+      "level": "unit",
+      "concerns": [
+        "environment"
+      ],
+      "resources": [],
+      "assertions": [
+        "Only exact, currently resource-free units with all three passed phases can be excluded."
+      ],
+      "collection_verified": true
+    },
+    {
+      "source": "tests/test_source_orchestration.py:43-84",
+      "legacy": "ADR0001 infrastructure addition; no legacy baseline scenario",
+      "node_id": "tests/test_source_orchestration.py::test_cached_unit_evidence[wrong-runtime]",
+      "runtimes": [
+        "source"
+      ],
+      "level": "unit",
+      "concerns": [
+        "environment"
+      ],
+      "resources": [],
+      "assertions": [
+        "Only exact, currently resource-free units with all three passed phases can be excluded."
+      ],
+      "collection_verified": true
+    },
+    {
+      "source": "tests/test_source_orchestration.py:43-84",
+      "legacy": "ADR0001 infrastructure addition; no legacy baseline scenario",
+      "node_id": "tests/test_source_orchestration.py::test_cached_unit_evidence[stale-derivation]",
+      "runtimes": [
+        "source"
+      ],
+      "level": "unit",
+      "concerns": [
+        "environment"
+      ],
+      "resources": [],
+      "assertions": [
+        "Only exact, currently resource-free units with all three passed phases can be excluded."
+      ],
+      "collection_verified": true
+    },
+    {
+      "source": "tests/test_source_runner.py:15-75",
+      "legacy": "ADR0001 infrastructure addition; no legacy baseline scenario",
+      "node_id": "tests/test_source_runner.py::test_source_runner_once[success]",
+      "runtimes": [
+        "source"
+      ],
+      "level": "integration",
+      "concerns": [
+        "environment"
+      ],
+      "resources": [],
+      "assertions": [
+        "All source children share a UUID/runtime and aggregate after each case executes once."
+      ],
+      "collection_verified": true
+    },
+    {
+      "source": "tests/test_source_runner.py:15-75",
+      "legacy": "ADR0001 infrastructure addition; no legacy baseline scenario",
+      "node_id": "tests/test_source_runner.py::test_source_runner_once[failed-suite]",
+      "runtimes": [
+        "source"
+      ],
+      "level": "integration",
+      "concerns": [
+        "environment"
+      ],
+      "resources": [],
+      "assertions": [
+        "All source children share a UUID/runtime and aggregate after each case executes once."
       ],
       "collection_verified": true
     }
