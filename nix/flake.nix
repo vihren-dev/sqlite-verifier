@@ -33,13 +33,15 @@
       devShells = forSystems (system:
         let
           tools = packagesFor system;
-          runtimePackages = with tools.pkgs; [ elan just coreutils python3 tools.sqlite tools.sqlite346 ]
+          testPython = tools.pkgs.python3.withPackages (ps: [ ps.pytest ]);
+          runtimePackages = with tools.pkgs; [ elan just coreutils testPython tools.sqlite tools.sqlite346 ]
             ++ lib.optional stdenv.hostPlatform.isLinux bubblewrap;
         in {
           default = tools.pkgs.mkShell {
             packages = runtimePackages;
             SQLITE_VERIFIER_SHELL = "default";
             SQLITE_VERIFIER_SYSTEM = system;
+            SQLITE_VERIFIER_PYTHON = "${tools.pkgs.python3}/bin/python3";
           };
         });
     };

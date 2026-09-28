@@ -1,6 +1,7 @@
 """Build a native offline runtime archive after the shared verification checks pass."""
 
 from collections.abc import Iterable
+import argparse
 import hashlib
 import os
 from pathlib import Path
@@ -42,12 +43,12 @@ def project_runtime_files(root: Path) -> list[Path]:
     return files
 
 
-def build() -> Path:
+def build(python_path: Path) -> Path:
     """Bundle pinned interpreter, proof checker, grammar, Python and sandbox dependencies."""
     check_resources(ROOT)
     systems = {("Darwin", "arm64"): "aarch64-darwin", ("Linux", "x86_64"): "x86_64-linux"}
     system = systems[(platform.system(), platform.machine())]
-    python = Path(sys.executable).resolve(strict=True)
+    python = python_path.resolve(strict=True)
     roots = {store_path(python)}
     sandbox_path = ""
     if system == "x86_64-linux":
@@ -133,4 +134,7 @@ raise SystemExit(main(sys.argv[1:]))
 
 
 if __name__ == "__main__":
-    print(build())
+    arguments = argparse.ArgumentParser(description=__doc__)
+    arguments.add_argument("--python", type=Path, required=True,
+                           help="Bare pinned runtime Python, without development test packages")
+    print(build(arguments.parse_args().python))

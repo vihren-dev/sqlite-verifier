@@ -18,6 +18,14 @@ Relevant sources: `justfile`, `tests/`, `conformance/coverage_report.py`,
 
 ## Outstanding
 
+- Development interpreter now includes pinned pytest 9.1.1; the archive builder
+  requires an explicit bare pinned Python path passed by `just runtime-package`.
+  Verified that the bare interpreter cannot import pytest, archive CLI describes
+  the required option, and focused resource/loader/module-deletion tests pass.
+  Nix environment still has exactly two files; one persistent shell is used.
+
+## Remaining implementation
+
 Scenario inventory and review; pytest discovery, fixtures, reporting and complete
 case conversion; Nix targets and input tests; explicit runtime packaging; CI and
 cache transport; both-platform acceptance and benchmark matrix; final independent
