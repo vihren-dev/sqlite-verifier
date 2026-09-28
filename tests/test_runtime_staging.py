@@ -22,8 +22,8 @@ def write(root: Path, name: str, content: str = "fixture") -> Path:
     return path
 
 
-def test_explicit_runtime_archive_uses_current_modules_and_interpreter(tmp_path: Path) -> None:
-    """Explicit runtime inputs survive staging while stale modules and checkout files do not."""
+def assert_archive_staging(tmp_path: Path, system: str, architecture: str, target: str) -> None:
+    """Exercise real tiny archives and require Linux relocation before staged dependency discovery."""
     root = tmp_path / "runtime ü space"
     for name in ("migration_check/cli.py", "examples/example.sql", "docs/install.md",
                  "LICENSE", "lean-toolchain", "Current.lean", "SqliteVerifier/Current.lean",
@@ -48,22 +48,43 @@ def test_explicit_runtime_archive_uses_current_modules_and_interpreter(tmp_path:
         assert timeout == 300
         return ""
 
+    events: list[str] = []
+
+    def relocate(files: list[Path], source: Path, staged: Path) -> None:
+        """Observe complete copied inputs before the staged loader scan."""
+        assert source == root / "lean" and staged.parent.name == "payload"
+        assert len(files) == 5 and all(path.is_file() for path in files)
+        events.append("relocate")
+
+    def dependencies(files: list[Path], staged: Path) -> tuple[set[Path], str]:
+        """Require relocation first on Linux and inspect actual copied executable locations."""
+        assert events == (["relocate"] if system == "Linux" else [])
+        assert all(path.is_file() for path in files)
+        events.append("scan")
+        return set(), "loader fixture"
+
     with patch.object(build_runtime, "check_resources") as resources, \
          patch.object(build_runtime.shutil, "disk_usage", return_value=SimpleNamespace(free=20 * 1024**3)), \
-         patch.object(build_runtime.platform, "system", return_value="Darwin"), \
-         patch.object(build_runtime.platform, "machine", return_value="arm64"), \
+         patch.object(build_runtime.platform, "system", return_value=system), \
+         patch.object(build_runtime.platform, "machine", return_value=architecture), \
          patch.object(build_runtime, "store_path", return_value=Path("/nix/store/python-fixture")), \
-         patch.object(build_runtime, "native_dependencies", return_value=(set(), "loader fixture")) as native, \
+         patch.object(build_runtime.shutil, "which", return_value=str(python)), \
+         patch.object(build_runtime, "relocate_elf", side_effect=relocate), \
+         patch.object(build_runtime, "native_dependencies", side_effect=dependencies) as native, \
          patch.object(build_runtime, "run", side_effect=run):
         archive = build_runtime.build(python, runtime_root=root, output_dir=output)
     resources.assert_called_once_with(build_runtime.ROOT)
     assert archive.parent == output
     assert not (root / "dist").exists()
-    expected = [root / "build/sqlite-parser", root / ".lake/build/bin/migration-proof-checker",
-                root / "build/sqlite-parser-3.46.0", root / "lean/bin/lean"]
-    native.assert_called_once_with(expected, root / "lean")
+    native.assert_called_once()
+    staged_executables, staged_lean = native.call_args.args
+    staged_payload = staged_lean.parent
+    assert staged_payload.name == "payload" and staged_payload != root
+    assert staged_executables == [staged_payload / relative for relative in
+                                  ("build/sqlite-parser", ".lake/build/bin/migration-proof-checker",
+                                   "build/sqlite-parser-3.46.0", "lean/bin/lean")]
     with tarfile.open(archive) as bundle:
-        prefix = "sqlite-verifier-aarch64-darwin/"
+        prefix = f"sqlite-verifier-{target}/"
         payload = prefix + "payload/"
         names = bundle.getnames()
         assert payload + ".lake/build/lib/lean/Current.olean" in names
@@ -78,6 +99,16 @@ def test_explicit_runtime_archive_uses_current_modules_and_interpreter(tmp_path:
     assert archive.with_suffix(".gz.sha256").is_file()
     assert any("?compression=zstd" in part for command in commands for part in command)
     assert any("--sigs-needed" in command for command in commands)
+
+
+def test_explicit_runtime_archive_uses_current_modules_and_interpreter(tmp_path: Path) -> None:
+    """Explicit runtime inputs survive staging while stale modules and checkout files do not."""
+    assert_archive_staging(tmp_path, "Darwin", "arm64", "aarch64-darwin")
+
+
+def test_linux_archive_scans_only_relocated_copied_inputs(tmp_path: Path) -> None:
+    """All Linux copied native inputs relocate before loader metadata or export roots are selected."""
+    assert_archive_staging(tmp_path, "Linux", "x86_64", "x86_64-linux")
 
 
 def test_missing_current_module_rejects_stale_artifact(tmp_path: Path) -> None:

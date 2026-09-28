@@ -13,6 +13,7 @@ from tempfile import TemporaryDirectory
 from time import monotonic
 
 from runtime_dependencies import lean_runtime_files, native_dependencies, run, runtime_file, store_path
+from relocate_elf import relocate_elf
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
@@ -69,8 +70,6 @@ def build(python_path: Path, *, runtime_root: Path = ROOT, output_dir: Path | No
         raise ValueError("Pinned Lean runtime required")
     native = [root / "build/sqlite-parser", root / ".lake/build/bin/migration-proof-checker",
               root / "build/sqlite-parser-3.46.0"]
-    loader_roots, loader_report = native_dependencies([*native, lean / "bin/lean"], lean)
-    roots |= loader_roots
     dist.mkdir(parents=True, exist_ok=True)
     archive = dist / f"sqlite-verifier-{system}.tar.gz"
     with TemporaryDirectory(prefix="runtime-bundle-") as temporary:
@@ -95,6 +94,12 @@ def build(python_path: Path, *, runtime_root: Path = ROOT, output_dir: Path | No
             target = payload / relative
             target.parent.mkdir(parents=True, exist_ok=True)
             shutil.copy2(source, target)
+        staged_native = [payload / "build/sqlite-parser", payload / ".lake/build/bin/migration-proof-checker",
+                         payload / "build/sqlite-parser-3.46.0", payload / "lean/bin/lean"]
+        if system == "x86_64-linux":
+            relocate_elf([*staged_native, *lean_runtime_files(payload / "lean")], lean, payload / "lean")
+        loader_roots, loader_report = native_dependencies(staged_native, payload / "lean")
+        roots |= loader_roots
         (payload / "bin").mkdir()
         launcher = payload / "bin/migration-check"
         launcher.write_text(f'''#!{python} -I
