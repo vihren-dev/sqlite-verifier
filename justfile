@@ -30,7 +30,7 @@ test-list *args:
 
 # Check pinned tools through the same scenario interface.
 smoke:
-    timeout 15 python3 -m pytest tests/test_toolchain_smoke.py --runtime-root "${SQLITE_VERIFIER_RUNTIME_ROOT:-$PWD}" --suite smoke
+    python3 -m tools.run_independent_suites --timeout 15 --suite smoke --runtime-root "${SQLITE_VERIFIER_RUNTIME_ROOT:-$PWD}" -- tests/test_toolchain_smoke.py
 
 # Execute source cases once, then aggregate only this invocation's fresh evidence.
 test: build
@@ -43,7 +43,7 @@ check: test
 # Build a native offline archive and verify its actual installed entrypoint.
 runtime-package: resources
     timeout 600 python3 packaging/build_runtime.py --python "${SQLITE_VERIFIER_PYTHON:?Enter nix develop path:./nix}" --runtime-root "${SQLITE_VERIFIER_RUNTIME_ROOT:-$PWD}"
-    timeout 1800 python3 -m pytest tests/runtime_package_test.py tests/atuin_cli_test.py --runtime-archive "dist/sqlite-verifier-${SQLITE_VERIFIER_SYSTEM:?Enter nix develop path:./nix}.tar.gz" --runtime-variant installed --suite installed --run-id "$(python3 -c 'import uuid; print(uuid.uuid4())')"
+    python3 -m tools.run_independent_suites --timeout 1800 --suite installed --runtime-archive "dist/sqlite-verifier-${SQLITE_VERIFIER_SYSTEM:?Enter nix develop path:./nix}.tar.gz" --runtime-variant installed -- tests/runtime_package_test.py tests/atuin_cli_test.py
 
 # Keep a source snapshot alongside the checked installable runtime.
 package: check runtime-package

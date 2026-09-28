@@ -26,7 +26,7 @@ def test_source_runner_once(tmp_path: Path, monkeypatch: pytest.MonkeyPatch, fai
         import json
         from pathlib import Path
         def pytest_addoption(parser):
-            for name in ('catalog-json', 'runtime-root', 'runtime-variant', 'run-id', 'suite'):
+            for name in ('catalog-json', 'runtime-root', 'runtime-variant', 'run-id', 'suite', 'report-dir'):
                 parser.addoption('--' + name)
         def pytest_configure(config):
             if config.getoption('catalog_json'):
@@ -38,6 +38,10 @@ def test_source_runner_once(tmp_path: Path, monkeypatch: pytest.MonkeyPatch, fai
         def pytest_sessionfinish(session):
             config = session.config
             if not config.getoption('catalog_json'):
+                reports = Path(config.getoption('report_dir')) / 'source'
+                reports.mkdir(parents=True, exist_ok=True)
+                for suffix, content in (('json', '{}'), ('xml', '<testsuites/>')):
+                    (reports / (config.getoption('suite') + '.' + suffix)).write_text(content)
                 path = Path('invocations.jsonl')
                 with path.open('a') as stream:
                     stream.write(json.dumps({'run': config.getoption('run_id'),
@@ -64,7 +68,7 @@ def test_source_runner_once(tmp_path: Path, monkeypatch: pytest.MonkeyPatch, fai
         assert {row['run'] for row in runs} == {args.run_id}
         assert {row['runtime'] for row in runs} == {args.runtime_root}
         assert args.reports == 'build/test-results/source'
-        Path(args.output).write_text(json.dumps({'run_id': args.run_id}))
+        Path(args.output).write_text(json.dumps({'run_id': args.run_id, 'status': 'EVIDENCE_CHECKS_PASSED'}))
     '''))
     (root / "build").mkdir()
     (root / "build/coverage.json").write_text('{"stale": true}')

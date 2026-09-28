@@ -18,6 +18,7 @@ class IndependentSuiteTests(unittest.TestCase):
 
     @pytest.mark.integration
     @pytest.mark.environment
+    @pytest.mark.requires_native("/bin/ps")
     def test_overlap_failure_join_and_timeout(self) -> None:
         """A failing or timed-out sibling cannot hide the other's completed output."""
         with TemporaryDirectory() as temporary:
@@ -42,7 +43,7 @@ class IndependentSuiteTests(unittest.TestCase):
                     self.assertEqual(result.returncode, int(exit_code != 0), result.stdout + result.stderr)
                     self.assertTrue((root / "second-finished").exists())
                     for name in ("first", "second"):
-                        log = (root / "build/test-logs" / f"{name}.log").read_text()
+                        log = (root / "build/test-logs" / f"source-{name}.log").read_text()
                         self.assertIn(f"{name} stdout", log)
                         self.assertIn(f"{name} stderr", log)
                         self.assertIn(log, result.stdout)
@@ -81,9 +82,16 @@ class IndependentSuiteTests(unittest.TestCase):
                max_workers: int = 2) -> subprocess.CompletedProcess[str]:
         """Bound the runner itself so a regression cannot hang the test process."""
         (directory / "conftest.py").write_text(
+            "import json\nfrom pathlib import Path\n"
             "def pytest_addoption(parser):\n"
-            "    for option in ('runtime-root', 'runtime-variant', 'suite', 'run-id'):\n"
-            "        parser.addoption('--' + option)\n")
+            "    for option in ('runtime-root', 'runtime-variant', 'suite', 'run-id', 'report-dir'):\n"
+            "        parser.addoption('--' + option)\n"
+            "def pytest_sessionfinish(session):\n"
+            "    config=session.config\n"
+            "    path=Path(config.getoption('report_dir'))/'source'\n"
+            "    path.mkdir(parents=True,exist_ok=True)\n"
+            "    for suffix, content in (('json','{}'),('xml','<testsuites/>')):\n"
+            "        (path/(config.getoption('suite')+'.'+suffix)).write_text(content)\n")
         for script, _ in suites:
             path = Path(script)
             path.write_text("def test_scenario():\n" + textwrap.indent(path.read_text(), "    "))

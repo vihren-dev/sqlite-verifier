@@ -74,6 +74,8 @@ def pytest_collection_finish(session: pytest.Session) -> None:
     """Validate actual selected node IDs after pytest has applied -m/-k/path filters."""
     cases = describe_cases(session.items)
     session.config.stash[REPORTS].cases = cases
+    if not session.config.option.collectonly:
+        session.config.stash[REPORTS].checkpoint_selection()
     destination = session.config.getoption("catalog_json")
     if destination is not None:
         destination.parent.mkdir(parents=True, exist_ok=True)
