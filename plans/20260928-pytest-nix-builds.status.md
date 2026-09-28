@@ -96,3 +96,15 @@ No end-to-end performance claim yet.
   helper timeout. A focused cleanup regression/fix is in progress. Standalone
   Nix input-identity checks are being made independently discoverable and part of
   native CI; case-order and benchmark acceptance remain open.
+
+- Integrated the reviewed 42-case Nix input-identity conversion: real offline
+  evaluations cover selected inputs, required names, ignored generated trees and
+  documentation in ordinary native CI. The 397-case inventory preserves all 244
+  legacy mappings. Its focused 44-case Darwin check passes in 29.86s. The new
+  suite has an explicit 150-second limit; existing deadlines are unchanged.
+- Backported the reproduced macOS sandbox fixture correction to build-output
+  PR 3: select the pinned bare Python executable rather than its pytest wrapper.
+  The legacy fixture fails with the wrapper (exit 255) and passes with the bare
+  interpreter, including isolation and timeout assertions; production policy is
+  unchanged. PR 4 already has the same fixture correction. Both draft PRs are
+  running native CI again; no performance experiment has been dispatched.

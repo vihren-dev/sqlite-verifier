@@ -21,6 +21,7 @@ DEADLINES = {
     "tests/compilation_test.py": 180,
     "tests/early_baseline_test.py": 180,
     "tests/environment_snapshot_test.py": 150,
+    "tests/test_source_identity.py": 150,
     "tests/schema_generation_test.py": 75,
     "tests/coverage_evidence_test.py": 420,
     "tests/conformance_model_test.py": 420,

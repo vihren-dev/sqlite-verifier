@@ -18,7 +18,7 @@
     "Compilation17 and early-baseline7 now collect independently. Each graph/approval mutation owns a fresh fixture; compiler paths are explicit and only Runtime.locate is patched for imported verify(). Selected-generated-role and artifact aliases require no Lean/native/sandbox resources. Installed selection fails setup instead of using source imports as installed evidence.",
     "ADR0001 source orchestration additions are explicitly identified as infrastructure additions, not legacy baseline scenarios.",
     "origin=new distinguishes ADR infrastructure additions and the new partial declaration attack from preserved legacy behavior; neither additions nor multi-runtime Atuin execution inflate the baseline case count.",
-    "The reconciled inventory has 355 unique node IDs, with separate source/installed runtime variants. Snapshot union is deduplicated; installed selection shares thirteen Atuin IDs with source."
+    "The reconciled inventory has 397 unique node IDs: 244 legacy mappings and 153 additions. New Nix source-identity matrix contributes 42 independently selectable input/ignore relations; multiple mutation fields of one relation share a case. Source selects 391 IDs; installed 19 share thirteen Atuin IDs with source."
   ],
   "entrypoints": {
     "just test / just check / just coverage": [
@@ -44,6 +44,9 @@
     "docs-only workflow": [
       "python3 tests/docs_test.py",
       "python3 -m unittest tests.test_ci_scope"
+    ],
+    "Nix source identity checks": [
+      "tests/test_source_identity.py: ordinary source suite on both native platforms; no standalone hidden runner"
     ]
   },
   "source_sha256": {
@@ -6912,7 +6915,7 @@
       },
       "collection_verified": true,
       "origin": "legacy",
-      "implementation_source": "tests/environment_snapshot_test.py:39-55",
+      "implementation_source": "tests/environment_snapshot_test.py:40-56",
       "description": "Outside source/artifact/metadata edits cannot change the tiny explicit path-flake snapshot.",
       "parameter_id": "non_git"
     },
@@ -6928,6 +6931,7 @@
         "environment"
       ],
       "resources": [
+        "requires_native",
         "requires_nix"
       ],
       "assertions": [
@@ -6944,9 +6948,14 @@
       },
       "collection_verified": true,
       "origin": "legacy",
-      "implementation_source": "tests/environment_snapshot_test.py:39-55",
+      "implementation_source": "tests/environment_snapshot_test.py:40-56",
       "description": "Outside source/artifact/metadata edits cannot change the tiny explicit path-flake snapshot.",
-      "parameter_id": "git_parent"
+      "parameter_id": "git_parent",
+      "resource_arguments": {
+        "requires_native": [
+          "git"
+        ]
+      }
     },
     {
       "source": "tests/docs_test.py:24-29",
@@ -10920,19 +10929,1379 @@
       ],
       "resources": [],
       "collection_verified": true
+    },
+    {
+      "origin": "new",
+      "source": "tests/test_source_identity.py:115-123",
+      "legacy": null,
+      "node_id": "tests/test_source_identity.py::test_generated_tree_invariance[.]",
+      "runtimes": [
+        "source"
+      ],
+      "assertions": [
+        "All generated directory categories beneath this component remain outside every source identity."
+      ],
+      "migration_source": "build-support/source_identity_test.py at d7ca0c2b; real membership assertions now join ordinary pytest/CI selection",
+      "description": "All generated directory categories beneath this component remain outside every source identity.",
+      "parameter_id": ".",
+      "level": "integration",
+      "concerns": [
+        "environment"
+      ],
+      "resources": [
+        "requires_nix"
+      ],
+      "implementation_source": "tests/test_source_identity.py:115-123",
+      "collection_verified": true,
+      "assertion_source": [
+        "assert identities(root) == baseline"
+      ],
+      "ignored_directories": [
+        ".git",
+        ".jj",
+        ".lake",
+        "build",
+        "dist",
+        "__pycache__"
+      ]
+    },
+    {
+      "origin": "new",
+      "source": "tests/test_source_identity.py:115-123",
+      "legacy": null,
+      "node_id": "tests/test_source_identity.py::test_generated_tree_invariance[SqliteVerifier]",
+      "runtimes": [
+        "source"
+      ],
+      "assertions": [
+        "All generated directory categories beneath this component remain outside every source identity."
+      ],
+      "migration_source": "build-support/source_identity_test.py at d7ca0c2b; real membership assertions now join ordinary pytest/CI selection",
+      "description": "All generated directory categories beneath this component remain outside every source identity.",
+      "parameter_id": "SqliteVerifier",
+      "level": "integration",
+      "concerns": [
+        "environment"
+      ],
+      "resources": [
+        "requires_nix"
+      ],
+      "implementation_source": "tests/test_source_identity.py:115-123",
+      "collection_verified": true,
+      "assertion_source": [
+        "assert identities(root) == baseline"
+      ],
+      "ignored_directories": [
+        ".git",
+        ".jj",
+        ".lake",
+        "build",
+        "dist",
+        "__pycache__"
+      ]
+    },
+    {
+      "origin": "new",
+      "source": "tests/test_source_identity.py:115-123",
+      "legacy": null,
+      "node_id": "tests/test_source_identity.py::test_generated_tree_invariance[conformance]",
+      "runtimes": [
+        "source"
+      ],
+      "assertions": [
+        "All generated directory categories beneath this component remain outside every source identity."
+      ],
+      "migration_source": "build-support/source_identity_test.py at d7ca0c2b; real membership assertions now join ordinary pytest/CI selection",
+      "description": "All generated directory categories beneath this component remain outside every source identity.",
+      "parameter_id": "conformance",
+      "level": "integration",
+      "concerns": [
+        "environment"
+      ],
+      "resources": [
+        "requires_nix"
+      ],
+      "implementation_source": "tests/test_source_identity.py:115-123",
+      "collection_verified": true,
+      "assertion_source": [
+        "assert identities(root) == baseline"
+      ],
+      "ignored_directories": [
+        ".git",
+        ".jj",
+        ".lake",
+        "build",
+        "dist",
+        "__pycache__"
+      ]
+    },
+    {
+      "origin": "new",
+      "source": "tests/test_source_identity.py:115-123",
+      "legacy": null,
+      "node_id": "tests/test_source_identity.py::test_generated_tree_invariance[examples]",
+      "runtimes": [
+        "source"
+      ],
+      "assertions": [
+        "All generated directory categories beneath this component remain outside every source identity."
+      ],
+      "migration_source": "build-support/source_identity_test.py at d7ca0c2b; real membership assertions now join ordinary pytest/CI selection",
+      "description": "All generated directory categories beneath this component remain outside every source identity.",
+      "parameter_id": "examples",
+      "level": "integration",
+      "concerns": [
+        "environment"
+      ],
+      "resources": [
+        "requires_nix"
+      ],
+      "implementation_source": "tests/test_source_identity.py:115-123",
+      "collection_verified": true,
+      "assertion_source": [
+        "assert identities(root) == baseline"
+      ],
+      "ignored_directories": [
+        ".git",
+        ".jj",
+        ".lake",
+        "build",
+        "dist",
+        "__pycache__"
+      ]
+    },
+    {
+      "origin": "new",
+      "source": "tests/test_source_identity.py:115-123",
+      "legacy": null,
+      "node_id": "tests/test_source_identity.py::test_generated_tree_invariance[migration_check]",
+      "runtimes": [
+        "source"
+      ],
+      "assertions": [
+        "All generated directory categories beneath this component remain outside every source identity."
+      ],
+      "migration_source": "build-support/source_identity_test.py at d7ca0c2b; real membership assertions now join ordinary pytest/CI selection",
+      "description": "All generated directory categories beneath this component remain outside every source identity.",
+      "parameter_id": "migration_check",
+      "level": "integration",
+      "concerns": [
+        "environment"
+      ],
+      "resources": [
+        "requires_nix"
+      ],
+      "implementation_source": "tests/test_source_identity.py:115-123",
+      "collection_verified": true,
+      "assertion_source": [
+        "assert identities(root) == baseline"
+      ],
+      "ignored_directories": [
+        ".git",
+        ".jj",
+        ".lake",
+        "build",
+        "dist",
+        "__pycache__"
+      ]
+    },
+    {
+      "origin": "new",
+      "source": "tests/test_source_identity.py:115-123",
+      "legacy": null,
+      "node_id": "tests/test_source_identity.py::test_generated_tree_invariance[packaging]",
+      "runtimes": [
+        "source"
+      ],
+      "assertions": [
+        "All generated directory categories beneath this component remain outside every source identity."
+      ],
+      "migration_source": "build-support/source_identity_test.py at d7ca0c2b; real membership assertions now join ordinary pytest/CI selection",
+      "description": "All generated directory categories beneath this component remain outside every source identity.",
+      "parameter_id": "packaging",
+      "level": "integration",
+      "concerns": [
+        "environment"
+      ],
+      "resources": [
+        "requires_nix"
+      ],
+      "implementation_source": "tests/test_source_identity.py:115-123",
+      "collection_verified": true,
+      "assertion_source": [
+        "assert identities(root) == baseline"
+      ],
+      "ignored_directories": [
+        ".git",
+        ".jj",
+        ".lake",
+        "build",
+        "dist",
+        "__pycache__"
+      ]
+    },
+    {
+      "origin": "new",
+      "source": "tests/test_source_identity.py:115-123",
+      "legacy": null,
+      "node_id": "tests/test_source_identity.py::test_generated_tree_invariance[parser]",
+      "runtimes": [
+        "source"
+      ],
+      "assertions": [
+        "All generated directory categories beneath this component remain outside every source identity."
+      ],
+      "migration_source": "build-support/source_identity_test.py at d7ca0c2b; real membership assertions now join ordinary pytest/CI selection",
+      "description": "All generated directory categories beneath this component remain outside every source identity.",
+      "parameter_id": "parser",
+      "level": "integration",
+      "concerns": [
+        "environment"
+      ],
+      "resources": [
+        "requires_nix"
+      ],
+      "implementation_source": "tests/test_source_identity.py:115-123",
+      "collection_verified": true,
+      "assertion_source": [
+        "assert identities(root) == baseline"
+      ],
+      "ignored_directories": [
+        ".git",
+        ".jj",
+        ".lake",
+        "build",
+        "dist",
+        "__pycache__"
+      ]
+    },
+    {
+      "origin": "new",
+      "source": "tests/test_source_identity.py:115-123",
+      "legacy": null,
+      "node_id": "tests/test_source_identity.py::test_generated_tree_invariance[tests]",
+      "runtimes": [
+        "source"
+      ],
+      "assertions": [
+        "All generated directory categories beneath this component remain outside every source identity."
+      ],
+      "migration_source": "build-support/source_identity_test.py at d7ca0c2b; real membership assertions now join ordinary pytest/CI selection",
+      "description": "All generated directory categories beneath this component remain outside every source identity.",
+      "parameter_id": "tests",
+      "level": "integration",
+      "concerns": [
+        "environment"
+      ],
+      "resources": [
+        "requires_nix"
+      ],
+      "implementation_source": "tests/test_source_identity.py:115-123",
+      "collection_verified": true,
+      "assertion_source": [
+        "assert identities(root) == baseline"
+      ],
+      "ignored_directories": [
+        ".git",
+        ".jj",
+        ".lake",
+        "build",
+        "dist",
+        "__pycache__"
+      ]
+    },
+    {
+      "origin": "new",
+      "source": "tests/test_source_identity.py:115-123",
+      "legacy": null,
+      "node_id": "tests/test_source_identity.py::test_generated_tree_invariance[tools]",
+      "runtimes": [
+        "source"
+      ],
+      "assertions": [
+        "All generated directory categories beneath this component remain outside every source identity."
+      ],
+      "migration_source": "build-support/source_identity_test.py at d7ca0c2b; real membership assertions now join ordinary pytest/CI selection",
+      "description": "All generated directory categories beneath this component remain outside every source identity.",
+      "parameter_id": "tools",
+      "level": "integration",
+      "concerns": [
+        "environment"
+      ],
+      "resources": [
+        "requires_nix"
+      ],
+      "implementation_source": "tests/test_source_identity.py:115-123",
+      "collection_verified": true,
+      "assertion_source": [
+        "assert identities(root) == baseline"
+      ],
+      "ignored_directories": [
+        ".git",
+        ".jj",
+        ".lake",
+        "build",
+        "dist",
+        "__pycache__"
+      ]
+    },
+    {
+      "origin": "new",
+      "source": "tests/test_source_identity.py:98-111",
+      "legacy": null,
+      "node_id": "tests/test_source_identity.py::test_required_input[LICENSE]",
+      "runtimes": [
+        "source"
+      ],
+      "assertions": [
+        "Editing a mandatory input invalidates exact components; deleting or renaming it fails closed."
+      ],
+      "migration_source": "build-support/source_identity_test.py at d7ca0c2b; real membership assertions now join ordinary pytest/CI selection",
+      "description": "Editing a mandatory input invalidates exact components; deleting or renaming it fails closed.",
+      "parameter_id": "LICENSE",
+      "level": "integration",
+      "concerns": [
+        "environment"
+      ],
+      "resources": [
+        "requires_nix"
+      ],
+      "implementation_source": "tests/test_source_identity.py:98-111",
+      "collection_verified": true,
+      "assertion_source": [
+        "assert {name for name in COMPONENTS if observed[name] != baseline[name]} == FIXED[relative], relative"
+      ],
+      "mutation_variants": [
+        "edit changes exact components",
+        "delete fails evaluation",
+        "rename fails evaluation"
+      ]
+    },
+    {
+      "origin": "new",
+      "source": "tests/test_source_identity.py:98-111",
+      "legacy": null,
+      "node_id": "tests/test_source_identity.py::test_required_input[build-support/run_unit_checks.py]",
+      "runtimes": [
+        "source"
+      ],
+      "assertions": [
+        "Editing a mandatory input invalidates exact components; deleting or renaming it fails closed."
+      ],
+      "migration_source": "build-support/source_identity_test.py at d7ca0c2b; real membership assertions now join ordinary pytest/CI selection",
+      "description": "Editing a mandatory input invalidates exact components; deleting or renaming it fails closed.",
+      "parameter_id": "build-support/run_unit_checks.py",
+      "level": "integration",
+      "concerns": [
+        "environment"
+      ],
+      "resources": [
+        "requires_nix"
+      ],
+      "implementation_source": "tests/test_source_identity.py:98-111",
+      "collection_verified": true,
+      "assertion_source": [
+        "assert {name for name in COMPONENTS if observed[name] != baseline[name]} == FIXED[relative], relative"
+      ],
+      "mutation_variants": [
+        "edit changes exact components",
+        "delete fails evaluation",
+        "rename fails evaluation"
+      ]
+    },
+    {
+      "origin": "new",
+      "source": "tests/test_source_identity.py:98-111",
+      "legacy": null,
+      "node_id": "tests/test_source_identity.py::test_required_input[build-support/unit-cases.json]",
+      "runtimes": [
+        "source"
+      ],
+      "assertions": [
+        "Editing a mandatory input invalidates exact components; deleting or renaming it fails closed."
+      ],
+      "migration_source": "build-support/source_identity_test.py at d7ca0c2b; real membership assertions now join ordinary pytest/CI selection",
+      "description": "Editing a mandatory input invalidates exact components; deleting or renaming it fails closed.",
+      "parameter_id": "build-support/unit-cases.json",
+      "level": "integration",
+      "concerns": [
+        "environment"
+      ],
+      "resources": [
+        "requires_nix"
+      ],
+      "implementation_source": "tests/test_source_identity.py:98-111",
+      "collection_verified": true,
+      "assertion_source": [
+        "assert {name for name in COMPONENTS if observed[name] != baseline[name]} == FIXED[relative], relative"
+      ],
+      "mutation_variants": [
+        "edit changes exact components",
+        "delete fails evaluation",
+        "rename fails evaluation"
+      ]
+    },
+    {
+      "origin": "new",
+      "source": "tests/test_source_identity.py:98-111",
+      "legacy": null,
+      "node_id": "tests/test_source_identity.py::test_required_input[conformance/upstream/alter3.test]",
+      "runtimes": [
+        "source"
+      ],
+      "assertions": [
+        "Editing a mandatory input invalidates exact components; deleting or renaming it fails closed."
+      ],
+      "migration_source": "build-support/source_identity_test.py at d7ca0c2b; real membership assertions now join ordinary pytest/CI selection",
+      "description": "Editing a mandatory input invalidates exact components; deleting or renaming it fails closed.",
+      "parameter_id": "conformance/upstream/alter3.test",
+      "level": "integration",
+      "concerns": [
+        "environment"
+      ],
+      "resources": [
+        "requires_nix"
+      ],
+      "implementation_source": "tests/test_source_identity.py:98-111",
+      "collection_verified": true,
+      "assertion_source": [
+        "assert {name for name in COMPONENTS if observed[name] != baseline[name]} == FIXED[relative], relative"
+      ],
+      "mutation_variants": [
+        "edit changes exact components",
+        "delete fails evaluation",
+        "rename fails evaluation"
+      ]
+    },
+    {
+      "origin": "new",
+      "source": "tests/test_source_identity.py:98-111",
+      "legacy": null,
+      "node_id": "tests/test_source_identity.py::test_required_input[conformance/upstream/sha256.json]",
+      "runtimes": [
+        "source"
+      ],
+      "assertions": [
+        "Editing a mandatory input invalidates exact components; deleting or renaming it fails closed."
+      ],
+      "migration_source": "build-support/source_identity_test.py at d7ca0c2b; real membership assertions now join ordinary pytest/CI selection",
+      "description": "Editing a mandatory input invalidates exact components; deleting or renaming it fails closed.",
+      "parameter_id": "conformance/upstream/sha256.json",
+      "level": "integration",
+      "concerns": [
+        "environment"
+      ],
+      "resources": [
+        "requires_nix"
+      ],
+      "implementation_source": "tests/test_source_identity.py:98-111",
+      "collection_verified": true,
+      "assertion_source": [
+        "assert {name for name in COMPONENTS if observed[name] != baseline[name]} == FIXED[relative], relative"
+      ],
+      "mutation_variants": [
+        "edit changes exact components",
+        "delete fails evaluation",
+        "rename fails evaluation"
+      ]
+    },
+    {
+      "origin": "new",
+      "source": "tests/test_source_identity.py:98-111",
+      "legacy": null,
+      "node_id": "tests/test_source_identity.py::test_required_input[conftest.py]",
+      "runtimes": [
+        "source"
+      ],
+      "assertions": [
+        "Editing a mandatory input invalidates exact components; deleting or renaming it fails closed."
+      ],
+      "migration_source": "build-support/source_identity_test.py at d7ca0c2b; real membership assertions now join ordinary pytest/CI selection",
+      "description": "Editing a mandatory input invalidates exact components; deleting or renaming it fails closed.",
+      "parameter_id": "conftest.py",
+      "level": "integration",
+      "concerns": [
+        "environment"
+      ],
+      "resources": [
+        "requires_nix"
+      ],
+      "implementation_source": "tests/test_source_identity.py:98-111",
+      "collection_verified": true,
+      "assertion_source": [
+        "assert {name for name in COMPONENTS if observed[name] != baseline[name]} == FIXED[relative], relative"
+      ],
+      "mutation_variants": [
+        "edit changes exact components",
+        "delete fails evaluation",
+        "rename fails evaluation"
+      ]
+    },
+    {
+      "origin": "new",
+      "source": "tests/test_source_identity.py:98-111",
+      "legacy": null,
+      "node_id": "tests/test_source_identity.py::test_required_input[docs/install.md]",
+      "runtimes": [
+        "source"
+      ],
+      "assertions": [
+        "Editing a mandatory input invalidates exact components; deleting or renaming it fails closed."
+      ],
+      "migration_source": "build-support/source_identity_test.py at d7ca0c2b; real membership assertions now join ordinary pytest/CI selection",
+      "description": "Editing a mandatory input invalidates exact components; deleting or renaming it fails closed.",
+      "parameter_id": "docs/install.md",
+      "level": "integration",
+      "concerns": [
+        "environment"
+      ],
+      "resources": [
+        "requires_nix"
+      ],
+      "implementation_source": "tests/test_source_identity.py:98-111",
+      "collection_verified": true,
+      "assertion_source": [
+        "assert {name for name in COMPONENTS if observed[name] != baseline[name]} == FIXED[relative], relative"
+      ],
+      "mutation_variants": [
+        "edit changes exact components",
+        "delete fails evaluation",
+        "rename fails evaluation"
+      ]
+    },
+    {
+      "origin": "new",
+      "source": "tests/test_source_identity.py:98-111",
+      "legacy": null,
+      "node_id": "tests/test_source_identity.py::test_required_input[lake-manifest.json]",
+      "runtimes": [
+        "source"
+      ],
+      "assertions": [
+        "Editing a mandatory input invalidates exact components; deleting or renaming it fails closed."
+      ],
+      "migration_source": "build-support/source_identity_test.py at d7ca0c2b; real membership assertions now join ordinary pytest/CI selection",
+      "description": "Editing a mandatory input invalidates exact components; deleting or renaming it fails closed.",
+      "parameter_id": "lake-manifest.json",
+      "level": "integration",
+      "concerns": [
+        "environment"
+      ],
+      "resources": [
+        "requires_nix"
+      ],
+      "implementation_source": "tests/test_source_identity.py:98-111",
+      "collection_verified": true,
+      "assertion_source": [
+        "assert {name for name in COMPONENTS if observed[name] != baseline[name]} == FIXED[relative], relative"
+      ],
+      "mutation_variants": [
+        "edit changes exact components",
+        "delete fails evaluation",
+        "rename fails evaluation"
+      ]
+    },
+    {
+      "origin": "new",
+      "source": "tests/test_source_identity.py:98-111",
+      "legacy": null,
+      "node_id": "tests/test_source_identity.py::test_required_input[lakefile.toml]",
+      "runtimes": [
+        "source"
+      ],
+      "assertions": [
+        "Editing a mandatory input invalidates exact components; deleting or renaming it fails closed."
+      ],
+      "migration_source": "build-support/source_identity_test.py at d7ca0c2b; real membership assertions now join ordinary pytest/CI selection",
+      "description": "Editing a mandatory input invalidates exact components; deleting or renaming it fails closed.",
+      "parameter_id": "lakefile.toml",
+      "level": "integration",
+      "concerns": [
+        "environment"
+      ],
+      "resources": [
+        "requires_nix"
+      ],
+      "implementation_source": "tests/test_source_identity.py:98-111",
+      "collection_verified": true,
+      "assertion_source": [
+        "assert {name for name in COMPONENTS if observed[name] != baseline[name]} == FIXED[relative], relative"
+      ],
+      "mutation_variants": [
+        "edit changes exact components",
+        "delete fails evaluation",
+        "rename fails evaluation"
+      ]
+    },
+    {
+      "origin": "new",
+      "source": "tests/test_source_identity.py:98-111",
+      "legacy": null,
+      "node_id": "tests/test_source_identity.py::test_required_input[lean-toolchain]",
+      "runtimes": [
+        "source"
+      ],
+      "assertions": [
+        "Editing a mandatory input invalidates exact components; deleting or renaming it fails closed."
+      ],
+      "migration_source": "build-support/source_identity_test.py at d7ca0c2b; real membership assertions now join ordinary pytest/CI selection",
+      "description": "Editing a mandatory input invalidates exact components; deleting or renaming it fails closed.",
+      "parameter_id": "lean-toolchain",
+      "level": "integration",
+      "concerns": [
+        "environment"
+      ],
+      "resources": [
+        "requires_nix"
+      ],
+      "implementation_source": "tests/test_source_identity.py:98-111",
+      "collection_verified": true,
+      "assertion_source": [
+        "assert {name for name in COMPONENTS if observed[name] != baseline[name]} == FIXED[relative], relative"
+      ],
+      "mutation_variants": [
+        "edit changes exact components",
+        "delete fails evaluation",
+        "rename fails evaluation"
+      ]
+    },
+    {
+      "origin": "new",
+      "source": "tests/test_source_identity.py:98-111",
+      "legacy": null,
+      "node_id": "tests/test_source_identity.py::test_required_input[packaging/install.py]",
+      "runtimes": [
+        "source"
+      ],
+      "assertions": [
+        "Editing a mandatory input invalidates exact components; deleting or renaming it fails closed."
+      ],
+      "migration_source": "build-support/source_identity_test.py at d7ca0c2b; real membership assertions now join ordinary pytest/CI selection",
+      "description": "Editing a mandatory input invalidates exact components; deleting or renaming it fails closed.",
+      "parameter_id": "packaging/install.py",
+      "level": "integration",
+      "concerns": [
+        "environment"
+      ],
+      "resources": [
+        "requires_nix"
+      ],
+      "implementation_source": "tests/test_source_identity.py:98-111",
+      "collection_verified": true,
+      "assertion_source": [
+        "assert {name for name in COMPONENTS if observed[name] != baseline[name]} == FIXED[relative], relative"
+      ],
+      "mutation_variants": [
+        "edit changes exact components",
+        "delete fails evaluation",
+        "rename fails evaluation"
+      ]
+    },
+    {
+      "origin": "new",
+      "source": "tests/test_source_identity.py:98-111",
+      "legacy": null,
+      "node_id": "tests/test_source_identity.py::test_required_input[packaging/install.sh]",
+      "runtimes": [
+        "source"
+      ],
+      "assertions": [
+        "Editing a mandatory input invalidates exact components; deleting or renaming it fails closed."
+      ],
+      "migration_source": "build-support/source_identity_test.py at d7ca0c2b; real membership assertions now join ordinary pytest/CI selection",
+      "description": "Editing a mandatory input invalidates exact components; deleting or renaming it fails closed.",
+      "parameter_id": "packaging/install.sh",
+      "level": "integration",
+      "concerns": [
+        "environment"
+      ],
+      "resources": [
+        "requires_nix"
+      ],
+      "implementation_source": "tests/test_source_identity.py:98-111",
+      "collection_verified": true,
+      "assertion_source": [
+        "assert {name for name in COMPONENTS if observed[name] != baseline[name]} == FIXED[relative], relative"
+      ],
+      "mutation_variants": [
+        "edit changes exact components",
+        "delete fails evaluation",
+        "rename fails evaluation"
+      ]
+    },
+    {
+      "origin": "new",
+      "source": "tests/test_source_identity.py:98-111",
+      "legacy": null,
+      "node_id": "tests/test_source_identity.py::test_required_input[packaging/runtime_dependencies.py]",
+      "runtimes": [
+        "source"
+      ],
+      "assertions": [
+        "Editing a mandatory input invalidates exact components; deleting or renaming it fails closed."
+      ],
+      "migration_source": "build-support/source_identity_test.py at d7ca0c2b; real membership assertions now join ordinary pytest/CI selection",
+      "description": "Editing a mandatory input invalidates exact components; deleting or renaming it fails closed.",
+      "parameter_id": "packaging/runtime_dependencies.py",
+      "level": "integration",
+      "concerns": [
+        "environment"
+      ],
+      "resources": [
+        "requires_nix"
+      ],
+      "implementation_source": "tests/test_source_identity.py:98-111",
+      "collection_verified": true,
+      "assertion_source": [
+        "assert {name for name in COMPONENTS if observed[name] != baseline[name]} == FIXED[relative], relative"
+      ],
+      "mutation_variants": [
+        "edit changes exact components",
+        "delete fails evaluation",
+        "rename fails evaluation"
+      ]
+    },
+    {
+      "origin": "new",
+      "source": "tests/test_source_identity.py:98-111",
+      "legacy": null,
+      "node_id": "tests/test_source_identity.py::test_required_input[packaging/write_runtime_roots.py]",
+      "runtimes": [
+        "source"
+      ],
+      "assertions": [
+        "Editing a mandatory input invalidates exact components; deleting or renaming it fails closed."
+      ],
+      "migration_source": "build-support/source_identity_test.py at d7ca0c2b; real membership assertions now join ordinary pytest/CI selection",
+      "description": "Editing a mandatory input invalidates exact components; deleting or renaming it fails closed.",
+      "parameter_id": "packaging/write_runtime_roots.py",
+      "level": "integration",
+      "concerns": [
+        "environment"
+      ],
+      "resources": [
+        "requires_nix"
+      ],
+      "implementation_source": "tests/test_source_identity.py:98-111",
+      "collection_verified": true,
+      "assertion_source": [
+        "assert {name for name in COMPONENTS if observed[name] != baseline[name]} == FIXED[relative], relative"
+      ],
+      "mutation_variants": [
+        "edit changes exact components",
+        "delete fails evaluation",
+        "rename fails evaluation"
+      ]
+    },
+    {
+      "origin": "new",
+      "source": "tests/test_source_identity.py:98-111",
+      "legacy": null,
+      "node_id": "tests/test_source_identity.py::test_required_input[pytest.ini]",
+      "runtimes": [
+        "source"
+      ],
+      "assertions": [
+        "Editing a mandatory input invalidates exact components; deleting or renaming it fails closed."
+      ],
+      "migration_source": "build-support/source_identity_test.py at d7ca0c2b; real membership assertions now join ordinary pytest/CI selection",
+      "description": "Editing a mandatory input invalidates exact components; deleting or renaming it fails closed.",
+      "parameter_id": "pytest.ini",
+      "level": "integration",
+      "concerns": [
+        "environment"
+      ],
+      "resources": [
+        "requires_nix"
+      ],
+      "implementation_source": "tests/test_source_identity.py:98-111",
+      "collection_verified": true,
+      "assertion_source": [
+        "assert {name for name in COMPONENTS if observed[name] != baseline[name]} == FIXED[relative], relative"
+      ],
+      "mutation_variants": [
+        "edit changes exact components",
+        "delete fails evaluation",
+        "rename fails evaluation"
+      ]
+    },
+    {
+      "origin": "new",
+      "source": "tests/test_source_identity.py:76-94",
+      "legacy": null,
+      "node_id": "tests/test_source_identity.py::test_selected_membership[Root.lean]",
+      "runtimes": [
+        "source"
+      ],
+      "assertions": [
+        "Adding, editing, renaming and deleting this selected input changes exactly its declared components."
+      ],
+      "migration_source": "build-support/source_identity_test.py at d7ca0c2b; real membership assertions now join ordinary pytest/CI selection",
+      "description": "Adding, editing, renaming and deleting this selected input changes exactly its declared components.",
+      "parameter_id": "Root.lean",
+      "level": "integration",
+      "concerns": [
+        "environment"
+      ],
+      "resources": [
+        "requires_nix"
+      ],
+      "implementation_source": "tests/test_source_identity.py:76-94",
+      "collection_verified": true,
+      "assertion_source": [
+        "assert {name for name in COMPONENTS if observed[name] != baseline[name]} == DYNAMIC[relative], (relative, operation)"
+      ],
+      "mutation_variants": [
+        "add",
+        "edit",
+        "rename",
+        "delete"
+      ]
+    },
+    {
+      "origin": "new",
+      "source": "tests/test_source_identity.py:76-94",
+      "legacy": null,
+      "node_id": "tests/test_source_identity.py::test_selected_membership[SqliteVerifier/Model.lean]",
+      "runtimes": [
+        "source"
+      ],
+      "assertions": [
+        "Adding, editing, renaming and deleting this selected input changes exactly its declared components."
+      ],
+      "migration_source": "build-support/source_identity_test.py at d7ca0c2b; real membership assertions now join ordinary pytest/CI selection",
+      "description": "Adding, editing, renaming and deleting this selected input changes exactly its declared components.",
+      "parameter_id": "SqliteVerifier/Model.lean",
+      "level": "integration",
+      "concerns": [
+        "environment"
+      ],
+      "resources": [
+        "requires_nix"
+      ],
+      "implementation_source": "tests/test_source_identity.py:76-94",
+      "collection_verified": true,
+      "assertion_source": [
+        "assert {name for name in COMPONENTS if observed[name] != baseline[name]} == DYNAMIC[relative], (relative, operation)"
+      ],
+      "mutation_variants": [
+        "add",
+        "edit",
+        "rename",
+        "delete"
+      ]
+    },
+    {
+      "origin": "new",
+      "source": "tests/test_source_identity.py:76-94",
+      "legacy": null,
+      "node_id": "tests/test_source_identity.py::test_selected_membership[conformance/check.py]",
+      "runtimes": [
+        "source"
+      ],
+      "assertions": [
+        "Adding, editing, renaming and deleting this selected input changes exactly its declared components."
+      ],
+      "migration_source": "build-support/source_identity_test.py at d7ca0c2b; real membership assertions now join ordinary pytest/CI selection",
+      "description": "Adding, editing, renaming and deleting this selected input changes exactly its declared components.",
+      "parameter_id": "conformance/check.py",
+      "level": "integration",
+      "concerns": [
+        "environment"
+      ],
+      "resources": [
+        "requires_nix"
+      ],
+      "implementation_source": "tests/test_source_identity.py:76-94",
+      "collection_verified": true,
+      "assertion_source": [
+        "assert {name for name in COMPONENTS if observed[name] != baseline[name]} == DYNAMIC[relative], (relative, operation)"
+      ],
+      "mutation_variants": [
+        "add",
+        "edit",
+        "rename",
+        "delete"
+      ]
+    },
+    {
+      "origin": "new",
+      "source": "tests/test_source_identity.py:76-94",
+      "legacy": null,
+      "node_id": "tests/test_source_identity.py::test_selected_membership[examples/example.sql]",
+      "runtimes": [
+        "source"
+      ],
+      "assertions": [
+        "Adding, editing, renaming and deleting this selected input changes exactly its declared components."
+      ],
+      "migration_source": "build-support/source_identity_test.py at d7ca0c2b; real membership assertions now join ordinary pytest/CI selection",
+      "description": "Adding, editing, renaming and deleting this selected input changes exactly its declared components.",
+      "parameter_id": "examples/example.sql",
+      "level": "integration",
+      "concerns": [
+        "environment"
+      ],
+      "resources": [
+        "requires_nix"
+      ],
+      "implementation_source": "tests/test_source_identity.py:76-94",
+      "collection_verified": true,
+      "assertion_source": [
+        "assert {name for name in COMPONENTS if observed[name] != baseline[name]} == DYNAMIC[relative], (relative, operation)"
+      ],
+      "mutation_variants": [
+        "add",
+        "edit",
+        "rename",
+        "delete"
+      ]
+    },
+    {
+      "origin": "new",
+      "source": "tests/test_source_identity.py:76-94",
+      "legacy": null,
+      "node_id": "tests/test_source_identity.py::test_selected_membership[migration_check/runtime.py]",
+      "runtimes": [
+        "source"
+      ],
+      "assertions": [
+        "Adding, editing, renaming and deleting this selected input changes exactly its declared components."
+      ],
+      "migration_source": "build-support/source_identity_test.py at d7ca0c2b; real membership assertions now join ordinary pytest/CI selection",
+      "description": "Adding, editing, renaming and deleting this selected input changes exactly its declared components.",
+      "parameter_id": "migration_check/runtime.py",
+      "level": "integration",
+      "concerns": [
+        "environment"
+      ],
+      "resources": [
+        "requires_nix"
+      ],
+      "implementation_source": "tests/test_source_identity.py:76-94",
+      "collection_verified": true,
+      "assertion_source": [
+        "assert {name for name in COMPONENTS if observed[name] != baseline[name]} == DYNAMIC[relative], (relative, operation)"
+      ],
+      "mutation_variants": [
+        "add",
+        "edit",
+        "rename",
+        "delete"
+      ]
+    },
+    {
+      "origin": "new",
+      "source": "tests/test_source_identity.py:76-94",
+      "legacy": null,
+      "node_id": "tests/test_source_identity.py::test_selected_membership[packaging/helper.py]",
+      "runtimes": [
+        "source"
+      ],
+      "assertions": [
+        "Adding, editing, renaming and deleting this selected input changes exactly its declared components."
+      ],
+      "migration_source": "build-support/source_identity_test.py at d7ca0c2b; real membership assertions now join ordinary pytest/CI selection",
+      "description": "Adding, editing, renaming and deleting this selected input changes exactly its declared components.",
+      "parameter_id": "packaging/helper.py",
+      "level": "integration",
+      "concerns": [
+        "environment"
+      ],
+      "resources": [
+        "requires_nix"
+      ],
+      "implementation_source": "tests/test_source_identity.py:76-94",
+      "collection_verified": true,
+      "assertion_source": [
+        "assert {name for name in COMPONENTS if observed[name] != baseline[name]} == DYNAMIC[relative], (relative, operation)"
+      ],
+      "mutation_variants": [
+        "add",
+        "edit",
+        "rename",
+        "delete"
+      ]
+    },
+    {
+      "origin": "new",
+      "source": "tests/test_source_identity.py:76-94",
+      "legacy": null,
+      "node_id": "tests/test_source_identity.py::test_selected_membership[parser/input.c]",
+      "runtimes": [
+        "source"
+      ],
+      "assertions": [
+        "Adding, editing, renaming and deleting this selected input changes exactly its declared components."
+      ],
+      "migration_source": "build-support/source_identity_test.py at d7ca0c2b; real membership assertions now join ordinary pytest/CI selection",
+      "description": "Adding, editing, renaming and deleting this selected input changes exactly its declared components.",
+      "parameter_id": "parser/input.c",
+      "level": "integration",
+      "concerns": [
+        "environment"
+      ],
+      "resources": [
+        "requires_nix"
+      ],
+      "implementation_source": "tests/test_source_identity.py:76-94",
+      "collection_verified": true,
+      "assertion_source": [
+        "assert {name for name in COMPONENTS if observed[name] != baseline[name]} == DYNAMIC[relative], (relative, operation)"
+      ],
+      "mutation_variants": [
+        "add",
+        "edit",
+        "rename",
+        "delete"
+      ]
+    },
+    {
+      "origin": "new",
+      "source": "tests/test_source_identity.py:76-94",
+      "legacy": null,
+      "node_id": "tests/test_source_identity.py::test_selected_membership[parser/input.h]",
+      "runtimes": [
+        "source"
+      ],
+      "assertions": [
+        "Adding, editing, renaming and deleting this selected input changes exactly its declared components."
+      ],
+      "migration_source": "build-support/source_identity_test.py at d7ca0c2b; real membership assertions now join ordinary pytest/CI selection",
+      "description": "Adding, editing, renaming and deleting this selected input changes exactly its declared components.",
+      "parameter_id": "parser/input.h",
+      "level": "integration",
+      "concerns": [
+        "environment"
+      ],
+      "resources": [
+        "requires_nix"
+      ],
+      "implementation_source": "tests/test_source_identity.py:76-94",
+      "collection_verified": true,
+      "assertion_source": [
+        "assert {name for name in COMPONENTS if observed[name] != baseline[name]} == DYNAMIC[relative], (relative, operation)"
+      ],
+      "mutation_variants": [
+        "add",
+        "edit",
+        "rename",
+        "delete"
+      ]
+    },
+    {
+      "origin": "new",
+      "source": "tests/test_source_identity.py:76-94",
+      "legacy": null,
+      "node_id": "tests/test_source_identity.py::test_selected_membership[parser/input.json]",
+      "runtimes": [
+        "source"
+      ],
+      "assertions": [
+        "Adding, editing, renaming and deleting this selected input changes exactly its declared components."
+      ],
+      "migration_source": "build-support/source_identity_test.py at d7ca0c2b; real membership assertions now join ordinary pytest/CI selection",
+      "description": "Adding, editing, renaming and deleting this selected input changes exactly its declared components.",
+      "parameter_id": "parser/input.json",
+      "level": "integration",
+      "concerns": [
+        "environment"
+      ],
+      "resources": [
+        "requires_nix"
+      ],
+      "implementation_source": "tests/test_source_identity.py:76-94",
+      "collection_verified": true,
+      "assertion_source": [
+        "assert {name for name in COMPONENTS if observed[name] != baseline[name]} == DYNAMIC[relative], (relative, operation)"
+      ],
+      "mutation_variants": [
+        "add",
+        "edit",
+        "rename",
+        "delete"
+      ]
+    },
+    {
+      "origin": "new",
+      "source": "tests/test_source_identity.py:76-94",
+      "legacy": null,
+      "node_id": "tests/test_source_identity.py::test_selected_membership[parser/input.py]",
+      "runtimes": [
+        "source"
+      ],
+      "assertions": [
+        "Adding, editing, renaming and deleting this selected input changes exactly its declared components."
+      ],
+      "migration_source": "build-support/source_identity_test.py at d7ca0c2b; real membership assertions now join ordinary pytest/CI selection",
+      "description": "Adding, editing, renaming and deleting this selected input changes exactly its declared components.",
+      "parameter_id": "parser/input.py",
+      "level": "integration",
+      "concerns": [
+        "environment"
+      ],
+      "resources": [
+        "requires_nix"
+      ],
+      "implementation_source": "tests/test_source_identity.py:76-94",
+      "collection_verified": true,
+      "assertion_source": [
+        "assert {name for name in COMPONENTS if observed[name] != baseline[name]} == DYNAMIC[relative], (relative, operation)"
+      ],
+      "mutation_variants": [
+        "add",
+        "edit",
+        "rename",
+        "delete"
+      ]
+    },
+    {
+      "origin": "new",
+      "source": "tests/test_source_identity.py:76-94",
+      "legacy": null,
+      "node_id": "tests/test_source_identity.py::test_selected_membership[parser/input.y]",
+      "runtimes": [
+        "source"
+      ],
+      "assertions": [
+        "Adding, editing, renaming and deleting this selected input changes exactly its declared components."
+      ],
+      "migration_source": "build-support/source_identity_test.py at d7ca0c2b; real membership assertions now join ordinary pytest/CI selection",
+      "description": "Adding, editing, renaming and deleting this selected input changes exactly its declared components.",
+      "parameter_id": "parser/input.y",
+      "level": "integration",
+      "concerns": [
+        "environment"
+      ],
+      "resources": [
+        "requires_nix"
+      ],
+      "implementation_source": "tests/test_source_identity.py:76-94",
+      "collection_verified": true,
+      "assertion_source": [
+        "assert {name for name in COMPONENTS if observed[name] != baseline[name]} == DYNAMIC[relative], (relative, operation)"
+      ],
+      "mutation_variants": [
+        "add",
+        "edit",
+        "rename",
+        "delete"
+      ]
+    },
+    {
+      "origin": "new",
+      "source": "tests/test_source_identity.py:76-94",
+      "legacy": null,
+      "node_id": "tests/test_source_identity.py::test_selected_membership[tests/test_input.py]",
+      "runtimes": [
+        "source"
+      ],
+      "assertions": [
+        "Adding, editing, renaming and deleting this selected input changes exactly its declared components."
+      ],
+      "migration_source": "build-support/source_identity_test.py at d7ca0c2b; real membership assertions now join ordinary pytest/CI selection",
+      "description": "Adding, editing, renaming and deleting this selected input changes exactly its declared components.",
+      "parameter_id": "tests/test_input.py",
+      "level": "integration",
+      "concerns": [
+        "environment"
+      ],
+      "resources": [
+        "requires_nix"
+      ],
+      "implementation_source": "tests/test_source_identity.py:76-94",
+      "collection_verified": true,
+      "assertion_source": [
+        "assert {name for name in COMPONENTS if observed[name] != baseline[name]} == DYNAMIC[relative], (relative, operation)"
+      ],
+      "mutation_variants": [
+        "add",
+        "edit",
+        "rename",
+        "delete"
+      ]
+    },
+    {
+      "origin": "new",
+      "source": "tests/test_source_identity.py:76-94",
+      "legacy": null,
+      "node_id": "tests/test_source_identity.py::test_selected_membership[tools/helper.py]",
+      "runtimes": [
+        "source"
+      ],
+      "assertions": [
+        "Adding, editing, renaming and deleting this selected input changes exactly its declared components."
+      ],
+      "migration_source": "build-support/source_identity_test.py at d7ca0c2b; real membership assertions now join ordinary pytest/CI selection",
+      "description": "Adding, editing, renaming and deleting this selected input changes exactly its declared components.",
+      "parameter_id": "tools/helper.py",
+      "level": "integration",
+      "concerns": [
+        "environment"
+      ],
+      "resources": [
+        "requires_nix"
+      ],
+      "implementation_source": "tests/test_source_identity.py:76-94",
+      "collection_verified": true,
+      "assertion_source": [
+        "assert {name for name in COMPONENTS if observed[name] != baseline[name]} == DYNAMIC[relative], (relative, operation)"
+      ],
+      "mutation_variants": [
+        "add",
+        "edit",
+        "rename",
+        "delete"
+      ]
+    },
+    {
+      "origin": "new",
+      "source": "tests/test_source_identity.py:128-132",
+      "legacy": null,
+      "node_id": "tests/test_source_identity.py::test_unselected_file_invariance[README.md]",
+      "runtimes": [
+        "source"
+      ],
+      "assertions": [
+        "Unrelated documentation and excluded example metadata do not invalidate any build component."
+      ],
+      "migration_source": "build-support/source_identity_test.py at d7ca0c2b; real membership assertions now join ordinary pytest/CI selection",
+      "description": "Unrelated documentation and excluded example metadata do not invalidate any build component.",
+      "parameter_id": "README.md",
+      "level": "integration",
+      "concerns": [
+        "environment"
+      ],
+      "resources": [
+        "requires_nix"
+      ],
+      "implementation_source": "tests/test_source_identity.py:128-132",
+      "collection_verified": true,
+      "assertion_source": [
+        "assert identities(root) == baseline"
+      ]
+    },
+    {
+      "origin": "new",
+      "source": "tests/test_source_identity.py:128-132",
+      "legacy": null,
+      "node_id": "tests/test_source_identity.py::test_unselected_file_invariance[build-support/notes.md]",
+      "runtimes": [
+        "source"
+      ],
+      "assertions": [
+        "Unrelated documentation and excluded example metadata do not invalidate any build component."
+      ],
+      "migration_source": "build-support/source_identity_test.py at d7ca0c2b; real membership assertions now join ordinary pytest/CI selection",
+      "description": "Unrelated documentation and excluded example metadata do not invalidate any build component.",
+      "parameter_id": "build-support/notes.md",
+      "level": "integration",
+      "concerns": [
+        "environment"
+      ],
+      "resources": [
+        "requires_nix"
+      ],
+      "implementation_source": "tests/test_source_identity.py:128-132",
+      "collection_verified": true,
+      "assertion_source": [
+        "assert identities(root) == baseline"
+      ]
+    },
+    {
+      "origin": "new",
+      "source": "tests/test_source_identity.py:128-132",
+      "legacy": null,
+      "node_id": "tests/test_source_identity.py::test_unselected_file_invariance[docs/notes.md]",
+      "runtimes": [
+        "source"
+      ],
+      "assertions": [
+        "Unrelated documentation and excluded example metadata do not invalidate any build component."
+      ],
+      "migration_source": "build-support/source_identity_test.py at d7ca0c2b; real membership assertions now join ordinary pytest/CI selection",
+      "description": "Unrelated documentation and excluded example metadata do not invalidate any build component.",
+      "parameter_id": "docs/notes.md",
+      "level": "integration",
+      "concerns": [
+        "environment"
+      ],
+      "resources": [
+        "requires_nix"
+      ],
+      "implementation_source": "tests/test_source_identity.py:128-132",
+      "collection_verified": true,
+      "assertion_source": [
+        "assert identities(root) == baseline"
+      ]
+    },
+    {
+      "origin": "new",
+      "source": "tests/test_source_identity.py:128-132",
+      "legacy": null,
+      "node_id": "tests/test_source_identity.py::test_unselected_file_invariance[examples/.DS_Store]",
+      "runtimes": [
+        "source"
+      ],
+      "assertions": [
+        "Unrelated documentation and excluded example metadata do not invalidate any build component."
+      ],
+      "migration_source": "build-support/source_identity_test.py at d7ca0c2b; real membership assertions now join ordinary pytest/CI selection",
+      "description": "Unrelated documentation and excluded example metadata do not invalidate any build component.",
+      "parameter_id": "examples/.DS_Store",
+      "level": "integration",
+      "concerns": [
+        "environment"
+      ],
+      "resources": [
+        "requires_nix"
+      ],
+      "implementation_source": "tests/test_source_identity.py:128-132",
+      "collection_verified": true,
+      "assertion_source": [
+        "assert identities(root) == baseline"
+      ]
+    },
+    {
+      "origin": "new",
+      "source": "tests/test_source_identity.py:128-132",
+      "legacy": null,
+      "node_id": "tests/test_source_identity.py::test_unselected_file_invariance[examples/generated.pyc]",
+      "runtimes": [
+        "source"
+      ],
+      "assertions": [
+        "Unrelated documentation and excluded example metadata do not invalidate any build component."
+      ],
+      "migration_source": "build-support/source_identity_test.py at d7ca0c2b; real membership assertions now join ordinary pytest/CI selection",
+      "description": "Unrelated documentation and excluded example metadata do not invalidate any build component.",
+      "parameter_id": "examples/generated.pyc",
+      "level": "integration",
+      "concerns": [
+        "environment"
+      ],
+      "resources": [
+        "requires_nix"
+      ],
+      "implementation_source": "tests/test_source_identity.py:128-132",
+      "collection_verified": true,
+      "assertion_source": [
+        "assert identities(root) == baseline"
+      ]
     }
   ],
   "fixture_contracts": {
     "kernel": "Resolve LEAN_SYSROOT (lean --print-prefix exit 0), compile immutable common modules successfully, copy trusted/candidate directories for each case. No subprocesses during collection.",
     "cli_baseline": "A case needing inputs.json performs its own successful baseline verification as fixture setup, retaining status/exit/artifact assertions; no dependency on earlier selected case.",
     "native_upstream": "Each selected occurrence gets connection setup + prerequisite SQL + earlier calls in order; final observation assertion retains complete state/schema cookie/view set.",
-    "installed": "Fresh real archive installation; literal spaces path; child PATH=/usr/bin:/bin and poisoned Python/Lean settings; Nix roots preserved; fixture shared only while immutable."
+    "installed": "Fresh real archive installation; literal spaces path; child PATH=/usr/bin:/bin and poisoned Python/Lean settings; Nix roots preserved; fixture shared only while immutable.",
+    "source_identity": "One tiny synthetic baseline is evaluated once per session with the real locked Nix library; each case copies only declared fixture bytes into its private tree. No repository/build copying or package build occurs. Missing fixed paths fail evaluation; unselected source components remain unchanged."
   },
   "collection_checks": {
-    "case_count": 355,
+    "case_count": 397,
     "legacy_mapped_case_count": 244,
-    "new_case_count": 111,
-    "source_case_count": 349,
+    "new_case_count": 153,
+    "source_case_count": 391,
     "installed_case_count": 19,
     "baseline_hashes_verified": 39,
     "result": "Every mapped identity occurs in an actual catalogue/report snapshot; no orphan legacy identity. Final single-tree recollection remains a lead integration check.",
@@ -10956,6 +12325,11 @@
         "path": "/Users/tzankomatev/work/sqlite-verifier-adr1-nix/build/benchmark-catalogue.json",
         "sha256": "58690dc78a40a037aee18d65e8fe17e927f937c5ae936ff7a95d0369cbcc3700",
         "case_count": 15
+      },
+      {
+        "path": "/Users/tzankomatev/work/sqlite-verifier-adr1-tests/build/source-identities-catalogue.json",
+        "sha256": "af77cafff7a956796803caf66bb5de1d61d56b33746eac9cb1eac2e54bcc3e9f",
+        "case_count": 44
       }
     ],
     "runtime_build_required": false
@@ -10971,7 +12345,7 @@
     "tests/coverage_test.py": "fa4c7e72a28eab802e8753f9933cecc9d291b54aa4cdfdd70371fbea7fe30837",
     "tests/docs_test.py": "721b8e59cfa8fcafa9f83eadc719c1f32694ce7cfbc751259cd9d17cdc786227",
     "tests/early_baseline_test.py": "b0c49f17e10d13cb943fab7e5a91965e16fa39470bd39ed013b051c3a866a03c",
-    "tests/environment_snapshot_test.py": "71f600c3466eb9fc4d1d07d5d7a0922be5afde806361277ed9c29817177c25b8",
+    "tests/environment_snapshot_test.py": "46a705b5c3e6a91ff74187f0bfe815cb5c854d2557bdb549d31405b6564f57fa",
     "tests/kernel_gate_test.py": "bcf56bbc46e91dfe01a6272ed86496dc31712f919b7e608f5feb821d9d668704",
     "tests/parser_build_test.py": "b77bd9c079af95bafc1dc6c6a2dc70414457025d1ca95deec5184926711d67fa",
     "tests/parser_test.py": "115e689cb4e7c2841759ea94cda55795bec1d74d400add72852e116df3180bb2",
@@ -11001,7 +12375,8 @@
     "tests/test_toolchain_smoke.py": "fc211b837bc1ffc45fa7c86816baa70788a231f00e30eda34d8e22257776d646",
     "tests/test_translation.py": "f590fa4c7e45fae13871af30f04ac2ffcdb44cedeaac1220b7058d5e860c78e0",
     "tests/test_unit_cache_contract.py": "16216cf070ff93e4c3da18509c8a8d0a98f26814739b8a405138e87440f928f4",
-    "tests/test_benchmark_ci.py": "9f50a8395d6c3bbac1461b2807c7f9cee33d5835444ea20b397f2d5ec24d9be3"
+    "tests/test_benchmark_ci.py": "9f50a8395d6c3bbac1461b2807c7f9cee33d5835444ea20b397f2d5ec24d9be3",
+    "tests/test_source_identity.py": "7794eb3d99477511f67c0f68397915285f5498d6747986a178f286a8ff2481f4"
   },
   "baseline_entrypoints": {
     "just smoke": [

@@ -35,7 +35,8 @@ def identity(directory: Path) -> tuple[str, str, int]:
     return str(source), info['narHash'], info['narSize']
 
 
-@pytest.mark.parametrize("git_parent", [False, True], ids=["non_git", "git_parent"])
+@pytest.mark.parametrize("git_parent", [pytest.param(False, id="non_git"),
+    pytest.param(True, id="git_parent", marks=pytest.mark.requires_native("git"))])
 def test_environment_snapshot(git_parent: bool, tmp_path: Path) -> None:
     """Outside source/artifact/metadata edits cannot change the tiny explicit path-flake snapshot."""
     check_environment(ROOT)
