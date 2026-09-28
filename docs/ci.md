@@ -113,3 +113,6 @@ a fix. The owner accepted the Step 1 product on 2026-09-25. Stable v0.1.1 was
 published on 2026-09-28 after both complete platform jobs passed twice at `7a99c71f`;
 published checksum files match the archive asset digests. The failed v0.1.0 tag
 remains unchanged, and v0.1.0-rc.1 is an earlier engineering preview.
+
+The [native benchmark protocol](adr1-benchmarks.md) defines the isolated
+60-job comparison and the evidence required before rollout.
