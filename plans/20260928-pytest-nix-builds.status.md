@@ -35,6 +35,11 @@ Relevant sources: `justfile`, `tests/`, `conformance/coverage_report.py`,
   checks pass. The Atuin run exposed read-only store modes copied into fixtures;
   `copy_mutable_tree` now makes only private copies writable, retaining executable
   bits. A regression passes both case orders and proves original bytes unchanged.
+- Converted all nineteen CLI scenarios to independent pytest cases with private
+  example copies and explicit baseline setup. The reviewed suite passes against
+  the immutable Nix runtime in 114.58s; independent/reversed runs remain pending.
+  Compilation and baseline conversions are independently reviewed on their member
+  branch: all 24 pass together, reversed and one at a time. Integration is pending.
 
 ## Remaining implementation
 
