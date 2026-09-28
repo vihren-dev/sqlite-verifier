@@ -1,38 +1,20 @@
-"""Kernel-check rich frontend emission and native-version selection independently of proofs."""
+"""Check profile-equivalent frontend emission and concrete Lean kernel properties independently."""
 
+from collections.abc import Callable
 from pathlib import Path
-import subprocess
-import sys
-from tempfile import TemporaryDirectory
+import os
 
-ROOT = Path(__file__).resolve().parent.parent
-sys.path.insert(0, str(ROOT))
+import pytest
 
-from migration_check.sql_model import schema_inputs, sql_inputs
 from migration_check.profiles import ExecutionProfile
+from migration_check.sql_model import schema_inputs, sql_inputs
 from migration_check.sql_tree import parse
 from migration_check.translate import starting_schema, statements
 from tests.test_schema_translation import BASELINE
+from tests.runtime_support import CommandResult
 
-
-def main() -> None:
-    """Use both actual grammar binaries and check all emitted properties in Lean's kernel."""
-    emissions: list[str] = []
-    for version, filename in (("3.51.0", "sqlite-parser"), ("3.46.0", "sqlite-parser-3.46.0")):
-        parser = ROOT / "build" / filename
-        schema = starting_schema(parse(parser, BASELINE.encode(), "baseline.sql", version))
-        script = statements(parse(parser, b'ALTER TABLE events ADD extra TEXT;', "migration.sql", version))
-        emissions.append(sql_inputs(schema, script, ExecutionProfile(version)))
-    assert emissions[0].replace(".sqlite351", ".sqlite346") == emissions[1], "Shared syntax changed meaning"
-    literal_schema = starting_schema(parse(parser,
-        b'CREATE TABLE ledger(version BIGINT PRIMARY KEY, label TEXT, stamp TIMESTAMP, ok BOOLEAN, data BLOB);',
-        'literal-schema.sql', version))
-    literal_script = statements(parse(parser,
-        b"BEGIN; INSERT INTO ledger(version,label,stamp,ok,data) "
-        b"VALUES(7,'shell','2026-09-25 00:00:00',1,X'00ff'); COMMIT; "
-        b"UPDATE ledger SET ok=-1 WHERE version=7;", 'literal-writes.sql', version))
-    literal_source = sql_inputs(literal_schema, literal_script, ExecutionProfile('3.46.0'))
-    assertion = """
+pytestmark = [pytest.mark.integration, pytest.mark.parser, pytest.mark.requires_native]
+RICH_ASSERTIONS = """
 open SqliteVerifier
 example : Generated.startSchema.all (fun t => supportedProperties t.columns t.properties) = true := by
   decide +kernel
@@ -42,13 +24,7 @@ example : Generated.nextSchema.lookupProperties "events" =
 example : (Generated.startSchema.lookup "events").bind (fun cs => cs.head?.map Column.notNull) = some false := by
   decide +kernel
 """
-    with TemporaryDirectory(prefix="schema-generation-") as temporary:
-        source = Path(temporary) / "GeneratedSchema.lean"
-        source.write_text(schema_inputs(schema) + emissions[0].replace("import SchemaInputs\n", "") + assertion)
-        result = subprocess.run(['lake', 'env', 'lean', str(source)], cwd=ROOT,
-                                capture_output=True, text=True, timeout=30)
-        assert result.returncode == 0, result.stdout + result.stderr
-        source.write_text(schema_inputs(literal_schema) + literal_source.replace("import SchemaInputs\n", "") + """
+LITERAL_ASSERTIONS = """
 example : Generated.profile = .sqlite346 := rfl
 example : Generated.script.length = 4 := by decide +kernel
 example : Generated.nextSchema = Generated.startSchema := rfl
@@ -58,12 +34,58 @@ example : (match SqliteVerifier.runSql Generated.script Generated.startSchema.em
     | .success database => (database "ledger").map (fun table =>
         table.rows.map (fun row => (row.rowid, row.values[3]?))) = some [(1, some (.integer (-1)))]
     | _ => False) := by rfl
-""")
-        result = subprocess.run(['lake', 'env', 'lean', str(source)], cwd=ROOT,
-                                capture_output=True, text=True, timeout=30)
-        assert result.returncode == 0, result.stdout + result.stderr
-    print("schema generation: both native profiles agree; rich emitted records checked by Lean kernel")
+"""
 
 
-if __name__ == '__main__':
-    main()
+def rich_source(runtime: Path, version: str) -> tuple[str, str]:
+    """Emit the same rich baseline and nullable ADD from the selected parser release."""
+    filename = "sqlite-parser" if version == "3.51.0" else "sqlite-parser-3.46.0"
+    parser = runtime / "build" / filename
+    schema = starting_schema(parse(parser, BASELINE.encode(), "baseline.sql", version))
+    script = statements(parse(parser, b"ALTER TABLE events ADD extra TEXT;", "migration.sql", version))
+    return schema_inputs(schema), sql_inputs(schema, script, ExecutionProfile(version))
+
+
+def test_profile_emission_equivalence(runtime_root: Path) -> None:
+    """The same syntax has identical generated meaning apart from its sealed SQLite constructor."""
+    _, current = rich_source(runtime_root, "3.51.0")
+    _, older = rich_source(runtime_root, "3.46.0")
+    assert current.replace(".sqlite351", ".sqlite346") == older, "Shared syntax changed meaning"
+
+
+def check_source(source: str, tmp_path: Path, lean_sysroot: Path, lean_library: Path,
+                 command_runner: Callable[..., CommandResult]) -> None:
+    """Kernel-check fresh generated source using the explicitly selected immutable library."""
+    proof = tmp_path / "GeneratedSchema.lean"
+    proof.write_text(source)
+    checked = command_runner([str(lean_sysroot / "bin/lean"), str(proof)], cwd=tmp_path,
+                             timeout=30, environment={**os.environ, "LEAN_PATH": str(lean_library)})
+    assert checked.returncode == 0, checked.diagnostic()
+
+
+@pytest.mark.kernel
+@pytest.mark.requires_lean
+def test_rich_schema_kernel_properties(runtime_root: Path, tmp_path: Path, lean_sysroot: Path,
+                                      lean_library: Path, command_runner: Callable[..., CommandResult]) -> None:
+    """Supported rich columns/index metadata and nullable ADD emission satisfy concrete kernel assertions."""
+    schema, sql = rich_source(runtime_root, "3.51.0")
+    check_source(schema + sql.removeprefix("import SchemaInputs\n") + RICH_ASSERTIONS,
+                 tmp_path, lean_sysroot, lean_library, command_runner)
+
+
+@pytest.mark.kernel
+@pytest.mark.requires_lean
+def test_literal_write_kernel_properties(runtime_root: Path, tmp_path: Path, lean_sysroot: Path,
+                                        lean_library: Path, command_runner: Callable[..., CommandResult]) -> None:
+    """Explicit transaction/literal operations bind the older profile and produce the exact stored integer."""
+    parser = runtime_root / "build/sqlite-parser-3.46.0"
+    schema = starting_schema(parse(parser,
+        b"CREATE TABLE ledger(version BIGINT PRIMARY KEY, label TEXT, stamp TIMESTAMP, ok BOOLEAN, data BLOB);",
+        "literal-schema.sql", "3.46.0"))
+    script = statements(parse(parser,
+        b"BEGIN; INSERT INTO ledger(version,label,stamp,ok,data) "
+        b"VALUES(7,'shell','2026-09-25 00:00:00',1,X'00ff'); COMMIT; "
+        b"UPDATE ledger SET ok=-1 WHERE version=7;", "literal-writes.sql", "3.46.0"))
+    sql = sql_inputs(schema, script, ExecutionProfile("3.46.0"))
+    check_source(schema_inputs(schema) + sql.removeprefix("import SchemaInputs\n") + LITERAL_ASSERTIONS,
+                 tmp_path, lean_sysroot, lean_library, command_runner)
