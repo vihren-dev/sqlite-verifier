@@ -6,8 +6,19 @@ import json
 import os
 from pathlib import Path
 import signal
+import shutil
+import stat
 import subprocess
 from time import monotonic
+
+
+def copy_mutable_tree(source: Path, destination: Path) -> Path:
+    """Copy immutable build inputs into a private writable tree while retaining executable bits."""
+    shutil.copytree(source, destination)
+    for path in [destination, *destination.rglob("*")]:
+        owner = stat.S_IRUSR | stat.S_IWUSR | (stat.S_IXUSR if path.is_dir() else 0)
+        path.chmod(path.stat().st_mode | owner)
+    return destination
 
 
 @dataclass(frozen=True)

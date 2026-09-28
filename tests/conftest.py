@@ -5,14 +5,13 @@ import json
 import os
 from pathlib import Path
 import re
-import shutil
 import subprocess
 
 import pytest
 
 from tests.case_reports import REPORTS, RunReports
 from tests.catalogue import describe_cases
-from tests.runtime_support import CommandResult, CommandTimeout, run_command
+from tests.runtime_support import CommandResult, CommandTimeout, copy_mutable_tree, run_command
 
 pytest_plugins = ["tests.runtime_fixtures"]
 
@@ -110,7 +109,7 @@ def example_factory(runtime_root: Path, tmp_path: Path) -> Callable[[str], Path]
         if not source.is_relative_to(runtime_root / "examples"):
             raise ValueError(f"Example escapes selected runtime: {name}")
         destination = tmp_path / f"example-{len(list(tmp_path.glob('example-*')))}"
-        return Path(shutil.copytree(source, destination))
+        return copy_mutable_tree(source, destination)
     return copy_example
 
 

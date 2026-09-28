@@ -110,6 +110,36 @@ def test_installed_missing_compiler_cannot_fall_back_to_host(harness: Path, monk
     assert installed.returncode == 1 and "Required runtime file is missing" in installed.stdout, installed.diagnostic()
 
 
+def test_example_copies_are_writable_and_independent(harness: Path) -> None:
+    """Read-only Nix examples yield private writable copies that pass in either order."""
+    source = harness / "examples/pilot"
+    source.mkdir(parents=True)
+    script = source / "input.sh"
+    script.write_text("original")
+    script.chmod(0o555)
+    source.chmod(0o555)
+    program = '''import os,pytest
+pytestmark=pytest.mark.unit
+@pytest.mark.parametrize("name", ["first", "second"])
+def test_copy(name, example_factory):
+    """Each mutation starts from immutable original bytes."""
+    root=example_factory("pilot")
+    path=root/"input.sh"
+    assert path.read_text()=="original" and os.access(path,os.X_OK)
+    path.write_text(name)
+    (root/"new").write_text(name)
+    assert (example_factory("pilot")/"input.sh").read_text()=="original"
+'''
+    try:
+        for order in (("first", "second"), ("second", "first")):
+            result = invoke(harness, program, *(f"tests/test_probe.py::test_copy[{name}]" for name in order))
+            assert result.returncode == 0, result.diagnostic()
+        assert script.read_text() == "original"
+    finally:
+        source.chmod(0o755)
+        script.chmod(0o755)
+
+
 def test_command_json_diagnostics_retain_both_streams(tmp_path: Path) -> None:
     """Malformed JSON retains the command, status, stdout, stderr and elapsed time."""
     result = run_command([sys.executable, "-c", "import sys; print('invalid'); print('detail',file=sys.stderr)"],

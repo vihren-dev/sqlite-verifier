@@ -29,6 +29,12 @@ Relevant sources: `justfile`, `tests/`, `conformance/coverage_report.py`,
   a regression proves missing bundled Lean fails despite an available host compiler.
   Harness checks are fresh integration evidence, excluded from pure-unit caching.
   Existing suites are being converted separately; full discovery parity is pending.
+- Integrated independently reviewed Nix toolchain/parser/Lean/runtime targets and
+  explicit-root packaging. Darwin Nix sandbox builds and input-identity mutation
+  tests passed; real Linux execution remains pending. Nine merged staging/CI-scope
+  checks pass. The Atuin run exposed read-only store modes copied into fixtures;
+  `copy_mutable_tree` now makes only private copies writable, retaining executable
+  bits. A regression passes both case orders and proves original bytes unchanged.
 
 ## Remaining implementation
 
