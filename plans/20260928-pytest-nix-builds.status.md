@@ -40,6 +40,11 @@ Relevant sources: `justfile`, `tests/`, `conformance/coverage_report.py`,
   the immutable Nix runtime in 114.58s; independent/reversed runs remain pending.
   Compilation and baseline conversions are independently reviewed on their member
   branch: all 24 pass together, reversed and one at a time. Integration is pending.
+- Integrated the reviewed Atuin, remaining script conversions, compilation/baseline
+  cases, cache fingerprints and explicit 64-case pure-unit Nix target. The member
+  records retain the exact validation commands and results; Linux, full source and
+  installed acceptance remain pending. Equivalent inventory branch versions were
+  reconciled using the latest compilation/baseline inventory, preserving all rows.
 
 ## Remaining implementation
 

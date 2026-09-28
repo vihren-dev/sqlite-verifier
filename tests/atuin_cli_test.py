@@ -1,148 +1,187 @@
-"""Exercise the explicit source-backed SQL example and reject protected-meaning drift."""
+"""Exercise each Atuin preservation scenario through the selected public runtime."""
 
+from __future__ import annotations
+
+from collections.abc import Callable
 import hashlib
 import json
 from pathlib import Path
-import shutil
-import subprocess
-import sys
-from tempfile import TemporaryDirectory
+from typing import TYPE_CHECKING
 
-ROOT = Path(__file__).resolve().parents[1]
+import pytest
 
+if TYPE_CHECKING:
+    from tests.runtime_support import CommandResult
 
-def invoke(runtime: Path, pilot: Path, expected: str, label: str,
-           artifacts: Path | None = None) -> dict[str, object]:
-    """Use exactly the public inputs and protected closure, with bounded child execution."""
-    command = [str(runtime / 'bin/migration-check'), 'verify', '--format', 'json',
-               '--profile', '3.46.0', '--schema', str(pilot / 'schema.sql'),
-               '--migration', str(pilot / 'migration.sql'),
-               '--requirements', str(pilot / 'approved/Requirements.lean'),
-               '--interpretation', str(pilot / 'approved/Interpretation.lean'),
-               '--next-interpretation', str(pilot / 'NextInterpretation.lean'),
-               '--proofs', str(pilot / 'Proofs.lean'),
-               '--approved-baseline', str(pilot / 'approved/baseline.json')]
-    if artifacts is not None:
-        command += ['--artifacts', str(artifacts)]
-    print(f'Atuin CLI: {label}', flush=True)
-    result = subprocess.run(command, cwd=pilot.parent, capture_output=True, text=True, timeout=180)
-    report: dict[str, object] = json.loads(result.stdout)
-    assert report['status'] == expected, (label, report, result.stderr)
-    assert result.returncode == (0 if expected == 'VERIFIED' else 1), (label, result)
-    if expected == 'UNVERIFIED':
-        diagnostic = str(report.get('message', ''))
-        assert 'error:' in diagnostic or 'unapproved axiom:' in diagnostic, (label, report)
-        assert 'timed out' not in diagnostic.lower(), (label, report)
-    return report
+pytestmark = [pytest.mark.e2e, pytest.mark.atuin, pytest.mark.requires_lean,
+              pytest.mark.requires_native, pytest.mark.requires_sandbox]
 
 
-def replace_bytes(path: Path, original: bytes, old: bytes, new: bytes) -> None:
-    """Ensure an adversarial source mutation actually changes the tested input."""
+@pytest.fixture
+def pilot(example_factory: Callable[[str], Path]) -> Path:
+    """Give every scenario its own complete approved/candidate source tree."""
+    return example_factory('atuin')
+
+
+@pytest.fixture
+def verify(runtime_root: Path, pilot: Path,
+           command_runner: Callable[..., CommandResult]) -> Callable[..., dict[str, object]]:
+    """Keep public status, process exit and non-timeout proof rejection assertions together."""
+    def invoke(expected: str, artifacts: Path | None = None) -> dict[str, object]:
+        """Verify this case's exact files under the same protected closure and deadline."""
+        command = [str(runtime_root / 'bin/migration-check'), 'verify', '--format', 'json',
+                   '--profile', '3.46.0', '--schema', str(pilot / 'schema.sql'),
+                   '--migration', str(pilot / 'migration.sql'),
+                   '--requirements', str(pilot / 'approved/Requirements.lean'),
+                   '--interpretation', str(pilot / 'approved/Interpretation.lean'),
+                   '--next-interpretation', str(pilot / 'NextInterpretation.lean'),
+                   '--proofs', str(pilot / 'Proofs.lean'),
+                   '--approved-baseline', str(pilot / 'approved/baseline.json')]
+        if artifacts is not None:
+            command += ['--artifacts', str(artifacts)]
+        result = command_runner(command, cwd=pilot.parent, timeout=180)
+        report = result.json_object()
+        assert report['status'] == expected, (report, result)
+        assert result.returncode == (0 if expected == 'VERIFIED' else 1), result
+        if expected == 'UNVERIFIED':
+            diagnostic = str(report.get('message', ''))
+            assert 'error:' in diagnostic or 'unapproved axiom:' in diagnostic, (report, result)
+            assert 'timed out' not in diagnostic.lower(), (report, result)
+        return report
+    return invoke
+
+
+def replace_bytes(path: Path, old: bytes, new: bytes) -> None:
+    """Require each deliberate source mutation to change the copied input."""
+    original = path.read_bytes()
     changed = original.replace(old, new)
     assert changed != original, (path, old)
     path.write_bytes(changed)
 
 
-def main(runtime: Path) -> None:
-    """Run against a source build or an installed runtime containing the same reviewed bundle."""
-    with TemporaryDirectory(prefix='atuin-cli-') as temporary:
-        work = Path(temporary)
-        pilot = work / 'pilot'
-        shutil.copytree(runtime / 'examples/atuin', pilot)
-        migration = pilot / 'migration.sql'
-        original_sql = migration.read_bytes()
-        assert b'alter table history add column shell text;' in original_sql
-        artifacts = work / 'artifacts'
-        report = invoke(runtime, pilot, 'VERIFIED', 'explicit SQL and protected closure', artifacts)
-        assert report['statements'] == 1 and report['profile'] == '3.46.0'
-        inputs = report['inputs']
-        assert isinstance(inputs, dict)
-        baseline = json.loads((pilot / 'approved/baseline.json').read_text())
-        approved = {key: value for key, value in inputs.items() if key.startswith('approved/')}
-        assert approved == {key: value for key, value in baseline.items() if key.startswith('approved/')}
-        assert {'approved/SchemaBinding.lean', 'approved/HistoryModel.lean',
-                'approved/HistoryDecoding.lean', 'approved/HistoryMapping.lean'} <= set(approved)
-        assert inputs['schema.sql'] == baseline['schema.sql']
-        assert 'candidate/HistoryDecodingChecks.lean' in inputs
-        assert 'def startSchema' in (artifacts / 'SchemaInputs.lean').read_text()
-        for name in ('schema.sql', 'migration.sql'):
-            assert inputs[name] == hashlib.sha256((pilot / name).read_bytes()).hexdigest()
-        assert 'def profile : ExecutionProfile := .sqlite346' in (artifacts / 'SqlInputs.lean').read_text()
-        assert 'profile.json' not in inputs
-        assert json.loads((artifacts / 'inputs.json').read_text()) == inputs
-
-        replace_bytes(migration, original_sql, b'add column shell text;', b'add column other text;')
-        invoke(runtime, pilot, 'UNVERIFIED', 'changed SQL with stale candidate proof')
-        facts = pilot / 'AtuinFacts.lean'
-        original_facts = facts.read_bytes()
-        replace_bytes(facts, original_facts, b'name := "shell"', b'name := "other"')
-        alternative = invoke(runtime, pilot, 'VERIFIED', 'different new field, same old business contract')
-        alternative_inputs = alternative['inputs']
-        assert isinstance(alternative_inputs, dict)
-        assert {key: value for key, value in alternative_inputs.items()
-                if key.startswith('approved/')} == approved
-        facts.write_bytes(original_facts)
-        migration.write_bytes(original_sql)
-
-        schema = pilot / 'schema.sql'
-        original_schema = schema.read_text()
-        assert 'id text primary key' in original_schema
-        replace_bytes(schema, original_schema.encode(), b'id text primary key', b'id text')
-        invoke(runtime, pilot, 'INPUT_ERROR', 'omitted protected original primary key')
-        schema.write_text(original_schema)
-
-        replace_bytes(migration, original_sql, b'add column shell text;',
-                      b"add column shell text DEFAULT 'new';")
-        invoke(runtime, pilot, 'UNSUPPORTED', 'default semantics remain outside the supported subset')
-        migration.write_bytes(original_sql)
-
-        next_meaning = pilot / 'NextInterpretation.lean'
-        original_meaning = next_meaning.read_text()
-        reader = b'observe := HistoryMapping.observe'
-        for replacement, label in (
-            (b'observe := fun database => (HistoryMapping.observe database).map (List.drop 1)',
-             'candidate drops a protected business history'),
-            (b'observe := fun database => (HistoryMapping.observe database).map '
-             b'(fun histories => histories.map (fun history => { history with command := "" }))',
-             'candidate erases protected command text'),
-        ):
-            replace_bytes(next_meaning, original_meaning.encode(), reader, replacement)
-            invoke(runtime, pilot, 'UNVERIFIED', label)
-            next_meaning.write_text(original_meaning)
-        invariant_start = original_meaning.index('  invariant :=')
-        invariant_end = original_meaning.index('  observe :=', invariant_start)
-        weakened = (original_meaning[:invariant_start] + '  invariant _ := True\n' +
-                    original_meaning[invariant_end:])
-        assert weakened != original_meaning
-        next_meaning.write_text(weakened)
-        invoke(runtime, pilot, 'UNVERIFIED', 'candidate omits schema and decoding invariant')
-        next_meaning.write_text(original_meaning)
-
-        schema.write_text(original_schema + '\n-- changed schema approval bytes\n')
-        invoke(runtime, pilot, 'INPUT_ERROR', 'protected starting schema bytes changed')
-        schema.write_text(original_schema)
-        for name in ('HistoryModel', 'HistoryDecoding'):
-            protected = pilot / f'approved/{name}.lean'
-            original = protected.read_bytes()
-            protected.write_bytes(original + b'\n-- source-only approval drift\n')
-            rejected = invoke(runtime, pilot, 'INPUT_ERROR', f'protected {name} changed')
-            assert f'approved/{name}.lean' in str(rejected['message'])
-            protected.write_bytes(original)
-
-        mapping = pilot / 'approved/HistoryMapping.lean'
-        original_mapping = mapping.read_bytes()
-        mapping.write_bytes(original_mapping + b'\n-- Protected interpretation dependency changed.\n')
-        rejected = invoke(runtime, pilot, 'INPUT_ERROR', 'transitive approved dependency changed')
-        assert 'approved/HistoryMapping.lean' in str(rejected['message'])
-        mapping.write_bytes(original_mapping)
-
-        (pilot / 'Proofs.lean').write_text(
-            'import Generated\ntheorem Proofs.migrationCorrect : Generated.expected := by sorry\n')
-        invoke(runtime, pilot, 'UNVERIFIED', 'unfinished proof')
-    print('Atuin CLI: two migrations preserve the same old business contract; stale proofs and protected-meaning drift rejected')
+@pytest.mark.approval
+@pytest.mark.kernel
+def test_valid_migration_preserves_history(pilot: Path, verify: Callable[..., dict[str, object]],
+                                          tmp_path: Path) -> None:
+    """Accept the payload with exact protected hashes and complete generated artifacts."""
+    assert b'alter table history add column shell text;' in (pilot / 'migration.sql').read_bytes()
+    artifacts = tmp_path / 'artifacts'
+    report = verify('VERIFIED', artifacts)
+    assert report['statements'] == 1 and report['profile'] == '3.46.0'
+    inputs = report['inputs']
+    assert isinstance(inputs, dict)
+    baseline = json.loads((pilot / 'approved/baseline.json').read_text())
+    approved = {key: value for key, value in inputs.items() if key.startswith('approved/')}
+    assert approved == {key: value for key, value in baseline.items() if key.startswith('approved/')}
+    assert {'approved/SchemaBinding.lean', 'approved/HistoryModel.lean',
+            'approved/HistoryDecoding.lean', 'approved/HistoryMapping.lean'} <= set(approved)
+    assert inputs['schema.sql'] == baseline['schema.sql']
+    assert 'candidate/HistoryDecodingChecks.lean' in inputs
+    assert 'def startSchema' in (artifacts / 'SchemaInputs.lean').read_text()
+    for name in ('schema.sql', 'migration.sql'):
+        assert inputs[name] == hashlib.sha256((pilot / name).read_bytes()).hexdigest()
+    assert 'def profile : ExecutionProfile := .sqlite346' in (artifacts / 'SqlInputs.lean').read_text()
+    assert 'profile.json' not in inputs
+    assert json.loads((artifacts / 'inputs.json').read_text()) == inputs
 
 
-if __name__ == '__main__':
-    if len(sys.argv) > 2:
-        raise SystemExit('usage: atuin_cli_test.py [RUNTIME_ROOT]')
-    main(Path(sys.argv[1]).resolve() if len(sys.argv) == 2 else ROOT)
+@pytest.mark.kernel
+def test_changed_sql_rejects_stale_proof(pilot: Path, verify: Callable[..., dict[str, object]]) -> None:
+    """Reject a changed added column when the candidate's proof facts remain stale."""
+    replace_bytes(pilot / 'migration.sql', b'add column shell text;', b'add column other text;')
+    verify('UNVERIFIED')
+
+
+@pytest.mark.approval
+@pytest.mark.kernel
+def test_different_field_preserves_contract(pilot: Path, verify: Callable[..., dict[str, object]]) -> None:
+    """Accept another nullable field using unchanged approved files and updated candidate facts."""
+    replace_bytes(pilot / 'migration.sql', b'add column shell text;', b'add column other text;')
+    replace_bytes(pilot / 'AtuinFacts.lean', b'name := "shell"', b'name := "other"')
+    report = verify('VERIFIED')
+    inputs = report['inputs']
+    assert isinstance(inputs, dict)
+    baseline = json.loads((pilot / 'approved/baseline.json').read_text())
+    assert {key: value for key, value in inputs.items() if key.startswith('approved/')} == {
+        key: value for key, value in baseline.items() if key.startswith('approved/')}
+
+
+@pytest.mark.approval
+def test_omitted_original_primary_key(pilot: Path, verify: Callable[..., dict[str, object]]) -> None:
+    """Reject removal of the protected original primary key before checking a proof."""
+    replace_bytes(pilot / 'schema.sql', b'id text primary key', b'id text')
+    verify('INPUT_ERROR')
+
+
+def test_unsupported_default(pilot: Path, verify: Callable[..., dict[str, object]]) -> None:
+    """Report unsupported default semantics instead of accepting an unmodeled initialization."""
+    replace_bytes(pilot / 'migration.sql', b'add column shell text;', b"add column shell text DEFAULT 'new';")
+    verify('UNSUPPORTED')
+
+
+@pytest.mark.approval
+@pytest.mark.kernel
+def test_drops_history(pilot: Path, verify: Callable[..., dict[str, object]]) -> None:
+    """Reject a candidate reader that omits the first protected business history."""
+    replace_bytes(pilot / 'NextInterpretation.lean', b'observe := HistoryMapping.observe',
+                  b'observe := fun database => (HistoryMapping.observe database).map (List.drop 1)')
+    verify('UNVERIFIED')
+
+
+@pytest.mark.approval
+@pytest.mark.kernel
+def test_erases_commands(pilot: Path, verify: Callable[..., dict[str, object]]) -> None:
+    """Reject a candidate reader that replaces protected command text with empty strings."""
+    replace_bytes(pilot / 'NextInterpretation.lean', b'observe := HistoryMapping.observe',
+                  b'observe := fun database => (HistoryMapping.observe database).map '
+                  b'(fun histories => histories.map (fun history => { history with command := "" }))')
+    verify('UNVERIFIED')
+
+
+@pytest.mark.approval
+@pytest.mark.kernel
+def test_weakened_invariant(pilot: Path, verify: Callable[..., dict[str, object]]) -> None:
+    """Reject removal of the resulting schema and complete-decoding invariant."""
+    path = pilot / 'NextInterpretation.lean'
+    original = path.read_text()
+    start = original.index('  invariant :=')
+    end = original.index('  observe :=', start)
+    weakened = original[:start] + '  invariant _ := True\n' + original[end:]
+    assert weakened != original
+    path.write_text(weakened)
+    verify('UNVERIFIED')
+
+
+@pytest.mark.approval
+def test_schema_approval_bytes_changed(pilot: Path, verify: Callable[..., dict[str, object]]) -> None:
+    """Reject even a comment-only change to approved starting-schema bytes."""
+    path = pilot / 'schema.sql'
+    path.write_bytes(path.read_bytes() + b'\n-- changed schema approval bytes\n')
+    verify('INPUT_ERROR')
+
+
+@pytest.mark.approval
+@pytest.mark.parametrize('name', ['HistoryModel', 'HistoryDecoding'])
+def test_approved_source_changed(pilot: Path, verify: Callable[..., dict[str, object]], name: str) -> None:
+    """Name the changed protected model or decoder when source approval drifts."""
+    path = pilot / f'approved/{name}.lean'
+    path.write_bytes(path.read_bytes() + b'\n-- source-only approval drift\n')
+    report = verify('INPUT_ERROR')
+    assert f'approved/{name}.lean' in str(report['message'])
+
+
+@pytest.mark.approval
+def test_transitive_mapping_changed(pilot: Path, verify: Callable[..., dict[str, object]]) -> None:
+    """Reject and identify drift in the transitive approved interpretation mapping."""
+    path = pilot / 'approved/HistoryMapping.lean'
+    path.write_bytes(path.read_bytes() + b'\n-- Protected interpretation dependency changed.\n')
+    report = verify('INPUT_ERROR')
+    assert 'approved/HistoryMapping.lean' in str(report['message'])
+
+
+@pytest.mark.kernel
+def test_unfinished_proof(pilot: Path, verify: Callable[..., dict[str, object]]) -> None:
+    """Reject an unfinished proof with a proof diagnostic rather than accepting a timeout."""
+    (pilot / 'Proofs.lean').write_text(
+        'import Generated\ntheorem Proofs.migrationCorrect : Generated.expected := by sorry\n')
+    verify('UNVERIFIED')

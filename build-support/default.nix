@@ -6,6 +6,18 @@ let
   leanToolchain = import ./lean-toolchain.nix { inherit pkgs; };
 in rec {
   inherit leanToolchain sources;
+  unitChecks = pkgs.stdenvNoCC.mkDerivation {
+    pname = "sqlite-verifier-unit-checks";
+    version = "1";
+    src = sources.unit;
+    nativeBuildInputs = [ (pkgs.python3.withPackages (ps: [ ps.pytest ])) ];
+    dontConfigure = true;
+    dontBuild = true;
+    installPhase = ''
+      export HOME="$TMPDIR"
+      timeout 120 python3 build-support/run_unit_checks.py "$out"
+    '';
+  };
   runtime = import ./runtime.nix {
     inherit pkgs sources leanToolchain parsers leanRuntime;
   };

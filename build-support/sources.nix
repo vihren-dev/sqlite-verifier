@@ -11,6 +11,19 @@ let
   filtered = predicate: path: fs.intersection (clean path) (fs.fileFilter predicate path);
   extensions = names: filtered (file: builtins.any file.hasExt names);
 in {
+  unit = source (fs.unions [
+    (extensions [ "py" ] (root + /tests))
+    (extensions [ "py" ] (root + /migration_check))
+    (extensions [ "py" ] (root + /parser))
+    (extensions [ "py" ] (root + /packaging))
+    (extensions [ "py" ] (root + /tools))
+    (extensions [ "py" ] (root + /conformance))
+    (root + /conformance/upstream/alter3.test)
+    (root + /conformance/upstream/sha256.json)
+    (root + /pytest.ini)
+    (root + /build-support/run_unit_checks.py)
+    (root + /build-support/unit-cases.json)
+  ]);
   runtime = source (fs.unions [
     (extensions [ "py" ] (root + /migration_check))
     (filtered (file: file.name != ".DS_Store" && !file.hasExt "pyc") (root + /examples))

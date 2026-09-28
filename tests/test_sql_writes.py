@@ -1,5 +1,7 @@
 """Admit generic literal writes and explicit transaction syntax without skipped CST branches."""
 
+import pytest
+
 from pathlib import Path
 import unittest
 
@@ -20,9 +22,18 @@ def tree(sql: str, version: str = '3.51.0') -> Tree:
     return parse(ROOT / 'build' / binary, sql.encode(), 'literal.sql', version)
 
 
+@pytest.fixture(autouse=True)
+def selected_parser(runtime_root: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    """Literal-write tests resolve both grammar versions under the selected runtime root."""
+    monkeypatch.setattr(__import__(__name__, fromlist=["ROOT"]), "ROOT", runtime_root)
+
+
 class LiteralWriteTests(unittest.TestCase):
     """Examples use neutral table names; no pilot-specific admission or catalog handling exists."""
 
+    @pytest.mark.integration
+    @pytest.mark.parser
+    @pytest.mark.requires_native
     def test_both_grammars_preserve_all_explicit_operations(self) -> None:
         """The generated script contains the transaction and each concrete write in order."""
         sql = ("BEGIN; INSERT INTO ledger(version,label,stamp,ok,data) "
@@ -41,6 +52,9 @@ class LiteralWriteTests(unittest.TestCase):
             self.assertEqual(transition(schema, script), (schema, ''))
         self.assertEqual(scripts[0], scripts[1])
 
+    @pytest.mark.integration
+    @pytest.mark.parser
+    @pytest.mark.requires_native
     def test_transaction_schema_effects_are_explicit(self) -> None:
         """ROLLBACK restores schema while a pending transaction never implies a commit or rollback."""
         schema = starting_schema(tree('CREATE TABLE t(x TEXT);'))
@@ -50,6 +64,9 @@ class LiteralWriteTests(unittest.TestCase):
         self.assertEqual(transition(schema, statements(tree('BEGIN; BEGIN;')))[1], 'transactionAlreadyActive')
         self.assertEqual(transition(schema, statements(tree('COMMIT;')))[1], 'noActiveTransaction')
 
+    @pytest.mark.integration
+    @pytest.mark.parser
+    @pytest.mark.requires_native
     def test_literal_storage_and_unsupported_expressions(self) -> None:
         """Extreme int64, UTF-8, quoting and blobs retain their exact storage values."""
         examples = [('NULL', None), ('-9223372036854775808', -(2 ** 63)),
@@ -65,6 +82,9 @@ class LiteralWriteTests(unittest.TestCase):
             with self.subTest(value=value), self.assertRaises(Rejection):
                 statements(tree(f'INSERT INTO t(x) VALUES({value});'))
 
+    @pytest.mark.integration
+    @pytest.mark.parser
+    @pytest.mark.requires_native
     def test_unmodeled_key_comparisons_reject(self) -> None:
         """The static key domain cannot be smuggled into a false runtime-error claim."""
         cases = [
@@ -81,6 +101,9 @@ class LiteralWriteTests(unittest.TestCase):
         schema = starting_schema(tree('CREATE TABLE t(k BIGINT,x TEXT); CREATE UNIQUE INDEX kidx ON t(k);'))
         self.assertIn('.update', sql_inputs(schema, statements(tree("UPDATE t SET x='ok' WHERE k=1;"))))
 
+    @pytest.mark.integration
+    @pytest.mark.parser
+    @pytest.mark.requires_native
     def test_optional_syntax_and_coercions_reject(self) -> None:
         """Reject optional grammar branches and every write outside the lossless subset."""
         for sql in ('BEGIN IMMEDIATE;', 'SAVEPOINT a;', 'ROLLBACK TO a;',

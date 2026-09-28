@@ -1,5 +1,7 @@
 """Check actual child overlap, complete diagnostics, deadlines and joined failures."""
 
+import pytest
+
 from pathlib import Path
 import subprocess
 import sys
@@ -12,6 +14,8 @@ ROOT = Path(__file__).resolve().parents[1]
 class IndependentSuiteTests(unittest.TestCase):
     """Use child rendezvous instead of machine-speed assertions to prove overlap."""
 
+    @pytest.mark.integration
+    @pytest.mark.environment
     def test_overlap_failure_join_and_timeout(self) -> None:
         """A failing or timed-out sibling cannot hide the other's completed output."""
         with TemporaryDirectory() as temporary:
@@ -54,6 +58,8 @@ class IndependentSuiteTests(unittest.TestCase):
             self.assertIn("before timeout", result.stdout)
             self.assertIn("other suite completed", result.stdout)
 
+    @pytest.mark.integration
+    @pytest.mark.environment
     def test_serial_mode_finishes_failed_first_suite_before_second(self) -> None:
         """The macOS fallback still runs the next suite after a completed failure."""
         with TemporaryDirectory() as temporary:
