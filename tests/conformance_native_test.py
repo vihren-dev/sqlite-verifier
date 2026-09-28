@@ -68,22 +68,11 @@ def final_observations(report: dict[str, object]) -> None:
                                    "upstream_textual_call_sites": 59, "upstream_distinct_textual_ids": 55}
 
 
-@pytest.mark.requires_native("sqlite-parser", "sqlite3")
+@pytest.mark.requires_native("sqlite3")
 def test_final_native_observations(runtime_root: Path, case_artifacts: Path) -> None:
     """Final replay observations retain physical row identity, schema state and explicit evidence limits."""
-    report = run(os.environ.get("SQLITE3", "sqlite3"), str(runtime_root / "build/sqlite-parser"))
+    report = run(os.environ.get("SQLITE3", "sqlite3"), str(runtime_root / "build/sqlite-parser"), final_only=True)
+    assert report["cases"] == [], "Final replay must not repeat separately selected case comparisons"
     final_observations(report)
     case_artifacts.mkdir(parents=True, exist_ok=True)
     (case_artifacts / "upstream-final.json").write_text(json.dumps(report, indent=2) + "\n")
-
-
-def evidence() -> dict[str, object]:
-    """Keep the old aggregate report contract until root routes coverage through selected pytest cases."""
-    test_upstream_pin_and_import_fidelity()
-    report = run(sys.argv[1] if len(sys.argv) == 2 else os.environ.get("SQLITE3", "sqlite3"), str(ROOT / "build/sqlite-parser"))
-    final_observations(report)
-    return report
-
-
-if __name__ == "__main__":
-    print(json.dumps(evidence(), indent=2))

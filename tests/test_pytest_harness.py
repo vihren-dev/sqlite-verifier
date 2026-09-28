@@ -21,8 +21,9 @@ def harness(tmp_path: Path) -> Path:
     root = tmp_path / "harness"
     (root / "tests").mkdir(parents=True)
     shutil.copy2(ROOT / "pytest.ini", root)
-    for name in ("__init__.py", "conftest.py", "catalogue.py", "case_reports.py",
-                 "runtime_fixtures.py", "runtime_support.py"):
+    shutil.copy2(ROOT / "conftest.py", root)
+    for name in ("__init__.py", "catalogue.py", "case_reports.py",
+                 "runtime_fixtures.py", "runtime_support.py", "runtime_installation.py"):
         shutil.copy2(ROOT / "tests" / name, root / "tests" / name)
     return root
 
@@ -56,6 +57,9 @@ def test_selected(value):
     assert len(cases) == 1 and cases[0]["parameter_id"] == "second"
     assert cases[0]["resources"] == ["requires_lean"]
     assert not (harness / "build").exists()
+    repeated = invoke(harness, source, "--catalog-json", "catalog.json", "-k", "second", no_tools=True)
+    assert repeated.returncode == 0, repeated.diagnostic()
+    assert json.loads((harness / "catalog.json").read_text()) == cases
 
 
 @pytest.mark.parametrize("source,diagnostic", [

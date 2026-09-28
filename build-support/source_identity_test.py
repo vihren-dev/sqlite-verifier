@@ -32,7 +32,7 @@ def main() -> None:
             shutil.copytree(ROOT / directory, root / directory,
                             ignore=shutil.ignore_patterns("__pycache__"))
         for path in [*ROOT.glob("*.lean"), *(ROOT / name for name in
-                     ("lakefile.toml", "lake-manifest.json", "lean-toolchain", "LICENSE", "pytest.ini"))]:
+                     ("lakefile.toml", "lake-manifest.json", "lean-toolchain", "LICENSE", "pytest.ini", "conftest.py"))]:
             shutil.copy2(path, root / path.name)
         baseline = identities(root)
         (root / "README.md").write_text("unrelated documentation")

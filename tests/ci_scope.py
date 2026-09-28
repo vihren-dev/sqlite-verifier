@@ -12,6 +12,7 @@ PACKAGE_PREFIXES = ("packaging/", "migration_check/", "parser/", "bin/", "nix/",
 PACKAGE_FILES = {"justfile", ".envrc", "flake.nix", "flake.lock", "lean-toolchain",
                  "lakefile.toml", "lake-manifest.json", "ProofChecker.lean",
                  "tests/runtime_package_test.py", "tests/toolchain_smoke.py", "tests/test_toolchain_smoke.py", "pytest.ini",
+                 "conftest.py",
                  "docs/install.md", "tests/case-inventory.json", "tests/test_translation.py",
                  "tests/test_schema_translation.py"}
 

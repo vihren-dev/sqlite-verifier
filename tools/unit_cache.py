@@ -4,6 +4,8 @@ import importlib.util
 import json
 from pathlib import Path
 import shutil
+import stat
+import xml.etree.ElementTree as ET
 
 from tests.runtime_support import run_command
 
@@ -40,11 +42,16 @@ def validated_cache(location: Path, cases: list[dict[str, object]], root: Path) 
     if report["exit_code"] != 0 or report["runtime"] != "source" or report["suite"] != "unit":
         raise ValueError("Cached unit report failed or identifies a different suite/runtime")
     validator.validate_cases(expected, report["cases"], executed=True)
+    ET.parse(location / "source/unit.xml")
     destination = root / "build/cached-unit"
     destination.mkdir(parents=True, exist_ok=True)
-    for relative in ("unit-cases.json", "catalogue.json", "source/unit.json"):
+    destination.chmod(destination.stat().st_mode | stat.S_IWUSR | stat.S_IXUSR)
+    for relative in ("unit-cases.json", "catalogue.json", "source/unit.json", "source/unit.xml"):
         target = destination / relative
         target.parent.mkdir(parents=True, exist_ok=True)
+        target.parent.chmod(target.parent.stat().st_mode | stat.S_IWUSR | stat.S_IXUSR)
+        target.unlink(missing_ok=True)
         shutil.copy2(location / relative, target)
+    (destination / "origin.json").unlink(missing_ok=True)
     (destination / "origin.json").write_text(json.dumps({"unit_checks": str(location.resolve())}) + "\n")
     return selected

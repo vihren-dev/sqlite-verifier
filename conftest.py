@@ -6,6 +6,7 @@ import os
 from pathlib import Path
 import re
 import subprocess
+from uuid import uuid4
 
 import pytest
 
@@ -13,7 +14,7 @@ from tests.case_reports import REPORTS, RunReports
 from tests.catalogue import describe_cases
 from tests.runtime_support import CommandResult, CommandTimeout, copy_mutable_tree, run_command
 
-pytest_plugins = ["tests.runtime_fixtures"]
+pytest_plugins = ["tests.runtime_fixtures", "tests.runtime_installation"]
 
 
 @pytest.hookimpl(tryfirst=True)
@@ -40,9 +41,11 @@ def pytest_addoption(parser: pytest.Parser) -> None:
     group.addoption("--catalog", action="store_true", help="List selected cases without executing")
     group.addoption("--catalog-json", type=Path, help="Write selected case metadata without executing")
     group.addoption("--runtime-root", type=Path, help="Built executable and examples root")
+    group.addoption("--runtime-archive", type=Path, help="Archive to install once for installed cases")
     group.addoption("--runtime-variant", choices=("source", "installed"), default="source")
     group.addoption("--report-dir", type=Path, default=Path("build/test-results"))
     group.addoption("--suite", default="selected", help="Report basename within the runtime directory")
+    group.addoption("--run-id", default=None, help="Shared fresh invocation identity for aggregate evidence")
 
 
 @pytest.hookimpl(tryfirst=True)
@@ -50,12 +53,18 @@ def pytest_configure(config: pytest.Config) -> None:
     """Prepare report paths in memory; collection cannot create runtime or report artifacts."""
     if config.getoption("catalog") or config.getoption("catalog_json"):
         config.option.collectonly = True
+    if config.getoption("runtime_archive") is not None:
+        if config.getoption("runtime_root") is not None or config.getoption("runtime_variant") != "installed":
+            raise pytest.UsageError("--runtime-archive requires --runtime-variant installed and no --runtime-root")
     suite = config.getoption("suite")
     if re.fullmatch(r"[A-Za-z0-9_-]+", suite) is None:
         raise pytest.UsageError("--suite must contain only letters, digits, underscore or hyphen")
     directory = config.getoption("report_dir").absolute()
     runtime = config.getoption("runtime_variant")
-    config.stash[REPORTS] = RunReports(directory, runtime, suite)
+    run_id = config.getoption("run_id") or uuid4().hex
+    if re.fullmatch(r"[A-Za-z0-9_-]+", run_id) is None:
+        raise pytest.UsageError("--run-id must contain only letters, digits, underscore or hyphen")
+    config.stash[REPORTS] = RunReports(directory, runtime, suite, run_id)
     if not config.option.collectonly and not config.option.xmlpath:
         config.option.xmlpath = str(directory / runtime / f"{suite}.xml")
 
@@ -92,8 +101,10 @@ def pytest_sessionfinish(session: pytest.Session, exitstatus: int) -> None:
 
 
 @pytest.fixture(scope="session")
-def runtime_root(pytestconfig: pytest.Config) -> Path:
+def runtime_root(pytestconfig: pytest.Config, request: pytest.FixtureRequest) -> Path:
     """Resolve the selected artifact root lazily, without checking unrelated prerequisites."""
+    if pytestconfig.getoption("runtime_archive") is not None:
+        return request.getfixturevalue("installed_runtime")
     root = pytestconfig.getoption("runtime_root") or pytestconfig.rootpath
     if not root.is_dir():
         pytest.fail(f"Runtime directory is missing: {root}; build the selected runtime first")

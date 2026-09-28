@@ -22,11 +22,3 @@ def test_native_history(case: str, runtime_root: Path, case_artifacts: Path) -> 
     assert len(report) == 1 and report[0]["case"] == case
     case_artifacts.mkdir(parents=True, exist_ok=True)
     (case_artifacts / "native-history.json").write_text(json.dumps(report, indent=2) + "\n")
-
-
-if __name__ == "__main__":
-    report = run(os.environ.get("SQLITE346", "sqlite3-3.46.0"))
-    rendered = json.dumps(report, indent=2) + "\n"
-    (ROOT / "build").mkdir(exist_ok=True)
-    (ROOT / "build/atuin-sql.json").write_text(rendered)
-    print(rendered, end="")

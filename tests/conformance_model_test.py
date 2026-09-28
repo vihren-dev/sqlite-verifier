@@ -58,20 +58,3 @@ def test_lost_rows_rejected(runtime_root: Path, lean_sysroot: Path, lean_library
                                   text=True, capture_output=True, timeout=30)
     assert rejected.returncode != 0, "False empty-target expectation received an accepted proof"
     assert "false" in rejected.stdout.lower(), rejected.stdout + rejected.stderr
-
-
-def evidence() -> list[dict[str, object]]:
-    """Retain the bounded report producer until the collector consumes pytest receipts."""
-    reports = run(sys.argv[1] if len(sys.argv) == 2 else os.environ.get("SQLITE3", "sqlite3"), ROOT / "build/sqlite-parser")
-    assert [report["case"] for report in reports] == [case.name for case in cases()]
-    assert len(reports) == 5
-    assert all(report["model_status"] == "KERNEL_CHECKED_CONCRETE_ASSERTIONS" for report in reports)
-    assert all(report["translation_status"] == "PRODUCTION_PIPELINE" for report in reports)
-    sysroot = Path(subprocess.run(["lean", "--print-prefix"], capture_output=True, text=True,
-                                  check=True, timeout=10).stdout.strip())
-    test_lost_rows_rejected(ROOT, sysroot, ROOT / ".lake/build/lib/lean")
-    return reports
-
-
-if __name__ == "__main__":
-    print(json.dumps(evidence(), indent=2))

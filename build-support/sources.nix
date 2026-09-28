@@ -21,6 +21,7 @@ in {
     (root + /conformance/upstream/alter3.test)
     (root + /conformance/upstream/sha256.json)
     (root + /pytest.ini)
+    (root + /conftest.py)
     (root + /build-support/run_unit_checks.py)
     (root + /build-support/unit-cases.json)
   ]);

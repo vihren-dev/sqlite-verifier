@@ -53,10 +53,27 @@ Relevant sources: `justfile`, `tests/`, `conformance/coverage_report.py`,
   escaping and permissions; all eight sandbox checks pass in 0.85s, including
   quoted Unicode executable paths and preserved read/write/network restrictions.
   A rebuilt runtime/archive and fresh installed acceptance remain required.
+- Rebuilt the runtime after the Unicode fix; the real offline archive installation
+  and all nineteen installed cases pass in 170.12s, including all thirteen Atuin
+  cases under poisoned ambient imports. Archive signature verification passed.
+- Integrated fresh receipt aggregation: all 95 producer cases pass in 35.04s,
+  then `coverage.json` reports `EVIDENCE_CHECKS_PASSED` from that same run without
+  launching producers again. Removed legacy aggregate wrappers. Twenty-three
+  negative/completeness checks plus nine subtests pass; independent review approved
+  the denominator, freshness and error-reporting changes.
+- Moved pytest registration to root `conftest.py` so repeated catalogue output
+  works when the output file already exists. Its Nix/cache/scope inputs are explicit;
+  collection now finds exactly 355 cases. Sixty-four focused integration/metadata
+  checks pass with 35 subtests; the descendant-process cleanup check separately
+  passes in the approved host shell (the ordinary tool sandbox forbids `ps`).
+- The integrated pure-unit derivation passes 64 cases and 62 subtests in 0.72s.
+  Reviewed CI transport remains opt-in; the benchmark workflow has a four-job pilot
+  and the complete 60-sample matrix. No remote native CI or benchmark run has yet
+  been dispatched. Whole-source integration and measurement gates remain open.
 
 ## Remaining implementation
 
-Inventory reconciliation with actual collection; complete case conversion;
-integration of reviewed Nix targets and explicit runtime packaging; CI and
-cache transport; both-platform acceptance and benchmark matrix; final independent
-requirement-by-requirement review. No end-to-end performance claim yet.
+Whole-source command validation and case-order checks; both-platform source and
+installed acceptance; native benchmark pilot and complete measurement matrix;
+rollout decision and final independent requirement-by-requirement review.
+No end-to-end performance claim yet.

@@ -38,7 +38,7 @@ def test_invalid_source_partition(nodes: list[str], cached: set[str], message: s
 
 
 @pytest.mark.parametrize("mutation", ["valid", "manifest", "catalogue", "host-resource", "integration",
-                                      "missing-phase", "skipped", "failed-exit", "wrong-runtime", "stale-derivation"],
+                                      "missing-phase", "skipped", "failed-exit", "wrong-runtime", "stale-derivation", "readonly-rerun", "missing-junit"],
                          ids=str)
 def test_cached_unit_evidence(tmp_path: Path, mutation: str, monkeypatch: pytest.MonkeyPatch) -> None:
     """Only exact, currently resource-free units with all three passed phases can be excluded."""
@@ -74,11 +74,21 @@ def test_cached_unit_evidence(tmp_path: Path, mutation: str, monkeypatch: pytest
                         (cache / "unit-cases.json", manifest), (cache / "catalogue.json", catalogue),
                         (cache / "source/unit.json", report)]:
         path.write_text(json.dumps(value))
-    if mutation == "valid":
+    if mutation != "missing-junit":
+        (cache / "source/unit.xml").write_text('<testsuites><testsuite tests="1"/></testsuites>')
+    if mutation in {"valid", "readonly-rerun"}:
         assert validated_cache(cache, cases, source) == set(nodes)
         assert json.loads((source / "build/cached-unit/source/unit.json").read_text()) == report
         assert not (source / "build/test-results").exists()
+        assert (source / "build/cached-unit/source/unit.xml").read_bytes() == (cache / "source/unit.xml").read_bytes()
+        if mutation == "readonly-rerun":
+            destination = source / "build/cached-unit"
+            for path in destination.rglob("*"):
+                path.chmod(0o555 if path.is_dir() else 0o444)
+            destination.chmod(0o555)
+            assert validated_cache(cache, cases, source) == set(nodes)
+            assert (destination / "source/unit.xml").read_bytes() == (cache / "source/unit.xml").read_bytes()
     else:
-        with pytest.raises(ValueError):
+        with pytest.raises((ValueError, OSError)):
             validated_cache(cache, cases, source)
         assert not (source / "build/cached-unit").exists()

@@ -5,6 +5,7 @@ import hashlib
 import json
 from pathlib import Path
 from typing import TypedDict
+from uuid import uuid4
 
 import pytest
 
@@ -27,21 +28,23 @@ class RunReports:
     directory: Path
     runtime: str
     suite: str
+    run_id: str = field(default_factory=lambda: uuid4().hex)
     cases: list[CaseDescription] = field(default_factory=list)
     phases: dict[str, dict[str, PhaseReport]] = field(default_factory=dict)
     failed: set[str] = field(default_factory=set)
+    shared_artifacts: dict[str, str] = field(default_factory=dict)
 
     def artifact_path(self, node_id: str) -> Path:
         """Include the full identity and runtime in a filesystem-safe content digest."""
         digest = hashlib.sha256(json.dumps([self.runtime, node_id]).encode()).hexdigest()
-        return self.directory / self.runtime / "artifacts" / digest
+        return self.directory / self.runtime / "artifacts" / digest / self.run_id
 
     def artifacts(self, node_id: str) -> Path:
         """Create readable identity metadata only during execution, never collection."""
         destination = self.artifact_path(node_id)
         destination.mkdir(parents=True, exist_ok=True)
         (destination / "case.json").write_text(json.dumps(
-            {"runtime": self.runtime, "node_id": node_id}, indent=2) + "\n")
+            {"runtime": self.runtime, "node_id": node_id, "run_id": self.run_id}, indent=2) + "\n")
         return destination
 
     def observe(self, report: pytest.TestReport, *, timed_out: bool = False) -> None:
@@ -62,9 +65,11 @@ class RunReports:
         path = self.directory / self.runtime / f"{self.suite}.json"
         path.parent.mkdir(parents=True, exist_ok=True)
         rows = [{**case, "phases": self.phases.get(case["node_id"], {}),
+                 "artifacts": str(self.artifact_path(case["node_id"])),
                  "failure_artifacts": str(self.artifact_path(case["node_id"]))
                  if case["node_id"] in self.failed else None} for case in self.cases]
-        path.write_text(json.dumps({"runtime": self.runtime, "suite": self.suite,
+        path.write_text(json.dumps({"runtime": self.runtime, "suite": self.suite, "run_id": self.run_id,
+                                   "shared_artifacts": self.shared_artifacts,
                                    "exit_code": exit_code, "cases": rows}, indent=2) + "\n")
 
 

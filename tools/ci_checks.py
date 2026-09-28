@@ -68,9 +68,10 @@ def run_checks(scope: str, mode: str, system: str, root: Path) -> None:
                 "--no-out-link", "--extra-experimental-features", "nix-command flakes"], 900, capture=True)
         runtime = Path(environment["SQLITE_VERIFIER_RUNTIME_ROOT"])
         environment["PATH"] = str(runtime / "lean/bin") + os.pathsep + environment["PATH"]
-        shutil.copytree(environment["SQLITE_VERIFIER_UNIT_CHECKS"], root / "build/cached-unit", dirs_exist_ok=True)
         for name in ("native-dependencies.txt", "nix-runtime-roots"):
-            shutil.copy2(runtime / "build" / name, root / "build" / name)
+            destination = root / "build" / name
+            destination.unlink(missing_ok=True)
+            shutil.copy2(runtime / "build" / name, destination)
     elif mode == "source":
         run("setup", ["just", "setup"], 330)
     else:

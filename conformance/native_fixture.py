@@ -37,9 +37,11 @@ def flat_tcl(results: list[list[dict[str, object]]]) -> list[str]:
     return flat
 
 
-def run(native: str, parser: str, selected: int | None = None) -> dict[str, object]:
+def run(native: str, parser: str, selected: int | None = None, *, final_only: bool = False) -> dict[str, object]:
     """Check native observations independently of the still-unwired formal model."""
     imported = fixture()
+    if final_only and selected is not None:
+        raise ValueError("Select either one upstream case or final observations")
     setup = imported["prerequisite_setup"]
     cases = imported["cases"]
     if selected is not None:
@@ -53,12 +55,13 @@ def run(native: str, parser: str, selected: int | None = None) -> dict[str, obje
     with TemporaryDirectory() as directory:
         folder = Path(directory)
         for index, case in enumerate(cases):
-            sql_file = folder / f"case-{index}.sql"
-            sql_file.write_text(case["sql"])
-            parsed = subprocess.run([parser, str(sql_file)], text=True, capture_output=True,
-                                    timeout=3, check=True)
-            if json.loads(parsed.stdout)["status"] != "PARSED":
-                raise ValueError("Production parser rejected upstream fixture SQL")
+            if not final_only and (selected is None or index == selected):
+                sql_file = folder / f"case-{index}.sql"
+                sql_file.write_text(case["sql"])
+                parsed = subprocess.run([parser, str(sql_file)], text=True, capture_output=True,
+                                        timeout=3, check=True)
+                if json.loads(parsed.stdout)["status"] != "PARSED":
+                    raise ValueError("Production parser rejected upstream fixture SQL")
             commands.extend([f".print CASE_{index}", case["sql"]])
         if selected is None:
             commands.extend([".print OBSERVATIONS", "SELECT rowid,a,b,c FROM t1 ORDER BY rowid;",
@@ -86,7 +89,7 @@ def run(native: str, parser: str, selected: int | None = None) -> dict[str, obje
         raise ValueError("Native engine compile settings do not match the declared profile")
     comparisons: list[dict[str, object]] = []
     for index, case in enumerate(cases):
-        if selected is not None and index != selected:
+        if final_only or (selected is not None and index != selected):
             continue
         observed = arrays("\n".join(sections.get(f"CASE_{index}", [])))
         if flat_tcl(observed) != case["expected_flat"]:

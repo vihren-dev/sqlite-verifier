@@ -124,20 +124,3 @@ def raise_expression(runtime: Path, version: str, artifacts: Path | None = None)
 def test_raise_expression_version_boundary(version: str, runtime_root: Path, case_artifacts: Path) -> None:
     """An expression in RAISE parses only in the newer pinned grammar."""
     raise_expression(runtime_root, version, case_artifacts)
-
-
-def check(runtime: Path, version: str) -> None:
-    """Produce the legacy grammar evidence denominator until aggregation moves to pytest."""
-    for _, sql in VALID:
-        parse(sql, runtime=runtime, version=version)
-    for _, sql in INVALID:
-        parse(sql, "INPUT_ERROR", runtime=runtime, version=version)
-    parse(b" " * (1024 * 1024 + 1), "RESOURCE_LIMIT", runtime=runtime, version=version)
-    unicode_spans(runtime, version)
-    raise_expression(runtime, version)
-    print(f"{version} parser checks passed: {len(VALID)} grammar scripts, malformed/limit and byte-span cases")
-
-
-if __name__ == "__main__":
-    for release in VERSIONS:
-        check(ROOT, release)

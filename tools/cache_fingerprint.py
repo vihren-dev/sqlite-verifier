@@ -9,7 +9,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 ENVIRONMENT_FILES = ("nix/flake.nix", "nix/flake.lock", "lean-toolchain")
-SOURCE_FILES = ("LICENSE", "lakefile.toml", "lake-manifest.json", "pytest.ini", "justfile",
+SOURCE_FILES = ("LICENSE", "lakefile.toml", "lake-manifest.json", "pytest.ini", "conftest.py", "justfile",
                 ".envrc", "docs/install.md")
 # A conservative superset of build-support/sources.nix plus all test/coverage inputs.
 SOURCE_TREES: dict[str, tuple[str, ...]] = {

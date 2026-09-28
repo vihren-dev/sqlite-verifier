@@ -27,7 +27,7 @@ class CiScopeTest(unittest.TestCase):
                     (["tools/check_resources.py"], "package"),
                     (["build-support/default.nix"], "package"),
                     (["tests/test_toolchain_smoke.py"], "package"),
-                    (["pytest.ini"], "package"), (["tests/conftest.py"], "package"),
+                    (["pytest.ini"], "package"), (["tests/conftest.py"], "package"), (["conftest.py"], "package"),
                     (["tests/runtime_support.py"], "package"),
                     (["tests/case_reports.py"], "package"),
                     (["tests/new_shared_helper.py"], "package"),
