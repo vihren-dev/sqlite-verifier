@@ -5,7 +5,7 @@
 - Updated: 2026-09-28
 - Repository examined: `2e173c7aa6adca5f4ba4292cba172f8c11a144f7`
 - Decision owner: technical lead; product owner accepts changes to test coverage
-- Related: [ADR 0002](adr-0002-compile-project-cache.md)
+- Related proposal: ADR 0002, compile-project caching (separate draft)
 
 ## 1. Outcome and decision
 
@@ -27,7 +27,8 @@ This ADR proposes changing the build-output caching restriction in [CI
 policy](ci.md). Update that policy when implementation is
 accepted. The separate [CI performance
 task](../plans/20260925-ci-performance.task.md) remains historical
-evidence of the previous policy; add a supersession note when needed.
+evidence of the current policy, which this proposal would supersede; add a
+supersession note when the replacement is accepted.
 
 ## 2. Current behavior and evidence
 
@@ -138,7 +139,8 @@ hashes from the checked-in baseline rather than another test's result.
 ### 3.3 Fixtures and runtime selection
 
 - A session fixture resolves a runtime root supplied by `--runtime-root PATH`
-  (default: source checkout) and validates prerequisites. It never builds implicitly.
+  (default: source checkout). Validate only the prerequisites required by selected
+  cases, so resource-free tests need no built runtime. Fixtures never build implicitly.
 - A function fixture copies the relevant example into `tmp_path`, preserving
   the approved/candidate directory boundaries. Each case mutates its own copy.
 - A reusable invocation helper captures command, return code, stdout, stderr,
@@ -170,6 +172,7 @@ The following is the target interface, available after the corresponding steps:
 
 ```sh
 nix develop path:./nix
+just setup
 just build
 just test-list
 just test-list -m atuin
@@ -195,6 +198,9 @@ built runtime; document this distinction. Do not pass shell-interpolated user
 strings through `eval` when implementing argument forwarding.
 
 ### 3.5 Logs, timing, and execution limits
+
+Currently CI retains `build/test-logs/*.log` and `build/coverage.json`.
+The case-level reports and artifact layout below are proposed additions.
 
 Use `-v --durations=20 --junitxml=build/test-results/RUNTIME/SUITE.xml`, where
 `RUNTIME` distinguishes at least `source` and `installed`. Keep output
@@ -376,7 +382,8 @@ or changing proof semantics. Retain timing reports to guide the next experiment.
   explicit coverage decision.
 
 Nix caching does not accelerate a cold verifier invocation's internal compilation.
-[ADR 0002](adr-0002-compile-project-cache.md) addresses that distinct optimization.
+The separate ADR 0002 draft addresses that distinct optimization; it is not a
+prerequisite for this decision.
 
 ## 8. Research references
 
