@@ -27,6 +27,12 @@ def test_ci_modes_retain_fresh_checks(tmp_path: Path, mode: str, system: str) ->
         destination = tmp_path / "build" / name
         destination.write_text("stale loader metadata")
         destination.chmod(0o444)
+    original_bin = tmp_path / "original-bin"
+    original_bin.mkdir()
+    (runtime / "lean/bin").mkdir(parents=True)
+    for compiler in (original_bin / "clang", runtime / "lean/bin/clang"):
+        compiler.write_text("#!/bin/sh\nexit 0\n")
+        compiler.chmod(0o755)
     commands: list[list[str]] = []
     environments: list[dict[str, str]] = []
 
@@ -39,13 +45,15 @@ def test_ci_modes_retain_fresh_checks(tmp_path: Path, mode: str, system: str) ->
 
     with patch("tools.ci_checks.check_resources"), patch("tools.ci_checks.run_command", side_effect=run), \
          patch("tools.ci_checks.os.readlink", return_value="net:[before]"), \
-         patch.dict("os.environ", {"SQLITE_VERIFIER_SYSTEM": system, "PATH": "/bin"}, clear=True):
+         patch.dict("os.environ", {"SQLITE_VERIFIER_SYSTEM": system, "PATH": str(original_bin), "CC": "clang"}, clear=True):
         run_checks("package", mode, system, tmp_path)
     assert commands[-1] == ["just", "package"]
     if mode == "build":
         assert [command[3] for command in commands[:2]] == ["runtime", "unitChecks"]
         assert environments[-1]["SQLITE_VERIFIER_RUNTIME_ROOT"] == str(runtime)
         assert environments[-1]["SQLITE_VERIFIER_UNIT_CHECKS"] == str(units)
+        assert environments[-1]["CC"] == str(original_bin / "clang")
+        assert environments[-1]["PATH"].startswith(str(runtime / "lean/bin"))
         assert not (tmp_path / "build/cached-unit").exists()
         assert (tmp_path / "build/native-dependencies.txt").read_text() == "loader metadata"
     else:

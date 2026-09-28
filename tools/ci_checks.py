@@ -67,6 +67,11 @@ def run_checks(scope: str, mode: str, system: str, root: Path) -> None:
             environment[variable] = run(target, ["nix-build", "build-support/default.nix", "-A", target,
                 "--no-out-link", "--extra-experimental-features", "nix-command flakes"], 900, capture=True)
         runtime = Path(environment["SQLITE_VERIFIER_RUNTIME_ROOT"])
+        configured_compiler = environment.get("CC", "clang")
+        compiler = shutil.which(configured_compiler, path=environment["PATH"])
+        if compiler is None:
+            raise FileNotFoundError(f"Configured C compiler is not executable: {configured_compiler}")
+        environment["CC"] = str(Path(compiler).absolute())
         environment["PATH"] = str(runtime / "lean/bin") + os.pathsep + environment["PATH"]
         for name in ("native-dependencies.txt", "nix-runtime-roots"):
             destination = root / "build" / name
