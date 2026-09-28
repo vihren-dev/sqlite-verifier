@@ -1,6 +1,7 @@
 """Exercise real OS isolation rather than checking only generated command strings."""
 
 from pathlib import Path
+import os
 import platform
 import socket
 import subprocess
@@ -55,7 +56,7 @@ class SandboxTest(unittest.TestCase):
                 "pathlib.Path('result.txt').write_text('isolated')\n",
                 encoding="utf-8",
             )
-            executable = Path(sys.executable).resolve()
+            executable = Path(os.environ.get("SQLITE_VERIFIER_PYTHON", sys.executable)).resolve()
             runtime = Path(sys.base_prefix).resolve()
             roots = [inputs, alias, runtime, executable.parent]
             if Path("/nix/store").exists():

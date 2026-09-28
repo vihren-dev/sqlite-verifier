@@ -1,6 +1,7 @@
 """Build a native offline runtime archive after the shared verification checks pass."""
 
 from collections.abc import Iterable
+import argparse
 import hashlib
 import os
 from pathlib import Path
@@ -15,7 +16,7 @@ from runtime_dependencies import lean_runtime_files, native_dependencies, run, r
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
-from tools.check_resources import check_resources
+from tools.check_resources import MIN_FREE_BYTES, check_resources, existing_parent
 
 
 def copy_runtime(source: Path, destination: Path, files: Iterable[Path] | None = None) -> None:
@@ -42,27 +43,35 @@ def project_runtime_files(root: Path) -> list[Path]:
     return files
 
 
-def build() -> Path:
-    """Bundle pinned interpreter, proof checker, grammar, Python and sandbox dependencies."""
+def build(python_path: Path, *, runtime_root: Path = ROOT, output_dir: Path | None = None) -> Path:
+    """Bundle one trusted runtime with a pinned interpreter into a separate writable destination."""
     check_resources(ROOT)
+    root = runtime_root.resolve(strict=True)
+    dist = (output_dir if output_dir is not None else ROOT / "dist").resolve()
+    if dist.is_relative_to(Path("/nix/store")):
+        raise ValueError("Archive output must be outside the immutable Nix store")
+    if shutil.disk_usage(existing_parent(dist)).free < MIN_FREE_BYTES:
+        raise ValueError(f"At least 10 GiB free is required for archive output: {dist}")
     systems = {("Darwin", "arm64"): "aarch64-darwin", ("Linux", "x86_64"): "x86_64-linux"}
     system = systems[(platform.system(), platform.machine())]
-    python = Path(sys.executable).resolve(strict=True)
+    python = python_path.resolve(strict=True)
     roots = {store_path(python)}
     sandbox_path = ""
     if system == "x86_64-linux":
         sandbox = Path(shutil.which("bwrap") or "missing-bubblewrap").resolve(strict=True)
         roots.add(store_path(sandbox))
         sandbox_path = str(sandbox.parent)
-    lean = Path(run(["lean", "--print-prefix"]).strip()).resolve(strict=True)
+    if (root / "lean").exists() or root != ROOT.resolve():
+        lean = (root / "lean").resolve(strict=True)
+    else:
+        lean = Path(run(["lean", "--print-prefix"]).strip()).resolve(strict=True)
     if not run([str(lean / "bin/lean"), "--version"]).startswith("Lean (version 4.33.0,"):
         raise ValueError("Pinned Lean runtime required")
-    native = [ROOT / "build/sqlite-parser", ROOT / ".lake/build/bin/migration-proof-checker",
-              ROOT / "build/sqlite-parser-3.46.0"]
+    native = [root / "build/sqlite-parser", root / ".lake/build/bin/migration-proof-checker",
+              root / "build/sqlite-parser-3.46.0"]
     loader_roots, loader_report = native_dependencies([*native, lean / "bin/lean"], lean)
     roots |= loader_roots
-    dist = ROOT / "dist"
-    dist.mkdir(exist_ok=True)
+    dist.mkdir(parents=True, exist_ok=True)
     archive = dist / f"sqlite-verifier-{system}.tar.gz"
     with TemporaryDirectory(prefix="runtime-bundle-") as temporary:
         started = monotonic()
@@ -70,12 +79,12 @@ def build() -> Path:
         payload = bundle / "payload"
         payload.mkdir(parents=True)
         for directory in ("migration_check", "examples", "docs"):
-            shutil.copytree(ROOT / directory, payload / directory,
+            shutil.copytree(root / directory, payload / directory,
                             ignore=shutil.ignore_patterns("__pycache__", "*.pyc"))
         for name in ("LICENSE", "lean-toolchain"):
-            shutil.copy2(ROOT / name, payload / name)
-        copy_runtime(ROOT / ".lake/build/lib/lean", payload / ".lake/build/lib/lean",
-                     project_runtime_files(ROOT))
+            shutil.copy2(root / name, payload / name)
+        copy_runtime(root / ".lake/build/lib/lean", payload / ".lake/build/lib/lean",
+                     project_runtime_files(root))
         copy_runtime(lean / "lib", payload / "lean/lib", lean_runtime_files(lean))
         for notice in ("LICENSE", "LICENSES"):
             shutil.copy2(lean / notice, payload / "lean" / notice)
@@ -102,8 +111,8 @@ raise SystemExit(main(sys.argv[1:]))
 ''')
         launcher.chmod(0o755)
         for name in ("install.sh", "install.py"):
-            shutil.copy2(ROOT / "packaging" / name, bundle / name)
-        shutil.copy2(ROOT / "docs/install.md", bundle / "README.md")
+            shutil.copy2(root / "packaging" / name, bundle / name)
+        shutil.copy2(root / "docs/install.md", bundle / "README.md")
         (bundle / "platform").write_text(system + "\n")
         (bundle / "python-path").write_text(str(python) + "\n")
         (bundle / "nix-paths").write_text("\n".join(map(str, sorted(roots))) + "\n")
@@ -133,4 +142,12 @@ raise SystemExit(main(sys.argv[1:]))
 
 
 if __name__ == "__main__":
-    print(build())
+    arguments = argparse.ArgumentParser(description=__doc__)
+    arguments.add_argument("--python", type=Path, required=True,
+                           help="Bare pinned runtime Python, without development test packages")
+    arguments.add_argument("--runtime-root", type=Path, default=ROOT,
+                           help="Built runtime/source tree to package (default: checkout)")
+    arguments.add_argument("--output-dir", type=Path, default=ROOT / "dist",
+                           help="Archive destination (default: checkout/dist)")
+    options = arguments.parse_args()
+    print(build(options.python, runtime_root=options.runtime_root, output_dir=options.output_dir))

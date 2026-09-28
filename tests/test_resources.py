@@ -21,7 +21,7 @@ class ResourceTests(unittest.TestCase):
         with patch.object(build_runtime, 'check_resources', side_effect=ValueError('capacity')), \
              patch.object(build_runtime, 'run') as run:
             with self.assertRaisesRegex(ValueError, 'capacity'):
-                build_runtime.build()
+                build_runtime.build(Path(sys.executable))
             run.assert_not_called()
 
     def test_separate_temporary_filesystem(self) -> None:

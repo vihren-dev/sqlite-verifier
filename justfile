@@ -45,7 +45,7 @@ check: build test
 
 # Build a native offline archive and verify its actual installed entrypoint.
 runtime-package: resources
-    timeout 600 python3 packaging/build_runtime.py
+    timeout 600 python3 packaging/build_runtime.py --python "${SQLITE_VERIFIER_PYTHON:?Enter nix develop path:./nix}"
     timeout 1800 python3 tests/runtime_package_test.py "dist/sqlite-verifier-${SQLITE_VERIFIER_SYSTEM:?Enter nix develop path:./nix}.tar.gz"
 
 # Keep a source snapshot alongside the checked installable runtime.
