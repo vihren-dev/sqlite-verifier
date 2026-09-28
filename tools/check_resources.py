@@ -42,8 +42,7 @@ def existing_parent(path: Path) -> Path:
 def check_resources(root: Path = ROOT) -> None:
     """Check workspace, temporary, toolchain and Nix-store write destinations separately."""
     check_environment(root)
-    destinations = [root / 'dist', root / 'build', root / '.lake', Path(tempfile.gettempdir()),
-                    Path(os.environ.get('ELAN_HOME', str(Path.home() / '.elan')))]
+    destinations = [root / 'dist', root / 'build', root / '.lake', Path(tempfile.gettempdir())]
     if Path('/nix/store').exists():
         destinations.append(Path('/nix/store'))
     failures: list[str] = []

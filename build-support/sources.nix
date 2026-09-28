@@ -29,8 +29,6 @@ in {
     (extensions [ "py" ] (root + /migration_check))
     (filtered (file: file.name != ".DS_Store" && !file.hasExt "pyc") (root + /examples))
     (root + /LICENSE) (root + /docs/install.md)
-    (root + /packaging/runtime_dependencies.py)
-    (root + /packaging/write_runtime_roots.py)
     (root + /packaging/install.py) (root + /packaging/install.sh)
   ]);
   parsers = source (extensions [ "py" "c" "h" "y" "json" ] (root + /parser));

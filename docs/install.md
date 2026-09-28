@@ -1,7 +1,7 @@
 # Install the native verifier
 
 Choose the `aarch64-darwin` archive for Apple Silicon macOS or `x86_64-linux`
-for Linux x64. Nix must already be installed with its usual trusted cache keys.
+for Linux x64. Nix must already be installed. Import verification remains enabled.
 Linux also needs working unprivileged user and network namespaces for bubblewrap;
 the verifier refuses to run without its sandbox. CI tests macOS 14 and Ubuntu
 22.04; the host system loader/kernel remain platform prerequisites.
@@ -22,22 +22,26 @@ Check the archive against its accompanying SHA-256 file, extract it, and run:
 ```
 
 The destination must not exist. Installation imports the included local Nix
-binary cache offline with signature checking enabled, copies the payload, and
+binary cache offline with verification enabled, links to the immutable runtime, and
 creates indirect Nix garbage-collection roots inside the installation. It does
 not download Lean, use elan, modify shell configuration, or replace another
 installation. The entrypoint uses the pinned Python in isolated mode, bundled
-Lean 4.33.0, pinned parser/checker/library, and pinned Linux bubblewrap. Ambient
+Lean 4.33.0, pinned parser/checker/library, and pinned Linux bubblewrap.
+Installed files are immutable Nix outputs; copy examples elsewhere before editing them. Ambient
 `PYTHONPATH`, `LEAN_PATH`, and Lean selection do not select its runtime.
 
 Remove the installation directory to uninstall; its indirect GC roots then
 expire and ordinary Nix garbage collection can reclaim unused dependencies.
-`native-dependencies.txt` records loader references observed during packaging.
-The platform's system libraries remain outside this bundle; Nix store loader
-dependencies are retained in the offline cache and admitted through exact
-packaging-owned `lean/nix-runtime-roots` metadata, never by granting the whole
-store to a proof process. The installation and its metadata are trusted code. Source-tree `just build`
-writes the equivalent `build/nix-runtime-roots` manifest because Nix-installed
-elan may patch the Linux Lean executable to use a Nix store ELF interpreter.
+The archive contains the complete runtime closure, converted with Nix's
+`make-content-addressed`. Nix verifies these paths against their content hashes;
+project outputs need no additional trusted signing key. Signature checking is
+never disabled. As before, verify the downloaded release archive's checksum:
+content addressing establishes byte identity, not publisher identity.
+
+Nix `closureInfo` generates `build/nix-runtime-roots` from the Lean toolchain and
+proof-library/checker closures. The proof sandbox admits those exact store paths,
+never the entire store. No ldd/otool dependency discovery or post-build ELF
+relocation occurs. The host system loader/kernel remain platform prerequisites.
 
 The examples include synthetic engineering cases and the source-backed Atuin
 case study; its [acceptance review](atuin-pilot-review.md) records owner approval.

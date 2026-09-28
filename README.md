@@ -29,7 +29,6 @@ then enter the development environment once for a batch:
 ```sh
 python3 tools/check_resources.py
 nix develop path:./nix
-just setup
 just test
 ```
 
@@ -38,9 +37,10 @@ The committed `nix/flake.lock` fixes Nix dependencies. The two-file `nix/`
 directory is the complete environment source; always use the explicit `path:`
 reference, including from non-Git Jujutsu workspaces. See the
 [resource and cleanup policy](sqlite-migration-verifier-team-guide.md#development-resources).
-The resource check rejects less than 10 GiB free before expensive work. Nix supplies elan; `just setup`
-downloads the exact official Lean release in `lean-toolchain` into elan's cache.
-That initial installation needs network access. No Mathlib is required.
+The resource check rejects less than 10 GiB free before expensive work. `just build`
+builds the complete runtime through Nix, including the exact official Lean release
+in `lean-toolchain`. Initial dependency fetching needs network access; unchanged
+builds reuse Nix outputs. No Elan or Mathlib is required.
 
 The supported development systems are Apple Silicon macOS (`aarch64-darwin`)
 and Intel/AMD Linux (`x86_64-linux`). Lean is pinned to 4.33.0; native SQLite is

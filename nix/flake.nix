@@ -34,7 +34,7 @@
         let
           tools = packagesFor system;
           testPython = tools.pkgs.python3.withPackages (ps: [ ps.pytest ]);
-          runtimePackages = with tools.pkgs; [ elan just coreutils testPython tools.sqlite tools.sqlite346 ]
+          runtimePackages = with tools.pkgs; [ just coreutils testPython tools.sqlite tools.sqlite346 ]
             ++ lib.optionals stdenv.hostPlatform.isLinux [ bubblewrap patchelf ];
         in {
           default = tools.pkgs.mkShell {

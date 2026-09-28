@@ -18,28 +18,6 @@ ROOT = Path(__file__).resolve().parents[1]
 class InstalledRuntimeTests(unittest.TestCase):
     """A trusted installation still rejects overbroad roots and preserves another installer's files."""
 
-    @pytest.mark.unit
-    @pytest.mark.packaging
-    def test_deleted_modules_are_not_packaged(self) -> None:
-        """A stale compiled module must stay out of the archive after source deletion."""
-        sys.path.insert(0, str(ROOT / "packaging"))
-        from build_runtime import copy_runtime, project_runtime_files
-        with TemporaryDirectory() as temporary:
-            root = Path(temporary)
-            (root / "SqliteVerifier").mkdir()
-            (root / "SqliteVerifier/Current.lean").write_text("-- current source\n")
-            library = root / ".lake/build/lib/lean"
-            (library / "SqliteVerifier").mkdir(parents=True)
-            for name in ("Current.olean", "Current.olean.private", "Current.ir", "Removed.olean"):
-                (library / "SqliteVerifier" / name).write_text("fixture")
-            destination = root / "packaged"
-            copy_runtime(library, destination, project_runtime_files(root))
-            self.assertEqual(sorted(path.name for path in destination.rglob("*") if path.is_file()),
-                             ["Current.ir", "Current.olean", "Current.olean.private"])
-            (root / "SqliteVerifier/Unbuilt.lean").write_text("-- not built\n")
-            with self.assertRaisesRegex(ValueError, "not been built"):
-                project_runtime_files(root)
-
     @pytest.mark.integration
     @pytest.mark.packaging
     @pytest.mark.requires_nix
@@ -49,9 +27,12 @@ class InstalledRuntimeTests(unittest.TestCase):
             bundle = Path(temporary).resolve()
             (bundle / "nix-cache").mkdir()
             (bundle / "nix-cache/nix-cache-info").write_text("StoreDir: /nix/store\n")
-            (bundle / "payload").mkdir()
-            (bundle / "payload/marker").write_text("installed")
-            (bundle / "nix-paths").write_text("")
+            (bundle / "runtime").mkdir()
+            (bundle / "runtime/marker").write_text("installed")
+            runtime = subprocess.run(["nix-store", "--add", str(bundle / "runtime")],
+                check=True, capture_output=True, text=True, timeout=15).stdout.strip()
+            (bundle / "runtime-path").write_text(runtime + "\n")
+            (bundle / "nix-paths").write_text(runtime + "\n")
             (bundle / "python-path").write_text(sys.executable + "\n")
             import platform
             system = "aarch64-darwin" if platform.system() == "Darwin" else "x86_64-linux"
@@ -74,9 +55,16 @@ class InstalledRuntimeTests(unittest.TestCase):
         specification.loader.exec_module(installer)
         with TemporaryDirectory() as temporary:
             bundle = Path(temporary)
-            (bundle / "nix-paths").write_text("")
+            runtime = Path("/nix/store/" + "0" * 32 + "-runtime")
+            (bundle / "nix-paths").write_text(str(runtime) + "\n")
+            (bundle / "runtime-path").write_text(str(runtime) + "\n")
             destination = bundle / "destination"
             original_mkdir = Path.mkdir
+            original_resolve = Path.resolve
+
+            def resolve(path: Path, *args: object, **kwargs: object) -> Path:
+                """Supply the immutable fixture root without requiring a real Nix store."""
+                return path if path == runtime else original_resolve(path, *args, **kwargs)
 
             def concurrent_mkdir(path: Path, *arguments: object, **keywords: object) -> None:
                 """Simulate another installer winning between existence test and exclusive creation."""
@@ -86,7 +74,7 @@ class InstalledRuntimeTests(unittest.TestCase):
                     raise FileExistsError(path)
                 original_mkdir(path, *arguments, **keywords)
 
-            with patch.object(installer, "__file__", str(bundle / "install.py")), patch.object(Path, "mkdir", concurrent_mkdir):
+            with patch.object(installer, "__file__", str(bundle / "install.py")), patch.object(Path, "mkdir", concurrent_mkdir), patch.object(Path, "resolve", resolve):
                 with self.assertRaises(FileExistsError):
                     installer.install(destination)
             self.assertEqual((destination / "unrelated.txt").read_text(), "keep")

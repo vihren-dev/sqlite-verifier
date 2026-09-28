@@ -119,7 +119,7 @@ def example_factory(runtime_root: Path, tmp_path: Path) -> Callable[[str], Path]
     def copy_example(name: str) -> Path:
         """Copy only examples under the selected runtime, using a distinct directory each time."""
         source = (runtime_root / "examples" / name).resolve(strict=True)
-        if not source.is_relative_to(runtime_root / "examples"):
+        if not source.is_relative_to((runtime_root / "examples").resolve(strict=True)):
             raise ValueError(f"Example escapes selected runtime: {name}")
         destination = tmp_path / f"example-{len(list(tmp_path.glob('example-*')))}"
         return copy_mutable_tree(source, destination)

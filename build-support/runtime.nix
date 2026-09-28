@@ -4,6 +4,7 @@ let
   python = pkgs.python3;
   runtimePath = pkgs.lib.makeBinPath ([ python ]
     ++ pkgs.lib.optional pkgs.stdenv.hostPlatform.isLinux pkgs.bubblewrap);
+  proofClosure = pkgs.closureInfo { rootPaths = [ leanToolchain leanRuntime ]; };
 in pkgs.stdenv.mkDerivation {
   pname = "sqlite-verifier-runtime";
   version = "1";
@@ -21,7 +22,9 @@ in pkgs.stdenv.mkDerivation {
     cp -R ${leanRuntime}/.lake "$out/"
     chmod -R u+w "$out"
     ln -s ${leanToolchain} "$out/lean"
-    python3 "$out/packaging/write_runtime_roots.py"
+    cp ${proofClosure}/store-paths "$out/build/nix-runtime-roots"
+    echo '${python}/bin/python3' > "$out/python-path"
+    echo '${pkgs.stdenv.hostPlatform.system}' > "$out/platform"
     mkdir -p "$out/bin"
     cat > "$out/bin/migration-check" <<'PY'
 #!${python}/bin/python3 -I
