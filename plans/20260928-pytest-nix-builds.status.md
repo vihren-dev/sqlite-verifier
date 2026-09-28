@@ -272,3 +272,18 @@ No end-to-end performance claim yet.
   samples, not median acceptance. Fresh-check time contributes 157.45 seconds of
   that difference and cache restoration 19 seconds. All three repetitions remain
   necessary, and default build-cache rollout stays disabled.
+- Repetition one finished with all twenty native samples successful. Both
+  platforms preserve exact warm reuse and the intended Python/Lean invalidation
+  boundaries; each package sample passes all nineteen installed cases and strict
+  signature verification. Candidate/baseline warm totals are 405/224 seconds on
+  Linux and 636/558 seconds on Darwin. These single samples do not meet the rollout
+  target; repetitions two and three remain required. Repetition two began only
+  after repetition one's final package job completed, confirming the capacity-safe
+  scheduling boundary in the actual run.
+- The lead directly re-read 446 retained selection reports and checked exact
+  inventory membership, standalone selection and passing setup/call/teardown for
+  all 416 source and nineteen installed cases. The final PR 5 deltas have a further
+  36 passing reports covering nineteen loader/packaging and fifteen collector cases
+  alone and reversed. This read-only audit is retained locally in
+  `build/closeout-retained-receipts-audit.json`; it did not rerun tests or substitute
+  historical receipts for the corrected import/collector cases.
