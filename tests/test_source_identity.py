@@ -24,8 +24,7 @@ FIXED: dict[str, set[str]] = {
                                   "pytest.ini", "conftest.py", "build-support/run_unit_checks.py",
                                   "build-support/unit-cases.json")},
     **{name: {"runtime"} for name in ("LICENSE", "docs/install.md", "packaging/install.sh")},
-    **{name: {"runtime", "unit"} for name in ("packaging/runtime_dependencies.py",
-                                              "packaging/write_runtime_roots.py", "packaging/install.py")},
+    "packaging/install.py": {"runtime", "unit"},
     **{name: {"lean"} for name in ("lakefile.toml", "lake-manifest.json", "lean-toolchain")},
 }
 PARENTS: tuple[str, ...] = (".", "parser", "SqliteVerifier", "migration_check", "tests", "packaging", "tools",

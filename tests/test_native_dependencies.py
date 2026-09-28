@@ -1,8 +1,7 @@
-"""Regress Linux loader discovery without requiring Linux binaries on every test host."""
+"""Restrict proof-process access to exact build-owned Nix closure paths."""
 
 import pytest
 
-import importlib.util
 import subprocess
 import sys
 from pathlib import Path
@@ -37,95 +36,6 @@ class NativeDependenciesTest(unittest.TestCase):
             expected = Path(*executable.parts[:4])
             metadata.write_text(str(expected) + "\n")
             self.assertEqual(native_runtime_roots(directory), [expected])
-
-    @pytest.mark.unit
-    @pytest.mark.packaging
-    @pytest.mark.environment
-    def test_linux_loader_and_library_paths(self) -> None:
-        """Preserve the interpreter root and bundled symlinks; reject missing/foreign libraries."""
-        specification = importlib.util.spec_from_file_location(
-            "native_dependencies_under_test", ROOT / "packaging/runtime_dependencies.py")
-        assert specification is not None and specification.loader is not None
-        collector = importlib.util.module_from_spec(specification)
-        specification.loader.exec_module(collector)
-        with TemporaryDirectory() as temporary:
-            lean = Path(temporary).resolve()
-            (lean / "bin").mkdir()
-            (lean / "lib").mkdir()
-            executable = lean / "bin/lean"
-            executable.touch()
-            bundled = lean / "lib/libleanshared.so.1"
-            bundled.write_bytes(b"\x7fELF" + b"versioned shared object fixture")
-            linker_script = lean / "lib/libc++.so"
-            linker_script.write_text("INPUT(libc++.so.1 -lunwind)\n", encoding="utf-8")
-            alias = lean / "lib/libleanshared.so"
-            alias.symlink_to(bundled.name)
-            module = lean / "lib/lean/Lean/Nested.so"
-            module.parent.mkdir(parents=True)
-            module.write_bytes(b"\x7fELFmodule")
-            for compiler_directory in ("glibc", "clang", "libc"):
-                sdk = lean / "lib" / compiler_directory / "sdk.so"
-                sdk.parent.mkdir()
-                sdk.write_bytes(b"\x7fELFcompiler sysroot, not an interpreter library")
-            private_object = module.with_suffix(".olean.private")
-            private_object.write_bytes(b"complete import surface")
-            ir = module.with_suffix(".ir")
-            ir.write_bytes(b"interpreter IR")
-            self.assertEqual(set(collector.lean_runtime_files(lean)),
-                             {bundled, alias, linker_script, module, private_object, ir})
-            loader = Path("/nix/store/00000000000000000000000000000000-glibc/lib/ld-linux-x86-64.so.2")
-            store = loader.parent.parent
-            report = ("linux-vdso.so.1 (0x0001)\n"
-                      f"libleanshared.so => {alias} (0x0002)\n"
-                      f"{loader} (0x0003)\n"
-                      "/lib/x86_64-linux-gnu/libc.so.6 (0x0004)\n")
-            with patch.object(collector.platform, "system", return_value="Linux"), \
-                    patch.object(collector, "run", return_value=report) as run, \
-                    patch.object(collector, "store_path", return_value=store) as store_path:
-                roots, reports = collector.native_dependencies([executable], lean)
-                self.assertEqual(roots, {store})
-                self.assertNotIn(Path("/nix/store"), roots)
-                self.assertIn(str(loader), reports)
-                self.assertIn(f"Binary: {executable}\n", reports)
-                self.assertEqual({Path(call.args[0][1]) for call in run.call_args_list},
-                                 {executable, bundled, alias, module})
-                self.assertTrue(all(call.args[0][0] == "ldd" for call in run.call_args_list))
-                self.assertEqual({call.args[0] for call in store_path.call_args_list}, {loader, store})
-            referenced = Path("/nix/store/11111111111111111111111111111111-gcc-lib")
-            resolved = Path("/nix/store/22222222222222222222222222222222-libgcc")
-            alias_file = referenced / "lib/libgcc_s.so.1"
-
-            def alias_store_path(path: Path) -> Path:
-                """Model a loader-visible GCC package symlink into its split libgcc output."""
-                return resolved if path == alias_file else path
-
-            with patch.object(collector.platform, "system", return_value="Linux"), \
-                    patch.object(collector, "run", return_value=f"libgcc_s.so.1 => {alias_file} (0x1234)"), \
-                    patch.object(collector, "store_path", side_effect=alias_store_path):
-                roots, _ = collector.native_dependencies([executable], lean)
-                self.assertEqual(roots, {referenced, resolved})
-                self.assertNotIn(Path("/nix/store"), roots)
-            package_spec = importlib.util.spec_from_file_location(
-                "build_runtime_under_test", ROOT / "packaging/build_runtime.py")
-            assert package_spec is not None and package_spec.loader is not None
-            package = importlib.util.module_from_spec(package_spec)
-            with patch.object(sys, "path", [str(ROOT / "packaging"), *sys.path]), \
-                    patch.dict(sys.modules, {"runtime_dependencies": collector}):
-                # Exercise the real sibling import even if another selected case imported it first.
-                sys.modules.pop("relocate_elf", None)
-                package_spec.loader.exec_module(package)
-                self.assertEqual(Path(sys.modules["relocate_elf"].__file__), ROOT / "packaging/relocate_elf.py")
-            destination = lean / "copied"
-            package.copy_runtime(lean / "lib", destination, collector.lean_runtime_files(lean))
-            self.assertEqual({path.relative_to(destination) for path in destination.rglob("*") if path.is_file()},
-                             {path.relative_to(lean / "lib") for path in collector.lean_runtime_files(lean)})
-            for failure, diagnostic in (("libLean.so => not found", "Unresolved"),
-                                        ("/home/runner/private/lib.so (0x1234)", "Nonportable"),
-                                        (f"{lean}/lib/glibc/sdk.so (0x1234)", "Nonportable")):
-                with patch.object(collector.platform, "system", return_value="Linux"), \
-                        patch.object(collector, "run", return_value=failure):
-                    with self.assertRaisesRegex(RuntimeError, diagnostic):
-                        collector.native_dependencies([executable], lean)
 
     @pytest.mark.integration
     @pytest.mark.packaging

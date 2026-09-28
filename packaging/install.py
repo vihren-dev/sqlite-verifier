@@ -1,4 +1,4 @@
-"""Copy a checked native payload and retain its pinned Nix runtime closure."""
+"""Link an imported immutable Nix runtime and retain its complete closure."""
 
 from pathlib import Path
 import shutil
@@ -13,9 +13,13 @@ def install(destination: Path) -> None:
     if destination.exists() or destination.is_symlink():
         raise ValueError("Installation directory already exists")
     roots = (bundle / "nix-paths").read_text().splitlines()
+    runtime = Path((bundle / "runtime-path").read_text().strip()).resolve(strict=True)
+    if runtime.parent != Path("/nix/store") or roots != [str(runtime)]:
+        raise ValueError("Installation must retain exactly the imported Nix runtime")
     destination.mkdir(parents=True, exist_ok=False)
     try:
-        shutil.copytree(bundle / "payload", destination, symlinks=True, dirs_exist_ok=True)
+        for source in runtime.iterdir():
+            (destination / source.name).symlink_to(source, target_is_directory=source.is_dir())
         gc_roots = destination / ".nix-roots"
         gc_roots.mkdir()
         for root in roots:

@@ -18,7 +18,8 @@
     "Compilation17 and early-baseline7 now collect independently. Each graph/approval mutation owns a fresh fixture; compiler paths are explicit and only Runtime.locate is patched for imported verify(). Selected-generated-role and artifact aliases require no Lean/native/sandbox resources. Installed selection fails setup instead of using source imports as installed evidence.",
     "ADR0001 source orchestration additions are explicitly identified as infrastructure additions, not legacy baseline scenarios.",
     "origin=new distinguishes ADR infrastructure additions and the new partial declaration attack from preserved legacy behavior; neither additions nor multi-runtime Atuin execution inflate the baseline case count.",
-    "2026-09-28: Nine obsolete local-cache scenarios retired explicitly; one generator validation scenario added. Retired cases retain their original audit metadata separately."
+    "2026-09-28: Nine obsolete local-cache scenarios retired explicitly; one generator validation scenario added. Retired cases retain their original audit metadata separately.",
+    "2026-09-28: complete runtime build and offline archive use Nix closures. Loader discovery/relocation/copy-selection tests retired explicitly; replacement archive tests assert content-addressed export and enabled import verification."
   ],
   "entrypoints": {
     "just test": [
@@ -599,51 +600,6 @@
       "parameter_id": null
     },
     {
-      "source": "tests/test_native_dependencies.py:35-115",
-      "legacy": "Preserve the interpreter root and bundled symlinks; reject missing/foreign libraries.",
-      "node_id": "tests/test_native_dependencies.py::NativeDependenciesTest::test_linux_loader_and_library_paths",
-      "runtimes": [
-        "source"
-      ],
-      "level": "unit",
-      "concerns": [
-        "environment",
-        "packaging"
-      ],
-      "resources": [],
-      "assertions": [
-        "assert specification is not None and specification.loader is not None",
-        "assert package_spec is not None and package_spec.loader is not None",
-        "self.assertEqual(set(collector.lean_runtime_files(lean)),\n                             {bundled, alias, linker_script, module, private_object, ir})",
-        "self.assertEqual({path.relative_to(destination) for path in destination.rglob(\"*\") if path.is_file()},\n                             {path.relative_to(lean / \"lib\") for path in collector.lean_runtime_files(lean)})",
-        "self.assertEqual(roots, {store})",
-        "self.assertNotIn(Path(\"/nix/store\"), roots)",
-        "self.assertIn(str(loader), reports)",
-        "self.assertIn(f\"Binary: {executable}\\n\", reports)",
-        "self.assertEqual({Path(call.args[0][1]) for call in run.call_args_list},\n                                 {executable, bundled, alias, module})",
-        "self.assertTrue(all(call.args[0][0] == \"ldd\" for call in run.call_args_list))",
-        "self.assertEqual({call.args[0] for call in store_path.call_args_list}, {loader, store})",
-        "self.assertEqual(roots, {referenced, resolved})",
-        "self.assertNotIn(Path(\"/nix/store\"), roots)",
-        "self.assertRaisesRegex(RuntimeError, diagnostic)"
-      ],
-      "legacy_variants": [
-        {
-          "line": 57,
-          "source": "for compiler_directory in (\"glibc\", \"clang\", \"libc\"):\n                sdk = lean / \"lib\" / compiler_directory / \"sdk.so\"\n                sdk.parent.mkdir()\n                sdk.write_bytes(b\"\\x7fELFcompiler sysroot, not an interpreter library\")"
-        },
-        {
-          "line": 109,
-          "source": "for failure, diagnostic in ((\"libLean.so => not found\", \"Unresolved\"),\n                                        (\"/home/runner/private/lib.so (0x1234)\", \"Nonportable\"),\n                                        (f\"{lean}/lib/glibc/sdk.so (0x1234)\", \"Nonportable\")):\n                with patch.object(collector.platform, \"system\", return_value=\"Linux\"), \\\n                        patch.object(collector, \"run\", return_value=failure):\n                    with self.assertRaisesRegex(RuntimeError, diagnostic):\n                        collector.native_dependencies([executable], lean)"
-        }
-      ],
-      "collection_verified": true,
-      "origin": "legacy",
-      "implementation_source": "tests/test_native_dependencies.py:44-128",
-      "description": "Preserve the interpreter root and bundled symlinks; reject missing/foreign libraries.",
-      "parameter_id": null
-    },
-    {
       "source": "tests/test_native_dependencies.py:117-145",
       "legacy": "The build-owned manifest supplies loader roots to compilation and kernel checking.",
       "node_id": "tests/test_native_dependencies.py::NativeDependenciesTest::test_development_loader_roots_reach_both_sandboxes",
@@ -828,34 +784,6 @@
       "origin": "legacy",
       "implementation_source": "tests/test_resources.py:60-89",
       "description": "Accept small pins, reject oversized/symlinked inputs and low-space destinations.",
-      "parameter_id": null
-    },
-    {
-      "source": "tests/test_runtime_package.py:19-37",
-      "legacy": "A stale compiled module must stay out of the archive after source deletion.",
-      "node_id": "tests/test_runtime_package.py::InstalledRuntimeTests::test_deleted_modules_are_not_packaged",
-      "runtimes": [
-        "source"
-      ],
-      "level": "unit",
-      "concerns": [
-        "packaging"
-      ],
-      "resources": [],
-      "assertions": [
-        "self.assertEqual(sorted(path.name for path in destination.rglob(\"*\") if path.is_file()),\n                             [\"Current.ir\", \"Current.olean\", \"Current.olean.private\"])",
-        "self.assertRaisesRegex(ValueError, \"not been built\")"
-      ],
-      "legacy_variants": [
-        {
-          "line": 29,
-          "source": "for name in (\"Current.olean\", \"Current.olean.private\", \"Current.ir\", \"Removed.olean\"):\n                (library / \"SqliteVerifier\" / name).write_text(\"fixture\")"
-        }
-      ],
-      "collection_verified": true,
-      "origin": "legacy",
-      "implementation_source": "tests/test_runtime_package.py:23-41",
-      "description": "A stale compiled module must stay out of the archive after source deletion.",
       "parameter_id": null
     },
     {
@@ -9604,43 +9532,6 @@
       "collection_verified": true
     },
     {
-      "source": "tests/test_runtime_staging.py:25-80",
-      "legacy": null,
-      "origin": "new",
-      "node_id": "tests/test_runtime_staging.py::test_explicit_runtime_archive_uses_current_modules_and_interpreter",
-      "runtimes": [
-        "source"
-      ],
-      "assertions": [
-        "Explicit runtime inputs survive staging while stale modules and checkout files do not."
-      ],
-      "assertion_source": [
-        "assert archive.parent == output",
-        "assert not (root / \"dist\").exists()",
-        "assert archive.with_suffix(\".gz.sha256\").is_file()",
-        "assert any(\"?compression=zstd\" in part for command in commands for part in command)",
-        "assert any(\"--sigs-needed\" in command for command in commands)",
-        "assert command[0] == \"nix\", command",
-        "assert \"--offline\" in command",
-        "assert timeout == 300",
-        "assert payload + \".lake/build/lib/lean/Current.olean\" in names",
-        "assert payload + \".lake/build/lib/lean/Current.olean.private\" in names",
-        "assert payload + \".lake/build/lib/lean/Deleted.olean\" not in names",
-        "assert launcher is not None and launcher.read().decode().startswith(f\"#!{python} -I\\n\")",
-        "assert example is not None and example.read() == b\"examples/example.sql\"",
-        "assert interpreter is not None and interpreter.read().decode() == str(python) + \"\\n\""
-      ],
-      "implementation_source": "tests/test_runtime_staging.py:104-106",
-      "description": "Explicit runtime inputs survive staging while stale modules and checkout files do not.",
-      "parameter_id": null,
-      "level": "unit",
-      "concerns": [
-        "packaging"
-      ],
-      "resources": [],
-      "collection_verified": true
-    },
-    {
       "source": "tests/test_runtime_staging.py:91-102",
       "legacy": null,
       "origin": "new",
@@ -9655,38 +9546,15 @@
         "pytest.raises(FileNotFoundError)"
       ],
       "implementation_source": "tests/test_runtime_staging.py:122-133",
-      "description": "A missing supplied toolchain is an error before external Lean can be consulted.",
+      "description": "A checkout is not a runtime; packaging never probes an ambient compiler.",
       "parameter_id": null,
       "level": "unit",
       "concerns": [
         "packaging"
       ],
       "resources": [],
-      "collection_verified": true
-    },
-    {
-      "source": "tests/test_runtime_staging.py:83-88",
-      "legacy": null,
-      "origin": "new",
-      "node_id": "tests/test_runtime_staging.py::test_missing_current_module_rejects_stale_artifact",
-      "runtimes": [
-        "source"
-      ],
-      "assertions": [
-        "An unrelated stale compiled module cannot satisfy a current source module."
-      ],
-      "assertion_source": [
-        "pytest.raises(ValueError, match=\"Current module has not been built\")"
-      ],
-      "implementation_source": "tests/test_runtime_staging.py:114-119",
-      "description": "An unrelated stale compiled module cannot satisfy a current source module.",
-      "parameter_id": null,
-      "level": "unit",
-      "concerns": [
-        "packaging"
-      ],
-      "resources": [],
-      "collection_verified": true
+      "collection_verified": true,
+      "migration_notes": "2026-09-28: updated for immutable Nix runtime closure packaging; historical assertions describe the previous implementation."
     },
     {
       "source": "tests/test_unit_cache_contract.py:15-41",
@@ -11387,70 +11255,6 @@
       "origin": "new",
       "source": "tests/test_source_identity.py:98-111",
       "legacy": null,
-      "node_id": "tests/test_source_identity.py::test_required_input[packaging/runtime_dependencies.py]",
-      "runtimes": [
-        "source"
-      ],
-      "assertions": [
-        "Editing a mandatory input invalidates exact components; deleting or renaming it fails closed."
-      ],
-      "migration_source": "build-support/source_identity_test.py at d7ca0c2b; real membership assertions now join ordinary pytest/CI selection",
-      "description": "Editing a mandatory input invalidates exact components; deleting or renaming it fails closed.",
-      "parameter_id": "packaging/runtime_dependencies.py",
-      "level": "integration",
-      "concerns": [
-        "environment"
-      ],
-      "resources": [
-        "requires_nix"
-      ],
-      "implementation_source": "tests/test_source_identity.py:98-111",
-      "collection_verified": true,
-      "assertion_source": [
-        "assert {name for name in COMPONENTS if observed[name] != baseline[name]} == FIXED[relative], relative"
-      ],
-      "mutation_variants": [
-        "edit changes exact components",
-        "delete fails evaluation",
-        "rename fails evaluation"
-      ]
-    },
-    {
-      "origin": "new",
-      "source": "tests/test_source_identity.py:98-111",
-      "legacy": null,
-      "node_id": "tests/test_source_identity.py::test_required_input[packaging/write_runtime_roots.py]",
-      "runtimes": [
-        "source"
-      ],
-      "assertions": [
-        "Editing a mandatory input invalidates exact components; deleting or renaming it fails closed."
-      ],
-      "migration_source": "build-support/source_identity_test.py at d7ca0c2b; real membership assertions now join ordinary pytest/CI selection",
-      "description": "Editing a mandatory input invalidates exact components; deleting or renaming it fails closed.",
-      "parameter_id": "packaging/write_runtime_roots.py",
-      "level": "integration",
-      "concerns": [
-        "environment"
-      ],
-      "resources": [
-        "requires_nix"
-      ],
-      "implementation_source": "tests/test_source_identity.py:98-111",
-      "collection_verified": true,
-      "assertion_source": [
-        "assert {name for name in COMPONENTS if observed[name] != baseline[name]} == FIXED[relative], relative"
-      ],
-      "mutation_variants": [
-        "edit changes exact components",
-        "delete fails evaluation",
-        "rename fails evaluation"
-      ]
-    },
-    {
-      "origin": "new",
-      "source": "tests/test_source_identity.py:98-111",
-      "legacy": null,
       "node_id": "tests/test_source_identity.py::test_required_input[pytest.ini]",
       "runtimes": [
         "source"
@@ -12177,195 +11981,6 @@
       }
     },
     {
-      "source": "tests/test_elf_relocation.py:37-51",
-      "legacy": null,
-      "origin": "new",
-      "node_id": "tests/test_elf_relocation.py::test_bundled_reference_must_exist_inside_stage[missing]",
-      "runtimes": [
-        "source"
-      ],
-      "assertions": [
-        "Missing or escaping staged targets cannot be silently retained as original store dependencies."
-      ],
-      "assertion_source": [],
-      "description": "Missing or escaping staged targets cannot be silently retained as original store dependencies.",
-      "parameter_id": "missing",
-      "level": "unit",
-      "concerns": [
-        "packaging"
-      ],
-      "resources": [],
-      "implementation_source": "tests/test_elf_relocation.py:37-51",
-      "collection_verified": true
-    },
-    {
-      "source": "tests/test_elf_relocation.py:37-51",
-      "legacy": null,
-      "origin": "new",
-      "node_id": "tests/test_elf_relocation.py::test_bundled_reference_must_exist_inside_stage[parent]",
-      "runtimes": [
-        "source"
-      ],
-      "assertions": [
-        "Missing or escaping staged targets cannot be silently retained as original store dependencies."
-      ],
-      "assertion_source": [],
-      "description": "Missing or escaping staged targets cannot be silently retained as original store dependencies.",
-      "parameter_id": "parent",
-      "level": "unit",
-      "concerns": [
-        "packaging"
-      ],
-      "resources": [],
-      "implementation_source": "tests/test_elf_relocation.py:37-51",
-      "collection_verified": true
-    },
-    {
-      "source": "tests/test_elf_relocation.py:37-51",
-      "legacy": null,
-      "origin": "new",
-      "node_id": "tests/test_elf_relocation.py::test_bundled_reference_must_exist_inside_stage[symlink]",
-      "runtimes": [
-        "source"
-      ],
-      "assertions": [
-        "Missing or escaping staged targets cannot be silently retained as original store dependencies."
-      ],
-      "assertion_source": [],
-      "description": "Missing or escaping staged targets cannot be silently retained as original store dependencies.",
-      "parameter_id": "symlink",
-      "level": "unit",
-      "concerns": [
-        "packaging"
-      ],
-      "resources": [],
-      "implementation_source": "tests/test_elf_relocation.py:37-51",
-      "collection_verified": true
-    },
-    {
-      "source": "tests/test_elf_relocation.py:30-33",
-      "legacy": null,
-      "origin": "new",
-      "node_id": "tests/test_elf_relocation.py::test_external_or_relative_references_remain_unchanged[$ORIGIN/../lib]",
-      "runtimes": [
-        "source"
-      ],
-      "assertions": [
-        "Only bundled absolute references change; existing signed and relative loader identities survive."
-      ],
-      "assertion_source": [
-        "assert staged_reference(reference, binary, source, staged) == reference"
-      ],
-      "description": "Only bundled absolute references change; existing signed and relative loader identities survive.",
-      "parameter_id": "$ORIGIN/../lib",
-      "level": "unit",
-      "concerns": [
-        "packaging"
-      ],
-      "resources": [],
-      "implementation_source": "tests/test_elf_relocation.py:30-33",
-      "collection_verified": true
-    },
-    {
-      "source": "tests/test_elf_relocation.py:30-33",
-      "legacy": null,
-      "origin": "new",
-      "node_id": "tests/test_elf_relocation.py::test_external_or_relative_references_remain_unchanged[/nix/store/signed-glibc/lib]",
-      "runtimes": [
-        "source"
-      ],
-      "assertions": [
-        "Only bundled absolute references change; existing signed and relative loader identities survive."
-      ],
-      "assertion_source": [
-        "assert staged_reference(reference, binary, source, staged) == reference"
-      ],
-      "description": "Only bundled absolute references change; existing signed and relative loader identities survive.",
-      "parameter_id": "/nix/store/signed-glibc/lib",
-      "level": "unit",
-      "concerns": [
-        "packaging"
-      ],
-      "resources": [],
-      "implementation_source": "tests/test_elf_relocation.py:30-33",
-      "collection_verified": true
-    },
-    {
-      "source": "tests/test_elf_relocation.py:30-33",
-      "legacy": null,
-      "origin": "new",
-      "node_id": "tests/test_elf_relocation.py::test_external_or_relative_references_remain_unchanged[libc.so.6]",
-      "runtimes": [
-        "source"
-      ],
-      "assertions": [
-        "Only bundled absolute references change; existing signed and relative loader identities survive."
-      ],
-      "assertion_source": [
-        "assert staged_reference(reference, binary, source, staged) == reference"
-      ],
-      "description": "Only bundled absolute references change; existing signed and relative loader identities survive.",
-      "parameter_id": "libc.so.6",
-      "level": "unit",
-      "concerns": [
-        "packaging"
-      ],
-      "resources": [],
-      "implementation_source": "tests/test_elf_relocation.py:30-33",
-      "collection_verified": true
-    },
-    {
-      "source": "tests/test_elf_relocation.py:54-89",
-      "legacy": null,
-      "origin": "new",
-      "node_id": "tests/test_elf_relocation.py::test_rpath_and_needed_relocate_all_copied_elf_objects",
-      "runtimes": [
-        "source"
-      ],
-      "assertions": [
-        "Lean, its shared library and the checker map RPATH/NEEDED without modifying source bytes or modes."
-      ],
-      "assertion_source": [
-        "assert not any(command[-1] == str(text) for command in commands)",
-        "assert (source / \"lib/lean/libLean.so\").read_bytes() == b\"\\x7fELFfixture\"",
-        "assert Path(command[-1]).stat().st_mode & stat.S_IWUSR",
-        "assert [\"patchelf\", \"--set-rpath\", expected + \":/nix/store/signed-glibc/lib:$ORIGIN/../lib\", str(binary)] in commands",
-        "assert [\"patchelf\", \"--replace-needed\", str(source / \"lib/lean/libLean.so\"),\n                needed_target, str(binary)] in commands",
-        "assert stat.S_IMODE(binary.stat().st_mode) == 0o555"
-      ],
-      "description": "Lean, its shared library and the checker map RPATH/NEEDED without modifying source bytes or modes.",
-      "parameter_id": null,
-      "level": "unit",
-      "concerns": [
-        "packaging"
-      ],
-      "resources": [],
-      "implementation_source": "tests/test_elf_relocation.py:54-89",
-      "collection_verified": true
-    },
-    {
-      "source": "tests/test_runtime_staging.py:109-111",
-      "legacy": null,
-      "origin": "new",
-      "node_id": "tests/test_runtime_staging.py::test_linux_archive_scans_only_relocated_copied_inputs",
-      "runtimes": [
-        "source"
-      ],
-      "assertions": [
-        "All Linux copied native inputs relocate before loader metadata or export roots are selected."
-      ],
-      "assertion_source": [],
-      "description": "All Linux copied native inputs relocate before loader metadata or export roots are selected.",
-      "parameter_id": null,
-      "level": "unit",
-      "concerns": [
-        "packaging"
-      ],
-      "resources": [],
-      "implementation_source": "tests/test_runtime_staging.py:109-111",
-      "collection_verified": true
-    },
-    {
       "source": "tests/test_suite_checkpoints.py:14-32",
       "legacy": null,
       "origin": "new",
@@ -12851,6 +12466,46 @@
         "Preserves grammar precedence, child order, root construction and both token maps.",
         "Rejects mismatched/empty token inventories and malformed production exports."
       ]
+    },
+    {
+      "node_id": "tests/test_runtime_staging.py::test_archive_exports_content_addressed_closure[Darwin-arm64-aarch64-darwin]",
+      "description": "Export only the rewritten runtime closure with verification enabled and no copied payload.",
+      "parameter_id": "Darwin-arm64-aarch64-darwin",
+      "level": "unit",
+      "concerns": [
+        "packaging"
+      ],
+      "resources": [],
+      "source": "tests/test_runtime_staging.py",
+      "implementation_source": "tests/test_runtime_staging.py",
+      "origin": "new",
+      "runtimes": [
+        "source"
+      ],
+      "collection_verified": true,
+      "assertions": [
+        "Export only the rewritten runtime closure with verification enabled and no copied payload."
+      ]
+    },
+    {
+      "node_id": "tests/test_runtime_staging.py::test_archive_exports_content_addressed_closure[Linux-x86_64-x86_64-linux]",
+      "description": "Export only the rewritten runtime closure with verification enabled and no copied payload.",
+      "parameter_id": "Linux-x86_64-x86_64-linux",
+      "level": "unit",
+      "concerns": [
+        "packaging"
+      ],
+      "resources": [],
+      "source": "tests/test_runtime_staging.py",
+      "implementation_source": "tests/test_runtime_staging.py",
+      "origin": "new",
+      "runtimes": [
+        "source"
+      ],
+      "collection_verified": true,
+      "assertions": [
+        "Export only the rewritten runtime closure with verification enabled and no copied payload."
+      ]
     }
   ],
   "fixture_contracts": {
@@ -12861,13 +12516,13 @@
     "source_identity": "One tiny synthetic baseline is evaluated once per session with the real locked Nix library; each case copies only declared fixture bytes into its private tree. No repository/build copying or package build occurs. Missing fixed paths fail evaluation; unselected source components remain unchanged."
   },
   "collection_checks": {
-    "case_count": 414,
-    "legacy_mapped_case_count": 235,
-    "new_case_count": 179,
-    "source_case_count": 408,
+    "case_count": 402,
+    "legacy_mapped_case_count": 233,
+    "new_case_count": 169,
+    "source_case_count": 396,
     "installed_case_count": 19,
     "baseline_hashes_verified": 39,
-    "result": "Active inventory identities match fresh collection after the Nix-only parser migration; retired baseline evidence is retained separately.",
+    "result": "Active identities match fresh collection after Nix runtime migration; historical retired evidence is preserved separately.",
     "evidence": [
       {
         "path": "/Users/tzankomatev/work/sqlite-verifier-adr1/build/final-pilot-fixes-catalogue.json",
@@ -12878,10 +12533,15 @@
         "path": "build/nix-parser-catalogue.json",
         "sha256": "11aaca2e31995613b849b86383deeb2369159027a1991db5dd36fce3977fc67a",
         "case_count": 414
+      },
+      {
+        "path": "build/nix-runtime-catalogue.json",
+        "sha256": "ccb6b229df0c932438873f3e1aa277432666dcfee32c4f4468a1be8599fa2d9e",
+        "case_count": 402
       }
     ],
     "runtime_build_required": false,
-    "retired_case_count": 9
+    "retired_case_count": 23
   },
   "implementation_sha256": {
     "build-support/run_unit_checks.py": "cad8e6ee9ee21c6ada2c0b28c121fec6de0f2399d3a56e6ab52330bbba811bac",
@@ -12892,9 +12552,8 @@
     "conformance/coverage_report.py": "87e162ba0ca92122b64fab4bcaaff19a57d99c6d91ea4e862c824c5424087e0f",
     "conformance/model_check.py": "b32ef390f507b0e24fc2c9aa4fb6b0ca4d5f45159a888b9e97d82da228c18ce3",
     "conformance/native_fixture.py": "05ec96bc3ad3cf4717aee87616dc2c03f6c2e8d7926a2cdcedc9b0c143f6efa3",
-    "conftest.py": "16974c7ace594e19e692aae6d92775b595ec8ab6d24e2f6fe961b6e40e3d90c6",
+    "conftest.py": "4c5d78968d23108fc7492def2602a422d1a37814f711b8bef3f4e7c3d4300ebf",
     "packaging/build_runtime.py": "9b07ac9ac52da9ae43fd7b8b86cbecc20c88bdcc291487c2b4b3fed5a994fe67",
-    "packaging/relocate_elf.py": "33161e4df8e63fa19100b95fef5ff1cb5f96e0df34a333e8dc21410104d52a1d",
     "tests/atuin_cli_test.py": "51dcee60df053de18800037f6e1f7d2ab4ef5fe6d6298d3e099dfa91fae64dc9",
     "tests/atuin_sql_test.py": "ff088e3878a25c86ef98a135d2c8c174b0496c3dcb278382d03d6f40b4c1f3fc",
     "tests/case_reports.py": "271e1802779b187a393d24ee76270b8ae6e18fdf7aa0ddb4e297000a301332e3",
@@ -12919,23 +12578,22 @@
     "tests/test_baseline_ci.py": "992fdf69c88e37e48b09186be1041a86d6cbfbbd63668abce4f628cabe1c6716",
     "tests/test_benchmark_ci.py": "7be07fb0efc82701adb084465e68a3a7fbd17eb17af0f103144eba85a8ad01ff",
     "tests/test_cache_fingerprint.py": "a8537c9cda80efbc9d8d397b6368fa707c5bea40daa886c7ec852cddadf6c83c",
-    "tests/test_ci_checks.py": "98bef5a0e6ff3edff8ddb6dc04d6d2572dfd59af1cf7173aee5d7d51d86c3ee6",
+    "tests/test_ci_checks.py": "37b4285736dc95bdd0e4648f8fadccdf8b2af6b0b732aed2641ae7c75580c98f",
     "tests/test_ci_scope.py": "d6ecbae731706baa24083eec5934666eb5d3d9fa905292c96f3e520500c027a3",
     "tests/test_cli_inputs.py": "4df14d84ccb1bf0b3a3d24584f7e605770255075dc5ca2ceebc7499ab03ca1e9",
     "tests/test_coverage_receipts.py": "17d5f528ce144fd1dc9df8a2396ca58f331d174c27d9473071a7d88f56679321",
-    "tests/test_elf_relocation.py": "d3eeddb969953d1df43aa1865c84fc7eb02579606a188c8b8c2bc289835421b1",
     "tests/test_independent_suites.py": "72fee0b8076064b97aa0c61f9a142c7004bafb3e985e22fb4249c9bb445b399b",
-    "tests/test_native_dependencies.py": "b98171a0db40298e76f25ddda530d5bff629b3290043a448af97b5947a843501",
+    "tests/test_native_dependencies.py": "3ae8f56a3dfb85fd17fbf44873385c17d718b78537a27a8ccbf910f4ffce9453",
     "tests/test_profiles.py": "48e7ba1b75959c3023c3ec8f1e3133bff8b350b385891dd4e56dda110cfee354",
     "tests/test_pytest_harness.py": "6806d6137c5e79d2aae809f9fb72d4ae5466de71c91b4379be3bde5059d6e567",
-    "tests/test_resources.py": "f3d40f8ea7eff08a9484b3462e4205ed6cc9d186275596beda3f793c49e2ead6",
-    "tests/test_runtime_package.py": "ae1dbb68f4f76c98a39ffc78c96b0817335efbc11d0cd26548be0976821301bd",
+    "tests/test_resources.py": "11fe33cf61971a03736047bf995441431fbbe8a6bfc1697563dfa8f1b17503e1",
+    "tests/test_runtime_package.py": "11b4b051cf22d1e66f72f06645325ad2e5ff23735752d898a1d0233d450aba2c",
     "tests/test_runtime_selection.py": "d3bb57eda495ea5620fa2fbc5575f925b7c086bf806add6033c63397f56b370d",
-    "tests/test_runtime_staging.py": "2f24fdfee0ee5ac5a7d6e88c1e4640c5aa08877ba07712ecd4be180baa2c75f7",
+    "tests/test_runtime_staging.py": "6af01c88da0a362459c6610a33ab744ac44291a72baeb32b882a51392a235838",
     "tests/test_sandbox.py": "ed1950182ff2a02d12ee74f8e5d78e6c0e2fff8f38cce3fb37c4abd3aeeed968",
     "tests/test_schema_baseline.py": "77440d832802d0f3a906ca42fed0b3f0d847ff3445f4b80d6c6640322a55100f",
     "tests/test_schema_translation.py": "8d4053893d6356cfe3848716bf44fbfea99a4b1febdca5e0e679c2c365cde547",
-    "tests/test_source_identity.py": "7794eb3d99477511f67c0f68397915285f5498d6747986a178f286a8ff2481f4",
+    "tests/test_source_identity.py": "11ecf353346b29279a7c8a54125a44044c028a4ce5ee2ba2ca17d9fb27a4f21d",
     "tests/test_source_orchestration.py": "6f260532a697b65a747e53909ffe9f1495d034f280d7a5f36fe4922cadf98541",
     "tests/test_source_runner.py": "d23b75a4a2796899eea6849dce5b263dd19f5a8743c402ab65d1ae1f3275cdd4",
     "tests/test_sql_writes.py": "6717e9c6356af2c99fb0831eaa9870c6a15e73da7aac41c1e1727711cea64158",
@@ -12944,7 +12602,7 @@
     "tests/test_translation.py": "f590fa4c7e45fae13871af30f04ac2ffcdb44cedeaac1220b7058d5e860c78e0",
     "tests/test_unit_cache_contract.py": "16216cf070ff93e4c3da18509c8a8d0a98f26814739b8a405138e87440f928f4",
     "tools/cache_fingerprint.py": "1c6e85b46537c0a584ba1ffc1cd68fa82042a17a591f7ac9fb5594507b4d1a8b",
-    "tools/ci_checks.py": "e4a8622ad062b838122c5e0eeb05d37d66110328abd796702ad7b5633987b62d",
+    "tools/ci_checks.py": "38a406bf3676350d2c2354167ef1c9d4deca6acd7b5521dfa40df3039988d095",
     "tools/run_independent_suites.py": "70418c4b1d09f87ea7a56e3fc49ec1b510f71a2d2967553d4864b81016c98b6e",
     "tools/run_source_suite.py": "a9b84b92e4306dd23d1ae9ea8b929056c0728cff83db7ed542b65c90c0f7d45c",
     "tools/unit_cache.py": "92293d893f4bb708ba00ea47f67ba01dfb05efd232a1858e3cf2d37779b42f98",
@@ -13278,6 +12936,407 @@
       "description": "The selected pinned parser is present and its source build invokes no tools on reuse.",
       "parameter_id": "3.46.0",
       "retirement_reason": "2026-09-28: Nix is the sole parser builder; the custom source-build cache and its orchestration were removed at user request. Generator validation and native grammar regressions remain active."
+    },
+    {
+      "source": "tests/test_native_dependencies.py:35-115",
+      "legacy": "Preserve the interpreter root and bundled symlinks; reject missing/foreign libraries.",
+      "node_id": "tests/test_native_dependencies.py::NativeDependenciesTest::test_linux_loader_and_library_paths",
+      "runtimes": [
+        "source"
+      ],
+      "level": "unit",
+      "concerns": [
+        "environment",
+        "packaging"
+      ],
+      "resources": [],
+      "assertions": [
+        "assert specification is not None and specification.loader is not None",
+        "assert package_spec is not None and package_spec.loader is not None",
+        "self.assertEqual(set(collector.lean_runtime_files(lean)),\n                             {bundled, alias, linker_script, module, private_object, ir})",
+        "self.assertEqual({path.relative_to(destination) for path in destination.rglob(\"*\") if path.is_file()},\n                             {path.relative_to(lean / \"lib\") for path in collector.lean_runtime_files(lean)})",
+        "self.assertEqual(roots, {store})",
+        "self.assertNotIn(Path(\"/nix/store\"), roots)",
+        "self.assertIn(str(loader), reports)",
+        "self.assertIn(f\"Binary: {executable}\\n\", reports)",
+        "self.assertEqual({Path(call.args[0][1]) for call in run.call_args_list},\n                                 {executable, bundled, alias, module})",
+        "self.assertTrue(all(call.args[0][0] == \"ldd\" for call in run.call_args_list))",
+        "self.assertEqual({call.args[0] for call in store_path.call_args_list}, {loader, store})",
+        "self.assertEqual(roots, {referenced, resolved})",
+        "self.assertNotIn(Path(\"/nix/store\"), roots)",
+        "self.assertRaisesRegex(RuntimeError, diagnostic)"
+      ],
+      "legacy_variants": [
+        {
+          "line": 57,
+          "source": "for compiler_directory in (\"glibc\", \"clang\", \"libc\"):\n                sdk = lean / \"lib\" / compiler_directory / \"sdk.so\"\n                sdk.parent.mkdir()\n                sdk.write_bytes(b\"\\x7fELFcompiler sysroot, not an interpreter library\")"
+        },
+        {
+          "line": 109,
+          "source": "for failure, diagnostic in ((\"libLean.so => not found\", \"Unresolved\"),\n                                        (\"/home/runner/private/lib.so (0x1234)\", \"Nonportable\"),\n                                        (f\"{lean}/lib/glibc/sdk.so (0x1234)\", \"Nonportable\")):\n                with patch.object(collector.platform, \"system\", return_value=\"Linux\"), \\\n                        patch.object(collector, \"run\", return_value=failure):\n                    with self.assertRaisesRegex(RuntimeError, diagnostic):\n                        collector.native_dependencies([executable], lean)"
+        }
+      ],
+      "collection_verified": true,
+      "origin": "legacy",
+      "implementation_source": "tests/test_native_dependencies.py:44-128",
+      "description": "Preserve the interpreter root and bundled symlinks; reject missing/foreign libraries.",
+      "parameter_id": null,
+      "retirement_reason": "2026-09-28: Nix runtime closure export replaces native loader discovery, copied-payload selection and ELF relocation. Deleted helper input identities are obsolete. Installed acceptance and exact sandbox-path checks remain."
+    },
+    {
+      "source": "tests/test_runtime_package.py:19-37",
+      "legacy": "A stale compiled module must stay out of the archive after source deletion.",
+      "node_id": "tests/test_runtime_package.py::InstalledRuntimeTests::test_deleted_modules_are_not_packaged",
+      "runtimes": [
+        "source"
+      ],
+      "level": "unit",
+      "concerns": [
+        "packaging"
+      ],
+      "resources": [],
+      "assertions": [
+        "self.assertEqual(sorted(path.name for path in destination.rglob(\"*\") if path.is_file()),\n                             [\"Current.ir\", \"Current.olean\", \"Current.olean.private\"])",
+        "self.assertRaisesRegex(ValueError, \"not been built\")"
+      ],
+      "legacy_variants": [
+        {
+          "line": 29,
+          "source": "for name in (\"Current.olean\", \"Current.olean.private\", \"Current.ir\", \"Removed.olean\"):\n                (library / \"SqliteVerifier\" / name).write_text(\"fixture\")"
+        }
+      ],
+      "collection_verified": true,
+      "origin": "legacy",
+      "implementation_source": "tests/test_runtime_package.py:23-41",
+      "description": "A stale compiled module must stay out of the archive after source deletion.",
+      "parameter_id": null,
+      "retirement_reason": "2026-09-28: Nix runtime closure export replaces native loader discovery, copied-payload selection and ELF relocation. Deleted helper input identities are obsolete. Installed acceptance and exact sandbox-path checks remain."
+    },
+    {
+      "source": "tests/test_runtime_staging.py:25-80",
+      "legacy": null,
+      "origin": "new",
+      "node_id": "tests/test_runtime_staging.py::test_explicit_runtime_archive_uses_current_modules_and_interpreter",
+      "runtimes": [
+        "source"
+      ],
+      "assertions": [
+        "Explicit runtime inputs survive staging while stale modules and checkout files do not."
+      ],
+      "assertion_source": [
+        "assert archive.parent == output",
+        "assert not (root / \"dist\").exists()",
+        "assert archive.with_suffix(\".gz.sha256\").is_file()",
+        "assert any(\"?compression=zstd\" in part for command in commands for part in command)",
+        "assert any(\"--sigs-needed\" in command for command in commands)",
+        "assert command[0] == \"nix\", command",
+        "assert \"--offline\" in command",
+        "assert timeout == 300",
+        "assert payload + \".lake/build/lib/lean/Current.olean\" in names",
+        "assert payload + \".lake/build/lib/lean/Current.olean.private\" in names",
+        "assert payload + \".lake/build/lib/lean/Deleted.olean\" not in names",
+        "assert launcher is not None and launcher.read().decode().startswith(f\"#!{python} -I\\n\")",
+        "assert example is not None and example.read() == b\"examples/example.sql\"",
+        "assert interpreter is not None and interpreter.read().decode() == str(python) + \"\\n\""
+      ],
+      "implementation_source": "tests/test_runtime_staging.py:104-106",
+      "description": "Explicit runtime inputs survive staging while stale modules and checkout files do not.",
+      "parameter_id": null,
+      "level": "unit",
+      "concerns": [
+        "packaging"
+      ],
+      "resources": [],
+      "collection_verified": true,
+      "retirement_reason": "2026-09-28: Nix runtime closure export replaces native loader discovery, copied-payload selection and ELF relocation. Deleted helper input identities are obsolete. Installed acceptance and exact sandbox-path checks remain."
+    },
+    {
+      "source": "tests/test_runtime_staging.py:83-88",
+      "legacy": null,
+      "origin": "new",
+      "node_id": "tests/test_runtime_staging.py::test_missing_current_module_rejects_stale_artifact",
+      "runtimes": [
+        "source"
+      ],
+      "assertions": [
+        "An unrelated stale compiled module cannot satisfy a current source module."
+      ],
+      "assertion_source": [
+        "pytest.raises(ValueError, match=\"Current module has not been built\")"
+      ],
+      "implementation_source": "tests/test_runtime_staging.py:114-119",
+      "description": "An unrelated stale compiled module cannot satisfy a current source module.",
+      "parameter_id": null,
+      "level": "unit",
+      "concerns": [
+        "packaging"
+      ],
+      "resources": [],
+      "collection_verified": true,
+      "retirement_reason": "2026-09-28: Nix runtime closure export replaces native loader discovery, copied-payload selection and ELF relocation. Deleted helper input identities are obsolete. Installed acceptance and exact sandbox-path checks remain."
+    },
+    {
+      "origin": "new",
+      "source": "tests/test_source_identity.py:98-111",
+      "legacy": null,
+      "node_id": "tests/test_source_identity.py::test_required_input[packaging/runtime_dependencies.py]",
+      "runtimes": [
+        "source"
+      ],
+      "assertions": [
+        "Editing a mandatory input invalidates exact components; deleting or renaming it fails closed."
+      ],
+      "migration_source": "build-support/source_identity_test.py at d7ca0c2b; real membership assertions now join ordinary pytest/CI selection",
+      "description": "Editing a mandatory input invalidates exact components; deleting or renaming it fails closed.",
+      "parameter_id": "packaging/runtime_dependencies.py",
+      "level": "integration",
+      "concerns": [
+        "environment"
+      ],
+      "resources": [
+        "requires_nix"
+      ],
+      "implementation_source": "tests/test_source_identity.py:98-111",
+      "collection_verified": true,
+      "assertion_source": [
+        "assert {name for name in COMPONENTS if observed[name] != baseline[name]} == FIXED[relative], relative"
+      ],
+      "mutation_variants": [
+        "edit changes exact components",
+        "delete fails evaluation",
+        "rename fails evaluation"
+      ],
+      "retirement_reason": "2026-09-28: Nix runtime closure export replaces native loader discovery, copied-payload selection and ELF relocation. Deleted helper input identities are obsolete. Installed acceptance and exact sandbox-path checks remain."
+    },
+    {
+      "origin": "new",
+      "source": "tests/test_source_identity.py:98-111",
+      "legacy": null,
+      "node_id": "tests/test_source_identity.py::test_required_input[packaging/write_runtime_roots.py]",
+      "runtimes": [
+        "source"
+      ],
+      "assertions": [
+        "Editing a mandatory input invalidates exact components; deleting or renaming it fails closed."
+      ],
+      "migration_source": "build-support/source_identity_test.py at d7ca0c2b; real membership assertions now join ordinary pytest/CI selection",
+      "description": "Editing a mandatory input invalidates exact components; deleting or renaming it fails closed.",
+      "parameter_id": "packaging/write_runtime_roots.py",
+      "level": "integration",
+      "concerns": [
+        "environment"
+      ],
+      "resources": [
+        "requires_nix"
+      ],
+      "implementation_source": "tests/test_source_identity.py:98-111",
+      "collection_verified": true,
+      "assertion_source": [
+        "assert {name for name in COMPONENTS if observed[name] != baseline[name]} == FIXED[relative], relative"
+      ],
+      "mutation_variants": [
+        "edit changes exact components",
+        "delete fails evaluation",
+        "rename fails evaluation"
+      ],
+      "retirement_reason": "2026-09-28: Nix runtime closure export replaces native loader discovery, copied-payload selection and ELF relocation. Deleted helper input identities are obsolete. Installed acceptance and exact sandbox-path checks remain."
+    },
+    {
+      "source": "tests/test_elf_relocation.py:37-51",
+      "legacy": null,
+      "origin": "new",
+      "node_id": "tests/test_elf_relocation.py::test_bundled_reference_must_exist_inside_stage[missing]",
+      "runtimes": [
+        "source"
+      ],
+      "assertions": [
+        "Missing or escaping staged targets cannot be silently retained as original store dependencies."
+      ],
+      "assertion_source": [],
+      "description": "Missing or escaping staged targets cannot be silently retained as original store dependencies.",
+      "parameter_id": "missing",
+      "level": "unit",
+      "concerns": [
+        "packaging"
+      ],
+      "resources": [],
+      "implementation_source": "tests/test_elf_relocation.py:37-51",
+      "collection_verified": true,
+      "retirement_reason": "2026-09-28: Nix runtime closure export replaces native loader discovery, copied-payload selection and ELF relocation. Deleted helper input identities are obsolete. Installed acceptance and exact sandbox-path checks remain."
+    },
+    {
+      "source": "tests/test_elf_relocation.py:37-51",
+      "legacy": null,
+      "origin": "new",
+      "node_id": "tests/test_elf_relocation.py::test_bundled_reference_must_exist_inside_stage[parent]",
+      "runtimes": [
+        "source"
+      ],
+      "assertions": [
+        "Missing or escaping staged targets cannot be silently retained as original store dependencies."
+      ],
+      "assertion_source": [],
+      "description": "Missing or escaping staged targets cannot be silently retained as original store dependencies.",
+      "parameter_id": "parent",
+      "level": "unit",
+      "concerns": [
+        "packaging"
+      ],
+      "resources": [],
+      "implementation_source": "tests/test_elf_relocation.py:37-51",
+      "collection_verified": true,
+      "retirement_reason": "2026-09-28: Nix runtime closure export replaces native loader discovery, copied-payload selection and ELF relocation. Deleted helper input identities are obsolete. Installed acceptance and exact sandbox-path checks remain."
+    },
+    {
+      "source": "tests/test_elf_relocation.py:37-51",
+      "legacy": null,
+      "origin": "new",
+      "node_id": "tests/test_elf_relocation.py::test_bundled_reference_must_exist_inside_stage[symlink]",
+      "runtimes": [
+        "source"
+      ],
+      "assertions": [
+        "Missing or escaping staged targets cannot be silently retained as original store dependencies."
+      ],
+      "assertion_source": [],
+      "description": "Missing or escaping staged targets cannot be silently retained as original store dependencies.",
+      "parameter_id": "symlink",
+      "level": "unit",
+      "concerns": [
+        "packaging"
+      ],
+      "resources": [],
+      "implementation_source": "tests/test_elf_relocation.py:37-51",
+      "collection_verified": true,
+      "retirement_reason": "2026-09-28: Nix runtime closure export replaces native loader discovery, copied-payload selection and ELF relocation. Deleted helper input identities are obsolete. Installed acceptance and exact sandbox-path checks remain."
+    },
+    {
+      "source": "tests/test_elf_relocation.py:30-33",
+      "legacy": null,
+      "origin": "new",
+      "node_id": "tests/test_elf_relocation.py::test_external_or_relative_references_remain_unchanged[$ORIGIN/../lib]",
+      "runtimes": [
+        "source"
+      ],
+      "assertions": [
+        "Only bundled absolute references change; existing signed and relative loader identities survive."
+      ],
+      "assertion_source": [
+        "assert staged_reference(reference, binary, source, staged) == reference"
+      ],
+      "description": "Only bundled absolute references change; existing signed and relative loader identities survive.",
+      "parameter_id": "$ORIGIN/../lib",
+      "level": "unit",
+      "concerns": [
+        "packaging"
+      ],
+      "resources": [],
+      "implementation_source": "tests/test_elf_relocation.py:30-33",
+      "collection_verified": true,
+      "retirement_reason": "2026-09-28: Nix runtime closure export replaces native loader discovery, copied-payload selection and ELF relocation. Deleted helper input identities are obsolete. Installed acceptance and exact sandbox-path checks remain."
+    },
+    {
+      "source": "tests/test_elf_relocation.py:30-33",
+      "legacy": null,
+      "origin": "new",
+      "node_id": "tests/test_elf_relocation.py::test_external_or_relative_references_remain_unchanged[/nix/store/signed-glibc/lib]",
+      "runtimes": [
+        "source"
+      ],
+      "assertions": [
+        "Only bundled absolute references change; existing signed and relative loader identities survive."
+      ],
+      "assertion_source": [
+        "assert staged_reference(reference, binary, source, staged) == reference"
+      ],
+      "description": "Only bundled absolute references change; existing signed and relative loader identities survive.",
+      "parameter_id": "/nix/store/signed-glibc/lib",
+      "level": "unit",
+      "concerns": [
+        "packaging"
+      ],
+      "resources": [],
+      "implementation_source": "tests/test_elf_relocation.py:30-33",
+      "collection_verified": true,
+      "retirement_reason": "2026-09-28: Nix runtime closure export replaces native loader discovery, copied-payload selection and ELF relocation. Deleted helper input identities are obsolete. Installed acceptance and exact sandbox-path checks remain."
+    },
+    {
+      "source": "tests/test_elf_relocation.py:30-33",
+      "legacy": null,
+      "origin": "new",
+      "node_id": "tests/test_elf_relocation.py::test_external_or_relative_references_remain_unchanged[libc.so.6]",
+      "runtimes": [
+        "source"
+      ],
+      "assertions": [
+        "Only bundled absolute references change; existing signed and relative loader identities survive."
+      ],
+      "assertion_source": [
+        "assert staged_reference(reference, binary, source, staged) == reference"
+      ],
+      "description": "Only bundled absolute references change; existing signed and relative loader identities survive.",
+      "parameter_id": "libc.so.6",
+      "level": "unit",
+      "concerns": [
+        "packaging"
+      ],
+      "resources": [],
+      "implementation_source": "tests/test_elf_relocation.py:30-33",
+      "collection_verified": true,
+      "retirement_reason": "2026-09-28: Nix runtime closure export replaces native loader discovery, copied-payload selection and ELF relocation. Deleted helper input identities are obsolete. Installed acceptance and exact sandbox-path checks remain."
+    },
+    {
+      "source": "tests/test_elf_relocation.py:54-89",
+      "legacy": null,
+      "origin": "new",
+      "node_id": "tests/test_elf_relocation.py::test_rpath_and_needed_relocate_all_copied_elf_objects",
+      "runtimes": [
+        "source"
+      ],
+      "assertions": [
+        "Lean, its shared library and the checker map RPATH/NEEDED without modifying source bytes or modes."
+      ],
+      "assertion_source": [
+        "assert not any(command[-1] == str(text) for command in commands)",
+        "assert (source / \"lib/lean/libLean.so\").read_bytes() == b\"\\x7fELFfixture\"",
+        "assert Path(command[-1]).stat().st_mode & stat.S_IWUSR",
+        "assert [\"patchelf\", \"--set-rpath\", expected + \":/nix/store/signed-glibc/lib:$ORIGIN/../lib\", str(binary)] in commands",
+        "assert [\"patchelf\", \"--replace-needed\", str(source / \"lib/lean/libLean.so\"),\n                needed_target, str(binary)] in commands",
+        "assert stat.S_IMODE(binary.stat().st_mode) == 0o555"
+      ],
+      "description": "Lean, its shared library and the checker map RPATH/NEEDED without modifying source bytes or modes.",
+      "parameter_id": null,
+      "level": "unit",
+      "concerns": [
+        "packaging"
+      ],
+      "resources": [],
+      "implementation_source": "tests/test_elf_relocation.py:54-89",
+      "collection_verified": true,
+      "retirement_reason": "2026-09-28: Nix runtime closure export replaces native loader discovery, copied-payload selection and ELF relocation. Deleted helper input identities are obsolete. Installed acceptance and exact sandbox-path checks remain."
+    },
+    {
+      "source": "tests/test_runtime_staging.py:109-111",
+      "legacy": null,
+      "origin": "new",
+      "node_id": "tests/test_runtime_staging.py::test_linux_archive_scans_only_relocated_copied_inputs",
+      "runtimes": [
+        "source"
+      ],
+      "assertions": [
+        "All Linux copied native inputs relocate before loader metadata or export roots are selected."
+      ],
+      "assertion_source": [],
+      "description": "All Linux copied native inputs relocate before loader metadata or export roots are selected.",
+      "parameter_id": null,
+      "level": "unit",
+      "concerns": [
+        "packaging"
+      ],
+      "resources": [],
+      "implementation_source": "tests/test_runtime_staging.py:109-111",
+      "collection_verified": true,
+      "retirement_reason": "2026-09-28: Nix runtime closure export replaces native loader discovery, copied-payload selection and ELF relocation. Deleted helper input identities are obsolete. Installed acceptance and exact sandbox-path checks remain."
     }
   ]
 }

@@ -6,13 +6,17 @@ default:
 resources:
     python3 tools/check_resources.py
 
-# Elan reads the exact release from lean-toolchain.
-setup: resources
-    timeout 300 elan toolchain install "$(cat lean-toolchain)"
+# Prepare the pinned runtime through the same Nix build used by tests and releases.
+setup: build
 
-# Prepare Nix parsers; an explicit Nix runtime supplies Lean outputs.
-build: parser
-    if [ -z "${SQLITE_VERIFIER_RUNTIME_ROOT:-}" ]; then timeout 120 lake build SqliteVerifier migration-proof-checker && timeout 30 python3 packaging/write_runtime_roots.py; fi
+# Build the complete runtime and expose the existing development paths.
+build: resources
+    mkdir -p build .lake
+    timeout 900 nix-build build-support/default.nix -A runtime --out-link build/runtime --extra-experimental-features 'nix-command flakes'
+    rm -rf .lake/build build/parser build/parser-3.46.0
+    ln -sfn ../build/runtime/.lake/build .lake/build
+    ln -sfn build/runtime/lean lean
+    for name in parser parser-3.46.0 sqlite-parser sqlite-parser-3.46.0 nix-runtime-roots; do ln -sfn "runtime/build/$name" "build/$name"; done
 
 # Compile the pinned complete SQLite grammar and tokenizer.
 parser: resources
@@ -40,8 +44,8 @@ test: build
     python3 -m tools.run_source_suite
 
 # Build a native offline archive and verify its actual installed entrypoint.
-runtime-package: resources
-    timeout 600 python3 packaging/build_runtime.py --python "${SQLITE_VERIFIER_PYTHON:?Enter nix develop path:./nix}" --runtime-root "${SQLITE_VERIFIER_RUNTIME_ROOT:-$PWD}"
+runtime-package: build
+    timeout 1200 python3 packaging/build_runtime.py --runtime-root "${SQLITE_VERIFIER_RUNTIME_ROOT:-$PWD/build/runtime}"
     python3 -m tools.run_independent_suites --timeout 1800 --suite installed --runtime-archive "dist/sqlite-verifier-${SQLITE_VERIFIER_SYSTEM:?Enter nix develop path:./nix}.tar.gz" --runtime-variant installed -- tests/runtime_package_test.py tests/atuin_cli_test.py
 
 # Keep a source snapshot alongside the checked installable runtime.

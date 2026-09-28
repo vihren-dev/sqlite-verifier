@@ -47,6 +47,8 @@ class Runtime:
         configured = os.environ.get("MIGRATION_CHECK_LEAN_SYSROOT")
         if configured:
             sysroot = Path(configured).resolve(strict=True)
+        elif (root / "lean").is_dir():
+            sysroot = (root / "lean").resolve(strict=True)
         else:
             found = subprocess.run(["lean", "--print-prefix"], cwd=root, capture_output=True,
                                    text=True, check=True, timeout=5)

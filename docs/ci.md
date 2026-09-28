@@ -86,7 +86,8 @@ acceptance installs into a fresh directory with spaces, Unicode and URI-special
 characters, and checks both parsers, the positive, refuted and unsupported examples,
 the installed dependency roots, and all thirteen Atuin cases under
 a controlled environment without elan or ambient Python imports. The Nix local
-cache retains loader dependencies and does not disable signature checks.
+cache retains the complete content-addressed runtime closure with import
+verification enabled. Proof sandbox manifests come from Nix closureInfo.
 
 Pushes of `v*` tags run the same two-platform checks. Only after both pass does the
 release job download their artifacts, verify the archive checksums, and create a

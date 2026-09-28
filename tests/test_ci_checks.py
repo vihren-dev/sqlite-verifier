@@ -21,7 +21,7 @@ def test_ci_modes_retain_fresh_checks(tmp_path: Path, mode: str, system: str) ->
     (runtime / "build").mkdir(parents=True)
     units.mkdir()
     (units / "unit-cases.json").write_text("[]")
-    for name in ("native-dependencies.txt", "nix-runtime-roots"):
+    for name in ("nix-runtime-roots",):
         (runtime / "build" / name).write_text("loader metadata")
         (tmp_path / "build").mkdir(exist_ok=True)
         destination = tmp_path / "build" / name
@@ -59,7 +59,7 @@ def test_ci_modes_retain_fresh_checks(tmp_path: Path, mode: str, system: str) ->
         assert [str(runtime / "lean/bin/lean"), "--version"] in commands
         assert [str(runtime / "lean/bin/lake"), "--version"] in commands
         assert not (tmp_path / "build/cached-unit").exists()
-        assert (tmp_path / "build/native-dependencies.txt").read_text() == "loader metadata"
+        assert (tmp_path / "build/nix-runtime-roots").read_text() == "loader metadata"
     else:
         assert commands[0] == ["just", "setup"]
         assert "SQLITE_VERIFIER_UNIT_CHECKS" not in environments[-1]
