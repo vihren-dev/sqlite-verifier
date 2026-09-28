@@ -1,23 +1,23 @@
 # Bounded coverage report
 
-After building both parsers and the Lean library, run inside the pinned
+Run inside the pinned
 `nix develop path:./nix` environment:
 
 ```sh
-python3 conformance/coverage_report.py --output build/coverage.json
+just test
 ```
 
-`SQLITE3` may select the exact pinned 3.51.0 engine. Shared `just coverage` and CI
+`SQLITE3` may select the exact pinned 3.51.0 engine. Shared `just test` and CI
 use this command; the JSON is a check artifact, not a proof certificate. Each
 subprocess has a timeout. The command refreshes the existing evidence and exits
 nonzero if any check fails. A failed or unavailable comparison has unknown
 counts (`null`), never zero discrepancies. Diagnostics retain the failing command.
-The collector runs the complete native and model test wrappers once, including
+The source suite runs the native and model pytest cases once, including
 vendored-source/fixture checks and the rejected false-empty model assertion.
-Their freshly returned JSON feeds this report directly. The aggregate test recipe
-does not repeat those comparisons or parser regressions. Existing report files
-are never reused as evidence; standalone coverage performs the same fresh checks.
-`just coverage` prepares those prerequisites. The Atuin check executes ordinary
+`conformance/coverage_report.py` aggregates their fresh evidence using the current
+run ID; it does not execute the tests itself. Existing reports from other runs
+are never reused as conformance evidence.
+`just test` prepares those prerequisites. The Atuin check executes ordinary
 SQL through the pinned SQLite CLI; it has no application or framework dependency.
 The top-level native/model profile remains 3.51.0. The `additional_grammars`
 entry separately reports 3.46.0 syntax evidence; it does not transfer the 3.51.0

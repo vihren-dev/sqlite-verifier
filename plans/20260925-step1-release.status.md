@@ -2,7 +2,7 @@
 
 Created: 2026-09-25. Status: DONE (2026-09-28).
 Task: [step1-release.task.md](20260925-step1-release.task.md).
-Starting implementation: 0c5bb79e. Local full just check passed; current GitHub
+Starting implementation: 0c5bb79e. Local full just test passed; current GitHub
 main is e094a5ff and the published preview is v0.1.0-rc.1.
 
 Owner explicitly approved the current state and requested completion of Step 1.

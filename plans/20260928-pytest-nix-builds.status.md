@@ -84,7 +84,7 @@ native benchmark pilot and complete measurement matrix; measured rollout decisio
 and final independent requirement-by-requirement review.
 No end-to-end performance claim yet.
 
-- Complete integrated Darwin `just check` passes at `079c252c`: run
+- Complete integrated Darwin `just test` passes at `079c252c`: run
   `bfb63b9e-a685-47cf-b07a-10b544b306d7` contains exactly 285 fresh source cases
   plus 64 validated cached unit cases, all phases passing, and current complete
   `EVIDENCE_CHECKS_PASSED` coverage. CI exposed a second host issue: prepending the

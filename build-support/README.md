@@ -16,7 +16,7 @@ fresh host coverage. `leanRuntime/.lake/build/` contains the current Lean librar
 and checker. `runtime/` assembles those outputs, source/module membership,
 examples, Python CLI and exact native loader metadata. It never caches a user
 proof verdict or host sandbox/conformance/installed test result. Set
-`SQLITE_VERIFIER_RUNTIME_ROOT` to this immutable output before `just check` or
+`SQLITE_VERIFIER_RUNTIME_ROOT` to this immutable output before `just test` or
 `just package`. Fixtures make private writable copies of examples; reports remain
 in the checkout's `build/`, so the runtime itself needs no mutable staging copy.
 

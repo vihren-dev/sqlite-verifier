@@ -14,7 +14,7 @@ scope is selected from the complete changed-path list by `tests/ci_scope.py`:
 
 - Documentation-only changes check authored Markdown file links, without Nix or
   archives. External URLs and section anchors are outside this bounded check.
-- Ordinary verifier, conformance and test changes run the full `just check` on
+- Ordinary verifier, conformance and test changes run the full `just test` on
   both platforms. Unknown paths also run full checks.
 - Packaging, CLI, parser, toolchain/environment, example and workflow changes run
   `just package`, including the complete checks and installed-runtime tests.
@@ -69,7 +69,7 @@ workspace writes inside its test sandbox, and confirms temporary writes work.
 It fails if those capabilities are unavailable. It does not change host kernel
 settings, use a privileged container, or skip containment failures. This is a
 runner capability check, not evidence that the production proof sandbox is
-correct; its acceptance tests belong in `just check`. Bubblewrap describes the
+correct; its acceptance tests belong in `just test`. Bubblewrap describes the
 policy responsibility in its [upstream documentation](https://github.com/containers/bubblewrap#sandbox-security).
 
 Action commits were resolved from official repository tag references on

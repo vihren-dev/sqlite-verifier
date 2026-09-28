@@ -55,7 +55,7 @@ def execute(root: Path, report: Path) -> None:
     helper = Path(__file__).with_name("ci_checks.py").resolve()
     command = ["nix", "develop", "path:./nix", "--command", "python3", str(helper),
                "--root", str(root), "--system", metadata["system"],
-               "--scope", "package" if metadata["scenario"] == "package" else "check",
+               "--scope", "package" if metadata["scenario"] == "package" else "test",
                "--mode", "build" if metadata["variant"] == "candidate" else "source"]
     started = monotonic()
     metadata["nix_version"] = subprocess.run(["nix", "--version"], check=True, capture_output=True,

@@ -21,7 +21,7 @@
     "The reconciled inventory has 422 unique IDs, including 244 legacy mappings; thirteen Atuin IDs have separate source and installed executions."
   ],
   "entrypoints": {
-    "just test / just check / just coverage": [
+    "just test": [
       "tools/run_source_suite.py: collect source node IDs once, optionally exclude exactly validated cached-unit IDs, execute each remaining source node once, aggregate current-run receipts"
     ],
     "just test-cases *args": [
@@ -13204,7 +13204,7 @@
       "tests/coverage_test.py",
       "tests/test_*.py"
     ],
-    "just coverage / conformance/coverage_report.py": [
+    "just test / conformance/coverage_report.py": [
       "tests/parser_test.py",
       "tests/conformance_native_test.py",
       "tests/conformance_model_test.py",

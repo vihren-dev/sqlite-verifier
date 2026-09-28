@@ -47,7 +47,9 @@ def test_ci_modes_retain_fresh_checks(tmp_path: Path, mode: str, system: str) ->
          patch("tools.ci_checks.os.readlink", return_value="net:[before]"), \
          patch.dict("os.environ", {"SQLITE_VERIFIER_SYSTEM": system, "PATH": str(original_bin), "CC": "clang"}, clear=True):
         run_checks("package", mode, system, tmp_path)
-    assert commands[-1] == ["just", "package"]
+        assert commands[-1] == ["just", "package"]
+        run_checks("test", mode, system, tmp_path)
+    assert commands[-1] == ["just", "test"]
     if mode == "build":
         assert [command[3] for command in commands[:2]] == ["runtime", "unitChecks"]
         assert environments[-1]["SQLITE_VERIFIER_RUNTIME_ROOT"] == str(runtime)
@@ -74,7 +76,7 @@ def test_ci_failure_retains_phase_status(tmp_path: Path) -> None:
          patch.dict("os.environ", {"SQLITE_VERIFIER_SYSTEM": "aarch64-darwin"}), \
          patch("tools.ci_checks.run_command", return_value=CommandResult((), 7, "failure stdout", "failure stderr", 0.01)):
         with pytest.raises(subprocess.CalledProcessError):
-            run_checks("check", "source", "aarch64-darwin", tmp_path)
+            run_checks("test", "source", "aarch64-darwin", tmp_path)
     assert json.loads((tmp_path / "build/ci-phases.json").read_text())[0]["exit_code"] == 7
 
 
@@ -85,7 +87,7 @@ def test_ci_timeout_retains_group_runner_diagnostics(tmp_path: Path) -> None:
          patch.dict("os.environ", {"SQLITE_VERIFIER_SYSTEM": "aarch64-darwin"}), \
          patch("tools.ci_checks.run_command", side_effect=CommandTimeout(failure)) as run:
         with pytest.raises(CommandTimeout):
-            run_checks("check", "source", "aarch64-darwin", tmp_path)
+            run_checks("test", "source", "aarch64-darwin", tmp_path)
     assert run.call_args.kwargs["timeout"] == 330
     assert run.call_args.kwargs["artifacts"] == tmp_path / "build/ci-phases/setup"
     assert json.loads((tmp_path / "build/ci-phases.json").read_text())[0]["exit_code"] == -9

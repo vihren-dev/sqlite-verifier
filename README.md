@@ -30,7 +30,7 @@ then enter the development environment once for a batch:
 python3 tools/check_resources.py
 nix develop path:./nix
 just setup
-just check
+just test
 ```
 
 Alternatively, install direnv with Nix-flake integration and run `direnv allow`.
@@ -51,9 +51,9 @@ These native checks are evidence, not a proof of correspondence with SQLite C.
 
 `just build` compiles the upstream-derived parser, public Lean library, and
 independent kernel checker.
-`just test` runs the available checks; `just check` combines build and tests.
+`just test` builds prerequisites and runs the source test suite.
 Commands run under explicit timeouts and are also the entry points for CI.
-`just coverage` refreshes the [bounded coverage report](docs/coverage.md).
+The same run refreshes the [bounded coverage report](docs/coverage.md).
 `just package` runs the shared checks, builds a native runtime archive in `dist/`,
 and tests its actual installed entrypoint before retaining a source snapshot.
 See [CI and release procedure](docs/ci.md).

@@ -124,7 +124,7 @@ repository, while a root path flake can copy a whole non-Git workspace. Never pu
 build outputs, archives, workspace metadata or application data in `nix/`.
 
 Enter `nix develop path:./nix` once for a batch of related work.
-Inside the shell, run the relevant recipe directly. `just check` does not enter
+Inside the shell, run the relevant recipe directly. `just test` does not enter
 Nix again. Application and framework toolchains are not development dependencies.
 Keep artifacts in `dist/`, `build/` and `.lake/`, outside the environment boundary.
 The real snapshot regression is `python3 tests/environment_snapshot_test.py`;

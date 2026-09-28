@@ -31,7 +31,7 @@ formal correspondence with SQLite C or the Rust decoder.
 
 Agents authored the formalization and executed the public CLI checks. The owner
 reviewed and refined the intended business meaning and accepted the current
-state. The final local full `just check` at implementation `0c5bb79e` passed in
+state. The final local full `just test` at implementation `0c5bb79e` passed in
 the pinned aarch64-darwin environment, including two positive Atuin CLI cases and
 eleven negative cases. Both shell and a differently named nullable column verify
 against identical approved hashes. Negative cases reject stale proofs, changed

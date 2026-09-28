@@ -14,7 +14,7 @@ business model while its representation changes. The new interpretation reads
 that old model from resulting storage. No anticipated shell field, SQLx catalog
 correctness, ORM integration, live execution or runner certification is required.
 
-Implementation 0c5bb79e passed the full local `just check`. Its Atuin proof verifies
+Implementation 0c5bb79e passed the full local `just test`. Its Atuin proof verifies
 the upstream one-statement ALTER payload for arbitrary admitted initial data.
 The same six approved Lean modules and schema hash also verify a differently
 named nullable added column with revised candidate proofs. Eleven rejection
@@ -60,7 +60,7 @@ Concurrency, resource failures and crash recovery remain outside the fixed model
   installed-runtime jobs passed at c840b0434186. It is not evidence for later code.
 - SQL-only typed-model checkpoint 19266332 had a successful local offline installed
   runtime test; the later preservation simplification has fresh source checks.
-- Current source checkpoint 0c5bb79e: full local `just check`, exit 0, including
+- Current source checkpoint 0c5bb79e: full local `just test`, exit 0, including
   grammar/native/model/Atuin coverage, kernel gate, compilation isolation, public
   CLI, both Atuin positives and eleven negatives, and 36 Python unit tests.
   Evidence: build/preservation-check.log and the

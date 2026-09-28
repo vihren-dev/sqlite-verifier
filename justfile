@@ -36,16 +36,12 @@ smoke:
 test: build
     python3 -m tools.run_source_suite
 
-coverage: test
-
-check: test
-
 # Build a native offline archive and verify its actual installed entrypoint.
 runtime-package: resources
     timeout 600 python3 packaging/build_runtime.py --python "${SQLITE_VERIFIER_PYTHON:?Enter nix develop path:./nix}" --runtime-root "${SQLITE_VERIFIER_RUNTIME_ROOT:-$PWD}"
     python3 -m tools.run_independent_suites --timeout 1800 --suite installed --runtime-archive "dist/sqlite-verifier-${SQLITE_VERIFIER_SYSTEM:?Enter nix develop path:./nix}.tar.gz" --runtime-variant installed -- tests/runtime_package_test.py tests/atuin_cli_test.py
 
 # Keep a source snapshot alongside the checked installable runtime.
-package: check runtime-package
+package: test runtime-package
     mkdir -p dist
     tar --exclude='./.jj' --exclude='./.git' --exclude='./.lake' --exclude='./.direnv' --exclude='./dist' --exclude='./build' --exclude='__pycache__' --exclude='./result*' -czf dist/sqlite-verifier-source.tar.gz .
