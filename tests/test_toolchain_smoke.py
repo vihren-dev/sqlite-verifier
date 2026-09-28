@@ -16,17 +16,17 @@ def run(*arguments: str) -> str:
 
 
 @pytest.mark.requires_lean("compiler")
-def test_lean_version() -> None:
+def test_lean_version(lean_sysroot: Path) -> None:
     """Lean reports the exact release pinned by the source toolchain file."""
     version = (Path(__file__).resolve().parents[1] / "lean-toolchain").read_text().strip().split(":v")[1]
-    assert f"version {version}," in run("lean", "--version")
+    assert f"version {version}," in run(str(lean_sysroot / "bin/lean"), "--version")
 
 
 @pytest.mark.requires_lean("compiler")
-def test_lake_version() -> None:
+def test_lake_version(lean_sysroot: Path) -> None:
     """Lake belongs to the same pinned release as Lean."""
     version = (Path(__file__).resolve().parents[1] / "lean-toolchain").read_text().strip().split(":v")[1]
-    assert version in run("lake", "--version")
+    assert version in run(str(lean_sysroot / "bin/lake"), "--version")
 
 
 @pytest.mark.requires_native("sqlite3")

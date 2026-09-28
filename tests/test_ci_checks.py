@@ -52,8 +52,10 @@ def test_ci_modes_retain_fresh_checks(tmp_path: Path, mode: str, system: str) ->
         assert [command[3] for command in commands[:2]] == ["runtime", "unitChecks"]
         assert environments[-1]["SQLITE_VERIFIER_RUNTIME_ROOT"] == str(runtime)
         assert environments[-1]["SQLITE_VERIFIER_UNIT_CHECKS"] == str(units)
-        assert environments[-1]["CC"] == str(original_bin / "clang")
-        assert environments[-1]["PATH"].startswith(str(runtime / "lean/bin"))
+        assert environments[-1]["CC"] == "clang"
+        assert environments[-1]["PATH"] == str(original_bin)
+        assert [str(runtime / "lean/bin/lean"), "--version"] in commands
+        assert [str(runtime / "lean/bin/lake"), "--version"] in commands
         assert not (tmp_path / "build/cached-unit").exists()
         assert (tmp_path / "build/native-dependencies.txt").read_text() == "loader metadata"
     else:
