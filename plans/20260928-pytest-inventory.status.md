@@ -193,3 +193,55 @@ findings were corrected. Exact 16 new inventory IDs match actual collection;
 quoted `just test-cases -k` forwarding selects the expected four cases and passes.
 The reviewed scope does not claim a full-source execution; integration remains
 with the lead.
+
+## 2026-09-28 — final inventory reconciliation (DONE — metadata only)
+
+Bounded audit requested by the lead after orchestration integration. All 39 frozen
+baseline source hashes match revision `4df62fa71ec64d0eb4b7aa4643a0912ab60e18a9`.
+Every original unittest assertion form remains present except the documented
+scheduler status adaptation (script exit7 becomes pytest exit1) and the sandbox
+method's seven-way scenario split. Previously reviewed kernel/CLI/Atuin and
+source-boundary scenario IDs all exist in actual collected metadata.
+
+The first reconciliation covers 334 identities from the lead's 312-case catalogue,
+16 orchestration identities and six CI plumbing identities. New entries explicitly
+carry `origin: new`; preserved mappings carry `origin: legacy`. Original source
+ranges/hash evidence remain separate from current implementation ranges/hash
+snapshots. Current level/concern/resource metadata and explicit resource arguments
+come from collected metadata and actual decorators.
+
+Intentional changes have explicit ownership records: proof build evidence now
+freshly imports the selected immutable library; current freshness regression is
+resource-free; final native replay checks final state only while three separately
+selected upstream cases retain each parser/Tcl observation. No legacy assertion
+omission was found. Retained unittest loops/subTests remain recorded as variants;
+parser-cache mutation loops and Atuin coverage-receipt mutations are still part
+of their original unittest scenario contracts, not hidden main wrappers.
+
+Included in final reconciliation: the lead's Unicode sandbox and malformed receipt
+additions, removal of legacy coverage subprocess wrappers, and the Nix member's
+benchmark scenarios.
+No full acceptance completion or new runtime execution is claimed by this audit.
+
+
+Final reconciled inventory: 355 unique identities, comprising 244 preserved legacy
+mappings and 111 explicitly new cases. Source selection has 349 identities;
+installed selection has 19, with thirteen Atuin identities intentionally shared
+across separate runtime reports. This is the deduplicated union of the lead's
+338-case catalogue, 18 orchestration cases (including the cache-retention followup),
+six CI plumbing cases and fifteen benchmark cases. Input catalogue hashes are
+recorded in the inventory, alongside current implementation file hashes.
+
+Every identity was observed in actual collection and resolves to exactly one test
+function. Assertions and original source hashes remain traceable; the two adapted
+coverage unittest contracts retain their original assertions and document the
+new no-subprocess/fresh-receipt and direct bounded-command checks. There are no
+orphan legacy identities or unmapped collected identities in these snapshots.
+Independent review by formal_preservation approved the proof-build, final-native
+and freshness ownership changes and requested the two coverage unittest notes,
+which are now included. Ordinary entrypoints contain no legacy main-script suite
+launches; the dependency-free docs routing remains explicit.
+
+This completes inventory metadata reconciliation only. A single-tree collection,
+full source/installed acceptance, measurements and overall ADR completion remain
+lead-owned integration work; this commit makes no claim that they are complete.
