@@ -42,7 +42,7 @@ smoke:
 # Cache expensive hermetic suites; run host-dependent and cheap tests normally.
 test: build
     timeout 900 nix-build build-support/default.nix -A tests --out-link build/nix-tests --option sandbox true --option sandbox-fallback false --extra-experimental-features 'nix-command flakes'
-    timeout 1800 python3 -m pytest tests --ignore=tests/runtime_package_test.py --ignore=tests/kernel_gate_test.py --ignore=tests/conformance_model_test.py --runtime-root "${SQLITE_VERIFIER_RUNTIME_ROOT:-$PWD}" --suite source
+    timeout 1800 python3 -u -m pytest -v tests --ignore=tests/runtime_package_test.py --ignore=tests/kernel_gate_test.py --ignore=tests/conformance_model_test.py --runtime-root "${SQLITE_VERIFIER_RUNTIME_ROOT:-$PWD}" --suite source
 
 # Build a native offline archive and verify its actual installed entrypoint.
 runtime-package: build
