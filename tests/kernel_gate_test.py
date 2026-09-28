@@ -1,122 +1,185 @@
-"""Exercise the actual kernel executable with harmless adversarial Lean modules."""
+"""Select kernel replay attacks independently against private compiled fixture copies."""
 
+from collections.abc import Callable, Mapping, Sequence
+from dataclasses import dataclass
 import os
 from pathlib import Path
-import subprocess
-import tempfile
 
-ROOT = Path(__file__).resolve().parents[1]
-FIXTURES = ROOT / "tests/kernel_gate"
-LIBRARY = Path(os.environ.get("KERNEL_GATE_LIBRARY", ROOT / ".lake/build/lib/lean"))
-CHECKER = ROOT / ".lake/build/bin/migration-proof-checker"
+import pytest
 
+from tests.runtime_support import CommandResult, copy_mutable_tree, run_command
 
-def run(arguments: list[str], directory: Path, environment: dict[str, str]) -> subprocess.CompletedProcess[str]:
-    """Bound compiler and checker processes and capture diagnostics for failed assertions."""
-    # Hosted replay of forged declarations can exceed 30s; production limits stay unchanged.
-    deadline = 60 if arguments[0] == str(CHECKER) else 30
-    return subprocess.run(arguments, cwd=directory, env=environment,
-                          capture_output=True, text=True, timeout=deadline)
+FIXTURES = Path(__file__).with_name("kernel_gate")
+pytestmark = [pytest.mark.integration, pytest.mark.kernel, pytest.mark.requires_lean]
 
 
-def compile_module(directory: Path, module: str, source: str, environment: dict[str, str]) -> None:
-    """Compile only checked-in harmless fixtures, including intentionally invalid proofs."""
-    (directory / f"{module}.lean").write_text(source)
-    compiler = str(Path(environment["LEAN_SYSROOT"]) / "bin/lean")
-    result = run([compiler, "-o", f"{module}.olean", f"{module}.lean"], directory, environment)
-    assert result.returncode == 0, result.stdout + result.stderr
+def source(module: str) -> str:
+    """Read harmless checked-in source only when an executing case needs it."""
+    return (FIXTURES / f"{module}.lean").read_text()
 
 
-def main() -> None:
-    """Accept the honest proof and reject independent trust-boundary attacks."""
-    with tempfile.TemporaryDirectory(prefix="kernel-gate-") as temporary:
-        root = Path(temporary)
-        trusted, candidate = root / "trusted", root / "candidate"
-        trusted.mkdir()
-        candidate.mkdir()
-        environment = dict(os.environ)
-        if "LEAN_SYSROOT" not in environment:
-            prefix = run(["lean", "--print-prefix"], ROOT, environment)
-            assert prefix.returncode == 0, prefix.stderr
-            environment["LEAN_SYSROOT"] = prefix.stdout.strip()
-        missing_root = dict(environment)
-        missing_root.pop("LEAN_SYSROOT")
-        bad_environment = run([str(CHECKER), str(LIBRARY), str(trusted), str(candidate)], root, missing_root)
-        assert bad_environment.returncode != 0 and "LEAN_SYSROOT" in bad_environment.stderr
-        bad_path = run([str(CHECKER), ".", str(trusted), str(candidate)], root, environment)
-        assert bad_path.returncode != 0 and "absolute existing directory" in bad_path.stderr
-        environment["LEAN_PATH"] = os.pathsep.join(map(str, (LIBRARY, trusted)))
-        print("Kernel gate: compiling common fixtures", flush=True)
-        for module in ("SchemaInputs", "Requirements", "Interpretation", "SqlInputs"):
-            compile_module(trusted, module, (FIXTURES / f"{module}.lean").read_text(), environment)
-        environment["LEAN_PATH"] += os.pathsep + str(candidate)
-        for module in ("NextInterpretation", "Generated"):
-            compile_module(candidate, module, (FIXTURES / f"{module}.lean").read_text(), environment)
-        valid = (FIXTURES / "Proofs.lean").read_text()
-        cases = {
-            "valid": (valid, ""),
-            "initializer ignored": (valid + '\ninitialize IO.eprintln "CANDIDATE_INITIALIZER_RAN"\n', ""),
-            "forged kernel body": ("import Lean\nimport Generated\nset_option debug.skipKernelTC true in\nrun_elab Lean.addDecl (.thmDecl { name := `Proofs.migrationCorrect, levelParams := [], type := Lean.mkConst `Generated.expected, value := Lean.mkConst `True.intro })", "while replaying"),
-            "wrong theorem": ("import Generated\ntheorem Proofs.migrationCorrect : True := trivial", "reconstructed"),
-            "sorry": ("import Generated\ntheorem Proofs.migrationCorrect : Generated.expected := by sorry", "sorryAx"),
-            "transitive axiom": ("import Generated\naxiom forbidden : Generated.expected\ndef helper := forbidden\ntheorem Proofs.migrationCorrect : Generated.expected := helper", "forbidden"),
-            "changed protected contract": ("import Lean\ndef Requirements.contract : Nat := 0\ntheorem Proofs.migrationCorrect : True := trivial", "Requirements.contract"),
-            "changed protected SQL": ("import Lean\ndef Generated.script : Nat := 0\ntheorem Proofs.migrationCorrect : True := trivial", "Generated.script"),
-            "changed protected schema": ("import Lean\ndef Generated.startSchema : Nat := 0\ntheorem Proofs.migrationCorrect : True := trivial", "Generated.startSchema"),
-            "changed protected profile": ("import Lean\ndef Generated.profile : Nat := 0\ntheorem Proofs.migrationCorrect : True := trivial", "Generated.profile"),
-            "unsafe proof": ("import Generated\nunsafe def Proofs.migrationCorrect : True := True.intro", "Proofs.migrationCorrect"),
-        }
-        for label, (source, diagnostic) in cases.items():
-            print(f"Kernel gate case: {label}", flush=True)
-            compile_module(candidate, "Proofs", source, environment)
-            result = run([str(CHECKER), str(LIBRARY), str(trusted), str(candidate)], root, environment)
-            assert (result.returncode == 0) == (label in ("valid", "initializer ignored")), (label, result.stdout, result.stderr)
-            assert diagnostic in result.stderr, (label, result.stderr)
-            if label.startswith("changed protected"):
-                # Shared imports can reject the collision before declaration comparison.
-                assert "already contains" in result.stderr or "modified protected" in result.stderr, result.stderr
-            assert "CANDIDATE_INITIALIZER_RAN" not in result.stdout + result.stderr
-        # Approved source is authoritative for meaning, never for generated SQL inputs.
-        print("Kernel gate case: approved source substitutes supplied schema", flush=True)
-        original_requirements = (FIXTURES / "Requirements.lean").read_text()
-        compile_module(trusted, "Requirements", original_requirements +
-                       "\ndef Generated.startSchema : Nat := 0\n", environment)
-        result = run([str(CHECKER), str(LIBRARY), str(trusted), str(candidate)], root, environment)
-        assert result.returncode == 1 and "Generated.startSchema" in result.stderr, result.stderr
-        assert "already contains" in result.stderr or "modified protected" in result.stderr, result.stderr
-        compile_module(trusted, "Requirements", original_requirements, environment)
-        # A forged convenience alias must not replace the reconstructed target.
-        print("Kernel gate case: forged convenience target", flush=True)
-        compile_module(candidate, "Generated", "import SqlInputs\nimport NextInterpretation\ndef Generated.expected : Prop := True", environment)
-        compile_module(candidate, "Proofs", "import Generated\ntheorem Proofs.migrationCorrect : Generated.expected := trivial", environment)
-        result = run([str(CHECKER), str(LIBRARY), str(trusted), str(candidate)], root, environment)
-        assert result.returncode != 0 and "reconstructed" in result.stderr, result.stderr
-        # A candidate alias cannot substitute a different sealed SQLite version.
-        sql_inputs = (FIXTURES / "SqlInputs.lean").read_text()
-        configured = sql_inputs.replace(".sqlite351", ".sqlite346")
-        compile_module(trusted, "SqlInputs", configured, environment)
-        legacy = (FIXTURES / "Generated.lean").read_text().replace("NextInterpretation.failures profile", "NextInterpretation.failures")
-        compile_module(candidate, "Generated", legacy, environment)
-        compile_module(candidate, "Proofs", valid, environment)
-        result = run([str(CHECKER), str(LIBRARY), str(trusted), str(candidate)], root, environment)
-        assert result.returncode == 1 and "reconstructed" in result.stderr, result.stderr
-        compile_module(trusted, "SqlInputs", sql_inputs, environment)
-        # A checked negative contract gets a distinct result; missing/sorry negatives do not.
-        print("Kernel gate case: checked and unfinished refutations", flush=True)
-        interpretation = (FIXTURES / "Interpretation.lean").read_text().replace("Prop := True", "Prop := False")
-        compile_module(trusted, "Interpretation", interpretation, environment)
-        for module in ("NextInterpretation", "Generated"):
-            compile_module(candidate, module, (FIXTURES / f"{module}.lean").read_text(), environment)
-        negative = ("import Generated\ntheorem Proofs.migrationViolated : ¬ Generated.expected := by\n"
-                    "  intro correct\n  obtain ⟨database, admitted⟩ := correct.nonempty\n  exact admitted.2\n")
-        compile_module(candidate, "Proofs", negative, environment)
-        result = run([str(CHECKER), str(LIBRARY), str(trusted), str(candidate)], root, environment)
-        assert result.returncode == 2, result.stderr
-        compile_module(candidate, "Proofs", "import Generated\ntheorem Proofs.migrationViolated : ¬ Generated.expected := by sorry", environment)
-        result = run([str(CHECKER), str(LIBRARY), str(trusted), str(candidate)], root, environment)
-        assert result.returncode == 1 and "sorryAx" in result.stderr, result.stderr
-    print("Kernel gate: honest proof/refutation accepted, initializer ignored; forged/unfinished proofs rejected.")
+@dataclass
+class KernelCase:
+    """Keep compiler and checker commands bound to one mutable trusted/candidate pair."""
+
+    root: Path
+    library: Path
+    sysroot: Path
+    checker: Path
+    environment: dict[str, str]
+    runner: Callable[..., CommandResult]
+
+    def compile(self, side: str, module: str, text: str) -> None:
+        """Compile one deliberate fixture mutation with the existing 30-second deadline."""
+        directory = self.root / side
+        (directory / f"{module}.lean").write_text(text)
+        result = self.runner([str(self.sysroot / "bin/lean"), "-o", f"{module}.olean", f"{module}.lean"],
+                             cwd=directory, environment=self.environment, timeout=30)
+        assert result.returncode == 0, result.diagnostic()
+
+    def check(self, *, environment: dict[str, str] | None = None, library: str | None = None) -> CommandResult:
+        """Replay the private artifacts; the test deadline does not change production limits."""
+        result = self.runner([str(self.checker), library or str(self.library), str(self.root / "trusted"),
+                              str(self.root / "candidate")], cwd=self.root, timeout=60,
+                             environment=self.environment if environment is None else environment)
+        assert "CANDIDATE_INITIALIZER_RAN" not in result.stdout + result.stderr, result.diagnostic()
+        return result
 
 
-if __name__ == "__main__":
-    main()
+def context(root: Path, library: Path, sysroot: Path, checker: Path,
+            environment: dict[str, str], runner: Callable[..., CommandResult]) -> KernelCase:
+    """Replace inherited import paths with this case's explicit trusted toolchain and trees."""
+    environment = {**environment, "LEAN_SYSROOT": str(sysroot),
+                   "LEAN_PATH": os.pathsep.join(map(str, (library, root / "trusted", root / "candidate")))}
+    return KernelCase(root, library, sysroot, checker, environment, runner)
+
+
+@pytest.fixture(scope="session")
+def compiled_kernel(tmp_path_factory: pytest.TempPathFactory, lean_library: Path,
+                    lean_sysroot: Path, proof_checker: Path) -> Path:
+    """Compile common fixtures once; cases receive writable copies and never mutate this tree."""
+    root = tmp_path_factory.mktemp("kernel-common")
+    (root / "trusted").mkdir()
+    (root / "candidate").mkdir()
+
+    def compile_runner(arguments: Sequence[str], *, cwd: Path,
+                       environment: Mapping[str, str], timeout: float) -> CommandResult:
+        """Retain common fixture setup commands if compilation fails before a case can run."""
+        return run_command(arguments, cwd=cwd, environment=environment, timeout=timeout,
+                           artifacts=root / "commands")
+
+    common = context(root, lean_library, lean_sysroot, proof_checker, dict(os.environ), compile_runner)
+    for module in ("SchemaInputs", "Requirements", "Interpretation", "SqlInputs"):
+        common.compile("trusted", module, source(module))
+    for module in ("NextInterpretation", "Generated", "Proofs"):
+        common.compile("candidate", module, source(module))
+    return root
+
+
+@pytest.fixture
+def kernel(compiled_kernel: Path, tmp_path: Path, lean_library: Path, lean_sysroot: Path,
+           proof_checker: Path, runtime_environment: dict[str, str],
+           command_runner: Callable[..., CommandResult]) -> KernelCase:
+    """Give each attack its own compiled sources and artifacts, independent of selection order."""
+    root = tmp_path / "kernel"
+    copy_mutable_tree(compiled_kernel, root)
+    return context(root, lean_library, lean_sysroot, proof_checker, runtime_environment, command_runner)
+
+
+def test_missing_sysroot(kernel: KernelCase) -> None:
+    """The checker requires an explicit pinned Lean installation even when imports exist."""
+    environment = dict(kernel.environment)
+    environment.pop("LEAN_SYSROOT")
+    result = kernel.check(environment=environment)
+    assert result.returncode != 0 and "LEAN_SYSROOT" in result.stderr, result.diagnostic()
+
+
+def test_relative_library_path(kernel: KernelCase) -> None:
+    """A relative library path cannot redirect the checker's trusted imports."""
+    result = kernel.check(library=".")
+    assert result.returncode != 0 and "absolute existing directory" in result.stderr, result.diagnostic()
+
+
+@pytest.mark.parametrize("text,diagnostic,accepted", [
+    pytest.param("{valid}", "", True, id="valid"),
+    pytest.param('{valid}\ninitialize IO.eprintln "CANDIDATE_INITIALIZER_RAN"\n', "", True, id="initializer_ignored"),
+    pytest.param("import Lean\nimport Generated\nset_option debug.skipKernelTC true in\n"
+                 "run_elab Lean.addDecl (.thmDecl { name := `Proofs.migrationCorrect, levelParams := [], "
+                 "type := Lean.mkConst `Generated.expected, value := Lean.mkConst `True.intro })",
+                 "while replaying", False, id="forged_kernel_body"),
+    pytest.param("import Generated\ntheorem Proofs.migrationCorrect : True := trivial", "reconstructed", False, id="wrong_theorem"),
+    pytest.param("import Generated\ntheorem Proofs.migrationCorrect : Generated.expected := by sorry", "sorryAx", False, id="sorry"),
+    pytest.param("import Generated\naxiom forbidden : Generated.expected\ndef helper := forbidden\n"
+                 "theorem Proofs.migrationCorrect : Generated.expected := helper", "forbidden", False, id="transitive_axiom"),
+    *[pytest.param(f"import Lean\ndef {name} : Nat := 0\ntheorem Proofs.migrationCorrect : True := trivial",
+                   name, False, id=f"changed_protected_{label}", marks=pytest.mark.approval)
+      for label, name in [("contract", "Requirements.contract"), ("SQL", "Generated.script"),
+                          ("schema", "Generated.startSchema"), ("profile", "Generated.profile")]],
+    pytest.param("import Generated\nunsafe def Proofs.migrationCorrect : True := True.intro",
+                 "Proofs.migrationCorrect", False, id="unsafe_proof"),
+    # An explicit partial constant avoids elaboration into an ordinary opaque wrapper.
+    # Lean.Replay omits partial constants; the required-proof lookup must then reject it.
+    pytest.param("import Lean\nimport Generated\nrun_elab Lean.addDecl (.defnDecl { "
+                 "name := `Proofs.migrationCorrect, levelParams := [], type := Lean.mkConst `True, "
+                 "value := Lean.mkConst `True.intro, hints := .opaque, safety := .partial })",
+                 "missing required declaration: Proofs.migrationCorrect", False, id="partial_proof"),
+])
+def test_proof_attack(kernel: KernelCase, text: str, diagnostic: str, accepted: bool) -> None:
+    """Replay honest proofs without initializers and reject forged bodies, axioms and protected substitutions."""
+    kernel.compile("candidate", "Proofs", text.replace("{valid}", source("Proofs")))
+    result = kernel.check()
+    assert (result.returncode == 0) == accepted, result.diagnostic()
+    assert diagnostic in result.stderr, result.diagnostic()
+    if text.startswith("import Lean\ndef "):
+        assert "already contains" in result.stderr or "modified protected" in result.stderr, result.diagnostic()
+
+
+@pytest.mark.approval
+def test_approved_source_substitutes_schema(kernel: KernelCase) -> None:
+    """Even approved logical source cannot replace the generated starting schema declaration."""
+    kernel.compile("trusted", "Requirements", source("Requirements") + "\ndef Generated.startSchema : Nat := 0\n")
+    result = kernel.check()
+    assert result.returncode == 1 and "Generated.startSchema" in result.stderr, result.diagnostic()
+    assert "already contains" in result.stderr or "modified protected" in result.stderr, result.diagnostic()
+
+
+def test_forged_convenience_target(kernel: KernelCase) -> None:
+    """A trivial convenience alias cannot replace the independently reconstructed target."""
+    kernel.compile("candidate", "Generated", "import SqlInputs\nimport NextInterpretation\ndef Generated.expected : Prop := True")
+    kernel.compile("candidate", "Proofs", "import Generated\ntheorem Proofs.migrationCorrect : Generated.expected := trivial")
+    result = kernel.check()
+    assert result.returncode != 0 and "reconstructed" in result.stderr, result.diagnostic()
+
+
+def test_changed_sealed_profile(kernel: KernelCase) -> None:
+    """A candidate target cannot silently substitute another sealed SQLite version."""
+    kernel.compile("trusted", "SqlInputs", source("SqlInputs").replace(".sqlite351", ".sqlite346"))
+    legacy = source("Generated").replace("NextInterpretation.failures profile", "NextInterpretation.failures")
+    kernel.compile("candidate", "Generated", legacy)
+    kernel.compile("candidate", "Proofs", source("Proofs"))
+    result = kernel.check()
+    assert result.returncode == 1 and "reconstructed" in result.stderr, result.diagnostic()
+
+
+@pytest.fixture
+def negative_kernel(kernel: KernelCase) -> KernelCase:
+    """Prepare a false admitted interpretation independently for either refutation case."""
+    kernel.compile("trusted", "Interpretation", source("Interpretation").replace("Prop := True", "Prop := False"))
+    for module in ("NextInterpretation", "Generated"):
+        kernel.compile("candidate", module, source(module))
+    return kernel
+
+
+def test_checked_refutation(negative_kernel: KernelCase) -> None:
+    """A kernel-checked negative argument gets the distinct refutation exit code."""
+    negative_kernel.compile("candidate", "Proofs", "import Generated\ntheorem Proofs.migrationViolated : ¬ Generated.expected := by\n"
+                            "  intro correct\n  obtain ⟨database, admitted⟩ := correct.nonempty\n  exact admitted.2\n")
+    result = negative_kernel.check()
+    assert result.returncode == 2, result.diagnostic()
+
+
+def test_unfinished_refutation(negative_kernel: KernelCase) -> None:
+    """An unfinished negative argument is unverified and identifies the unapproved sorry axiom."""
+    negative_kernel.compile("candidate", "Proofs", "import Generated\ntheorem Proofs.migrationViolated : ¬ Generated.expected := by sorry")
+    result = negative_kernel.check()
+    assert result.returncode == 1 and "sorryAx" in result.stderr, result.diagnostic()
