@@ -78,3 +78,36 @@ from ordinary source-suite evidence and cached-unit derivation evidence.
 
 This completes local selection/isolation validation only. Remote native Linux CI,
 benchmark acceptance and overall ADR rollout remain lead-owned acceptance work.
+
+## Final failure-report integration audit — DONE (read-only)
+
+Reviewed stable integration `12e1aebd` without changing its inventory or source.
+The final catalogue contains exactly 422 unique IDs: 416 source and 19 installed,
+with 13 shared Atuin IDs. The inventory and actual strict catalogue have equal ID
+sets, matching descriptions, parameter IDs, levels, concern/resource markers and
+all 422 current AST function locations. All 67 recorded implementation hashes
+match files at the integrated revision. The new timeout parameters and existing
+independent-suite timeout case explicitly retain the `/bin/ps` prerequisite.
+
+All 244 legacy mappings retain their original source locations, labels, assertions,
+legacy variants and documented semantic migration notes compared with the previous
+reviewed inventory. All 39 immutable source hashes match actual bytes read from
+baseline commit `4df62fa71ec64d0eb4b7aa4643a0912ab60e18a9`. The recorded catalogue
+hash matches `build/integrated-422-catalogue.json`. No discrepancy was found.
+
+The thirteen new failure-report/checkpoint cases were independently reviewed and
+passed individually and in reverse order. Combining their actual phase receipts
+with the prior 403 source selections yields exact standalone and reversed evidence
+for **416/416 source IDs** and **19/19 installed IDs**. Every matched report has
+exit zero and passed setup/call/teardown phases; standalone reports select one ID.
+No runtime variant is substituted for the other.
+
+Final audit artifacts in this workspace:
+
+- `build/final-inventory-audit.json`: exact-set, metadata, AST and hash results.
+- `build/final-selection-isolation-audit.json`: each runtime/node pair and its
+  matching standalone/reversed report paths, including the thirteen new cases.
+
+This audit performed no test execution, build or inventory edit. It confirms the
+retained local evidence and final metadata; remote CI and benchmark acceptance
+remain separate lead-owned decisions.
