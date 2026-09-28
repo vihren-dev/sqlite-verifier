@@ -16,7 +16,7 @@ jobs:
     if: github.ref == 'refs/heads/main'
     strategy:
       fail-fast: false
-      max-parallel: 4
+      max-parallel: 12
       matrix:
         variant: ${{ fromJSON(inputs.pilot && '["candidate"]' || '["baseline", "candidate"]') }}
         system: [x86_64-linux, aarch64-darwin]
@@ -31,7 +31,7 @@ jobs:
     needs: cold
     strategy:
       fail-fast: false
-      max-parallel: 4
+      max-parallel: 12
       matrix:
         variant: ${{ fromJSON(inputs.pilot && '["candidate"]' || '["baseline", "candidate"]') }}
         system: [x86_64-linux, aarch64-darwin]

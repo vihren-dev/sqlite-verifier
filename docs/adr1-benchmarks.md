@@ -74,3 +74,8 @@ one on both platforms, cold then warm: four native jobs. All correctness gates
 remain active. Its summary deliberately fails the unchanged 60-sample readiness
 gate; that comparison step is allowed to fail so its raw evidence can be inspected.
 Pilot cannot authorize rollout. The default `pilot: false` retains all 60 jobs.
+
+Each matrix admits up to 12 jobs concurrently. This changes experiment scheduling,
+not the 60 samples or each fresh VM's workload. GitHub may queue macOS jobs above
+the account's platform limit; no four-wave completion time is guaranteed. Actual
+runner timings and image metadata remain the comparison evidence.
