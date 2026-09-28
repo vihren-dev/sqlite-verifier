@@ -67,7 +67,6 @@ def run_checks(scope: str, mode: str, system: str, root: Path) -> None:
             environment[variable] = run(target, ["nix-build", "build-support/default.nix", "-A", target,
                 "--no-out-link", "--extra-experimental-features", "nix-command flakes"], 900, capture=True)
         runtime = Path(environment["SQLITE_VERIFIER_RUNTIME_ROOT"])
-        environment["PATH"] = str(runtime / "lean/bin") + os.pathsep + environment["PATH"]
         for name in ("native-dependencies.txt", "nix-runtime-roots"):
             destination = root / "build" / name
             destination.unlink(missing_ok=True)
@@ -81,9 +80,11 @@ def run_checks(scope: str, mode: str, system: str, root: Path) -> None:
             "--die-with-parent", "--new-session", "--ro-bind", "/", "/", "--proc", "/proc", "--dev", "/dev",
             "--tmpfs", "/tmp", "--setenv", "HOST_NETWORK", os.readlink("/proc/self/ns/net"),
             "--setenv", "PROTECTED_WORKSPACE", str(root), "sh", "-euc", SANDBOX_PROBE], 15)
+    lean = str(runtime / "lean/bin/lean") if mode == "build" else "lean"
+    lake = str(runtime / "lean/bin/lake") if mode == "build" else "lake"
     versions = {"python": sys.version,
-                "lean": run("lean-version", ["lean", "--version"], 10, capture=True),
-                "lake": run("lake-version", ["lake", "--version"], 10, capture=True)}
+                "lean": run("lean-version", [lean, "--version"], 10, capture=True),
+                "lake": run("lake-version", [lake, "--version"], 10, capture=True)}
     (root / "build/ci-environment.json").write_text(json.dumps(versions, indent=2) + "\n")
     run("fresh-" + scope, ["just", scope], 1800)
 

@@ -54,7 +54,10 @@ def fingerprint(root: Path, paths: Iterable[Path]) -> str:
                if parent.is_relative_to(root)) or not path.is_file():
             raise ValueError(f"Cache input must be a regular file: {path}")
         with path.open("rb") as stream:
-            digest = hashlib.file_digest(stream, "sha256").hexdigest()
+            content = hashlib.sha256()
+            for chunk in iter(lambda: stream.read(1024 * 1024), b""):
+                content.update(chunk)
+            digest = content.hexdigest()
         manifest.append((path.relative_to(root).as_posix(), digest, bool(path.stat().st_mode & 0o111)))
     return hashlib.sha256(json.dumps(manifest, ensure_ascii=True, separators=(",", ":")).encode()).hexdigest()
 
