@@ -1,6 +1,7 @@
 """Connect actual SQL parsing/translation to native observations and Lean kernel assertions."""
 
 import json
+import os
 from pathlib import Path
 import subprocess
 import sys
@@ -13,12 +14,14 @@ from migration_check.sql_model import schema_inputs, sql_inputs
 from migration_check.sql_tree import parse
 from migration_check.translate import starting_schema, statements
 from model_assertions import assertions
-from model_cases import cases, schema_sql
+from model_cases import Case, cases, schema_sql
 from model_native import check, query
 from native_fixture import SOURCE_ID
 
 
-def run(native: str, parser: Path) -> list[dict[str, object]]:
+def run(native: str, parser: Path, selected: tuple[Case, ...] | None = None,
+        runtime_root: Path = ROOT, *, compiler: Path | None = None,
+        library: Path | None = None) -> list[dict[str, object]]:
     """Expected observations originate in project fixtures, never from run or transition."""
     reports: list[dict[str, object]] = []
     with TemporaryDirectory() as directory:
@@ -28,7 +31,7 @@ def run(native: str, parser: Path) -> list[dict[str, object]]:
         options = query(native, folder / "pin.db", "PRAGMA compile_options;")
         assert {"compile_options": "MAX_COLUMN=2000"} in options
         assert {"compile_options": "DQS=0"} in options
-        for case in cases():
+        for case in cases() if selected is None else selected:
             before = starting_schema(parse(parser, schema_sql(case.before).encode(), case.name + "/schema.sql"))
             migration = statements(parse(parser, case.migration.encode(), case.name + "/migration.sql"))
             generated = schema_inputs(before) + sql_inputs(before, migration).removeprefix("import SchemaInputs\n")
@@ -37,7 +40,9 @@ def run(native: str, parser: Path) -> list[dict[str, object]]:
             proof.write_text(generated + "\n" + assertions(case))
             # The 2,000-column kernel check exceeds 30s on hosted macOS; the
             # collector still bounds the complete comparison suite to 180s.
-            checked = subprocess.run(["lake", "env", "lean", str(proof)], cwd=ROOT,
+            command = [str(compiler), str(proof)] if compiler else ["lake", "env", "lean", str(proof)]
+            environment = {**os.environ, "LEAN_PATH": str(library)} if library else None
+            checked = subprocess.run(command, cwd=runtime_root, env=environment,
                                      text=True, capture_output=True, timeout=90)
             if checked.returncode:
                 raise AssertionError((case.name, checked.stdout, checked.stderr))

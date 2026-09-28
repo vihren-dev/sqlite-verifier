@@ -1,5 +1,7 @@
 """Version-only SQLite settings never introduce application catalogs or SQL operations."""
 
+import pytest
+
 from pathlib import Path
 from tempfile import TemporaryDirectory
 import unittest
@@ -8,12 +10,15 @@ from migration_check.diagnostics import Rejection
 from migration_check.profiles import LEGACY_PROFILE, profile
 from migration_check.sql_model import sql_inputs
 from migration_check.translate import starting_schema, statements
-from tests.test_translation import tree
+from tests.test_translation import selected_parser, tree
 
 
 class ProfileTests(unittest.TestCase):
     """Separate engine binding from the explicit SQL and approved application assumptions."""
 
+    @pytest.mark.integration
+    @pytest.mark.parser
+    @pytest.mark.requires_native
     def test_versions_have_distinct_sealed_bindings(self) -> None:
         """Both supported releases admit ordinary SQL and bind distinct constructors."""
         self.assertEqual(profile('3.51.0'), LEGACY_PROFILE)
@@ -25,6 +30,9 @@ class ProfileTests(unittest.TestCase):
         self.assertNotEqual(*generated)
         self.assertEqual(generated[0].replace('.sqlite351', '.sqlite346'), generated[1])
 
+    @pytest.mark.integration
+    @pytest.mark.parser
+    @pytest.mark.requires_native
     def test_no_framework_directives_or_reserved_catalog_names(self) -> None:
         """Comments stay comments, and application bookkeeping names are ordinary tables."""
         selected = profile('3.46.0')
@@ -34,6 +42,8 @@ class ProfileTests(unittest.TestCase):
         self.assertEqual(sql_inputs(schema, plain, selected), sql_inputs(schema, commented, selected))
         self.assertIn('.createTable', sql_inputs((), statements(tree('CREATE TABLE t(x TEXT);')), selected))
 
+    @pytest.mark.unit
+    @pytest.mark.parser
     def test_catalog_json_and_unknown_versions_reject(self) -> None:
         """Neither existing manifest files nor application identities can select implicit behavior."""
         with TemporaryDirectory() as directory:

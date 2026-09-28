@@ -27,11 +27,12 @@ def main() -> None:
     """Test complete selected membership without copying builds or checkout metadata."""
     with TemporaryDirectory(prefix="sqlite-nix-identities-") as temporary:
         root = Path(temporary)
-        for directory in ("parser", "SqliteVerifier", "migration_check", "examples", "packaging", "docs"):
+        for directory in ("parser", "SqliteVerifier", "migration_check", "examples", "packaging", "docs",
+                          "tests", "tools", "conformance", "build-support"):
             shutil.copytree(ROOT / directory, root / directory,
                             ignore=shutil.ignore_patterns("__pycache__"))
         for path in [*ROOT.glob("*.lean"), *(ROOT / name for name in
-                     ("lakefile.toml", "lake-manifest.json", "lean-toolchain", "LICENSE"))]:
+                     ("lakefile.toml", "lake-manifest.json", "lean-toolchain", "LICENSE", "pytest.ini"))]:
             shutil.copy2(path, root / path.name)
         baseline = identities(root)
         (root / "README.md").write_text("unrelated documentation")
@@ -43,22 +44,23 @@ def main() -> None:
                 (path / "generated.lean").write_text("ignored")
                 (path / "generated.py").write_text("ignored")
         assert identities(root) == baseline, "generated trees invalidated builds"
-        for relative, component in (("parser/new_generator.py", "parsers"),
-                                    ("SqliteVerifier/NewModule.lean", "lean"),
-                                    ("NewRoot.lean", "lean"),
-                                    ("migration_check/new_module.py", "runtime")):
+        for relative, affected in (("parser/new_generator.py", {"parsers", "unit"}),
+                                   ("SqliteVerifier/NewModule.lean", {"lean"}),
+                                   ("NewRoot.lean", {"lean"}),
+                                   ("migration_check/new_module.py", {"runtime", "unit"}),
+                                   ("tests/test_added.py", {"unit"})):
             path = root / relative
             path.write_text("new input")
             added = identities(root)
-            assert added[component] != baseline[component], relative
-            for sibling in baseline.keys() - {component}:
-                assert added[sibling] == baseline[sibling], relative
+            for component in baseline:
+                assert (added[component] != baseline[component]) == (component in affected), relative
             path.write_text("changed input")
             changed = identities(root)
-            assert changed[component] != added[component], relative
+            assert all(changed[key] != added[key] for key in affected), relative
             renamed = path.with_name("Renamed" + path.name)
             path.rename(renamed)
-            assert identities(root)[component] != changed[component], relative
+            renamed_ids = identities(root)
+            assert all(renamed_ids[key] != changed[key] for key in affected), relative
             renamed.unlink()
             assert identities(root) == baseline, relative
         for relative, component in (("parser/generate.py", "parsers"),

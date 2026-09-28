@@ -1,5 +1,7 @@
 """Fast boundary regressions for installed loader metadata and exclusive installation ownership."""
 
+import pytest
+
 import importlib.util
 import os
 import shutil
@@ -16,6 +18,8 @@ ROOT = Path(__file__).resolve().parents[1]
 class InstalledRuntimeTests(unittest.TestCase):
     """A trusted installation still rejects overbroad roots and preserves another installer's files."""
 
+    @pytest.mark.unit
+    @pytest.mark.packaging
     def test_deleted_modules_are_not_packaged(self) -> None:
         """A stale compiled module must stay out of the archive after source deletion."""
         sys.path.insert(0, str(ROOT / "packaging"))
@@ -36,6 +40,9 @@ class InstalledRuntimeTests(unittest.TestCase):
             with self.assertRaisesRegex(ValueError, "not been built"):
                 project_runtime_files(root)
 
+    @pytest.mark.integration
+    @pytest.mark.packaging
+    @pytest.mark.requires_nix
     def test_installer_cache_uri(self) -> None:
         """Extraction directories with spaces, Unicode and URI delimiters remain literal paths."""
         with TemporaryDirectory(prefix="installer URI % # ü ") as temporary:
@@ -57,6 +64,8 @@ class InstalledRuntimeTests(unittest.TestCase):
             self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
             self.assertEqual((destination / "marker").read_text(), "installed")
 
+    @pytest.mark.unit
+    @pytest.mark.packaging
     def test_install_does_not_delete_concurrent_destination(self) -> None:
         """Failure to acquire the destination must never authorize cleaning that directory."""
         specification = importlib.util.spec_from_file_location("bundle_installer", ROOT / "packaging/install.py")

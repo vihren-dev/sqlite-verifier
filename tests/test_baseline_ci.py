@@ -1,5 +1,7 @@
 """Exercise target-owned baseline checks against adversarial candidate Git objects."""
 
+import pytest
+
 import hashlib
 import json
 from pathlib import Path
@@ -13,6 +15,8 @@ from tests.baseline_ci import APPROVED_ROOTS, SCHEMA_PATHS, check, git
 class BaselineProtectionTest(unittest.TestCase):
     """A candidate cannot approve changed sources by editing its own manifest or checker."""
 
+    @pytest.mark.integration
+    @pytest.mark.approval
     def test_source_and_manifest_drift(self) -> None:
         """Pin complete source sets, including transitive helpers, in the target branch."""
         with TemporaryDirectory() as temporary:
