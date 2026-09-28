@@ -1,5 +1,7 @@
 """End-to-end admission checks against the production upstream-derived parser."""
 
+import pytest
+
 from pathlib import Path
 import unittest
 
@@ -16,9 +18,18 @@ def tree(sql: str) -> Tree:
     return parse(PARSER, sql.encode(), "fixture.sql")
 
 
+@pytest.fixture(autouse=True)
+def selected_parser(runtime_root: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    """Internal translation tests use the selected runtime's parser without changing production globals."""
+    monkeypatch.setattr(__import__(__name__, fromlist=["PARSER"]), "PARSER", runtime_root / "build/sqlite-parser")
+
+
 class TranslationTests(unittest.TestCase):
     """Protect statement completeness, naming rules, and prefix error behavior."""
 
+    @pytest.mark.integration
+    @pytest.mark.parser
+    @pytest.mark.requires_native
     def test_supported_scripts_and_prefix_failures(self) -> None:
         """Quoted names and comments keep byte spans and sequential name resolution."""
         schema = starting_schema(tree('CREATE TABLE "Café"("Имя" TEXT, n INTEGER);'))
@@ -44,6 +55,9 @@ class TranslationTests(unittest.TestCase):
         self.assertEqual(normalize("ÄZ"), "Äz")
         self.assertEqual(lean_string('a\b\f"\\\n'), '"a\\u0008\\u000c\\"\\\\\\u000a"')
 
+    @pytest.mark.integration
+    @pytest.mark.parser
+    @pytest.mark.requires_native
     def test_unsupported_dependencies_and_definitions(self) -> None:
         """No valid but unmodeled object or optional SQL clause can disappear."""
         cases = [
@@ -73,6 +87,9 @@ class TranslationTests(unittest.TestCase):
         self.assertEqual(duplicate.exception.status, "INPUT_ERROR")
         self.assertEqual(starting_schema(tree('-- empty\n;')), ())
 
+    @pytest.mark.integration
+    @pytest.mark.parser
+    @pytest.mark.requires_native
     def test_wrong_parser_profile_is_rejected(self) -> None:
         """Selecting a different engine cannot silently consume the current grammar binary."""
         with self.assertRaises(Rejection) as rejected:
@@ -80,6 +97,9 @@ class TranslationTests(unittest.TestCase):
         self.assertEqual(rejected.exception.status, 'UNVERIFIED')
         self.assertIn('profile mismatch', str(rejected.exception))
 
+    @pytest.mark.integration
+    @pytest.mark.parser
+    @pytest.mark.requires_native
     def test_parser_failure_classes(self) -> None:
         """Resource exhaustion does not become a syntax error or a violated theorem."""
         for sql, status in [("CREATE TABLE", "INPUT_ERROR"), (" " * (1024 * 1024 + 1), "UNVERIFIED")]:

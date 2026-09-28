@@ -35,6 +35,24 @@ Relevant sources: `justfile`, `tests/`, `conformance/coverage_report.py`,
   checks pass. The Atuin run exposed read-only store modes copied into fixtures;
   `copy_mutable_tree` now makes only private copies writable, retaining executable
   bits. A regression passes both case orders and proves original bytes unchanged.
+- Converted all nineteen CLI scenarios to independent pytest cases with private
+  example copies and explicit baseline setup. The reviewed suite passes against
+  the immutable Nix runtime in 114.58s; independent/reversed runs remain pending.
+  Compilation and baseline conversions are independently reviewed on their member
+  branch: all 24 pass together, reversed and one at a time. Integration is pending.
+- Integrated the reviewed Atuin, remaining script conversions, compilation/baseline
+  cases, cache fingerprints and explicit 64-case pure-unit Nix target. The member
+  records retain the exact validation commands and results; Linux, full source and
+  installed acceptance remain pending. Equivalent inventory branch versions were
+  reconciled using the latest compilation/baseline inventory, preserving all rows.
+- Archive staging, Nix export, signature verification and compression succeeded
+  against the immutable Darwin runtime. Installed acceptance exposed a real macOS
+  sandbox bug: ASCII JSON Unicode escapes did not identify Unicode filesystem
+  paths in SBPL (14 failures, five passes). A minimal copied-executable experiment
+  isolated the cause. The reviewed fix emits UTF-8 path literals with the same
+  escaping and permissions; all eight sandbox checks pass in 0.85s, including
+  quoted Unicode executable paths and preserved read/write/network restrictions.
+  A rebuilt runtime/archive and fresh installed acceptance remain required.
 
 ## Remaining implementation
 

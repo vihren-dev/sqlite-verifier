@@ -1,5 +1,7 @@
 """The Linux shell output RPATH is reusable only while it has no linker inputs."""
 
+import pytest
+
 import os
 from pathlib import Path
 import sys
@@ -15,6 +17,8 @@ from tests import parser_build_test
 class ShellRpathTests(unittest.TestCase):
     """Retain mutable search-path rejection while admitting the observed mkShell default."""
 
+    @pytest.mark.unit
+    @pytest.mark.parser
     def test_absent_output_rpath_only(self) -> None:
         """Directory creation, symlinks and other search kinds cannot gain cache admission."""
         with TemporaryDirectory() as directory:
@@ -37,6 +41,8 @@ class ShellRpathTests(unittest.TestCase):
             library.symlink_to(output / 'missing')
             self.assertFalse(build_cache.stable_environment(environment))
 
+    @pytest.mark.unit
+    @pytest.mark.parser
     def test_rpath_appearing_during_build_cannot_publish_stamp(self) -> None:
         """A successful tool cannot race a cacheable environment into a different input policy."""
         fixture = parser_build_test.IncrementalBuildTests()

@@ -1,5 +1,7 @@
 """Regress Linux loader discovery without requiring Linux binaries on every test host."""
 
+import pytest
+
 import importlib.util
 import subprocess
 import sys
@@ -14,6 +16,10 @@ ROOT = Path(__file__).resolve().parents[1]
 class NativeDependenciesTest(unittest.TestCase):
     """Patched ELF interpreters need exact store roots, even when bundled libraries suffice."""
 
+    @pytest.mark.integration
+    @pytest.mark.packaging
+    @pytest.mark.environment
+    @pytest.mark.requires_nix
     def test_loader_roots(self) -> None:
         """Only exact existing Nix store entries can enter the proof-process read policy."""
         from migration_check.runtime import native_runtime_roots
@@ -32,6 +38,9 @@ class NativeDependenciesTest(unittest.TestCase):
             metadata.write_text(str(expected) + "\n")
             self.assertEqual(native_runtime_roots(directory), [expected])
 
+    @pytest.mark.unit
+    @pytest.mark.packaging
+    @pytest.mark.environment
     def test_linux_loader_and_library_paths(self) -> None:
         """Preserve the interpreter root and bundled symlinks; reject missing/foreign libraries."""
         specification = importlib.util.spec_from_file_location(
@@ -114,6 +123,10 @@ class NativeDependenciesTest(unittest.TestCase):
                     with self.assertRaisesRegex(RuntimeError, diagnostic):
                         collector.native_dependencies([executable], lean)
 
+    @pytest.mark.integration
+    @pytest.mark.packaging
+    @pytest.mark.environment
+    @pytest.mark.requires_nix
     def test_development_loader_roots_reach_both_sandboxes(self) -> None:
         """The build-owned manifest supplies loader roots to compilation and kernel checking."""
         from migration_check.runtime import Runtime, native_runtime_roots

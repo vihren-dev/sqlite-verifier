@@ -1,8 +1,12 @@
 """Check actual child overlap, complete diagnostics, deadlines and joined failures."""
 
+import pytest
+
+import os
 from pathlib import Path
 import subprocess
 import sys
+import textwrap
 from tempfile import TemporaryDirectory
 import unittest
 
@@ -12,10 +16,12 @@ ROOT = Path(__file__).resolve().parents[1]
 class IndependentSuiteTests(unittest.TestCase):
     """Use child rendezvous instead of machine-speed assertions to prove overlap."""
 
+    @pytest.mark.integration
+    @pytest.mark.environment
     def test_overlap_failure_join_and_timeout(self) -> None:
         """A failing or timed-out sibling cannot hide the other's completed output."""
         with TemporaryDirectory() as temporary:
-            root = Path(temporary)
+            root = Path(temporary).resolve()
             first, second = root / "first.py", root / "second.py"
             for exit_code in (0, 7):
                 with self.subTest(exit_code=exit_code):
@@ -25,7 +31,7 @@ class IndependentSuiteTests(unittest.TestCase):
                         "while not Path('second-ready').exists(): time.sleep(0.01)\n"
                         "print('first stdout')\nprint('first stderr', file=sys.stderr)\n"
                         "Path('first-finished').touch()\n"
-                        f"raise SystemExit({exit_code})\n")
+                        f"assert {exit_code} == 0\n")
                     second.write_text(
                         "from pathlib import Path\nimport time, sys\n"
                         "Path('second-ready').touch()\n"
@@ -40,7 +46,7 @@ class IndependentSuiteTests(unittest.TestCase):
                         self.assertIn(f"{name} stdout", log)
                         self.assertIn(f"{name} stderr", log)
                         self.assertIn(log, result.stdout)
-                    self.assertIn(f"exit {exit_code}", result.stdout)
+                    self.assertIn(f"exit {int(exit_code != 0)}", result.stdout)
                     self.assertIn("s total", result.stdout)
                     for marker in root.glob("*-ready"):
                         marker.unlink()
@@ -54,10 +60,12 @@ class IndependentSuiteTests(unittest.TestCase):
             self.assertIn("before timeout", result.stdout)
             self.assertIn("other suite completed", result.stdout)
 
+    @pytest.mark.integration
+    @pytest.mark.environment
     def test_serial_mode_finishes_failed_first_suite_before_second(self) -> None:
         """The macOS fallback still runs the next suite after a completed failure."""
         with TemporaryDirectory() as temporary:
-            root = Path(temporary)
+            root = Path(temporary).resolve()
             first, second = root / "first.py", root / "second.py"
             first.write_text("from pathlib import Path\nimport time\ntime.sleep(0.2)\n"
                              "Path('first-finished').touch()\nraise SystemExit(7)\n")
@@ -65,18 +73,26 @@ class IndependentSuiteTests(unittest.TestCase):
                               "print('second ran after first finished')\n")
             result = self.invoke(root, ((str(first), 3), (str(second), 3)), max_workers=1)
             self.assertEqual(result.returncode, 1, result.stdout + result.stderr)
-            self.assertIn("exit 7", result.stdout)
+            self.assertIn("exit 1", result.stdout)
             self.assertIn("exit 0", result.stdout)
             self.assertIn("second ran after first finished", result.stdout)
 
     def invoke(self, directory: Path, suites: tuple[tuple[str, float], ...], *,
                max_workers: int = 2) -> subprocess.CompletedProcess[str]:
         """Bound the runner itself so a regression cannot hang the test process."""
+        (directory / "conftest.py").write_text(
+            "def pytest_addoption(parser):\n"
+            "    for option in ('runtime-root', 'runtime-variant', 'suite', 'run-id'):\n"
+            "        parser.addoption('--' + option)\n")
+        for script, _ in suites:
+            path = Path(script)
+            path.write_text("def test_scenario():\n" + textwrap.indent(path.read_text(), "    "))
         return subprocess.run(
             [sys.executable, "-c", f"import sys; sys.path.insert(0, {str(ROOT)!r}); "
              "from tools.run_independent_suites import run_suites; "
-             f"raise SystemExit(run_suites({suites!r}, max_workers={max_workers}))"],
-            cwd=directory, capture_output=True, text=True, timeout=10)
+             f"raise SystemExit(run_suites({suites!r}, max_workers={max_workers}, pytest_args=('-s',)))"],
+            cwd=directory, capture_output=True, text=True, timeout=10,
+            env={**os.environ, "PYTHONDONTWRITEBYTECODE": "1"})
 
 
 if __name__ == "__main__":

@@ -1,41 +1,60 @@
-"""Overlap only the audited kernel/CLI suites after their shared build completes."""
+"""Bound pytest suites, overlapping only the audited kernel/CLI pair."""
 
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from pathlib import Path
-import subprocess
 import sys
 from time import monotonic
+from uuid import uuid4
+
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+
+from tests.runtime_support import CommandTimeout, run_command
 
 SUITES = (("tests/kernel_gate_test.py", 360), ("tests/cli_test.py", 600))
 
 
-def run_suite(script: str, timeout: float, logs: Path) -> tuple[Path, int, float]:
-    """Keep the existing GNU timeout semantics and retain both streams without interleaving."""
+def run_suite(script: str, timeout: float, logs: Path, arguments: tuple[str, ...],
+              selection: tuple[str, ...]) -> tuple[Path, int, float]:
+    """Kill the entire pytest process group at its deadline and retain both streams."""
     started = monotonic()
     log = logs / (Path(script).stem + ".log")
-    with log.open("w") as output:
+    try:
         try:
-            result = subprocess.run(["timeout", str(timeout), sys.executable, "-u", script],
-                                    stdout=output, stderr=subprocess.STDOUT)
+            result = run_command([sys.executable, "-m", "pytest", *selection, *arguments,
+                                  "--suite", Path(script).stem],
+                                 cwd=Path.cwd(), timeout=timeout,
+                                 artifacts=logs / Path(script).stem)
             code = result.returncode
-        except OSError as error:
-            print(error, file=output)
-            code = 1
+        except CommandTimeout as error:
+            result, code = error.result, 124
+        log.write_text(result.stdout + result.stderr)
+    except OSError as error:
+        log.write_text(str(error) + "\n")
+        code = 1
     return log, code, monotonic() - started
 
 
-def run_suites(suites: tuple[tuple[str, float], ...] = SUITES, *, max_workers: int = 2) -> int:
-    """Await every suite even after failure, printing complete logs and measured durations."""
+def run_suites(suites: tuple[tuple[str, float], ...] = SUITES, *,
+               max_workers: int | None = None, runtime_root: Path | None = None,
+               run_id: str | None = None, pytest_args: tuple[str, ...] = (),
+               selections: dict[str, tuple[str, ...]] | None = None) -> int:
+    """Await all siblings on failure; every launch shares explicit runtime and run identity."""
+    max_workers = max_workers or (2 if sys.platform == "linux" else 1)
     logs = Path("build/test-logs")
     logs.mkdir(parents=True, exist_ok=True)
+    arguments = ("-v", "--durations=20", "--runtime-root", str(runtime_root or Path.cwd()),
+                 "--runtime-variant", "source", "--run-id", run_id or str(uuid4()), *pytest_args)
     started = monotonic()
     failed = False
     print(f"Independent suites: {max_workers} worker(s)", flush=True)
     with ThreadPoolExecutor(max_workers=max_workers) as workers:
         futures = {}
         for script, timeout in suites:
+            selection = selections[script] if selections is not None else (script,)
+            if not selection:
+                continue
             print(f"Scheduling {script} (timeout {timeout}s)", flush=True)
-            futures[workers.submit(run_suite, script, timeout, logs)] = script
+            futures[workers.submit(run_suite, script, timeout, logs, arguments, selection)] = script
         for future in as_completed(futures):
             log, code, elapsed = future.result()
             print(f"=== {futures[future]}: exit {code}, {elapsed:.2f}s; log {log} ===", flush=True)
@@ -46,5 +65,4 @@ def run_suites(suites: tuple[tuple[str, float], ...] = SUITES, *, max_workers: i
 
 
 if __name__ == "__main__":
-    # Hosted macOS overlap exceeded the unchanged 30s CLI kernel-check deadline.
-    raise SystemExit(run_suites(max_workers=2 if sys.platform == "linux" else 1))
+    raise SystemExit(run_suites())

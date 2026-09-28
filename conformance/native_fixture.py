@@ -37,11 +37,15 @@ def flat_tcl(results: list[list[dict[str, object]]]) -> list[str]:
     return flat
 
 
-def run(native: str, parser: str) -> dict[str, object]:
+def run(native: str, parser: str, selected: int | None = None) -> dict[str, object]:
     """Check native observations independently of the still-unwired formal model."""
     imported = fixture()
     setup = imported["prerequisite_setup"]
     cases = imported["cases"]
+    if selected is not None:
+        if selected < 0 or selected >= len(cases):
+            raise ValueError("Unknown upstream occurrence")
+        cases = cases[:selected + 1]
     commands = [item["shell"] for item in imported["connection_setup"]]
     # The shell enables defensive mode; the upstream Tcl connection uses C-API defaults.
     commands.extend([".dbconfig trusted_schema on", ".dbconfig defensive off", ".limit column 2000"])
@@ -56,9 +60,10 @@ def run(native: str, parser: str) -> dict[str, object]:
             if json.loads(parsed.stdout)["status"] != "PARSED":
                 raise ValueError("Production parser rejected upstream fixture SQL")
             commands.extend([f".print CASE_{index}", case["sql"]])
+        if selected is None:
+            commands.extend([".print OBSERVATIONS", "SELECT rowid,a,b,c FROM t1 ORDER BY rowid;",
+                "PRAGMA schema_version;", "SELECT type,name,sql FROM sqlite_schema ORDER BY name;"])
         commands.extend([
-            ".print OBSERVATIONS", "SELECT rowid,a,b,c FROM t1 ORDER BY rowid;",
-            "PRAGMA schema_version;", "SELECT type,name,sql FROM sqlite_schema ORDER BY name;",
             ".print ENGINE", "SELECT sqlite_version() AS version,sqlite_source_id() AS source;",
             "PRAGMA compile_options;",
         ])
@@ -81,6 +86,8 @@ def run(native: str, parser: str) -> dict[str, object]:
         raise ValueError("Native engine compile settings do not match the declared profile")
     comparisons: list[dict[str, object]] = []
     for index, case in enumerate(cases):
+        if selected is not None and index != selected:
+            continue
         observed = arrays("\n".join(sections.get(f"CASE_{index}", [])))
         if flat_tcl(observed) != case["expected_flat"]:
             raise AssertionError((case["upstream_id"], case["occurrence"], observed, case["expected_tcl"]))
@@ -88,7 +95,7 @@ def run(native: str, parser: str) -> dict[str, object]:
                             "native_status": "MATCHES_UPSTREAM", "grammar_status": "PARSED",
                             "expected_tcl": case["expected_tcl"], "native_rows": observed})
     return {"profile": "3.51.0", "coverage": imported["coverage"], "cases": comparisons,
-            "final_observations": arrays("\n".join(sections["OBSERVATIONS"])),
+            "final_observations": arrays("\n".join(sections.get("OBSERVATIONS", []))),
             "source_id": SOURCE_ID, "compile_options": options,
             "model_status": "NOT_YET_MODEL_CHECKED",
             "translation_status": "NOT_YET_TRANSLATED"}

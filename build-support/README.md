@@ -26,3 +26,13 @@ Archive digests were taken from the official GitHub v4.33.0 release asset metada
 and verified by downloading both actual native archives on 2026-09-28. Darwin
 native graph/build/loader checks passed locally; Linux execution remains a native
 CI requirement. Evaluating its derivations on Darwin is not Linux validation.
+
+`unitChecks` uses the same pinned Python/pytest as the development shell and runs
+only exact node IDs in `unit-cases.json`. Each case has been reviewed for complete
+source inputs and synthetic/mocked dependencies. Collection is checked before
+fixture setup: every selected node must be unit-level with no resource markers.
+Every selected setup/call/teardown must then pass; skipped or missing cases reject
+the derivation. Outputs retain `catalogue.json`, `unit-cases.json`, and
+`source/unit.xml` plus `source/unit.json`. Actual proof acceptance, native
+conformance, installer/Nix services, host sandbox tests and whole-repository docs
+validation are excluded and still execute freshly on the host.

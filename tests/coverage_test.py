@@ -1,5 +1,7 @@
 """Verify report denominators and fail-closed treatment of missing conformance evidence."""
 
+import pytest
+
 from pathlib import Path
 import json
 import hashlib
@@ -35,6 +37,8 @@ def atuin_rows(root: Path) -> list[dict[str, object]]:
 class CoverageTest(unittest.TestCase):
     """Reporting must preserve unavailable evidence rather than fabricate zero discrepancies."""
 
+    @pytest.mark.unit
+    @pytest.mark.conformance
     def test_single_fresh_invocation_ignores_old_report(self) -> None:
         """A prior success file cannot replace failed fresh comparisons or cause a rerun."""
         with TemporaryDirectory() as temporary:
@@ -53,6 +57,8 @@ class CoverageTest(unittest.TestCase):
         self.assertIsNone(report["native_model"]["observed_discrepancies"])
         self.assertIsNone(report["atuin_sql"]["observed_discrepancies"])
 
+    @pytest.mark.unit
+    @pytest.mark.conformance
     def test_failed_evidence_keeps_counts_separate(self) -> None:
         """A failed runner leaves comparison counts unknown while import denominators remain exact."""
         with TemporaryDirectory() as temporary, patch("coverage_report.command", return_value={"status": "FAILED"}):
@@ -73,6 +79,8 @@ class CoverageTest(unittest.TestCase):
         self.assertEqual(report["grammar"]["production_execution_coverage"], "NOT_INSTRUMENTED")
         self.assertIsNone(report["additional_grammars"]["3.46.0"]["generated_productions"])
 
+    @pytest.mark.unit
+    @pytest.mark.conformance
     def test_incomplete_reports_are_not_passing_coverage(self) -> None:
         """Exit-zero JSON cannot substitute for the selected case set."""
         def incomplete(arguments: Sequence[str], root: Path, timeout: int) -> dict[str, object]:
@@ -88,6 +96,8 @@ class CoverageTest(unittest.TestCase):
         self.assertEqual(report["checks"]["upstream_native"]["status"], "FAILED")
         self.assertIsNone(report["native_model"]["observed_discrepancies"])
 
+    @pytest.mark.unit
+    @pytest.mark.conformance
     def test_duplicate_success_rows_do_not_count(self) -> None:
         """Correct lengths and status labels cannot manufacture complete case coverage."""
         derived = [{"case": cases()[0].name, "native_status": "MATCHES_INDEPENDENT_EXPECTATION",
@@ -109,12 +119,16 @@ class CoverageTest(unittest.TestCase):
         self.assertIsNone(report["native_model"]["observed_discrepancies"])
         self.assertIsNone(report["native_model"]["completed_matching_cases"])
 
+    @pytest.mark.unit
+    @pytest.mark.conformance
     def test_bad_json_is_failure(self) -> None:
         """An exit-zero process without valid evidence cannot count as a passing observation."""
         evidence = {"status": "PASSED", "stdout": "not JSON"}
         self.assertIsNone(structured(evidence))
         self.assertEqual(evidence["status"], "FAILED")
 
+    @pytest.mark.unit
+    @pytest.mark.conformance
     def test_atuin_sql_completeness_and_receipts(self) -> None:
         """Native-only cases reject duplicates, wrong bytes and inflated model claims."""
         with TemporaryDirectory() as temporary:
@@ -140,6 +154,8 @@ class CoverageTest(unittest.TestCase):
             (root/"examples/atuin/schema.sql").unlink()
             self.assertEqual(sql_report(root, good)["status"], "FAILED")
 
+    @pytest.mark.integration
+    @pytest.mark.conformance
     def test_commands_fail_boundedly(self) -> None:
         """Both unavailable tools and timed-out tools yield explicit reportable failure."""
         self.assertEqual(command(["/definitely/missing/coverage-tool"], ROOT, 1)["status"], "FAILED")
