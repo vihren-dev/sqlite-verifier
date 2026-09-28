@@ -23,6 +23,10 @@ def test_ci_modes_retain_fresh_checks(tmp_path: Path, mode: str, system: str) ->
     (units / "unit-cases.json").write_text("[]")
     for name in ("native-dependencies.txt", "nix-runtime-roots"):
         (runtime / "build" / name).write_text("loader metadata")
+        (tmp_path / "build").mkdir(exist_ok=True)
+        destination = tmp_path / "build" / name
+        destination.write_text("stale loader metadata")
+        destination.chmod(0o444)
     commands: list[list[str]] = []
     environments: list[dict[str, str]] = []
 
@@ -43,6 +47,7 @@ def test_ci_modes_retain_fresh_checks(tmp_path: Path, mode: str, system: str) ->
         assert environments[-1]["SQLITE_VERIFIER_RUNTIME_ROOT"] == str(runtime)
         assert environments[-1]["SQLITE_VERIFIER_UNIT_CHECKS"] == str(units)
         assert not (tmp_path / "build/cached-unit").exists()
+        assert (tmp_path / "build/native-dependencies.txt").read_text() == "loader metadata"
     else:
         assert commands[0] == ["just", "setup"]
         assert "SQLITE_VERIFIER_UNIT_CHECKS" not in environments[-1]
