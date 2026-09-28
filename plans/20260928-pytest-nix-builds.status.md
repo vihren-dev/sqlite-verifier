@@ -70,6 +70,12 @@ Relevant sources: `justfile`, `tests/`, `conformance/coverage_report.py`,
   Reviewed CI transport remains opt-in; the benchmark workflow has a four-job pilot
   and the complete 60-sample matrix. No remote native CI or benchmark run has yet
   been dispatched. Whole-source integration and measurement gates remain open.
+- Published two stacked draft review units: [build outputs and packaging, PR 3](https://github.com/vihren-dev/sqlite-verifier/pull/3)
+  and [pytest/CI integration, PR 4](https://github.com/vihren-dev/sqlite-verifier/pull/4).
+  Native CI is now running. The experimental Linux job found host Python 3.10
+  lacks `hashlib.file_digest` before entering Nix; the integration member is
+  replacing that helper with a portable streaming SHA-256 loop. The macOS
+  complete local source run remains in progress; benchmark runs have not started.
 
 ## Remaining implementation
 

@@ -29,14 +29,16 @@ shared recipes extends CI. Superseded ordinary runs on the same ref are cancelle
 tags and manual runs have unique concurrency groups and are never auto-cancelled.
 Jobs have a 30-minute timeout; individual tests keep their own shorter limits.
 
-After shared build and coverage prerequisites, kernel-gate and ordinary CLI suites
+After shared build prerequisites, kernel-gate and ordinary CLI suites
 run with two workers on Linux. macOS runs them sequentially: hosted overlap caused
 a valid proof to hit the unchanged production checker deadline. Each suite keeps
 its own deadline (360 and 600 seconds), private
 test directories and complete log under `build/test-logs/`. Both children are
 awaited; either failure fails CI. Other suites remain sequential. Logs, fresh JSON/JUnit reports and failure artifacts are retained
 on failure as well as success; cached unit reports use a separate directory. Runtime packaging reports copying, Nix export,
-signature verification and compression times; installed Atuin output streams live.
+signature verification and compression times. Installed Atuin cases retain the
+same phase reports and captured failure diagnostics as source cases. Coverage
+aggregation reads the current run's receipts after all source suites finish.
 The offline Nix cache uses its native zstd encoding; the outer archive remains
 gzip level1. Nix verifies the decoded contents and signatures before archiving.
 
@@ -79,8 +81,10 @@ credentials, and the workflow requests read-only repository content permission.
 Successful packaging jobs retain development-source snapshots and checked native
 runtime archives for 14 days; ordinary checks do not create these archives.
 The fresh bounded `build/coverage.json` report is retained
-for each platform, including failed reports when the file is available. The runtime package smoke installs into a fresh directory
-with spaces and checks the real positive, refuted, and unsupported examples under
+for each platform, including failed reports when the file is available. Runtime
+acceptance installs into a fresh directory with spaces, Unicode and URI-special
+characters, and checks both parsers, the positive, refuted and unsupported examples,
+the installed dependency roots, and all thirteen Atuin cases under
 a controlled environment without elan or ambient Python imports. The Nix local
 cache retains loader dependencies and does not disable signature checks.
 

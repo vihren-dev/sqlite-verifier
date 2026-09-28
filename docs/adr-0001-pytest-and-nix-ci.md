@@ -84,9 +84,9 @@ passed the complete two-platform acceptance and performance gates.
 
 | Area | Verified implementation evidence | Still required |
 | --- | --- | --- |
-| Test harness | Discovery without runtime tools; setup/failure/timeout reporting; independent mutable copies of immutable examples | Complete inventory reconciliation and aggregate command integration |
-| Source cases | Atuin conversion reviewed; 19 CLI cases pass; 24 compilation/baseline and 19 kernel cases pass together, individually and reversed | Installed Atuin reuse and complete source/installed acceptance on both platforms |
-| Nix outputs | Native Darwin toolchain/runtime builds and input-identity checks pass; explicit 64-case pure-unit target passes | Native Linux build and loader validation; full archive installation against the selected outputs |
+| Test harness | 355 collected cases reconciled with the inventory; discovery without runtime tools; setup/failure/timeout reporting; independent mutable fixtures | Complete aggregate command validation |
+| Source and installed cases | 19 CLI cases pass; Atuin, compilation/baseline and kernel cases pass together, individually and reversed in source; all 19 installed cases pass on Darwin; 95 evidence producers and fresh aggregation pass | Complete source/installed acceptance on both platforms and remaining order checks |
+| Nix outputs | Native Darwin toolchain/runtime builds, input-identity checks and 64-case pure-unit target pass; actual archive installation and signatures verified | Native Linux build, loader and installation validation |
 | CI transport | Fingerprints and scope routing implemented and tested | Workflow integration, fresh-run benchmark matrix and measured rollout decision |
 
 Implementation evidence is recorded in the [status file](../plans/20260928-pytest-nix-builds.status.md)
