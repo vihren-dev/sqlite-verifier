@@ -168,5 +168,61 @@ No end-to-end performance claim yet.
   Existing 15s/1800s smoke/installed limits and all source limits remain unchanged.
 - Sixty-seven focused checks plus two subtests pass; all thirteen new cases pass
   individually/reversed, and the real smoke command passes. Full integrated
-  catalogue now contains422 unique IDs (416 source,19 installed), preserving244
+  catalogue now contains 422 unique IDs (416 source, 19 installed), preserving 244
   legacy mappings. Final native revalidation and all benchmark gates remain open.
+
+- Final read-only inventory audit at `12e1aebd` finds no discrepancies: all 422
+  metadata/AST locations and 67 implementation hashes match, all 244 legacy
+  mappings and 39 baseline source hashes are preserved, and actual standalone and
+  reverse-order receipts cover exactly 416 source and 19 installed cases.
+- The integrated pure-unit derivation rebuild passes 64 cases and 62 subtests in
+  0.62s at `/nix/store/nx2jisn5ddzbi995jyfrcbss1yla1rzw-sqlite-verifier-unit-checks-1`.
+  The real installed watchdog invocation passes all 19 cases after offline
+  installation in 131.92s; its JSON/JUnit reports are under
+  `build/final-watchdog-integration/installed/`.
+- PR 4's final implementation is `12e1aebd`, with native run 36408912201 pending.
+  Existing GitHub caches are dependency-only `nix-v1`; no `build-v2` entry exists
+  yet. The main-branch benchmark pilot must demonstrate cold save and warm restore
+  before the full measurements. Normal build-cache rollout remains disabled.
+
+- Final native run [36408912201](https://github.com/vihren-dev/sqlite-verifier/actions/runs/36408912201)
+  passes at `12e1aebd`: Linux 12m50s, Darwin 18m05s. Downloaded reports on each
+  platform contain exactly 352 fresh source cases and 64 disjoint cached unit
+  cases, plus 19 installed cases; all phase outcomes and suite exits pass.
+- PR 4 merged as main `2bd6f604744f9a3cf58d784a51b5ba1150282142` after those
+  gates and the independent audit. Main-only four-job pilot
+  [36410934815](https://github.com/vihren-dev/sqlite-verifier/actions/runs/36410934815)
+  is running cold then warm candidate jobs on both platforms. The full sixty
+  measurements and rollout decision remain pending. No release or tag was made.
+
+- Pilot cold jobs passed and saved exact isolated main-ref caches: Linux 8m46s,
+  1,731,976,808 bytes; Darwin 10m41s, 1,780,962,687 bytes. Both disk markers follow
+  cache saving. Warm restores remain in progress. The collector is being adjusted
+  to recognize the action's actual completed-transfer log format.
+- Cache capacity is a measured scheduling constraint: the read-only storage-limit
+  API returns 10 GB, while six candidate seeds alone total 10,538,818,485 bytes.
+  Group the unchanged sixty samples by repetition, finishing each group's four
+  cold and sixteen restored jobs before starting another group. This keeps four
+  active seeds; no cache deletion, capacity increase or billing change is needed.
+- Normal main Linux CI exposed a test isolation defect in the loader test's
+  dynamic import of `build_runtime.py`: the new `relocate_elf` sibling was visible
+  only after another test module altered the search path. A scoped fixture fix
+  and refreshed affected standalone/reverse receipts are in progress. Production
+  proof acceptance and the experimental native gates are unaffected.
+- The benchmark grouping passes YAML parsing and exact matrix expansion checks
+  (60 full samples; 4 pilot samples). Independent review confirms unchanged leaf
+  job identities, fresh runners, read-only permissions and post-save dependencies.
+  Applied its concurrency correction: one fixed, non-cancelling benchmark group
+  also prevents overlapping manual experiments from competing for active seeds.
+- Integrated reviewed loader-test fix `6e41b26c` and collector fix `22fa0370`.
+  Both failed main jobs had exactly the same isolated import failure: 415 other
+  source cases passed, with fresh complete coverage; packaging correctly stopped.
+  All 19 affected loader/packaging cases now pass alone and reversed, including
+  an adversarial preloaded-module check and exact import-state restoration.
+- The collector retains completed Sent/Received totals and existing Cache Size
+  records, deduplicating progress repeats. All 15 collector cases pass alone and
+  reversed; measured cold totals match the cache API. Integrated focused checks
+  pass 18 cases, the catalogue/inventory remains exactly 422 IDs, and the rebuilt
+  pure-unit output passes 64 cases plus 62 subtests in 0.62s at
+  `/nix/store/j978sc1463jzims0s7z9533j6kbrf6dk-sqlite-verifier-unit-checks-1`.
+  A fresh native source-mode CI run remains required before the full benchmark.

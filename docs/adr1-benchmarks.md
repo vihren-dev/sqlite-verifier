@@ -15,6 +15,11 @@ three repetitions and five scenarios. Baseline source is pinned to optimized
 revision `7a99c71f40c66077b2293e1ce2c8ef3151ce5d67`; candidate source is the
 workflow revision. Linux uses ubuntu-22.04 and Darwin uses macos-14. The cold
 jobs seed isolated run/attempt/implementation/platform/repetition cache namespaces.
+Repetitions run one at a time: each completes its four cold jobs and sixteen
+restored jobs before another repetition starts. At most four active cache seeds
+must coexist; caches from completed repetitions can be evicted safely.
+Benchmark invocations share one concurrency group, with cancellation disabled,
+so two experiments cannot compete for their active seeds.
 Only successful main cold jobs save. Each later job starts on a fresh runner and
 restores its matching seed; no garbage collection or cache purging runs.
 
@@ -75,7 +80,12 @@ remain active. Its summary deliberately fails the unchanged 60-sample readiness
 gate; that comparison step is allowed to fail so its raw evidence can be inspected.
 Pilot cannot authorize rollout. The default `pilot: false` retains all 60 jobs.
 
-Each matrix admits up to 12 jobs concurrently. This changes experiment scheduling,
-not the 60 samples or each fresh VM's workload. GitHub may queue macOS jobs above
-the account's platform limit; no four-wave completion time is guaranteed. Actual
-runner timings and image metadata remain the comparison evidence.
+Within a repetition, up to four cold jobs or twelve restored jobs run concurrently.
+Pilot 36410934815 measured candidate seeds of 1,731,976,808 bytes on Linux and
+1,780,962,687 bytes on Darwin. Six candidate seeds alone would occupy
+10,538,818,485 bytes, before the six baseline seeds. The repository's verified
+cache limit is 10 GB, so an all-cold-before-all-restored matrix would risk eviction
+of required seeds. The native reusable-workflow grouping retains the same sixty
+fresh VMs, scenarios and correctness gates; it changes scheduling only. GitHub
+may queue macOS jobs above the account's platform limit. Actual runner timings
+and image metadata remain the comparison evidence.

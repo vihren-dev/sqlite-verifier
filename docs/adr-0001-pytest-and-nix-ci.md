@@ -79,15 +79,16 @@ production checker deadline are unchanged.
 The decision remains relevant, and its implementation is in progress. Reviewed
 changes now provide pytest discovery, isolated runtime fixtures, phase reports,
 the Nix toolchain/parser/Lean/runtime graph, explicit-root packaging, canonical
-cache fingerprints and an explicit pure-unit target. These changes have not yet
-passed the complete two-platform acceptance and performance gates.
+cache fingerprints and an explicit pure-unit target. The integrated implementation
+has passed complete acceptance on both native platforms. Cache transport and
+performance measurements remain in progress.
 
 | Area | Verified implementation evidence | Still required |
 | --- | --- | --- |
-| Test harness | 422 collected cases reconciled with the inventory; resource-free discovery; nested timeout cleanup; all 416 source and 19 installed cases pass alone and reversed | Final native CI of the integrated changes |
-| Source and installed cases | Complete Darwin source and installed gates pass; 395 source cases pass in one reversed run with fresh coverage, plus eight added packaging cases pass independently/reversed; all 19 installed cases pass alone/reversed | Final both-platform acceptance after watchdog/report changes |
-| Nix outputs | Both native platforms build the graph and pass source gates; Darwin archive/signature/installation passes; all input-identity and 64 pure-unit checks pass locally | Final native rerun after watchdog/report changes |
-| CI transport | Workflow, fingerprints, scope routing and report retention implemented; build-output PR merged after all required gates | Native benchmark pilot, full measurement matrix and measured rollout decision |
+| Test harness | 422 collected cases reconciled with the inventory; resource-free discovery; nested timeout cleanup; all 416 source and 19 installed cases pass alone and reversed | Performance measurements |
+| Source and installed cases | Final native run 36408912201 passes Linux and Darwin; each reports 352 fresh source cases plus 64 disjoint cached unit cases, and 19 installed cases, with every phase passing | Retain the same gates in every benchmark sample |
+| Nix outputs | Both native platforms build the graph and pass archive/signature/installation checks; all input-identity and 64 pure-unit checks pass | Demonstrate reuse after a remote cache restore |
+| CI transport | Implementation merged as `2bd6f604`; main-branch pilot 36410934815 started | Pilot evidence, full measurement matrix and measured rollout decision |
 
 Implementation evidence is recorded in the [status file](../plans/20260928-pytest-nix-builds.status.md)
 and its linked member records. The dependency-cache workflow remains the rollout

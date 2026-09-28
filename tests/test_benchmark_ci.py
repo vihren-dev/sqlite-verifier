@@ -106,4 +106,10 @@ def test_job_observations_include_post_steps_and_honest_sizes() -> None:
     assert report["total_seconds"] == 120 and report["cache_steps"][0]["seconds"] == 30
     assert report["reported_cache_bytes"] == [123]
     assert report["disk"]["workspace"]["peak_used_bytes"] == 456
+    transfers = ("Cache Size: ~1 MB (123 B)\nReceived 123 of 123 (100.0%)\n"
+                 "Sent 0 of 456 (0.0%)\nSent 455 of 456 (99.8%)\n"
+                 "Sent 456 of 456 (100.0%)\nSent 456 of 456 (100.0%)\n"
+                 "Received 789 of 789 (100.0%)\nReceived 789 of 789 (100.0%)\n"
+                 "Received 12 of 999 (1.2%)\n")
+    assert observations(job, transfers)["reported_cache_bytes"] == [123, 456, 789]
     assert observations(job, "") ["reported_cache_bytes"] == []
