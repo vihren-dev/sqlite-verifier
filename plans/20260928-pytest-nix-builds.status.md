@@ -226,3 +226,12 @@ No end-to-end performance claim yet.
   pure-unit output passes 64 cases plus 62 subtests in 0.62s at
   `/nix/store/j978sc1463jzims0s7z9533j6kbrf6dk-sqlite-verifier-unit-checks-1`.
   A fresh native source-mode CI run remains required before the full benchmark.
+- PR 5 (`9e78125f`) is running source-mode native CI 36412764476; protected baseline
+  passes. The complete original pilot has now passed: Linux cold/warm 8m46s/5m11s,
+  Darwin 10m41s/11m39s. Both warm runs restore exact cold keys and reuse identical
+  runtime/unit outputs without project rebuilds. Root reprocessed raw logs with
+  the corrected transfer collector; only the intentional sixty-sample readiness
+  error remains. The [pilot report](../docs/adr1-cache-pilot.md) records measured
+  bytes, phase timing, disk observations and limits. Darwin's slower fresh tests
+  preclude a speedup claim from this single repetition. Full measurements remain
+  gated on PR 5's native fallback validation.
