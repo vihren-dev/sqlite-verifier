@@ -88,7 +88,7 @@ performance measurements remain in progress.
 | Test harness | 422 collected cases reconciled with the inventory; resource-free discovery; nested timeout cleanup; all 416 source and 19 installed cases pass alone and reversed | Performance measurements |
 | Source and installed cases | Final native run 36408912201 passes Linux and Darwin; each reports 352 fresh source cases plus 64 disjoint cached unit cases, and 19 installed cases, with every phase passing | Retain the same gates in every benchmark sample |
 | Nix outputs | Both native platforms build the graph and pass archive/signature/installation checks; all input-identity and 64 pure-unit checks pass | Demonstrate reuse after a remote cache restore |
-| CI transport | Implementation merged as `2bd6f604`; main-branch pilot 36410934815 started | Pilot evidence, full measurement matrix and measured rollout decision |
+| CI transport | Four-job pilot 36410934815 verifies exact warm restoration and output reuse on both platforms; source-mode follow-up 36412764476 also passes; fixes merged as `2aacaa4d` | Full 60-sample run 36414706819 and measured rollout decision |
 
 Implementation evidence is recorded in the [status file](../plans/20260928-pytest-nix-builds.status.md)
 and its linked member records. The dependency-cache workflow remains the rollout

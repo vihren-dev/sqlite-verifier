@@ -226,3 +226,34 @@ No end-to-end performance claim yet.
   pure-unit output passes 64 cases plus 62 subtests in 0.62s at
   `/nix/store/j978sc1463jzims0s7z9533j6kbrf6dk-sqlite-verifier-unit-checks-1`.
   A fresh native source-mode CI run remains required before the full benchmark.
+- PR 5 (`9e78125f`) is running source-mode native CI 36412764476; protected baseline
+  passes. The complete original pilot has now passed: Linux cold/warm 8m46s/5m11s,
+  Darwin 10m41s/11m39s. Both warm runs restore exact cold keys and reuse identical
+  runtime/unit outputs without project rebuilds. Root reprocessed raw logs with
+  the corrected transfer collector; only the intentional sixty-sample readiness
+  error remains. The [pilot report](../docs/adr1-cache-pilot.md) records measured
+  bytes, phase timing, disk observations and limits. Darwin's slower fresh tests
+  preclude a speedup claim from this single repetition. Full measurements remain
+  gated on PR 5's native fallback validation.
+- PR 5 native fallback validation is complete: run 36412764476 passes Linux
+  (12m15s) and Darwin (14m18s) at exact `9e78125fdeddae0b2fdcf0521812f70f784e817b`.
+  Independent artifact audits confirm exactly 416 fresh source and 19 installed
+  cases per platform, matching JSON/JUnit records, all passing phases, distinct
+  source/installed UUIDs, fresh complete coverage and real offline installation.
+  No cached-unit directory or runtime/unitChecks phase appears in source mode.
+- Integration now awaits owner input. Automatic approval review rejected the
+  administrator merge of PR 5 because general integration authority did not
+  explicitly authorize bypassing the protected branch's required external review.
+  A standard merge was then attempted without an override and GitHub rejected it
+  under the branch policy. The owner has been asked to authorize this exact PR's
+  override or wait for external review. No workaround, rules change, merge or
+  full benchmark dispatch has occurred after the rejection. Goal remains active;
+  benchmark measurements and the rollout decision are still outstanding.
+- The owner then explicitly authorized this administrator merge of PR 5. It
+  merged as `2aacaa4dc218b8b698bfe4bee7b00c08bd38a9a2`; no branch rules changed.
+  Full benchmark [36414706819](https://github.com/vihren-dev/sqlite-verifier/actions/runs/36414706819)
+  is now running on that exact main revision with all sixty samples. The first
+  repetition's four cold jobs started; later repetitions wait for the preceding
+  group's restored jobs. Candidate/cache and baseline correctness monitoring are
+  independently assigned. Final measurements, rollout decision and closeout remain
+  pending; no performance improvement or goal completion is claimed yet.

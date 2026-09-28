@@ -68,8 +68,10 @@ for review even though no additional numeric threshold is invented for them.
 A passing recommendation still has `rollout_enabled: false`. Review the raw
 correctness reports, source selection, disk peaks, transfer costs and medians
 before approving normal build-cache use. Missing logs, failed jobs, skipped cases
-or incomplete metrics prevent a passing recommendation. Native execution and
-GitHub post-hook integration remain pending until this workflow is integrated.
+or incomplete metrics prevent a passing recommendation. The
+[completed four-job pilot](adr1-cache-pilot.md) verifies native cache restoration,
+output reuse, artifact paths and GitHub post-hook integration. The full replicated
+baseline/candidate comparison remains pending.
 
 The pinned cache action's [output contract](https://raw.githubusercontent.com/nix-community/cache-nix-action/7df957e333c1e5da7721f60227dbba6d06080569/action.yml)
 includes primary and prefix matches in its hit signal; the collector additionally
