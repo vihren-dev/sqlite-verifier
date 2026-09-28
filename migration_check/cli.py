@@ -11,7 +11,7 @@ from collections.abc import Sequence
 from .diagnostics import Rejection
 from .runtime import Runtime
 from .profiles import profile
-from .sandbox import SandboxUnavailable, run_sandboxed
+from .process import run_process
 from .sql_model import schema_inputs, sql_inputs
 from .sql_tree import parse
 from .translate import starting_schema, statements
@@ -86,9 +86,8 @@ def verify(options: argparse.Namespace) -> dict[str, object]:
             (options.artifacts / "inputs.json").write_text(json.dumps(hashes, indent=2) + "\n", encoding="utf-8")
         output = workspace / "gate-output"
         output.mkdir()
-        checked = run_sandboxed(
+        checked = run_process(
             [str(runtime.checker), str(runtime.library), str(compiled.trusted), str(compiled.candidate)],
-            read_roots=[*runtime.read_roots(), compiled.trusted, compiled.candidate],
             write_root=output, environment={"LEAN_SYSROOT": str(runtime.sysroot)}, timeout=30)
         if checked.returncode == 2:
             raise Rejection("VIOLATED", "A kernel-checked argument refutes the supplied verification contract")
@@ -107,7 +106,7 @@ def main(values: Sequence[str]) -> int:
         result = error.diagnostic()
     except (ValueError, OSError) as error:
         result = Rejection("INPUT_ERROR", str(error)).diagnostic()
-    except (subprocess.SubprocessError, SandboxUnavailable) as error:
+    except subprocess.SubprocessError as error:
         result = Rejection("UNVERIFIED", str(error)).diagnostic()
     if json_output:
         print(json.dumps(result, ensure_ascii=False))

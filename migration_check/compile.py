@@ -1,4 +1,4 @@
-"""Snapshot and compile approved and candidate Lean sources in separate sandboxes."""
+"""Snapshot and compile approved and candidate Lean sources in separate work directories."""
 
 from dataclasses import dataclass
 import hashlib
@@ -47,7 +47,7 @@ def artifact_bytes(produced: Path, output: Path) -> bytes | None:
 def compile_modules(*, order: tuple[str, ...], sources: Path, destination: Path,
                     previous: tuple[Path, ...], sysroot: Path, library: Path,
                     workspace: Path) -> list[str]:
-    """Copy only expected regular artifacts after each isolated compiler has exited."""
+    """Copy only expected regular artifacts after each compiler has exited."""
     diagnostics: list[str] = []
     for name in order:
         relative = module_path(name)
@@ -79,7 +79,7 @@ def compile_project(*, sysroot: Path, library: Path, requirements: Path,
                     interpretation: Path, next_interpretation: Path, proofs: Path,
                     schema_inputs: str, sql_inputs: str, workspace: Path,
                     approved_baseline: Path | None = None, schema_hash: str | None = None) -> CompiledProject:
-    """Check optional approval against sealed closures before isolated source compilation."""
+    """Check optional approval against sealed closures before trusted source compilation."""
     sysroot, library, workspace = (path.resolve(strict=True) for path in (sysroot, library, workspace))
     if not all(path.is_dir() for path in (sysroot, library, workspace)):
         raise ValueError("Toolchain, library and workspace must be directories")

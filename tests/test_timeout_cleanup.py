@@ -1,4 +1,4 @@
-"""Exercise outer deadlines across helper sessions and the unchanged production sandbox."""
+"""Exercise outer deadlines across helper sessions and trusted Lean processes."""
 
 import json
 import os
@@ -12,7 +12,6 @@ import pytest
 
 from tests import runtime_support
 from tests.runtime_support import CommandTimeout, process_table, run_command
-from tests.test_sandbox import sandbox_paths
 
 ROOT = Path(__file__).resolve().parents[1]
 pytestmark = [pytest.mark.integration, pytest.mark.environment, pytest.mark.requires_native("/bin/ps")]
@@ -104,30 +103,29 @@ def test_discovery_failure_bounds_pipe_draining(tmp_path: Path, monkeypatch: pyt
         terminate_recorded(tmp_path)
 
 
-@pytest.mark.requires_sandbox
-def test_outer_timeout_kills_production_sandbox(sandbox_paths: tuple[Path, Path, Path, list[Path]]) -> None:
-    """A pytest-level deadline also terminates the actual separately grouped production sandbox launcher."""
-    executable, inputs, outputs, roots = sandbox_paths
+def test_outer_timeout_kills_proof_process(tmp_path: Path) -> None:
+    """A pytest-level deadline also terminates the actual separately grouped proof process."""
+    executable = Path(sys.executable)
+    inputs = outputs = tmp_path
     program = inputs / "parent.py"
     program.write_text(textwrap.dedent(f'''\
         import sys
         from pathlib import Path
         sys.path.insert(0, {str(ROOT)!r})
-        from migration_check import sandbox
-        original = sandbox.subprocess.Popen
+        from migration_check import process as runner
+        original = runner.subprocess.Popen
         def launch(*arguments, **keywords):
             process = original(*arguments, **keywords)
-            Path({str(outputs / 'sandbox.pid')!r}).write_text(str(process.pid))
+            Path({str(outputs / 'proof.pid')!r}).write_text(str(process.pid))
             return process
-        sandbox.subprocess.Popen = launch
-        sandbox.run_sandboxed([{str(executable)!r}, '-I', '-c', 'import time; time.sleep(60)'],
-            read_roots=[Path(path) for path in {[str(path) for path in roots]!r}],
+        runner.subprocess.Popen = launch
+        runner.run_process([{str(executable)!r}, '-I', '-c', 'import time; time.sleep(60)'],
             write_root=Path({str(outputs)!r}), environment={{}}, timeout=60)
     '''))
     try:
         with pytest.raises(CommandTimeout) as failure:
             run_command([sys.executable, str(program)], cwd=inputs, timeout=3)
         assert failure.value.result.cleanup_error is None, failure.value.result.diagnostic()
-        assert_terminated(outputs, {"sandbox.pid"})
+        assert_terminated(outputs, {"proof.pid"})
     finally:
         terminate_recorded(outputs)

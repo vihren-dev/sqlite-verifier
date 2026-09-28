@@ -51,7 +51,7 @@ class CompilationFixture:
 
 @pytest.fixture
 def compilation_case(tmp_path: Path, lean_sysroot: Path, lean_library: Path) -> CompilationFixture:
-    """Set up adversarial source aliases and real compiler-isolation probes without compiling in setup."""
+    """Set up source aliases and generated-schema checks without compiling in setup."""
     root = tmp_path.resolve()
     approved, candidate, workspace = root / "approved", root / "candidate", root / "work"
     for directory in (approved, candidate, workspace):
@@ -68,15 +68,7 @@ def compilation_case(tmp_path: Path, lean_sysroot: Path, lean_library: Path) -> 
     requirement = approved / "Requirements.lean"
     requirement.write_text(requirement.read_text().replace("import SqliteVerifier",
         "import SqliteVerifier\nimport SchemaInputs\nimport «Odd.Module»") +
-        f'\n#eval do\n  let readable ← try\n    let _ ← IO.FS.readFile "{candidate / "Proofs.lean"}"\n'
-        '    pure true\n  catch _ => pure false\n'
-        '  if readable then throw (IO.userError "candidate source leaked into approved compilation")\n'
-        'example : Generated.startSchema = [] := rfl\n')
-    next_source = candidate / "NextInterpretation.lean"
-    next_source.write_text(next_source.read_text() +
-        f'\n#eval do\n  let writable ← try\n    IO.FS.writeFile "{workspace / "trusted/Requirements.olean"}" "changed"\n'
-        '    pure true\n  catch _ => pure false\n'
-        '  if writable then throw (IO.userError "candidate modified protected artifact")\n')
+        '\nexample : Generated.startSchema = [] := rfl\n')
     return CompilationFixture(root, approved, candidate, workspace, lean_sysroot, lean_library)
 
 

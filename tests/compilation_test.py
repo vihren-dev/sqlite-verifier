@@ -1,4 +1,4 @@
-"""Independently selectable compiler isolation, source closure and artifact-alias regressions."""
+"""Independently selectable source staging, source closure and artifact-alias regressions."""
 
 from collections.abc import Callable
 import hashlib
@@ -21,10 +21,9 @@ pytestmark = [pytest.mark.kernel, pytest.mark.approval]
 
 @pytest.mark.integration
 @pytest.mark.requires_lean
-@pytest.mark.requires_sandbox
 def test_sealed_source_compilation(compilation_case: CompilationFixture, proof_checker: Path,
                                    command_runner: Callable[..., CommandResult]) -> None:
-    """Fresh compiler isolation and source hashes survive forged generated/compiled inputs and kernel checking."""
+    """Source staging ignores forged generated/compiled inputs and preserves hashes through kernel checking."""
     case = compilation_case
     project = case.compile()
     assert project.hashes["approved/Odd.Module.lean"] == hashlib.sha256(HELPER).hexdigest()
@@ -41,7 +40,6 @@ def test_sealed_source_compilation(compilation_case: CompilationFixture, proof_c
 
 @pytest.mark.integration
 @pytest.mark.requires_lean
-@pytest.mark.requires_sandbox
 def test_changed_supplied_schema(compilation_case: CompilationFixture) -> None:
     """An approved assertion about the supplied empty starting schema rejects a changed generated schema."""
     changed = schema_inputs((Table("unexpected", (Column("x", "text"),)),))
@@ -66,7 +64,6 @@ def test_selected_generated_role(tmp_path: Path) -> None:
 
 @pytest.mark.integration
 @pytest.mark.requires_lean
-@pytest.mark.requires_sandbox
 @pytest.mark.parametrize("module,diagnostic", [
     ("NextInterpretation", "reserved"), ("proofs", "reserved"), ("SqlInputs", "reserved"),
     ("Generated", "reserved"), ("schemainputs", "reserved"), ("SchemaInputs.Evil", "reserved"),

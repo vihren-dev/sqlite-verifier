@@ -14,21 +14,24 @@ proofs, exhausted resources, and unfinished proofs are `UNVERIFIED`.
 The trusted implementation includes the installed Python driver, pinned SQLite
 tokenizer/grammar adapter, CST admission and SQL-to-Lean emitter, source staging,
 Lean runtime/kernel and serialized-module loader, protected proof library,
-process isolation, and native/model correspondence assumptions. The caller must
+and native/model correspondence assumptions. The caller must
 protect that installation, its runtime paths/environment, approved source files,
-and any approval baseline. Candidate Lean source can execute tactics; ordinary
-project compilation is therefore neither a sufficient proof gate nor safe input
-handling. The launcher uses Python's isolated mode and never loads a caller's
-Lake configuration or precompiled Lean artifacts.
+and any approval baseline. Lean source can execute arbitrary code during compilation. The current CLI assumes
+trusted execution: callers must trust that code and protect approved inputs, the
+verifier process and its result channel. It provides no OS sandbox, network
+restriction or filesystem containment. Kernel replay rejects invalid proofs but
+does not protect a checker environment that executable source can modify.
 
-[Source staging](source-staging.md) snapshots reachable imports, prevents candidate
-sources from entering approved compilation, and seals generated SQL independently.
-Each compiler process has only read-only declared inputs and its own writable
-scratch directory, with no host network/credentials, bounded time and output.
-The kernel checker separately receives sealed inputs. macOS uses Seatbelt;
-Linux uses bubblewrap user/mount/PID/network namespaces. These are OS boundaries,
-not virtual machines. Limits bound each produced file and captured stream, not
-the total disk footprint of every possible tactic.
+[Source staging](source-staging.md) snapshots reachable imports, separates approved
+and candidate module search paths, and generates SQL inputs independently. These
+are logical compilation boundaries, not OS access controls. Processes use explicit
+environments, separate scratch directories, deadlines and bounded output. The
+launcher uses Python's isolated import mode; that is not a security sandbox.
+
+Hostile-input containment is deferred to a future integration layer after the
+preparation/checking separation proposed in ADR-003. A single outer container can
+protect the host without protecting approved inputs from other processes inside
+it; the integration must establish the latter boundary too.
 
 [The kernel gate](kernel-gate.md) compares protected declaration contents,
 replays actual bodies, reconstructs the expected proposition independently of the

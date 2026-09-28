@@ -4,7 +4,6 @@ import argparse
 import json
 import os
 from pathlib import Path
-import shutil
 import subprocess
 import sys
 from time import monotonic
@@ -13,19 +12,9 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 from tools.check_resources import check_resources
 from tests.runtime_support import CommandTimeout, run_command
 
-# This capability probe is intentionally outside every Nix derivation.
-SANDBOX_PROBE = '''
-test "$(readlink /proc/self/ns/net)" != "$HOST_NETWORK"
-if touch "$PROTECTED_WORKSPACE/.sandbox-write-probe"; then
-  echo "Workspace unexpectedly writable inside sandbox" >&2
-  exit 1
-fi
-touch /tmp/sandbox-write-probe
-'''
-
 
 def run_checks(scope: str, mode: str, system: str, root: Path) -> None:
-    """Use Nix build/test targets while host sandbox and installed acceptance stay fresh."""
+    """Use Nix build/test targets while installed acceptance stays fresh."""
     if scope not in {"test", "package"} or mode not in {"source", "build"}:
         raise ValueError("CI requires a complete test/package recipe and a supported build mode")
     check_resources(root)
@@ -66,18 +55,10 @@ def run_checks(scope: str, mode: str, system: str, root: Path) -> None:
             ["nix-build", "build-support/default.nix", "-A", "runtime", "--no-out-link",
              "--extra-experimental-features", "nix-command flakes"], 900, capture=True)
         runtime = Path(environment["SQLITE_VERIFIER_RUNTIME_ROOT"])
-        destination = root / "build/nix-runtime-roots"
-        destination.unlink(missing_ok=True)
-        shutil.copy2(runtime / "build/nix-runtime-roots", destination)
     elif mode == "source":
         run("setup", ["just", "setup"], 330)
     else:
         raise ValueError(f"Unknown build mode: {mode}")
-    if system == "x86_64-linux":
-        run("host-sandbox", ["bwrap", "--unshare-user", "--unshare-pid", "--unshare-net",
-            "--die-with-parent", "--new-session", "--ro-bind", "/", "/", "--proc", "/proc", "--dev", "/dev",
-            "--tmpfs", "/tmp", "--setenv", "HOST_NETWORK", os.readlink("/proc/self/ns/net"),
-            "--setenv", "PROTECTED_WORKSPACE", str(root), "sh", "-euc", SANDBOX_PROBE], 15)
     toolchain = (runtime if mode == "build" else root) / "lean/bin"
     lean = str(toolchain / "lean") if toolchain.is_dir() else "lean"
     lake = str(toolchain / "lake") if toolchain.is_dir() else "lake"

@@ -2,9 +2,9 @@
   "version": 2,
   "baseline": "4df62fa71ec64d0eb4b7aa4643a0912ab60e18a9",
   "implementation_base": "d1af75e6 shared stable base; audited descendant files are identified by implementation_sha256",
-  "state": "Active cases reconciled with pytest collection for Nix expensive-suite caching; execution results recorded in plans/20260928-nix-test-targets.status.md.",
+  "state": "Active cases reconciled with pytest after removing OS containment and adding cached Atuin; see plans/20260929-trusted-execution.status.md.",
   "runtime_definitions": {
-    "source": "Source pytest tests: kernel/model execute in independently cached Nix derivations; remaining cases execute freshly on the host.",
+    "source": "Kernel/model/Atuin run in independently cached Nix pytest derivations; remaining cases execute freshly on the host. All source execution is trusted.",
     "installed": "development pytest harness invokes installed executable/examples under poisoned sanitized child environment"
   },
   "notes": [
@@ -18,11 +18,12 @@
     "origin=new distinguishes ADR infrastructure additions and the new partial declaration attack from preserved legacy behavior; neither additions nor multi-runtime Atuin execution inflate the baseline case count.",
     "2026-09-28: Nine obsolete local-cache scenarios retired explicitly; one generator validation scenario added. Retired cases retain their original audit metadata separately.",
     "2026-09-28: complete runtime build and offline archive use Nix closures. Loader discovery/relocation/copy-selection tests retired explicitly; replacement archive tests assert content-addressed export and enabled import verification.",
-    "2026-09-28: kernel/model result caching uses Nix dependencies and sandboxed pytest. Removed aggregate coverage and cached-unit receipts. Obsolete infrastructure tests retained only as retired history."
+    "2026-09-28: kernel/model result caching uses Nix dependencies and sandboxed pytest. Removed aggregate coverage and cached-unit receipts. Obsolete infrastructure tests retained only as retired history.",
+    "2026-09-29: OS containment removed under explicit trusted-execution scope. Sandbox policy and loader manifest tests retired; bounded process tests retained separately. Nix dependency cases updated for Atuin."
   ],
   "entrypoints": {
     "just test": [
-      "Nix tests.kernel and tests.model derivations; one host pytest invocation for all other source tests"
+      "Nix tests.kernel, tests.model and tests.atuin; one host pytest invocation for remaining source cases"
     ],
     "just test-cases *args": [
       "python3 -m pytest: explicitly selected scenarios, no implicit build"
@@ -46,6 +47,9 @@
     ],
     "just parser": [
       "Nix parsers derivation: verify upstream checksums, generate grammar, compile both releases, reuse immutable outputs and link checkout build paths"
+    ],
+    "just test-atuin": [
+      "Nix tests.atuin: 13 CLI and 3 native SQL cases"
     ]
   },
   "source_sha256": {
@@ -257,71 +261,6 @@
       "origin": "legacy",
       "implementation_source": "tests/test_cli_inputs.py:18-27",
       "description": "Invalid profiles fail consistently without requiring source files or installed artifacts.",
-      "parameter_id": null
-    },
-    {
-      "source": "tests/test_native_dependencies.py:17-33",
-      "legacy": "Only exact existing Nix store entries can enter the proof-process read policy.",
-      "node_id": "tests/test_native_dependencies.py::NativeDependenciesTest::test_loader_roots",
-      "runtimes": [
-        "source"
-      ],
-      "level": "integration",
-      "concerns": [
-        "environment",
-        "packaging"
-      ],
-      "resources": [
-        "requires_nix"
-      ],
-      "assertions": [
-        "self.assertEqual(native_runtime_roots(directory), [])",
-        "self.assertEqual(executable.parts[:3], (\"/\", \"nix\", \"store\"), \"Run in pinned Nix shell\")",
-        "self.assertEqual(native_runtime_roots(directory), [expected])",
-        "self.assertRaises(ValueError)"
-      ],
-      "legacy_variants": [
-        {
-          "line": 25,
-          "source": "for invalid in (\"/\", \"/nix\", \"/nix/store\", str(directory), \"/nix/store/.links\"):\n                metadata.write_text(invalid + \"\\n\")\n                with self.assertRaises(ValueError):\n                    native_runtime_roots(directory)"
-        }
-      ],
-      "collection_verified": true,
-      "origin": "legacy",
-      "implementation_source": "tests/test_native_dependencies.py:23-39",
-      "description": "Only exact existing Nix store entries can enter the proof-process read policy.",
-      "parameter_id": null
-    },
-    {
-      "source": "tests/test_native_dependencies.py:117-145",
-      "legacy": "The build-owned manifest supplies loader roots to compilation and kernel checking.",
-      "node_id": "tests/test_native_dependencies.py::NativeDependenciesTest::test_development_loader_roots_reach_both_sandboxes",
-      "runtimes": [
-        "source"
-      ],
-      "level": "integration",
-      "concerns": [
-        "environment",
-        "packaging"
-      ],
-      "resources": [
-        "requires_nix"
-      ],
-      "assertions": [
-        "self.assertEqual(executable.parts[:3], (\"/\", \"nix\", \"store\"), \"Run in pinned Nix shell\")",
-        "self.assertEqual(native_runtime_roots(sysroot, library), [store])",
-        "self.assertEqual(native_runtime_roots(sysroot, root / \"unrelated\"), [])",
-        "self.assertIn(store, runtime.read_roots())",
-        "self.assertEqual(native_runtime_roots(sysroot, library), [])",
-        "self.assertEqual(lean_process(sysroot, library, [], root / \"Input.lean\", root / \"scratch\",\n                                              [\"--deps-json\"], \"dependencies\", timeout=5), \"header result\")",
-        "self.assertIn(store, run.call_args.kwargs[\"read_roots\"])",
-        "self.assertNotIn(Path(\"/nix/store\"), run.call_args.kwargs[\"read_roots\"])"
-      ],
-      "legacy_variants": [],
-      "collection_verified": true,
-      "origin": "legacy",
-      "implementation_source": "tests/test_native_dependencies.py:134-162",
-      "description": "The build-owned manifest supplies loader roots to compilation and kernel checking.",
       "parameter_id": null
     },
     {
@@ -1046,8 +985,7 @@
       ],
       "resources": [
         "requires_lean",
-        "requires_native",
-        "requires_sandbox"
+        "requires_native"
       ],
       "assertions": [
         "assert b'alter table history add column shell text;' in original_sql",
@@ -1095,8 +1033,7 @@
       ],
       "resources": [
         "requires_lean",
-        "requires_native",
-        "requires_sandbox"
+        "requires_native"
       ],
       "assertions": [
         "invoke: JSON status matches expected; exit 0 iff VERIFIED; UNVERIFIED diagnostic contains error: or unapproved axiom:, never timeout; every mutation changes bytes"
@@ -1133,8 +1070,7 @@
       ],
       "resources": [
         "requires_lean",
-        "requires_native",
-        "requires_sandbox"
+        "requires_native"
       ],
       "assertions": [
         "assert isinstance(alternative_inputs, dict)",
@@ -1172,8 +1108,7 @@
       ],
       "resources": [
         "requires_lean",
-        "requires_native",
-        "requires_sandbox"
+        "requires_native"
       ],
       "assertions": [
         "assert 'id text primary key' in original_schema",
@@ -1209,8 +1144,7 @@
       ],
       "resources": [
         "requires_lean",
-        "requires_native",
-        "requires_sandbox"
+        "requires_native"
       ],
       "assertions": [
         "invoke: JSON status matches expected; exit 0 iff VERIFIED; UNVERIFIED diagnostic contains error: or unapproved axiom:, never timeout; every mutation changes bytes"
@@ -1247,8 +1181,7 @@
       ],
       "resources": [
         "requires_lean",
-        "requires_native",
-        "requires_sandbox"
+        "requires_native"
       ],
       "assertions": [
         "invoke: JSON status matches expected; exit 0 iff VERIFIED; UNVERIFIED diagnostic contains error: or unapproved axiom:, never timeout; every mutation changes bytes"
@@ -1285,8 +1218,7 @@
       ],
       "resources": [
         "requires_lean",
-        "requires_native",
-        "requires_sandbox"
+        "requires_native"
       ],
       "assertions": [
         "invoke: JSON status matches expected; exit 0 iff VERIFIED; UNVERIFIED diagnostic contains error: or unapproved axiom:, never timeout; every mutation changes bytes"
@@ -1323,8 +1255,7 @@
       ],
       "resources": [
         "requires_lean",
-        "requires_native",
-        "requires_sandbox"
+        "requires_native"
       ],
       "assertions": [
         "assert weakened != original_meaning",
@@ -1361,8 +1292,7 @@
       ],
       "resources": [
         "requires_lean",
-        "requires_native",
-        "requires_sandbox"
+        "requires_native"
       ],
       "assertions": [
         "invoke: JSON status matches expected; exit 0 iff VERIFIED; UNVERIFIED diagnostic contains error: or unapproved axiom:, never timeout; every mutation changes bytes"
@@ -1398,8 +1328,7 @@
       ],
       "resources": [
         "requires_lean",
-        "requires_native",
-        "requires_sandbox"
+        "requires_native"
       ],
       "assertions": [
         "assert f'approved/{name}.lean' in str(rejected['message'])",
@@ -1436,8 +1365,7 @@
       ],
       "resources": [
         "requires_lean",
-        "requires_native",
-        "requires_sandbox"
+        "requires_native"
       ],
       "assertions": [
         "assert f'approved/{name}.lean' in str(rejected['message'])",
@@ -1474,8 +1402,7 @@
       ],
       "resources": [
         "requires_lean",
-        "requires_native",
-        "requires_sandbox"
+        "requires_native"
       ],
       "assertions": [
         "assert 'approved/HistoryMapping.lean' in str(rejected['message'])",
@@ -1512,8 +1439,7 @@
       ],
       "resources": [
         "requires_lean",
-        "requires_native",
-        "requires_sandbox"
+        "requires_native"
       ],
       "assertions": [
         "invoke: JSON status matches expected; exit 0 iff VERIFIED; UNVERIFIED diagnostic contains error: or unapproved axiom:, never timeout; every mutation changes bytes"
@@ -1547,8 +1473,7 @@
       ],
       "resources": [
         "requires_lean",
-        "requires_native",
-        "requires_sandbox"
+        "requires_native"
       ],
       "assertions": [
         "assert {path.name for path in artifacts.iterdir()} == {\"SchemaInputs.lean\", \"SqlInputs.lean\", \"Generated.lean\", \"inputs.json\"}",
@@ -1585,8 +1510,7 @@
       ],
       "resources": [
         "requires_lean",
-        "requires_native",
-        "requires_sandbox"
+        "requires_native"
       ],
       "assertions": [
         "invoke: exact JSON status VERIFIED; exit 0 iff VERIFIED"
@@ -1618,8 +1542,7 @@
       ],
       "resources": [
         "requires_lean",
-        "requires_native",
-        "requires_sandbox"
+        "requires_native"
       ],
       "assertions": [
         "assert \"schema.sql\" in str(pinned[\"message\"])",
@@ -1651,8 +1574,7 @@
       ],
       "resources": [
         "requires_lean",
-        "requires_native",
-        "requires_sandbox"
+        "requires_native"
       ],
       "assertions": [
         "invoke: exact JSON status VIOLATED; exit 0 iff VERIFIED"
@@ -1683,8 +1605,7 @@
       ],
       "resources": [
         "requires_lean",
-        "requires_native",
-        "requires_sandbox"
+        "requires_native"
       ],
       "assertions": [
         "invoke: exact JSON status VERIFIED; exit 0 iff VERIFIED"
@@ -1715,8 +1636,7 @@
       ],
       "resources": [
         "requires_lean",
-        "requires_native",
-        "requires_sandbox"
+        "requires_native"
       ],
       "assertions": [
         "invoke: exact JSON status INPUT_ERROR; exit 0 iff VERIFIED"
@@ -1747,8 +1667,7 @@
       ],
       "resources": [
         "requires_lean",
-        "requires_native",
-        "requires_sandbox"
+        "requires_native"
       ],
       "assertions": [
         "invoke: exact JSON status VERIFIED; exit 0 iff VERIFIED"
@@ -1779,8 +1698,7 @@
       ],
       "resources": [
         "requires_lean",
-        "requires_native",
-        "requires_sandbox"
+        "requires_native"
       ],
       "assertions": [
         "invoke: exact JSON status INPUT_ERROR; exit 0 iff VERIFIED"
@@ -1811,8 +1729,7 @@
       ],
       "resources": [
         "requires_lean",
-        "requires_native",
-        "requires_sandbox"
+        "requires_native"
       ],
       "assertions": [
         "invoke: exact JSON status INPUT_ERROR; exit 0 iff VERIFIED"
@@ -1843,8 +1760,7 @@
       ],
       "resources": [
         "requires_lean",
-        "requires_native",
-        "requires_sandbox"
+        "requires_native"
       ],
       "assertions": [
         "invoke: exact JSON status UNSUPPORTED; exit 0 iff VERIFIED"
@@ -1875,8 +1791,7 @@
       ],
       "resources": [
         "requires_lean",
-        "requires_native",
-        "requires_sandbox"
+        "requires_native"
       ],
       "assertions": [
         "invoke: exact JSON status UNVERIFIED; exit 0 iff VERIFIED"
@@ -1907,8 +1822,7 @@
       ],
       "resources": [
         "requires_lean",
-        "requires_native",
-        "requires_sandbox"
+        "requires_native"
       ],
       "assertions": [
         "invoke: exact JSON status UNSUPPORTED; exit 0 iff VERIFIED"
@@ -1939,8 +1853,7 @@
       ],
       "resources": [
         "requires_lean",
-        "requires_native",
-        "requires_sandbox"
+        "requires_native"
       ],
       "assertions": [
         "invoke: exact JSON status UNVERIFIED; exit 0 iff VERIFIED"
@@ -1971,8 +1884,7 @@
       ],
       "resources": [
         "requires_lean",
-        "requires_native",
-        "requires_sandbox"
+        "requires_native"
       ],
       "assertions": [
         "invoke: exact JSON status UNVERIFIED; exit 0 iff VERIFIED"
@@ -2003,8 +1915,7 @@
       ],
       "resources": [
         "requires_lean",
-        "requires_native",
-        "requires_sandbox"
+        "requires_native"
       ],
       "assertions": [
         "invoke: exact JSON status UNVERIFIED; exit 0 iff VERIFIED"
@@ -2035,8 +1946,7 @@
       ],
       "resources": [
         "requires_lean",
-        "requires_native",
-        "requires_sandbox"
+        "requires_native"
       ],
       "assertions": [
         "invoke: exact JSON status UNVERIFIED; exit 0 iff VERIFIED"
@@ -2068,8 +1978,7 @@
       ],
       "resources": [
         "requires_lean",
-        "requires_native",
-        "requires_sandbox"
+        "requires_native"
       ],
       "assertions": [
         "invoke: exact JSON status UNVERIFIED; exit 0 iff VERIFIED"
@@ -2101,8 +2010,7 @@
       ],
       "resources": [
         "requires_lean",
-        "requires_native",
-        "requires_sandbox"
+        "requires_native"
       ],
       "assertions": [
         "invoke: exact JSON status VERIFIED; exit 0 iff VERIFIED"
@@ -2134,8 +2042,7 @@
       ],
       "resources": [
         "requires_lean",
-        "requires_native",
-        "requires_sandbox"
+        "requires_native"
       ],
       "assertions": [
         "assert \"approved/Policy.lean\" in str(report[\"message\"])",
@@ -2750,8 +2657,7 @@
         "kernel"
       ],
       "resources": [
-        "requires_lean",
-        "requires_sandbox"
+        "requires_lean"
       ],
       "assertions": [
         "assert project.hashes[\"approved/Odd.Module.lean\"] == hashlib.sha256(helper).hexdigest()",
@@ -2766,8 +2672,9 @@
       "runtime_scope": "source implementation imports with explicit selected artifact paths; installed variant fails setup",
       "origin": "legacy",
       "implementation_source": "tests/compilation_test.py:25-39",
-      "description": "Fresh compiler isolation and source hashes survive forged generated/compiled inputs and kernel checking.",
-      "parameter_id": null
+      "description": "Source staging ignores forged generated/compiled inputs and preserves hashes through kernel checking.",
+      "parameter_id": null,
+      "migration_notes": "2026-09-29: removed fixture I/O probes asserting candidate reads/protected writes are denied. OS containment is outside the current trusted-execution scope; source, artifact and kernel assertions remain."
     },
     {
       "source": "tests/compilation_test.py:72-81",
@@ -2782,8 +2689,7 @@
         "kernel"
       ],
       "resources": [
-        "requires_lean",
-        "requires_sandbox"
+        "requires_lean"
       ],
       "assertions": [
         "assert error.phase == \"compile\" and \"Requirements\" in str(error)",
@@ -2925,8 +2831,7 @@
         "kernel"
       ],
       "resources": [
-        "requires_lean",
-        "requires_sandbox"
+        "requires_lean"
       ],
       "assertions": [
         "assert diagnostic in str(error), (diagnostic, str(error))",
@@ -2952,8 +2857,7 @@
         "kernel"
       ],
       "resources": [
-        "requires_lean",
-        "requires_sandbox"
+        "requires_lean"
       ],
       "assertions": [
         "assert diagnostic in str(error), (diagnostic, str(error))",
@@ -2979,8 +2883,7 @@
         "kernel"
       ],
       "resources": [
-        "requires_lean",
-        "requires_sandbox"
+        "requires_lean"
       ],
       "assertions": [
         "assert diagnostic in str(error), (diagnostic, str(error))",
@@ -3006,8 +2909,7 @@
         "kernel"
       ],
       "resources": [
-        "requires_lean",
-        "requires_sandbox"
+        "requires_lean"
       ],
       "assertions": [
         "assert diagnostic in str(error), (diagnostic, str(error))",
@@ -3033,8 +2935,7 @@
         "kernel"
       ],
       "resources": [
-        "requires_lean",
-        "requires_sandbox"
+        "requires_lean"
       ],
       "assertions": [
         "assert diagnostic in str(error), (diagnostic, str(error))",
@@ -3060,8 +2961,7 @@
         "kernel"
       ],
       "resources": [
-        "requires_lean",
-        "requires_sandbox"
+        "requires_lean"
       ],
       "assertions": [
         "assert diagnostic in str(error), (diagnostic, str(error))",
@@ -3087,8 +2987,7 @@
         "kernel"
       ],
       "resources": [
-        "requires_lean",
-        "requires_sandbox"
+        "requires_lean"
       ],
       "assertions": [
         "assert diagnostic in str(error), (diagnostic, str(error))",
@@ -3114,8 +3013,7 @@
         "kernel"
       ],
       "resources": [
-        "requires_lean",
-        "requires_sandbox"
+        "requires_lean"
       ],
       "assertions": [
         "assert diagnostic in str(error), (diagnostic, str(error))",
@@ -3141,8 +3039,7 @@
         "kernel"
       ],
       "resources": [
-        "requires_lean",
-        "requires_sandbox"
+        "requires_lean"
       ],
       "assertions": [
         "assert diagnostic in str(error), (diagnostic, str(error))",
@@ -3168,8 +3065,7 @@
         "kernel"
       ],
       "resources": [
-        "requires_lean",
-        "requires_sandbox"
+        "requires_lean"
       ],
       "assertions": [
         "assert diagnostic in str(error), (diagnostic, str(error))",
@@ -3195,8 +3091,7 @@
       ],
       "resources": [
         "requires_lean",
-        "requires_native",
-        "requires_sandbox"
+        "requires_native"
       ],
       "assertions": [
         "Invalid candidate proof cannot mask INPUT_ERROR drift diagnostic or invoke compilation"
@@ -3234,8 +3129,7 @@
       ],
       "resources": [
         "requires_lean",
-        "requires_native",
-        "requires_sandbox"
+        "requires_native"
       ],
       "assertions": [
         "Invalid candidate proof cannot mask INPUT_ERROR drift diagnostic or invoke compilation"
@@ -3273,8 +3167,7 @@
       ],
       "resources": [
         "requires_lean",
-        "requires_native",
-        "requires_sandbox"
+        "requires_native"
       ],
       "assertions": [
         "Invalid candidate proof cannot mask INPUT_ERROR drift diagnostic or invoke compilation"
@@ -3312,8 +3205,7 @@
       ],
       "resources": [
         "requires_lean",
-        "requires_native",
-        "requires_sandbox"
+        "requires_native"
       ],
       "assertions": [
         "Invalid candidate proof cannot mask INPUT_ERROR drift diagnostic or invoke compilation"
@@ -3351,8 +3243,7 @@
       ],
       "resources": [
         "requires_lean",
-        "requires_native",
-        "requires_sandbox"
+        "requires_native"
       ],
       "assertions": [
         "Invalid candidate proof cannot mask INPUT_ERROR drift diagnostic or invoke compilation"
@@ -3390,8 +3281,7 @@
       ],
       "resources": [
         "requires_lean",
-        "requires_native",
-        "requires_sandbox"
+        "requires_native"
       ],
       "assertions": [
         "compile_spy.assert_not_called()",
@@ -3423,8 +3313,7 @@
       ],
       "resources": [
         "requires_lean",
-        "requires_native",
-        "requires_sandbox"
+        "requires_native"
       ],
       "assertions": [
         "assert report[\"status\"] == \"VERIFIED\", report",
@@ -6433,8 +6322,7 @@
       "resources": [
         "requires_lean",
         "requires_native",
-        "requires_nix",
-        "requires_sandbox"
+        "requires_nix"
       ],
       "assertions": [
         "assert json.loads(parsed.stdout)[\"profile\"] == version, parsed.stdout",
@@ -6460,8 +6348,7 @@
       "resources": [
         "requires_lean",
         "requires_native",
-        "requires_nix",
-        "requires_sandbox"
+        "requires_nix"
       ],
       "assertions": [
         "assert json.loads(parsed.stdout)[\"profile\"] == version, parsed.stdout",
@@ -6487,8 +6374,7 @@
       "resources": [
         "requires_lean",
         "requires_native",
-        "requires_nix",
-        "requires_sandbox"
+        "requires_nix"
       ],
       "assertions": [
         "assert json.loads(result.stdout)[\"status\"] == expected, result.stdout + result.stderr",
@@ -6515,8 +6401,7 @@
       "resources": [
         "requires_lean",
         "requires_native",
-        "requires_nix",
-        "requires_sandbox"
+        "requires_nix"
       ],
       "assertions": [
         "assert json.loads(result.stdout)[\"status\"] == expected, result.stdout + result.stderr",
@@ -6543,8 +6428,7 @@
       "resources": [
         "requires_lean",
         "requires_native",
-        "requires_nix",
-        "requires_sandbox"
+        "requires_nix"
       ],
       "assertions": [
         "assert result.returncode != 0 and json.loads(result.stdout)[\"status\"] == \"UNSUPPORTED\", result",
@@ -6570,8 +6454,7 @@
       "resources": [
         "requires_lean",
         "requires_native",
-        "requires_nix",
-        "requires_sandbox"
+        "requires_nix"
       ],
       "assertions": [
         "assert (destination / \".nix-roots\").is_dir()",
@@ -7159,161 +7042,6 @@
       "description": "All catalogued model theorems exist and their exact axiom sets stay within the trusted allowance.",
       "parameter_id": null,
       "collection_verified": true
-    },
-    {
-      "source": "tests/test_sandbox.py:18-113",
-      "legacy": "Actual input/output/private/network/credential isolation",
-      "node_id": "tests/test_sandbox.py::test_isolation",
-      "runtimes": [
-        "source"
-      ],
-      "level": "integration",
-      "concerns": [
-        "environment"
-      ],
-      "resources": [
-        "requires_sandbox"
-      ],
-      "assertions": [
-        "Input and symlink alias read approved; protected write denied and original bytes unchanged; private read denied; live network denied; GITHUB_TOKEN absent; writable output created; sandbox exit 0"
-      ],
-      "collection_verified": true,
-      "origin": "legacy",
-      "implementation_source": "tests/test_sandbox.py:48-89",
-      "description": "Real isolation permits input reads/output writes but blocks context writes, private reads and network.",
-      "parameter_id": null
-    },
-    {
-      "source": "tests/test_sandbox.py:18-113",
-      "legacy": "Writable output overlaps readable parent",
-      "node_id": "tests/test_sandbox.py::test_overlapping_roots_rejected[read_parent]",
-      "runtimes": [
-        "source"
-      ],
-      "level": "unit",
-      "concerns": [
-        "environment"
-      ],
-      "resources": [],
-      "assertions": [
-        "sandbox_command raises ValueError containing disjoint before backend selection"
-      ],
-      "collection_verified": true,
-      "origin": "legacy",
-      "implementation_source": "tests/test_sandbox.py:94-99",
-      "description": "Overlapping input and output trees reject before selecting or launching a sandbox backend.",
-      "parameter_id": "read_parent"
-    },
-    {
-      "source": "tests/test_sandbox.py:18-113",
-      "legacy": "Readable input overlaps writable parent",
-      "node_id": "tests/test_sandbox.py::test_overlapping_roots_rejected[write_parent]",
-      "runtimes": [
-        "source"
-      ],
-      "level": "unit",
-      "concerns": [
-        "environment"
-      ],
-      "resources": [],
-      "assertions": [
-        "sandbox_command raises ValueError containing disjoint before backend selection"
-      ],
-      "collection_verified": true,
-      "origin": "legacy",
-      "implementation_source": "tests/test_sandbox.py:94-99",
-      "description": "Overlapping input and output trees reject before selecting or launching a sandbox backend.",
-      "parameter_id": "write_parent"
-    },
-    {
-      "source": "tests/test_sandbox.py:18-113",
-      "legacy": "Ambient Python import setting rejected",
-      "node_id": "tests/test_sandbox.py::test_untrusted_environment_rejected",
-      "runtimes": [
-        "source"
-      ],
-      "level": "unit",
-      "concerns": [
-        "environment"
-      ],
-      "resources": [],
-      "assertions": [
-        "run_sandboxed raises ValueError containing Only trusted Lean before execution"
-      ],
-      "collection_verified": true,
-      "origin": "legacy",
-      "implementation_source": "tests/test_sandbox.py:103-108",
-      "description": "Ambient Python import settings cannot enter the trusted sandbox environment.",
-      "parameter_id": null
-    },
-    {
-      "source": "tests/test_sandbox.py:18-113",
-      "legacy": "Flooded stdout is bounded",
-      "node_id": "tests/test_sandbox.py::test_output_limit",
-      "runtimes": [
-        "source"
-      ],
-      "level": "integration",
-      "concerns": [
-        "environment"
-      ],
-      "resources": [
-        "requires_sandbox"
-      ],
-      "assertions": [
-        "Noisy child exits nonzero and captured stdout length equals 1024*1024"
-      ],
-      "collection_verified": true,
-      "origin": "legacy",
-      "implementation_source": "tests/test_sandbox.py:113-119",
-      "description": "An output-flooding child fails and retained stdout is bounded to one MiB.",
-      "parameter_id": null
-    },
-    {
-      "source": "tests/test_sandbox.py:18-113",
-      "legacy": "Nonterminating child deadline",
-      "node_id": "tests/test_sandbox.py::test_timeout",
-      "runtimes": [
-        "source"
-      ],
-      "level": "integration",
-      "concerns": [
-        "environment"
-      ],
-      "resources": [
-        "requires_sandbox"
-      ],
-      "assertions": [
-        "run_sandboxed raises subprocess.TimeoutExpired at 0.5-second timeout"
-      ],
-      "collection_verified": true,
-      "origin": "legacy",
-      "implementation_source": "tests/test_sandbox.py:124-129",
-      "description": "A nonterminating proof child raises TimeoutExpired within the configured deadline.",
-      "parameter_id": null
-    },
-    {
-      "source": "tests/test_sandbox.py:18-113",
-      "legacy": "Platform-specific child cleanup",
-      "node_id": "tests/test_sandbox.py::test_fork_containment",
-      "runtimes": [
-        "source"
-      ],
-      "level": "integration",
-      "concerns": [
-        "environment"
-      ],
-      "resources": [
-        "requires_sandbox"
-      ],
-      "assertions": [
-        "Darwin os.fork raises PermissionError; Linux escaped session child starts but cannot write leaked marker after timeout and bounded wait"
-      ],
-      "collection_verified": true,
-      "origin": "legacy",
-      "implementation_source": "tests/test_sandbox.py:134-152",
-      "description": "macOS denies forks; Linux kills escaped child sessions when the enclosing proof times out.",
-      "parameter_id": null
     },
     {
       "source": "tests/kernel_gate_test.py:127-134",
@@ -8662,32 +8390,6 @@
         "environment"
       ],
       "resources": [],
-      "collection_verified": true
-    },
-    {
-      "source": "tests/test_sandbox.py:35-43",
-      "legacy": null,
-      "origin": "new",
-      "node_id": "tests/test_sandbox.py::test_unicode_executable",
-      "runtimes": [
-        "source"
-      ],
-      "assertions": [
-        "An executable under a quoted Unicode path runs under the same restricted sandbox policy."
-      ],
-      "assertion_source": [
-        "assert result.returncode == 0 and result.stdout == \"unicode executable\\n\", result.stderr"
-      ],
-      "implementation_source": "tests/test_sandbox.py:35-43",
-      "description": "An executable under a quoted Unicode path runs under the same restricted sandbox policy.",
-      "parameter_id": null,
-      "level": "integration",
-      "concerns": [
-        "environment"
-      ],
-      "resources": [
-        "requires_sandbox"
-      ],
       "collection_verified": true
     },
     {
@@ -10265,38 +9967,6 @@
       }
     },
     {
-      "source": "tests/test_timeout_cleanup.py:108-133",
-      "legacy": null,
-      "origin": "new",
-      "node_id": "tests/test_timeout_cleanup.py::test_outer_timeout_kills_production_sandbox",
-      "runtimes": [
-        "source"
-      ],
-      "assertions": [
-        "A pytest-level deadline also terminates the actual separately grouped production sandbox launcher."
-      ],
-      "assertion_source": [
-        "assert failure.value.result.cleanup_error is None, failure.value.result.diagnostic()"
-      ],
-      "description": "A pytest-level deadline also terminates the actual separately grouped production sandbox launcher.",
-      "parameter_id": null,
-      "level": "integration",
-      "concerns": [
-        "environment"
-      ],
-      "resources": [
-        "requires_native",
-        "requires_sandbox"
-      ],
-      "implementation_source": "tests/test_timeout_cleanup.py:108-133",
-      "collection_verified": true,
-      "resource_arguments": {
-        "requires_native": [
-          "/bin/ps"
-        ]
-      }
-    },
-    {
       "node_id": "tests/parser_build_test.py::test_generator_preserves_rules_and_rejects_mismatched_tokens",
       "description": "Keep precedence, children and token maps; fail before output on empty or mismatched inventories.",
       "parameter_id": null,
@@ -10485,12 +10155,12 @@
         "source"
       ],
       "assertions": [
-        "Changing a declared input invalidates only dependent suites; unrelated tests leave both cached."
+        "A real sandboxed target with a failed pytest assertion cannot create a reusable successful output."
       ],
       "implementation_source": "tests/test_nix_test_targets.py",
-      "node_id": "tests/test_nix_test_targets.py::test_dependency_invalidation[tests/test_translation.py-affected5]",
-      "description": "Changing a declared input invalidates only dependent suites; unrelated tests leave both cached.",
-      "parameter_id": "tests/test_translation.py-affected5",
+      "node_id": "tests/test_nix_test_targets.py::test_failed_pytest_target_has_no_output",
+      "description": "A real sandboxed target with a failed pytest assertion cannot create a reusable successful output.",
+      "parameter_id": null,
       "level": "integration",
       "concerns": [
         "environment"
@@ -10509,12 +10179,11 @@
         "source"
       ],
       "assertions": [
-        "A real sandboxed target with a failed pytest assertion cannot create a reusable successful output."
+        "Changing a declared input invalidates only dependent suites; unrelated tests leave both cached."
       ],
-      "implementation_source": "tests/test_nix_test_targets.py",
-      "node_id": "tests/test_nix_test_targets.py::test_failed_pytest_target_has_no_output",
-      "description": "A real sandboxed target with a failed pytest assertion cannot create a reusable successful output.",
-      "parameter_id": null,
+      "node_id": "tests/test_nix_test_targets.py::test_dependency_invalidation[conformance/atuin_sql_fixture.py-affected6]",
+      "description": "Changing a declared input invalidates only dependent suites; unrelated tests leave both cached.",
+      "parameter_id": "conformance/atuin_sql_fixture.py-affected6",
       "level": "integration",
       "concerns": [
         "environment"
@@ -10522,8 +10191,171 @@
       "resources": [
         "requires_nix"
       ],
+      "implementation_source": "tests/test_nix_test_targets.py",
       "collection_verified": true,
-      "migration_notes": "Exercise actual Nix target identities and a failing sandboxed pytest target; no custom result cache."
+      "migration_notes": "Trusted process limits or Atuin Nix dependency regression."
+    },
+    {
+      "source": "tests/test_nix_test_targets.py",
+      "legacy": null,
+      "origin": "new",
+      "runtimes": [
+        "source"
+      ],
+      "assertions": [
+        "Changing a declared input invalidates only dependent suites; unrelated tests leave both cached."
+      ],
+      "node_id": "tests/test_nix_test_targets.py::test_dependency_invalidation[examples/atuin/Proofs.lean-affected7]",
+      "description": "Changing a declared input invalidates only dependent suites; unrelated tests leave both cached.",
+      "parameter_id": "examples/atuin/Proofs.lean-affected7",
+      "level": "integration",
+      "concerns": [
+        "environment"
+      ],
+      "resources": [
+        "requires_nix"
+      ],
+      "implementation_source": "tests/test_nix_test_targets.py",
+      "collection_verified": true,
+      "migration_notes": "Trusted process limits or Atuin Nix dependency regression."
+    },
+    {
+      "source": "tests/test_nix_test_targets.py",
+      "legacy": null,
+      "origin": "new",
+      "runtimes": [
+        "source"
+      ],
+      "assertions": [
+        "Changing a declared input invalidates only dependent suites; unrelated tests leave both cached."
+      ],
+      "node_id": "tests/test_nix_test_targets.py::test_dependency_invalidation[tests/atuin_cli_test.py-affected5]",
+      "description": "Changing a declared input invalidates only dependent suites; unrelated tests leave both cached.",
+      "parameter_id": "tests/atuin_cli_test.py-affected5",
+      "level": "integration",
+      "concerns": [
+        "environment"
+      ],
+      "resources": [
+        "requires_nix"
+      ],
+      "implementation_source": "tests/test_nix_test_targets.py",
+      "collection_verified": true,
+      "migration_notes": "Trusted process limits or Atuin Nix dependency regression."
+    },
+    {
+      "source": "tests/test_nix_test_targets.py",
+      "legacy": null,
+      "origin": "new",
+      "runtimes": [
+        "source"
+      ],
+      "assertions": [
+        "Changing a declared input invalidates only dependent suites; unrelated tests leave both cached."
+      ],
+      "node_id": "tests/test_nix_test_targets.py::test_dependency_invalidation[tests/test_translation.py-affected8]",
+      "description": "Changing a declared input invalidates only dependent suites; unrelated tests leave both cached.",
+      "parameter_id": "tests/test_translation.py-affected8",
+      "level": "integration",
+      "concerns": [
+        "environment"
+      ],
+      "resources": [
+        "requires_nix"
+      ],
+      "implementation_source": "tests/test_nix_test_targets.py",
+      "collection_verified": true,
+      "migration_notes": "Trusted process limits or Atuin Nix dependency regression."
+    },
+    {
+      "source": "tests/test_process.py",
+      "legacy": null,
+      "origin": "new",
+      "runtimes": [
+        "source"
+      ],
+      "assertions": [
+        "Only explicit Lean settings reach the child, in the requested working directory."
+      ],
+      "node_id": "tests/test_process.py::test_explicit_environment",
+      "description": "Only explicit Lean settings reach the child, in the requested working directory.",
+      "parameter_id": null,
+      "level": "integration",
+      "concerns": [
+        "environment"
+      ],
+      "resources": [],
+      "implementation_source": "tests/test_process.py",
+      "collection_verified": true,
+      "migration_notes": "Trusted process limits or Atuin Nix dependency regression."
+    },
+    {
+      "source": "tests/test_process.py",
+      "legacy": null,
+      "origin": "new",
+      "runtimes": [
+        "source"
+      ],
+      "assertions": [
+        "A noisy child cannot grow its output file or returned diagnostics without bound."
+      ],
+      "node_id": "tests/test_process.py::test_output_limit",
+      "description": "A noisy child cannot grow its output file or returned diagnostics without bound.",
+      "parameter_id": null,
+      "level": "integration",
+      "concerns": [
+        "environment"
+      ],
+      "resources": [],
+      "implementation_source": "tests/test_process.py",
+      "collection_verified": true,
+      "migration_notes": "Trusted process limits or Atuin Nix dependency regression."
+    },
+    {
+      "source": "tests/test_process.py",
+      "legacy": null,
+      "origin": "new",
+      "runtimes": [
+        "source"
+      ],
+      "assertions": [
+        "A nonterminating child is stopped by the process deadline."
+      ],
+      "node_id": "tests/test_process.py::test_timeout",
+      "description": "A nonterminating child is stopped by the process deadline.",
+      "parameter_id": null,
+      "level": "integration",
+      "concerns": [
+        "environment"
+      ],
+      "resources": [],
+      "implementation_source": "tests/test_process.py",
+      "collection_verified": true,
+      "migration_notes": "Trusted process limits or Atuin Nix dependency regression."
+    },
+    {
+      "source": "tests/test_timeout_cleanup.py",
+      "legacy": null,
+      "origin": "new",
+      "runtimes": [
+        "source"
+      ],
+      "assertions": [
+        "A pytest-level deadline also terminates the actual separately grouped proof process."
+      ],
+      "node_id": "tests/test_timeout_cleanup.py::test_outer_timeout_kills_proof_process",
+      "description": "A pytest-level deadline also terminates the actual separately grouped proof process.",
+      "parameter_id": null,
+      "level": "integration",
+      "concerns": [
+        "environment"
+      ],
+      "resources": [
+        "requires_native"
+      ],
+      "implementation_source": "tests/test_timeout_cleanup.py",
+      "collection_verified": true,
+      "migration_notes": "Trusted process limits or Atuin Nix dependency regression."
     }
   ],
   "fixture_contracts": {
@@ -10534,13 +10366,13 @@
     "source_identity": "One tiny synthetic baseline is evaluated once per session with the real locked Nix library; each case copies only declared fixture bytes into its private tree. No repository/build copying or package build occurs. Missing fixed paths fail evaluation; unselected source components remain unchanged."
   },
   "collection_checks": {
-    "case_count": 336,
-    "legacy_mapped_case_count": 223,
-    "new_case_count": 113,
-    "source_case_count": 330,
+    "case_count": 332,
+    "legacy_mapped_case_count": 214,
+    "new_case_count": 118,
+    "source_case_count": 326,
     "installed_case_count": 19,
     "baseline_hashes_verified": 39,
-    "result": "Active identities match pytest collection after replacing orchestration with Nix test targets.",
+    "result": "Active identities match pytest collection after removing OS containment.",
     "evidence": [
       {
         "path": "/Users/tzankomatev/work/sqlite-verifier-adr1/build/final-pilot-fixes-catalogue.json",
@@ -10561,63 +10393,54 @@
         "path": "build/nix-target-catalogue.json",
         "sha256": "ea959be55af4a145e9eb2b9f08d8b5aa2c5a0a9fb8a77a15af0d66f18a23a3bd",
         "case_count": 336
+      },
+      {
+        "path": "build/trusted-execution-catalogue.json",
+        "sha256": "402f0128d38cd2b0ab2737b6fbc8cfc6814c387b93a818c2aebf7db0598677e0",
+        "case_count": 332
       }
     ],
     "runtime_build_required": false,
-    "retired_case_count": 96
+    "retired_case_count": 108
   },
   "implementation_sha256": {
-    "build-support/sources.nix": "9b52e72ce6c02285cafa7576d6899491a1e17d06d08158c4c26cf852aace86e2",
-    "conformance/atuin_sql_check.py": "04e2ddc03b0c3280d3b9b302c5255849e93fe9f0406131eb526603b7f2b04910",
-    "conformance/model_check.py": "400a7cadc9add676270362e85b945348296598e16cca0567b06da868f4fb5810",
-    "conformance/native_fixture.py": "05ec96bc3ad3cf4717aee87616dc2c03f6c2e8d7926a2cdcedc9b0c143f6efa3",
-    "conftest.py": "b365aa58daacd4bb3d75f686806cdde8c5d5b5be047ca56950479f5ba9e03630",
-    "packaging/build_runtime.py": "8f3cec98e9f5e7ca5d6606c3d31e132fc5042a55bb7d0f9d6da54fec8d74425d",
-    "tests/atuin_cli_test.py": "51dcee60df053de18800037f6e1f7d2ab4ef5fe6d6298d3e099dfa91fae64dc9",
+    "tests/atuin_cli_test.py": "935de330bb4730c1394588cc94783c810bc6f62751116ca24a3c68336c52efd7",
     "tests/atuin_sql_test.py": "ff088e3878a25c86ef98a135d2c8c174b0496c3dcb278382d03d6f40b4c1f3fc",
-    "tests/case_reports.py": "f9b3d6bf20d90dac7706d049049b31ded5a6cc1584e741d0687154028526b9b3",
-    "tests/catalogue.py": "15d38731fe34caa12f8191b2b587582d7115a021c5fe051483768445c13b76c6",
-    "tests/cli_test.py": "7b370a9cfc0fb2e9a8e32bcdc0b49494282b69054471a1e08b7143769e9a3e71",
-    "tests/compilation_test.py": "45d4b954d018232e472b9dcacfc8e97cbf4bd8414a70d61c63ddbd28e79c0c6a",
+    "tests/cli_test.py": "795de17118ef9eb6f97f451756f0d8fdb0b71a3a6ca7839492c1f6f03013bfa2",
+    "tests/compilation_test.py": "ad85549b6ea02bed3b1b22103d1dff6ffd0a3878c18cb0e10074256581929910",
     "tests/conformance_model_test.py": "f262aa2b9269d8444d3c2b8e50f9cb648d7f122f15615da114753a68fd2cf25c",
     "tests/conformance_native_test.py": "58d5d2664a2cfe6669aa0441f4f07675192d0fb6c276ac887993f1c27d24bb17",
     "tests/coverage_evidence_test.py": "e5ccbfcf2533fbd1f385bedfe1368d802b879a7a4df4b92c422b8817fa530706",
     "tests/docs_test.py": "721b8e59cfa8fcafa9f83eadc719c1f32694ce7cfbc751259cd9d17cdc786227",
-    "tests/early_baseline_test.py": "b0c49f17e10d13cb943fab7e5a91965e16fa39470bd39ed013b051c3a866a03c",
+    "tests/early_baseline_test.py": "0d02cecef4c20b716a2f81862b2795dde2928db6758c0d7321349e9deeba5992",
     "tests/environment_snapshot_test.py": "46a705b5c3e6a91ff74187f0bfe815cb5c854d2557bdb549d31405b6564f57fa",
     "tests/kernel_gate_test.py": "bcf56bbc46e91dfe01a6272ed86496dc31712f919b7e608f5feb821d9d668704",
     "tests/parser_build_test.py": "1ab2b6618d77d10176764fa0ac906c3bd141877102167c6c9b537f7c9c427ee5",
     "tests/parser_test.py": "115e689cb4e7c2841759ea94cda55795bec1d74d400add72852e116df3180bb2",
-    "tests/runtime_fixtures.py": "933ca9e79488e372953f3f64c76a48b8ea4d8b3a6027007a2ba85c7b81401fe2",
-    "tests/runtime_installation.py": "6370c74806c85e07db1e8a3795ba331ddf3b4a44a45929bd4b0d8633b723606d",
-    "tests/runtime_package_test.py": "ff2c88e38659417d818367cb1e63b859f4177d9e8eec578a64b959a05edd2f91",
-    "tests/runtime_support.py": "839f3e2125116e521b773834b005d803a7778f1582a6877e13bfb1d717b0d6e8",
+    "tests/runtime_package_test.py": "753f1cdbf84d24b7e26899bdd694b7bffdf8cc74f8d1e41f254096721481677a",
     "tests/schema_generation_test.py": "c083e190e20dfd99e0eaa4b3e84836c54420c130beaf5d9588b94c7c39e9e982",
     "tests/test_baseline_ci.py": "992fdf69c88e37e48b09186be1041a86d6cbfbbd63668abce4f628cabe1c6716",
     "tests/test_benchmark_ci.py": "bd9bc000124312c226ee901ff3619bd6d4dffacc97836dca4c27b096357946e6",
     "tests/test_cache_fingerprint.py": "a8537c9cda80efbc9d8d397b6368fa707c5bea40daa886c7ec852cddadf6c83c",
-    "tests/test_ci_checks.py": "d420764e13d2be71c3aef5790c380063c090db0f449eb14ae996cfbc111eb9cd",
+    "tests/test_ci_checks.py": "478a81ebf232a3bd0e92fcac20eed967766322b5e464575df3dc7b88d832a230",
     "tests/test_ci_scope.py": "d7f8a9328c5545a6f7ec140d15f8eccaa87b3483747fa703fd8741107f13cc95",
     "tests/test_cli_inputs.py": "4df14d84ccb1bf0b3a3d24584f7e605770255075dc5ca2ceebc7499ab03ca1e9",
-    "tests/test_native_dependencies.py": "3ae8f56a3dfb85fd17fbf44873385c17d718b78537a27a8ccbf910f4ffce9453",
+    "tests/test_nix_test_targets.py": "7423a2d997b209e64d8ca575e23e9ab0252dec1b468fa4054717465029860b39",
+    "tests/test_process.py": "616dfc51a129a557f16b745a2e94926d35076b8ba25aa1414aac775188734430",
     "tests/test_profiles.py": "48e7ba1b75959c3023c3ec8f1e3133bff8b350b385891dd4e56dda110cfee354",
     "tests/test_pytest_harness.py": "6806d6137c5e79d2aae809f9fb72d4ae5466de71c91b4379be3bde5059d6e567",
     "tests/test_resources.py": "11fe33cf61971a03736047bf995441431fbbe8a6bfc1697563dfa8f1b17503e1",
     "tests/test_runtime_package.py": "11b4b051cf22d1e66f72f06645325ad2e5ff23735752d898a1d0233d450aba2c",
     "tests/test_runtime_selection.py": "d3bb57eda495ea5620fa2fbc5575f925b7c086bf806add6033c63397f56b370d",
     "tests/test_runtime_staging.py": "6af01c88da0a362459c6610a33ab744ac44291a72baeb32b882a51392a235838",
-    "tests/test_sandbox.py": "ed1950182ff2a02d12ee74f8e5d78e6c0e2fff8f38cce3fb37c4abd3aeeed968",
     "tests/test_schema_baseline.py": "77440d832802d0f3a906ca42fed0b3f0d847ff3445f4b80d6c6640322a55100f",
     "tests/test_schema_translation.py": "8d4053893d6356cfe3848716bf44fbfea99a4b1febdca5e0e679c2c365cde547",
     "tests/test_source_identity.py": "c5328788e637e2af2b190d04f5dbe0017ddd5a0b52785c1f04f2bf1e23e028a1",
     "tests/test_sql_writes.py": "6717e9c6356af2c99fb0831eaa9870c6a15e73da7aac41c1e1727711cea64158",
-    "tests/test_timeout_cleanup.py": "73d9767a6d58a80440e12cf2833d5284053c5f8675f12d5d38715b1478720aaa",
+    "tests/test_timeout_cleanup.py": "5e22223a13332d6e621dab5a96d6e3ded44c08616c87cb7ddc2807c9f65cceca",
     "tests/test_toolchain_smoke.py": "5193ad5376fa2ed90043503efc7fb26bbffcf6dd622067688b63a59023adc4f9",
     "tests/test_translation.py": "f590fa4c7e45fae13871af30f04ac2ffcdb44cedeaac1220b7058d5e860c78e0",
-    "tools/cache_fingerprint.py": "1c6e85b46537c0a584ba1ffc1cd68fa82042a17a591f7ac9fb5594507b4d1a8b",
-    "tools/ci_checks.py": "c3309ee05099f3eda273d35bacd3dfdd2afc7fe0d5ee00f857672d1e9b94ea21",
-    "tests/test_nix_test_targets.py": "8e52f54204c4d9d0fb8c8cb463ef19782fdc9b82c38eab4882027937cd52b2eb",
-    "build-support/tests.nix": "9f2e186b5f101182b50698bce6b5e9b6dcc3e704006f9f8e6242b3a1ea770909"
+    "tests/source_fixtures.py": "e1a8b27700825d1e7ca8a473ff8979e4e09319fb86e2d6c8ef7f10e2f5571452"
   },
   "baseline_entrypoints": {
     "just smoke": [
@@ -13569,6 +13392,320 @@
         ]
       },
       "retirement_reason": "2026-09-28: removed custom source orchestration, unit-cache receipt validation and aggregate coverage gating; pytest exit status and independent Nix test derivations replace them. Obsolete unit-source identity checks retired."
+    },
+    {
+      "source": "tests/test_native_dependencies.py:17-33",
+      "legacy": "Only exact existing Nix store entries can enter the proof-process read policy.",
+      "node_id": "tests/test_native_dependencies.py::NativeDependenciesTest::test_loader_roots",
+      "runtimes": [
+        "source"
+      ],
+      "level": "integration",
+      "concerns": [
+        "environment",
+        "packaging"
+      ],
+      "resources": [
+        "requires_nix"
+      ],
+      "assertions": [
+        "self.assertEqual(native_runtime_roots(directory), [])",
+        "self.assertEqual(executable.parts[:3], (\"/\", \"nix\", \"store\"), \"Run in pinned Nix shell\")",
+        "self.assertEqual(native_runtime_roots(directory), [expected])",
+        "self.assertRaises(ValueError)"
+      ],
+      "legacy_variants": [
+        {
+          "line": 25,
+          "source": "for invalid in (\"/\", \"/nix\", \"/nix/store\", str(directory), \"/nix/store/.links\"):\n                metadata.write_text(invalid + \"\\n\")\n                with self.assertRaises(ValueError):\n                    native_runtime_roots(directory)"
+        }
+      ],
+      "collection_verified": true,
+      "origin": "legacy",
+      "implementation_source": "tests/test_native_dependencies.py:23-39",
+      "description": "Only exact existing Nix store entries can enter the proof-process read policy.",
+      "parameter_id": null,
+      "retirement_reason": "2026-09-29: OS containment removed under explicit trusted-execution scope. Sandbox policy and loader manifest tests retired; bounded process tests retained separately. Nix dependency cases updated for Atuin."
+    },
+    {
+      "source": "tests/test_native_dependencies.py:117-145",
+      "legacy": "The build-owned manifest supplies loader roots to compilation and kernel checking.",
+      "node_id": "tests/test_native_dependencies.py::NativeDependenciesTest::test_development_loader_roots_reach_both_sandboxes",
+      "runtimes": [
+        "source"
+      ],
+      "level": "integration",
+      "concerns": [
+        "environment",
+        "packaging"
+      ],
+      "resources": [
+        "requires_nix"
+      ],
+      "assertions": [
+        "self.assertEqual(executable.parts[:3], (\"/\", \"nix\", \"store\"), \"Run in pinned Nix shell\")",
+        "self.assertEqual(native_runtime_roots(sysroot, library), [store])",
+        "self.assertEqual(native_runtime_roots(sysroot, root / \"unrelated\"), [])",
+        "self.assertIn(store, runtime.read_roots())",
+        "self.assertEqual(native_runtime_roots(sysroot, library), [])",
+        "self.assertEqual(lean_process(sysroot, library, [], root / \"Input.lean\", root / \"scratch\",\n                                              [\"--deps-json\"], \"dependencies\", timeout=5), \"header result\")",
+        "self.assertIn(store, run.call_args.kwargs[\"read_roots\"])",
+        "self.assertNotIn(Path(\"/nix/store\"), run.call_args.kwargs[\"read_roots\"])"
+      ],
+      "legacy_variants": [],
+      "collection_verified": true,
+      "origin": "legacy",
+      "implementation_source": "tests/test_native_dependencies.py:134-162",
+      "description": "The build-owned manifest supplies loader roots to compilation and kernel checking.",
+      "parameter_id": null,
+      "retirement_reason": "2026-09-29: OS containment removed under explicit trusted-execution scope. Sandbox policy and loader manifest tests retired; bounded process tests retained separately. Nix dependency cases updated for Atuin."
+    },
+    {
+      "source": "tests/test_sandbox.py:18-113",
+      "legacy": "Actual input/output/private/network/credential isolation",
+      "node_id": "tests/test_sandbox.py::test_isolation",
+      "runtimes": [
+        "source"
+      ],
+      "level": "integration",
+      "concerns": [
+        "environment"
+      ],
+      "resources": [
+        "requires_sandbox"
+      ],
+      "assertions": [
+        "Input and symlink alias read approved; protected write denied and original bytes unchanged; private read denied; live network denied; GITHUB_TOKEN absent; writable output created; sandbox exit 0"
+      ],
+      "collection_verified": true,
+      "origin": "legacy",
+      "implementation_source": "tests/test_sandbox.py:48-89",
+      "description": "Real isolation permits input reads/output writes but blocks context writes, private reads and network.",
+      "parameter_id": null,
+      "retirement_reason": "2026-09-29: OS containment removed under explicit trusted-execution scope. Sandbox policy and loader manifest tests retired; bounded process tests retained separately. Nix dependency cases updated for Atuin."
+    },
+    {
+      "source": "tests/test_sandbox.py:18-113",
+      "legacy": "Writable output overlaps readable parent",
+      "node_id": "tests/test_sandbox.py::test_overlapping_roots_rejected[read_parent]",
+      "runtimes": [
+        "source"
+      ],
+      "level": "unit",
+      "concerns": [
+        "environment"
+      ],
+      "resources": [],
+      "assertions": [
+        "sandbox_command raises ValueError containing disjoint before backend selection"
+      ],
+      "collection_verified": true,
+      "origin": "legacy",
+      "implementation_source": "tests/test_sandbox.py:94-99",
+      "description": "Overlapping input and output trees reject before selecting or launching a sandbox backend.",
+      "parameter_id": "read_parent",
+      "retirement_reason": "2026-09-29: OS containment removed under explicit trusted-execution scope. Sandbox policy and loader manifest tests retired; bounded process tests retained separately. Nix dependency cases updated for Atuin."
+    },
+    {
+      "source": "tests/test_sandbox.py:18-113",
+      "legacy": "Readable input overlaps writable parent",
+      "node_id": "tests/test_sandbox.py::test_overlapping_roots_rejected[write_parent]",
+      "runtimes": [
+        "source"
+      ],
+      "level": "unit",
+      "concerns": [
+        "environment"
+      ],
+      "resources": [],
+      "assertions": [
+        "sandbox_command raises ValueError containing disjoint before backend selection"
+      ],
+      "collection_verified": true,
+      "origin": "legacy",
+      "implementation_source": "tests/test_sandbox.py:94-99",
+      "description": "Overlapping input and output trees reject before selecting or launching a sandbox backend.",
+      "parameter_id": "write_parent",
+      "retirement_reason": "2026-09-29: OS containment removed under explicit trusted-execution scope. Sandbox policy and loader manifest tests retired; bounded process tests retained separately. Nix dependency cases updated for Atuin."
+    },
+    {
+      "source": "tests/test_sandbox.py:18-113",
+      "legacy": "Ambient Python import setting rejected",
+      "node_id": "tests/test_sandbox.py::test_untrusted_environment_rejected",
+      "runtimes": [
+        "source"
+      ],
+      "level": "unit",
+      "concerns": [
+        "environment"
+      ],
+      "resources": [],
+      "assertions": [
+        "run_sandboxed raises ValueError containing Only trusted Lean before execution"
+      ],
+      "collection_verified": true,
+      "origin": "legacy",
+      "implementation_source": "tests/test_sandbox.py:103-108",
+      "description": "Ambient Python import settings cannot enter the trusted sandbox environment.",
+      "parameter_id": null,
+      "retirement_reason": "2026-09-29: OS containment removed under explicit trusted-execution scope. Sandbox policy and loader manifest tests retired; bounded process tests retained separately. Nix dependency cases updated for Atuin."
+    },
+    {
+      "source": "tests/test_sandbox.py:18-113",
+      "legacy": "Flooded stdout is bounded",
+      "node_id": "tests/test_sandbox.py::test_output_limit",
+      "runtimes": [
+        "source"
+      ],
+      "level": "integration",
+      "concerns": [
+        "environment"
+      ],
+      "resources": [
+        "requires_sandbox"
+      ],
+      "assertions": [
+        "Noisy child exits nonzero and captured stdout length equals 1024*1024"
+      ],
+      "collection_verified": true,
+      "origin": "legacy",
+      "implementation_source": "tests/test_sandbox.py:113-119",
+      "description": "An output-flooding child fails and retained stdout is bounded to one MiB.",
+      "parameter_id": null,
+      "retirement_reason": "2026-09-29: OS containment removed under explicit trusted-execution scope. Sandbox policy and loader manifest tests retired; bounded process tests retained separately. Nix dependency cases updated for Atuin."
+    },
+    {
+      "source": "tests/test_sandbox.py:18-113",
+      "legacy": "Nonterminating child deadline",
+      "node_id": "tests/test_sandbox.py::test_timeout",
+      "runtimes": [
+        "source"
+      ],
+      "level": "integration",
+      "concerns": [
+        "environment"
+      ],
+      "resources": [
+        "requires_sandbox"
+      ],
+      "assertions": [
+        "run_sandboxed raises subprocess.TimeoutExpired at 0.5-second timeout"
+      ],
+      "collection_verified": true,
+      "origin": "legacy",
+      "implementation_source": "tests/test_sandbox.py:124-129",
+      "description": "A nonterminating proof child raises TimeoutExpired within the configured deadline.",
+      "parameter_id": null,
+      "retirement_reason": "2026-09-29: OS containment removed under explicit trusted-execution scope. Sandbox policy and loader manifest tests retired; bounded process tests retained separately. Nix dependency cases updated for Atuin."
+    },
+    {
+      "source": "tests/test_sandbox.py:18-113",
+      "legacy": "Platform-specific child cleanup",
+      "node_id": "tests/test_sandbox.py::test_fork_containment",
+      "runtimes": [
+        "source"
+      ],
+      "level": "integration",
+      "concerns": [
+        "environment"
+      ],
+      "resources": [
+        "requires_sandbox"
+      ],
+      "assertions": [
+        "Darwin os.fork raises PermissionError; Linux escaped session child starts but cannot write leaked marker after timeout and bounded wait"
+      ],
+      "collection_verified": true,
+      "origin": "legacy",
+      "implementation_source": "tests/test_sandbox.py:134-152",
+      "description": "macOS denies forks; Linux kills escaped child sessions when the enclosing proof times out.",
+      "parameter_id": null,
+      "retirement_reason": "2026-09-29: OS containment removed under explicit trusted-execution scope. Sandbox policy and loader manifest tests retired; bounded process tests retained separately. Nix dependency cases updated for Atuin."
+    },
+    {
+      "source": "tests/test_sandbox.py:35-43",
+      "legacy": null,
+      "origin": "new",
+      "node_id": "tests/test_sandbox.py::test_unicode_executable",
+      "runtimes": [
+        "source"
+      ],
+      "assertions": [
+        "An executable under a quoted Unicode path runs under the same restricted sandbox policy."
+      ],
+      "assertion_source": [
+        "assert result.returncode == 0 and result.stdout == \"unicode executable\\n\", result.stderr"
+      ],
+      "implementation_source": "tests/test_sandbox.py:35-43",
+      "description": "An executable under a quoted Unicode path runs under the same restricted sandbox policy.",
+      "parameter_id": null,
+      "level": "integration",
+      "concerns": [
+        "environment"
+      ],
+      "resources": [
+        "requires_sandbox"
+      ],
+      "collection_verified": true,
+      "retirement_reason": "2026-09-29: OS containment removed under explicit trusted-execution scope. Sandbox policy and loader manifest tests retired; bounded process tests retained separately. Nix dependency cases updated for Atuin."
+    },
+    {
+      "source": "tests/test_timeout_cleanup.py:108-133",
+      "legacy": null,
+      "origin": "new",
+      "node_id": "tests/test_timeout_cleanup.py::test_outer_timeout_kills_production_sandbox",
+      "runtimes": [
+        "source"
+      ],
+      "assertions": [
+        "A pytest-level deadline also terminates the actual separately grouped production sandbox launcher."
+      ],
+      "assertion_source": [
+        "assert failure.value.result.cleanup_error is None, failure.value.result.diagnostic()"
+      ],
+      "description": "A pytest-level deadline also terminates the actual separately grouped production sandbox launcher.",
+      "parameter_id": null,
+      "level": "integration",
+      "concerns": [
+        "environment"
+      ],
+      "resources": [
+        "requires_native",
+        "requires_sandbox"
+      ],
+      "implementation_source": "tests/test_timeout_cleanup.py:108-133",
+      "collection_verified": true,
+      "resource_arguments": {
+        "requires_native": [
+          "/bin/ps"
+        ]
+      },
+      "retirement_reason": "2026-09-29: OS containment removed under explicit trusted-execution scope. Sandbox policy and loader manifest tests retired; bounded process tests retained separately. Nix dependency cases updated for Atuin."
+    },
+    {
+      "source": "tests/test_nix_test_targets.py",
+      "legacy": null,
+      "origin": "new",
+      "runtimes": [
+        "source"
+      ],
+      "assertions": [
+        "Changing a declared input invalidates only dependent suites; unrelated tests leave both cached."
+      ],
+      "implementation_source": "tests/test_nix_test_targets.py",
+      "node_id": "tests/test_nix_test_targets.py::test_dependency_invalidation[tests/test_translation.py-affected5]",
+      "description": "Changing a declared input invalidates only dependent suites; unrelated tests leave both cached.",
+      "parameter_id": "tests/test_translation.py-affected5",
+      "level": "integration",
+      "concerns": [
+        "environment"
+      ],
+      "resources": [
+        "requires_nix"
+      ],
+      "collection_verified": true,
+      "migration_notes": "Exercise actual Nix target identities and a failing sandboxed pytest target; no custom result cache.",
+      "retirement_reason": "2026-09-29: OS containment removed under explicit trusted-execution scope. Sandbox policy and loader manifest tests retired; bounded process tests retained separately. Nix dependency cases updated for Atuin."
     }
   ]
 }

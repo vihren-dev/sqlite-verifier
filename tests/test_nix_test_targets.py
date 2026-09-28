@@ -20,6 +20,12 @@ def expression(root: Path) -> str:
       builds = import (builtins.toPath {quote(ROOT / 'build-support/default.nix')}) {{}};
     in import (builtins.toPath {quote(ROOT / 'build-support/tests.nix')}) {{
       inherit pkgs; inherit (builds) leanToolchain leanRuntime parsers;
+      runtime = import (builtins.toPath {quote(ROOT / 'build-support/runtime.nix')}) {{
+        inherit pkgs; inherit (builds) leanToolchain leanRuntime parsers;
+        sources = builds.sources // {{ runtime = (import (builtins.toPath {quote(ROOT / 'build-support/sources.nix')}) {{
+          inherit (pkgs) lib; root = /. + {quote(root)};
+        }}).runtime; }};
+      }};
       root = /. + {quote(root)};
     }}'''
 
@@ -36,9 +42,9 @@ def identities(root: Path) -> dict[str, str]:
 @pytest.fixture
 def source_tree(tmp_path: Path) -> Path:
     """Copy only small potential test inputs; no store outputs, vendored parsers or build trees."""
-    for name in ('pytest.ini', 'conftest.py'):
+    for name in ('pytest.ini', 'conftest.py', 'LICENSE'):
         shutil.copy2(ROOT / name, tmp_path / name)
-    for name in ('tests', 'migration_check', 'conformance'):
+    for name in ('tests', 'migration_check', 'conformance', 'examples', 'docs', 'packaging'):
         shutil.copytree(ROOT / name, tmp_path / name,
                         ignore=shutil.ignore_patterns('__pycache__', '*.pyc', 'upstream'))
     return tmp_path
@@ -48,8 +54,11 @@ def source_tree(tmp_path: Path) -> Path:
     ('tests/kernel_gate_test.py', {'kernel'}),
     ('tests/kernel_gate/Proofs.lean', {'kernel'}),
     ('conformance/model_cases.py', {'model'}),
-    ('migration_check/translate.py', {'model'}),
-    ('conftest.py', {'kernel', 'model'}),
+    ('migration_check/translate.py', {'model', 'atuin'}),
+    ('conftest.py', {'kernel', 'model', 'atuin'}),
+    ('tests/atuin_cli_test.py', {'atuin'}),
+    ('conformance/atuin_sql_fixture.py', {'atuin'}),
+    ('examples/atuin/Proofs.lean', {'atuin'}),
     ('tests/test_translation.py', set()),
 ])
 def test_dependency_invalidation(source_tree: Path, relative: str, affected: set[str]) -> None:

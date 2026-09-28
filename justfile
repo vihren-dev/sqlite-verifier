@@ -16,7 +16,7 @@ build: resources
     rm -rf .lake/build build/parser build/parser-3.46.0
     ln -sfn ../build/runtime/.lake/build .lake/build
     ln -sfn build/runtime/lean lean
-    for name in parser parser-3.46.0 sqlite-parser sqlite-parser-3.46.0 nix-runtime-roots; do ln -sfn "runtime/build/$name" "build/$name"; done
+    for name in parser parser-3.46.0 sqlite-parser sqlite-parser-3.46.0; do ln -sfn "runtime/build/$name" "build/$name"; done
 
 # Compile the pinned complete SQLite grammar and tokenizer.
 parser: resources
@@ -42,7 +42,12 @@ smoke:
 # Cache expensive hermetic suites; run host-dependent and cheap tests normally.
 test: build
     timeout 900 nix-build build-support/default.nix -A tests --out-link build/nix-tests --option sandbox true --option sandbox-fallback false --extra-experimental-features 'nix-command flakes'
-    timeout --foreground 1800 python3 -u -m pytest -v tests --ignore=tests/runtime_package_test.py --ignore=tests/kernel_gate_test.py --ignore=tests/conformance_model_test.py --runtime-root "${SQLITE_VERIFIER_RUNTIME_ROOT:-$PWD}" --suite source
+    timeout --foreground 1800 python3 -u -m pytest -v tests --ignore=tests/runtime_package_test.py --ignore=tests/kernel_gate_test.py --ignore=tests/conformance_model_test.py --ignore=tests/atuin_cli_test.py --ignore=tests/atuin_sql_test.py --runtime-root "${SQLITE_VERIFIER_RUNTIME_ROOT:-$PWD}" --suite source
+
+# Select only the cached application-specific suite.
+test-atuin:
+    mkdir -p build
+    timeout 900 nix-build build-support/default.nix -A tests.atuin --out-link build/nix-atuin --option sandbox true --option sandbox-fallback false --extra-experimental-features 'nix-command flakes'
 
 # Build a native offline archive and verify its actual installed entrypoint.
 runtime-package: build

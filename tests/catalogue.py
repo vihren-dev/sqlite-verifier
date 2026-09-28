@@ -7,7 +7,7 @@ import pytest
 
 LEVELS = {"unit", "integration", "e2e"}
 CONCERNS = {"parser", "kernel", "approval", "atuin", "packaging", "conformance", "environment"}
-RESOURCES = {"requires_lean", "requires_native", "requires_nix", "requires_sandbox"}
+RESOURCES = {"requires_lean", "requires_native", "requires_nix"}
 
 
 class CaseDescription(TypedDict):

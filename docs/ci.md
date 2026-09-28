@@ -10,21 +10,22 @@ changes to link checks, ordinary changes to `just test`, and runtime/package
 changes to `just package`. Tags and manual requests always package.
 
 Each native job enters the pinned Nix environment once. `tools/ci_checks.py`
-checks resources, builds the runtime, probes the Linux sandbox capability and
-invokes the selected recipe. `just test` builds two independent Nix test targets:
+checks resources, builds the runtime and
+invokes the selected recipe. `just test` builds three independent Nix test targets:
 
 - `tests.kernel`: real Lean compilation and proof-checker replay attacks.
 - `tests.model`: production SQL translation, pinned native SQLite observations
   and concrete Lean model assertions.
+- `tests.atuin`: all 16 application CLI and native SQL scenarios.
 
 Each target runs ordinary pytest on a cache miss. Its explicit source files,
 Python/pytest, native tools, Lean artifacts and command determine its Nix identity.
 Successful outputs retain pytest reports. There is no Python cache validator or
 coverage-report gate. Nix sandboxing is enabled, with fallback disabled.
 
-The remaining source cases run in one pytest invocation. In particular, CLI,
-Atuin, production containment, Nix daemon and installation tests run on the host;
-we do not treat a cached build-sandbox result as proof of host sandbox behavior.
+The remaining source cases run in one pytest invocation. `just test-atuin` selects
+only the cached Atuin target. Tests use trusted repository fixtures; no production
+sandbox is supplied or tested. Nix daemon and installation tests run on the host.
 Cheap unit tests rerun normally. Direct `just test-cases FILE` always executes
 pytest, even if the corresponding Nix target is already cached.
 
@@ -47,14 +48,6 @@ See [GitHub's hosted runner reference](https://docs.github.com/en/actions/refere
 Runner image updates remain controlled by GitHub; project dependencies are pinned
 separately in `nix/flake.lock` and `lean-toolchain`.
 
-The Linux job requires unprivileged bubblewrap user/network namespaces, rejects
-workspace writes inside its test sandbox, and confirms temporary writes work.
-It fails if those capabilities are unavailable. It does not change host kernel
-settings, use a privileged container, or skip containment failures. This is a
-runner capability check, not evidence that the production proof sandbox is
-correct; its acceptance tests belong in `just test`. Bubblewrap describes the
-policy responsibility in its [upstream documentation](https://github.com/containers/bubblewrap#sandbox-security).
-
 Action commits were resolved from official repository tag references on
 2026-09-24: `actions/checkout` v6, `cachix/install-nix-action` v31 (an annotated
 tag, dereferenced to its commit), and `actions/upload-artifact` v4. The workflow
@@ -69,7 +62,7 @@ characters, and checks both parsers, the positive, refuted and unsupported examp
 the installed dependency roots, and all thirteen Atuin cases under
 a controlled environment without elan or ambient Python imports. The Nix local
 cache retains the complete content-addressed runtime closure with import
-verification enabled. Proof sandbox manifests come from Nix closureInfo.
+verification enabled. Execution isolation is the caller’s responsibility.
 
 Pushes of `v*` tags run the same two-platform checks. Only after both pass does the
 release job download their artifacts, verify the archive checksums, and create a

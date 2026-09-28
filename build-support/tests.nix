@@ -1,5 +1,5 @@
 # Independent pytest targets: Nix owns isolation, dependency identity and reuse.
-{ pkgs, leanToolchain, leanRuntime, parsers, root ? ../. }:
+{ pkgs, leanToolchain, leanRuntime, parsers, runtime, root ? ../. }:
 let
   fs = pkgs.lib.fileset;
   common = map (name: root + "/${name}") [
@@ -19,23 +19,30 @@ let
     ln -s ${leanRuntime}/.lake "$out/.lake"
     ln -s ${parsers}/build "$out/build"
   '';
-  sqlite = (builtins.getFlake (builtins.unsafeDiscardStringContext "path:${../nix}")).packages.${pkgs.stdenv.hostPlatform.system}.sqlite;
-  suite = name: { file, inputs, runtime, tools ? [] }:
+  native = (builtins.getFlake (builtins.unsafeDiscardStringContext "path:${../nix}")).packages.${pkgs.stdenv.hostPlatform.system};
+  suite = name: { file, inputs, runtime, tools ? [], extraFiles ? [] }:
     pkgs.stdenvNoCC.mkDerivation {
       pname = "sqlite-verifier-test-${name}";
       version = "1";
-      src = fs.toSource { inherit root; fileset = fs.unions (common ++ [ (root + "/${file}") ] ++ inputs); };
+      src = fs.toSource { inherit root; fileset = fs.unions (common ++ [ (root + "/${file}") ] ++ (map (name: root + "/${name}") extraFiles) ++ inputs); };
       nativeBuildInputs = [ python ] ++ tools;
       dontConfigure = true;
       dontBuild = true;
       installPhase = ''
         export HOME="$TMPDIR"
         export PYTEST_DISABLE_PLUGIN_AUTOLOAD=1
-        timeout 420 python3 -m pytest ${file} --runtime-root ${runtime} \
+        timeout 420 python3 -m pytest ${file} ${pkgs.lib.concatStringsSep " " extraFiles} --runtime-root ${runtime} \
           --report-dir "$out" --suite ${name} -v --durations=10
       '';
     };
 in {
+  atuin = suite "atuin" {
+    file = "tests/atuin_cli_test.py";
+    extraFiles = [ "tests/atuin_sql_test.py" ];
+    inputs = map (name: root + "/conformance/${name}.py") [ "atuin_sql_check" "atuin_sql_fixture" ];
+    inherit runtime;
+    tools = [ native.sqlite346 ];
+  };
   kernel = suite "kernel" {
     file = "tests/kernel_gate_test.py";
     inputs = [ (fs.fileFilter (file: file.hasExt "lean") (root + /tests/kernel_gate)) ];
@@ -50,6 +57,6 @@ in {
       "native_fixture" "import_fixture" "schema"
     ];
     runtime = modelRoot;
-    tools = [ sqlite ];
+    tools = [ native.sqlite ];
   };
 }
