@@ -124,3 +124,9 @@ No end-to-end performance claim yet.
   Its absolute ELF references must be relocated within the copied payload before
   dependency collection; signature verification remains mandatory. This packaging
   correction and both-platform revalidation remain in progress.
+
+- Removed the obsolete parser script runner after a complete caller search. Both
+  independently collected native reuse cases remain; seven focused checks and
+  nineteen subtests pass. The inventory's parser implementation hash will be
+  refreshed with the final packaging changes; preserved legacy source evidence
+  is unchanged. A fresh reverse-order run of all 395 source cases is in progress.

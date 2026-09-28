@@ -190,10 +190,3 @@ def test_native_reuse(version: str) -> None:
     assert (ROOT / "build" / executable).is_file()
     with patch.object(build, "run", side_effect=AssertionError("Unchanged pinned parser invoked a build tool")):
         build.build(version, upstream, executable)
-
-if __name__ == "__main__":
-    if sys.argv[1:] == ["--native-reuse"]:
-        for release in ("3.51.0", "3.46.0"):
-            test_native_reuse(release)
-    else:
-        unittest.main()
