@@ -39,7 +39,7 @@ def run(native: str, parser: Path, selected: tuple[Case, ...] | None = None,
             proof = folder / (case.name + ".lean")
             proof.write_text(generated + "\n" + assertions(case))
             # The 2,000-column kernel check exceeds 30s on hosted macOS; the
-            # collector still bounds the complete comparison suite to 180s.
+            # Nix test target bounds the complete comparison suite to 420s.
             command = [str(compiler), str(proof)] if compiler else ["lake", "env", "lean", str(proof)]
             environment = {**os.environ, "LEAN_PATH": str(library)} if library else None
             checked = subprocess.run(command, cwd=runtime_root, env=environment,

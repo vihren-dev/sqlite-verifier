@@ -34,15 +34,15 @@ def summarize(samples: list[dict]) -> dict:
             errors.append(label + ": unexpected cold/warm cache state")
         if sample["variant"] == "candidate":
             reports = sample.get("case_reports", [])
-            cached = sample.get("cached_unit_reports", [])
+            cached = sample.get("cached_test_reports", [])
             source_ids = [case["node_id"] for report in reports if report.get("runtime") == "source"
                           for case in report.get("cases", [])]
-            unit_ids = [case["node_id"] for report in cached for case in report.get("cases", [])]
+            cached_ids = [case["node_id"] for report in cached for case in report.get("cases", [])]
             installed_ids = [case["node_id"] for report in reports if report.get("runtime") == "installed"
                              for case in report.get("cases", [])]
-            combined = source_ids + unit_ids
+            combined = source_ids + cached_ids
             if (not sample.get("source_ids") or len(combined) != len(set(combined)) or
-                    set(combined) != set(sample["source_ids"]) or unit_ids != sample.get("unit_ids")):
+                    set(combined) != set(sample["source_ids"]) or cached_ids != sample.get("cached_ids")):
                 errors.append(label + ": source/cache selection differs from exact catalogue")
             if not sample.get("source_run_id") or any(
                     report.get("run_id") != sample["source_run_id"] for report in reports

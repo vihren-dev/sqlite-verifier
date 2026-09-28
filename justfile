@@ -37,16 +37,17 @@ test-list *args:
 
 # Check pinned tools through the same scenario interface.
 smoke:
-    python3 -m tools.run_independent_suites --timeout 15 --suite smoke --runtime-root "${SQLITE_VERIFIER_RUNTIME_ROOT:-$PWD}" -- tests/test_toolchain_smoke.py
+    timeout 15 python3 -m pytest tests/test_toolchain_smoke.py --suite smoke --runtime-root "${SQLITE_VERIFIER_RUNTIME_ROOT:-$PWD}"
 
-# Execute source cases once, then aggregate only this invocation's fresh evidence.
+# Cache expensive hermetic suites; run host-dependent and cheap tests normally.
 test: build
-    python3 -m tools.run_source_suite
+    timeout 900 nix-build build-support/default.nix -A tests --out-link build/nix-tests --option sandbox true --option sandbox-fallback false --extra-experimental-features 'nix-command flakes'
+    timeout 1800 python3 -m pytest tests --ignore=tests/runtime_package_test.py --ignore=tests/kernel_gate_test.py --ignore=tests/conformance_model_test.py --runtime-root "${SQLITE_VERIFIER_RUNTIME_ROOT:-$PWD}" --suite source
 
 # Build a native offline archive and verify its actual installed entrypoint.
 runtime-package: build
     timeout 1200 python3 packaging/build_runtime.py --runtime-root "${SQLITE_VERIFIER_RUNTIME_ROOT:-$PWD/build/runtime}"
-    python3 -m tools.run_independent_suites --timeout 1800 --suite installed --runtime-archive "dist/sqlite-verifier-${SQLITE_VERIFIER_SYSTEM:?Enter nix develop path:./nix}.tar.gz" --runtime-variant installed -- tests/runtime_package_test.py tests/atuin_cli_test.py
+    timeout 1800 python3 -m pytest --suite installed --runtime-archive "dist/sqlite-verifier-${SQLITE_VERIFIER_SYSTEM:?Enter nix develop path:./nix}.tar.gz" --runtime-variant installed tests/runtime_package_test.py tests/atuin_cli_test.py
 
 # Keep a source snapshot alongside the checked installable runtime.
 package: test runtime-package

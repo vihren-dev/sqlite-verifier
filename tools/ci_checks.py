@@ -25,7 +25,7 @@ touch /tmp/sandbox-write-probe
 
 
 def run_checks(scope: str, mode: str, system: str, root: Path) -> None:
-    """Cache artifacts only; proof, conformance, sandbox and installed acceptance stay fresh."""
+    """Use Nix build/test targets while host sandbox and installed acceptance stay fresh."""
     if scope not in {"test", "package"} or mode not in {"source", "build"}:
         raise ValueError("CI requires a complete test/package recipe and a supported build mode")
     check_resources(root)
@@ -62,15 +62,13 @@ def run_checks(scope: str, mode: str, system: str, root: Path) -> None:
             output.write_text(json.dumps(records, indent=2) + "\n")
 
     if mode == "build":
-        for target, variable in (("runtime", "SQLITE_VERIFIER_RUNTIME_ROOT"),
-                                 ("unitChecks", "SQLITE_VERIFIER_UNIT_CHECKS")):
-            environment[variable] = run(target, ["nix-build", "build-support/default.nix", "-A", target,
-                "--no-out-link", "--extra-experimental-features", "nix-command flakes"], 900, capture=True)
+        environment["SQLITE_VERIFIER_RUNTIME_ROOT"] = run("runtime",
+            ["nix-build", "build-support/default.nix", "-A", "runtime", "--no-out-link",
+             "--extra-experimental-features", "nix-command flakes"], 900, capture=True)
         runtime = Path(environment["SQLITE_VERIFIER_RUNTIME_ROOT"])
-        for name in ("nix-runtime-roots",):
-            destination = root / "build" / name
-            destination.unlink(missing_ok=True)
-            shutil.copy2(runtime / "build" / name, destination)
+        destination = root / "build/nix-runtime-roots"
+        destination.unlink(missing_ok=True)
+        shutil.copy2(runtime / "build/nix-runtime-roots", destination)
     elif mode == "source":
         run("setup", ["just", "setup"], 330)
     else:
@@ -87,7 +85,7 @@ def run_checks(scope: str, mode: str, system: str, root: Path) -> None:
                 "lean": run("lean-version", [lean, "--version"], 10, capture=True),
                 "lake": run("lake-version", [lake, "--version"], 10, capture=True)}
     (root / "build/ci-environment.json").write_text(json.dumps(versions, indent=2) + "\n")
-    run("fresh-" + scope, ["just", scope], 1800)
+    run("checks-" + scope, ["just", scope], 1800)
 
 
 def main() -> None:

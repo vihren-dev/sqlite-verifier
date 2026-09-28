@@ -16,11 +16,9 @@ pytestmark = [pytest.mark.unit, pytest.mark.environment]
 @pytest.mark.parametrize("mode", ["source", "build"])
 @pytest.mark.parametrize("system", ["aarch64-darwin", "x86_64-linux"])
 def test_ci_modes_retain_fresh_checks(tmp_path: Path, mode: str, system: str) -> None:
-    """Both modes keep host checks; only declared Nix mode supplies artifacts and cached unit receipts."""
-    runtime, units = tmp_path / "runtime", tmp_path / "units"
+    """Both modes keep host checks; only declared Nix mode supplies artifacts and cached build outputs."""
+    runtime = tmp_path / "runtime"
     (runtime / "build").mkdir(parents=True)
-    units.mkdir()
-    (units / "unit-cases.json").write_text("[]")
     for name in ("nix-runtime-roots",):
         (runtime / "build" / name).write_text("loader metadata")
         (tmp_path / "build").mkdir(exist_ok=True)
@@ -40,7 +38,7 @@ def test_ci_modes_retain_fresh_checks(tmp_path: Path, mode: str, system: str) ->
         """Return tiny artifact paths without invoking Nix, compilers or a sandbox."""
         commands.append(command)
         environments.append(dict(options["environment"]))
-        stdout = str(runtime if "runtime" in command else units) if command[0] == "nix-build" else ""
+        stdout = str(runtime) if command[0] == "nix-build" else ""
         return CommandResult(tuple(command), 0, stdout, "", 0.01)
 
     with patch("tools.ci_checks.check_resources"), patch("tools.ci_checks.run_command", side_effect=run), \
@@ -51,9 +49,9 @@ def test_ci_modes_retain_fresh_checks(tmp_path: Path, mode: str, system: str) ->
         run_checks("test", mode, system, tmp_path)
     assert commands[-1] == ["just", "test"]
     if mode == "build":
-        assert [command[3] for command in commands[:2]] == ["runtime", "unitChecks"]
+        assert commands[0][3] == "runtime"
         assert environments[-1]["SQLITE_VERIFIER_RUNTIME_ROOT"] == str(runtime)
-        assert environments[-1]["SQLITE_VERIFIER_UNIT_CHECKS"] == str(units)
+        assert "SQLITE_VERIFIER_UNIT_CHECKS" not in environments[-1]
         assert environments[-1]["CC"] == "clang"
         assert environments[-1]["PATH"] == str(original_bin)
         assert [str(runtime / "lean/bin/lean"), "--version"] in commands

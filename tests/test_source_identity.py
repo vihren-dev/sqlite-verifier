@@ -10,21 +10,18 @@ from tests.runtime_support import run_command
 
 ROOT = Path(__file__).resolve().parents[1]
 pytestmark = [pytest.mark.integration, pytest.mark.environment, pytest.mark.requires_nix]
-COMPONENTS: set[str] = {"unit", "runtime", "parsers", "lean"}
+COMPONENTS: set[str] = {"runtime", "parsers", "lean"}
 DYNAMIC: dict[str, set[str]] = {
-    **{f"parser/input.{suffix}": {"parsers", "unit"} if suffix == "py" else {"parsers"}
+    **{f"parser/input.{suffix}": {"parsers"}
        for suffix in ("py", "c", "h", "y", "json")},
     "SqliteVerifier/Model.lean": {"lean"}, "Root.lean": {"lean"},
-    "migration_check/runtime.py": {"runtime", "unit"}, "tests/test_input.py": {"unit"},
-    "packaging/helper.py": {"unit"}, "tools/helper.py": {"unit"},
-    "conformance/check.py": {"unit"}, "examples/example.sql": {"runtime"},
+    "migration_check/runtime.py": {"runtime"}, "tests/test_input.py": set(),
+    "packaging/helper.py": set(), "tools/helper.py": set(),
+    "conformance/check.py": set(), "examples/example.sql": {"runtime"},
 }
 FIXED: dict[str, set[str]] = {
-    **{name: {"unit"} for name in ("conformance/upstream/alter3.test", "conformance/upstream/sha256.json",
-                                  "pytest.ini", "conftest.py", "build-support/run_unit_checks.py",
-                                  "build-support/unit-cases.json")},
     **{name: {"runtime"} for name in ("LICENSE", "docs/install.md", "packaging/install.sh")},
-    "packaging/install.py": {"runtime", "unit"},
+    "packaging/install.py": {"runtime"},
     **{name: {"lean"} for name in ("lakefile.toml", "lake-manifest.json", "lean-toolchain")},
 }
 PARENTS: tuple[str, ...] = (".", "parser", "SqliteVerifier", "migration_check", "tests", "packaging", "tools",
@@ -127,5 +124,6 @@ def test_generated_tree_invariance(identity_tree: tuple[Path, dict[str, str]], p
 def test_unselected_file_invariance(identity_tree: tuple[Path, dict[str, str]], relative: str) -> None:
     """Unrelated documentation and excluded example metadata do not invalidate any build component."""
     root, baseline = identity_tree
+    (root / relative).parent.mkdir(parents=True, exist_ok=True)
     (root / relative).write_text("unselected input")
     assert identities(root) == baseline
