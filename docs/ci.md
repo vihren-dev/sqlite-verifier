@@ -3,9 +3,10 @@
 [ADR 0001](adr-0001-pytest-and-nix-ci.md), accepted on 2026-09-28, authorizes
 immutable project-build and pure-unit-result caching with compatible prefix
 restoration, subject to its correctness and performance gates. Implementation is
-[in progress](../plans/20260928-pytest-nix-builds.status.md). The description below
-records the deployed dependency-only workflow until that rollout; final proof
-verdicts and host acceptance checks must continue to run freshly.
+[in progress](../plans/20260928-pytest-nix-builds.status.md). Production retains the
+dependency-only fallback until native correctness and measured performance gates
+pass. The workflow-dispatch `experimental-build-cache` input or a PR branch
+prefixed `experiment/adr-0001-` exercises the new graph without enabling rollout.
 
 `.github/workflows/ci.yml` runs on pull requests, pushes to `main`, and manual
 requests. The two required `Check` jobs remain present for every run. Their
@@ -19,31 +20,38 @@ scope is selected from the complete changed-path list by `tests/ci_scope.py`:
   `just package`, including the complete checks and installed-runtime tests.
 - Release tags and manual requests always run `just package`.
 
-Each build job enters `nix develop path:./nix` once for setup, the Linux
-sandbox check and its selected recipe. This explicit path contains only the
+Each build job enters `nix develop path:./nix` once. `tools/ci_checks.py` runs
+setup, the Linux sandbox check and its selected recipe. In experimental mode it
+builds `runtime` and `unitChecks` with Nix, supplies their explicit roots to the
+same fresh host recipe, and retains cached unit receipts separately. This explicit path contains only the
 environment definition, even in additional Jujutsu workspaces. Adding checks to
 shared recipes extends CI. Superseded ordinary runs on the same ref are cancelled;
 tags and manual runs have unique concurrency groups and are never auto-cancelled.
 Jobs have a 30-minute timeout; individual tests keep their own shorter limits.
 
-After shared build and coverage prerequisites, kernel-gate and ordinary CLI suites
+After shared build prerequisites, kernel-gate and ordinary CLI suites
 run with two workers on Linux. macOS runs them sequentially: hosted overlap caused
 a valid proof to hit the unchanged production checker deadline. Each suite keeps
 its own deadline (360 and 600 seconds), private
 test directories and complete log under `build/test-logs/`. Both children are
-awaited; either failure fails CI. Other suites remain sequential. Logs are retained
-on failure as well as success. Runtime packaging reports copying, Nix export,
-signature verification and compression times; installed Atuin output streams live.
+awaited; either failure fails CI. Other suites remain sequential. Logs, fresh JSON/JUnit reports and failure artifacts are retained
+on failure as well as success; cached unit reports use a separate directory. Runtime packaging reports copying, Nix export,
+signature verification and compression times. Installed Atuin cases retain the
+same phase reports and captured failure diagnostics as source cases. Coverage
+aggregation reads the current run's receipts after all source suites finish.
 The offline Nix cache uses its native zstd encoding; the outer archive remains
 gzip level1. Nix verifies the decoded contents and signatures before archiving.
 
 The pinned [cache-nix-action v7](https://github.com/nix-community/cache-nix-action/tree/7df957e333c1e5da7721f60227dbba6d06080569)
 reuses the Nix store with an exact platform and `nix/flake.nix`/`nix/flake.lock`
 hash key. Only successful `main` jobs save caches; pull requests and tags only
-restore. No prefix fallback, extra cached directories, cache purging, garbage
-collection or additional token permissions are enabled. Repository build outputs,
-Lean proof artifacts and verification results are outside the cache; every run
-rebuilds and checks them. A miss uses the ordinary pinned Nix build. Hosted cold
+restore. The fallback has no prefix restoration and keeps checkout build outputs outside
+the cache. Experimental mode uses the canonical `build-v2` environment/source
+key and the matching environment prefix; Nix derivation identity decides reuse.
+Only reviewed resource-free unit receipts may replace host unit execution.
+Proof acceptance, conformance, host sandbox and installed tests always run freshly.
+Neither mode adds checkout cache paths, purging, garbage collection or permissions.
+A miss rebuilds from declared pinned inputs. Hosted cold
 and warm package runs must establish whether restoration and saving pay for
 themselves; the timing report records measured results rather than assuming a gain.
 See [CI performance measurements](ci-performance.md) for complete runs and the
@@ -73,8 +81,10 @@ credentials, and the workflow requests read-only repository content permission.
 Successful packaging jobs retain development-source snapshots and checked native
 runtime archives for 14 days; ordinary checks do not create these archives.
 The fresh bounded `build/coverage.json` report is retained
-for each platform, including failed reports when the file is available. The runtime package smoke installs into a fresh directory
-with spaces and checks the real positive, refuted, and unsupported examples under
+for each platform, including failed reports when the file is available. Runtime
+acceptance installs into a fresh directory with spaces, Unicode and URI-special
+characters, and checks both parsers, the positive, refuted and unsupported examples,
+the installed dependency roots, and all thirteen Atuin cases under
 a controlled environment without elan or ambient Python imports. The Nix local
 cache retains loader dependencies and does not disable signature checks.
 
@@ -107,3 +117,6 @@ a fix. The owner accepted the Step 1 product on 2026-09-25. Stable v0.1.1 was
 published on 2026-09-28 after both complete platform jobs passed twice at `7a99c71f`;
 published checksum files match the archive asset digests. The failed v0.1.0 tag
 remains unchanged, and v0.1.0-rc.1 is an earlier engineering preview.
+
+The [native benchmark protocol](adr1-benchmarks.md) defines the isolated
+60-job comparison and the evidence required before rollout.

@@ -6,6 +6,11 @@ on:
     branches: [main]
     tags: ["v*"]
   workflow_dispatch:
+    inputs:
+      experimental-build-cache:
+        description: Exercise ADR 0001 build caching (rollout measurements still required)
+        type: boolean
+        default: false
 
 permissions:
   contents: read
@@ -27,6 +32,8 @@ jobs:
             system: aarch64-darwin
     runs-on: ${{ matrix.runner }}
     timeout-minutes: 30
+    env:
+      BUILD_MODE: ${{ (inputs['experimental-build-cache'] || startsWith(github.head_ref, 'experiment/adr-0001-')) && 'build' || 'source' }}
     steps:
       - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
         with:
@@ -45,8 +52,19 @@ jobs:
         with:
           enable_kvm: false
           set_as_trusted_user: false
+      - name: Fingerprint experimental immutable builds
+        id: fingerprint
+        if: steps.scope.outputs.scope != 'docs' && env.BUILD_MODE == 'build'
+        run: python3 tools/cache_fingerprint.py --system "${{ matrix.system }}" --github-output "$GITHUB_OUTPUT"
+      - name: Restore experimental immutable builds
+        if: steps.scope.outputs.scope != 'docs' && env.BUILD_MODE == 'build'
+        uses: nix-community/cache-nix-action@7df957e333c1e5da7721f60227dbba6d06080569 # v7
+        with:
+          primary-key: ${{ steps.fingerprint.outputs.key }}
+          restore-prefixes-first-match: ${{ steps.fingerprint.outputs.prefix }}
+          save: ${{ github.ref == 'refs/heads/main' && github.event_name != 'pull_request' }}
       - name: Restore pinned Nix dependencies
-        if: steps.scope.outputs.scope != 'docs'
+        if: steps.scope.outputs.scope != 'docs' && env.BUILD_MODE == 'source'
         uses: nix-community/cache-nix-action@7df957e333c1e5da7721f60227dbba6d06080569 # v7
         with:
           primary-key: nix-v1-${{ matrix.system }}-${{ hashFiles('nix/flake.nix', 'nix/flake.lock') }}
@@ -58,28 +76,21 @@ jobs:
           EXPECTED_SYSTEM: ${{ matrix.system }}
         run: |
           python3 tools/check_resources.py
-          nix develop path:./nix --command bash -euo pipefail <<'SH'
-          test "$SQLITE_VERIFIER_SYSTEM" = "$EXPECTED_SYSTEM"
-          just setup
-          if [[ "$RUNNER_OS" == Linux ]]; then
-            # Variables in the inner script expand only inside the sandbox.
-            # shellcheck disable=SC2016
-            timeout 15 bwrap \
-              --unshare-user --unshare-pid --unshare-net --die-with-parent --new-session \
-              --ro-bind / / --proc /proc --dev /dev --tmpfs /tmp \
-              --setenv HOST_NETWORK "$(readlink /proc/self/ns/net)" \
-              --setenv PROTECTED_WORKSPACE "$GITHUB_WORKSPACE" \
-              sh -euc '
-                test "$(readlink /proc/self/ns/net)" != "$HOST_NETWORK"
-                if touch "$PROTECTED_WORKSPACE/.sandbox-write-probe"; then
-                  echo "Workspace unexpectedly writable inside sandbox" >&2
-                  exit 1
-                fi
-                touch /tmp/sandbox-write-probe
-              '
-          fi
-          just "$CHECK_SCOPE"
-          SH
+          nix develop path:./nix --command python3 tools/ci_checks.py \
+            --system "$EXPECTED_SYSTEM" --scope "$CHECK_SCOPE" --mode "$BUILD_MODE"
+      - name: Retain fresh and cached case reports separately
+        if: always() && steps.scope.outputs.scope != 'docs'
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: case-reports-${{ matrix.system }}
+          path: |
+            build/test-results/
+            build/cached-unit/
+            build/ci-phases.json
+            build/ci-phases/
+            build/ci-environment.json
+          if-no-files-found: warn
+          retention-days: 14
       - name: Retain native loader diagnostics
         if: always() && steps.scope.outputs.scope != 'docs'
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
@@ -103,7 +114,7 @@ jobs:
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
           name: test-logs-${{ matrix.system }}
-          path: build/test-logs/*.log
+          path: build/test-logs/
           if-no-files-found: warn
           retention-days: 14
       - name: Retain development source snapshot

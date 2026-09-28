@@ -45,17 +45,18 @@ def sandbox_command(
         if not launcher.exists():
             raise SandboxUnavailable("macOS sandbox-exec is required")
         system_roots = [Path("/System"), Path("/usr/lib"), Path("/private/var/db/dyld")]
-        reads = " ".join(f"(subpath {json.dumps(str(path))})" for path in roots + system_roots)
+        # SBPL accepts UTF-8 literals; JSON's ASCII Unicode escapes name different paths.
+        reads = " ".join(f"(subpath {json.dumps(str(path), ensure_ascii=False)})" for path in roots + system_roots)
         profile = "\n".join([
             "(version 1)",
             "(deny default)",
-            f"(allow process-exec (literal {json.dumps(str(executable))}))",
+            f"(allow process-exec (literal {json.dumps(str(executable), ensure_ascii=False)}))",
             "(allow sysctl-read)",
             "(allow file-read-metadata)",
             # dyld opens the root directory; this does not grant subtree access.
             "(allow file-read* (literal \"/\"))",
             f"(allow file-read* {reads} (literal \"/dev/null\") (literal \"/dev/urandom\"))",
-            f"(allow file-read* file-write* (subpath {json.dumps(str(output))}))",
+            f"(allow file-read* file-write* (subpath {json.dumps(str(output), ensure_ascii=False)}))",
             "(allow file-write* (literal \"/dev/null\"))",
         ])
         return [str(launcher), "-p", profile, *command]

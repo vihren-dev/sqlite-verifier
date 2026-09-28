@@ -1,0 +1,78 @@
+name: ADR 0001 native sample
+on:
+  workflow_call:
+    inputs:
+      variant:
+        type: string
+        required: true
+      system:
+        type: string
+        required: true
+      replica:
+        type: number
+        required: true
+      scenario:
+        type: string
+        required: true
+permissions:
+  contents: read
+jobs:
+  sample:
+    name: Benchmark (${{ inputs.variant }}, ${{ inputs.system }}, ${{ inputs.replica }}, ${{ inputs.scenario }})
+    runs-on: ${{ inputs.system == 'x86_64-linux' && 'ubuntu-22.04' || 'macos-14' }}
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          path: harness
+          persist-credentials: false
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          path: work
+          ref: ${{ inputs.variant == 'baseline' && '7a99c71f40c66077b2293e1ce2c8ef3151ce5d67' || github.sha }}
+          persist-credentials: false
+          fetch-depth: 0
+      - name: Sample disk through final cache save
+        uses: ./harness/.github/actions/benchmark-disk
+      - name: Describe isolated experiment and controlled source mutation
+        id: experiment
+        run: >-
+          python3 harness/tools/benchmark_ci.py prepare --root work --report evidence/sample.json
+          --variant '${{ inputs.variant }}' --system '${{ inputs.system }}'
+          --replica '${{ inputs.replica }}' --scenario '${{ inputs.scenario }}'
+      - uses: cachix/install-nix-action@13d8dd58da0234aa297dedd986986ccb8e7f3e24 # v31
+        with:
+          enable_kvm: false
+          set_as_trusted_user: false
+      - name: Restore experiment store
+        id: cache
+        uses: nix-community/cache-nix-action@7df957e333c1e5da7721f60227dbba6d06080569 # v7
+        with:
+          primary-key: ${{ steps.experiment.outputs.key }}
+          restore-prefixes-first-match: ${{ steps.experiment.outputs.prefix }}
+          save: ${{ inputs.scenario == 'cold' && github.ref == 'refs/heads/main' && github.event_name == 'workflow_dispatch' }}
+      - name: Run full native correctness gates for this sample
+        env:
+          CACHE_HIT: ${{ steps.cache.outputs.hit }}
+          RESTORED_KEY: ${{ steps.cache.outputs.restored-key }}
+        run: python3 harness/tools/benchmark_ci.py execute --root work --report evidence/sample.json
+      - name: Preserve legacy-to-node mapping without fabricating baseline case timings
+        if: always()
+        run: cp harness/tests/case-inventory.json evidence/legacy-to-node-mapping.json
+      - name: Retain raw sample evidence on success or failure
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: adr1-benchmark-${{ inputs.variant }}-${{ inputs.system }}-${{ inputs.replica }}-${{ inputs.scenario }}
+          path: |
+            evidence/
+            work/build/ci-phases.json
+            work/build/ci-environment.json
+            work/build/ci-phases/
+            work/build/test-results/
+            work/build/cached-unit/
+            work/build/test-logs/
+            work/build/coverage.json
+            work/build/source-catalogue.json
+          if-no-files-found: warn
+          retention-days: 30

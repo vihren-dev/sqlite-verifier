@@ -1,5 +1,7 @@
 """Resource failures must happen before snapshots, toolchain installs or package copies."""
 
+import pytest
+
 from pathlib import Path
 from tempfile import TemporaryDirectory
 from types import SimpleNamespace
@@ -14,6 +16,8 @@ from tools.check_resources import check_environment, check_resources, MIN_FREE_B
 class ResourceTests(unittest.TestCase):
     """Use small fixtures and mocked capacity, never fill a disk to test the guard."""
 
+    @pytest.mark.unit
+    @pytest.mark.environment
     def test_package_preflight_precedes_external_work(self) -> None:
         """A direct archive invocation must stop before inspecting or copying runtimes."""
         sys.path.insert(0, str(Path(__file__).resolve().parents[1] / 'packaging'))
@@ -24,6 +28,8 @@ class ResourceTests(unittest.TestCase):
                 build_runtime.build(Path(sys.executable))
             run.assert_not_called()
 
+    @pytest.mark.unit
+    @pytest.mark.environment
     def test_separate_temporary_filesystem(self) -> None:
         """Enough workspace capacity cannot hide a full temporary filesystem."""
         from tools.check_resources import existing_parent
@@ -49,6 +55,8 @@ class ResourceTests(unittest.TestCase):
             with self.assertRaisesRegex(ValueError, '/separate/tmp: 0.00 GiB'):
                 check_resources(Path.cwd())
 
+    @pytest.mark.unit
+    @pytest.mark.environment
     def test_environment_and_capacity_boundaries(self) -> None:
         """Accept small pins, reject oversized/symlinked inputs and low-space destinations."""
         with TemporaryDirectory() as temporary:

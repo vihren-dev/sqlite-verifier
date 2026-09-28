@@ -30,15 +30,20 @@ def execute(native: str, sql: str) -> list[dict[str, object]]:
     return [json.loads(line) for line in result.stdout.splitlines() if line]
 
 
-def run(native: str) -> list[dict[str, object]]:
+def run(native: str, selected: tuple[str, ...] | None = None,
+        root: Path = ROOT) -> list[dict[str, object]]:
     """Compare old data to independent fixtures; native evidence is not a universal proof."""
     identity = subprocess.run([native, "-batch", ":memory:", "SELECT sqlite_version(),sqlite_source_id();"],
                               capture_output=True, text=True, check=True, timeout=5)
     assert identity.stdout.strip() == "3.46.0|" + SOURCE_ID, identity.stdout
-    schema_bytes = (ROOT/"examples/atuin/schema.sql").read_bytes()
-    migration_bytes = (ROOT/"examples/atuin/migration.sql").read_bytes()
+    schema_bytes = (root/"examples/atuin/schema.sql").read_bytes()
+    migration_bytes = (root/"examples/atuin/migration.sql").read_bytes()
+    if selected is not None and (not selected or set(selected) - set(CASES)):
+        raise ValueError("Unknown or empty native history selection")
     reports = []
     for name, count in zip(CASES, COUNTS, strict=True):
+        if selected is not None and name not in selected:
+            continue
         before, after = execute(native, schema_bytes.decode("utf-8") + history_seed(count)
                                 + snapshot() + migration_bytes.decode("utf-8") + snapshot())
         assert before["history"] == after["history"] == native_rows(count)

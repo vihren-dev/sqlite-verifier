@@ -8,15 +8,23 @@ import subprocess
 from collections.abc import Sequence
 
 PACKAGE_PREFIXES = ("packaging/", "migration_check/", "parser/", "bin/", "nix/", "tools/",
-                    "examples/", ".github/")
+                    "examples/", ".github/", "build-support/")
 PACKAGE_FILES = {"justfile", ".envrc", "flake.nix", "flake.lock", "lean-toolchain",
                  "lakefile.toml", "lake-manifest.json", "ProofChecker.lean",
-                 "tests/runtime_package_test.py", "tests/toolchain_smoke.py"}
+                 "tests/runtime_package_test.py", "tests/toolchain_smoke.py", "tests/test_toolchain_smoke.py", "pytest.ini",
+                 "conftest.py",
+                 "docs/install.md", "tests/case-inventory.json", "tests/test_translation.py",
+                 "tests/test_schema_translation.py"}
 
 
 def scope(paths: Sequence[str], event: str, ref: str) -> str:
     """Release/manual runs package; docs skip builds; runtime infrastructure changes package."""
     if event == "workflow_dispatch" or ref.startswith("refs/tags/") or not paths:
+        return "package"
+    shared_tests = any(path.startswith("tests/") and path.endswith(".py")
+                       and not Path(path).name.startswith("test_")
+                       and not path.endswith("_test.py") for path in paths)
+    if shared_tests or any(path in PACKAGE_FILES for path in paths):
         return "package"
     if all(path.endswith(".md") and ("/" not in path or path.startswith(("docs/", "plans/", "examples/")))
            for path in paths):

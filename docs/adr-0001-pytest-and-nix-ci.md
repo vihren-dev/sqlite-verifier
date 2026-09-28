@@ -31,7 +31,12 @@ policy](ci.md), subject to the rollout measurements. The separate [CI performanc
 task](../plans/20260925-ci-performance.task.md) remains historical
 evidence of the previous decision; its supersession note records this acceptance.
 
-## 2. Current behavior and evidence
+## 2. Baseline behavior and implementation evidence
+
+The table below describes the examined baseline commit, not the implementation
+branches. It records what this decision changes and what the benchmark must
+compare against. The implementation checkpoint follows the baseline measurements;
+the linked status file tracks subsequent work and outstanding acceptance checks.
 
 | File | Observation | Consequence |
 | --- | --- | --- |
@@ -68,6 +73,25 @@ The observed macOS overlap timeout preceded the import-reuse fix. Keep the curre
 one-worker macOS scheduling initially; any new concurrency claim needs measurements
 with the current checker. The 1500-second Atuin suite limit and the 30-second
 production checker deadline are unchanged.
+
+### Implementation checkpoint: 2026-09-28
+
+The decision remains relevant, and its implementation is in progress. Reviewed
+changes now provide pytest discovery, isolated runtime fixtures, phase reports,
+the Nix toolchain/parser/Lean/runtime graph, explicit-root packaging, canonical
+cache fingerprints and an explicit pure-unit target. These changes have not yet
+passed the complete two-platform acceptance and performance gates.
+
+| Area | Verified implementation evidence | Still required |
+| --- | --- | --- |
+| Test harness | 422 collected cases reconciled with the inventory; resource-free discovery; nested timeout cleanup; all 416 source and 19 installed cases pass alone and reversed | Final native CI of the integrated changes |
+| Source and installed cases | Complete Darwin source and installed gates pass; 395 source cases pass in one reversed run with fresh coverage, plus eight added packaging cases pass independently/reversed; all 19 installed cases pass alone/reversed | Final both-platform acceptance after watchdog/report changes |
+| Nix outputs | Both native platforms build the graph and pass source gates; Darwin archive/signature/installation passes; all input-identity and 64 pure-unit checks pass locally | Final native rerun after watchdog/report changes |
+| CI transport | Workflow, fingerprints, scope routing and report retention implemented; build-output PR merged after all required gates | Native benchmark pilot, full measurement matrix and measured rollout decision |
+
+Implementation evidence is recorded in the [status file](../plans/20260928-pytest-nix-builds.status.md)
+and its linked member records. The dependency-cache workflow remains the rollout
+fallback. No speedup or completed rollout is claimed by this checkpoint.
 
 ## 3. Test design
 
@@ -185,7 +209,9 @@ python -m pytest --lf
 
 Implement `just test-list *args` using `python -m pytest --collect-only --catalog`
 and forward the supplied arguments. `--catalog` is a small repository plugin
-option defined in `tests/conftest.py`, not an upstream pytest feature. After normal
+option defined in the root `conftest.py`, not an upstream pytest feature.
+Loading it at the repository root makes options available even when a catalogue
+output file already exists outside `tests/`. After normal
 selection, print one record per selected item: node ID, docstring summary,
 parameter ID, level, concern markers, and resources. Offer `--catalog-json PATH`
 with the same fields, sorted by node ID. Resolve markers through pytest's API;
@@ -323,7 +349,7 @@ small PR boundaries; do not combine all behavior changes into one migration PR.
 | Step | Files / work | Depends on | Completion evidence |
 | --- | --- | --- | --- |
 | T1 | Inventory every `justfile`/coverage subprocess and every scenario; create `tests/case-inventory.json` mapping old label/location to new node IDs and runtime variants | None | Reviewer accounts for every old assertion group, including script-only `__main__` branches and `toolchain_smoke.py` |
-| T2 | `pytest.ini`, `tests/conftest.py`, pytest in `nix/flake.nix`, catalogue, fixtures and reporting | T1 | Collection works without binaries; duplicate/missing IDs and markers fail; existing unittest cases collect |
+| T2 | `pytest.ini`, `conftest.py`, pytest in `nix/flake.nix`, catalogue, fixtures and reporting | T1 | Collection works without binaries; duplicate/missing IDs and markers fail; existing unittest cases collect |
 | T3 | Convert Atuin; reuse all cases in source and installed harnesses | T2 | Thirteen cases selectable independently in each runtime; original outcomes and artifact assertions preserved |
 | T4 | Convert CLI, kernel, compilation, baseline, parser and remaining scripts; adapt suite runner and coverage producers | T3 | Inventory has no legacy gaps; no duplicate execution; fresh `coverage.json` retains denominator/completeness checks |
 | B1 | `build-support/default.nix`, lock helper, source filesets, Lean toolchain, parser and Lean derivations | T1 | Builds and input-invalidation tests pass on both native platforms; environment boundary unchanged |

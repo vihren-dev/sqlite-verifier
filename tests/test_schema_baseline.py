@@ -1,5 +1,7 @@
 """Protect an optional associated schema without restricting reusable contracts."""
 
+import pytest
+
 import json
 from pathlib import Path
 from tempfile import TemporaryDirectory
@@ -12,6 +14,8 @@ from migration_check.diagnostics import Rejection
 class SchemaBaselineTests(unittest.TestCase):
     """Compare actual input hashes, including missing and malformed schema pins."""
 
+    @pytest.mark.unit
+    @pytest.mark.approval
     def test_optional_schema_pin(self) -> None:
         """Only explicitly pinned schema hashes join the mandatory approved closure."""
         approved = {"approved/Requirements.lean": "a" * 64,

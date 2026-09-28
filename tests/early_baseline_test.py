@@ -1,111 +1,100 @@
-"""Bounded real-runtime checks for approval before compilation of sealed closures."""
+"""Independently selected early approval failures and sealed-snapshot acceptance."""
 
-import hashlib
 import json
 from pathlib import Path
-import shutil
-from tempfile import TemporaryDirectory
-from time import monotonic
 from unittest.mock import patch
 
+import pytest
+
 from migration_check.baseline import check_baseline
-from migration_check.cli import arguments, verify
+from migration_check.cli import verify
 from migration_check.compile import compile_modules
 from migration_check.diagnostics import Rejection
+from tests.source_fixtures import (BaselineFixture, baseline_case, invalid_baseline_case,
+                                   source_runtime_only)
 
-ROOT = Path(__file__).resolve().parents[1]
+pytestmark = [pytest.mark.integration, pytest.mark.approval, pytest.mark.requires_lean,
+              pytest.mark.requires_native("sqlite-parser"), pytest.mark.requires_sandbox]
 
 
-def main() -> None:
-    """Check drift precedence, closure membership, optional pins and snapshot integrity."""
-    started = monotonic()
-    with TemporaryDirectory(prefix="early-baseline-test-") as temporary:
-        root = Path(temporary)
-        approved, candidate = root / "approved", root / "candidate"
-        shutil.copytree(ROOT / "examples/approved", approved)
-        shutil.copytree(ROOT / "examples/add_column_then_table", candidate)
-        requirements = approved / "Requirements.lean"
-        requirements.write_text("import Helper\n" + requirements.read_text())
-        helper, deeper = approved / "Helper.lean", approved / "Deeper.lean"
-        helper.write_text("import Deeper\n")
-        deeper.write_text("def approvedVersion : Nat := 1\n")
-        original = {path: path.read_bytes() for path in approved.glob("*.lean")}
-        hashes = {f"approved/{path.name}": hashlib.sha256(contents).hexdigest()
-                  for path, contents in original.items()}
-        schema = approved / "schema.sql"
-        schema_hash = hashlib.sha256(schema.read_bytes()).hexdigest()
-        baseline = root / "baseline.json"
-        baseline.write_text(json.dumps({**hashes, "schema.sql": schema_hash}))
-        values = ["verify", "--profile", "3.51.0", "--approved-baseline", str(baseline)]
-        for name, path in {"schema": schema, "migration": candidate / "migration.sql",
-                "requirements": requirements, "interpretation": approved / "Interpretation.lean",
-                "next-interpretation": candidate / "NextInterpretation.lean",
-                "proofs": candidate / "Proofs.lean"}.items():
-            values.extend(["--" + name, str(path)])
-        options = arguments(values)
-        proof = candidate / "Proofs.lean"
-        original_proof = proof.read_bytes()
-        proof.write_bytes(original_proof + b"\ndef invalidProof : Nat := false\n")
+def assert_drift(case: BaselineFixture, expected: str) -> None:
+    """Protected drift must report INPUT_ERROR before the deliberately invalid proof can compile."""
+    with patch("migration_check.compile.compile_modules") as compile_spy:
+        with pytest.raises(Rejection) as rejected:
+            verify(case.options)
+        assert rejected.value.diagnostic()["status"] == "INPUT_ERROR", rejected.value
+        assert expected in str(rejected.value), rejected.value
+        compile_spy.assert_not_called()
 
-        def rejected(expected: str) -> None:
-            """An invalid proof must not mask protected drift or trigger compilation."""
-            with patch("migration_check.compile.compile_modules") as compile_spy:
-                try:
-                    verify(options)
-                except Rejection as error:
-                    assert error.diagnostic()["status"] == "INPUT_ERROR", error
-                    assert expected in str(error), error
-                else:
-                    raise AssertionError("protected input drift was accepted")
-                compile_spy.assert_not_called()
 
-        deeper.write_bytes(original[deeper] + b"-- unapproved change\n")
-        rejected("approved/Deeper.lean")
-        deeper.write_bytes(original[deeper])
-        # Added/removed members are compared even when remaining source bytes match.
-        baseline.write_text(json.dumps({key: value for key, value in hashes.items()
+def test_changed_transitive_source(invalid_baseline_case: BaselineFixture) -> None:
+    """Changing a transitive approved dependency takes precedence over an invalid candidate proof."""
+    case = invalid_baseline_case
+    deeper = case.approved / "Deeper.lean"
+    deeper.write_bytes(case.original[deeper] + b"-- unapproved change\n")
+    assert_drift(case, "approved/Deeper.lean")
+
+
+def test_added_closure_member(invalid_baseline_case: BaselineFixture) -> None:
+    """A dependency newly present in the actual closure rejects even when all known bytes match."""
+    case = invalid_baseline_case
+    case.baseline.write_text(json.dumps({key: value for key, value in case.hashes.items()
                                         if key != "approved/Deeper.lean"}))
-        rejected("approved/Deeper.lean")
-        baseline.write_text(json.dumps({**hashes, "approved/Removed.lean": "a" * 64}))
-        rejected("approved/Removed.lean")
-        baseline.write_text(json.dumps({**hashes, "schema.sql": "a" * 64}))
-        rejected("schema.sql")
-        baseline.write_text(json.dumps({**hashes, "schema.sql": "bad"}))
-        rejected("Invalid approved baseline hash")
-        # A missing dependency still fails before baseline comparison.
-        helper.write_text("import MissingDependency\n")
-        with patch("migration_check.compile.compile_modules") as compile_spy:
-            try:
-                verify(options)
-            except ValueError as error:
-                assert "Missing or conflicting" in str(error), error
-            else:
-                raise AssertionError("invalid import closure reached baseline comparison")
-            compile_spy.assert_not_called()
-        helper.write_bytes(original[helper])
-        proof.write_bytes(original_proof)
-        baseline.write_text(json.dumps(hashes))  # Optional schema pin remains optional.
-        schema.write_bytes(schema.read_bytes() + b"\n-- equivalent unpinned schema\n")
-
-        def check_then_mutate(path: Path, actual: dict[str, str]) -> None:
-            """Changing original files after approval must not change compiler inputs."""
-            check_baseline(path, actual)
-            for source in (*original, proof):
-                source.write_text("def invalidAfterSnapshot : Nat := false\n")
-            schema.write_text("not SQL\n")
-
-        with patch("migration_check.compile.check_baseline", check_then_mutate), \
-                patch("migration_check.compile.compile_modules", wraps=compile_modules) as compile_spy:
-            report = verify(options)
-            assert report["status"] == "VERIFIED", report
-            assert compile_spy.called, "matching snapshots skipped compilation"
-            assert isinstance(report["inputs"], dict)
-            for name, digest in hashes.items():
-                assert report["inputs"][name] == digest
-        # Ordinary no-baseline verification is exercised by cli_test.py.
-    print(f"Early baseline: drift, precedence, transitive closure, optional pins, sealed snapshots "
-          f"and independent gate passed in {monotonic() - started:.2f}s")
+    assert_drift(case, "approved/Deeper.lean")
 
 
-if __name__ == "__main__":
-    main()
+def test_removed_closure_member(invalid_baseline_case: BaselineFixture) -> None:
+    """A previously approved member missing from the actual closure cannot disappear silently."""
+    case = invalid_baseline_case
+    case.baseline.write_text(json.dumps({**case.hashes, "approved/Removed.lean": "a" * 64}))
+    assert_drift(case, "approved/Removed.lean")
+
+
+def test_changed_schema_pin(invalid_baseline_case: BaselineFixture) -> None:
+    """A changed optional starting-schema pin rejects before any proof compilation."""
+    case = invalid_baseline_case
+    case.baseline.write_text(json.dumps({**case.hashes, "schema.sql": "a" * 64}))
+    assert_drift(case, "schema.sql")
+
+
+def test_malformed_schema_pin(invalid_baseline_case: BaselineFixture) -> None:
+    """A malformed schema digest remains an input error despite an independently invalid proof."""
+    case = invalid_baseline_case
+    case.baseline.write_text(json.dumps({**case.hashes, "schema.sql": "bad"}))
+    assert_drift(case, "Invalid approved baseline hash")
+
+
+def test_missing_dependency_precedence(invalid_baseline_case: BaselineFixture) -> None:
+    """An unresolved import is diagnosed before even a malformed approved baseline can be compared."""
+    case = invalid_baseline_case
+    case.baseline.write_text(json.dumps({**case.hashes, "schema.sql": "bad"}))
+    (case.approved / "Helper.lean").write_text("import MissingDependency\n")
+    with patch("migration_check.compile.compile_modules") as compile_spy:
+        with pytest.raises(ValueError, match="Missing or conflicting"):
+            verify(case.options)
+        compile_spy.assert_not_called()
+
+
+def test_optional_schema_pin_and_sealed_snapshot(baseline_case: BaselineFixture) -> None:
+    """Unpinned equivalent schema and approved source snapshots still compile and independently verify."""
+    case = baseline_case
+    case.baseline.write_text(json.dumps(case.hashes))
+    schema = case.approved / "schema.sql"
+    schema.write_bytes(schema.read_bytes() + b"\n-- equivalent unpinned schema\n")
+    proof = case.candidate / "Proofs.lean"
+
+    def check_then_mutate(path: Path, actual: dict[str, str]) -> None:
+        """Changing every original source after approval cannot change the sealed compiler inputs."""
+        check_baseline(path, actual)
+        for source in (*case.original, proof):
+            source.write_text("def invalidAfterSnapshot : Nat := false\n")
+        schema.write_text("not SQL\n")
+
+    with patch("migration_check.compile.check_baseline", check_then_mutate), \
+            patch("migration_check.compile.compile_modules", wraps=compile_modules) as compile_spy:
+        report = verify(case.options)
+        assert report["status"] == "VERIFIED", report
+        assert compile_spy.called, "matching snapshots skipped compilation"
+        assert isinstance(report["inputs"], dict)
+        for name, digest in case.hashes.items():
+            assert report["inputs"][name] == digest

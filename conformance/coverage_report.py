@@ -2,14 +2,11 @@
 
 import argparse
 import json
-import os
 from pathlib import Path
 import re
-import shutil
-import sys
 
 from coverage_catalog import CLAIMS, EXCLUSIONS, THEOREMS
-from coverage_evidence import command, proof_probe, structured
+from coverage_evidence import structured
 from coverage_atuin import sql_report
 from import_fixture import fixture
 from model_cases import cases
@@ -38,21 +35,8 @@ def grammar_inventory(root: Path, version: str, directory: str, exported: dict[s
             "regression_scope": "authored smoke scripts, not production or semantic coverage"}
 
 
-def collect(root: Path, native: str) -> dict[str, object]:
-    """Refresh existing evidence; an unavailable comparison is never reported as a match."""
-    checks = {
-        "proof_build": command(["lake", "build", "SqliteVerifier"], root, 60),
-        "parser_regressions": command([sys.executable, "tests/parser_test.py"], root, 30),
-        "upstream_native": command([sys.executable, "tests/conformance_native_test.py", native], root, 20),
-        "derived_native_model": command([sys.executable, "tests/conformance_model_test.py", native], root, 180),
-        "atuin_sql": command([sys.executable, "tests/atuin_sql_test.py"], root, 30),
-        "grammar_export": command([str(root / "build/parser/lemon"), "-g",
-                                   str(root / "parser/upstream/parse.y")], root, 5),
-        "grammar_346_export": command([str(root / "build/parser-3.46.0/lemon"), "-g",
-                                       str(root / "parser/upstream-3.46.0/parse.y")], root, 5),
-    }
-    checks["named_proofs"] = (proof_probe(root) if checks["proof_build"]["status"] == "PASSED"
-                              else {"status": "NOT_RUN", "diagnostic": "Library build failed"})
+def assemble(root: Path, checks: dict[str, dict[str, object]]) -> dict[str, object]:
+    """Validate denominators and limitations independently of how fresh evidence was produced."""
     upstream = structured(checks["upstream_native"])
     derived = structured(checks["derived_native_model"])
     imported = fixture()
@@ -114,12 +98,17 @@ def main() -> int:
     """Write the report even when a bounded check fails, and fail the shared check accordingly."""
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--output", type=Path)
+    parser.add_argument("--reports", type=Path, required=True)
+    parser.add_argument("--run-id", required=True)
+    parser.add_argument("--runtime-root", type=Path, default=ROOT)
     options = parser.parse_args()
     try:
-        report = collect(ROOT, os.environ.get("SQLITE3") or shutil.which("sqlite3") or "sqlite3")
+        from coverage_receipts import checks_from_receipts
+        report = assemble(options.runtime_root, checks_from_receipts(ROOT, options.reports, options.run_id))
+        report["run_id"] = options.run_id
     except (OSError, ValueError) as error:
         report = {"report_version": 1, "status": "EVIDENCE_CHECKS_FAILED",
-                  "diagnostic": str(error), "exclusions": EXCLUSIONS}
+                  "diagnostic": str(error), "exclusions": EXCLUSIONS, "run_id": options.run_id}
     rendered = json.dumps(report, indent=2) + "\n"
     if options.output:
         options.output.parent.mkdir(parents=True, exist_ok=True)

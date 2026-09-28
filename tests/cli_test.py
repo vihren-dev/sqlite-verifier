@@ -1,111 +1,183 @@
-"""Run the seven-input product interface against real reusable proof examples."""
+"""Select independent public-interface acceptance and adversarial input scenarios."""
 
+from collections.abc import Callable
 import json
-import os
 from pathlib import Path
-import shutil
-import subprocess
-from tempfile import TemporaryDirectory
 
-ROOT = Path(__file__).resolve().parent.parent
-EXAMPLES = ROOT / "examples"
-COMMAND = ROOT / "bin/migration-check"
+import pytest
 
+from tests.runtime_support import CommandResult
 
-def invoke(candidate: Path, approved: Path, expected: str, *, extra: tuple[str, ...] = (),
-           execution_profile: str = "3.51.0",
-           replacements: dict[str, Path] | None = None) -> dict[str, object]:
-    """Assert both process exit and public JSON class under a bounded complete verification."""
-    inputs = {"schema": approved / "schema.sql", "requirements": approved / "Requirements.lean",
-              "interpretation": approved / "Interpretation.lean", "migration": candidate / "migration.sql",
-              "next-interpretation": candidate / "NextInterpretation.lean", "proofs": candidate / "Proofs.lean"}
-    inputs.update(replacements or {})
-    command = [str(COMMAND), "verify", "--profile", execution_profile, "--format", "json"]
-    for name, path in inputs.items():
-        command.extend(["--" + name, str(path)])
-    result = subprocess.run([*command, *extra], cwd=ROOT, env=os.environ.copy(),
-                            text=True, capture_output=True, timeout=90)
-    report: dict[str, object] = json.loads(result.stdout)
-    assert report["status"] == expected, (command, report, result.stderr)
-    assert result.returncode == (0 if expected == "VERIFIED" else 1), result
-    return report
+pytestmark = [pytest.mark.e2e, pytest.mark.kernel, pytest.mark.requires_lean,
+              pytest.mark.requires_native, pytest.mark.requires_sandbox]
 
 
-def main() -> None:
-    """Exercise real proof acceptance, checked refutation, input attacks, and protected imports."""
-    approved = EXAMPLES / "approved"
-    candidate = EXAMPLES / "add_column_then_table"
-    with TemporaryDirectory(prefix="verifier-e2e-") as temporary:
-        work = Path(temporary)
-        artifacts = work / "artifacts"
-        invoke(candidate, approved, "VERIFIED", extra=("--artifacts", str(artifacts)))
-        assert {path.name for path in artifacts.iterdir()} == {"SchemaInputs.lean", "SqlInputs.lean", "Generated.lean", "inputs.json"}
-        assert "def startSchema" in (artifacts / "SchemaInputs.lean").read_text()
-        assert "def startSchema" not in (artifacts / "SqlInputs.lean").read_text()
-        assert ".addColumn" in (artifacts / "SqlInputs.lean").read_text()
-        assert "VerificationConditions" in (artifacts / "Generated.lean").read_text()
-        baseline = artifacts / "inputs.json"
-        invoke(EXAMPLES / "table_then_column", approved, "VERIFIED",
-               extra=("--approved-baseline", str(baseline)))
-        changed_start = work / "same-schema-new-bytes.sql"
-        changed_start.write_bytes((approved / "schema.sql").read_bytes() + b"\n-- requires schema-pin review\n")
-        pinned = invoke(candidate, approved, "INPUT_ERROR", replacements={"schema": changed_start},
-                        extra=("--approved-baseline", str(baseline)))
-        assert "schema.sql" in str(pinned["message"])
-        invoke(EXAMPLES / "missing_required_column", approved, "VIOLATED")
-        invoke(EXAMPLES / "allowed_failure", EXAMPLES / "allowed_failure/approved", "VERIFIED")
-        changed_profile = work / "runner.json"
-        changed_profile.write_text(json.dumps({
-            "kind": "sqlite-3.46.0-sqlx-0.9.0-wal-normal-optimize-v1",
-            "migration": {"version": 20, "description": "new column"}, "previous": []}))
-        invoke(candidate, approved, "INPUT_ERROR", execution_profile=str(changed_profile))
-        no_transaction = work / "no-transaction.sql"
-        no_transaction.write_bytes(b"-- no-transaction\n" + (candidate / "migration.sql").read_bytes())
-        invoke(candidate, approved, "VERIFIED", replacements={"migration": no_transaction})
-
-        modified = work / "candidate"
-        shutil.copytree(candidate, modified)
-        migration = modified / "migration.sql"
-        for sql, status in [("-- no statements", "INPUT_ERROR"), ("CREATE TABLE", "INPUT_ERROR"),
-                            ("SELECT 1;", "UNSUPPORTED"),
-                            ("ALTER TABLE invoices ADD other TEXT; CREATE TABLE audit(message TEXT);", "UNVERIFIED")]:
-            migration.write_text(sql)
-            invoke(modified, approved, status)
-        migration.write_bytes((candidate / "migration.sql").read_bytes())
-        bad_schema = work / "schema.sql"
-        bad_schema.write_bytes((approved / "schema.sql").read_bytes() + b"\nCREATE VIEW v AS SELECT * FROM invoices;")
-        invoke(candidate, approved, "UNSUPPORTED", replacements={"schema": bad_schema})
-
-        proof = modified / "Proofs.lean"
-        for source in [
-            "import Generated\ntheorem Proofs.migrationCorrect : Generated.expected := by sorry\n",
-            "import Generated\ntheorem Proofs.migrationCorrect (extra : False) : Generated.expected := False.elim extra\n",
-            "import Generated\naxiom unapproved : Generated.expected\ntheorem Proofs.migrationCorrect : Generated.expected := unapproved\n",
-        ]:
-            proof.write_text(source)
-            invoke(modified, approved, "UNVERIFIED")
-        (modified / "Generated.lean").write_text("def Generated.expected : Prop := True\n")
-        proof.write_text("import Generated\ntheorem Proofs.migrationCorrect : True := trivial\n")
-        invoke(modified, approved, "UNVERIFIED")
-        proof.write_bytes((candidate / "Proofs.lean").read_bytes())
-        next_file = modified / "NextInterpretation.lean"
-        next_file.write_text((candidate / "NextInterpretation.lean").read_text().replace('["amount"]', '[]'))
-        invoke(modified, approved, "UNVERIFIED")
-
-        protected = work / "approved"
-        shutil.copytree(approved, protected)
-        requirements = protected / "Requirements.lean"
-        requirements.write_text("import Policy\n" + requirements.read_text())
-        helper = protected / "Policy.lean"
-        helper.write_text("/-- Approved supporting context. -/\ndef policyVersion := 1\n")
-        approved_artifacts = work / "approved-artifacts"
-        invoke(candidate, protected, "VERIFIED", extra=("--artifacts", str(approved_artifacts)))
-        helper.write_text("/-- A proposed change still requires human review. -/\ndef policyVersion := 2\n")
-        report = invoke(candidate, protected, "INPUT_ERROR",
-                        extra=("--approved-baseline", str(approved_artifacts / "inputs.json")))
-        assert "approved/Policy.lean" in str(report["message"])
-    print("CLI: reusable positive, refuted, allowed-failure and adversarial input/dependency cases passed")
+@pytest.fixture
+def approved(example_factory: Callable[[str], Path]) -> Path:
+    """Copy the original approved contract into this case's private directory."""
+    return example_factory("approved")
 
 
-if __name__ == "__main__":
-    main()
+@pytest.fixture
+def candidate(example_factory: Callable[[str], Path]) -> Path:
+    """Start each candidate attack from the original positive migration."""
+    return example_factory("add_column_then_table")
+
+
+@pytest.fixture
+def invoke(runtime_root: Path, approved: Path, candidate: Path,
+           command_runner: Callable[..., CommandResult], tmp_path: Path) -> Callable[..., dict[str, object]]:
+    """Bind the public entrypoint; callers can substitute only the inputs under test."""
+    def verify(expected: str, *, extra: tuple[str, ...] = (), execution_profile: str = "3.51.0",
+               replacements: dict[str, Path] | None = None, alternative: Path | None = None,
+               contract: Path | None = None) -> dict[str, object]:
+        """Check the exact public JSON class and exit status with the existing 90-second deadline."""
+        proposed, protected = alternative or candidate, contract or approved
+        inputs = {"schema": protected / "schema.sql", "requirements": protected / "Requirements.lean",
+                  "interpretation": protected / "Interpretation.lean", "migration": proposed / "migration.sql",
+                  "next-interpretation": proposed / "NextInterpretation.lean", "proofs": proposed / "Proofs.lean"}
+        inputs.update(replacements or {})
+        command = [str(runtime_root / "bin/migration-check"), "verify", "--profile", execution_profile,
+                   "--format", "json"]
+        for name, path in inputs.items():
+            command.extend(["--" + name, str(path)])
+        result = command_runner([*command, *extra], cwd=tmp_path, timeout=90)
+        report = result.json_object()
+        assert report["status"] == expected, result.diagnostic()
+        assert result.returncode == (0 if expected == "VERIFIED" else 1), result.diagnostic()
+        return report
+    return verify
+
+
+@pytest.fixture
+def baseline(invoke: Callable[..., dict[str, object]], tmp_path: Path) -> Path:
+    """Measure required positive setup separately for cases that consume an approved baseline."""
+    artifacts = tmp_path / "baseline-artifacts"
+    invoke("VERIFIED", extra=("--artifacts", str(artifacts)))
+    return artifacts / "inputs.json"
+
+
+def test_valid_migration_artifacts(invoke: Callable[..., dict[str, object]], tmp_path: Path) -> None:
+    """A valid migration produces exactly the four sealed source/input artifacts."""
+    artifacts = tmp_path / "artifacts"
+    invoke("VERIFIED", extra=("--artifacts", str(artifacts)))
+    assert {path.name for path in artifacts.iterdir()} == {"SchemaInputs.lean", "SqlInputs.lean", "Generated.lean", "inputs.json"}
+    assert "def startSchema" in (artifacts / "SchemaInputs.lean").read_text()
+    assert "def startSchema" not in (artifacts / "SqlInputs.lean").read_text()
+    assert ".addColumn" in (artifacts / "SqlInputs.lean").read_text()
+    assert "VerificationConditions" in (artifacts / "Generated.lean").read_text()
+
+
+@pytest.mark.approval
+def test_reverse_migration_reuses_baseline(invoke: Callable[..., dict[str, object]], baseline: Path,
+                                         example_factory: Callable[[str], Path]) -> None:
+    """A different valid statement order preserves the same approved baseline."""
+    invoke("VERIFIED", alternative=example_factory("table_then_column"), extra=("--approved-baseline", str(baseline)))
+
+
+@pytest.mark.approval
+def test_changed_schema_bytes(invoke: Callable[..., dict[str, object]], baseline: Path, approved: Path) -> None:
+    """Equivalent SQL with changed approved schema bytes is rejected and identifies schema.sql."""
+    schema = approved / "schema.sql"
+    schema.write_bytes(schema.read_bytes() + b"\n-- requires schema-pin review\n")
+    report = invoke("INPUT_ERROR", extra=("--approved-baseline", str(baseline)))
+    assert "schema.sql" in str(report["message"])
+
+
+def test_checked_refutation(invoke: Callable[..., dict[str, object]], example_factory: Callable[[str], Path]) -> None:
+    """A checked counterargument returns VIOLATED with a nonzero process status."""
+    invoke("VIOLATED", alternative=example_factory("missing_required_column"))
+
+
+def test_allowed_failure(invoke: Callable[..., dict[str, object]], example_factory: Callable[[str], Path]) -> None:
+    """An explicitly allowed execution failure satisfies its own approved contract."""
+    case = example_factory("allowed_failure")
+    invoke("VERIFIED", alternative=case, contract=case / "approved")
+
+
+def test_application_profile_rejected(invoke: Callable[..., dict[str, object]], tmp_path: Path) -> None:
+    """Application/framework metadata cannot masquerade as a SQLite semantic profile."""
+    profile = tmp_path / "runner.json"
+    profile.write_text(json.dumps({"kind": "sqlite-3.46.0-sqlx-0.9.0-wal-normal-optimize-v1",
+                                  "migration": {"version": 20, "description": "new column"}, "previous": []}))
+    invoke("INPUT_ERROR", execution_profile=str(profile))
+
+
+def test_no_transaction_comment(invoke: Callable[..., dict[str, object]], candidate: Path) -> None:
+    """A framework-looking SQL comment does not alter the supported SQL semantics."""
+    migration = candidate / "migration.sql"
+    migration.write_bytes(b"-- no-transaction\n" + migration.read_bytes())
+    invoke("VERIFIED")
+
+
+@pytest.mark.parametrize("sql,status", [
+    ("-- no statements", "INPUT_ERROR"), ("CREATE TABLE", "INPUT_ERROR"), ("SELECT 1;", "UNSUPPORTED"),
+    ("ALTER TABLE invoices ADD other TEXT; CREATE TABLE audit(message TEXT);", "UNVERIFIED"),
+], ids=["empty", "malformed", "unsupported_select", "stale_proof"])
+def test_invalid_migration(invoke: Callable[..., dict[str, object]], candidate: Path, sql: str, status: str) -> None:
+    """Invalid, unsupported and changed migration SQL retain their distinct public outcomes."""
+    (candidate / "migration.sql").write_text(sql)
+    invoke(status)
+
+
+def test_unsupported_schema_view(invoke: Callable[..., dict[str, object]], approved: Path) -> None:
+    """An unmodeled view in the starting schema returns UNSUPPORTED."""
+    schema = approved / "schema.sql"
+    schema.write_bytes(schema.read_bytes() + b"\nCREATE VIEW v AS SELECT * FROM invoices;")
+    invoke("UNSUPPORTED")
+
+
+@pytest.mark.parametrize("source", [
+    "theorem Proofs.migrationCorrect : Generated.expected := by sorry",
+    "theorem Proofs.migrationCorrect (extra : False) : Generated.expected := False.elim extra",
+    "axiom unapproved : Generated.expected\ntheorem Proofs.migrationCorrect : Generated.expected := unapproved",
+], ids=["sorry", "extra_assumption", "unapproved_axiom"])
+def test_invalid_proof(invoke: Callable[..., dict[str, object]], candidate: Path, source: str) -> None:
+    """Unfinished, extra-premise and unapproved-axiom arguments cannot be verified."""
+    (candidate / "Proofs.lean").write_text("import Generated\n" + source + "\n")
+    invoke("UNVERIFIED")
+
+
+def test_forged_generated_target(invoke: Callable[..., dict[str, object]], candidate: Path) -> None:
+    """A candidate Generated module cannot substitute a trivial proof target."""
+    (candidate / "Generated.lean").write_text("def Generated.expected : Prop := True\n")
+    (candidate / "Proofs.lean").write_text("import Generated\ntheorem Proofs.migrationCorrect : True := trivial\n")
+    invoke("UNVERIFIED")
+
+
+@pytest.mark.approval
+def test_weakened_next_interpretation(invoke: Callable[..., dict[str, object]], candidate: Path) -> None:
+    """Removing the protected amount interpretation is rejected independently of other attacks."""
+    path = candidate / "NextInterpretation.lean"
+    original = path.read_text()
+    changed = original.replace('["amount"]', '[]')
+    assert changed != original
+    path.write_text(changed)
+    invoke("UNVERIFIED")
+
+
+@pytest.fixture
+def transitive_contract(approved: Path) -> Path:
+    """Add an approved transitive helper before either positive or drift scenario runs."""
+    requirements = approved / "Requirements.lean"
+    requirements.write_text("import Policy\n" + requirements.read_text())
+    (approved / "Policy.lean").write_text("/-- Approved supporting context. -/\ndef policyVersion := 1\n")
+    return approved
+
+
+@pytest.mark.approval
+def test_approved_transitive_dependency(invoke: Callable[..., dict[str, object]], transitive_contract: Path,
+                                      tmp_path: Path) -> None:
+    """A valid approved helper is admitted and recorded in the generated input artifacts."""
+    invoke("VERIFIED", contract=transitive_contract, extra=("--artifacts", str(tmp_path / "approved-artifacts")))
+
+
+@pytest.mark.approval
+def test_changed_transitive_dependency(invoke: Callable[..., dict[str, object]], transitive_contract: Path,
+                                     tmp_path: Path) -> None:
+    """A helper changed after approval is rejected with the transitive protected module name."""
+    artifacts = tmp_path / "approved-artifacts"
+    invoke("VERIFIED", contract=transitive_contract, extra=("--artifacts", str(artifacts)))
+    (transitive_contract / "Policy.lean").write_text("/-- A proposed change still requires human review. -/\ndef policyVersion := 2\n")
+    report = invoke("INPUT_ERROR", contract=transitive_contract, extra=("--approved-baseline", str(artifacts / "inputs.json")))
+    assert "approved/Policy.lean" in str(report["message"])

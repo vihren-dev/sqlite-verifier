@@ -1,10 +1,11 @@
 """Verify report denominators and fail-closed treatment of missing conformance evidence."""
 
+import pytest
+
 from pathlib import Path
 import json
 import hashlib
 from copy import deepcopy
-from collections.abc import Sequence
 import sys
 from tempfile import TemporaryDirectory
 import unittest
@@ -13,8 +14,10 @@ from unittest.mock import patch
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "conformance"))
 from coverage_catalog import THEOREMS
-from coverage_evidence import command, structured
-from coverage_report import collect
+from coverage_evidence import structured
+from coverage_receipts import checks_from_receipts
+from tests.runtime_support import CommandTimeout, run_command
+from coverage_report import assemble
 from model_cases import cases
 from coverage_atuin import CASES, sql_report
 
@@ -32,9 +35,18 @@ def atuin_rows(root: Path) -> list[dict[str, object]]:
         "domain":"old application data preservation"} for case in CASES]
 
 
+def failed_checks() -> dict[str, dict[str, object]]:
+    """Supply unavailable observations without executing or mocking a legacy runner."""
+    return {name: {"status": "NOT_RUN" if name == "named_proofs" else "FAILED"} for name in (
+        "proof_build", "parser_regressions", "upstream_native", "derived_native_model",
+        "atuin_sql", "grammar_export", "grammar_346_export", "named_proofs")}
+
+
 class CoverageTest(unittest.TestCase):
     """Reporting must preserve unavailable evidence rather than fabricate zero discrepancies."""
 
+    @pytest.mark.unit
+    @pytest.mark.conformance
     def test_single_fresh_invocation_ignores_old_report(self) -> None:
         """A prior success file cannot replace failed fresh comparisons or cause a rerun."""
         with TemporaryDirectory() as temporary:
@@ -42,21 +54,22 @@ class CoverageTest(unittest.TestCase):
             (root / "build").mkdir()
             (root / "build/coverage.json").write_text(json.dumps({
                 "status": "EVIDENCE_CHECKS_PASSED", "native_model": {"observed_discrepancies": 0}}))
-            with patch("coverage_report.command", return_value={"status": "FAILED"}) as runner:
-                report = collect(root, "selected-native")
-            commands = [call.args[0] for call in runner.call_args_list]
-        for script in ("tests/parser_test.py", "tests/conformance_native_test.py",
-                       "tests/conformance_model_test.py", "tests/atuin_sql_test.py"):
-            self.assertEqual(sum(script in command for command in commands), 1, commands)
-        self.assertFalse(any("conformance/model_check.py" in command for command in commands))
+            (root / "tests").mkdir()
+            (root / "tests/case-inventory.json").write_text('{"cases": []}\n')
+            with patch("subprocess.Popen") as runner:
+                report = assemble(root, checks_from_receipts(root, root / "reports", "current"))
+            runner.assert_not_called()
+            self.assertIn("Missing current-run phases", report["checks"]["proof_build"]["diagnostic"])
         self.assertEqual(report["status"], "EVIDENCE_CHECKS_FAILED")
         self.assertIsNone(report["native_model"]["observed_discrepancies"])
         self.assertIsNone(report["atuin_sql"]["observed_discrepancies"])
 
+    @pytest.mark.unit
+    @pytest.mark.conformance
     def test_failed_evidence_keeps_counts_separate(self) -> None:
         """A failed runner leaves comparison counts unknown while import denominators remain exact."""
-        with TemporaryDirectory() as temporary, patch("coverage_report.command", return_value={"status": "FAILED"}):
-            report = collect(Path(temporary), "missing-native")
+        with TemporaryDirectory() as temporary:
+            report = assemble(Path(temporary), failed_checks())
         self.assertEqual(report["status"], "EVIDENCE_CHECKS_FAILED")
         self.assertIsNone(report["native_model"]["observed_discrepancies"])
         self.assertIsNone(report["native_model"]["completed_matching_cases"])
@@ -73,21 +86,21 @@ class CoverageTest(unittest.TestCase):
         self.assertEqual(report["grammar"]["production_execution_coverage"], "NOT_INSTRUMENTED")
         self.assertIsNone(report["additional_grammars"]["3.46.0"]["generated_productions"])
 
+    @pytest.mark.unit
+    @pytest.mark.conformance
     def test_incomplete_reports_are_not_passing_coverage(self) -> None:
         """Exit-zero JSON cannot substitute for the selected case set."""
-        def incomplete(arguments: Sequence[str], root: Path, timeout: int) -> dict[str, object]:
-            """Supply well-formed but incomplete runner output without running external tools."""
-            if any(name.endswith("conformance_model_test.py") for name in arguments):
-                return {"status": "PASSED", "stdout": "[]"}
-            if any(name.endswith("conformance_native_test.py") for name in arguments):
-                return {"status": "PASSED", "stdout": "{}"}
-            return {"status": "FAILED"}
-        with TemporaryDirectory() as temporary, patch("coverage_report.command", side_effect=incomplete):
-            report = collect(Path(temporary), "unused")
+        checks = failed_checks()
+        checks["derived_native_model"] = {"status": "PASSED", "stdout": "[]"}
+        checks["upstream_native"] = {"status": "PASSED", "stdout": "{}"}
+        with TemporaryDirectory() as temporary:
+            report = assemble(Path(temporary), checks)
         self.assertEqual(report["checks"]["derived_native_model"]["status"], "FAILED")
         self.assertEqual(report["checks"]["upstream_native"]["status"], "FAILED")
         self.assertIsNone(report["native_model"]["observed_discrepancies"])
 
+    @pytest.mark.unit
+    @pytest.mark.conformance
     def test_duplicate_success_rows_do_not_count(self) -> None:
         """Correct lengths and status labels cannot manufacture complete case coverage."""
         derived = [{"case": cases()[0].name, "native_status": "MATCHES_INDEPENDENT_EXPECTATION",
@@ -95,26 +108,26 @@ class CoverageTest(unittest.TestCase):
                     "model_status": "KERNEL_CHECKED_CONCRETE_ASSERTIONS"}] * len(cases())
         upstream = {"cases": [{"upstream_id": "alter3-3.1", "occurrence": 1,
                               "native_status": "MATCHES_UPSTREAM", "grammar_status": "PARSED"}] * 3}
-        def duplicated(arguments: Sequence[str], root: Path, timeout: int) -> dict[str, object]:
-            """Return repeated successful observations with the expected list lengths."""
-            if any(name.endswith("conformance_model_test.py") for name in arguments):
-                return {"status": "PASSED", "stdout": json.dumps(derived)}
-            if any(name.endswith("conformance_native_test.py") for name in arguments):
-                return {"status": "PASSED", "stdout": json.dumps(upstream)}
-            return {"status": "FAILED"}
-        with TemporaryDirectory() as temporary, patch("coverage_report.command", side_effect=duplicated):
-            report = collect(Path(temporary), "unused")
+        checks = failed_checks()
+        checks["derived_native_model"] = {"status": "PASSED", "stdout": json.dumps(derived)}
+        checks["upstream_native"] = {"status": "PASSED", "stdout": json.dumps(upstream)}
+        with TemporaryDirectory() as temporary:
+            report = assemble(Path(temporary), checks)
         self.assertEqual(report["checks"]["derived_native_model"]["status"], "FAILED")
         self.assertEqual(report["checks"]["upstream_native"]["status"], "FAILED")
         self.assertIsNone(report["native_model"]["observed_discrepancies"])
         self.assertIsNone(report["native_model"]["completed_matching_cases"])
 
+    @pytest.mark.unit
+    @pytest.mark.conformance
     def test_bad_json_is_failure(self) -> None:
         """An exit-zero process without valid evidence cannot count as a passing observation."""
         evidence = {"status": "PASSED", "stdout": "not JSON"}
         self.assertIsNone(structured(evidence))
         self.assertEqual(evidence["status"], "FAILED")
 
+    @pytest.mark.unit
+    @pytest.mark.conformance
     def test_atuin_sql_completeness_and_receipts(self) -> None:
         """Native-only cases reject duplicates, wrong bytes and inflated model claims."""
         with TemporaryDirectory() as temporary:
@@ -140,10 +153,16 @@ class CoverageTest(unittest.TestCase):
             (root/"examples/atuin/schema.sql").unlink()
             self.assertEqual(sql_report(root, good)["status"], "FAILED")
 
+    @pytest.mark.integration
+    @pytest.mark.conformance
     def test_commands_fail_boundedly(self) -> None:
         """Both unavailable tools and timed-out tools yield explicit reportable failure."""
-        self.assertEqual(command(["/definitely/missing/coverage-tool"], ROOT, 1)["status"], "FAILED")
-        self.assertEqual(command([sys.executable, "-c", "import time; time.sleep(3)"], ROOT, 1)["status"], "FAILED")
+        with self.assertRaises(OSError):
+            run_command(["/definitely/missing/coverage-tool"], cwd=ROOT, timeout=1)
+        with self.assertRaises(CommandTimeout) as failure:
+            run_command([sys.executable, "-c", "import time; time.sleep(3)"], cwd=ROOT, timeout=1)
+        self.assertTrue(failure.exception.result.timed_out)
+        self.assertNotEqual(failure.exception.result.returncode, 0)
 
 
 if __name__ == "__main__":

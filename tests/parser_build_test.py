@@ -7,6 +7,8 @@ from pathlib import Path
 import sys
 from tempfile import TemporaryDirectory
 import unittest
+
+import pytest
 from unittest.mock import patch
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -16,6 +18,10 @@ import build_cache
 IMMUTABLE = build_cache.immutable
 
 
+pytestmark = pytest.mark.parser
+
+
+@pytest.mark.unit
 class IncrementalBuildTests(unittest.TestCase):
     """Exercise complete successful builds and failures with deterministic tiny outputs."""
 
@@ -173,17 +179,14 @@ class IncrementalBuildTests(unittest.TestCase):
                     {"NIX_ENFORCE_PURITY": "1"}):
                 self.assertFalse(build_cache.stable_environment(environment), environment)
 
-
-def native_reuse() -> None:
-    """Require the default pinned platform to reuse real build outputs without invoking tools."""
+@pytest.mark.integration
+@pytest.mark.requires_native
+@pytest.mark.requires_nix
+@pytest.mark.parametrize("version", ["3.51.0", "3.46.0"])
+def test_native_reuse(version: str) -> None:
+    """The selected pinned parser is present and its source build invokes no tools on reuse."""
+    executable = "sqlite-parser" if version == "3.51.0" else "sqlite-parser-3.46.0"
+    upstream = "upstream" if version == "3.51.0" else "upstream-3.46.0"
+    assert (ROOT / "build" / executable).is_file()
     with patch.object(build, "run", side_effect=AssertionError("Unchanged pinned parser invoked a build tool")):
-        build.build("3.51.0", "upstream", "sqlite-parser")
-        build.build("3.46.0", "upstream-3.46.0", "sqlite-parser-3.46.0")
-    print("Both pinned native parsers reused their checked outputs without build-tool calls.")
-
-
-if __name__ == "__main__":
-    if sys.argv[1:] == ["--native-reuse"]:
-        native_reuse()
-    else:
-        unittest.main()
+        build.build(version, upstream, executable)

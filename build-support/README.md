@@ -15,14 +15,29 @@ binaries already use bundled-relative/platform loaders.
 fresh host coverage. `leanRuntime/.lake/build/` contains the current Lean library
 and checker. `runtime/` assembles those outputs, source/module membership,
 examples, Python CLI and exact native loader metadata. It never caches a user
-proof verdict or host sandbox/conformance/installed test result. Copy this output
-into mutable staging before host tests that write reports or fixture artifacts.
+proof verdict or host sandbox/conformance/installed test result. Set
+`SQLITE_VERIFIER_RUNTIME_ROOT` to this immutable output before `just check` or
+`just package`. Fixtures make private writable copies of examples; reports remain
+in the checkout's `build/`, so the runtime itself needs no mutable staging copy.
 
-`python3 build-support/source_identity_test.py` checks edits, additions, deletions,
-renames and unrelated documentation against source store identities. Tests run
-bounded Nix evaluations on small temporary source trees, not whole checkouts.
+`just test-cases tests/test_source_identity.py` checks each declared input through
+real Nix source identities. Each declared input relation and component-level
+ignore rule is selectable; cases cover additions, edits, renames, deletions and
+missing required inputs. The
+ordinary source suite runs them on both native platforms. Fixtures contain tiny
+synthetic inputs; they never copy a checkout or build a package.
 
 Archive digests were taken from the official GitHub v4.33.0 release asset metadata
 and verified by downloading both actual native archives on 2026-09-28. Darwin
 native graph/build/loader checks passed locally; Linux execution remains a native
 CI requirement. Evaluating its derivations on Darwin is not Linux validation.
+
+`unitChecks` uses the same pinned Python/pytest as the development shell and runs
+only exact node IDs in `unit-cases.json`. Each case has been reviewed for complete
+source inputs and synthetic/mocked dependencies. Collection is checked before
+fixture setup: every selected node must be unit-level with no resource markers.
+Every selected setup/call/teardown must then pass; skipped or missing cases reject
+the derivation. Outputs retain `catalogue.json`, `unit-cases.json`, and
+`source/unit.xml` plus `source/unit.json`. Actual proof acceptance, native
+conformance, installer/Nix services, host sandbox tests and whole-repository docs
+validation are excluded and still execute freshly on the host.

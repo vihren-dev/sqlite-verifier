@@ -1,0 +1,75 @@
+name: ADR 0001 native benchmark
+on:
+  workflow_dispatch:
+    inputs:
+      pilot:
+        description: Validate evidence plumbing with four native jobs; never qualifies for rollout
+        type: boolean
+        default: false
+permissions:
+  contents: read
+concurrency:
+  group: adr1-benchmark-${{ github.run_id }}-${{ github.run_attempt }}
+  cancel-in-progress: false
+jobs:
+  cold:
+    if: github.ref == 'refs/heads/main'
+    strategy:
+      fail-fast: false
+      max-parallel: 12
+      matrix:
+        variant: ${{ fromJSON(inputs.pilot && '["candidate"]' || '["baseline", "candidate"]') }}
+        system: [x86_64-linux, aarch64-darwin]
+        replica: ${{ fromJSON(inputs.pilot && '[1]' || '[1, 2, 3]') }}
+    uses: ./.github/workflows/benchmark-native.yml
+    with:
+      variant: ${{ matrix.variant }}
+      system: ${{ matrix.system }}
+      replica: ${{ matrix.replica }}
+      scenario: cold
+  restored:
+    needs: cold
+    strategy:
+      fail-fast: false
+      max-parallel: 12
+      matrix:
+        variant: ${{ fromJSON(inputs.pilot && '["candidate"]' || '["baseline", "candidate"]') }}
+        system: [x86_64-linux, aarch64-darwin]
+        replica: ${{ fromJSON(inputs.pilot && '[1]' || '[1, 2, 3]') }}
+        scenario: ${{ fromJSON(inputs.pilot && '["warm"]' || '["warm", "python", "lean", "package"]') }}
+    uses: ./.github/workflows/benchmark-native.yml
+    with:
+      variant: ${{ matrix.variant }}
+      system: ${{ matrix.system }}
+      replica: ${{ matrix.replica }}
+      scenario: ${{ matrix.scenario }}
+  summarize:
+    if: always() && github.ref == 'refs/heads/main'
+    needs: [cold, restored]
+    runs-on: ubuntu-22.04
+    timeout-minutes: 10
+    permissions:
+      contents: read
+      actions: read
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          persist-credentials: false
+      - uses: actions/download-artifact@634f93cb2916e3fdff6788551b99b062d0335ce0 # v5
+        with:
+          pattern: adr1-benchmark-*
+          path: evidence
+      - name: Compare completed jobs including cache post-save overhead
+        # Pilot intentionally cannot satisfy the unchanged sixty-sample rollout gate.
+        continue-on-error: ${{ inputs.pilot }}
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: python3 tools/benchmark_summary.py evidence benchmark-summary
+      - name: Retain all raw job timing and transfer evidence
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: adr1-benchmark-summary
+          path: benchmark-summary/
+          if-no-files-found: warn
+          retention-days: 30
