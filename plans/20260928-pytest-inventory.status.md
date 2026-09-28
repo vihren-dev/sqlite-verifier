@@ -96,3 +96,49 @@ Checks used one pinned `nix develop path:./nix` shell, after resource preflight:
 Root reviews/integrates the conversion, reroutes just/coverage orchestration and
 runs the two real source-native-reuse scenarios after its parser build. No
 production verifier, Nix, justfile or shared plugin files changed in this commit.
+
+
+## T4 source-boundary conversion (2026-09-28)
+
+Status: DONE; all execution checks pass, independently reviewed; lead integration pending.
+
+Compilation tests now expose all 17 mapped cases and early-baseline tests all
+seven. A 135-line source fixture module gives each mutation fresh approved and
+candidate inputs. Compiler, library, checker and parser paths come from explicit
+runtime fixtures. Imported verification redirects only `Runtime.locate`; real
+parsing, closure discovery, source snapshots, compilation and kernel verification
+remain in use. Installed runtime selection fails setup for these source imports.
+
+The selected generated source role rejects before tool access and is a resource-
+free unit case, alongside emitted symlink, parent alias, hardlink and module-path
+checks. Header graph failures also assert that compilation never begins. Drift
+cases retain an invalid proof and require the exact early diagnostic with no
+compiler call; the snapshot-positive case instead requires compilation and exact
+approved digests after the original files are mutated.
+
+Strict collection matched all 24 inventory IDs. Five resource-free checks pass.
+The full 24-case run passed in 27.07 seconds and explicit reversed selection
+passed in 23.90 seconds against the immutable Nix runtime.
+An explicit installed selection of the module-path case failed during setup with
+its source-only diagnostic, as required; its report is retained under
+`build/test-results/installed/source-installed-rejection.json`.
+
+A pinned-shell daemon denial was resolved through the supported execution-tool
+escalation after lead feedback. No toolchain/configuration workaround was added.
+Heavy Lean tests are serialized with the lead and formal reviewer to preserve the
+measured macOS single-worker constraint.
+
+
+Independent reviewer formal_preservation found no blocking parity or independence
+issue in this conversion: source hashes, generated binding, sandbox read/write
+probes, artifact errors, source graph checks, invalid-proof precedence and sealed
+snapshot compilation assertions remain intact. Root owns integration review.
+
+
+All 24 cases also passed when each was launched alone in a fresh pytest process
+(32.51 seconds combined, 90-second outer deadline for each invocation). Reports:
+`build/test-results/source/source-boundaries-full.{json,xml}`,
+`source-boundaries-reversed.{json,xml}`, per-case `source-boundary-alone-NN` reports
+and `build/test-results/source-boundaries-alone.log`. The heavyweight window was
+released to the formal reviewer after completion. No production file or shared
+plugin file changed in this source-boundary commit.

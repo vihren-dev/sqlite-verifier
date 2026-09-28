@@ -1,161 +1,139 @@
-"""Bounded real-sandbox regressions for source closure and sealed module compilation."""
+"""Independently selectable compiler isolation, source closure and artifact-alias regressions."""
 
+from collections.abc import Callable
 import hashlib
 import os
 from pathlib import Path
 import shutil
-import subprocess
-from tempfile import TemporaryDirectory
 from unittest.mock import patch
+
+import pytest
 
 from migration_check.compile import artifact_bytes, compile_modules, compile_project
 from migration_check.source_closure import CompileError, module_path
-from migration_check.sql_model import Column, Table, schema_inputs as emit_schema, sql_inputs as emit_sql
+from migration_check.sql_model import Column, Table, schema_inputs
+from tests.runtime_support import CommandResult
+from tests.source_fixtures import (CompilationFixture, DEEPER, FIXTURES, HELPER,
+                                   compilation_case, source_runtime_only)
 
-ROOT = Path(__file__).resolve().parents[1]
-FIXTURES = ROOT / "tests/kernel_gate"
-LIBRARY = ROOT / ".lake/build/lib/lean"
+pytestmark = [pytest.mark.kernel, pytest.mark.approval]
 
 
-def main() -> None:
-    """Check actual compiler isolation, trusted dependency hashes and rejected source graphs."""
-    prefix = subprocess.run(["lean", "--print-prefix"], cwd=ROOT, capture_output=True,
-                            text=True, check=True, timeout=10).stdout.strip()
-    sysroot = Path(prefix).resolve(strict=True)
-    with TemporaryDirectory(prefix="compilation-test-") as temporary:
-        root = Path(temporary).resolve()
-        approved, candidates = root / "approved", root / "candidates"
-        approved.mkdir()
-        candidates.mkdir()
-        for name in ("Requirements", "Interpretation"):
-            shutil.copyfile(FIXTURES / f"{name}.lean", approved / f"{name}.lean")
-        for name in ("NextInterpretation", "Proofs"):
-            shutil.copyfile(FIXTURES / f"{name}.lean", candidates / f"{name}.lean")
-        schema_inputs, sql_inputs = emit_schema(()), emit_sql((), ())
-        (approved / "SchemaInputs.lean").write_text("def forgedStartingSchema := True\n")
-        workspace = root / "work"
-        workspace.mkdir()
-        requirement = approved / "Requirements.lean"
-        original = requirement.read_text()
-        helper = b"/- import Ignored -/\nimport Deeper\ndef approvedHelper : Nat := deeperValue\n"
-        deeper = b"def deeperValue : Nat := 7\n"
-        (approved / "Deeper.lean").write_bytes(deeper)
-        (approved / "Odd.Module.lean").write_bytes(helper)
-        (approved / "Odd.Module.olean").write_bytes(b"untrusted compiled artifact")
-        (approved / "lakefile.lean").write_text("this is not a Lake project\n")
-        protected_artifact = workspace / "trusted/Requirements.olean"
-        requirement.write_text(original.replace("import SqliteVerifier", "import SqliteVerifier\nimport SchemaInputs\nimport «Odd.Module»") +
-            f'\n#eval do\n  let readable ← try\n    let _ ← IO.FS.readFile "{candidates / "Proofs.lean"}"\n    pure true\n  catch _ => pure false\n'
-            '  if readable then throw (IO.userError "candidate source leaked into approved compilation")\n'
-            'example : Generated.startSchema = [] := rfl\n')
-        next_source = candidates / "NextInterpretation.lean"
-        next_source.write_text(next_source.read_text() +
-            f'\n#eval do\n  let writable ← try\n    IO.FS.writeFile "{protected_artifact}" "changed"\n    pure true\n  catch _ => pure false\n'
-            '  if writable then throw (IO.userError "candidate modified protected artifact")\n')
-        arguments = dict(sysroot=sysroot, library=LIBRARY, requirements=requirement,
-            interpretation=approved / "Interpretation.lean", next_interpretation=next_source,
-            proofs=candidates / "Proofs.lean", schema_inputs=schema_inputs, sql_inputs=sql_inputs)
-        project = compile_project(**arguments, workspace=workspace)
-        assert project.hashes["approved/Odd.Module.lean"] == hashlib.sha256(helper).hexdigest()
-        assert project.hashes["approved/Deeper.lean"] == hashlib.sha256(deeper).hexdigest()
-        assert (project.trusted / "Odd.Module.olean").read_bytes() != b"untrusted compiled artifact"
-        assert not (project.trusted / "lakefile.olean").exists()
-        assert "approved/SchemaInputs.lean" not in project.hashes
-        assert project.hashes["generated/SchemaInputs.lean"] == hashlib.sha256(schema_inputs.encode()).hexdigest()
-        checked = subprocess.run([str(ROOT / ".lake/build/bin/migration-proof-checker"),
-            str(LIBRARY), str(project.trusted), str(project.candidate)], cwd=ROOT,
-            env={**os.environ, "LEAN_SYSROOT": str(sysroot)}, capture_output=True,
-            text=True, timeout=30)
-        assert checked.returncode == 0, checked.stderr
+@pytest.mark.integration
+@pytest.mark.requires_lean
+@pytest.mark.requires_sandbox
+def test_sealed_source_compilation(compilation_case: CompilationFixture, proof_checker: Path,
+                                   command_runner: Callable[..., CommandResult]) -> None:
+    """Fresh compiler isolation and source hashes survive forged generated/compiled inputs and kernel checking."""
+    case = compilation_case
+    project = case.compile()
+    assert project.hashes["approved/Odd.Module.lean"] == hashlib.sha256(HELPER).hexdigest()
+    assert project.hashes["approved/Deeper.lean"] == hashlib.sha256(DEEPER).hexdigest()
+    assert (project.trusted / "Odd.Module.olean").read_bytes() != b"untrusted compiled artifact"
+    assert not (project.trusted / "lakefile.olean").exists()
+    assert "approved/SchemaInputs.lean" not in project.hashes
+    assert project.hashes["generated/SchemaInputs.lean"] == hashlib.sha256(schema_inputs(()).encode()).hexdigest()
+    checked = command_runner([str(proof_checker), str(case.library), str(project.trusted), str(project.candidate)],
+                             cwd=case.root, timeout=30,
+                             environment={**os.environ, "LEAN_SYSROOT": str(case.sysroot)})
+    assert checked.returncode == 0, checked.diagnostic()
 
-        changed_workspace = root / "changed-schema"
-        changed_workspace.mkdir()
-        try:
-            compile_project(**{**arguments, "schema_inputs": emit_schema((Table("unexpected", (Column("x", "text"),)),))},
-                            workspace=changed_workspace)
-        except CompileError as error:
-            assert error.phase == "compile" and "Requirements" in str(error)
-            assert "type mismatch" in str(error).lower(), str(error)
-        else:
-            raise AssertionError("approved start-schema assertion ignored changed supplied schema")
-        selected_shadow = root / "selected-shadow"
-        selected_shadow.mkdir()
-        try:
-            compile_project(**{**arguments, "requirements": approved / "SchemaInputs.lean"},
-                            workspace=selected_shadow)
-        except ValueError as error:
-            assert "reserved" in str(error)
-        else:
-            raise AssertionError("generated module accepted as a selected source role")
 
-        # Header dependency errors must precede any proof compilation.
-        (approved / "HiddenCandidate.lean").hardlink_to(candidates / "Proofs.lean")
-        for index, (extra, diagnostic) in enumerate((
-            ("import NextInterpretation", "reserved"),
-            ("import proofs", "reserved"),
-            ("import SqlInputs", "reserved"),
-            ("import Generated", "reserved"),
-            ("import schemainputs", "reserved"),
-            ("import SchemaInputs.Evil", "reserved"),
-            ("import HiddenCandidate", "escapes approved"),
-            ("import CandidateOnly", "Missing or conflicting"),
-            ("import Cycle", "cycle"),
-            ("import Conflict", "Missing or conflicting"),
-        )):
-            requirement.write_text(extra + "\n" + original)
-            (candidates / "CandidateOnly.lean").write_text("def invisible := 1\n")
-            (approved / "Cycle.lean").write_text("import Requirements\n")
-            second = root / "second"
-            second.mkdir(exist_ok=True)
-            shutil.copyfile(approved / "Interpretation.lean", second / "Interpretation.lean")
-            (approved / "Conflict.lean").write_text("def value := 1\n")
-            (second / "Conflict.lean").write_text("def value := 2\n")
-            rejected_workspace = root / f"rejected-{index}"
-            rejected_workspace.mkdir()
-            try:
-                compile_project(**{**arguments, "interpretation": second / "Interpretation.lean"},
-                                workspace=rejected_workspace)
-            except ValueError as error:
-                assert diagnostic in str(error), (diagnostic, str(error))
-            else:
-                raise AssertionError(f"accepted source graph: {extra}")
+@pytest.mark.integration
+@pytest.mark.requires_lean
+@pytest.mark.requires_sandbox
+def test_changed_supplied_schema(compilation_case: CompilationFixture) -> None:
+    """An approved assertion about the supplied empty starting schema rejects a changed generated schema."""
+    changed = schema_inputs((Table("unexpected", (Column("x", "text"),)),))
+    with pytest.raises(CompileError) as rejected:
+        compilation_case.compile(schema=changed)
+    assert rejected.value.phase == "compile" and "Requirements" in str(rejected.value)
+    assert "type mismatch" in str(rejected.value).lower(), str(rejected.value)
 
-        # Never follow a compiler-produced link when copying outputs in the trusted parent.
-        def emit_link(*args: object, **kwargs: object) -> str:
-            """Simulate a malicious emitted artifact without executing adversarial native code."""
-            output = args[4]
-            assert isinstance(output, Path)
-            (output / "Requirements.olean").symlink_to(requirement)
-            return ""
 
-        destination = root / "link-output"
-        destination.mkdir()
-        with patch("migration_check.compile.lean_process", emit_link):
-            try:
-                compile_modules(order=("Requirements",), sources=approved, destination=destination,
-                    previous=(), sysroot=sysroot, library=LIBRARY, workspace=root)
-            except CompileError as error:
-                assert error.phase == "artifact"
-            else:
-                raise AssertionError("followed compiler-produced symlink")
-        outside = root / "outside"
-        outside.mkdir()
-        (outside / "Bar.olean").write_bytes(b"outside artifact")
-        nested = root / "nested-output"
-        nested.mkdir()
+@pytest.mark.unit
+def test_selected_generated_role(tmp_path: Path) -> None:
+    """Generated SchemaInputs cannot be selected as an authored approved source role before tool use."""
+    for name in ("SchemaInputs", "Interpretation", "NextInterpretation", "Proofs"):
+        (tmp_path / f"{name}.lean").write_text("def forgedStartingSchema := True\n")
+    workspace = tmp_path / "workspace"
+    workspace.mkdir()
+    with pytest.raises(ValueError, match="reserved"):
+        compile_project(sysroot=tmp_path, library=tmp_path, requirements=tmp_path / "SchemaInputs.lean",
+            interpretation=tmp_path / "Interpretation.lean", next_interpretation=tmp_path / "NextInterpretation.lean",
+            proofs=tmp_path / "Proofs.lean", schema_inputs=schema_inputs(()), sql_inputs="", workspace=workspace)
+
+
+@pytest.mark.integration
+@pytest.mark.requires_lean
+@pytest.mark.requires_sandbox
+@pytest.mark.parametrize("module,diagnostic", [
+    ("NextInterpretation", "reserved"), ("proofs", "reserved"), ("SqlInputs", "reserved"),
+    ("Generated", "reserved"), ("schemainputs", "reserved"), ("SchemaInputs.Evil", "reserved"),
+    ("HiddenCandidate", "escapes approved"), ("CandidateOnly", "Missing or conflicting"),
+    ("Cycle", "cycle"), ("Conflict", "Missing or conflicting"),
+], ids=["NextInterpretation", "proofs", "SqlInputs", "Generated", "schemainputs", "SchemaInputs.Evil",
+        "HiddenCandidate", "CandidateOnly", "Cycle", "Conflict"])
+def test_rejected_source_graph(module: str, diagnostic: str, compilation_case: CompilationFixture) -> None:
+    """Forbidden roles, aliases, missing dependencies, cycles and conflicts reject before proof compilation."""
+    case = compilation_case
+    (case.approved / "HiddenCandidate.lean").hardlink_to(case.candidate / "Proofs.lean")
+    original = (FIXTURES / "Requirements.lean").read_text()
+    (case.approved / "Requirements.lean").write_text(f"import {module}\n" + original)
+    (case.candidate / "CandidateOnly.lean").write_text("def invisible := 1\n")
+    (case.approved / "Cycle.lean").write_text("import Requirements\n")
+    second = case.root / "second"
+    second.mkdir()
+    shutil.copyfile(case.approved / "Interpretation.lean", second / "Interpretation.lean")
+    (case.approved / "Conflict.lean").write_text("def value := 1\n")
+    (second / "Conflict.lean").write_text("def value := 2\n")
+    with patch("migration_check.compile.compile_modules") as compile_spy:
+        with pytest.raises(ValueError, match=diagnostic):
+            case.compile(interpretation=second / "Interpretation.lean")
+        compile_spy.assert_not_called()
+
+
+@pytest.mark.unit
+def test_compiler_output_symlink(tmp_path: Path) -> None:
+    """The trusted parent rejects an emitted symlink before copying a compiler artifact."""
+    source = tmp_path / "Requirements.lean"
+    source.write_text("def value := 1\n")
+    destination = tmp_path / "destination"
+    destination.mkdir()
+
+    def emit_link(*args: object, **kwargs: object) -> str:
+        """Model a malicious artifact without starting a compiler or requiring Lean installation."""
+        output = args[4]
+        assert isinstance(output, Path)
+        (output / "Requirements.olean").symlink_to(source)
+        return ""
+
+    with patch("migration_check.compile.lean_process", emit_link), pytest.raises(CompileError) as rejected:
+        compile_modules(order=("Requirements",), sources=tmp_path, destination=destination,
+                        previous=(), sysroot=tmp_path, library=tmp_path, workspace=tmp_path)
+    assert rejected.value.phase == "artifact"
+
+
+@pytest.mark.unit
+@pytest.mark.parametrize("alias", ["parent_symlink", "hardlink"])
+def test_artifact_alias(alias: str, tmp_path: Path) -> None:
+    """Neither a linked parent directory nor an aliased regular file can escape the compiler output tree."""
+    outside, nested = tmp_path / "outside", tmp_path / "nested"
+    outside.mkdir()
+    nested.mkdir()
+    artifact = outside / "Bar.olean"
+    artifact.write_bytes(b"outside artifact")
+    if alias == "parent_symlink":
         (nested / "Foo").symlink_to(outside, target_is_directory=True)
-        linked = nested / "hardlinked.olean"
-        linked.hardlink_to(outside / "Bar.olean")
-        for produced in (nested / "Foo/Bar.olean", linked):
-            try:
-                artifact_bytes(produced, nested)
-            except CompileError:
-                pass
-            else:
-                raise AssertionError(f"followed aliased compiler artifact: {produced}")
+        produced = nested / "Foo/Bar.olean"
+    else:
+        produced = nested / "hardlinked.olean"
+        produced.hardlink_to(artifact)
+    with pytest.raises(CompileError):
+        artifact_bytes(produced, nested)
+
+
+@pytest.mark.unit
+def test_quoted_module_path() -> None:
+    """A quoted Lean module segment containing a dot remains one filesystem segment."""
     assert module_path("Foo.«Bar.Baz»") == Path("Foo/Bar.Baz")
-    print("Compilation staging: real sandbox, source hashes, closure rejection and artifact checks passed.")
-
-
-if __name__ == "__main__":
-    main()

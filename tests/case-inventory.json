@@ -14,7 +14,8 @@
     "Common fixture prerequisites do not replace scenario outcomes. Atuin alternate-field mutates both SQL/facts independently; approved digests derive from baseline.",
     "Installed Atuin uses the same thirteen IDs and separate runtime reports; never re-execute its legacy main wrapper.",
     "Coverage producer mappings include subprocesses and report completeness contracts, not cached success files.",
-    "T4 converts the former SandboxTest method to seven independently selectable cases; docs_test/test_ci_scope remain stdlib-only and acquire pytest metadata through the shared plugin. Native-reuse remains source-build-only, while parser/internal translation/kernel-emission cases receive the selected artifact root explicitly."
+    "T4 converts the former SandboxTest method to seven independently selectable cases; docs_test/test_ci_scope remain stdlib-only and acquire pytest metadata through the shared plugin. Native-reuse remains source-build-only, while parser/internal translation/kernel-emission cases receive the selected artifact root explicitly.",
+    "Compilation17 and early-baseline7 now collect independently. Each graph/approval mutation owns a fresh fixture; compiler paths are explicit and only Runtime.locate is patched for imported verify(). Selected-generated-role and artifact aliases require no Lean/native/sandbox resources. Installed selection fails setup instead of using source imports as installed evidence."
   ],
   "entrypoints": {
     "just smoke": [
@@ -2884,8 +2885,8 @@
       ],
       "level": "integration",
       "concerns": [
-        "kernel",
-        "approval"
+        "approval",
+        "kernel"
       ],
       "resources": [
         "requires_lean",
@@ -2899,7 +2900,9 @@
         "assert \"approved/SchemaInputs.lean\" not in project.hashes",
         "assert project.hashes[\"generated/SchemaInputs.lean\"] == hashlib.sha256(schema_inputs.encode()).hexdigest()",
         "assert checked.returncode == 0, checked.stderr"
-      ]
+      ],
+      "collection_verified": true,
+      "runtime_scope": "source implementation imports with explicit selected artifact paths; installed variant fails setup"
     },
     {
       "source": "tests/compilation_test.py:72-81",
@@ -2910,8 +2913,8 @@
       ],
       "level": "integration",
       "concerns": [
-        "kernel",
-        "approval"
+        "approval",
+        "kernel"
       ],
       "resources": [
         "requires_lean",
@@ -2920,7 +2923,9 @@
       "assertions": [
         "assert error.phase == \"compile\" and \"Requirements\" in str(error)",
         "assert \"type mismatch\" in str(error).lower(), str(error)"
-      ]
+      ],
+      "collection_verified": true,
+      "runtime_scope": "source implementation imports with explicit selected artifact paths; installed variant fails setup"
     },
     {
       "source": "tests/compilation_test.py:82-91",
@@ -2929,18 +2934,17 @@
       "runtimes": [
         "source"
       ],
-      "level": "integration",
+      "level": "unit",
       "concerns": [
-        "kernel",
-        "approval"
+        "approval",
+        "kernel"
       ],
-      "resources": [
-        "requires_lean",
-        "requires_sandbox"
-      ],
+      "resources": [],
       "assertions": [
         "assert \"reserved\" in str(error)"
-      ]
+      ],
+      "collection_verified": true,
+      "runtime_scope": "source implementation imports with explicit selected artifact paths; installed variant fails setup"
     },
     {
       "source": "tests/compilation_test.py:124-142",
@@ -2951,14 +2955,16 @@
       ],
       "level": "unit",
       "concerns": [
-        "kernel",
-        "approval"
+        "approval",
+        "kernel"
       ],
       "resources": [],
       "assertions": [
         "assert isinstance(output, Path)",
         "assert error.phase == \"artifact\""
-      ]
+      ],
+      "collection_verified": true,
+      "runtime_scope": "source implementation imports with explicit selected artifact paths; installed variant fails setup"
     },
     {
       "source": "tests/compilation_test.py:141-155",
@@ -2969,13 +2975,15 @@
       ],
       "level": "unit",
       "concerns": [
-        "kernel",
-        "approval"
+        "approval",
+        "kernel"
       ],
       "resources": [],
       "assertions": [
         "artifact_bytes raises CompileError; never follows artifact_alias[parent_symlink]"
-      ]
+      ],
+      "collection_verified": true,
+      "runtime_scope": "source implementation imports with explicit selected artifact paths; installed variant fails setup"
     },
     {
       "source": "tests/compilation_test.py:141-155",
@@ -2986,13 +2994,15 @@
       ],
       "level": "unit",
       "concerns": [
-        "kernel",
-        "approval"
+        "approval",
+        "kernel"
       ],
       "resources": [],
       "assertions": [
         "artifact_bytes raises CompileError; never follows artifact_alias[hardlink]"
-      ]
+      ],
+      "collection_verified": true,
+      "runtime_scope": "source implementation imports with explicit selected artifact paths; installed variant fails setup"
     },
     {
       "source": "tests/compilation_test.py:156-156",
@@ -3003,13 +3013,15 @@
       ],
       "level": "unit",
       "concerns": [
-        "kernel",
-        "approval"
+        "approval",
+        "kernel"
       ],
       "resources": [],
       "assertions": [
         "assert module_path(\"Foo.«Bar.Baz»\") == Path(\"Foo/Bar.Baz\")"
-      ]
+      ],
+      "collection_verified": true,
+      "runtime_scope": "source implementation imports with explicit selected artifact paths; installed variant fails setup"
     },
     {
       "source": "tests/compilation_test.py:93-122",
@@ -3020,7 +3032,8 @@
       ],
       "level": "integration",
       "concerns": [
-        "approval"
+        "approval",
+        "kernel"
       ],
       "resources": [
         "requires_lean",
@@ -3029,7 +3042,9 @@
       "assertions": [
         "assert diagnostic in str(error), (diagnostic, str(error))",
         "ValueError must include reserved, escapes approved, Missing or conflicting, or cycle as specified by the source table; no successful graph acceptance"
-      ]
+      ],
+      "collection_verified": true,
+      "runtime_scope": "source implementation imports with explicit selected artifact paths; installed variant fails setup"
     },
     {
       "source": "tests/compilation_test.py:93-122",
@@ -3040,7 +3055,8 @@
       ],
       "level": "integration",
       "concerns": [
-        "approval"
+        "approval",
+        "kernel"
       ],
       "resources": [
         "requires_lean",
@@ -3049,7 +3065,9 @@
       "assertions": [
         "assert diagnostic in str(error), (diagnostic, str(error))",
         "ValueError must include reserved, escapes approved, Missing or conflicting, or cycle as specified by the source table; no successful graph acceptance"
-      ]
+      ],
+      "collection_verified": true,
+      "runtime_scope": "source implementation imports with explicit selected artifact paths; installed variant fails setup"
     },
     {
       "source": "tests/compilation_test.py:93-122",
@@ -3060,7 +3078,8 @@
       ],
       "level": "integration",
       "concerns": [
-        "approval"
+        "approval",
+        "kernel"
       ],
       "resources": [
         "requires_lean",
@@ -3069,7 +3088,9 @@
       "assertions": [
         "assert diagnostic in str(error), (diagnostic, str(error))",
         "ValueError must include reserved, escapes approved, Missing or conflicting, or cycle as specified by the source table; no successful graph acceptance"
-      ]
+      ],
+      "collection_verified": true,
+      "runtime_scope": "source implementation imports with explicit selected artifact paths; installed variant fails setup"
     },
     {
       "source": "tests/compilation_test.py:93-122",
@@ -3080,7 +3101,8 @@
       ],
       "level": "integration",
       "concerns": [
-        "approval"
+        "approval",
+        "kernel"
       ],
       "resources": [
         "requires_lean",
@@ -3089,7 +3111,9 @@
       "assertions": [
         "assert diagnostic in str(error), (diagnostic, str(error))",
         "ValueError must include reserved, escapes approved, Missing or conflicting, or cycle as specified by the source table; no successful graph acceptance"
-      ]
+      ],
+      "collection_verified": true,
+      "runtime_scope": "source implementation imports with explicit selected artifact paths; installed variant fails setup"
     },
     {
       "source": "tests/compilation_test.py:93-122",
@@ -3100,7 +3124,8 @@
       ],
       "level": "integration",
       "concerns": [
-        "approval"
+        "approval",
+        "kernel"
       ],
       "resources": [
         "requires_lean",
@@ -3109,7 +3134,9 @@
       "assertions": [
         "assert diagnostic in str(error), (diagnostic, str(error))",
         "ValueError must include reserved, escapes approved, Missing or conflicting, or cycle as specified by the source table; no successful graph acceptance"
-      ]
+      ],
+      "collection_verified": true,
+      "runtime_scope": "source implementation imports with explicit selected artifact paths; installed variant fails setup"
     },
     {
       "source": "tests/compilation_test.py:93-122",
@@ -3120,7 +3147,8 @@
       ],
       "level": "integration",
       "concerns": [
-        "approval"
+        "approval",
+        "kernel"
       ],
       "resources": [
         "requires_lean",
@@ -3129,7 +3157,9 @@
       "assertions": [
         "assert diagnostic in str(error), (diagnostic, str(error))",
         "ValueError must include reserved, escapes approved, Missing or conflicting, or cycle as specified by the source table; no successful graph acceptance"
-      ]
+      ],
+      "collection_verified": true,
+      "runtime_scope": "source implementation imports with explicit selected artifact paths; installed variant fails setup"
     },
     {
       "source": "tests/compilation_test.py:93-122",
@@ -3140,7 +3170,8 @@
       ],
       "level": "integration",
       "concerns": [
-        "approval"
+        "approval",
+        "kernel"
       ],
       "resources": [
         "requires_lean",
@@ -3149,7 +3180,9 @@
       "assertions": [
         "assert diagnostic in str(error), (diagnostic, str(error))",
         "ValueError must include reserved, escapes approved, Missing or conflicting, or cycle as specified by the source table; no successful graph acceptance"
-      ]
+      ],
+      "collection_verified": true,
+      "runtime_scope": "source implementation imports with explicit selected artifact paths; installed variant fails setup"
     },
     {
       "source": "tests/compilation_test.py:93-122",
@@ -3160,7 +3193,8 @@
       ],
       "level": "integration",
       "concerns": [
-        "approval"
+        "approval",
+        "kernel"
       ],
       "resources": [
         "requires_lean",
@@ -3169,7 +3203,9 @@
       "assertions": [
         "assert diagnostic in str(error), (diagnostic, str(error))",
         "ValueError must include reserved, escapes approved, Missing or conflicting, or cycle as specified by the source table; no successful graph acceptance"
-      ]
+      ],
+      "collection_verified": true,
+      "runtime_scope": "source implementation imports with explicit selected artifact paths; installed variant fails setup"
     },
     {
       "source": "tests/compilation_test.py:93-122",
@@ -3180,7 +3216,8 @@
       ],
       "level": "integration",
       "concerns": [
-        "approval"
+        "approval",
+        "kernel"
       ],
       "resources": [
         "requires_lean",
@@ -3189,7 +3226,9 @@
       "assertions": [
         "assert diagnostic in str(error), (diagnostic, str(error))",
         "ValueError must include reserved, escapes approved, Missing or conflicting, or cycle as specified by the source table; no successful graph acceptance"
-      ]
+      ],
+      "collection_verified": true,
+      "runtime_scope": "source implementation imports with explicit selected artifact paths; installed variant fails setup"
     },
     {
       "source": "tests/compilation_test.py:93-122",
@@ -3200,7 +3239,8 @@
       ],
       "level": "integration",
       "concerns": [
-        "approval"
+        "approval",
+        "kernel"
       ],
       "resources": [
         "requires_lean",
@@ -3209,7 +3249,9 @@
       "assertions": [
         "assert diagnostic in str(error), (diagnostic, str(error))",
         "ValueError must include reserved, escapes approved, Missing or conflicting, or cycle as specified by the source table; no successful graph acceptance"
-      ]
+      ],
+      "collection_verified": true,
+      "runtime_scope": "source implementation imports with explicit selected artifact paths; installed variant fails setup"
     },
     {
       "source": "tests/early_baseline_test.py:62-64",
@@ -3237,7 +3279,9 @@
           "assert error.diagnostic()[\"status\"] == \"INPUT_ERROR\", error",
           "assert expected in str(error), error"
         ]
-      }
+      },
+      "collection_verified": true,
+      "runtime_scope": "source implementation imports with explicit selected artifact paths; installed variant fails setup"
     },
     {
       "source": "tests/early_baseline_test.py:66-68",
@@ -3265,7 +3309,9 @@
           "assert error.diagnostic()[\"status\"] == \"INPUT_ERROR\", error",
           "assert expected in str(error), error"
         ]
-      }
+      },
+      "collection_verified": true,
+      "runtime_scope": "source implementation imports with explicit selected artifact paths; installed variant fails setup"
     },
     {
       "source": "tests/early_baseline_test.py:69-70",
@@ -3293,7 +3339,9 @@
           "assert error.diagnostic()[\"status\"] == \"INPUT_ERROR\", error",
           "assert expected in str(error), error"
         ]
-      }
+      },
+      "collection_verified": true,
+      "runtime_scope": "source implementation imports with explicit selected artifact paths; installed variant fails setup"
     },
     {
       "source": "tests/early_baseline_test.py:71-72",
@@ -3321,7 +3369,9 @@
           "assert error.diagnostic()[\"status\"] == \"INPUT_ERROR\", error",
           "assert expected in str(error), error"
         ]
-      }
+      },
+      "collection_verified": true,
+      "runtime_scope": "source implementation imports with explicit selected artifact paths; installed variant fails setup"
     },
     {
       "source": "tests/early_baseline_test.py:73-74",
@@ -3349,7 +3399,9 @@
           "assert error.diagnostic()[\"status\"] == \"INPUT_ERROR\", error",
           "assert expected in str(error), error"
         ]
-      }
+      },
+      "collection_verified": true,
+      "runtime_scope": "source implementation imports with explicit selected artifact paths; installed variant fails setup"
     },
     {
       "source": "tests/early_baseline_test.py:76-85",
@@ -3371,7 +3423,9 @@
         "compile_spy.assert_not_called()",
         "assert \"Missing or conflicting\" in str(error), error",
         "ValueError Missing or conflicting precedes baseline checking; compile_modules not called"
-      ]
+      ],
+      "collection_verified": true,
+      "runtime_scope": "source implementation imports with explicit selected artifact paths; installed variant fails setup"
     },
     {
       "source": "tests/early_baseline_test.py:86-104",
@@ -3395,7 +3449,9 @@
         "assert isinstance(report[\"inputs\"], dict)",
         "assert report[\"inputs\"][name] == digest",
         "Unpinned equivalent schema accepted; matching approved snapshots still compile and verify independently despite original source/proof/schema mutation after check_baseline"
-      ]
+      ],
+      "collection_verified": true,
+      "runtime_scope": "source implementation imports with explicit selected artifact paths; installed variant fails setup"
     },
     {
       "source": "tests/parser_test.py:37-37",
@@ -6813,6 +6869,7 @@
     "converted_case_count": 159,
     "result": "all converted IDs exactly match actual pytest collection; shared harness additions owned by root",
     "command": "python3 -m pytest --collect-only --catalog-json /tmp/adr1-converted-catalog.json <converted modules>",
-    "runtime_build_required": false
+    "runtime_build_required": false,
+    "source_boundary_case_count": 24
   }
 }
