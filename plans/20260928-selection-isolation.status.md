@@ -36,3 +36,45 @@ two native-reuse cases against its already-built source checkout; this member
 will run the other 168 after the lead releases the shared heavy test window.
 The pending set includes 76 parser cases and 41 source-identity relations.
 These counts describe actual evidence, not an inference from fixture structure.
+
+
+## Final native selection reconciliation — DONE (bounded audit)
+
+Final integration base: `ffc49c06`. The eight reviewed Linux packaging cases
+bring the inventory to 409 unique IDs: 403 source and 19 installed, sharing the
+13 Atuin IDs. No frozen legacy mapping was removed. The lead refreshed current
+implementation metadata in that integration commit.
+
+All 168 remaining resource-dependent selections passed separately on native
+Darwin, after the lead released the shared heavy window. They use the same
+explicit immutable runtime as the first batch, a 180-second outer bound per
+selection, and run ID `isolation-da095eba-a89f-4c8e-8dbb-6def2b506da9`.
+The source case bodies ran at the reviewed `092412ca` checkpoint; the final
+packaging additions and wrapper cleanup do not alter those selected bodies.
+The lead independently ran both source native-reuse cases in its existing built
+checkout and all eight newly added packaging cases individually and reversed.
+No implicit build or competing Lean execution was introduced by this audit.
+
+Final exact-set reconciliation of successful retained phase reports establishes:
+
+| Runtime | Expected IDs | Passed alone | Passed in reversed selection |
+| --- | ---: | ---: | ---: |
+| Source | 403 | 403 | 403 |
+| Installed | 19 | 19 | 19 |
+
+Every accepted receipt has exit zero and passed setup, call and teardown phases.
+Standalone receipts contain exactly one node. Reverse evidence comes from the
+lead's full 395-case reverse run (327.20s, 166 subtests, fresh passing coverage),
+its eight-case packaging reverse run, and its separate installed Atuin13 and
+runtime-package6 reverse runs. There are no pending IDs in either runtime.
+
+Final artifacts in this workspace are `build/isolation-resource-results.json`,
+`build/test-results/source/isolation-resource-*.json` and the per-case logs;
+`build/final-selection-isolation-audit.json` maps every final runtime/node pair
+to its standalone and reverse report paths across the team workspaces. The lead's
+remaining receipts are under `build/final-selections`, `build/final-source-order`
+and `build/installed-order-checks` in its workspace. Reports are retained separately
+from ordinary source-suite evidence and cached-unit derivation evidence.
+
+This completes local selection/isolation validation only. Remote native Linux CI,
+benchmark acceptance and overall ADR rollout remain lead-owned acceptance work.
