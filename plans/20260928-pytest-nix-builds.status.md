@@ -168,5 +168,19 @@ No end-to-end performance claim yet.
   Existing 15s/1800s smoke/installed limits and all source limits remain unchanged.
 - Sixty-seven focused checks plus two subtests pass; all thirteen new cases pass
   individually/reversed, and the real smoke command passes. Full integrated
-  catalogue now contains422 unique IDs (416 source,19 installed), preserving244
+  catalogue now contains 422 unique IDs (416 source, 19 installed), preserving 244
   legacy mappings. Final native revalidation and all benchmark gates remain open.
+
+- Final read-only inventory audit at `12e1aebd` finds no discrepancies: all 422
+  metadata/AST locations and 67 implementation hashes match, all 244 legacy
+  mappings and 39 baseline source hashes are preserved, and actual standalone and
+  reverse-order receipts cover exactly 416 source and 19 installed cases.
+- The integrated pure-unit derivation rebuild passes 64 cases and 62 subtests in
+  0.62s at `/nix/store/nx2jisn5ddzbi995jyfrcbss1yla1rzw-sqlite-verifier-unit-checks-1`.
+  The real installed watchdog invocation passes all 19 cases after offline
+  installation in 131.92s; its JSON/JUnit reports are under
+  `build/final-watchdog-integration/installed/`.
+- PR 4's final implementation is `12e1aebd`, with native run 36408912201 pending.
+  Existing GitHub caches are dependency-only `nix-v1`; no `build-v2` entry exists
+  yet. The main-branch benchmark pilot must demonstrate cold save and warm restore
+  before the full measurements. Normal build-cache rollout remains disabled.
