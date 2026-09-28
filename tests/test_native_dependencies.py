@@ -109,8 +109,12 @@ class NativeDependenciesTest(unittest.TestCase):
                 "build_runtime_under_test", ROOT / "packaging/build_runtime.py")
             assert package_spec is not None and package_spec.loader is not None
             package = importlib.util.module_from_spec(package_spec)
-            with patch.dict(sys.modules, {"runtime_dependencies": collector}):
+            with patch.object(sys, "path", [str(ROOT / "packaging"), *sys.path]), \
+                    patch.dict(sys.modules, {"runtime_dependencies": collector}):
+                # Exercise the real sibling import even if another selected case imported it first.
+                sys.modules.pop("relocate_elf", None)
                 package_spec.loader.exec_module(package)
+                self.assertEqual(Path(sys.modules["relocate_elf"].__file__), ROOT / "packaging/relocate_elf.py")
             destination = lean / "copied"
             package.copy_runtime(lean / "lib", destination, collector.lean_runtime_files(lean))
             self.assertEqual({path.relative_to(destination) for path in destination.rglob("*") if path.is_file()},
