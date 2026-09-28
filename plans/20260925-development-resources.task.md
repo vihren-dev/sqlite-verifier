@@ -1,6 +1,6 @@
 # Bound development storage and verification cost
 
-Created: 2026-09-25. Status: IN PROGRESS.
+Created: 2026-09-25. Status: DONE.
 
 ## Required outcome
 

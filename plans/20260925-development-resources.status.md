@@ -1,6 +1,6 @@
 # Development resource repair status
 
-Created: 2026-09-25. Status: IN PROGRESS.
+Created: 2026-09-25. Status: DONE.
 Task: [required outcomes](20260925-development-resources.task.md).
 
 The owner requested repair of the supplied process report. Initial evidence
@@ -68,3 +68,14 @@ PR #2 because explicit merge/bypass authorization was missing. The PR remains
 open at the fully checked revision, with no merge or alternate push attempted.
 The owner has been asked for that narrow integration authorization separately
 from the Atuin contract review. Public integration and task DONE remain pending.
+
+Closeout, 2026-09-25: the owner subsequently approved the current product state
+and requested completion. The reviewed resource fixes are integrated into public
+main; PR #2 was closed as superseded, not merged through an unapproved operation.
+The existing owner bypass was used for the explicitly authorized integration;
+branch rules and target-owned baseline enforcement remain intact. Full package
+run36138251243 passed both platforms on the integrated tree, and the later CI
+optimization retains every environment/parser/coverage/resource regression.
+No cache cleanup was performed by this team. The original storage/verification
+repair is DONE; measured CI acceleration is tracked separately in
+[CI performance status](20260925-ci-performance.status.md).

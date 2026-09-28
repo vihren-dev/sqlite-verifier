@@ -1,6 +1,6 @@
 # Step 1 status
 
-Created: 2026-09-24. Status: OWNER ACCEPTED — final release validation pending.
+Created: 2026-09-24. Status: DONE (2026-09-28; owner accepted 2026-09-25).
 Task: [Verified SQLite schema extensions](20260924-step-1-schema-extensions.task.md).
 Final release: [task and evidence](20260925-step1-release.status.md).
 
@@ -67,18 +67,22 @@ Concurrency, resource failures and crash recovery remain outside the fixed model
   [preservation status](20260925-business-preservation.status.md).
 - Independent technical/conformance review found no blocking proof or packaging
   defect. Hosted full package run36138251243 now passes on both declared platforms at
-  e8502876, including offline installed-entrypoint checks. Stable publication
-  remains in progress under the separate release record.
+  e8502876, including offline installed-entrypoint checks.
+- Final `7a99c71f` passed complete source and offline installed-runtime checks
+  twice on both platforms in runs 36387285239 and 36388588408. Stable v0.1.1 was
+  published on 2026-09-28; both archive digests match their published checksums.
+  The failed v0.1.0 tag is preserved. See the final release record for exact
+  revision, timings, sizes and hashes.
 
 Public repository: vihren-dev/sqlite-verifier. Owner authorization includes public
 publication and integration of the reviewed protected baseline. Existing branch
 rules and target-owned baseline enforcement remain enabled; intentional approved
 changes use the owner's existing audited bypass, not weakened checks.
 
-## Remaining completion work
+## Completion
 
-Complete hosted platform/release validation, verify the published artifacts, then
-record exact revision/run/release identities and mark this task DONE. No additional
-product-owner decision or new pilot is outstanding. Step 2 remains future work and
+Step 1 is DONE: owner acceptance, hosted platform validation, stable publication
+and published-asset verification are complete. No additional product-owner
+decision or new pilot is outstanding. Step 2 remains future work and
 is not started automatically by completing Step 1. Earlier detailed chronology is
 retained in Jujutsu history and the component status files.

@@ -34,15 +34,18 @@ Full compatibility with the pinned SQLite grammar remains the parser target. Sem
 Completion evidence: a pilot user can verify real schema-extension migrations, adapt requirements through the public library, and repair rejected examples from diagnostics. CI accepts valid proofs, rejects unapproved changes to the approved requirements/preconditions and mismatched artifacts, and reports unsupported cases accurately. CI must identify the approved baseline; legitimate requirement changes follow the human approval workflow. Record human authoring and review effort against the pilot’s existing workflow
 when available, and distinguish missing measurements from qualitative acceptance.
 
-**Step 1 acceptance checkpoint (25 September 2026).** The owner accepted the
+**Step 1 complete (28 September 2026; owner acceptance 25 September).** The owner accepted the
 current implementation and the source-backed Atuin case study. Agents executed
 the real SQL payload and its public verification workflow; the owner guided and
 refined the old-history business model. The approved contract proves successful
 modeled execution and complete recovery of old histories from resulting storage,
 without a new-shell requirement or target-schema prescription. Two positive CLI
 cases reuse the protected inputs; eleven negative cases exercise diagnostics and
-rejection boundaries. Local full checks and hosted source/installed-package checks on both platforms
-pass at e8502876 (run36138251243); v0.1.0 awaits publication. See the [acceptance review](docs/atuin-pilot-review.md)
+rejection boundaries. Local checks and two complete hosted source/installed-package
+runs pass on both platforms at `7a99c71f` (runs 36387285239 and 36388588408).
+Stable [v0.1.1](https://github.com/vihren-dev/sqlite-verifier/releases/tag/v0.1.1)
+is published, with both archive digests checked against their published checksum
+files. The failed v0.1.0 tag remains unchanged. See the [acceptance review](docs/atuin-pilot-review.md)
 and [release task](plans/20260925-step1-release.task.md).
 
 Human time and previous-workflow effort were not measured comparably. Acceptance
@@ -50,8 +53,8 @@ is qualitative; agent execution is not independent human pilot use, productivity
 improvement, adoption or willingness-to-pay evidence. Owner approval closes the
 product gate without requiring another pilot or framework integration. SQLx
 remains trusted, application-query compatibility is unproved, and native tests
-remain finite evidence. The decision is to finish and release Step 1 within this
-accepted scope. Step 2 is a future proposal, not an automatically started or
+remain finite evidence. Step 1 is complete within this accepted scope.
+Step 2 is a future proposal, not an automatically started or
 committed implementation; its scope and success measures require a later decision.
 
 **Step 2 — Verified SQLite table rebuilds.** Target users whose migrations create a replacement table, copy data, drop the original, and rename the replacement. This is a documented SQLite migration pattern and a useful expansion beyond additive changes.

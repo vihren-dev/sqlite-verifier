@@ -1,6 +1,6 @@
 # Step 1 release status
 
-Created: 2026-09-25. Status: ACTIVE.
+Created: 2026-09-25. Status: DONE (2026-09-28).
 Task: [step1-release.task.md](20260925-step1-release.task.md).
 Starting implementation: 0c5bb79e. Local full just check passed; current GitHub
 main is e094a5ff and the published preview is v0.1.0-rc.1.
@@ -64,3 +64,27 @@ positive still exceeded the production checker deadline (run36144746026).
 Release remains pending. CI work now fixes repeated imports within the gate,
 preserving all proof checks and the30s production limit; see the performance
 status for controlled measurements and independent review.
+
+Full package run36387285239 PASSED on7a99c71f40c66077b2293e1ce2c8ef3151ce5d67:
+macOS14m31s andLinux9m57s, including every real installed-runtime/Atuin case at
+the unchanged30s production checker deadline. Created fresh tagv0.1.1 at that
+exact revision; release run36388588408 repeats both platforms and gates publication.
+The failed v0.1.0 tag is preserved. No approval policy or product contract changed.
+
+Closeout, 2026-09-28: release run 36388588408 PASSED on the exact tag revision:
+macOS 14m17s, Linux 8m46s, publication 1m5s. Stable
+[v0.1.1](https://github.com/vihren-dev/sqlite-verifier/releases/tag/v0.1.1) was
+published at 07:07:27 UTC. Exactly two native archives and two checksum files are
+uploaded; downloaded checksum files match GitHub's archive SHA-256 digests:
+
+- aarch64-darwin: 1,124,611,568 bytes;
+  ff8bd547ee88fbe1cc82312143c4fcaa6214da89b4490379eb10092e48b39913
+- x86_64-linux: 1,016,723,322 bytes;
+  012445a4eadc8398d9d031d4c57ae1bc2a1d4ca75da059f58e941bd93f90095c
+
+The publisher independently checked the downloaded complete archives before
+uploading them. Both platform runs built, installed offline and exercised the
+actual runtime. Evidence: build/ci-import-reuse-release-{macos,linux}.log,
+ci-import-reuse-release-result.json, release-v0.1.1.json and downloaded checksums.
+README, roadmap, acceptance review and task records now reflect completion.
+No new product-owner input is required; Step 2 remains future work. Task DONE.

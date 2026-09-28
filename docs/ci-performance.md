@@ -9,6 +9,14 @@ case and artifact upload. No verification result is reused from a dependency cac
 | [Original successful package](https://github.com/vihren-dev/sqlite-verifier/actions/runs/36138251243) | e8502876, no cache | 23m28s | 18m33s |
 | [First optimization experiment](https://github.com/vihren-dev/sqlite-verifier/actions/runs/36143187396) | 0cef4339, cold cache, xz export | Failed | 11m46s |
 | [Sequential macOS experiment](https://github.com/vihren-dev/sqlite-verifier/actions/runs/36144746026) | 54ea013a, macOS cold / Linux warm, zstd export | Failed | 12m31s |
+| [Import reuse](https://github.com/vihren-dev/sqlite-verifier/actions/runs/36387285239) | 7a99c71f, macOS cold / Linux warm | 14m31s | 9m57s |
+| [Same-revision release repeat](https://github.com/vihren-dev/sqlite-verifier/actions/runs/36388588408) | 7a99c71f, both dependency caches warm | 14m17s | 8m46s |
+
+Both final runs passed every source and installed case. Compared with the original
+successful package run, macOS is 38–39% faster and Linux 46–53% faster in these
+samples. These are complete platform-job times, including uploads and cache work;
+the separate release-publishing job is excluded. Runner load and dependency-cache
+state vary, so the measurements are observations rather than promised durations.
 
 The failed macOS experiment is not a speedup or acceptance result: overlapping
 kernel and CLI suites caused a valid CLI proof to exceed its production deadline.
@@ -26,7 +34,14 @@ replay, audit and kernel check. A fixed local sandboxed positive fixture took
 Both diagnostic binaries used the same native optimization and source-compiled
 fixture; the first original run took 17.582s with colder filesystem state.
 These are checker measurements, not complete CI times. Production limits remain
-unchanged. Both-platform full-package validation of this change is pending.
+unchanged. Both-platform full-package validation and the same-revision release
+repeat passed, with both dependency caches populated for the repeat.
+
+In the first successful final run, the Linux suite pair took 81.34s (kernel 61.16s,
+CLI 81.34s); sequential macOS took 168.25s (kernel 70.98s, CLI 97.27s). Installed
+Atuin checks passed in 119.58s and 112.84s respectively. Linux exported its Nix
+payload in 0.89s; macOS in 6.10s. macOS saved its first dependency cache after this
+success.
 
 Protected baseline changes reject before compilation using the exact snapshotted
 transitive closure. Matching inputs still compile and undergo independent kernel
@@ -52,4 +67,4 @@ and every installed ordinary/Atuin case passed. Nix reads the encoding from cach
 metadata; no installer or signature policy changed. See the
 [Nix binary-cache settings](https://nix.dev/manual/nix/2.29/store/types/local-binary-cache-store.html). These local phase measurements
 are distinct from hosted end-to-end results. Single samples vary with runner load;
-repeated full-package checks of the final revision are required before completion.
+the two same-revision complete runs above provide the final validation evidence.

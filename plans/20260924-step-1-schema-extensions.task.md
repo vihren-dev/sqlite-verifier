@@ -1,6 +1,6 @@
 # Step 1: verified SQLite schema extensions
 
-Created: 2026-09-24. Status: OWNER ACCEPTED — final release validation pending.
+Created: 2026-09-24. Status: DONE (2026-09-28; owner accepted 2026-09-25).
 
 ## Outcome and governing documents
 

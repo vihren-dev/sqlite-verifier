@@ -1,6 +1,6 @@
 # CI performance status
 
-Created: 2026-09-25. Status: ACTIVE.
+Created: 2026-09-25. Status: DONE (2026-09-28).
 Task: [ci-performance.task.md](20260925-ci-performance.task.md).
 
 Read the owner's timing report and traced baseline compilation and aggregate
@@ -89,3 +89,31 @@ The aggregate documentation scan encountered unrelated uncommitted ADR drafts
 and an active editor lock. Those files remain untouched and excluded from this
 commit. The same Markdown validator passes against the full publication file
 set, including changed documentation. Hosted clean-checkout validation is next.
+
+Integrated7a99c71f40c66077b2293e1ce2c8ef3151ce5d67 into public main using the
+existing owner-authorized bypass; no rules changed. Hosted run36387285239 performs
+complete package checks on both platforms. Independent Ultra aggregate review of
+8fb4f2d3..7a99c71f found no additional coverage, cache, archive/install or release
+blocker; the checker itself had separate independent Medium review.
+
+Run36387285239 PASSED at7a99c71f: macOS14m31s (cold dependency cache, first save),
+Linux9m57s (warm dependency cache). Every source and installed case passed.
+Pair times168.25s sequential macOS and81.34s concurrent Linux; exports6.10s/0.89s;
+installed Atuin112.84s/119.58s. Evidence: build/ci-import-reuse-{macos,linux}.log
+and ci-import-reuse-result.json. Fresh tagv0.1.1 points at this exact revision;
+run36388588408 repeats full packaging on both platforms before publication.
+
+Closeout, 2026-09-28: the same-revision release repeat PASSED: macOS 14m17s,
+Linux 8m46s, publisher 1m5s. Both dependency caches hit; macOS restore took about 45s.
+The second macOS installed Atuin run took 161.38s versus 112.84s in the first run,
+illustrating runner variability despite identical source and assertions. Linux's
+second suite pair took 73.44s and installed Atuin 104.28s. Both platform jobs retain
+all source, kernel, native/model, archive and installed-runtime coverage.
+Against the original 23m28s/18m33s jobs, observed improvements are 38–39% macOS and
+46–53% Linux. No promise of fixed future durations is made. The results and failed
+experiments are recorded in docs/ci-performance.md. Release v0.1.1 is published;
+both checksum assets match GitHub's uploaded archive digests. Task DONE.
+
+Final documentation validation passed against the complete publication file set;
+all four CI routing checks passed in 0.357s. Only completion records and release
+links change after the tested tag. Unrelated local ADR drafts remain excluded.

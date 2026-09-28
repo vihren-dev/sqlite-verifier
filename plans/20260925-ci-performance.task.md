@@ -1,6 +1,6 @@
 # Reduce complete CI elapsed time
 
-Created: 2026-09-25. Status: ACTIVE.
+Created: 2026-09-25. Status: DONE (2026-09-28).
 
 ## Required outcome
 

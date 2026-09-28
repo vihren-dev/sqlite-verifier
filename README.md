@@ -16,7 +16,10 @@ Follow [the installation guide](docs/install.md), then try the bundled examples.
 [GitHub Releases](https://github.com/vihren-dev/sqlite-verifier/releases) publishes
 archives only after both platform checks and extracted-installation tests pass.
 Prereleases are engineering previews; product acceptance is recorded separately.
-The first checked preview is [v0.1.0-rc.1](https://github.com/vihren-dev/sqlite-verifier/releases/tag/v0.1.0-rc.1).
+The first stable release is [v0.1.1](https://github.com/vihren-dev/sqlite-verifier/releases/tag/v0.1.1),
+published on 2026-09-28 after complete source and installed-runtime checks passed
+twice on both platforms. Step 1 is complete; see the
+[CI measurements](docs/ci-performance.md) for the measured runtime improvements.
 
 ## Development
 

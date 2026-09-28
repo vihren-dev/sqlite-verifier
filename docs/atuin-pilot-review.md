@@ -1,10 +1,14 @@
 # Atuin case study and acceptance review
 
 Accepted by product owner Tzanko Matev on 2026-09-25: “As far as I am concerned,
-I approve the current state.” This closes Step 1 product acceptance. Hosted full package checks now pass on both platforms in
-[run36138251243](https://github.com/vihren-dev/sqlite-verifier/actions/runs/36138251243).
-Publication of v0.1.1 remains the final release gate, tracked in
-[the release task](../plans/20260925-step1-release.task.md).
+I approve the current state.” Product acceptance and release are complete.
+[v0.1.1](https://github.com/vihren-dev/sqlite-verifier/releases/tag/v0.1.1) was
+published on 2026-09-28 at revision `7a99c71f` after both platforms passed full
+source and installed-runtime checks in
+[the main run](https://github.com/vihren-dev/sqlite-verifier/actions/runs/36387285239)
+and [the release repeat](https://github.com/vihren-dev/sqlite-verifier/actions/runs/36388588408).
+Both published archive checksums match their GitHub asset digests. See
+[the release record](../plans/20260925-step1-release.status.md).
 
 ## Case study and accepted guarantee
 

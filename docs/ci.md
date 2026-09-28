@@ -87,8 +87,8 @@ From the primary checkout, after reviewed `main` CI is green and release notes
 are current, create a fresh release tag and transport it (use a hyphenated version for a prerelease):
 
 ```sh
-jj tag set v0.1.1 -r main
-git push origin refs/tags/v0.1.1
+jj tag set v0.1.2 -r main
+git push origin refs/tags/v0.1.2
 ```
 
 The installed Jujutsu supports tag creation, but its push command transports
@@ -96,6 +96,7 @@ bookmarks; Git is used for this tag-only push. The tag workflow reruns both
 platform checks and marks hyphenated version tags as prereleases. Watch that run
 and verify both published archives and checksum files before announcing it.
 Never move or reuse a released or failed release tag; use a fresh version after
-a fix. The owner accepted the current Step 1 product on 2026-09-25; stable release
-publication still depends on successful checks of the tagged revision. Existing
-v0.1.0-rc.1 is an earlier engineering preview, not the current implementation.
+a fix. The owner accepted the Step 1 product on 2026-09-25. Stable v0.1.1 was
+published on 2026-09-28 after both complete platform jobs passed twice at `7a99c71f`;
+published checksum files match the archive asset digests. The failed v0.1.0 tag
+remains unchanged, and v0.1.0-rc.1 is an earlier engineering preview.
