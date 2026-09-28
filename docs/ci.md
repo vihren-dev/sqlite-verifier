@@ -3,9 +3,10 @@
 [ADR 0001](adr-0001-pytest-and-nix-ci.md), accepted on 2026-09-28, authorizes
 immutable project-build and pure-unit-result caching with compatible prefix
 restoration, subject to its correctness and performance gates. Implementation is
-[in progress](../plans/20260928-pytest-nix-builds.status.md). The description below
-records the deployed dependency-only workflow until that rollout; final proof
-verdicts and host acceptance checks must continue to run freshly.
+[in progress](../plans/20260928-pytest-nix-builds.status.md). Production retains the
+dependency-only fallback until native correctness and measured performance gates
+pass. The workflow-dispatch `experimental-build-cache` input or a PR branch
+prefixed `experiment/adr-0001-` exercises the new graph without enabling rollout.
 
 `.github/workflows/ci.yml` runs on pull requests, pushes to `main`, and manual
 requests. The two required `Check` jobs remain present for every run. Their
@@ -19,8 +20,10 @@ scope is selected from the complete changed-path list by `tests/ci_scope.py`:
   `just package`, including the complete checks and installed-runtime tests.
 - Release tags and manual requests always run `just package`.
 
-Each build job enters `nix develop path:./nix` once for setup, the Linux
-sandbox check and its selected recipe. This explicit path contains only the
+Each build job enters `nix develop path:./nix` once. `tools/ci_checks.py` runs
+setup, the Linux sandbox check and its selected recipe. In experimental mode it
+builds `runtime` and `unitChecks` with Nix, supplies their explicit roots to the
+same fresh host recipe, and retains cached unit receipts separately. This explicit path contains only the
 environment definition, even in additional Jujutsu workspaces. Adding checks to
 shared recipes extends CI. Superseded ordinary runs on the same ref are cancelled;
 tags and manual runs have unique concurrency groups and are never auto-cancelled.
@@ -31,8 +34,8 @@ run with two workers on Linux. macOS runs them sequentially: hosted overlap caus
 a valid proof to hit the unchanged production checker deadline. Each suite keeps
 its own deadline (360 and 600 seconds), private
 test directories and complete log under `build/test-logs/`. Both children are
-awaited; either failure fails CI. Other suites remain sequential. Logs are retained
-on failure as well as success. Runtime packaging reports copying, Nix export,
+awaited; either failure fails CI. Other suites remain sequential. Logs, fresh JSON/JUnit reports and failure artifacts are retained
+on failure as well as success; cached unit reports use a separate directory. Runtime packaging reports copying, Nix export,
 signature verification and compression times; installed Atuin output streams live.
 The offline Nix cache uses its native zstd encoding; the outer archive remains
 gzip level1. Nix verifies the decoded contents and signatures before archiving.
@@ -40,10 +43,13 @@ gzip level1. Nix verifies the decoded contents and signatures before archiving.
 The pinned [cache-nix-action v7](https://github.com/nix-community/cache-nix-action/tree/7df957e333c1e5da7721f60227dbba6d06080569)
 reuses the Nix store with an exact platform and `nix/flake.nix`/`nix/flake.lock`
 hash key. Only successful `main` jobs save caches; pull requests and tags only
-restore. No prefix fallback, extra cached directories, cache purging, garbage
-collection or additional token permissions are enabled. Repository build outputs,
-Lean proof artifacts and verification results are outside the cache; every run
-rebuilds and checks them. A miss uses the ordinary pinned Nix build. Hosted cold
+restore. The fallback has no prefix restoration and keeps checkout build outputs outside
+the cache. Experimental mode uses the canonical `build-v2` environment/source
+key and the matching environment prefix; Nix derivation identity decides reuse.
+Only reviewed resource-free unit receipts may replace host unit execution.
+Proof acceptance, conformance, host sandbox and installed tests always run freshly.
+Neither mode adds checkout cache paths, purging, garbage collection or permissions.
+A miss rebuilds from declared pinned inputs. Hosted cold
 and warm package runs must establish whether restoration and saving pay for
 themselves; the timing report records measured results rather than assuming a gain.
 See [CI performance measurements](ci-performance.md) for complete runs and the
