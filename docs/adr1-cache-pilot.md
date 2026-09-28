@@ -70,5 +70,8 @@ Separately, normal source-mode CI exposed one loader-test import dependency.
 The follow-up scopes the packaging search path and forces a fresh sibling import;
 all nineteen affected cases pass independently and reversed, preserving every
 original assertion. This test-only correction does not change the runtime outputs
-whose reuse was measured here. Final source-mode native revalidation is pending
-in PR 5 before the full benchmark is dispatched.
+whose reuse was measured here. PR 5's source-mode native revalidation passes on
+both platforms in run 36412764476: 416 fresh source and 19 installed cases each,
+with matching phase reports and fresh complete coverage. PR 5 still needs an
+external approving review or explicit owner authorization for the administrator
+override before merge and full benchmark dispatch.

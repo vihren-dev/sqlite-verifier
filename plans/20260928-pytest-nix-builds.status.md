@@ -235,3 +235,17 @@ No end-to-end performance claim yet.
   bytes, phase timing, disk observations and limits. Darwin's slower fresh tests
   preclude a speedup claim from this single repetition. Full measurements remain
   gated on PR 5's native fallback validation.
+- PR 5 native fallback validation is complete: run 36412764476 passes Linux
+  (12m15s) and Darwin (14m18s) at exact `9e78125fdeddae0b2fdcf0521812f70f784e817b`.
+  Independent artifact audits confirm exactly 416 fresh source and 19 installed
+  cases per platform, matching JSON/JUnit records, all passing phases, distinct
+  source/installed UUIDs, fresh complete coverage and real offline installation.
+  No cached-unit directory or runtime/unitChecks phase appears in source mode.
+- Integration now awaits owner input. Automatic approval review rejected the
+  administrator merge of PR 5 because general integration authority did not
+  explicitly authorize bypassing the protected branch's required external review.
+  A standard merge was then attempted without an override and GitHub rejected it
+  under the branch policy. The owner has been asked to authorize this exact PR's
+  override or wait for external review. No workaround, rules change, merge or
+  full benchmark dispatch has occurred after the rejection. Goal remains active;
+  benchmark measurements and the rollout decision are still outstanding.
