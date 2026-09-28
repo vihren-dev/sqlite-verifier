@@ -10,13 +10,16 @@ resources:
 setup: resources
     timeout 300 elan toolchain install "$(cat lean-toolchain)"
 
-# Compile source parser reuse prerequisites; an explicit Nix runtime supplies Lean outputs.
+# Prepare Nix parsers; an explicit Nix runtime supplies Lean outputs.
 build: parser
     if [ -z "${SQLITE_VERIFIER_RUNTIME_ROOT:-}" ]; then timeout 120 lake build SqliteVerifier migration-proof-checker && timeout 30 python3 packaging/write_runtime_roots.py; fi
 
 # Compile the pinned complete SQLite grammar and tokenizer.
 parser: resources
-    timeout 120 python3 parser/build.py
+    mkdir -p build
+    timeout 300 nix-build build-support/default.nix -A parsers --out-link build/parsers --extra-experimental-features 'nix-command flakes'
+    rm -rf build/parser build/parser-3.46.0
+    for name in parser parser-3.46.0 sqlite-parser sqlite-parser-3.46.0; do ln -sfn "parsers/build/$name" "build/$name"; done
 
 # Run an explicitly selected scenario without rebuilding its prerequisites.
 [positional-arguments]

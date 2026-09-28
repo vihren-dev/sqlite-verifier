@@ -1,12 +1,15 @@
 """Replace upstream Lemon actions with generic syntax-tree construction."""
 
+import argparse
 import re
 from pathlib import Path
 
 
-def generate(preprocessed: str, grammar: str, header: str, target: Path) -> None:
+def generate(preprocessed: str, grammar: str, header: str, native: str, target: Path) -> None:
     """Preserve productions and parser directives, replacing only semantic actions."""
     tokens = re.findall(r"#define TK_(\w+)\s+(\d+)", header)
+    if not tokens or dict(tokens) != dict(re.findall(r"#define TK_(\w+)\s+(\d+)", native)):
+        raise ValueError("Upstream grammar and amalgamation token inventories differ")
     comments_removed = re.sub(r"/\*.*?\*/|//[^\n]*", "", preprocessed, flags=re.S)
     directives = re.findall(
         r"%(?:left|right|nonassoc|fallback|wildcard)\s+[^.]+\.", comments_removed
@@ -45,3 +48,14 @@ def generate(preprocessed: str, grammar: str, header: str, target: Path) -> None
     target.with_name("token_map.inc").write_text(
         "\n".join(f"case {number}: return P_{name};" for name, number in tokens)
     )
+
+
+if __name__ == "__main__":
+    cli = argparse.ArgumentParser(description=__doc__)
+    cli.add_argument("upstream", type=Path)
+    cli.add_argument("directory", type=Path)
+    args = cli.parse_args()
+    generate((args.directory / "preprocessed.y").read_text(),
+             (args.directory / "grammar.y").read_text(),
+             (args.directory / "parse.h").read_text(),
+             (args.upstream / "sqlite3.c").read_text(), args.directory / "syntax.y")

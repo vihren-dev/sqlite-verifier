@@ -11,6 +11,12 @@ are fetched. Lean is exactly 4.33.0; neither Elan nor a nixpkgs Lean version is
 used. Linux binaries use the pinned loader via autoPatchelf. Darwin upstream
 binaries already use bundled-relative/platform loaders.
 
+`just parser` builds the `parsers` target and links its executables and grammar
+directories into the checkout’s `build/`. Nix owns all parser build reuse; there
+is no separate local builder or content-stamp cache. The derivation verifies
+upstream checksums; `parser/generate.py` verifies token agreement and transforms
+the grammar before Nix compiles and links the C sources.
+
 `parsers/build/` retains both executables, Lemon tools and generated grammar for
 fresh host coverage. `leanRuntime/.lake/build/` contains the current Lean library
 and checker. `runtime/` assembles those outputs, source/module membership,

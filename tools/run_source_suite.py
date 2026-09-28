@@ -31,7 +31,7 @@ DEADLINES = {
 
 LEGACY_UNITTEST_MODULES = {
     "test_baseline_ci", "test_ci_scope", "test_cli_inputs", "test_independent_suites",
-    "test_native_dependencies", "test_parser_cache_environment", "test_profiles", "test_resources",
+    "test_native_dependencies", "test_profiles", "test_resources",
     "test_runtime_package", "test_sandbox", "test_schema_baseline", "test_schema_translation",
     "test_sql_writes", "test_translation",
 }

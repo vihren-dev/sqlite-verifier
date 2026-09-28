@@ -1,6 +1,8 @@
 # SQLite syntax boundary
 
-Build: `python3 parser/build.py`. Test: `python3 tests/parser_test.py`.
+Build: `just parser`. Test inside the pinned development shell:
+`just test-cases tests/parser_test.py`.
+Nix builds and caches both versions; the paths below link to its immutable output.
 The executables `build/sqlite-parser INPUT.sql` (3.51.0) and
 `build/sqlite-parser-3.46.0 INPUT.sql` each read one UTF-8 file and emit JSON.
 No database is opened and no SQL is executed, prepared, or schema-resolved.
