@@ -79,9 +79,9 @@ Relevant sources: `justfile`, `tests/`, `conformance/coverage_report.py`,
 
 ## Remaining implementation
 
-Whole-source command validation and case-order checks; both-platform source and
-installed acceptance; native benchmark pilot and complete measurement matrix;
-rollout decision and final independent requirement-by-requirement review.
+Final native CI for the integrated Linux package fix and expanded source set;
+native benchmark pilot and complete measurement matrix; measured rollout decision
+and final independent requirement-by-requirement review.
 No end-to-end performance claim yet.
 
 - Complete integrated Darwin `just check` passes at `079c252c`: run
@@ -143,3 +143,14 @@ No end-to-end performance claim yet.
 - Benchmark scheduling now allows twelve independent native jobs concurrently,
   with unchanged sample workloads and sixty-sample acceptance; GitHub may queue
   macOS jobs at the account limit. Pilot and measurements are still pending.
+
+- Selection-isolation audit is complete: exact sets of all 403 source cases and
+  all 19 installed cases have passing standalone and reverse-order receipts,
+  including every setup/call/teardown phase. Root native-reuse cases, six installed
+  package cases, and eight added relocation cases also pass separately. The member
+  [audit status](20260928-selection-isolation.status.md) links the evidence.
+- Final integrated pure-unit Nix output rebuild succeeds: 64 cases and 62 subtests
+  pass in 0.64s at
+  `/nix/store/3gbm3vfmgzn6a2wjb214yx7wk5rgkyf6-sqlite-verifier-unit-checks-1`.
+  Native run 36406499807 tests implementation `ffc49c06` on both platforms; its
+  outcome remains pending. No performance rollout is enabled.

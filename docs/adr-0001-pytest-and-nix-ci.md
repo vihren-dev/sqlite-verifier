@@ -84,10 +84,10 @@ passed the complete two-platform acceptance and performance gates.
 
 | Area | Verified implementation evidence | Still required |
 | --- | --- | --- |
-| Test harness | 409 collected cases reconciled with the inventory; discovery without runtime tools; setup/failure/timeout reporting; independent mutable fixtures | Native aggregate validation after remaining timeout/input-identity fixes |
-| Source and installed cases | Complete Darwin source check passes (285 fresh cases plus 64 validated cached unit cases); Atuin, compilation/baseline and kernel cases pass together, individually and reversed in source; all 19 installed cases pass on Darwin; fresh aggregation passes | Complete source/installed acceptance on both platforms and remaining order checks |
-| Nix outputs | Native Darwin toolchain/runtime builds, input-identity checks and 64-case pure-unit target pass; actual archive installation and signatures verified | Native Linux build, loader and installation validation |
-| CI transport | Fingerprints and scope routing implemented and tested | Workflow integration, fresh-run benchmark matrix and measured rollout decision |
+| Test harness | 409 collected cases reconciled with the inventory; resource-free discovery; nested timeout cleanup; all 403 source and 19 installed cases pass alone and reversed | Final native CI of the integrated changes |
+| Source and installed cases | Complete Darwin source and installed gates pass; 395 source cases pass in one reversed run with fresh coverage, plus eight added packaging cases pass independently/reversed; all 19 installed cases pass alone/reversed | Final both-platform acceptance after the Linux packaging correction |
+| Nix outputs | Both native platforms build the graph and pass source gates; Darwin archive/signature/installation passes; all input-identity and 64 pure-unit checks pass locally | Linux relocated archive/signature/installation validation |
+| CI transport | Workflow, fingerprints, scope routing and report retention implemented; build-output PR merged after all required gates | Native benchmark pilot, full measurement matrix and measured rollout decision |
 
 Implementation evidence is recorded in the [status file](../plans/20260928-pytest-nix-builds.status.md)
 and its linked member records. The dependency-cache workflow remains the rollout
