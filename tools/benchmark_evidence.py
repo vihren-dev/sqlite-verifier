@@ -55,12 +55,16 @@ def duration(row: dict) -> float:
 def observations(job: dict, text: str) -> dict:
     """Expose measured values and explicitly leave unavailable transfer sizes empty."""
     markers = re.findall(r"ADR1_DISK_METRICS=(\{[^\n]+\})", text)
+    sizes = [int(size) for size in re.findall(r"Cache Size:.*?\((\d+) B\)", text)]
+    sizes.extend(int(total) for transferred, total in
+                 re.findall(r"(?:Sent|Received) (\d+) of (\d+) \(", text)
+                 if int(transferred) == int(total))
     return {"job_id": job["id"], "conclusion": job["conclusion"],
             "total_seconds": duration(job),
             "cache_steps": [{"name": step["name"], "seconds": duration(step)}
                             for step in job["steps"] if "Restore experiment store" in step["name"]
                             and step.get("completed_at") and step.get("started_at")],
-            "reported_cache_bytes": [int(size) for size in re.findall(r"Cache Size:.*?\((\d+) B\)", text)],
+            "reported_cache_bytes": list(dict.fromkeys(sizes)),
             "disk": json.loads(markers[-1]) if markers else None}
 
 
