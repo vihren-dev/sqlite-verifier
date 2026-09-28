@@ -1,10 +1,8 @@
-# Assemble trusted immutable artifacts; acceptance and sandbox checks remain host work.
+# Assemble immutable runtime artifacts for trusted source execution.
 { pkgs, sources, leanToolchain, parsers, leanRuntime }:
 let
   python = pkgs.python3;
-  runtimePath = pkgs.lib.makeBinPath ([ python ]
-    ++ pkgs.lib.optional pkgs.stdenv.hostPlatform.isLinux pkgs.bubblewrap);
-  proofClosure = pkgs.closureInfo { rootPaths = [ leanToolchain leanRuntime ]; };
+  runtimePath = pkgs.lib.makeBinPath [ python ];
 in pkgs.stdenv.mkDerivation {
   pname = "sqlite-verifier-runtime";
   version = "1";
@@ -22,7 +20,6 @@ in pkgs.stdenv.mkDerivation {
     cp -R ${leanRuntime}/.lake "$out/"
     chmod -R u+w "$out"
     ln -s ${leanToolchain} "$out/lean"
-    cp ${proofClosure}/store-paths "$out/build/nix-runtime-roots"
     echo '${python}/bin/python3' > "$out/python-path"
     echo '${pkgs.stdenv.hostPlatform.system}' > "$out/platform"
     mkdir -p "$out/bin"

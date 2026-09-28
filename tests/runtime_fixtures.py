@@ -3,7 +3,6 @@
 import os
 from pathlib import Path
 import shutil
-import sys
 
 import pytest
 
@@ -68,7 +67,3 @@ def selected_prerequisites(request: pytest.FixtureRequest) -> None:
                 pytest.fail(f"Required native tool is missing: {tool}")
     if request.node.get_closest_marker("requires_nix") is not None and shutil.which("nix") is None:
         pytest.fail("Required Nix command is missing; enter the pinned shell")
-    if request.node.get_closest_marker("requires_sandbox") is not None:
-        sandbox = "/usr/bin/sandbox-exec" if sys.platform == "darwin" else shutil.which("bwrap")
-        if not sandbox or not Path(sandbox).is_file():
-            pytest.fail("Required host sandbox is missing; verification cannot be skipped")

@@ -19,12 +19,6 @@ def test_ci_modes_retain_fresh_checks(tmp_path: Path, mode: str, system: str) ->
     """Both modes keep host checks; only declared Nix mode supplies artifacts and cached build outputs."""
     runtime = tmp_path / "runtime"
     (runtime / "build").mkdir(parents=True)
-    for name in ("nix-runtime-roots",):
-        (runtime / "build" / name).write_text("loader metadata")
-        (tmp_path / "build").mkdir(exist_ok=True)
-        destination = tmp_path / "build" / name
-        destination.write_text("stale loader metadata")
-        destination.chmod(0o444)
     original_bin = tmp_path / "original-bin"
     original_bin.mkdir()
     (runtime / "lean/bin").mkdir(parents=True)
@@ -42,7 +36,6 @@ def test_ci_modes_retain_fresh_checks(tmp_path: Path, mode: str, system: str) ->
         return CommandResult(tuple(command), 0, stdout, "", 0.01)
 
     with patch("tools.ci_checks.check_resources"), patch("tools.ci_checks.run_command", side_effect=run), \
-         patch("tools.ci_checks.os.readlink", return_value="net:[before]"), \
          patch.dict("os.environ", {"SQLITE_VERIFIER_SYSTEM": system, "PATH": str(original_bin), "CC": "clang"}, clear=True):
         run_checks("package", mode, system, tmp_path)
         assert commands[-1] == ["just", "package"]
@@ -57,14 +50,9 @@ def test_ci_modes_retain_fresh_checks(tmp_path: Path, mode: str, system: str) ->
         assert [str(runtime / "lean/bin/lean"), "--version"] in commands
         assert [str(runtime / "lean/bin/lake"), "--version"] in commands
         assert not (tmp_path / "build/cached-unit").exists()
-        assert (tmp_path / "build/nix-runtime-roots").read_text() == "loader metadata"
     else:
         assert commands[0] == ["just", "setup"]
         assert "SQLITE_VERIFIER_UNIT_CHECKS" not in environments[-1]
-    probes = [command for command in commands if command[0] == "bwrap"]
-    assert bool(probes) == (system == "x86_64-linux")
-    if probes:
-        assert "--unshare-net" in probes[0] and "--ro-bind" in probes[0]
     assert all(row["exit_code"] == 0 for row in json.loads((tmp_path / "build/ci-phases.json").read_text()))
 
 

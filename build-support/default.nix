@@ -7,7 +7,7 @@ let
 in rec {
   inherit leanToolchain sources;
   tests = import ./tests.nix {
-    inherit pkgs leanToolchain leanRuntime parsers;
+    inherit pkgs leanToolchain leanRuntime parsers runtime;
   };
   runtime = import ./runtime.nix {
     inherit pkgs sources leanToolchain parsers leanRuntime;

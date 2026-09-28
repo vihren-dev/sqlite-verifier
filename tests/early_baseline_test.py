@@ -14,7 +14,7 @@ from tests.source_fixtures import (BaselineFixture, baseline_case, invalid_basel
                                    source_runtime_only)
 
 pytestmark = [pytest.mark.integration, pytest.mark.approval, pytest.mark.requires_lean,
-              pytest.mark.requires_native("sqlite-parser"), pytest.mark.requires_sandbox]
+              pytest.mark.requires_native("sqlite-parser")]
 
 
 def assert_drift(case: BaselineFixture, expected: str) -> None:

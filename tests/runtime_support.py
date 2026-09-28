@@ -69,7 +69,7 @@ def terminate_tree(pid: int) -> str | None:
     """Kill the connected descendant tree/original group; only the caller can reap its direct child.
 
     Earlier daemonized, reparented sessions have no attributable POSIX ancestry.
-    This test cleanup does not replace the production sandbox's containment.
+    This test cleanup is not a security boundary for hostile processes.
     """
     owned, groups = {pid}, {pid}
     deadline = monotonic() + 5

@@ -20,7 +20,8 @@ multiple roles authorizes that source for those roles.
 `SchemaInputs` compiles first with only the pinned library. It exports only
 `Generated.startSchema`, generated structurally from the supplied starting SQL.
 Approved Requirements and Interpretation closures may import this sealed module
-but cannot access candidate sources, scripts, result schemas or outputs. Local
+but candidate modules, scripts and result schemas are absent from its module
+search path. This is not filesystem containment. Local
 SchemaInputs sources cannot shadow the generated module; case/path variants and
 selected source roles using that reserved name reject.
 
@@ -28,7 +29,8 @@ selected source roles using that reserved name reject.
 and the pinned library. It defines the script, next schema and profile. Candidate
 NextInterpretation, Generated and Proofs then compile with all protected artifacts
 read-only. Each compiler gets a fresh writable scratch
-directory and a bounded sandboxed process. After it exits, the parent copies only
+directory and a bounded process. Read-only file modes prevent accidental edits;
+trusted execution is required because they do not isolate code running as the same user. After it exits, the parent copies only
 expected regular artifact companions, rejecting symlinks (including ancestors),
 hardlinks, and paths outside scratch. No generated executable is run.
 
@@ -39,8 +41,7 @@ source dependencies and the fixed target alias. The caller controls sysroot,
 library, generated SQL data, and workspace ownership; it must subsequently invoke
 the independent kernel gate. Successful compilation alone is not verification.
 
-`timeout 180 python3 -m tests.compilation_test` exercises real sandboxed Lean
-compilation and the kernel gate, source closure discovery and hashes, binary
-exclusion, approved/candidate isolation, and rejected artifact aliases. It passed
-locally on aarch64-darwin. Linux runtime and sandbox behavior require hosted CI
-confirmation; no blanket `/nix/store` read permission is granted by this compiler.
+`just test-cases tests/compilation_test.py` exercises real Lean compilation and
+the kernel gate, source closure discovery and hashes, binary exclusion, module
+search-path separation, and rejected artifact aliases. No OS isolation is provided;
+see the [trust boundary](trust-boundary.md).

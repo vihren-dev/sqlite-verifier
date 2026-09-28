@@ -9,7 +9,7 @@ import pytest
 from tests.runtime_support import CommandResult
 
 pytestmark = [pytest.mark.e2e, pytest.mark.kernel, pytest.mark.requires_lean,
-              pytest.mark.requires_native, pytest.mark.requires_sandbox]
+              pytest.mark.requires_native]
 
 
 @pytest.fixture

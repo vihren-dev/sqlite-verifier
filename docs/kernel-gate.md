@@ -72,6 +72,6 @@ forged expected alias, a proof against a different sealed SQLite profile,
 and a harmless initializer marker that must not execute.
 The fixture is a gate regression, not a SQL frontend acceptance or pilot example.
 
-The parent driver owns time/resource limits, compilation sandboxing, source
+The parent driver owns time/resource limits, trusted source execution, source
 approval, artifact sealing and the complete verifier result. This component does
 not establish parsing fidelity, SQLite conformance, or a complete Step 1 product.

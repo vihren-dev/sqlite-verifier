@@ -2,9 +2,9 @@
 
 Choose the `aarch64-darwin` archive for Apple Silicon macOS or `x86_64-linux`
 for Linux x64. Nix must already be installed. Import verification remains enabled.
-Linux also needs working unprivileged user and network namespaces for bubblewrap;
-the verifier refuses to run without its sandbox. CI tests macOS 14 and Ubuntu
-22.04; the host system loader/kernel remain platform prerequisites.
+CI tests macOS 14 and Ubuntu 22.04; the host system loader/kernel remain platform
+prerequisites. Lean source executes with the caller’s permissions. Only run source
+you trust; the verifier supplies no OS sandbox. See the [trust boundary](trust-boundary.md).
 
 Check the archive against its accompanying SHA-256 file, extract it, and run:
 
@@ -26,7 +26,7 @@ binary cache offline with verification enabled, links to the immutable runtime, 
 creates indirect Nix garbage-collection roots inside the installation. It does
 not download Lean, use elan, modify shell configuration, or replace another
 installation. The entrypoint uses the pinned Python in isolated mode, bundled
-Lean 4.33.0, pinned parser/checker/library, and pinned Linux bubblewrap.
+Lean 4.33.0, pinned parser/checker/library.
 Installed files are immutable Nix outputs; copy examples elsewhere before editing them. Ambient
 `PYTHONPATH`, `LEAN_PATH`, and Lean selection do not select its runtime.
 
@@ -37,11 +37,6 @@ The archive contains the complete runtime closure, converted with Nix's
 project outputs need no additional trusted signing key. Signature checking is
 never disabled. As before, verify the downloaded release archive's checksum:
 content addressing establishes byte identity, not publisher identity.
-
-Nix `closureInfo` generates `build/nix-runtime-roots` from the Lean toolchain and
-proof-library/checker closures. The proof sandbox admits those exact store paths,
-never the entire store. No ldd/otool dependency discovery or post-build ELF
-relocation occurs. The host system loader/kernel remain platform prerequisites.
 
 The examples include synthetic engineering cases and the source-backed Atuin
 case study; its [acceptance review](atuin-pilot-review.md) records owner approval.
