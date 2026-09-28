@@ -130,3 +130,16 @@ No end-to-end performance claim yet.
   nineteen subtests pass. The inventory's parser implementation hash will be
   refreshed with the final packaging changes; preserved legacy source evidence
   is unchanged. A fresh reverse-order run of all 395 source cases is in progress.
+
+- PR 3 passed all three required checks and merged as `0055011aa7da581eff0b1afe7e57fbd95152a082`.
+  PR 4 now targets main. Integrated the reviewed Linux staged-ELF correction;
+  sixteen focused checks pass in 0.20s, signature enforcement remains unchanged,
+  and the 409-case catalogue reconciles exactly (403 source; 19 installed).
+- All 395 source cases from checkpoint `092412ca` pass together in reverse order
+  in 327.20s with 166 subtests. Same-run receipt aggregation produces complete
+  fresh coverage. New eight packaging cases are undergoing independent/reverse
+  selection checks; 139 additional resource-free cases already pass individually.
+  The remaining source resource cases are being checked individually.
+- Benchmark scheduling now allows twelve independent native jobs concurrently,
+  with unchanged sample workloads and sixty-sample acceptance; GitHub may queue
+  macOS jobs at the account limit. Pilot and measurements are still pending.

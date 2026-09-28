@@ -18,7 +18,7 @@
     "Compilation17 and early-baseline7 now collect independently. Each graph/approval mutation owns a fresh fixture; compiler paths are explicit and only Runtime.locate is patched for imported verify(). Selected-generated-role and artifact aliases require no Lean/native/sandbox resources. Installed selection fails setup instead of using source imports as installed evidence.",
     "ADR0001 source orchestration additions are explicitly identified as infrastructure additions, not legacy baseline scenarios.",
     "origin=new distinguishes ADR infrastructure additions and the new partial declaration attack from preserved legacy behavior; neither additions nor multi-runtime Atuin execution inflate the baseline case count.",
-    "The reconciled inventory has 401 unique IDs, including 244 legacy mappings; thirteen Atuin IDs have separate source and installed executions."
+    "The reconciled inventory has 409 unique IDs, including 244 legacy mappings; thirteen Atuin IDs have separate source and installed executions."
   ],
   "entrypoints": {
     "just test / just check / just coverage": [
@@ -9823,7 +9823,7 @@
         "assert not output.exists()",
         "pytest.raises(ValueError, match=message)"
       ],
-      "implementation_source": "tests/test_runtime_staging.py:109-120",
+      "implementation_source": "tests/test_runtime_staging.py:140-151",
       "description": "A separate full filesystem or immutable output stops before inspecting tools.",
       "parameter_id": "/nix/store/forbidden-archive-21474836480-immutable Nix store",
       "level": "unit",
@@ -9848,7 +9848,7 @@
         "assert not output.exists()",
         "pytest.raises(ValueError, match=message)"
       ],
-      "implementation_source": "tests/test_runtime_staging.py:109-120",
+      "implementation_source": "tests/test_runtime_staging.py:140-151",
       "description": "A separate full filesystem or immutable output stops before inspecting tools.",
       "parameter_id": "output-0-10 GiB",
       "level": "unit",
@@ -9885,7 +9885,7 @@
         "assert example is not None and example.read() == b\"examples/example.sql\"",
         "assert interpreter is not None and interpreter.read().decode() == str(python) + \"\\n\""
       ],
-      "implementation_source": "tests/test_runtime_staging.py:25-80",
+      "implementation_source": "tests/test_runtime_staging.py:104-106",
       "description": "Explicit runtime inputs survive staging while stale modules and checkout files do not.",
       "parameter_id": null,
       "level": "unit",
@@ -9909,7 +9909,7 @@
       "assertion_source": [
         "pytest.raises(FileNotFoundError)"
       ],
-      "implementation_source": "tests/test_runtime_staging.py:91-102",
+      "implementation_source": "tests/test_runtime_staging.py:122-133",
       "description": "A missing supplied toolchain is an error before external Lean can be consulted.",
       "parameter_id": null,
       "level": "unit",
@@ -9933,7 +9933,7 @@
       "assertion_source": [
         "pytest.raises(ValueError, match=\"Current module has not been built\")"
       ],
-      "implementation_source": "tests/test_runtime_staging.py:83-88",
+      "implementation_source": "tests/test_runtime_staging.py:114-119",
       "description": "An unrelated stale compiled module cannot satisfy a current source module.",
       "parameter_id": null,
       "level": "unit",
@@ -12430,6 +12430,195 @@
           "/bin/ps"
         ]
       }
+    },
+    {
+      "source": "tests/test_elf_relocation.py:37-51",
+      "legacy": null,
+      "origin": "new",
+      "node_id": "tests/test_elf_relocation.py::test_bundled_reference_must_exist_inside_stage[missing]",
+      "runtimes": [
+        "source"
+      ],
+      "assertions": [
+        "Missing or escaping staged targets cannot be silently retained as original store dependencies."
+      ],
+      "assertion_source": [],
+      "description": "Missing or escaping staged targets cannot be silently retained as original store dependencies.",
+      "parameter_id": "missing",
+      "level": "unit",
+      "concerns": [
+        "packaging"
+      ],
+      "resources": [],
+      "implementation_source": "tests/test_elf_relocation.py:37-51",
+      "collection_verified": true
+    },
+    {
+      "source": "tests/test_elf_relocation.py:37-51",
+      "legacy": null,
+      "origin": "new",
+      "node_id": "tests/test_elf_relocation.py::test_bundled_reference_must_exist_inside_stage[parent]",
+      "runtimes": [
+        "source"
+      ],
+      "assertions": [
+        "Missing or escaping staged targets cannot be silently retained as original store dependencies."
+      ],
+      "assertion_source": [],
+      "description": "Missing or escaping staged targets cannot be silently retained as original store dependencies.",
+      "parameter_id": "parent",
+      "level": "unit",
+      "concerns": [
+        "packaging"
+      ],
+      "resources": [],
+      "implementation_source": "tests/test_elf_relocation.py:37-51",
+      "collection_verified": true
+    },
+    {
+      "source": "tests/test_elf_relocation.py:37-51",
+      "legacy": null,
+      "origin": "new",
+      "node_id": "tests/test_elf_relocation.py::test_bundled_reference_must_exist_inside_stage[symlink]",
+      "runtimes": [
+        "source"
+      ],
+      "assertions": [
+        "Missing or escaping staged targets cannot be silently retained as original store dependencies."
+      ],
+      "assertion_source": [],
+      "description": "Missing or escaping staged targets cannot be silently retained as original store dependencies.",
+      "parameter_id": "symlink",
+      "level": "unit",
+      "concerns": [
+        "packaging"
+      ],
+      "resources": [],
+      "implementation_source": "tests/test_elf_relocation.py:37-51",
+      "collection_verified": true
+    },
+    {
+      "source": "tests/test_elf_relocation.py:30-33",
+      "legacy": null,
+      "origin": "new",
+      "node_id": "tests/test_elf_relocation.py::test_external_or_relative_references_remain_unchanged[$ORIGIN/../lib]",
+      "runtimes": [
+        "source"
+      ],
+      "assertions": [
+        "Only bundled absolute references change; existing signed and relative loader identities survive."
+      ],
+      "assertion_source": [
+        "assert staged_reference(reference, binary, source, staged) == reference"
+      ],
+      "description": "Only bundled absolute references change; existing signed and relative loader identities survive.",
+      "parameter_id": "$ORIGIN/../lib",
+      "level": "unit",
+      "concerns": [
+        "packaging"
+      ],
+      "resources": [],
+      "implementation_source": "tests/test_elf_relocation.py:30-33",
+      "collection_verified": true
+    },
+    {
+      "source": "tests/test_elf_relocation.py:30-33",
+      "legacy": null,
+      "origin": "new",
+      "node_id": "tests/test_elf_relocation.py::test_external_or_relative_references_remain_unchanged[/nix/store/signed-glibc/lib]",
+      "runtimes": [
+        "source"
+      ],
+      "assertions": [
+        "Only bundled absolute references change; existing signed and relative loader identities survive."
+      ],
+      "assertion_source": [
+        "assert staged_reference(reference, binary, source, staged) == reference"
+      ],
+      "description": "Only bundled absolute references change; existing signed and relative loader identities survive.",
+      "parameter_id": "/nix/store/signed-glibc/lib",
+      "level": "unit",
+      "concerns": [
+        "packaging"
+      ],
+      "resources": [],
+      "implementation_source": "tests/test_elf_relocation.py:30-33",
+      "collection_verified": true
+    },
+    {
+      "source": "tests/test_elf_relocation.py:30-33",
+      "legacy": null,
+      "origin": "new",
+      "node_id": "tests/test_elf_relocation.py::test_external_or_relative_references_remain_unchanged[libc.so.6]",
+      "runtimes": [
+        "source"
+      ],
+      "assertions": [
+        "Only bundled absolute references change; existing signed and relative loader identities survive."
+      ],
+      "assertion_source": [
+        "assert staged_reference(reference, binary, source, staged) == reference"
+      ],
+      "description": "Only bundled absolute references change; existing signed and relative loader identities survive.",
+      "parameter_id": "libc.so.6",
+      "level": "unit",
+      "concerns": [
+        "packaging"
+      ],
+      "resources": [],
+      "implementation_source": "tests/test_elf_relocation.py:30-33",
+      "collection_verified": true
+    },
+    {
+      "source": "tests/test_elf_relocation.py:54-89",
+      "legacy": null,
+      "origin": "new",
+      "node_id": "tests/test_elf_relocation.py::test_rpath_and_needed_relocate_all_copied_elf_objects",
+      "runtimes": [
+        "source"
+      ],
+      "assertions": [
+        "Lean, its shared library and the checker map RPATH/NEEDED without modifying source bytes or modes."
+      ],
+      "assertion_source": [
+        "assert not any(command[-1] == str(text) for command in commands)",
+        "assert (source / \"lib/lean/libLean.so\").read_bytes() == b\"\\x7fELFfixture\"",
+        "assert Path(command[-1]).stat().st_mode & stat.S_IWUSR",
+        "assert [\"patchelf\", \"--set-rpath\", expected + \":/nix/store/signed-glibc/lib:$ORIGIN/../lib\", str(binary)] in commands",
+        "assert [\"patchelf\", \"--replace-needed\", str(source / \"lib/lean/libLean.so\"),\n                needed_target, str(binary)] in commands",
+        "assert stat.S_IMODE(binary.stat().st_mode) == 0o555"
+      ],
+      "description": "Lean, its shared library and the checker map RPATH/NEEDED without modifying source bytes or modes.",
+      "parameter_id": null,
+      "level": "unit",
+      "concerns": [
+        "packaging"
+      ],
+      "resources": [],
+      "implementation_source": "tests/test_elf_relocation.py:54-89",
+      "collection_verified": true
+    },
+    {
+      "source": "tests/test_runtime_staging.py:109-111",
+      "legacy": null,
+      "origin": "new",
+      "node_id": "tests/test_runtime_staging.py::test_linux_archive_scans_only_relocated_copied_inputs",
+      "runtimes": [
+        "source"
+      ],
+      "assertions": [
+        "All Linux copied native inputs relocate before loader metadata or export roots are selected."
+      ],
+      "assertion_source": [],
+      "description": "All Linux copied native inputs relocate before loader metadata or export roots are selected.",
+      "parameter_id": null,
+      "level": "unit",
+      "concerns": [
+        "packaging"
+      ],
+      "resources": [],
+      "implementation_source": "tests/test_runtime_staging.py:109-111",
+      "collection_verified": true
     }
   ],
   "fixture_contracts": {
@@ -12440,25 +12629,38 @@
     "source_identity": "One tiny synthetic baseline is evaluated once per session with the real locked Nix library; each case copies only declared fixture bytes into its private tree. No repository/build copying or package build occurs. Missing fixed paths fail evaluation; unselected source components remain unchanged."
   },
   "collection_checks": {
-    "case_count": 401,
+    "case_count": 409,
     "legacy_mapped_case_count": 244,
-    "new_case_count": 157,
-    "source_case_count": 395,
+    "new_case_count": 165,
+    "source_case_count": 403,
     "installed_case_count": 19,
     "baseline_hashes_verified": 39,
     "result": "Every inventory identity exactly matches this single-tree collection; baseline evidence remains immutable.",
     "evidence": [
       {
-        "path": "/Users/tzankomatev/work/sqlite-verifier-adr1/build/integrated-401-catalogue.json",
-        "sha256": "c5c1ce6ba757dbbdf6d5f3283c979eed7ff54708beb4c159a292b72e53103e06",
-        "case_count": 401
+        "path": "/Users/tzankomatev/work/sqlite-verifier-adr1/build/integrated-409-catalogue.json",
+        "sha256": "8497f49b5e3e64671f7d16afd4da8d87d12c24de8e0f8f7f35799e5c2965a6e2",
+        "case_count": 409
       }
     ],
     "runtime_build_required": false
   },
   "implementation_sha256": {
+    "build-support/run_unit_checks.py": "cad8e6ee9ee21c6ada2c0b28c121fec6de0f2399d3a56e6ab52330bbba811bac",
+    "build-support/sources.nix": "91471df060b40138c61fe90f4430fe3b5944ee76459b530541347e5179c37341",
+    "build-support/unit-cases.json": "e4625670b3c78606d515591ef35f6db197a373a3a93e7c00aecf813cabf48617",
+    "conformance/atuin_sql_check.py": "04e2ddc03b0c3280d3b9b302c5255849e93fe9f0406131eb526603b7f2b04910",
+    "conformance/coverage_receipts.py": "36165eed0f4abc5ca8dc485481b4af249e7350f5e479e8908a2a1c318cfeaabf",
+    "conformance/coverage_report.py": "87e162ba0ca92122b64fab4bcaaff19a57d99c6d91ea4e862c824c5424087e0f",
+    "conformance/model_check.py": "b32ef390f507b0e24fc2c9aa4fb6b0ca4d5f45159a888b9e97d82da228c18ce3",
+    "conformance/native_fixture.py": "05ec96bc3ad3cf4717aee87616dc2c03f6c2e8d7926a2cdcedc9b0c143f6efa3",
+    "conftest.py": "e61ce0d37e30b4e0dc5ec2a4fffc8916c7ff421a4973811ce7aa4d085d01ef9e",
+    "packaging/build_runtime.py": "9b07ac9ac52da9ae43fd7b8b86cbecc20c88bdcc291487c2b4b3fed5a994fe67",
+    "packaging/relocate_elf.py": "33161e4df8e63fa19100b95fef5ff1cb5f96e0df34a333e8dc21410104d52a1d",
     "tests/atuin_cli_test.py": "51dcee60df053de18800037f6e1f7d2ab4ef5fe6d6298d3e099dfa91fae64dc9",
     "tests/atuin_sql_test.py": "ff088e3878a25c86ef98a135d2c8c174b0496c3dcb278382d03d6f40b4c1f3fc",
+    "tests/case_reports.py": "f9b3d6bf20d90dac7706d049049b31ded5a6cc1584e741d0687154028526b9b3",
+    "tests/catalogue.py": "15d38731fe34caa12f8191b2b587582d7115a021c5fe051483768445c13b76c6",
     "tests/cli_test.py": "7b370a9cfc0fb2e9a8e32bcdc0b49494282b69054471a1e08b7143769e9a3e71",
     "tests/compilation_test.py": "45d4b954d018232e472b9dcacfc8e97cbf4bd8414a70d61c63ddbd28e79c0c6a",
     "tests/conformance_model_test.py": "f262aa2b9269d8444d3c2b8e50f9cb648d7f122f15615da114753a68fd2cf25c",
@@ -12469,16 +12671,21 @@
     "tests/early_baseline_test.py": "b0c49f17e10d13cb943fab7e5a91965e16fa39470bd39ed013b051c3a866a03c",
     "tests/environment_snapshot_test.py": "46a705b5c3e6a91ff74187f0bfe815cb5c854d2557bdb549d31405b6564f57fa",
     "tests/kernel_gate_test.py": "bcf56bbc46e91dfe01a6272ed86496dc31712f919b7e608f5feb821d9d668704",
-    "tests/parser_build_test.py": "b77bd9c079af95bafc1dc6c6a2dc70414457025d1ca95deec5184926711d67fa",
+    "tests/parser_build_test.py": "d3c1b4997a207aab3d821d118bf9ad93daab3d7cc4fbfe503d4b98a81cbb37ff",
     "tests/parser_test.py": "115e689cb4e7c2841759ea94cda55795bec1d74d400add72852e116df3180bb2",
+    "tests/runtime_fixtures.py": "933ca9e79488e372953f3f64c76a48b8ea4d8b3a6027007a2ba85c7b81401fe2",
+    "tests/runtime_installation.py": "6370c74806c85e07db1e8a3795ba331ddf3b4a44a45929bd4b0d8633b723606d",
     "tests/runtime_package_test.py": "ff2c88e38659417d818367cb1e63b859f4177d9e8eec578a64b959a05edd2f91",
+    "tests/runtime_support.py": "839f3e2125116e521b773834b005d803a7778f1582a6877e13bfb1d717b0d6e8",
     "tests/schema_generation_test.py": "c083e190e20dfd99e0eaa4b3e84836c54420c130beaf5d9588b94c7c39e9e982",
     "tests/test_baseline_ci.py": "992fdf69c88e37e48b09186be1041a86d6cbfbbd63668abce4f628cabe1c6716",
+    "tests/test_benchmark_ci.py": "9f50a8395d6c3bbac1461b2807c7f9cee33d5835444ea20b397f2d5ec24d9be3",
     "tests/test_cache_fingerprint.py": "a8537c9cda80efbc9d8d397b6368fa707c5bea40daa886c7ec852cddadf6c83c",
     "tests/test_ci_checks.py": "98bef5a0e6ff3edff8ddb6dc04d6d2572dfd59af1cf7173aee5d7d51d86c3ee6",
     "tests/test_ci_scope.py": "d6ecbae731706baa24083eec5934666eb5d3d9fa905292c96f3e520500c027a3",
     "tests/test_cli_inputs.py": "4df14d84ccb1bf0b3a3d24584f7e605770255075dc5ca2ceebc7499ab03ca1e9",
     "tests/test_coverage_receipts.py": "17d5f528ce144fd1dc9df8a2396ca58f331d174c27d9473071a7d88f56679321",
+    "tests/test_elf_relocation.py": "d3eeddb969953d1df43aa1865c84fc7eb02579606a188c8b8c2bc289835421b1",
     "tests/test_independent_suites.py": "8f69d5687cdf7d42f269c90f118412192f1093730e081f277249ebdeecdbe16c",
     "tests/test_native_dependencies.py": "4845be545a8c00d5c9db4348063df7de4659dc1b23d5b1f6c6c9319c24b00e09",
     "tests/test_parser_cache_environment.py": "920073eb1e069e58645a6801cb11a3b3b10af998da12effaf7d2fc27b175a682",
@@ -12487,38 +12694,23 @@
     "tests/test_resources.py": "f3d40f8ea7eff08a9484b3462e4205ed6cc9d186275596beda3f793c49e2ead6",
     "tests/test_runtime_package.py": "ae1dbb68f4f76c98a39ffc78c96b0817335efbc11d0cd26548be0976821301bd",
     "tests/test_runtime_selection.py": "d3bb57eda495ea5620fa2fbc5575f925b7c086bf806add6033c63397f56b370d",
-    "tests/test_runtime_staging.py": "a7942c192937f53607e9a8efa6afd7cfb41428a14ccd155e12c9fac05849d78c",
+    "tests/test_runtime_staging.py": "2f24fdfee0ee5ac5a7d6e88c1e4640c5aa08877ba07712ecd4be180baa2c75f7",
     "tests/test_sandbox.py": "ed1950182ff2a02d12ee74f8e5d78e6c0e2fff8f38cce3fb37c4abd3aeeed968",
     "tests/test_schema_baseline.py": "77440d832802d0f3a906ca42fed0b3f0d847ff3445f4b80d6c6640322a55100f",
     "tests/test_schema_translation.py": "8d4053893d6356cfe3848716bf44fbfea99a4b1febdca5e0e679c2c365cde547",
+    "tests/test_source_identity.py": "7794eb3d99477511f67c0f68397915285f5498d6747986a178f286a8ff2481f4",
     "tests/test_source_orchestration.py": "6f260532a697b65a747e53909ffe9f1495d034f280d7a5f36fe4922cadf98541",
     "tests/test_source_runner.py": "1f0f8ba01b4ddcd8a6ebc1879fa4ce76b0359cff6b9bc965501f19523e6ca955",
     "tests/test_sql_writes.py": "6717e9c6356af2c99fb0831eaa9870c6a15e73da7aac41c1e1727711cea64158",
+    "tests/test_timeout_cleanup.py": "73d9767a6d58a80440e12cf2833d5284053c5f8675f12d5d38715b1478720aaa",
     "tests/test_toolchain_smoke.py": "5193ad5376fa2ed90043503efc7fb26bbffcf6dd622067688b63a59023adc4f9",
     "tests/test_translation.py": "f590fa4c7e45fae13871af30f04ac2ffcdb44cedeaac1220b7058d5e860c78e0",
     "tests/test_unit_cache_contract.py": "16216cf070ff93e4c3da18509c8a8d0a98f26814739b8a405138e87440f928f4",
-    "tests/test_benchmark_ci.py": "9f50a8395d6c3bbac1461b2807c7f9cee33d5835444ea20b397f2d5ec24d9be3",
-    "tests/test_source_identity.py": "7794eb3d99477511f67c0f68397915285f5498d6747986a178f286a8ff2481f4",
-    "tests/test_timeout_cleanup.py": "73d9767a6d58a80440e12cf2833d5284053c5f8675f12d5d38715b1478720aaa",
     "tools/cache_fingerprint.py": "1c6e85b46537c0a584ba1ffc1cd68fa82042a17a591f7ac9fb5594507b4d1a8b",
     "tools/ci_checks.py": "e4a8622ad062b838122c5e0eeb05d37d66110328abd796702ad7b5633987b62d",
-    "tests/runtime_support.py": "839f3e2125116e521b773834b005d803a7778f1582a6877e13bfb1d717b0d6e8",
-    "conftest.py": "e61ce0d37e30b4e0dc5ec2a4fffc8916c7ff421a4973811ce7aa4d085d01ef9e",
-    "tests/runtime_fixtures.py": "933ca9e79488e372953f3f64c76a48b8ea4d8b3a6027007a2ba85c7b81401fe2",
-    "tests/catalogue.py": "15d38731fe34caa12f8191b2b587582d7115a021c5fe051483768445c13b76c6",
-    "tests/case_reports.py": "f9b3d6bf20d90dac7706d049049b31ded5a6cc1584e741d0687154028526b9b3",
-    "tests/runtime_installation.py": "6370c74806c85e07db1e8a3795ba331ddf3b4a44a45929bd4b0d8633b723606d",
-    "tools/run_source_suite.py": "a946c278b2f36109d64d44b4bebf9e6a2d037dd0323cedc453ea05d12fa928dd",
     "tools/run_independent_suites.py": "e32f05852ffd0ee7b0441504aa7c20d18651918b609d04999c43389a3cb45213",
-    "tools/unit_cache.py": "92293d893f4bb708ba00ea47f67ba01dfb05efd232a1858e3cf2d37779b42f98",
-    "build-support/sources.nix": "91471df060b40138c61fe90f4430fe3b5944ee76459b530541347e5179c37341",
-    "build-support/run_unit_checks.py": "cad8e6ee9ee21c6ada2c0b28c121fec6de0f2399d3a56e6ab52330bbba811bac",
-    "build-support/unit-cases.json": "e4625670b3c78606d515591ef35f6db197a373a3a93e7c00aecf813cabf48617",
-    "conformance/coverage_receipts.py": "36165eed0f4abc5ca8dc485481b4af249e7350f5e479e8908a2a1c318cfeaabf",
-    "conformance/coverage_report.py": "87e162ba0ca92122b64fab4bcaaff19a57d99c6d91ea4e862c824c5424087e0f",
-    "conformance/native_fixture.py": "05ec96bc3ad3cf4717aee87616dc2c03f6c2e8d7926a2cdcedc9b0c143f6efa3",
-    "conformance/model_check.py": "b32ef390f507b0e24fc2c9aa4fb6b0ca4d5f45159a888b9e97d82da228c18ce3",
-    "conformance/atuin_sql_check.py": "04e2ddc03b0c3280d3b9b302c5255849e93fe9f0406131eb526603b7f2b04910"
+    "tools/run_source_suite.py": "a946c278b2f36109d64d44b4bebf9e6a2d037dd0323cedc453ea05d12fa928dd",
+    "tools/unit_cache.py": "92293d893f4bb708ba00ea47f67ba01dfb05efd232a1858e3cf2d37779b42f98"
   },
   "baseline_entrypoints": {
     "just smoke": [
