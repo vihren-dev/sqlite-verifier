@@ -84,7 +84,7 @@ passed the complete two-platform acceptance and performance gates.
 
 | Area | Verified implementation evidence | Still required |
 | --- | --- | --- |
-| Test harness | 397 collected cases reconciled with the inventory; discovery without runtime tools; setup/failure/timeout reporting; independent mutable fixtures | Native aggregate validation after remaining timeout/input-identity fixes |
+| Test harness | 401 collected cases reconciled with the inventory; discovery without runtime tools; setup/failure/timeout reporting; independent mutable fixtures | Native aggregate validation after remaining timeout/input-identity fixes |
 | Source and installed cases | Complete Darwin source check passes (285 fresh cases plus 64 validated cached unit cases); Atuin, compilation/baseline and kernel cases pass together, individually and reversed in source; all 19 installed cases pass on Darwin; fresh aggregation passes | Complete source/installed acceptance on both platforms and remaining order checks |
 | Nix outputs | Native Darwin toolchain/runtime builds, input-identity checks and 64-case pure-unit target pass; actual archive installation and signatures verified | Native Linux build, loader and installation validation |
 | CI transport | Fingerprints and scope routing implemented and tested | Workflow integration, fresh-run benchmark matrix and measured rollout decision |

@@ -108,3 +108,19 @@ No end-to-end performance claim yet.
   interpreter, including isolation and timeout assertions; production policy is
   unchanged. PR 4 already has the same fixture correction. Both draft PRs are
   running native CI again; no performance experiment has been dispatched.
+
+- Integrated reviewed nested-timeout cleanup `b9437177`: stop and discover owned
+  descendants across sessions, kill them, reap the direct child and bound diagnostic
+  draining. Production sandbox limits are unchanged. Thirty-three focused checks
+  plus two subtests pass; four new cases pass alone/reversed, and the old helper
+  fails the negative control. The 401-case collection/inventory now matches the
+  integrated tree exactly, retaining 244 immutable legacy mappings.
+- CLI 19 passes reversed (108.65s pytest) and every case alone. The installed Atuin
+  13 passes reversed after a real offline reinstall (166.20s including setup),
+  and each passes alone through that installed root with poisoned ambient imports.
+- Native experimental run 36398817022 passes the complete macOS graph, source,
+  archive and installed gates. Linux passes the Nix graph and all fresh source
+  evidence, then correctly rejects export of an unsigned project Lean derivation.
+  Its absolute ELF references must be relocated within the copied payload before
+  dependency collection; signature verification remains mandatory. This packaging
+  correction and both-platform revalidation remain in progress.

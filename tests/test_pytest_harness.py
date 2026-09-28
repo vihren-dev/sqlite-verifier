@@ -154,7 +154,7 @@ def test_command_json_diagnostics_retain_both_streams(tmp_path: Path) -> None:
 
 
 @pytest.mark.parametrize("scenario,phase", [("success", "call"), ("teardown", "teardown"),
-                                             ("timeout", "call"), ("json", "call")])
+    pytest.param("timeout", "call", marks=pytest.mark.requires_native("/bin/ps")), ("json", "call")])
 def test_execution_reports_preserve_phase_outcomes(harness: Path, scenario: str, phase: str) -> None:
     """Successful phases and teardown, timeout or malformed-output failures retain machine diagnostics."""
     actions = {
@@ -182,6 +182,7 @@ def test_execution_reports_preserve_phase_outcomes(harness: Path, scenario: str,
         assert "stderr detail" in case["phases"]["call"]["diagnostic"]
 
 
+@pytest.mark.requires_native("/bin/ps")
 def test_timeout_kills_descendants_and_retains_output(tmp_path: Path) -> None:
     """A timed-out process group is killed, its leader reaped, and partial diagnostics preserved."""
     program = ("import subprocess,sys,time\nfrom pathlib import Path\n"

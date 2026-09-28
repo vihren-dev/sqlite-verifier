@@ -18,7 +18,7 @@
     "Compilation17 and early-baseline7 now collect independently. Each graph/approval mutation owns a fresh fixture; compiler paths are explicit and only Runtime.locate is patched for imported verify(). Selected-generated-role and artifact aliases require no Lean/native/sandbox resources. Installed selection fails setup instead of using source imports as installed evidence.",
     "ADR0001 source orchestration additions are explicitly identified as infrastructure additions, not legacy baseline scenarios.",
     "origin=new distinguishes ADR infrastructure additions and the new partial declaration attack from preserved legacy behavior; neither additions nor multi-runtime Atuin execution inflate the baseline case count.",
-    "The reconciled inventory has 397 unique node IDs: 244 legacy mappings and 153 additions. New Nix source-identity matrix contributes 42 independently selectable input/ignore relations; multiple mutation fields of one relation share a case. Source selects 391 IDs; installed 19 share thirteen Atuin IDs with source."
+    "The reconciled inventory has 401 unique IDs, including 244 legacy mappings; thirteen Atuin IDs have separate source and installed executions."
   ],
   "entrypoints": {
     "just test / just check / just coverage": [
@@ -8480,7 +8480,7 @@
         "assert keys[\"prefix\"] == f\"build-v2-aarch64-darwin-{keys['env_hash']}-\"",
         "assert cache_keys(input_root, \"x86_64-linux\")[\"source_hash\"] == keys[\"source_hash\"]"
       ],
-      "implementation_source": "tests/test_cache_fingerprint.py:104-115",
+      "implementation_source": "tests/test_cache_fingerprint.py:105-121",
       "description": "A bounded subprocess emits identical JSON/action fields across repeated invocations.",
       "parameter_id": null,
       "level": "unit",
@@ -8505,7 +8505,7 @@
         "assert cache_keys(input_root, \"x86_64-linux\")[\"source_hash\"] != baseline[\"source_hash\"]",
         "pytest.raises(ValueError, match=\"regular file\")"
       ],
-      "implementation_source": "tests/test_cache_fingerprint.py:91-101",
+      "implementation_source": "tests/test_cache_fingerprint.py:92-102",
       "description": "Nix's executable bit changes identity; undeclared symlink targets fail explicitly.",
       "parameter_id": null,
       "level": "unit",
@@ -8529,7 +8529,7 @@
       "assertion_source": [
         "assert cache_keys(input_root, \"x86_64-linux\") == baseline"
       ],
-      "implementation_source": "tests/test_cache_fingerprint.py:75-88",
+      "implementation_source": "tests/test_cache_fingerprint.py:76-89",
       "description": "Ignore root outputs and generated component subtrees in Git and Jujutsu workspaces.",
       "parameter_id": null,
       "level": "unit",
@@ -8555,7 +8555,7 @@
         "assert before[\"prefix\"] != after[\"prefix\"]",
         "assert after[\"key\"] == after[\"prefix\"] + after[\"source_hash\"]"
       ],
-      "implementation_source": "tests/test_cache_fingerprint.py:28-36",
+      "implementation_source": "tests/test_cache_fingerprint.py:29-37",
       "description": "Every declared environment pin creates a different compatibility namespace.",
       "parameter_id": "lean-toolchain",
       "level": "unit",
@@ -8581,7 +8581,7 @@
         "assert before[\"prefix\"] != after[\"prefix\"]",
         "assert after[\"key\"] == after[\"prefix\"] + after[\"source_hash\"]"
       ],
-      "implementation_source": "tests/test_cache_fingerprint.py:28-36",
+      "implementation_source": "tests/test_cache_fingerprint.py:29-37",
       "description": "Every declared environment pin creates a different compatibility namespace.",
       "parameter_id": "nix/flake.lock",
       "level": "unit",
@@ -8607,7 +8607,7 @@
         "assert before[\"prefix\"] != after[\"prefix\"]",
         "assert after[\"key\"] == after[\"prefix\"] + after[\"source_hash\"]"
       ],
-      "implementation_source": "tests/test_cache_fingerprint.py:28-36",
+      "implementation_source": "tests/test_cache_fingerprint.py:29-37",
       "description": "Every declared environment pin creates a different compatibility namespace.",
       "parameter_id": "nix/flake.nix",
       "level": "unit",
@@ -8632,7 +8632,7 @@
         "assert cache_keys(input_root, \"aarch64-darwin\") == baseline",
         "assert cache_keys(input_root, \"aarch64-darwin\")[\"source_hash\"] != baseline[\"source_hash\"]"
       ],
-      "implementation_source": "tests/test_cache_fingerprint.py:65-72",
+      "implementation_source": "tests/test_cache_fingerprint.py:66-73",
       "description": "Runtime install instructions are declared payload while general docs are not cached inputs.",
       "parameter_id": null,
       "level": "unit",
@@ -8660,7 +8660,7 @@
         "assert moved[\"prefix\"] == baseline[\"prefix\"]",
         "assert cache_keys(input_root, \"x86_64-linux\") == baseline"
       ],
-      "implementation_source": "tests/test_cache_fingerprint.py:45-62",
+      "implementation_source": "tests/test_cache_fingerprint.py:46-63",
       "description": "Add, edit, rename and delete each inventory category independently of Git tracking.",
       "parameter_id": "Root.lean",
       "level": "unit",
@@ -8688,7 +8688,7 @@
         "assert moved[\"prefix\"] == baseline[\"prefix\"]",
         "assert cache_keys(input_root, \"x86_64-linux\") == baseline"
       ],
-      "implementation_source": "tests/test_cache_fingerprint.py:45-62",
+      "implementation_source": "tests/test_cache_fingerprint.py:46-63",
       "description": "Add, edit, rename and delete each inventory category independently of Git tracking.",
       "parameter_id": "SqliteVerifier/New.lean",
       "level": "unit",
@@ -8716,7 +8716,7 @@
         "assert moved[\"prefix\"] == baseline[\"prefix\"]",
         "assert cache_keys(input_root, \"x86_64-linux\") == baseline"
       ],
-      "implementation_source": "tests/test_cache_fingerprint.py:45-62",
+      "implementation_source": "tests/test_cache_fingerprint.py:46-63",
       "description": "Add, edit, rename and delete each inventory category independently of Git tracking.",
       "parameter_id": "bin/new",
       "level": "unit",
@@ -8744,7 +8744,7 @@
         "assert moved[\"prefix\"] == baseline[\"prefix\"]",
         "assert cache_keys(input_root, \"x86_64-linux\") == baseline"
       ],
-      "implementation_source": "tests/test_cache_fingerprint.py:45-62",
+      "implementation_source": "tests/test_cache_fingerprint.py:46-63",
       "description": "Add, edit, rename and delete each inventory category independently of Git tracking.",
       "parameter_id": "build-support/new.nix",
       "level": "unit",
@@ -8772,7 +8772,7 @@
         "assert moved[\"prefix\"] == baseline[\"prefix\"]",
         "assert cache_keys(input_root, \"x86_64-linux\") == baseline"
       ],
-      "implementation_source": "tests/test_cache_fingerprint.py:45-62",
+      "implementation_source": "tests/test_cache_fingerprint.py:46-63",
       "description": "Add, edit, rename and delete each inventory category independently of Git tracking.",
       "parameter_id": "conformance/new-fixture.test",
       "level": "unit",
@@ -8800,7 +8800,7 @@
         "assert moved[\"prefix\"] == baseline[\"prefix\"]",
         "assert cache_keys(input_root, \"x86_64-linux\") == baseline"
       ],
-      "implementation_source": "tests/test_cache_fingerprint.py:45-62",
+      "implementation_source": "tests/test_cache_fingerprint.py:46-63",
       "description": "Add, edit, rename and delete each inventory category independently of Git tracking.",
       "parameter_id": "examples/new.sql",
       "level": "unit",
@@ -8828,7 +8828,7 @@
         "assert moved[\"prefix\"] == baseline[\"prefix\"]",
         "assert cache_keys(input_root, \"x86_64-linux\") == baseline"
       ],
-      "implementation_source": "tests/test_cache_fingerprint.py:45-62",
+      "implementation_source": "tests/test_cache_fingerprint.py:46-63",
       "description": "Add, edit, rename and delete each inventory category independently of Git tracking.",
       "parameter_id": "migration_check/new.py",
       "level": "unit",
@@ -8856,7 +8856,7 @@
         "assert moved[\"prefix\"] == baseline[\"prefix\"]",
         "assert cache_keys(input_root, \"x86_64-linux\") == baseline"
       ],
-      "implementation_source": "tests/test_cache_fingerprint.py:45-62",
+      "implementation_source": "tests/test_cache_fingerprint.py:46-63",
       "description": "Add, edit, rename and delete each inventory category independently of Git tracking.",
       "parameter_id": "packaging/new.sh",
       "level": "unit",
@@ -8884,7 +8884,7 @@
         "assert moved[\"prefix\"] == baseline[\"prefix\"]",
         "assert cache_keys(input_root, \"x86_64-linux\") == baseline"
       ],
-      "implementation_source": "tests/test_cache_fingerprint.py:45-62",
+      "implementation_source": "tests/test_cache_fingerprint.py:46-63",
       "description": "Add, edit, rename and delete each inventory category independently of Git tracking.",
       "parameter_id": "parser/new_generator.py",
       "level": "unit",
@@ -8912,7 +8912,7 @@
         "assert moved[\"prefix\"] == baseline[\"prefix\"]",
         "assert cache_keys(input_root, \"x86_64-linux\") == baseline"
       ],
-      "implementation_source": "tests/test_cache_fingerprint.py:45-62",
+      "implementation_source": "tests/test_cache_fingerprint.py:46-63",
       "description": "Add, edit, rename and delete each inventory category independently of Git tracking.",
       "parameter_id": "parser/upstream/new.h",
       "level": "unit",
@@ -8940,7 +8940,7 @@
         "assert moved[\"prefix\"] == baseline[\"prefix\"]",
         "assert cache_keys(input_root, \"x86_64-linux\") == baseline"
       ],
-      "implementation_source": "tests/test_cache_fingerprint.py:45-62",
+      "implementation_source": "tests/test_cache_fingerprint.py:46-63",
       "description": "Add, edit, rename and delete each inventory category independently of Git tracking.",
       "parameter_id": "tests/new-fixture.json",
       "level": "unit",
@@ -8968,7 +8968,7 @@
         "assert moved[\"prefix\"] == baseline[\"prefix\"]",
         "assert cache_keys(input_root, \"x86_64-linux\") == baseline"
       ],
-      "implementation_source": "tests/test_cache_fingerprint.py:45-62",
+      "implementation_source": "tests/test_cache_fingerprint.py:46-63",
       "description": "Add, edit, rename and delete each inventory category independently of Git tracking.",
       "parameter_id": "tests/result-fixture.json",
       "level": "unit",
@@ -8996,7 +8996,7 @@
         "assert moved[\"prefix\"] == baseline[\"prefix\"]",
         "assert cache_keys(input_root, \"x86_64-linux\") == baseline"
       ],
-      "implementation_source": "tests/test_cache_fingerprint.py:45-62",
+      "implementation_source": "tests/test_cache_fingerprint.py:46-63",
       "description": "Add, edit, rename and delete each inventory category independently of Git tracking.",
       "parameter_id": "tools/new.py",
       "level": "unit",
@@ -9518,7 +9518,9 @@
       "concerns": [
         "environment"
       ],
-      "resources": [],
+      "resources": [
+        "requires_native"
+      ],
       "collection_verified": true
     },
     {
@@ -9688,15 +9690,22 @@
         "assert (tmp_path / \"evidence/command-0000.json\").is_file()",
         "pytest.raises(CommandTimeout)"
       ],
-      "implementation_source": "tests/test_pytest_harness.py:185-206",
+      "implementation_source": "tests/test_pytest_harness.py:186-207",
       "description": "A timed-out process group is killed, its leader reaped, and partial diagnostics preserved.",
       "parameter_id": null,
       "level": "integration",
       "concerns": [
         "environment"
       ],
-      "resources": [],
-      "collection_verified": true
+      "resources": [
+        "requires_native"
+      ],
+      "collection_verified": true,
+      "resource_arguments": {
+        "requires_native": [
+          "/bin/ps"
+        ]
+      }
     },
     {
       "source": "tests/test_runtime_selection.py:16-24",
@@ -10224,7 +10233,7 @@
         "assert json.loads((tmp_path / \"build/ci-phases.json\").read_text())[0][\"exit_code\"] == 7",
         "pytest.raises(subprocess.CalledProcessError)"
       ],
-      "implementation_source": "tests/test_ci_checks.py:61-68",
+      "implementation_source": "tests/test_ci_checks.py:71-78",
       "description": "A failed host recipe fails the job and still records its duration and status.",
       "parameter_id": null,
       "level": "unit",
@@ -10258,7 +10267,7 @@
         "assert \"SQLITE_VERIFIER_UNIT_CHECKS\" not in environments[-1]",
         "assert \"--unshare-net\" in probes[0] and \"--ro-bind\" in probes[0]"
       ],
-      "implementation_source": "tests/test_ci_checks.py:18-58",
+      "implementation_source": "tests/test_ci_checks.py:18-68",
       "description": "Both modes keep host checks; only declared Nix mode supplies artifacts and cached unit receipts.",
       "parameter_id": "aarch64-darwin-build",
       "level": "unit",
@@ -10292,7 +10301,7 @@
         "assert \"SQLITE_VERIFIER_UNIT_CHECKS\" not in environments[-1]",
         "assert \"--unshare-net\" in probes[0] and \"--ro-bind\" in probes[0]"
       ],
-      "implementation_source": "tests/test_ci_checks.py:18-58",
+      "implementation_source": "tests/test_ci_checks.py:18-68",
       "description": "Both modes keep host checks; only declared Nix mode supplies artifacts and cached unit receipts.",
       "parameter_id": "aarch64-darwin-source",
       "level": "unit",
@@ -10326,7 +10335,7 @@
         "assert \"SQLITE_VERIFIER_UNIT_CHECKS\" not in environments[-1]",
         "assert \"--unshare-net\" in probes[0] and \"--ro-bind\" in probes[0]"
       ],
-      "implementation_source": "tests/test_ci_checks.py:18-58",
+      "implementation_source": "tests/test_ci_checks.py:18-68",
       "description": "Both modes keep host checks; only declared Nix mode supplies artifacts and cached unit receipts.",
       "parameter_id": "x86_64-linux-build",
       "level": "unit",
@@ -10360,7 +10369,7 @@
         "assert \"SQLITE_VERIFIER_UNIT_CHECKS\" not in environments[-1]",
         "assert \"--unshare-net\" in probes[0] and \"--ro-bind\" in probes[0]"
       ],
-      "implementation_source": "tests/test_ci_checks.py:18-58",
+      "implementation_source": "tests/test_ci_checks.py:18-68",
       "description": "Both modes keep host checks; only declared Nix mode supplies artifacts and cached unit receipts.",
       "parameter_id": "x86_64-linux-source",
       "level": "unit",
@@ -10387,7 +10396,7 @@
         "assert json.loads((tmp_path / \"build/ci-phases.json\").read_text())[0][\"exit_code\"] == -9",
         "pytest.raises(CommandTimeout)"
       ],
-      "implementation_source": "tests/test_ci_checks.py:71-81",
+      "implementation_source": "tests/test_ci_checks.py:81-91",
       "description": "CI delegates timeout cleanup to the shared tested process-group runner and keeps its result.",
       "parameter_id": null,
       "level": "unit",
@@ -12288,6 +12297,139 @@
       "assertion_source": [
         "assert identities(root) == baseline"
       ]
+    },
+    {
+      "source": "tests/test_timeout_cleanup.py:80-104",
+      "legacy": null,
+      "origin": "new",
+      "node_id": "tests/test_timeout_cleanup.py::test_discovery_failure_bounds_pipe_draining",
+      "runtimes": [
+        "source"
+      ],
+      "assertions": [
+        "Failed native discovery is reported and cannot leave stopped owned groups or wait forever on escaped pipes."
+      ],
+      "assertion_source": [
+        "assert result.elapsed < 10 and \"partial\" in result.stdout, result.diagnostic()",
+        "assert result.cleanup_error is not None",
+        "assert \"process discovery unavailable\" in result.cleanup_error and \"draining\" in result.cleanup_error",
+        "assert record[\"cleanup_error\"] == result.cleanup_error",
+        "assert outer_pid not in process_table(), \"Direct child was not reaped after discovery failure\""
+      ],
+      "description": "Failed native discovery is reported and cannot leave stopped owned groups or wait forever on escaped pipes.",
+      "parameter_id": null,
+      "level": "integration",
+      "concerns": [
+        "environment"
+      ],
+      "resources": [
+        "requires_native"
+      ],
+      "implementation_source": "tests/test_timeout_cleanup.py:80-104",
+      "collection_verified": true,
+      "resource_arguments": {
+        "requires_native": [
+          "/bin/ps"
+        ]
+      }
+    },
+    {
+      "source": "tests/test_timeout_cleanup.py:67-77",
+      "legacy": null,
+      "origin": "new",
+      "node_id": "tests/test_timeout_cleanup.py::test_exited_leader_cannot_leave_original_group_alive",
+      "runtimes": [
+        "source"
+      ],
+      "assertions": [
+        "An exited leader whose original-group child holds captured pipes still receives complete cleanup."
+      ],
+      "assertion_source": [
+        "assert failure.value.result.cleanup_error is None, failure.value.result.diagnostic()"
+      ],
+      "description": "An exited leader whose original-group child holds captured pipes still receives complete cleanup.",
+      "parameter_id": null,
+      "level": "integration",
+      "concerns": [
+        "environment"
+      ],
+      "resources": [
+        "requires_native"
+      ],
+      "implementation_source": "tests/test_timeout_cleanup.py:67-77",
+      "collection_verified": true,
+      "resource_arguments": {
+        "requires_native": [
+          "/bin/ps"
+        ]
+      }
+    },
+    {
+      "source": "tests/test_timeout_cleanup.py:39-64",
+      "legacy": null,
+      "origin": "new",
+      "node_id": "tests/test_timeout_cleanup.py::test_outer_timeout_kills_nested_sessions",
+      "runtimes": [
+        "source"
+      ],
+      "assertions": [
+        "An outer deadline kills an inner helper's new session and a further detached child, preserving siblings."
+      ],
+      "assertion_source": [
+        "assert result.timed_out and result.returncode != 0 and result.cleanup_error is None, result.diagnostic()",
+        "assert \"outer stdout\" in result.stdout and \"outer stderr\" in result.stderr",
+        "assert json.loads((tmp_path / \"artifacts/command-0000.json\").read_text())[\"timed_out\"]",
+        "assert int((tmp_path / \"outer.pid\").read_text()) not in process_table(), \"Direct leader was not reaped\"",
+        "assert sibling.poll() is None, \"Timeout killed an unrelated sibling\""
+      ],
+      "description": "An outer deadline kills an inner helper's new session and a further detached child, preserving siblings.",
+      "parameter_id": null,
+      "level": "integration",
+      "concerns": [
+        "environment"
+      ],
+      "resources": [
+        "requires_native"
+      ],
+      "implementation_source": "tests/test_timeout_cleanup.py:39-64",
+      "collection_verified": true,
+      "resource_arguments": {
+        "requires_native": [
+          "/bin/ps"
+        ]
+      }
+    },
+    {
+      "source": "tests/test_timeout_cleanup.py:108-133",
+      "legacy": null,
+      "origin": "new",
+      "node_id": "tests/test_timeout_cleanup.py::test_outer_timeout_kills_production_sandbox",
+      "runtimes": [
+        "source"
+      ],
+      "assertions": [
+        "A pytest-level deadline also terminates the actual separately grouped production sandbox launcher."
+      ],
+      "assertion_source": [
+        "assert failure.value.result.cleanup_error is None, failure.value.result.diagnostic()"
+      ],
+      "description": "A pytest-level deadline also terminates the actual separately grouped production sandbox launcher.",
+      "parameter_id": null,
+      "level": "integration",
+      "concerns": [
+        "environment"
+      ],
+      "resources": [
+        "requires_native",
+        "requires_sandbox"
+      ],
+      "implementation_source": "tests/test_timeout_cleanup.py:108-133",
+      "collection_verified": true,
+      "resource_arguments": {
+        "requires_native": [
+          "/bin/ps"
+        ]
+      }
     }
   ],
   "fixture_contracts": {
@@ -12298,38 +12440,18 @@
     "source_identity": "One tiny synthetic baseline is evaluated once per session with the real locked Nix library; each case copies only declared fixture bytes into its private tree. No repository/build copying or package build occurs. Missing fixed paths fail evaluation; unselected source components remain unchanged."
   },
   "collection_checks": {
-    "case_count": 397,
+    "case_count": 401,
     "legacy_mapped_case_count": 244,
-    "new_case_count": 153,
-    "source_case_count": 391,
+    "new_case_count": 157,
+    "source_case_count": 395,
     "installed_case_count": 19,
     "baseline_hashes_verified": 39,
-    "result": "Every mapped identity occurs in an actual catalogue/report snapshot; no orphan legacy identity. Final single-tree recollection remains a lead integration check.",
+    "result": "Every inventory identity exactly matches this single-tree collection; baseline evidence remains immutable.",
     "evidence": [
       {
-        "path": "/Users/tzankomatev/work/sqlite-verifier-adr1/build/all-case-catalogue.json",
-        "sha256": "e4e644fedfdb6d9b264810077a5c4a7f395c3b202c78d2948c3e3edc87bc6a7f",
-        "case_count": 338
-      },
-      {
-        "path": "/Users/tzankomatev/work/sqlite-verifier-adr1-tests/build/orchestration-catalogue.json",
-        "sha256": "bbfaf8f2497ae195df1b4647eb73856d562481dd683af81dbd127156da6262e8",
-        "case_count": 18
-      },
-      {
-        "path": "/Users/tzankomatev/work/sqlite-verifier-adr1-nix/build/ci-catalogue.json",
-        "sha256": "1a7de0be5f565fffa2245fe9162236cd46934e4899fa2740e52d00c8fc16a1f7",
-        "case_count": 6
-      },
-      {
-        "path": "/Users/tzankomatev/work/sqlite-verifier-adr1-nix/build/benchmark-catalogue.json",
-        "sha256": "58690dc78a40a037aee18d65e8fe17e927f937c5ae936ff7a95d0369cbcc3700",
-        "case_count": 15
-      },
-      {
-        "path": "/Users/tzankomatev/work/sqlite-verifier-adr1-tests/build/source-identities-catalogue.json",
-        "sha256": "af77cafff7a956796803caf66bb5de1d61d56b33746eac9cb1eac2e54bcc3e9f",
-        "case_count": 44
+        "path": "/Users/tzankomatev/work/sqlite-verifier-adr1/build/integrated-401-catalogue.json",
+        "sha256": "c5c1ce6ba757dbbdf6d5f3283c979eed7ff54708beb4c159a292b72e53103e06",
+        "case_count": 401
       }
     ],
     "runtime_build_required": false
@@ -12352,8 +12474,8 @@
     "tests/runtime_package_test.py": "ff2c88e38659417d818367cb1e63b859f4177d9e8eec578a64b959a05edd2f91",
     "tests/schema_generation_test.py": "c083e190e20dfd99e0eaa4b3e84836c54420c130beaf5d9588b94c7c39e9e982",
     "tests/test_baseline_ci.py": "992fdf69c88e37e48b09186be1041a86d6cbfbbd63668abce4f628cabe1c6716",
-    "tests/test_cache_fingerprint.py": "c11ff3b6f78f466e01f22f8befaec16bc8279c1443198f1830c3c971106a24ec",
-    "tests/test_ci_checks.py": "9dc21000f5c84cb9e0e474f9aa153af06d1c42ff4661bef01c639d2ba21a78d2",
+    "tests/test_cache_fingerprint.py": "a8537c9cda80efbc9d8d397b6368fa707c5bea40daa886c7ec852cddadf6c83c",
+    "tests/test_ci_checks.py": "98bef5a0e6ff3edff8ddb6dc04d6d2572dfd59af1cf7173aee5d7d51d86c3ee6",
     "tests/test_ci_scope.py": "d6ecbae731706baa24083eec5934666eb5d3d9fa905292c96f3e520500c027a3",
     "tests/test_cli_inputs.py": "4df14d84ccb1bf0b3a3d24584f7e605770255075dc5ca2ceebc7499ab03ca1e9",
     "tests/test_coverage_receipts.py": "17d5f528ce144fd1dc9df8a2396ca58f331d174c27d9473071a7d88f56679321",
@@ -12361,7 +12483,7 @@
     "tests/test_native_dependencies.py": "4845be545a8c00d5c9db4348063df7de4659dc1b23d5b1f6c6c9319c24b00e09",
     "tests/test_parser_cache_environment.py": "920073eb1e069e58645a6801cb11a3b3b10af998da12effaf7d2fc27b175a682",
     "tests/test_profiles.py": "48e7ba1b75959c3023c3ec8f1e3133bff8b350b385891dd4e56dda110cfee354",
-    "tests/test_pytest_harness.py": "befad1e269db0155fb3521f2de1f729d319bf6830a335223e8a2943d640930bb",
+    "tests/test_pytest_harness.py": "6806d6137c5e79d2aae809f9fb72d4ae5466de71c91b4379be3bde5059d6e567",
     "tests/test_resources.py": "f3d40f8ea7eff08a9484b3462e4205ed6cc9d186275596beda3f793c49e2ead6",
     "tests/test_runtime_package.py": "ae1dbb68f4f76c98a39ffc78c96b0817335efbc11d0cd26548be0976821301bd",
     "tests/test_runtime_selection.py": "d3bb57eda495ea5620fa2fbc5575f925b7c086bf806add6033c63397f56b370d",
@@ -12372,11 +12494,31 @@
     "tests/test_source_orchestration.py": "6f260532a697b65a747e53909ffe9f1495d034f280d7a5f36fe4922cadf98541",
     "tests/test_source_runner.py": "1f0f8ba01b4ddcd8a6ebc1879fa4ce76b0359cff6b9bc965501f19523e6ca955",
     "tests/test_sql_writes.py": "6717e9c6356af2c99fb0831eaa9870c6a15e73da7aac41c1e1727711cea64158",
-    "tests/test_toolchain_smoke.py": "fc211b837bc1ffc45fa7c86816baa70788a231f00e30eda34d8e22257776d646",
+    "tests/test_toolchain_smoke.py": "5193ad5376fa2ed90043503efc7fb26bbffcf6dd622067688b63a59023adc4f9",
     "tests/test_translation.py": "f590fa4c7e45fae13871af30f04ac2ffcdb44cedeaac1220b7058d5e860c78e0",
     "tests/test_unit_cache_contract.py": "16216cf070ff93e4c3da18509c8a8d0a98f26814739b8a405138e87440f928f4",
     "tests/test_benchmark_ci.py": "9f50a8395d6c3bbac1461b2807c7f9cee33d5835444ea20b397f2d5ec24d9be3",
-    "tests/test_source_identity.py": "7794eb3d99477511f67c0f68397915285f5498d6747986a178f286a8ff2481f4"
+    "tests/test_source_identity.py": "7794eb3d99477511f67c0f68397915285f5498d6747986a178f286a8ff2481f4",
+    "tests/test_timeout_cleanup.py": "73d9767a6d58a80440e12cf2833d5284053c5f8675f12d5d38715b1478720aaa",
+    "tools/cache_fingerprint.py": "1c6e85b46537c0a584ba1ffc1cd68fa82042a17a591f7ac9fb5594507b4d1a8b",
+    "tools/ci_checks.py": "e4a8622ad062b838122c5e0eeb05d37d66110328abd796702ad7b5633987b62d",
+    "tests/runtime_support.py": "839f3e2125116e521b773834b005d803a7778f1582a6877e13bfb1d717b0d6e8",
+    "conftest.py": "e61ce0d37e30b4e0dc5ec2a4fffc8916c7ff421a4973811ce7aa4d085d01ef9e",
+    "tests/runtime_fixtures.py": "933ca9e79488e372953f3f64c76a48b8ea4d8b3a6027007a2ba85c7b81401fe2",
+    "tests/catalogue.py": "15d38731fe34caa12f8191b2b587582d7115a021c5fe051483768445c13b76c6",
+    "tests/case_reports.py": "f9b3d6bf20d90dac7706d049049b31ded5a6cc1584e741d0687154028526b9b3",
+    "tests/runtime_installation.py": "6370c74806c85e07db1e8a3795ba331ddf3b4a44a45929bd4b0d8633b723606d",
+    "tools/run_source_suite.py": "a946c278b2f36109d64d44b4bebf9e6a2d037dd0323cedc453ea05d12fa928dd",
+    "tools/run_independent_suites.py": "e32f05852ffd0ee7b0441504aa7c20d18651918b609d04999c43389a3cb45213",
+    "tools/unit_cache.py": "92293d893f4bb708ba00ea47f67ba01dfb05efd232a1858e3cf2d37779b42f98",
+    "build-support/sources.nix": "91471df060b40138c61fe90f4430fe3b5944ee76459b530541347e5179c37341",
+    "build-support/run_unit_checks.py": "cad8e6ee9ee21c6ada2c0b28c121fec6de0f2399d3a56e6ab52330bbba811bac",
+    "build-support/unit-cases.json": "e4625670b3c78606d515591ef35f6db197a373a3a93e7c00aecf813cabf48617",
+    "conformance/coverage_receipts.py": "36165eed0f4abc5ca8dc485481b4af249e7350f5e479e8908a2a1c318cfeaabf",
+    "conformance/coverage_report.py": "87e162ba0ca92122b64fab4bcaaff19a57d99c6d91ea4e862c824c5424087e0f",
+    "conformance/native_fixture.py": "05ec96bc3ad3cf4717aee87616dc2c03f6c2e8d7926a2cdcedc9b0c143f6efa3",
+    "conformance/model_check.py": "b32ef390f507b0e24fc2c9aa4fb6b0ca4d5f45159a888b9e97d82da228c18ce3",
+    "conformance/atuin_sql_check.py": "04e2ddc03b0c3280d3b9b302c5255849e93fe9f0406131eb526603b7f2b04910"
   },
   "baseline_entrypoints": {
     "just smoke": [
