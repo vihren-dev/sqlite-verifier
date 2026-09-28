@@ -4,7 +4,7 @@
   "implementation_base": "d1af75e6 shared stable base; audited descendant files are identified by implementation_sha256",
   "state": "Inventory metadata reconciled against observed collection snapshots; full integrated execution and overall ADR acceptance remain pending with the lead.",
   "runtime_definitions": {
-    "source": "Source pytest harness and implementation imports, with explicit selected built runtime artifacts; source-only parser build reuse is identified separately. Nix compiled artifacts may be reused but host evidence executes fresh.",
+    "source": "Source pytest harness and implementation imports, with explicit selected built runtime artifacts. Nix owns parser builds and reuse; host evidence executes fresh.",
     "installed": "development pytest harness invokes installed executable/examples under poisoned sanitized child environment"
   },
   "notes": [
@@ -14,11 +14,11 @@
     "Common fixture prerequisites do not replace scenario outcomes. Atuin alternate-field mutates both SQL/facts independently; approved digests derive from baseline.",
     "Installed Atuin uses the same thirteen IDs and separate runtime reports; never re-execute its legacy main wrapper.",
     "Coverage producer mappings include subprocesses and report completeness contracts, not cached success files.",
-    "T4 converts the former SandboxTest method to seven independently selectable cases; docs_test/test_ci_scope remain stdlib-only and acquire pytest metadata through the shared plugin. Native-reuse remains source-build-only, while parser/internal translation/kernel-emission cases receive the selected artifact root explicitly.",
+    "T4 converts the former SandboxTest method to seven independently selectable cases; docs_test/test_ci_scope remain stdlib-only and acquire pytest metadata through the shared plugin. parser/internal translation/kernel-emission cases receive the selected artifact root explicitly.",
     "Compilation17 and early-baseline7 now collect independently. Each graph/approval mutation owns a fresh fixture; compiler paths are explicit and only Runtime.locate is patched for imported verify(). Selected-generated-role and artifact aliases require no Lean/native/sandbox resources. Installed selection fails setup instead of using source imports as installed evidence.",
     "ADR0001 source orchestration additions are explicitly identified as infrastructure additions, not legacy baseline scenarios.",
     "origin=new distinguishes ADR infrastructure additions and the new partial declaration attack from preserved legacy behavior; neither additions nor multi-runtime Atuin execution inflate the baseline case count.",
-    "The reconciled inventory has 422 unique IDs, including 244 legacy mappings; thirteen Atuin IDs have separate source and installed executions."
+    "2026-09-28: Nine obsolete local-cache scenarios retired explicitly; one generator validation scenario added. Retired cases retain their original audit metadata separately."
   ],
   "entrypoints": {
     "just test": [
@@ -37,16 +37,15 @@
       "tests/runtime_package_test.py (installed only)",
       "tests/atuin_cli_test.py (installed; same13IDs as source)"
     ],
-    "source prerequisite parser reuse": [
-      "tests/parser_build_test.py::test_native_reuse[3.51.0]",
-      "tests/parser_build_test.py::test_native_reuse[3.46.0]"
-    ],
     "docs-only workflow": [
       "python3 tests/docs_test.py",
       "python3 -m unittest tests.test_ci_scope"
     ],
     "Nix source identity checks": [
       "tests/test_source_identity.py: ordinary source suite on both native platforms; no standalone hidden runner"
+    ],
+    "just parser": [
+      "Nix parsers derivation: verify upstream checksums, generate grammar, compile both releases, reuse immutable outputs and link checkout build paths"
     ]
   },
   "source_sha256": {
@@ -313,158 +312,6 @@
         "self.assertEqual(command([sys.executable, \"-c\", \"import time; time.sleep(3)\"], ROOT, 1)[\"status\"], \"FAILED\")"
       ],
       "migration_notes": "Exercises the shared process-group runner directly after removal of the legacy coverage command wrapper; bounded failure outcomes remain observable."
-    },
-    {
-      "source": "tests/parser_build_test.py:75-90",
-      "legacy": "No-op builds invoke no tool, and one release's source never dirties the other.",
-      "node_id": "tests/parser_build_test.py::IncrementalBuildTests::test_noop_and_independent_release_sources",
-      "runtimes": [
-        "source"
-      ],
-      "level": "unit",
-      "concerns": [
-        "parser"
-      ],
-      "resources": [],
-      "assertions": [
-        "self.commands.assert_not_called()",
-        "self.commands.assert_not_called()",
-        "self.assertTrue(self.commands.called)",
-        "self.commands.assert_not_called()"
-      ],
-      "legacy_variants": [],
-      "collection_verified": true,
-      "origin": "legacy",
-      "implementation_source": "tests/parser_build_test.py:81-96",
-      "description": "No-op builds invoke no tool, and one release's source never dirties the other.",
-      "parameter_id": null
-    },
-    {
-      "source": "tests/parser_build_test.py:92-120",
-      "legacy": "Source and tool changes invalidate content stamps even without timestamp reliance.",
-      "node_id": "tests/parser_build_test.py::IncrementalBuildTests::test_changed_sources_generator_compiler_and_flags",
-      "runtimes": [
-        "source"
-      ],
-      "level": "unit",
-      "concerns": [
-        "parser"
-      ],
-      "resources": [],
-      "assertions": [
-        "self.assertTrue(self.commands.called)",
-        "self.commands.assert_not_called()",
-        "self.assertTrue(self.commands.called)",
-        "self.assertTrue(self.commands.called)",
-        "self.commands.assert_not_called()",
-        "self.assertTrue(self.commands.called)",
-        "self.commands.assert_not_called()"
-      ],
-      "legacy_variants": [
-        {
-          "line": 97,
-          "source": "for path in [*paths, self.compiler]:\n            with self.subTest(path=path.name):\n                path.write_text(path.read_text() + \" changed\")\n                self.commands.reset_mock(); self.build()\n                self.assertTrue(self.commands.called)\n                self.commands.reset_mock(); self.build()\n                self.commands.assert_not_called()"
-        }
-      ],
-      "collection_verified": true,
-      "origin": "legacy",
-      "implementation_source": "tests/parser_build_test.py:98-126",
-      "description": "Source and tool changes invalidate content stamps even without timestamp reliance.",
-      "parameter_id": null
-    },
-    {
-      "source": "tests/parser_build_test.py:122-146",
-      "legacy": "Every intermediate is required, and a hit never bypasses upstream verification.",
-      "node_id": "tests/parser_build_test.py::IncrementalBuildTests::test_missing_modified_outputs_and_tampering",
-      "runtimes": [
-        "source"
-      ],
-      "level": "unit",
-      "concerns": [
-        "parser"
-      ],
-      "resources": [],
-      "assertions": [
-        "self.assertTrue(self.commands.called)",
-        "self.assertTrue(self.commands.called)",
-        "self.commands.assert_not_called()",
-        "self.commands.assert_not_called()",
-        "self.assertTrue(self.commands.called)",
-        "self.assertRaisesRegex(ValueError, \"Pinned upstream file changed\")"
-      ],
-      "legacy_variants": [
-        {
-          "line": 128,
-          "source": "for path in outputs:\n            with self.subTest(output=path.name):\n                path.unlink()\n                self.commands.reset_mock(); self.build(True)\n                self.commands.assert_not_called()\n                self.build(); self.assertTrue(self.commands.called)"
-        },
-        {
-          "line": 140,
-          "source": "for old in (False, True):\n            source = \"upstream-3.46.0\" if old else \"upstream\"\n            (self.root / \"parser\" / source / \"sqlite3.c\").write_text(\"unpinned replacement\")\n            self.commands.reset_mock()\n            with self.assertRaisesRegex(ValueError, \"Pinned upstream file changed\"):\n                self.build(old)\n            self.commands.assert_not_called()"
-        }
-      ],
-      "collection_verified": true,
-      "origin": "legacy",
-      "implementation_source": "tests/parser_build_test.py:128-152",
-      "description": "Every intermediate is required, and a hit never bypasses upstream verification.",
-      "parameter_id": null
-    },
-    {
-      "source": "tests/parser_build_test.py:148-160",
-      "legacy": "Unknown toolchains and interrupted builds cannot produce a valid hit.",
-      "node_id": "tests/parser_build_test.py::IncrementalBuildTests::test_unpinned_compiler_and_failed_build_never_reuse",
-      "runtimes": [
-        "source"
-      ],
-      "level": "unit",
-      "concerns": [
-        "parser"
-      ],
-      "resources": [],
-      "assertions": [
-        "self.assertFalse((self.root / \"build/parser/build-state.json\").exists())",
-        "self.assertTrue(self.commands.called)",
-        "self.assertTrue(self.commands.called)",
-        "self.assertRaisesRegex(RuntimeError, \"tool failed\")"
-      ],
-      "legacy_variants": [
-        {
-          "line": 152,
-          "source": "for _ in range(2):\n                self.commands.reset_mock(); self.build()\n                self.assertTrue(self.commands.called)"
-        }
-      ],
-      "collection_verified": true,
-      "origin": "legacy",
-      "implementation_source": "tests/parser_build_test.py:154-166",
-      "description": "Unknown toolchains and interrupted builds cannot produce a valid hit.",
-      "parameter_id": null
-    },
-    {
-      "source": "tests/parser_build_test.py:162-174",
-      "legacy": "Only ordinary immutable Nix search flags justify skipping compilation.",
-      "node_id": "tests/parser_build_test.py::IncrementalBuildTests::test_mutable_toolchain_overrides_disable_reuse",
-      "runtimes": [
-        "source"
-      ],
-      "level": "unit",
-      "concerns": [
-        "parser"
-      ],
-      "resources": [],
-      "assertions": [
-        "self.assertTrue(build_cache.stable_environment({\"NIX_CFLAGS_COMPILE\":\n                f\"-frandom-seed=abc -isystem {store}/include -fmacro-prefix-map={store}={store}\"}))",
-        "self.assertFalse(build_cache.stable_environment(environment), environment)"
-      ],
-      "legacy_variants": [
-        {
-          "line": 168,
-          "source": "for environment in ({\"CPATH\": \"/tmp/include\"}, {\"SDKROOT\": \"/mutable/sdk\"},\n                    {\"CPATH\": store + \":\"}, {\"NIX_DYNAMIC_LINKER\": \"/tmp/ld.so\"},\n                    {\"DEVELOPER_DIR_arm64_apple_darwin\": \"/mutable/sdk\"},\n                    {\"NIX_CFLAGS_COMPILE\": \"@options\"}, {\"NIX_LDFLAGS\": \"-Wl,-T,local\"},\n                    {\"NIX_CFLAGS_COMPILE\": f\"-I{store}/../../mutable\"},\n                    {\"NIX_ENFORCE_PURITY\": \"1\"}):\n                self.assertFalse(build_cache.stable_environment(environment), environment)"
-        }
-      ],
-      "collection_verified": true,
-      "origin": "legacy",
-      "implementation_source": "tests/parser_build_test.py:168-180",
-      "description": "Only ordinary immutable Nix search flags justify skipping compilation.",
-      "parameter_id": null
     },
     {
       "source": "tests/test_baseline_ci.py:16-90",
@@ -826,65 +673,6 @@
       "origin": "legacy",
       "implementation_source": "tests/test_native_dependencies.py:134-162",
       "description": "The build-owned manifest supplies loader roots to compilation and kernel checking.",
-      "parameter_id": null
-    },
-    {
-      "source": "tests/test_parser_cache_environment.py:18-38",
-      "legacy": "Directory creation, symlinks and other search kinds cannot gain cache admission.",
-      "node_id": "tests/test_parser_cache_environment.py::ShellRpathTests::test_absent_output_rpath_only",
-      "runtimes": [
-        "source"
-      ],
-      "level": "unit",
-      "concerns": [
-        "parser"
-      ],
-      "resources": [],
-      "assertions": [
-        "self.assertTrue(build_cache.stable_environment(environment))",
-        "self.assertFalse(build_cache.stable_environment({**environment, 'NIX_CFLAGS_COMPILE': f'-I{library}'}))",
-        "self.assertFalse(build_cache.stable_environment(environment))",
-        "self.assertFalse(build_cache.stable_environment(environment))",
-        "self.assertFalse(build_cache.stable_environment({**environment, 'NIX_LDFLAGS': flags}))",
-        "self.assertFalse(build_cache.stable_environment(\n                    {'out': str(unusual), 'NIX_LDFLAGS': f'-rpath {unusual}/lib'}))"
-      ],
-      "legacy_variants": [
-        {
-          "line": 25,
-          "source": "for flags in (f'-L{library}', f'-rpath-link {library}',\n                          f'-rpath {output}/other', '-rpath', '-I',\n                          f'-L -rpath {library}', f'-isystem -rpath {library}'):\n                self.assertFalse(build_cache.stable_environment({**environment, 'NIX_LDFLAGS': flags}))"
-        },
-        {
-          "line": 30,
-          "source": "for suffix in ('colon:other', '$ORIGIN'):\n                unusual = output / suffix\n                self.assertFalse(build_cache.stable_environment(\n                    {'out': str(unusual), 'NIX_LDFLAGS': f'-rpath {unusual}/lib'}))"
-        }
-      ],
-      "collection_verified": true,
-      "origin": "legacy",
-      "implementation_source": "tests/test_parser_cache_environment.py:22-42",
-      "description": "Directory creation, symlinks and other search kinds cannot gain cache admission.",
-      "parameter_id": null
-    },
-    {
-      "source": "tests/test_parser_cache_environment.py:40-58",
-      "legacy": "A successful tool cannot race a cacheable environment into a different input policy.",
-      "node_id": "tests/test_parser_cache_environment.py::ShellRpathTests::test_rpath_appearing_during_build_cannot_publish_stamp",
-      "runtimes": [
-        "source"
-      ],
-      "level": "unit",
-      "concerns": [
-        "parser"
-      ],
-      "resources": [],
-      "assertions": [
-        "self.assertFalse((fixture.root / 'build/parser/build-state.json').exists())",
-        "self.assertRaisesRegex(RuntimeError, 'inputs changed')"
-      ],
-      "legacy_variants": [],
-      "collection_verified": true,
-      "origin": "legacy",
-      "implementation_source": "tests/test_parser_cache_environment.py:46-64",
-      "description": "A successful tool cannot race a cacheable environment into a different input policy.",
       "parameter_id": null
     },
     {
@@ -6700,56 +6488,6 @@
       "origin": "legacy",
       "implementation_source": "tests/parser_test.py:124-126",
       "description": "An expression in RAISE parses only in the newer pinned grammar.",
-      "parameter_id": "3.46.0"
-    },
-    {
-      "source": "tests/parser_build_test.py:175-180",
-      "legacy": "--native-reuse 3.51.0",
-      "node_id": "tests/parser_build_test.py::test_native_reuse[3.51.0]",
-      "runtimes": [
-        "source"
-      ],
-      "level": "integration",
-      "concerns": [
-        "parser"
-      ],
-      "resources": [
-        "requires_native",
-        "requires_nix"
-      ],
-      "assertions": [
-        "Unchanged pinned parser build must invoke no build tool"
-      ],
-      "runtime_scope": "source-build-only: requires source parser stamps and pinned compiler; does not use immutable --runtime-root",
-      "collection_verified": true,
-      "origin": "legacy",
-      "implementation_source": "tests/parser_build_test.py:186-192",
-      "description": "The selected pinned parser is present and its source build invokes no tools on reuse.",
-      "parameter_id": "3.51.0"
-    },
-    {
-      "source": "tests/parser_build_test.py:175-180",
-      "legacy": "--native-reuse 3.46.0",
-      "node_id": "tests/parser_build_test.py::test_native_reuse[3.46.0]",
-      "runtimes": [
-        "source"
-      ],
-      "level": "integration",
-      "concerns": [
-        "parser"
-      ],
-      "resources": [
-        "requires_native",
-        "requires_nix"
-      ],
-      "assertions": [
-        "Unchanged pinned parser build must invoke no build tool"
-      ],
-      "runtime_scope": "source-build-only: requires source parser stamps and pinned compiler; does not use immutable --runtime-root",
-      "collection_verified": true,
-      "origin": "legacy",
-      "implementation_source": "tests/parser_build_test.py:186-192",
-      "description": "The selected pinned parser is present and its source build invokes no tools on reuse.",
       "parameter_id": "3.46.0"
     },
     {
@@ -13092,6 +12830,27 @@
           "/bin/ps"
         ]
       }
+    },
+    {
+      "node_id": "tests/parser_build_test.py::test_generator_preserves_rules_and_rejects_mismatched_tokens",
+      "description": "Keep precedence, children and token maps; fail before output on empty or mismatched inventories.",
+      "parameter_id": null,
+      "level": "unit",
+      "concerns": [
+        "parser"
+      ],
+      "resources": [],
+      "source": "tests/parser_build_test.py",
+      "implementation_source": "tests/parser_build_test.py",
+      "origin": "new",
+      "runtimes": [
+        "source"
+      ],
+      "collection_verified": true,
+      "assertions": [
+        "Preserves grammar precedence, child order, root construction and both token maps.",
+        "Rejects mismatched/empty token inventories and malformed production exports."
+      ]
     }
   ],
   "fixture_contracts": {
@@ -13102,21 +12861,27 @@
     "source_identity": "One tiny synthetic baseline is evaluated once per session with the real locked Nix library; each case copies only declared fixture bytes into its private tree. No repository/build copying or package build occurs. Missing fixed paths fail evaluation; unselected source components remain unchanged."
   },
   "collection_checks": {
-    "case_count": 422,
-    "legacy_mapped_case_count": 244,
-    "new_case_count": 178,
-    "source_case_count": 416,
+    "case_count": 414,
+    "legacy_mapped_case_count": 235,
+    "new_case_count": 179,
+    "source_case_count": 408,
     "installed_case_count": 19,
     "baseline_hashes_verified": 39,
-    "result": "Every inventory identity exactly matches this single-tree collection; baseline evidence remains immutable.",
+    "result": "Active inventory identities match fresh collection after the Nix-only parser migration; retired baseline evidence is retained separately.",
     "evidence": [
       {
         "path": "/Users/tzankomatev/work/sqlite-verifier-adr1/build/final-pilot-fixes-catalogue.json",
         "sha256": "d46426a293328e6610b7a383e0b6ab0c0a669f04b0b70c5deafd8389aad6e2b8",
         "case_count": 422
+      },
+      {
+        "path": "build/nix-parser-catalogue.json",
+        "sha256": "11aaca2e31995613b849b86383deeb2369159027a1991db5dd36fce3977fc67a",
+        "case_count": 414
       }
     ],
-    "runtime_build_required": false
+    "runtime_build_required": false,
+    "retired_case_count": 9
   },
   "implementation_sha256": {
     "build-support/run_unit_checks.py": "cad8e6ee9ee21c6ada2c0b28c121fec6de0f2399d3a56e6ab52330bbba811bac",
@@ -13144,7 +12909,7 @@
     "tests/early_baseline_test.py": "b0c49f17e10d13cb943fab7e5a91965e16fa39470bd39ed013b051c3a866a03c",
     "tests/environment_snapshot_test.py": "46a705b5c3e6a91ff74187f0bfe815cb5c854d2557bdb549d31405b6564f57fa",
     "tests/kernel_gate_test.py": "bcf56bbc46e91dfe01a6272ed86496dc31712f919b7e608f5feb821d9d668704",
-    "tests/parser_build_test.py": "d3c1b4997a207aab3d821d118bf9ad93daab3d7cc4fbfe503d4b98a81cbb37ff",
+    "tests/parser_build_test.py": "1ab2b6618d77d10176764fa0ac906c3bd141877102167c6c9b537f7c9c427ee5",
     "tests/parser_test.py": "115e689cb4e7c2841759ea94cda55795bec1d74d400add72852e116df3180bb2",
     "tests/runtime_fixtures.py": "933ca9e79488e372953f3f64c76a48b8ea4d8b3a6027007a2ba85c7b81401fe2",
     "tests/runtime_installation.py": "6370c74806c85e07db1e8a3795ba331ddf3b4a44a45929bd4b0d8633b723606d",
@@ -13161,7 +12926,6 @@
     "tests/test_elf_relocation.py": "d3eeddb969953d1df43aa1865c84fc7eb02579606a188c8b8c2bc289835421b1",
     "tests/test_independent_suites.py": "72fee0b8076064b97aa0c61f9a142c7004bafb3e985e22fb4249c9bb445b399b",
     "tests/test_native_dependencies.py": "b98171a0db40298e76f25ddda530d5bff629b3290043a448af97b5947a843501",
-    "tests/test_parser_cache_environment.py": "920073eb1e069e58645a6801cb11a3b3b10af998da12effaf7d2fc27b175a682",
     "tests/test_profiles.py": "48e7ba1b75959c3023c3ec8f1e3133bff8b350b385891dd4e56dda110cfee354",
     "tests/test_pytest_harness.py": "6806d6137c5e79d2aae809f9fb72d4ae5466de71c91b4379be3bde5059d6e567",
     "tests/test_resources.py": "f3d40f8ea7eff08a9484b3462e4205ed6cc9d186275596beda3f793c49e2ead6",
@@ -13182,7 +12946,7 @@
     "tools/cache_fingerprint.py": "1c6e85b46537c0a584ba1ffc1cd68fa82042a17a591f7ac9fb5594507b4d1a8b",
     "tools/ci_checks.py": "e4a8622ad062b838122c5e0eeb05d37d66110328abd796702ad7b5633987b62d",
     "tools/run_independent_suites.py": "70418c4b1d09f87ea7a56e3fc49ec1b510f71a2d2967553d4864b81016c98b6e",
-    "tools/run_source_suite.py": "2b99d8062df543b1047ec3f8f88d56320869c4f56ed614b6cf19aed6262ad033",
+    "tools/run_source_suite.py": "a9b84b92e4306dd23d1ae9ea8b929056c0728cff83db7ed542b65c90c0f7d45c",
     "tools/unit_cache.py": "92293d893f4bb708ba00ea47f67ba01dfb05efd232a1858e3cf2d37779b42f98",
     "tests/test_suite_checkpoints.py": "a85230570b7e3b609afe64cd0e4a2a9e6db8000f20c959f3a7f422910fee4fcb",
     "tests/test_suite_failure_reports.py": "c43112febc1a02fd737269965be6e7965aa03b1dd7829fe7d4a56196443d2fdc"
@@ -13243,5 +13007,277 @@
     "coverage subprocess: lake env lean Audit.lean": [
       "tests/coverage_evidence_test.py::test_named_proofs"
     ]
-  }
+  },
+  "retired_cases": [
+    {
+      "source": "tests/parser_build_test.py:75-90",
+      "legacy": "No-op builds invoke no tool, and one release's source never dirties the other.",
+      "node_id": "tests/parser_build_test.py::IncrementalBuildTests::test_noop_and_independent_release_sources",
+      "runtimes": [
+        "source"
+      ],
+      "level": "unit",
+      "concerns": [
+        "parser"
+      ],
+      "resources": [],
+      "assertions": [
+        "self.commands.assert_not_called()",
+        "self.commands.assert_not_called()",
+        "self.assertTrue(self.commands.called)",
+        "self.commands.assert_not_called()"
+      ],
+      "legacy_variants": [],
+      "collection_verified": true,
+      "origin": "legacy",
+      "implementation_source": "tests/parser_build_test.py:81-96",
+      "description": "No-op builds invoke no tool, and one release's source never dirties the other.",
+      "parameter_id": null,
+      "retirement_reason": "2026-09-28: Nix is the sole parser builder; the custom source-build cache and its orchestration were removed at user request. Generator validation and native grammar regressions remain active."
+    },
+    {
+      "source": "tests/parser_build_test.py:92-120",
+      "legacy": "Source and tool changes invalidate content stamps even without timestamp reliance.",
+      "node_id": "tests/parser_build_test.py::IncrementalBuildTests::test_changed_sources_generator_compiler_and_flags",
+      "runtimes": [
+        "source"
+      ],
+      "level": "unit",
+      "concerns": [
+        "parser"
+      ],
+      "resources": [],
+      "assertions": [
+        "self.assertTrue(self.commands.called)",
+        "self.commands.assert_not_called()",
+        "self.assertTrue(self.commands.called)",
+        "self.assertTrue(self.commands.called)",
+        "self.commands.assert_not_called()",
+        "self.assertTrue(self.commands.called)",
+        "self.commands.assert_not_called()"
+      ],
+      "legacy_variants": [
+        {
+          "line": 97,
+          "source": "for path in [*paths, self.compiler]:\n            with self.subTest(path=path.name):\n                path.write_text(path.read_text() + \" changed\")\n                self.commands.reset_mock(); self.build()\n                self.assertTrue(self.commands.called)\n                self.commands.reset_mock(); self.build()\n                self.commands.assert_not_called()"
+        }
+      ],
+      "collection_verified": true,
+      "origin": "legacy",
+      "implementation_source": "tests/parser_build_test.py:98-126",
+      "description": "Source and tool changes invalidate content stamps even without timestamp reliance.",
+      "parameter_id": null,
+      "retirement_reason": "2026-09-28: Nix is the sole parser builder; the custom source-build cache and its orchestration were removed at user request. Generator validation and native grammar regressions remain active."
+    },
+    {
+      "source": "tests/parser_build_test.py:122-146",
+      "legacy": "Every intermediate is required, and a hit never bypasses upstream verification.",
+      "node_id": "tests/parser_build_test.py::IncrementalBuildTests::test_missing_modified_outputs_and_tampering",
+      "runtimes": [
+        "source"
+      ],
+      "level": "unit",
+      "concerns": [
+        "parser"
+      ],
+      "resources": [],
+      "assertions": [
+        "self.assertTrue(self.commands.called)",
+        "self.assertTrue(self.commands.called)",
+        "self.commands.assert_not_called()",
+        "self.commands.assert_not_called()",
+        "self.assertTrue(self.commands.called)",
+        "self.assertRaisesRegex(ValueError, \"Pinned upstream file changed\")"
+      ],
+      "legacy_variants": [
+        {
+          "line": 128,
+          "source": "for path in outputs:\n            with self.subTest(output=path.name):\n                path.unlink()\n                self.commands.reset_mock(); self.build(True)\n                self.commands.assert_not_called()\n                self.build(); self.assertTrue(self.commands.called)"
+        },
+        {
+          "line": 140,
+          "source": "for old in (False, True):\n            source = \"upstream-3.46.0\" if old else \"upstream\"\n            (self.root / \"parser\" / source / \"sqlite3.c\").write_text(\"unpinned replacement\")\n            self.commands.reset_mock()\n            with self.assertRaisesRegex(ValueError, \"Pinned upstream file changed\"):\n                self.build(old)\n            self.commands.assert_not_called()"
+        }
+      ],
+      "collection_verified": true,
+      "origin": "legacy",
+      "implementation_source": "tests/parser_build_test.py:128-152",
+      "description": "Every intermediate is required, and a hit never bypasses upstream verification.",
+      "parameter_id": null,
+      "retirement_reason": "2026-09-28: Nix is the sole parser builder; the custom source-build cache and its orchestration were removed at user request. Generator validation and native grammar regressions remain active."
+    },
+    {
+      "source": "tests/parser_build_test.py:148-160",
+      "legacy": "Unknown toolchains and interrupted builds cannot produce a valid hit.",
+      "node_id": "tests/parser_build_test.py::IncrementalBuildTests::test_unpinned_compiler_and_failed_build_never_reuse",
+      "runtimes": [
+        "source"
+      ],
+      "level": "unit",
+      "concerns": [
+        "parser"
+      ],
+      "resources": [],
+      "assertions": [
+        "self.assertFalse((self.root / \"build/parser/build-state.json\").exists())",
+        "self.assertTrue(self.commands.called)",
+        "self.assertTrue(self.commands.called)",
+        "self.assertRaisesRegex(RuntimeError, \"tool failed\")"
+      ],
+      "legacy_variants": [
+        {
+          "line": 152,
+          "source": "for _ in range(2):\n                self.commands.reset_mock(); self.build()\n                self.assertTrue(self.commands.called)"
+        }
+      ],
+      "collection_verified": true,
+      "origin": "legacy",
+      "implementation_source": "tests/parser_build_test.py:154-166",
+      "description": "Unknown toolchains and interrupted builds cannot produce a valid hit.",
+      "parameter_id": null,
+      "retirement_reason": "2026-09-28: Nix is the sole parser builder; the custom source-build cache and its orchestration were removed at user request. Generator validation and native grammar regressions remain active."
+    },
+    {
+      "source": "tests/parser_build_test.py:162-174",
+      "legacy": "Only ordinary immutable Nix search flags justify skipping compilation.",
+      "node_id": "tests/parser_build_test.py::IncrementalBuildTests::test_mutable_toolchain_overrides_disable_reuse",
+      "runtimes": [
+        "source"
+      ],
+      "level": "unit",
+      "concerns": [
+        "parser"
+      ],
+      "resources": [],
+      "assertions": [
+        "self.assertTrue(build_cache.stable_environment({\"NIX_CFLAGS_COMPILE\":\n                f\"-frandom-seed=abc -isystem {store}/include -fmacro-prefix-map={store}={store}\"}))",
+        "self.assertFalse(build_cache.stable_environment(environment), environment)"
+      ],
+      "legacy_variants": [
+        {
+          "line": 168,
+          "source": "for environment in ({\"CPATH\": \"/tmp/include\"}, {\"SDKROOT\": \"/mutable/sdk\"},\n                    {\"CPATH\": store + \":\"}, {\"NIX_DYNAMIC_LINKER\": \"/tmp/ld.so\"},\n                    {\"DEVELOPER_DIR_arm64_apple_darwin\": \"/mutable/sdk\"},\n                    {\"NIX_CFLAGS_COMPILE\": \"@options\"}, {\"NIX_LDFLAGS\": \"-Wl,-T,local\"},\n                    {\"NIX_CFLAGS_COMPILE\": f\"-I{store}/../../mutable\"},\n                    {\"NIX_ENFORCE_PURITY\": \"1\"}):\n                self.assertFalse(build_cache.stable_environment(environment), environment)"
+        }
+      ],
+      "collection_verified": true,
+      "origin": "legacy",
+      "implementation_source": "tests/parser_build_test.py:168-180",
+      "description": "Only ordinary immutable Nix search flags justify skipping compilation.",
+      "parameter_id": null,
+      "retirement_reason": "2026-09-28: Nix is the sole parser builder; the custom source-build cache and its orchestration were removed at user request. Generator validation and native grammar regressions remain active."
+    },
+    {
+      "source": "tests/test_parser_cache_environment.py:18-38",
+      "legacy": "Directory creation, symlinks and other search kinds cannot gain cache admission.",
+      "node_id": "tests/test_parser_cache_environment.py::ShellRpathTests::test_absent_output_rpath_only",
+      "runtimes": [
+        "source"
+      ],
+      "level": "unit",
+      "concerns": [
+        "parser"
+      ],
+      "resources": [],
+      "assertions": [
+        "self.assertTrue(build_cache.stable_environment(environment))",
+        "self.assertFalse(build_cache.stable_environment({**environment, 'NIX_CFLAGS_COMPILE': f'-I{library}'}))",
+        "self.assertFalse(build_cache.stable_environment(environment))",
+        "self.assertFalse(build_cache.stable_environment(environment))",
+        "self.assertFalse(build_cache.stable_environment({**environment, 'NIX_LDFLAGS': flags}))",
+        "self.assertFalse(build_cache.stable_environment(\n                    {'out': str(unusual), 'NIX_LDFLAGS': f'-rpath {unusual}/lib'}))"
+      ],
+      "legacy_variants": [
+        {
+          "line": 25,
+          "source": "for flags in (f'-L{library}', f'-rpath-link {library}',\n                          f'-rpath {output}/other', '-rpath', '-I',\n                          f'-L -rpath {library}', f'-isystem -rpath {library}'):\n                self.assertFalse(build_cache.stable_environment({**environment, 'NIX_LDFLAGS': flags}))"
+        },
+        {
+          "line": 30,
+          "source": "for suffix in ('colon:other', '$ORIGIN'):\n                unusual = output / suffix\n                self.assertFalse(build_cache.stable_environment(\n                    {'out': str(unusual), 'NIX_LDFLAGS': f'-rpath {unusual}/lib'}))"
+        }
+      ],
+      "collection_verified": true,
+      "origin": "legacy",
+      "implementation_source": "tests/test_parser_cache_environment.py:22-42",
+      "description": "Directory creation, symlinks and other search kinds cannot gain cache admission.",
+      "parameter_id": null,
+      "retirement_reason": "2026-09-28: Nix is the sole parser builder; the custom source-build cache and its orchestration were removed at user request. Generator validation and native grammar regressions remain active."
+    },
+    {
+      "source": "tests/test_parser_cache_environment.py:40-58",
+      "legacy": "A successful tool cannot race a cacheable environment into a different input policy.",
+      "node_id": "tests/test_parser_cache_environment.py::ShellRpathTests::test_rpath_appearing_during_build_cannot_publish_stamp",
+      "runtimes": [
+        "source"
+      ],
+      "level": "unit",
+      "concerns": [
+        "parser"
+      ],
+      "resources": [],
+      "assertions": [
+        "self.assertFalse((fixture.root / 'build/parser/build-state.json').exists())",
+        "self.assertRaisesRegex(RuntimeError, 'inputs changed')"
+      ],
+      "legacy_variants": [],
+      "collection_verified": true,
+      "origin": "legacy",
+      "implementation_source": "tests/test_parser_cache_environment.py:46-64",
+      "description": "A successful tool cannot race a cacheable environment into a different input policy.",
+      "parameter_id": null,
+      "retirement_reason": "2026-09-28: Nix is the sole parser builder; the custom source-build cache and its orchestration were removed at user request. Generator validation and native grammar regressions remain active."
+    },
+    {
+      "source": "tests/parser_build_test.py:175-180",
+      "legacy": "--native-reuse 3.51.0",
+      "node_id": "tests/parser_build_test.py::test_native_reuse[3.51.0]",
+      "runtimes": [
+        "source"
+      ],
+      "level": "integration",
+      "concerns": [
+        "parser"
+      ],
+      "resources": [
+        "requires_native",
+        "requires_nix"
+      ],
+      "assertions": [
+        "Unchanged pinned parser build must invoke no build tool"
+      ],
+      "runtime_scope": "source-build-only: requires source parser stamps and pinned compiler; does not use immutable --runtime-root",
+      "collection_verified": true,
+      "origin": "legacy",
+      "implementation_source": "tests/parser_build_test.py:186-192",
+      "description": "The selected pinned parser is present and its source build invokes no tools on reuse.",
+      "parameter_id": "3.51.0",
+      "retirement_reason": "2026-09-28: Nix is the sole parser builder; the custom source-build cache and its orchestration were removed at user request. Generator validation and native grammar regressions remain active."
+    },
+    {
+      "source": "tests/parser_build_test.py:175-180",
+      "legacy": "--native-reuse 3.46.0",
+      "node_id": "tests/parser_build_test.py::test_native_reuse[3.46.0]",
+      "runtimes": [
+        "source"
+      ],
+      "level": "integration",
+      "concerns": [
+        "parser"
+      ],
+      "resources": [
+        "requires_native",
+        "requires_nix"
+      ],
+      "assertions": [
+        "Unchanged pinned parser build must invoke no build tool"
+      ],
+      "runtime_scope": "source-build-only: requires source parser stamps and pinned compiler; does not use immutable --runtime-root",
+      "collection_verified": true,
+      "origin": "legacy",
+      "implementation_source": "tests/parser_build_test.py:186-192",
+      "description": "The selected pinned parser is present and its source build invokes no tools on reuse.",
+      "parameter_id": "3.46.0",
+      "retirement_reason": "2026-09-28: Nix is the sole parser builder; the custom source-build cache and its orchestration were removed at user request. Generator validation and native grammar regressions remain active."
+    }
+  ]
 }

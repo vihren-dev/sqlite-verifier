@@ -27,7 +27,30 @@ in rec {
     src = sources.parsers;
     nativeBuildInputs = [ pkgs.python3 ];
     dontConfigure = true;
-    buildPhase = "python3 parser/build.py";
+    buildPhase = pkgs.lib.concatMapStringsSep "\n" (release:
+      let
+        upstream = "parser/${release.source}";
+        directory = "build/${release.directory}";
+        hashes = builtins.fromJSON (builtins.readFile (../parser + "/${release.source}/sha256.json"));
+      in ''
+        (cd ${upstream}; sha256sum --check <<'HASHES'
+        ${pkgs.lib.concatStringsSep "\n" (pkgs.lib.mapAttrsToList (name: hash: "${hash}  ${name}") hashes)}
+        HASHES
+        )
+        mkdir -p ${directory}
+        $CC ${upstream}/lemon.c -o ${directory}/lemon
+        ${directory}/lemon -q -d${directory} -T${upstream}/lempar.c ${upstream}/parse.y
+        ${directory}/lemon -E ${upstream}/parse.y > ${directory}/preprocessed.y
+        ${directory}/lemon -g ${upstream}/parse.y > ${directory}/grammar.y
+        python3 parser/generate.py ${upstream} ${directory}
+        ${directory}/lemon -q -T${upstream}/lempar.c ${directory}/syntax.y
+        $CC -std=c99 -O1 -Iparser -I${directory} -I${upstream} \
+          parser/tokenizer.c ${directory}/syntax.c parser/main.c \
+          -lm -lpthread -ldl -o build/${release.executable}
+      '') [
+        { source = "upstream"; directory = "parser"; executable = "sqlite-parser"; }
+        { source = "upstream-3.46.0"; directory = "parser-3.46.0"; executable = "sqlite-parser-3.46.0"; }
+      ];
     installPhase = ''
       mkdir -p "$out"
       cp -R build "$out/"

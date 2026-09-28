@@ -360,8 +360,10 @@ small PR boundaries; do not combine all behavior changes into one migration PR.
 `tests/ci_scope.py` must classify `build-support/`, `pytest.ini`, and shared test
 configuration changes as full `package` scope. Unknown paths must continue to run
 at least full checks. Documentation-only routing remains available without Nix.
-`parser_build_test.py` contains both unittest and a special native-reuse path:
-inventory both. Coverage scripts are evidence producers as well as tests; keep
+The baseline `parser_build_test.py` contained unittest and native-reuse checks.
+The [Nix-only parser change](../plans/20260928-nix-parser.task.md) retires that
+custom-cache coverage and retains generator validation and native grammar tests.
+Coverage scripts are evidence producers as well as tests; keep
 their output schema and failure propagation when changing execution entrypoints.
 
 ## 6. Acceptance and measurements
