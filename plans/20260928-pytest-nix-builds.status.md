@@ -257,3 +257,18 @@ No end-to-end performance claim yet.
   group's restored jobs. Candidate/cache and baseline correctness monitoring are
   independently assigned. Final measurements, rollout decision and closeout remain
   pending; no performance improvement or goal completion is claimed yet.
+- Normal main CI [36414658933](https://github.com/vihren-dev/sqlite-verifier/actions/runs/36414658933)
+  passes on both native platforms after the authorized merge. A further independent
+  read-only closeout audit confirms the 422-case inventory, all recorded source
+  hashes and locations, preserved legacy mappings, scope routing and cache fallback
+  policy; it finds no new acceptance gap beyond the pending measurements and
+  rollout decision.
+- Full benchmark repetition one has passed all four cold samples and all Linux
+  restored samples. Its four active seeds total 4,237,859,818 bytes, within the
+  verified 10 GB repository limit. Linux unchanged inputs reuse both project
+  outputs; the Python edit rebuilds only units, and the Lean edit rebuilds only
+  the Lean runtime and assembled runtime. First-repetition Linux warm totals are
+  405 seconds candidate versus 224 seconds baseline; these are provisional single
+  samples, not median acceptance. Fresh-check time contributes 157.45 seconds of
+  that difference and cache restoration 19 seconds. All three repetitions remain
+  necessary, and default build-cache rollout stays disabled.
