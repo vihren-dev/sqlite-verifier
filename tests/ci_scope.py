@@ -31,7 +31,7 @@ def scope(paths: Sequence[str], event: str, ref: str) -> str:
         return "docs"
     if any(path in PACKAGE_FILES or path.startswith(PACKAGE_PREFIXES) for path in paths):
         return "package"
-    return "check"
+    return "test"
 
 
 def main() -> None:

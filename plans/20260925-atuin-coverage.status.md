@@ -27,7 +27,7 @@ identity, instrumentation label and exact theorem/allowed-axiom sets. No old
 summary file is read as evidence. Each failed scope keeps matching/discrepancy
 counts unknown. The previous3.51 evidence and theorem denominators are unchanged.
 
-`just coverage` includes the distinct native capture/runner prerequisites. Shared
+`just test` includes the distinct native capture/runner prerequisites. Shared
 `test` no longer separately invokes payload comparison; the full-runner wrapper
 also belongs only to the collector. Both existing negative checks remain inside
 those wrappers. CI artifact paths now retain full-runner JSON and Lean files.

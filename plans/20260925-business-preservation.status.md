@@ -33,7 +33,7 @@ framework integration was added.
 
 Validation: lead public CLI VERIFIED the exact one-statement payload with the
 protected baseline (artifacts build/atuin-preservation). Coordinator then ran the
-full `just check` in one persistent `nix develop path:./nix` environment on
+full `just test` in one persistent `nix develop path:./nix` environment on
 aarch64-darwin with pinned Lean 4.33.0 and SQLite 3.51.0/3.46.0: exit 0,
 build/preservation-check.log and build/preservation-check.exit. The batch includes
 25-job library/checker build, pinned smoke, fresh grammar/native/model coverage,

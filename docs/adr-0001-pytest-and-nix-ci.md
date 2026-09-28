@@ -315,7 +315,7 @@ Keep pure unit checks cacheable. Execute proof acceptance, conformance evidence,
 sandbox capability, Nix installer, and installed-runtime tests freshly on the host
 against built artifacts. Do not put nested Bubblewrap or Nix-daemon installation
 tests inside a Nix build sandbox or disable isolation to make them pass. A successful
-`unitChecks` derivation is not a replacement for `just check` or `just package`.
+`unitChecks` derivation is not a replacement for `just test` or `just package`.
 
 ### 4.3 Transport and invalidation
 

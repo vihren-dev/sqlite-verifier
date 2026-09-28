@@ -26,8 +26,8 @@ touch /tmp/sandbox-write-probe
 
 def run_checks(scope: str, mode: str, system: str, root: Path) -> None:
     """Cache artifacts only; proof, conformance, sandbox and installed acceptance stay fresh."""
-    if scope not in {"check", "package"} or mode not in {"source", "build"}:
-        raise ValueError("CI requires a complete check/package recipe and a supported build mode")
+    if scope not in {"test", "package"} or mode not in {"source", "build"}:
+        raise ValueError("CI requires a complete test/package recipe and a supported build mode")
     check_resources(root)
     if os.environ.get("SQLITE_VERIFIER_SYSTEM") != system:
         raise ValueError("Pinned shell system differs from the selected native CI system")
@@ -92,7 +92,7 @@ def run_checks(scope: str, mode: str, system: str, root: Path) -> None:
 def main() -> None:
     """Accept only the existing complete recipes and the two native supported platforms."""
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--scope", choices=("check", "package"), required=True)
+    parser.add_argument("--scope", choices=("test", "package"), required=True)
     parser.add_argument("--mode", choices=("source", "build"), default="source")
     parser.add_argument("--system", choices=("x86_64-linux", "aarch64-darwin"), required=True)
     parser.add_argument("--root", type=Path, default=Path.cwd())

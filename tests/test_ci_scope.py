@@ -19,10 +19,10 @@ class CiScopeTest(unittest.TestCase):
     def test_change_scopes(self) -> None:
         """Unknown paths run full checks; runtime infrastructure and mixed changes package."""
         examples = [(["README.md", "docs/ci.md"], "docs"),
-                    (["docs/nested/guide.md"], "docs"), (["unknown/file.md"], "check"),
+                    (["docs/nested/guide.md"], "docs"), (["unknown/file.md"], "test"),
                     (["parser/upstream/README.md"], "package"),
-                    (["SqliteVerifier/Preservation.lean"], "check"),
-                    (["tests/coverage_test.py"], "check"), (["unknown/file"], "check"),
+                    (["SqliteVerifier/Preservation.lean"], "test"),
+                    (["tests/coverage_test.py"], "test"), (["unknown/file"], "test"),
                     (["packaging/install.py"], "package"), (["nix/flake.lock"], "package"),
                     (["tools/check_resources.py"], "package"),
                     (["build-support/default.nix"], "package"),

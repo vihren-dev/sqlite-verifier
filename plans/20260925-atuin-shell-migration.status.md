@@ -182,7 +182,7 @@ Published the lead-approved integration at `e094a5ffa770`; hosted runs
 native capture, adversarial outcomes and installed packaging smoke. The merged
 formal runner and payload comparison pass a 21-job Lean/checker build, both
 parser/schema checks, eight native runner checks and three payload model cases
-plus false-expectation rejection (8.688s). `just check` now includes these bounded
+plus false-expectation rejection (8.688s). `just test` now includes these bounded
 Atuin checks; CI retains their JSON and generated Lean evidence. The shared
 native command selects the pinned capture shell internally. Workflow lint passed.
 Parser/coverage documentation distinguishes the two independently pinned grammars
@@ -222,7 +222,7 @@ requirements/effort acceptance remain pending. Public main is unchanged by this
 checkpoint; protected-baseline approval is still required.
 
 Integrated reviewed coverage `ad1639f5`, retaining all newer CLI/install/cache
-hooks and one invocation per comparison. Full root `just check` passes after
+hooks and one invocation per comparison. Full root `just test` passes after
 the Linux cache correction: native capture, three payload and two complete
 runner/model comparisons, both grammar versions, schema generation, adversarial
 kernel gate, real compilation sandbox, legacy and all seven Atuin CLI cases,

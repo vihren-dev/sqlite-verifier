@@ -23,7 +23,7 @@ release artifacts. Source packaging is explicitly a development snapshot.
 - `just setup` succeeds with the already installed pinned elan toolchain. A
   clean elan-cache download was not repeated on this host.
 
-- `nix develop --command just check` passed on aarch64-darwin: compiled the
+- `nix develop --command just test` passed on aarch64-darwin: compiled the
   agreed comment-only Lean barrel, checked Lean/Lake 4.33.0, native SQLite 3.51.0
   and source identity, and checked row/value preservation plus NULL after adding
   a nullable column to a populated native table.
@@ -41,7 +41,7 @@ release artifacts. Source packaging is explicitly a development snapshot.
 
 ## Handoff
 
-Review the foundation diff and rerun `nix develop --command just check`.
+Review the foundation diff and rerun `nix develop --command just test`.
 Integrate formal source, parser build/tests, and CLI acceptance checks into the
 shared recipes. Product runtime packaging, release CI and actual pilot evidence
 remain outstanding. Lean is pinned via elan's checked-in toolchain file; initial
@@ -61,15 +61,15 @@ source archives are retained with explicit labels; no release trigger or
 installable verifier claim was added. See `docs/ci.md` for source references.
 
 Validation: actionlint 1.7.12 (including ShellCheck) passed for the workflow;
-`nix develop --command just check` passed on aarch64-darwin. CI assignment is
+`nix develop --command just test` passed on aarch64-darwin. CI assignment is
 DONE locally, pending independent review and hosted execution. Actual hosted CI execution,
 including the Linux user-namespace preflight, remains for coordinator observation
 after review and push; this macOS host cannot claim those results.
 
 ## CI review correction — 2026-09-24
 
-Coordinator review found the workflow repeated `just check` through both a
-standalone step and the `package: check` dependency. Collapsed these into one
+Coordinator review found the workflow repeated `just test` through both a
+standalone step and the `package: test` dependency. Collapsed these into one
 shared-checks-and-packaging step invoking `just package`; the same checks run
 once. Updated CI documentation accordingly. Actionlint and ShellCheck pass after
 the YAML edit; the unchanged Nix test suite was not redundantly rerun.
