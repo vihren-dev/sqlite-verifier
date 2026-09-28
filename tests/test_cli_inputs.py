@@ -1,5 +1,7 @@
 """Check fast user-facing input diagnostics before any proof process can run."""
 
+import pytest
+
 import contextlib
 import io
 import json
@@ -12,6 +14,7 @@ from migration_check.cli import main
 class InputTests(unittest.TestCase):
     """Required/malformed/unsupported profile distinctions are part of the public API."""
 
+    @pytest.mark.unit
     def test_profile_diagnostics(self) -> None:
         """Invalid profiles fail consistently without requiring source files or installed artifacts."""
         common = ["verify", "--format", "json"]

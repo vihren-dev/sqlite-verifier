@@ -1,11 +1,13 @@
 """Real-parser regression coverage for rich declarative baselines and narrow migrations."""
 
+import pytest
+
 import unittest
 
 from migration_check.diagnostics import Rejection
 from migration_check.sql_model import sql_inputs, transition
 from migration_check.translate import starting_schema, statements
-from tests.test_translation import tree
+from tests.test_translation import selected_parser, tree
 
 BASELINE = """
 CREATE INDEX event_time ON events(occurred);
@@ -21,6 +23,9 @@ CREATE TABLE ledger(version BIGINT PRIMARY KEY, description TEXT NOT NULL,
 class SchemaTranslationTests(unittest.TestCase):
     """Assert preserved schema structure and complete rejection of unmodeled dependencies."""
 
+    @pytest.mark.integration
+    @pytest.mark.parser
+    @pytest.mark.requires_native
     def test_metadata_and_indexes_survive_nullable_add(self) -> None:
         """Metadata and ordered key projections remain unchanged while ADD appends NULL storage."""
         schema = starting_schema(tree(BASELINE))
@@ -53,6 +58,9 @@ class SchemaTranslationTests(unittest.TestCase):
         with self.assertRaises(Rejection):
             sql_inputs(schema, statements(tree('CREATE TABLE unrelated(x TEXT);')))
 
+    @pytest.mark.integration
+    @pytest.mark.parser
+    @pytest.mark.requires_native
     def test_create_cannot_collide_with_preserved_index(self) -> None:
         """The model's table-only CREATE primitive cannot bypass SQLite's shared namespace."""
         schema = starting_schema(tree('CREATE TABLE t(a TEXT); CREATE INDEX other ON t(a);'))
@@ -60,6 +68,9 @@ class SchemaTranslationTests(unittest.TestCase):
             sql_inputs(schema, statements(tree('CREATE TABLE other(x TEXT);')))
         self.assertEqual(rejected.exception.status, 'UNSUPPORTED')
 
+    @pytest.mark.integration
+    @pytest.mark.parser
+    @pytest.mark.requires_native
     def test_unsupported_metadata_cannot_disappear(self) -> None:
         """Every optional clause outside the fixed structural subset must reject."""
         cases = [
@@ -85,6 +96,9 @@ class SchemaTranslationTests(unittest.TestCase):
                 starting_schema(tree(sql))
             self.assertEqual(rejected.exception.status, 'UNSUPPORTED')
 
+    @pytest.mark.integration
+    @pytest.mark.parser
+    @pytest.mark.requires_native
     def test_statistics_are_exact_engine_managed_baseline_objects(self) -> None:
         """No arbitrary reserved table or modified optimizer metadata enters the baseline."""
         statistics = ('CREATE TABLE sqlite_stat1(tbl,idx,stat);'
@@ -105,6 +119,9 @@ class SchemaTranslationTests(unittest.TestCase):
             with self.subTest(sql=sql), self.assertRaises(Rejection):
                 statements(tree(sql))
 
+    @pytest.mark.integration
+    @pytest.mark.parser
+    @pytest.mark.requires_native
     def test_global_namespace_references_and_aliases(self) -> None:
         """Indexes cannot collide with tables or refer to missing, repeated or aliased columns."""
         for sql in (

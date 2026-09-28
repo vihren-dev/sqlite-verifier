@@ -13,7 +13,8 @@
     "Proof/native/conformance/sandbox/installer evidence always executes fresh; level=unit is the only cache-eligible category.",
     "Common fixture prerequisites do not replace scenario outcomes. Atuin alternate-field mutates both SQL/facts independently; approved digests derive from baseline.",
     "Installed Atuin uses the same thirteen IDs and separate runtime reports; never re-execute its legacy main wrapper.",
-    "Coverage producer mappings include subprocesses and report completeness contracts, not cached success files."
+    "Coverage producer mappings include subprocesses and report completeness contracts, not cached success files.",
+    "T4 converts the former SandboxTest method to seven independently selectable cases; docs_test/test_ci_scope remain stdlib-only and acquire pytest metadata through the shared plugin. Native-reuse remains source-build-only, while parser/internal translation/kernel-emission cases receive the selected artifact root explicitly."
   ],
   "entrypoints": {
     "just smoke": [
@@ -138,7 +139,8 @@
           "line": 48,
           "source": "for script in (\"tests/parser_test.py\", \"tests/conformance_native_test.py\",\n                       \"tests/conformance_model_test.py\", \"tests/atuin_sql_test.py\"):\n            self.assertEqual(sum(script in command for command in commands), 1, commands)"
         }
-      ]
+      ],
+      "collection_verified": true
     },
     {
       "source": "tests/coverage_test.py:56-74",
@@ -168,7 +170,8 @@
         "self.assertEqual(report[\"grammar\"][\"production_execution_coverage\"], \"NOT_INSTRUMENTED\")",
         "self.assertIsNone(report[\"additional_grammars\"][\"3.46.0\"][\"generated_productions\"])"
       ],
-      "legacy_variants": []
+      "legacy_variants": [],
+      "collection_verified": true
     },
     {
       "source": "tests/coverage_test.py:76-89",
@@ -196,7 +199,8 @@
           "line": 82,
           "source": "if any(name.endswith(\"conformance_native_test.py\") for name in arguments):\n                return {\"status\": \"PASSED\", \"stdout\": \"{}\"}"
         }
-      ]
+      ],
+      "collection_verified": true
     },
     {
       "source": "tests/coverage_test.py:91-110",
@@ -225,7 +229,8 @@
           "line": 102,
           "source": "if any(name.endswith(\"conformance_native_test.py\") for name in arguments):\n                return {\"status\": \"PASSED\", \"stdout\": json.dumps(upstream)}"
         }
-      ]
+      ],
+      "collection_verified": true
     },
     {
       "source": "tests/coverage_test.py:112-116",
@@ -243,7 +248,8 @@
         "self.assertIsNone(structured(evidence))",
         "self.assertEqual(evidence[\"status\"], \"FAILED\")"
       ],
-      "legacy_variants": []
+      "legacy_variants": [],
+      "collection_verified": true
     },
     {
       "source": "tests/coverage_test.py:118-141",
@@ -274,7 +280,8 @@
           "line": 131,
           "source": "for value in variants:\n                with self.subTest(value=value):\n                    evidence = {\"status\":\"PASSED\", \"stdout\":json.dumps(value)}\n                    failed = sql_report(root, evidence)\n                    self.assertEqual(evidence[\"status\"], \"FAILED\")\n                    self.assertIsNone(failed[\"completed_matching_cases\"])\n                    self.assertIsNone(failed[\"observed_discrepancies\"])"
         }
-      ]
+      ],
+      "collection_verified": true
     },
     {
       "source": "tests/coverage_test.py:143-146",
@@ -292,7 +299,8 @@
         "self.assertEqual(command([\"/definitely/missing/coverage-tool\"], ROOT, 1)[\"status\"], \"FAILED\")",
         "self.assertEqual(command([sys.executable, \"-c\", \"import time; time.sleep(3)\"], ROOT, 1)[\"status\"], \"FAILED\")"
       ],
-      "legacy_variants": []
+      "legacy_variants": [],
+      "collection_verified": true
     },
     {
       "source": "tests/parser_build_test.py:75-90",
@@ -312,7 +320,8 @@
         "self.assertTrue(self.commands.called)",
         "self.commands.assert_not_called()"
       ],
-      "legacy_variants": []
+      "legacy_variants": [],
+      "collection_verified": true
     },
     {
       "source": "tests/parser_build_test.py:92-120",
@@ -340,7 +349,8 @@
           "line": 97,
           "source": "for path in [*paths, self.compiler]:\n            with self.subTest(path=path.name):\n                path.write_text(path.read_text() + \" changed\")\n                self.commands.reset_mock(); self.build()\n                self.assertTrue(self.commands.called)\n                self.commands.reset_mock(); self.build()\n                self.commands.assert_not_called()"
         }
-      ]
+      ],
+      "collection_verified": true
     },
     {
       "source": "tests/parser_build_test.py:122-146",
@@ -371,7 +381,8 @@
           "line": 140,
           "source": "for old in (False, True):\n            source = \"upstream-3.46.0\" if old else \"upstream\"\n            (self.root / \"parser\" / source / \"sqlite3.c\").write_text(\"unpinned replacement\")\n            self.commands.reset_mock()\n            with self.assertRaisesRegex(ValueError, \"Pinned upstream file changed\"):\n                self.build(old)\n            self.commands.assert_not_called()"
         }
-      ]
+      ],
+      "collection_verified": true
     },
     {
       "source": "tests/parser_build_test.py:148-160",
@@ -396,7 +407,8 @@
           "line": 152,
           "source": "for _ in range(2):\n                self.commands.reset_mock(); self.build()\n                self.assertTrue(self.commands.called)"
         }
-      ]
+      ],
+      "collection_verified": true
     },
     {
       "source": "tests/parser_build_test.py:162-174",
@@ -419,7 +431,8 @@
           "line": 168,
           "source": "for environment in ({\"CPATH\": \"/tmp/include\"}, {\"SDKROOT\": \"/mutable/sdk\"},\n                    {\"CPATH\": store + \":\"}, {\"NIX_DYNAMIC_LINKER\": \"/tmp/ld.so\"},\n                    {\"DEVELOPER_DIR_arm64_apple_darwin\": \"/mutable/sdk\"},\n                    {\"NIX_CFLAGS_COMPILE\": \"@options\"}, {\"NIX_LDFLAGS\": \"-Wl,-T,local\"},\n                    {\"NIX_CFLAGS_COMPILE\": f\"-I{store}/../../mutable\"},\n                    {\"NIX_ENFORCE_PURITY\": \"1\"}):\n                self.assertFalse(build_cache.stable_environment(environment), environment)"
         }
-      ]
+      ],
+      "collection_verified": true
     },
     {
       "source": "tests/test_baseline_ci.py:16-90",
@@ -461,7 +474,8 @@
           "line": 24,
           "source": "for name in (\"Requirements\", \"Interpretation\", \"Helper\"):\n                    (approved / f\"{name}.lean\").write_text(f\"-- {name}\\n\", encoding=\"utf-8\")"
         }
-      ]
+      ],
+      "collection_verified": true
     },
     {
       "source": "tests/test_ci_scope.py:19-34",
@@ -481,7 +495,8 @@
           "line": 32,
           "source": "for paths, expected in examples:\n            with self.subTest(paths=paths):\n                self.assertEqual(scope(paths, \"pull_request\", \"refs/pull/2/merge\"), expected)"
         }
-      ]
+      ],
+      "collection_verified": true
     },
     {
       "source": "tests/test_ci_scope.py:36-39",
@@ -497,7 +512,8 @@
         "self.assertEqual(scope([\"README.md\"], \"push\", \"refs/tags/v1-rc.1\"), \"package\")",
         "self.assertEqual(scope([\"README.md\"], \"workflow_dispatch\", \"refs/heads/main\"), \"package\")"
       ],
-      "legacy_variants": []
+      "legacy_variants": [],
+      "collection_verified": true
     },
     {
       "source": "tests/test_ci_scope.py:41-51",
@@ -514,7 +530,8 @@
         "self.assertEqual(broken_links(root), [])",
         "self.assertEqual(broken_links(root), [\"docs/nested/guide.md: missing absent.md\"])"
       ],
-      "legacy_variants": []
+      "legacy_variants": [],
+      "collection_verified": true
     },
     {
       "source": "tests/test_ci_scope.py:53-79",
@@ -527,11 +544,14 @@
       "concerns": [
         "approval"
       ],
-      "resources": [],
+      "resources": [
+        "requires_native"
+      ],
       "assertions": [
         "self.assertEqual(output.read_text(), \"scope=package\\n\")"
       ],
-      "legacy_variants": []
+      "legacy_variants": [],
+      "collection_verified": true
     },
     {
       "source": "tests/test_cli_inputs.py:15-24",
@@ -556,7 +576,8 @@
           "line": 20,
           "source": "for suffix, status in [([], \"INPUT_ERROR\"), ([\"--profile\", \"latest\"], \"INPUT_ERROR\"),\n                               ([\"--profile\", \"3.50.0\"], \"UNSUPPORTED\")]:\n            with self.subTest(suffix=suffix), contextlib.redirect_stdout(io.StringIO()) as output:\n                self.assertEqual(main([*common, *suffix]), 1)\n            self.assertEqual(json.loads(output.getvalue())[\"status\"], status)"
         }
-      ]
+      ],
+      "collection_verified": true
     },
     {
       "source": "tests/test_independent_suites.py:15-55",
@@ -600,7 +621,8 @@
           "line": 47,
           "source": "for marker in root.glob(\"*-finished\"):\n                        marker.unlink()"
         }
-      ]
+      ],
+      "collection_verified": true
     },
     {
       "source": "tests/test_independent_suites.py:57-70",
@@ -620,7 +642,8 @@
         "self.assertIn(\"exit 0\", result.stdout)",
         "self.assertIn(\"second ran after first finished\", result.stdout)"
       ],
-      "legacy_variants": []
+      "legacy_variants": [],
+      "collection_verified": true
     },
     {
       "source": "tests/test_native_dependencies.py:17-33",
@@ -631,8 +654,8 @@
       ],
       "level": "integration",
       "concerns": [
-        "packaging",
-        "environment"
+        "environment",
+        "packaging"
       ],
       "resources": [
         "requires_nix"
@@ -648,7 +671,8 @@
           "line": 25,
           "source": "for invalid in (\"/\", \"/nix\", \"/nix/store\", str(directory), \"/nix/store/.links\"):\n                metadata.write_text(invalid + \"\\n\")\n                with self.assertRaises(ValueError):\n                    native_runtime_roots(directory)"
         }
-      ]
+      ],
+      "collection_verified": true
     },
     {
       "source": "tests/test_native_dependencies.py:35-115",
@@ -659,8 +683,8 @@
       ],
       "level": "unit",
       "concerns": [
-        "packaging",
-        "environment"
+        "environment",
+        "packaging"
       ],
       "resources": [],
       "assertions": [
@@ -688,7 +712,8 @@
           "line": 109,
           "source": "for failure, diagnostic in ((\"libLean.so => not found\", \"Unresolved\"),\n                                        (\"/home/runner/private/lib.so (0x1234)\", \"Nonportable\"),\n                                        (f\"{lean}/lib/glibc/sdk.so (0x1234)\", \"Nonportable\")):\n                with patch.object(collector.platform, \"system\", return_value=\"Linux\"), \\\n                        patch.object(collector, \"run\", return_value=failure):\n                    with self.assertRaisesRegex(RuntimeError, diagnostic):\n                        collector.native_dependencies([executable], lean)"
         }
-      ]
+      ],
+      "collection_verified": true
     },
     {
       "source": "tests/test_native_dependencies.py:117-145",
@@ -699,8 +724,8 @@
       ],
       "level": "integration",
       "concerns": [
-        "packaging",
-        "environment"
+        "environment",
+        "packaging"
       ],
       "resources": [
         "requires_nix"
@@ -715,7 +740,8 @@
         "self.assertIn(store, run.call_args.kwargs[\"read_roots\"])",
         "self.assertNotIn(Path(\"/nix/store\"), run.call_args.kwargs[\"read_roots\"])"
       ],
-      "legacy_variants": []
+      "legacy_variants": [],
+      "collection_verified": true
     },
     {
       "source": "tests/test_parser_cache_environment.py:18-38",
@@ -746,7 +772,8 @@
           "line": 30,
           "source": "for suffix in ('colon:other', '$ORIGIN'):\n                unusual = output / suffix\n                self.assertFalse(build_cache.stable_environment(\n                    {'out': str(unusual), 'NIX_LDFLAGS': f'-rpath {unusual}/lib'}))"
         }
-      ]
+      ],
+      "collection_verified": true
     },
     {
       "source": "tests/test_parser_cache_environment.py:40-58",
@@ -764,7 +791,8 @@
         "self.assertFalse((fixture.root / 'build/parser/build-state.json').exists())",
         "self.assertRaisesRegex(RuntimeError, 'inputs changed')"
       ],
-      "legacy_variants": []
+      "legacy_variants": [],
+      "collection_verified": true
     },
     {
       "source": "tests/test_profiles.py:17-26",
@@ -787,7 +815,8 @@
         "self.assertNotEqual(*generated)",
         "self.assertEqual(generated[0].replace('.sqlite351', '.sqlite346'), generated[1])"
       ],
-      "legacy_variants": []
+      "legacy_variants": [],
+      "collection_verified": true
     },
     {
       "source": "tests/test_profiles.py:28-35",
@@ -807,7 +836,8 @@
         "self.assertEqual(sql_inputs(schema, plain, selected), sql_inputs(schema, commented, selected))",
         "self.assertIn('.createTable', sql_inputs((), statements(tree('CREATE TABLE t(x TEXT);')), selected))"
       ],
-      "legacy_variants": []
+      "legacy_variants": [],
+      "collection_verified": true
     },
     {
       "source": "tests/test_profiles.py:37-49",
@@ -816,13 +846,11 @@
       "runtimes": [
         "source"
       ],
-      "level": "integration",
+      "level": "unit",
       "concerns": [
         "parser"
       ],
-      "resources": [
-        "requires_native"
-      ],
+      "resources": [],
       "assertions": [
         "self.assertEqual(rejected.exception.status, 'UNSUPPORTED')",
         "self.assertRaises(Rejection)",
@@ -834,7 +862,8 @@
           "line": 43,
           "source": "for value in (str(manifest), manifest.read_text(), '', '3.46', ' 3.46.0'):\n                with self.subTest(value=value), self.assertRaises(Rejection) as rejected:\n                    profile(value)\n                self.assertEqual(rejected.exception.status, 'INPUT_ERROR')"
         }
-      ]
+      ],
+      "collection_verified": true
     },
     {
       "source": "tests/test_resources.py:17-25",
@@ -852,7 +881,8 @@
         "run.assert_not_called()",
         "self.assertRaisesRegex(ValueError, 'capacity')"
       ],
-      "legacy_variants": []
+      "legacy_variants": [],
+      "collection_verified": true
     },
     {
       "source": "tests/test_resources.py:27-50",
@@ -870,7 +900,8 @@
         "self.assertRaisesRegex(ValueError, '/separate/tmp: 0.00 GiB')",
         "self.assertRaisesRegex(ValueError, '/separate/tmp: 0.00 GiB')"
       ],
-      "legacy_variants": []
+      "legacy_variants": [],
+      "collection_verified": true
     },
     {
       "source": "tests/test_resources.py:52-81",
@@ -891,7 +922,8 @@
         "self.assertRaisesRegex(ValueError, 'Unexpected environment input')",
         "self.assertRaisesRegex(ValueError, '10 GiB')"
       ],
-      "legacy_variants": []
+      "legacy_variants": [],
+      "collection_verified": true
     },
     {
       "source": "tests/test_runtime_package.py:19-37",
@@ -914,7 +946,8 @@
           "line": 29,
           "source": "for name in (\"Current.olean\", \"Current.olean.private\", \"Current.ir\", \"Removed.olean\"):\n                (library / \"SqliteVerifier\" / name).write_text(\"fixture\")"
         }
-      ]
+      ],
+      "collection_verified": true
     },
     {
       "source": "tests/test_runtime_package.py:39-58",
@@ -939,7 +972,8 @@
           "line": 52,
           "source": "for name in (\"install.sh\", \"install.py\"):\n                shutil.copy2(ROOT / \"packaging\" / name, bundle / name)"
         }
-      ]
+      ],
+      "collection_verified": true
     },
     {
       "source": "tests/test_runtime_package.py:60-83",
@@ -963,55 +997,8 @@
           "line": 74,
           "source": "if path == destination:\n                    original_mkdir(path)\n                    (path / \"unrelated.txt\").write_text(\"keep\")\n                    raise FileExistsError(path)"
         }
-      ]
-    },
-    {
-      "source": "tests/test_sandbox.py:18-113",
-      "legacy": "Check writes, private reads, networking, credentials, and bounded execution.",
-      "node_id": "tests/test_sandbox.py::SandboxTest::test_isolation_and_timeout",
-      "runtimes": [
-        "source"
       ],
-      "level": "integration",
-      "concerns": [
-        "environment"
-      ],
-      "resources": [
-        "requires_sandbox"
-      ],
-      "assertions": [
-        "self.assertEqual(result.returncode, 0, result.stderr)",
-        "self.assertEqual(protected.read_text(), \"approved\")",
-        "self.assertEqual((outputs / \"result.txt\").read_text(), \"isolated\")",
-        "self.assertNotEqual(noisy.returncode, 0)",
-        "self.assertEqual(len(noisy.stdout), 1024 * 1024)",
-        "self.assertRaises(ValueError)",
-        "self.assertRaises(ValueError)",
-        "self.assertRaises(ValueError)",
-        "self.assertRaises(subprocess.TimeoutExpired)",
-        "self.assertEqual(fork_check.returncode, 0, fork_check.stderr)",
-        "self.assertTrue((outputs / \"forked\").exists())",
-        "self.assertFalse((outputs / \"leaked\").exists())",
-        "self.assertRaises(subprocess.TimeoutExpired)"
-      ],
-      "legacy_variants": [
-        {
-          "line": 61,
-          "source": "if Path(\"/nix/store\").exists():\n                roots.append(Path(\"/nix/store\"))"
-        },
-        {
-          "line": 63,
-          "source": "for system_root in (\"/usr/lib\", \"/lib\", \"/lib64\"):\n                if Path(system_root).exists():\n                    roots.append(Path(system_root))"
-        },
-        {
-          "line": 93,
-          "source": "if platform.system() == \"Darwin\":\n                fork_check = run_sandboxed(\n                    [str(executable), \"-I\", \"-c\",\n                     \"import os\\ntry:\\n os.fork()\\nexcept PermissionError:\\n pass\\n\"\n                     \"else:\\n raise AssertionError('fork permitted')\"],\n                    read_roots=roots, write_root=outputs, environment={}, timeout=5,\n                )\n                self.assertEqual(fork_check.returncode, 0, fork_check.stderr)\n            else:\n                with self.assertRaises(subprocess.TimeoutExpired):\n                    run_sandboxed(\n                        [str(executable), \"-I\", \"-c\",\n                         \"import os, pathlib, time\\nif os.fork() == 0:\\n\"\n                         \" os.setsid()\\n pathlib.Path('forked').touch()\\n\"\n                         \" time.sleep(4)\\n pathlib.Path('leaked').touch()\\n\"\n                         \"else:\\n time.sleep(60)\"],\n                        read_roots=roots, write_root=outputs, environment={}, timeout=3,\n                    )\n                self.assertTrue((outputs / \"forked\").exists())\n                time.sleep(2)\n                self.assertFalse((outputs / \"leaked\").exists())"
-        },
-        {
-          "line": 64,
-          "source": "if Path(system_root).exists():\n                    roots.append(Path(system_root))"
-        }
-      ]
+      "collection_verified": true
     },
     {
       "source": "tests/test_schema_baseline.py:15-31",
@@ -1034,7 +1021,8 @@
           "line": 26,
           "source": "for actual in (approved, {**approved, \"schema.sql\": \"d\" * 64}):\n                with self.assertRaisesRegex(Rejection, \"schema.sql\"):\n                    check_baseline(baseline, actual)"
         }
-      ]
+      ],
+      "collection_verified": true
     },
     {
       "source": "tests/test_schema_translation.py:24-54",
@@ -1076,7 +1064,8 @@
           "line": 47,
           "source": "for binding in ('declaredType := .bigInt', 'notNull := true',\n                        'defaultValue := some .currentTimestamp', 'primaryKey := [\"id\"]',\n                        'name := \"author_message\"', 'unique := true'):\n            self.assertIn(binding, generated)"
         }
-      ]
+      ],
+      "collection_verified": true
     },
     {
       "source": "tests/test_schema_translation.py:56-61",
@@ -1096,7 +1085,8 @@
         "self.assertEqual(rejected.exception.status, 'UNSUPPORTED')",
         "self.assertRaises(Rejection)"
       ],
-      "legacy_variants": []
+      "legacy_variants": [],
+      "collection_verified": true
     },
     {
       "source": "tests/test_schema_translation.py:63-86",
@@ -1121,7 +1111,8 @@
           "line": 83,
           "source": "for sql in cases:\n            with self.subTest(sql=sql), self.assertRaises(Rejection) as rejected:\n                starting_schema(tree(sql))\n            self.assertEqual(rejected.exception.status, 'UNSUPPORTED')"
         }
-      ]
+      ],
+      "collection_verified": true
     },
     {
       "source": "tests/test_schema_translation.py:88-106",
@@ -1153,7 +1144,8 @@
           "line": 104,
           "source": "for sql in ('ALTER TABLE sqlite_stat1 ADD extra TEXT;', 'ALTER TABLE ordinary ADD extra;'):\n            with self.subTest(sql=sql), self.assertRaises(Rejection):\n                statements(tree(sql))"
         }
-      ]
+      ],
+      "collection_verified": true
     },
     {
       "source": "tests/test_schema_translation.py:108-126",
@@ -1183,7 +1175,8 @@
           "line": 123,
           "source": "for sql in ('ALTER TABLE t ADD x BIGINT;', 'ALTER TABLE t ADD x TEXT NOT NULL;',\n                    'ALTER TABLE t ADD x TIMESTAMP DEFAULT CURRENT_TIMESTAMP;'):\n            with self.subTest(sql=sql), self.assertRaises(Rejection):\n                statements(tree(sql))"
         }
-      ]
+      ],
+      "collection_verified": true
     },
     {
       "source": "tests/test_sql_writes.py:26-42",
@@ -1212,7 +1205,8 @@
           "line": 32,
           "source": "for version in ('3.51.0', '3.46.0'):\n            schema = starting_schema(tree(SCHEMA, version))\n            script = statements(tree(sql, version))\n            scripts.append(script)\n            self.assertEqual([item.kind for item in script], ['beginTransaction', 'insert', 'commit', 'update'])\n            self.assertEqual(script[1].values, (7, \"can't λ\", '2026-09-25 00:00:00', 1, b'\\0\\xff'))\n            generated = sql_inputs(schema, script, profile(version))\n            self.assertIn('.insert \"ledger\"', generated)\n            self.assertIn('.update \"ledger\" \"ok\" (.integer (-1)) \"version\" (7)', generated)\n            self.assertEqual(transition(schema, script), (schema, ''))"
         }
-      ]
+      ],
+      "collection_verified": true
     },
     {
       "source": "tests/test_sql_writes.py:44-51",
@@ -1238,7 +1232,8 @@
           "line": 47,
           "source": "for end, expected in (('ROLLBACK;', 1), ('COMMIT;', 2), ('', 2)):\n            script = statements(tree('BEGIN DEFERRED TRANSACTION; ALTER TABLE t ADD y TEXT;' + end))\n            self.assertEqual(len(transition(schema, script)[0][0].columns), expected)"
         }
-      ]
+      ],
+      "collection_verified": true
     },
     {
       "source": "tests/test_sql_writes.py:53-66",
@@ -1268,7 +1263,8 @@
           "line": 63,
           "source": "for value in ('1.0', '9223372036854775808', '-9223372036854775809', '1+2', '?',\n                      'CURRENT_TIMESTAMP', 'TRUE', '0x10', \"CAST('7' AS INTEGER)\"):\n            with self.subTest(value=value), self.assertRaises(Rejection):\n                statements(tree(f'INSERT INTO t(x) VALUES({value});'))"
         }
-      ]
+      ],
+      "collection_verified": true
     },
     {
       "source": "tests/test_sql_writes.py:68-82",
@@ -1293,7 +1289,8 @@
           "line": 77,
           "source": "for schema_sql, sql in cases:\n            schema = starting_schema(tree(schema_sql))\n            with self.subTest(sql=sql), self.assertRaises(Rejection):\n                sql_inputs(schema, statements(tree(sql)))"
         }
-      ]
+      ],
+      "collection_verified": true
     },
     {
       "source": "tests/test_sql_writes.py:84-103",
@@ -1323,7 +1320,8 @@
           "line": 95,
           "source": "for sql in (\"INSERT INTO t(id,x,y,z) VALUES(1,2,3,NULL);\",\n                    \"INSERT INTO t(id,x,y,z) VALUES(1,'ok','123',NULL);\",\n                    \"INSERT INTO t(id,x,y,z) VALUES(1,'ok',3,1);\",\n                    \"INSERT INTO t(id,x) VALUES(1,'ok');\",\n                    \"INSERT INTO t(x,id,y,z) VALUES('ok',1,3,NULL);\",\n                    'UPDATE t SET x=1 WHERE id=1;', 'UPDATE t SET missing=NULL WHERE id=1;'):\n            with self.subTest(sql=sql), self.assertRaises(Rejection) as rejected:\n                sql_inputs(schema, statements(tree(sql)))\n            self.assertEqual(rejected.exception.status, 'UNSUPPORTED')"
         }
-      ]
+      ],
+      "collection_verified": true
     },
     {
       "source": "tests/test_translation.py:22-45",
@@ -1354,7 +1352,8 @@
         "self.assertEqual(normalize(\"ÄZ\"), \"Äz\")",
         "self.assertEqual(lean_string('a\\b\\f\"\\\\\\n'), '\"a\\\\u0008\\\\u000c\\\\\"\\\\\\\\\\\\u000a\"')"
       ],
-      "legacy_variants": []
+      "legacy_variants": [],
+      "collection_verified": true
     },
     {
       "source": "tests/test_translation.py:47-74",
@@ -1382,7 +1381,8 @@
           "line": 67,
           "source": "for sql in cases:\n            with self.subTest(sql=sql), self.assertRaises(Rejection) as rejected:\n                statements(tree(sql))\n            self.assertEqual(rejected.exception.status, \"UNSUPPORTED\")"
         }
-      ]
+      ],
+      "collection_verified": true
     },
     {
       "source": "tests/test_translation.py:76-81",
@@ -1403,7 +1403,8 @@
         "self.assertIn('profile mismatch', str(rejected.exception))",
         "self.assertRaises(Rejection)"
       ],
-      "legacy_variants": []
+      "legacy_variants": [],
+      "collection_verified": true
     },
     {
       "source": "tests/test_translation.py:83-88",
@@ -1428,7 +1429,8 @@
           "line": 85,
           "source": "for sql, status in [(\"CREATE TABLE\", \"INPUT_ERROR\"), (\" \" * (1024 * 1024 + 1), \"UNVERIFIED\")]:\n            with self.assertRaises(Rejection) as rejected:\n                tree(sql)\n            self.assertEqual(rejected.exception.status, status)"
         }
-      ]
+      ],
+      "collection_verified": true
     },
     {
       "source": "tests/atuin_cli_test.py:49-72",
@@ -3423,7 +3425,8 @@
           "assert 0 <= node[\"start\"] <= node[\"end\"] <= len(sql), node",
           "assert all(0 <= child < len(nodes) for child in node[\"children\"])"
         ]
-      }
+      },
+      "collection_verified": true
     },
     {
       "source": "tests/parser_test.py:37-37",
@@ -3453,7 +3456,8 @@
           "assert 0 <= node[\"start\"] <= node[\"end\"] <= len(sql), node",
           "assert all(0 <= child < len(nodes) for child in node[\"children\"])"
         ]
-      }
+      },
+      "collection_verified": true
     },
     {
       "source": "tests/parser_test.py:37-37",
@@ -3483,7 +3487,8 @@
           "assert 0 <= node[\"start\"] <= node[\"end\"] <= len(sql), node",
           "assert all(0 <= child < len(nodes) for child in node[\"children\"])"
         ]
-      }
+      },
+      "collection_verified": true
     },
     {
       "source": "tests/parser_test.py:38-38",
@@ -3513,7 +3518,8 @@
           "assert 0 <= node[\"start\"] <= node[\"end\"] <= len(sql), node",
           "assert all(0 <= child < len(nodes) for child in node[\"children\"])"
         ]
-      }
+      },
+      "collection_verified": true
     },
     {
       "source": "tests/parser_test.py:39-39",
@@ -3543,7 +3549,8 @@
           "assert 0 <= node[\"start\"] <= node[\"end\"] <= len(sql), node",
           "assert all(0 <= child < len(nodes) for child in node[\"children\"])"
         ]
-      }
+      },
+      "collection_verified": true
     },
     {
       "source": "tests/parser_test.py:40-40",
@@ -3573,7 +3580,8 @@
           "assert 0 <= node[\"start\"] <= node[\"end\"] <= len(sql), node",
           "assert all(0 <= child < len(nodes) for child in node[\"children\"])"
         ]
-      }
+      },
+      "collection_verified": true
     },
     {
       "source": "tests/parser_test.py:41-41",
@@ -3603,7 +3611,8 @@
           "assert 0 <= node[\"start\"] <= node[\"end\"] <= len(sql), node",
           "assert all(0 <= child < len(nodes) for child in node[\"children\"])"
         ]
-      }
+      },
+      "collection_verified": true
     },
     {
       "source": "tests/parser_test.py:42-42",
@@ -3633,7 +3642,8 @@
           "assert 0 <= node[\"start\"] <= node[\"end\"] <= len(sql), node",
           "assert all(0 <= child < len(nodes) for child in node[\"children\"])"
         ]
-      }
+      },
+      "collection_verified": true
     },
     {
       "source": "tests/parser_test.py:43-43",
@@ -3663,7 +3673,8 @@
           "assert 0 <= node[\"start\"] <= node[\"end\"] <= len(sql), node",
           "assert all(0 <= child < len(nodes) for child in node[\"children\"])"
         ]
-      }
+      },
+      "collection_verified": true
     },
     {
       "source": "tests/parser_test.py:44-44",
@@ -3693,7 +3704,8 @@
           "assert 0 <= node[\"start\"] <= node[\"end\"] <= len(sql), node",
           "assert all(0 <= child < len(nodes) for child in node[\"children\"])"
         ]
-      }
+      },
+      "collection_verified": true
     },
     {
       "source": "tests/parser_test.py:45-45",
@@ -3723,7 +3735,8 @@
           "assert 0 <= node[\"start\"] <= node[\"end\"] <= len(sql), node",
           "assert all(0 <= child < len(nodes) for child in node[\"children\"])"
         ]
-      }
+      },
+      "collection_verified": true
     },
     {
       "source": "tests/parser_test.py:46-46",
@@ -3753,7 +3766,8 @@
           "assert 0 <= node[\"start\"] <= node[\"end\"] <= len(sql), node",
           "assert all(0 <= child < len(nodes) for child in node[\"children\"])"
         ]
-      }
+      },
+      "collection_verified": true
     },
     {
       "source": "tests/parser_test.py:47-47",
@@ -3783,7 +3797,8 @@
           "assert 0 <= node[\"start\"] <= node[\"end\"] <= len(sql), node",
           "assert all(0 <= child < len(nodes) for child in node[\"children\"])"
         ]
-      }
+      },
+      "collection_verified": true
     },
     {
       "source": "tests/parser_test.py:48-48",
@@ -3813,7 +3828,8 @@
           "assert 0 <= node[\"start\"] <= node[\"end\"] <= len(sql), node",
           "assert all(0 <= child < len(nodes) for child in node[\"children\"])"
         ]
-      }
+      },
+      "collection_verified": true
     },
     {
       "source": "tests/parser_test.py:49-49",
@@ -3843,7 +3859,8 @@
           "assert 0 <= node[\"start\"] <= node[\"end\"] <= len(sql), node",
           "assert all(0 <= child < len(nodes) for child in node[\"children\"])"
         ]
-      }
+      },
+      "collection_verified": true
     },
     {
       "source": "tests/parser_test.py:50-50",
@@ -3873,7 +3890,8 @@
           "assert 0 <= node[\"start\"] <= node[\"end\"] <= len(sql), node",
           "assert all(0 <= child < len(nodes) for child in node[\"children\"])"
         ]
-      }
+      },
+      "collection_verified": true
     },
     {
       "source": "tests/parser_test.py:51-51",
@@ -3903,7 +3921,8 @@
           "assert 0 <= node[\"start\"] <= node[\"end\"] <= len(sql), node",
           "assert all(0 <= child < len(nodes) for child in node[\"children\"])"
         ]
-      }
+      },
+      "collection_verified": true
     },
     {
       "source": "tests/parser_test.py:52-52",
@@ -3933,7 +3952,8 @@
           "assert 0 <= node[\"start\"] <= node[\"end\"] <= len(sql), node",
           "assert all(0 <= child < len(nodes) for child in node[\"children\"])"
         ]
-      }
+      },
+      "collection_verified": true
     },
     {
       "source": "tests/parser_test.py:53-53",
@@ -3963,7 +3983,8 @@
           "assert 0 <= node[\"start\"] <= node[\"end\"] <= len(sql), node",
           "assert all(0 <= child < len(nodes) for child in node[\"children\"])"
         ]
-      }
+      },
+      "collection_verified": true
     },
     {
       "source": "tests/parser_test.py:54-54",
@@ -3993,7 +4014,8 @@
           "assert 0 <= node[\"start\"] <= node[\"end\"] <= len(sql), node",
           "assert all(0 <= child < len(nodes) for child in node[\"children\"])"
         ]
-      }
+      },
+      "collection_verified": true
     },
     {
       "source": "tests/parser_test.py:58-58",
@@ -4023,7 +4045,8 @@
           "assert 0 <= node[\"start\"] <= node[\"end\"] <= len(sql), node",
           "assert all(0 <= child < len(nodes) for child in node[\"children\"])"
         ]
-      }
+      },
+      "collection_verified": true
     },
     {
       "source": "tests/parser_test.py:58-58",
@@ -4053,7 +4076,8 @@
           "assert 0 <= node[\"start\"] <= node[\"end\"] <= len(sql), node",
           "assert all(0 <= child < len(nodes) for child in node[\"children\"])"
         ]
-      }
+      },
+      "collection_verified": true
     },
     {
       "source": "tests/parser_test.py:58-58",
@@ -4083,7 +4107,8 @@
           "assert 0 <= node[\"start\"] <= node[\"end\"] <= len(sql), node",
           "assert all(0 <= child < len(nodes) for child in node[\"children\"])"
         ]
-      }
+      },
+      "collection_verified": true
     },
     {
       "source": "tests/parser_test.py:59-59",
@@ -4113,7 +4138,8 @@
           "assert 0 <= node[\"start\"] <= node[\"end\"] <= len(sql), node",
           "assert all(0 <= child < len(nodes) for child in node[\"children\"])"
         ]
-      }
+      },
+      "collection_verified": true
     },
     {
       "source": "tests/parser_test.py:59-59",
@@ -4143,7 +4169,8 @@
           "assert 0 <= node[\"start\"] <= node[\"end\"] <= len(sql), node",
           "assert all(0 <= child < len(nodes) for child in node[\"children\"])"
         ]
-      }
+      },
+      "collection_verified": true
     },
     {
       "source": "tests/parser_test.py:60-60",
@@ -4173,7 +4200,8 @@
           "assert 0 <= node[\"start\"] <= node[\"end\"] <= len(sql), node",
           "assert all(0 <= child < len(nodes) for child in node[\"children\"])"
         ]
-      }
+      },
+      "collection_verified": true
     },
     {
       "source": "tests/parser_test.py:60-60",
@@ -4203,7 +4231,8 @@
           "assert 0 <= node[\"start\"] <= node[\"end\"] <= len(sql), node",
           "assert all(0 <= child < len(nodes) for child in node[\"children\"])"
         ]
-      }
+      },
+      "collection_verified": true
     },
     {
       "source": "tests/parser_test.py:61-61",
@@ -4233,7 +4262,8 @@
           "assert 0 <= node[\"start\"] <= node[\"end\"] <= len(sql), node",
           "assert all(0 <= child < len(nodes) for child in node[\"children\"])"
         ]
-      }
+      },
+      "collection_verified": true
     },
     {
       "source": "tests/parser_test.py:62-62",
@@ -4263,7 +4293,8 @@
           "assert 0 <= node[\"start\"] <= node[\"end\"] <= len(sql), node",
           "assert all(0 <= child < len(nodes) for child in node[\"children\"])"
         ]
-      }
+      },
+      "collection_verified": true
     },
     {
       "source": "tests/parser_test.py:62-62",
@@ -4293,7 +4324,8 @@
           "assert 0 <= node[\"start\"] <= node[\"end\"] <= len(sql), node",
           "assert all(0 <= child < len(nodes) for child in node[\"children\"])"
         ]
-      }
+      },
+      "collection_verified": true
     },
     {
       "source": "tests/parser_test.py:62-62",
@@ -4323,7 +4355,8 @@
           "assert 0 <= node[\"start\"] <= node[\"end\"] <= len(sql), node",
           "assert all(0 <= child < len(nodes) for child in node[\"children\"])"
         ]
-      }
+      },
+      "collection_verified": true
     },
     {
       "source": "tests/parser_test.py:63-63",
@@ -4353,7 +4386,8 @@
           "assert 0 <= node[\"start\"] <= node[\"end\"] <= len(sql), node",
           "assert all(0 <= child < len(nodes) for child in node[\"children\"])"
         ]
-      }
+      },
+      "collection_verified": true
     },
     {
       "source": "tests/parser_test.py:63-63",
@@ -4383,7 +4417,8 @@
           "assert 0 <= node[\"start\"] <= node[\"end\"] <= len(sql), node",
           "assert all(0 <= child < len(nodes) for child in node[\"children\"])"
         ]
-      }
+      },
+      "collection_verified": true
     },
     {
       "source": "tests/parser_test.py:63-63",
@@ -4413,7 +4448,8 @@
           "assert 0 <= node[\"start\"] <= node[\"end\"] <= len(sql), node",
           "assert all(0 <= child < len(nodes) for child in node[\"children\"])"
         ]
-      }
+      },
+      "collection_verified": true
     },
     {
       "source": "tests/parser_test.py:63-63",
@@ -4443,7 +4479,8 @@
           "assert 0 <= node[\"start\"] <= node[\"end\"] <= len(sql), node",
           "assert all(0 <= child < len(nodes) for child in node[\"children\"])"
         ]
-      }
+      },
+      "collection_verified": true
     },
     {
       "source": "tests/parser_test.py:65-65",
@@ -4473,7 +4510,8 @@
           "assert 0 <= node[\"start\"] <= node[\"end\"] <= len(sql), node",
           "assert all(0 <= child < len(nodes) for child in node[\"children\"])"
         ]
-      }
+      },
+      "collection_verified": true
     },
     {
       "source": "tests/parser_test.py:66-73",
@@ -4506,7 +4544,8 @@
           "assert 0 <= node[\"start\"] <= node[\"end\"] <= len(sql), node",
           "assert all(0 <= child < len(nodes) for child in node[\"children\"])"
         ]
-      }
+      },
+      "collection_verified": true
     },
     {
       "source": "tests/parser_test.py:75-76",
@@ -4536,7 +4575,8 @@
           "assert 0 <= node[\"start\"] <= node[\"end\"] <= len(sql), node",
           "assert all(0 <= child < len(nodes) for child in node[\"children\"])"
         ]
-      }
+      },
+      "collection_verified": true
     },
     {
       "source": "tests/parser_test.py:37-37",
@@ -4566,7 +4606,8 @@
           "assert 0 <= node[\"start\"] <= node[\"end\"] <= len(sql), node",
           "assert all(0 <= child < len(nodes) for child in node[\"children\"])"
         ]
-      }
+      },
+      "collection_verified": true
     },
     {
       "source": "tests/parser_test.py:37-37",
@@ -4596,7 +4637,8 @@
           "assert 0 <= node[\"start\"] <= node[\"end\"] <= len(sql), node",
           "assert all(0 <= child < len(nodes) for child in node[\"children\"])"
         ]
-      }
+      },
+      "collection_verified": true
     },
     {
       "source": "tests/parser_test.py:37-37",
@@ -4626,7 +4668,8 @@
           "assert 0 <= node[\"start\"] <= node[\"end\"] <= len(sql), node",
           "assert all(0 <= child < len(nodes) for child in node[\"children\"])"
         ]
-      }
+      },
+      "collection_verified": true
     },
     {
       "source": "tests/parser_test.py:38-38",
@@ -4656,7 +4699,8 @@
           "assert 0 <= node[\"start\"] <= node[\"end\"] <= len(sql), node",
           "assert all(0 <= child < len(nodes) for child in node[\"children\"])"
         ]
-      }
+      },
+      "collection_verified": true
     },
     {
       "source": "tests/parser_test.py:39-39",
@@ -4686,7 +4730,8 @@
           "assert 0 <= node[\"start\"] <= node[\"end\"] <= len(sql), node",
           "assert all(0 <= child < len(nodes) for child in node[\"children\"])"
         ]
-      }
+      },
+      "collection_verified": true
     },
     {
       "source": "tests/parser_test.py:40-40",
@@ -4716,7 +4761,8 @@
           "assert 0 <= node[\"start\"] <= node[\"end\"] <= len(sql), node",
           "assert all(0 <= child < len(nodes) for child in node[\"children\"])"
         ]
-      }
+      },
+      "collection_verified": true
     },
     {
       "source": "tests/parser_test.py:41-41",
@@ -4746,7 +4792,8 @@
           "assert 0 <= node[\"start\"] <= node[\"end\"] <= len(sql), node",
           "assert all(0 <= child < len(nodes) for child in node[\"children\"])"
         ]
-      }
+      },
+      "collection_verified": true
     },
     {
       "source": "tests/parser_test.py:42-42",
@@ -4776,7 +4823,8 @@
           "assert 0 <= node[\"start\"] <= node[\"end\"] <= len(sql), node",
           "assert all(0 <= child < len(nodes) for child in node[\"children\"])"
         ]
-      }
+      },
+      "collection_verified": true
     },
     {
       "source": "tests/parser_test.py:43-43",
@@ -4806,7 +4854,8 @@
           "assert 0 <= node[\"start\"] <= node[\"end\"] <= len(sql), node",
           "assert all(0 <= child < len(nodes) for child in node[\"children\"])"
         ]
-      }
+      },
+      "collection_verified": true
     },
     {
       "source": "tests/parser_test.py:44-44",
@@ -4836,7 +4885,8 @@
           "assert 0 <= node[\"start\"] <= node[\"end\"] <= len(sql), node",
           "assert all(0 <= child < len(nodes) for child in node[\"children\"])"
         ]
-      }
+      },
+      "collection_verified": true
     },
     {
       "source": "tests/parser_test.py:45-45",
@@ -4866,7 +4916,8 @@
           "assert 0 <= node[\"start\"] <= node[\"end\"] <= len(sql), node",
           "assert all(0 <= child < len(nodes) for child in node[\"children\"])"
         ]
-      }
+      },
+      "collection_verified": true
     },
     {
       "source": "tests/parser_test.py:46-46",
@@ -4896,7 +4947,8 @@
           "assert 0 <= node[\"start\"] <= node[\"end\"] <= len(sql), node",
           "assert all(0 <= child < len(nodes) for child in node[\"children\"])"
         ]
-      }
+      },
+      "collection_verified": true
     },
     {
       "source": "tests/parser_test.py:47-47",
@@ -4926,7 +4978,8 @@
           "assert 0 <= node[\"start\"] <= node[\"end\"] <= len(sql), node",
           "assert all(0 <= child < len(nodes) for child in node[\"children\"])"
         ]
-      }
+      },
+      "collection_verified": true
     },
     {
       "source": "tests/parser_test.py:48-48",
@@ -4956,7 +5009,8 @@
           "assert 0 <= node[\"start\"] <= node[\"end\"] <= len(sql), node",
           "assert all(0 <= child < len(nodes) for child in node[\"children\"])"
         ]
-      }
+      },
+      "collection_verified": true
     },
     {
       "source": "tests/parser_test.py:49-49",
@@ -4986,7 +5040,8 @@
           "assert 0 <= node[\"start\"] <= node[\"end\"] <= len(sql), node",
           "assert all(0 <= child < len(nodes) for child in node[\"children\"])"
         ]
-      }
+      },
+      "collection_verified": true
     },
     {
       "source": "tests/parser_test.py:50-50",
@@ -5016,7 +5071,8 @@
           "assert 0 <= node[\"start\"] <= node[\"end\"] <= len(sql), node",
           "assert all(0 <= child < len(nodes) for child in node[\"children\"])"
         ]
-      }
+      },
+      "collection_verified": true
     },
     {
       "source": "tests/parser_test.py:51-51",
@@ -5046,7 +5102,8 @@
           "assert 0 <= node[\"start\"] <= node[\"end\"] <= len(sql), node",
           "assert all(0 <= child < len(nodes) for child in node[\"children\"])"
         ]
-      }
+      },
+      "collection_verified": true
     },
     {
       "source": "tests/parser_test.py:52-52",
@@ -5076,7 +5133,8 @@
           "assert 0 <= node[\"start\"] <= node[\"end\"] <= len(sql), node",
           "assert all(0 <= child < len(nodes) for child in node[\"children\"])"
         ]
-      }
+      },
+      "collection_verified": true
     },
     {
       "source": "tests/parser_test.py:53-53",
@@ -5106,7 +5164,8 @@
           "assert 0 <= node[\"start\"] <= node[\"end\"] <= len(sql), node",
           "assert all(0 <= child < len(nodes) for child in node[\"children\"])"
         ]
-      }
+      },
+      "collection_verified": true
     },
     {
       "source": "tests/parser_test.py:54-54",
@@ -5136,7 +5195,8 @@
           "assert 0 <= node[\"start\"] <= node[\"end\"] <= len(sql), node",
           "assert all(0 <= child < len(nodes) for child in node[\"children\"])"
         ]
-      }
+      },
+      "collection_verified": true
     },
     {
       "source": "tests/parser_test.py:58-58",
@@ -5166,7 +5226,8 @@
           "assert 0 <= node[\"start\"] <= node[\"end\"] <= len(sql), node",
           "assert all(0 <= child < len(nodes) for child in node[\"children\"])"
         ]
-      }
+      },
+      "collection_verified": true
     },
     {
       "source": "tests/parser_test.py:58-58",
@@ -5196,7 +5257,8 @@
           "assert 0 <= node[\"start\"] <= node[\"end\"] <= len(sql), node",
           "assert all(0 <= child < len(nodes) for child in node[\"children\"])"
         ]
-      }
+      },
+      "collection_verified": true
     },
     {
       "source": "tests/parser_test.py:58-58",
@@ -5226,7 +5288,8 @@
           "assert 0 <= node[\"start\"] <= node[\"end\"] <= len(sql), node",
           "assert all(0 <= child < len(nodes) for child in node[\"children\"])"
         ]
-      }
+      },
+      "collection_verified": true
     },
     {
       "source": "tests/parser_test.py:59-59",
@@ -5256,7 +5319,8 @@
           "assert 0 <= node[\"start\"] <= node[\"end\"] <= len(sql), node",
           "assert all(0 <= child < len(nodes) for child in node[\"children\"])"
         ]
-      }
+      },
+      "collection_verified": true
     },
     {
       "source": "tests/parser_test.py:59-59",
@@ -5286,7 +5350,8 @@
           "assert 0 <= node[\"start\"] <= node[\"end\"] <= len(sql), node",
           "assert all(0 <= child < len(nodes) for child in node[\"children\"])"
         ]
-      }
+      },
+      "collection_verified": true
     },
     {
       "source": "tests/parser_test.py:60-60",
@@ -5316,7 +5381,8 @@
           "assert 0 <= node[\"start\"] <= node[\"end\"] <= len(sql), node",
           "assert all(0 <= child < len(nodes) for child in node[\"children\"])"
         ]
-      }
+      },
+      "collection_verified": true
     },
     {
       "source": "tests/parser_test.py:60-60",
@@ -5346,7 +5412,8 @@
           "assert 0 <= node[\"start\"] <= node[\"end\"] <= len(sql), node",
           "assert all(0 <= child < len(nodes) for child in node[\"children\"])"
         ]
-      }
+      },
+      "collection_verified": true
     },
     {
       "source": "tests/parser_test.py:61-61",
@@ -5376,7 +5443,8 @@
           "assert 0 <= node[\"start\"] <= node[\"end\"] <= len(sql), node",
           "assert all(0 <= child < len(nodes) for child in node[\"children\"])"
         ]
-      }
+      },
+      "collection_verified": true
     },
     {
       "source": "tests/parser_test.py:62-62",
@@ -5406,7 +5474,8 @@
           "assert 0 <= node[\"start\"] <= node[\"end\"] <= len(sql), node",
           "assert all(0 <= child < len(nodes) for child in node[\"children\"])"
         ]
-      }
+      },
+      "collection_verified": true
     },
     {
       "source": "tests/parser_test.py:62-62",
@@ -5436,7 +5505,8 @@
           "assert 0 <= node[\"start\"] <= node[\"end\"] <= len(sql), node",
           "assert all(0 <= child < len(nodes) for child in node[\"children\"])"
         ]
-      }
+      },
+      "collection_verified": true
     },
     {
       "source": "tests/parser_test.py:62-62",
@@ -5466,7 +5536,8 @@
           "assert 0 <= node[\"start\"] <= node[\"end\"] <= len(sql), node",
           "assert all(0 <= child < len(nodes) for child in node[\"children\"])"
         ]
-      }
+      },
+      "collection_verified": true
     },
     {
       "source": "tests/parser_test.py:63-63",
@@ -5496,7 +5567,8 @@
           "assert 0 <= node[\"start\"] <= node[\"end\"] <= len(sql), node",
           "assert all(0 <= child < len(nodes) for child in node[\"children\"])"
         ]
-      }
+      },
+      "collection_verified": true
     },
     {
       "source": "tests/parser_test.py:63-63",
@@ -5526,7 +5598,8 @@
           "assert 0 <= node[\"start\"] <= node[\"end\"] <= len(sql), node",
           "assert all(0 <= child < len(nodes) for child in node[\"children\"])"
         ]
-      }
+      },
+      "collection_verified": true
     },
     {
       "source": "tests/parser_test.py:63-63",
@@ -5556,7 +5629,8 @@
           "assert 0 <= node[\"start\"] <= node[\"end\"] <= len(sql), node",
           "assert all(0 <= child < len(nodes) for child in node[\"children\"])"
         ]
-      }
+      },
+      "collection_verified": true
     },
     {
       "source": "tests/parser_test.py:63-63",
@@ -5586,7 +5660,8 @@
           "assert 0 <= node[\"start\"] <= node[\"end\"] <= len(sql), node",
           "assert all(0 <= child < len(nodes) for child in node[\"children\"])"
         ]
-      }
+      },
+      "collection_verified": true
     },
     {
       "source": "tests/parser_test.py:65-65",
@@ -5616,7 +5691,8 @@
           "assert 0 <= node[\"start\"] <= node[\"end\"] <= len(sql), node",
           "assert all(0 <= child < len(nodes) for child in node[\"children\"])"
         ]
-      }
+      },
+      "collection_verified": true
     },
     {
       "source": "tests/parser_test.py:66-73",
@@ -5649,7 +5725,8 @@
           "assert 0 <= node[\"start\"] <= node[\"end\"] <= len(sql), node",
           "assert all(0 <= child < len(nodes) for child in node[\"children\"])"
         ]
-      }
+      },
+      "collection_verified": true
     },
     {
       "source": "tests/parser_test.py:75-76",
@@ -5679,7 +5756,8 @@
           "assert 0 <= node[\"start\"] <= node[\"end\"] <= len(sql), node",
           "assert all(0 <= child < len(nodes) for child in node[\"children\"])"
         ]
-      }
+      },
+      "collection_verified": true
     },
     {
       "source": "tests/parser_build_test.py:175-180",
@@ -5698,7 +5776,9 @@
       ],
       "assertions": [
         "Unchanged pinned parser build must invoke no build tool"
-      ]
+      ],
+      "runtime_scope": "source-build-only: requires source parser stamps and pinned compiler; does not use immutable --runtime-root",
+      "collection_verified": true
     },
     {
       "source": "tests/parser_build_test.py:175-180",
@@ -5717,7 +5797,9 @@
       ],
       "assertions": [
         "Unchanged pinned parser build must invoke no build tool"
-      ]
+      ],
+      "runtime_scope": "source-build-only: requires source parser stamps and pinned compiler; does not use immutable --runtime-root",
+      "collection_verified": true
     },
     {
       "source": "tests/toolchain_smoke.py:16-17",
@@ -5735,7 +5817,13 @@
       ],
       "assertions": [
         "assert f\"version {expected_lean},\" in run(\"lean\", \"--version\")"
-      ]
+      ],
+      "resource_arguments": {
+        "requires_lean": [
+          "compiler"
+        ]
+      },
+      "collection_verified": true
     },
     {
       "source": "tests/toolchain_smoke.py:18-18",
@@ -5753,7 +5841,13 @@
       ],
       "assertions": [
         "assert expected_lean in run(\"lake\", \"--version\")"
-      ]
+      ],
+      "resource_arguments": {
+        "requires_lean": [
+          "compiler"
+        ]
+      },
+      "collection_verified": true
     },
     {
       "source": "tests/toolchain_smoke.py:19-23",
@@ -5772,7 +5866,8 @@
       "assertions": [
         "assert run(\"sqlite3\", \":memory:\", \"SELECT sqlite_version();\") == \"3.51.0\"",
         "assert run(\"sqlite3\", \":memory:\", \"SELECT sqlite_source_id();\") == (\n        \"2025-11-04 19:38:17 \"\n        \"fb2c931ae597f8d00a37574ff67aeed3eced4e5547f9120744ae4bfa8e74527b\"\n    )"
-      ]
+      ],
+      "collection_verified": true
     },
     {
       "source": "tests/toolchain_smoke.py:24-31",
@@ -5790,7 +5885,8 @@
       ],
       "assertions": [
         "assert result == \"7|retained|1\", result"
-      ]
+      ],
+      "collection_verified": true
     },
     {
       "source": "tests/toolchain_smoke.py:32-36",
@@ -5809,7 +5905,8 @@
       "assertions": [
         "assert run(\"sqlite3-3.46.0\", \":memory:\", \"SELECT sqlite_version();\") == \"3.46.0\"",
         "assert run(\"sqlite3-3.46.0\", \":memory:\", \"SELECT sqlite_source_id();\") == (\n        \"2024-05-23 13:25:27 \"\n        \"96c92aba00c8375bc32fafcdf12429c58bd8aabfcadab6683e35bbb9cdebf19e\"\n    )"
-      ]
+      ],
+      "collection_verified": true
     },
     {
       "source": "tests/environment_snapshot_test.py:36-55",
@@ -5836,7 +5933,8 @@
           "assert {entry.name for entry in source.iterdir()} == {'flake.nix', 'flake.lock'}",
           "assert info['narSize'] < MAX_ENVIRONMENT_BYTES, info"
         ]
-      }
+      },
+      "collection_verified": true
     },
     {
       "source": "tests/environment_snapshot_test.py:36-55",
@@ -5863,7 +5961,8 @@
           "assert {entry.name for entry in source.iterdir()} == {'flake.nix', 'flake.lock'}",
           "assert info['narSize'] < MAX_ENVIRONMENT_BYTES, info"
         ]
-      }
+      },
+      "collection_verified": true
     },
     {
       "source": "tests/docs_test.py:24-29",
@@ -5877,7 +5976,8 @@
       "resources": [],
       "assertions": [
         "broken_links(ROOT) is empty; external URLs and anchors intentionally excluded"
-      ]
+      ],
+      "collection_verified": true
     },
     {
       "source": "tests/schema_generation_test.py:22-29",
@@ -5888,17 +5988,16 @@
       ],
       "level": "integration",
       "concerns": [
-        "parser",
-        "kernel"
+        "parser"
       ],
       "resources": [
-        "requires_native",
-        "requires_lean"
+        "requires_native"
       ],
       "assertions": [
         "assert emissions[0].replace(\".sqlite351\", \".sqlite346\") == emissions[1], \"Shared syntax changed meaning\"",
         "Lean examples in source range must kernel-check, including exact schema metadata/profile/script/data outcomes"
-      ]
+      ],
+      "collection_verified": true
     },
     {
       "source": "tests/schema_generation_test.py:36-50",
@@ -5909,17 +6008,18 @@
       ],
       "level": "integration",
       "concerns": [
-        "parser",
-        "kernel"
+        "kernel",
+        "parser"
       ],
       "resources": [
-        "requires_native",
-        "requires_lean"
+        "requires_lean",
+        "requires_native"
       ],
       "assertions": [
         "assert result.returncode == 0, result.stdout + result.stderr",
         "Lean examples in source range must kernel-check, including exact schema metadata/profile/script/data outcomes"
-      ]
+      ],
+      "collection_verified": true
     },
     {
       "source": "tests/schema_generation_test.py:30-64",
@@ -5930,18 +6030,19 @@
       ],
       "level": "integration",
       "concerns": [
-        "parser",
-        "kernel"
+        "kernel",
+        "parser"
       ],
       "resources": [
-        "requires_native",
-        "requires_lean"
+        "requires_lean",
+        "requires_native"
       ],
       "assertions": [
         "assert result.returncode == 0, result.stdout + result.stderr",
         "assert result.returncode == 0, result.stdout + result.stderr",
         "Lean examples in source range must kernel-check, including exact schema metadata/profile/script/data outcomes"
-      ]
+      ],
+      "collection_verified": true
     },
     {
       "source": "tests/runtime_package_test.py:24-47",
@@ -6084,9 +6185,7 @@
       "concerns": [
         "conformance"
       ],
-      "resources": [
-        "requires_native"
-      ],
+      "resources": [],
       "assertions": [
         "assert fixture == json.loads((ROOT / \"conformance/fixtures/alter3-add-null.json\").read_text())",
         "assert [(case[\"upstream_id\"], case[\"occurrence\"]) for case in cases] == [\n        (\"alter3-3.1\", 1), (\"alter3-3.1\", 2), (\"alter3-3.2\", 1)]",
@@ -6094,7 +6193,8 @@
         "assert hashlib.sha256((upstream / name).read_bytes()).hexdigest() == digest, name",
         "assert case[\"sql\"] in selected and case[\"expected_tcl\"] in selected",
         "Fixture import subprocess is bounded and byte-equivalent to checked-in JSON; preserved source spans, expectation order and exact denominators"
-      ]
+      ],
+      "collection_verified": true
     },
     {
       "source": "tests/conformance_native_test.py:37-46",
@@ -6118,7 +6218,14 @@
         "assert [(row[\"type\"], row[\"name\"]) for row in schema] == [(\"table\", \"t1\"), (\"view\", \"v1\")]",
         "assert report[\"coverage\"] == {\"selected_call_instances\": 3, \"selected_distinct_ids\": 2,\n                                   \"upstream_textual_call_sites\": 59, \"upstream_distinct_textual_ids\": 55}",
         "Fixture import subprocess is bounded and byte-equivalent to checked-in JSON; preserved source spans, expectation order and exact denominators"
-      ]
+      ],
+      "resource_arguments": {
+        "requires_native": [
+          "sqlite-parser",
+          "sqlite3"
+        ]
+      },
+      "collection_verified": true
     },
     {
       "source": "tests/conformance_native_test.py:24-36",
@@ -6141,7 +6248,14 @@
         "assert report[\"model_status\"] == \"NOT_YET_MODEL_CHECKED\"",
         "assert case[\"sql\"] in selected and case[\"expected_tcl\"] in selected",
         "Replay prerequisite setup and preceding calls independently; parser PARSED; flat Tcl values equal upstream expected_flat; pinned engine source and MAX_COLUMN=2000/DQS=0; model and translation explicitly NOT_YET"
-      ]
+      ],
+      "resource_arguments": {
+        "requires_native": [
+          "sqlite-parser",
+          "sqlite3"
+        ]
+      },
+      "collection_verified": true
     },
     {
       "source": "tests/conformance_native_test.py:24-36",
@@ -6164,7 +6278,14 @@
         "assert report[\"model_status\"] == \"NOT_YET_MODEL_CHECKED\"",
         "assert case[\"sql\"] in selected and case[\"expected_tcl\"] in selected",
         "Replay prerequisite setup and preceding calls independently; parser PARSED; flat Tcl values equal upstream expected_flat; pinned engine source and MAX_COLUMN=2000/DQS=0; model and translation explicitly NOT_YET"
-      ]
+      ],
+      "resource_arguments": {
+        "requires_native": [
+          "sqlite-parser",
+          "sqlite3"
+        ]
+      },
+      "collection_verified": true
     },
     {
       "source": "tests/conformance_native_test.py:24-36",
@@ -6187,7 +6308,14 @@
         "assert report[\"model_status\"] == \"NOT_YET_MODEL_CHECKED\"",
         "assert case[\"sql\"] in selected and case[\"expected_tcl\"] in selected",
         "Replay prerequisite setup and preceding calls independently; parser PARSED; flat Tcl values equal upstream expected_flat; pinned engine source and MAX_COLUMN=2000/DQS=0; model and translation explicitly NOT_YET"
-      ]
+      ],
+      "resource_arguments": {
+        "requires_native": [
+          "sqlite-parser",
+          "sqlite3"
+        ]
+      },
+      "collection_verified": true
     },
     {
       "source": "tests/conformance_model_test.py:25-30",
@@ -6199,12 +6327,12 @@
       "level": "integration",
       "concerns": [
         "conformance",
-        "parser",
-        "kernel"
+        "kernel",
+        "parser"
       ],
       "resources": [
-        "requires_native",
-        "requires_lean"
+        "requires_lean",
+        "requires_native"
       ],
       "assertions": [
         "assert [report[\"case\"] for report in reports] == [case.name for case in cases()]",
@@ -6212,7 +6340,14 @@
         "assert all(report[\"model_status\"] == \"KERNEL_CHECKED_CONCRETE_ASSERTIONS\" for report in reports)",
         "assert all(report[\"translation_status\"] == \"PRODUCTION_PIPELINE\" for report in reports)",
         "conformance/model_cases.py provides independent before/after rows and error index; native exact columns/rows/error agree; production parser+translation; Lean assertions succeed without sorryAx or Lean.ofReduceBool; pinned engine/options"
-      ]
+      ],
+      "resource_arguments": {
+        "requires_native": [
+          "sqlite-parser",
+          "sqlite3"
+        ]
+      },
+      "collection_verified": true
     },
     {
       "source": "tests/conformance_model_test.py:25-30",
@@ -6224,12 +6359,12 @@
       "level": "integration",
       "concerns": [
         "conformance",
-        "parser",
-        "kernel"
+        "kernel",
+        "parser"
       ],
       "resources": [
-        "requires_native",
-        "requires_lean"
+        "requires_lean",
+        "requires_native"
       ],
       "assertions": [
         "assert [report[\"case\"] for report in reports] == [case.name for case in cases()]",
@@ -6237,7 +6372,14 @@
         "assert all(report[\"model_status\"] == \"KERNEL_CHECKED_CONCRETE_ASSERTIONS\" for report in reports)",
         "assert all(report[\"translation_status\"] == \"PRODUCTION_PIPELINE\" for report in reports)",
         "conformance/model_cases.py provides independent before/after rows and error index; native exact columns/rows/error agree; production parser+translation; Lean assertions succeed without sorryAx or Lean.ofReduceBool; pinned engine/options"
-      ]
+      ],
+      "resource_arguments": {
+        "requires_native": [
+          "sqlite-parser",
+          "sqlite3"
+        ]
+      },
+      "collection_verified": true
     },
     {
       "source": "tests/conformance_model_test.py:25-30",
@@ -6249,12 +6391,12 @@
       "level": "integration",
       "concerns": [
         "conformance",
-        "parser",
-        "kernel"
+        "kernel",
+        "parser"
       ],
       "resources": [
-        "requires_native",
-        "requires_lean"
+        "requires_lean",
+        "requires_native"
       ],
       "assertions": [
         "assert [report[\"case\"] for report in reports] == [case.name for case in cases()]",
@@ -6262,7 +6404,14 @@
         "assert all(report[\"model_status\"] == \"KERNEL_CHECKED_CONCRETE_ASSERTIONS\" for report in reports)",
         "assert all(report[\"translation_status\"] == \"PRODUCTION_PIPELINE\" for report in reports)",
         "conformance/model_cases.py provides independent before/after rows and error index; native exact columns/rows/error agree; production parser+translation; Lean assertions succeed without sorryAx or Lean.ofReduceBool; pinned engine/options"
-      ]
+      ],
+      "resource_arguments": {
+        "requires_native": [
+          "sqlite-parser",
+          "sqlite3"
+        ]
+      },
+      "collection_verified": true
     },
     {
       "source": "tests/conformance_model_test.py:25-30",
@@ -6274,12 +6423,12 @@
       "level": "integration",
       "concerns": [
         "conformance",
-        "parser",
-        "kernel"
+        "kernel",
+        "parser"
       ],
       "resources": [
-        "requires_native",
-        "requires_lean"
+        "requires_lean",
+        "requires_native"
       ],
       "assertions": [
         "assert [report[\"case\"] for report in reports] == [case.name for case in cases()]",
@@ -6287,7 +6436,14 @@
         "assert all(report[\"model_status\"] == \"KERNEL_CHECKED_CONCRETE_ASSERTIONS\" for report in reports)",
         "assert all(report[\"translation_status\"] == \"PRODUCTION_PIPELINE\" for report in reports)",
         "conformance/model_cases.py provides independent before/after rows and error index; native exact columns/rows/error agree; production parser+translation; Lean assertions succeed without sorryAx or Lean.ofReduceBool; pinned engine/options"
-      ]
+      ],
+      "resource_arguments": {
+        "requires_native": [
+          "sqlite-parser",
+          "sqlite3"
+        ]
+      },
+      "collection_verified": true
     },
     {
       "source": "tests/conformance_model_test.py:25-30",
@@ -6299,12 +6455,12 @@
       "level": "integration",
       "concerns": [
         "conformance",
-        "parser",
-        "kernel"
+        "kernel",
+        "parser"
       ],
       "resources": [
-        "requires_native",
-        "requires_lean"
+        "requires_lean",
+        "requires_native"
       ],
       "assertions": [
         "assert [report[\"case\"] for report in reports] == [case.name for case in cases()]",
@@ -6312,7 +6468,14 @@
         "assert all(report[\"model_status\"] == \"KERNEL_CHECKED_CONCRETE_ASSERTIONS\" for report in reports)",
         "assert all(report[\"translation_status\"] == \"PRODUCTION_PIPELINE\" for report in reports)",
         "conformance/model_cases.py provides independent before/after rows and error index; native exact columns/rows/error agree; production parser+translation; Lean assertions succeed without sorryAx or Lean.ofReduceBool; pinned engine/options"
-      ]
+      ],
+      "resource_arguments": {
+        "requires_native": [
+          "sqlite-parser",
+          "sqlite3"
+        ]
+      },
+      "collection_verified": true
     },
     {
       "source": "tests/conformance_model_test.py:31-43",
@@ -6324,16 +6487,23 @@
       "level": "integration",
       "concerns": [
         "conformance",
-        "kernel"
+        "kernel",
+        "parser"
       ],
       "resources": [
-        "requires_native",
-        "requires_lean"
+        "requires_lean",
+        "requires_native"
       ],
       "assertions": [
         "assert rejected.returncode != 0, \"False empty-target expectation received an accepted proof\"",
         "assert \"false\" in rejected.stdout.lower(), rejected.stdout + rejected.stderr"
-      ]
+      ],
+      "resource_arguments": {
+        "requires_native": [
+          "sqlite-parser"
+        ]
+      },
+      "collection_verified": true
     },
     {
       "source": "tests/atuin_sql_test.py:13-17",
@@ -6352,7 +6522,13 @@
       ],
       "assertions": [
         "conformance/atuin_sql_check.py: exact 3.46.0 source identity; before history == after history == independent native_rows(0/1/3); integrity before/after ok; exact schema/migration SHA256 receipts and native-only status"
-      ]
+      ],
+      "resource_arguments": {
+        "requires_native": [
+          "sqlite3-3.46.0"
+        ]
+      },
+      "collection_verified": true
     },
     {
       "source": "tests/atuin_sql_test.py:13-17",
@@ -6371,7 +6547,13 @@
       ],
       "assertions": [
         "conformance/atuin_sql_check.py: exact 3.46.0 source identity; before history == after history == independent native_rows(0/1/3); integrity before/after ok; exact schema/migration SHA256 receipts and native-only status"
-      ]
+      ],
+      "resource_arguments": {
+        "requires_native": [
+          "sqlite3-3.46.0"
+        ]
+      },
+      "collection_verified": true
     },
     {
       "source": "tests/atuin_sql_test.py:13-17",
@@ -6390,7 +6572,13 @@
       ],
       "assertions": [
         "conformance/atuin_sql_check.py: exact 3.46.0 source identity; before history == after history == independent native_rows(0/1/3); integrity before/after ok; exact schema/migration SHA256 receipts and native-only status"
-      ]
+      ],
+      "resource_arguments": {
+        "requires_native": [
+          "sqlite3-3.46.0"
+        ]
+      },
+      "collection_verified": true
     },
     {
       "source": "conformance/coverage_report.py:18-36",
@@ -6486,6 +6674,133 @@
       "assertions": [
         "Fresh evidence receipts only; exact unique upstream/model/Atuin denominators and required statuses; JSON written even on bounded command failure; exit nonzero on any failed evidence; reuse same case execution receipts without duplicate suite execution"
       ]
+    },
+    {
+      "source": "tests/test_sandbox.py:18-113",
+      "legacy": "Actual input/output/private/network/credential isolation",
+      "node_id": "tests/test_sandbox.py::test_isolation",
+      "runtimes": [
+        "source"
+      ],
+      "level": "integration",
+      "concerns": [
+        "environment"
+      ],
+      "resources": [
+        "requires_sandbox"
+      ],
+      "assertions": [
+        "Input and symlink alias read approved; protected write denied and original bytes unchanged; private read denied; live network denied; GITHUB_TOKEN absent; writable output created; sandbox exit 0"
+      ],
+      "collection_verified": true
+    },
+    {
+      "source": "tests/test_sandbox.py:18-113",
+      "legacy": "Writable output overlaps readable parent",
+      "node_id": "tests/test_sandbox.py::test_overlapping_roots_rejected[read_parent]",
+      "runtimes": [
+        "source"
+      ],
+      "level": "unit",
+      "concerns": [
+        "environment"
+      ],
+      "resources": [],
+      "assertions": [
+        "sandbox_command raises ValueError containing disjoint before backend selection"
+      ],
+      "collection_verified": true
+    },
+    {
+      "source": "tests/test_sandbox.py:18-113",
+      "legacy": "Readable input overlaps writable parent",
+      "node_id": "tests/test_sandbox.py::test_overlapping_roots_rejected[write_parent]",
+      "runtimes": [
+        "source"
+      ],
+      "level": "unit",
+      "concerns": [
+        "environment"
+      ],
+      "resources": [],
+      "assertions": [
+        "sandbox_command raises ValueError containing disjoint before backend selection"
+      ],
+      "collection_verified": true
+    },
+    {
+      "source": "tests/test_sandbox.py:18-113",
+      "legacy": "Ambient Python import setting rejected",
+      "node_id": "tests/test_sandbox.py::test_untrusted_environment_rejected",
+      "runtimes": [
+        "source"
+      ],
+      "level": "unit",
+      "concerns": [
+        "environment"
+      ],
+      "resources": [],
+      "assertions": [
+        "run_sandboxed raises ValueError containing Only trusted Lean before execution"
+      ],
+      "collection_verified": true
+    },
+    {
+      "source": "tests/test_sandbox.py:18-113",
+      "legacy": "Flooded stdout is bounded",
+      "node_id": "tests/test_sandbox.py::test_output_limit",
+      "runtimes": [
+        "source"
+      ],
+      "level": "integration",
+      "concerns": [
+        "environment"
+      ],
+      "resources": [
+        "requires_sandbox"
+      ],
+      "assertions": [
+        "Noisy child exits nonzero and captured stdout length equals 1024*1024"
+      ],
+      "collection_verified": true
+    },
+    {
+      "source": "tests/test_sandbox.py:18-113",
+      "legacy": "Nonterminating child deadline",
+      "node_id": "tests/test_sandbox.py::test_timeout",
+      "runtimes": [
+        "source"
+      ],
+      "level": "integration",
+      "concerns": [
+        "environment"
+      ],
+      "resources": [
+        "requires_sandbox"
+      ],
+      "assertions": [
+        "run_sandboxed raises subprocess.TimeoutExpired at 0.5-second timeout"
+      ],
+      "collection_verified": true
+    },
+    {
+      "source": "tests/test_sandbox.py:18-113",
+      "legacy": "Platform-specific child cleanup",
+      "node_id": "tests/test_sandbox.py::test_fork_containment",
+      "runtimes": [
+        "source"
+      ],
+      "level": "integration",
+      "concerns": [
+        "environment"
+      ],
+      "resources": [
+        "requires_sandbox"
+      ],
+      "assertions": [
+        "Darwin os.fork raises PermissionError; Linux escaped session child starts but cannot write leaked marker after timeout and bounded wait"
+      ],
+      "collection_verified": true
     }
   ],
   "fixture_contracts": {
@@ -6493,5 +6808,11 @@
     "cli_baseline": "A case needing inputs.json performs its own successful baseline verification as fixture setup, retaining status/exit/artifact assertions; no dependency on earlier selected case.",
     "native_upstream": "Each selected occurrence gets connection setup + prerequisite SQL + earlier calls in order; final observation assertion retains complete state/schema cookie/view set.",
     "installed": "Fresh real archive installation; literal spaces path; child PATH=/usr/bin:/bin and poisoned Python/Lean settings; Nix roots preserved; fixture shared only while immutable."
+  },
+  "collection_checks": {
+    "converted_case_count": 159,
+    "result": "all converted IDs exactly match actual pytest collection; shared harness additions owned by root",
+    "command": "python3 -m pytest --collect-only --catalog-json /tmp/adr1-converted-catalog.json <converted modules>",
+    "runtime_build_required": false
   }
 }

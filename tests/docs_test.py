@@ -2,6 +2,7 @@
 
 from pathlib import Path
 import re
+
 from urllib.parse import unquote, urlsplit
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -22,8 +23,13 @@ def broken_links(root: Path) -> list[str]:
     return errors
 
 
-if __name__ == "__main__":
+def test_local_markdown_links() -> None:
+    """Every authored local Markdown destination resolves to an existing file."""
     failures = broken_links(ROOT)
     if failures:
         raise SystemExit("\n".join(failures))
     print("Authored Markdown local file links resolve; external URLs/anchors are not checked.")
+
+
+if __name__ == "__main__":
+    test_local_markdown_links()
