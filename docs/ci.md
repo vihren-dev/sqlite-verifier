@@ -1,5 +1,12 @@
 # Continuous integration
 
+[ADR 0001](adr-0001-pytest-and-nix-ci.md), accepted on 2026-09-28, authorizes
+immutable project-build and pure-unit-result caching with compatible prefix
+restoration, subject to its correctness and performance gates. Implementation is
+[in progress](../plans/20260928-pytest-nix-builds.status.md). The description below
+records the deployed dependency-only workflow until that rollout; final proof
+verdicts and host acceptance checks must continue to run freshly.
+
 `.github/workflows/ci.yml` runs on pull requests, pushes to `main`, and manual
 requests. The two required `Check` jobs remain present for every run. Their
 scope is selected from the complete changed-path list by `tests/ci_scope.py`:

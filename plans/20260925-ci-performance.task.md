@@ -2,6 +2,11 @@
 
 Created: 2026-09-25. Status: DONE (2026-09-28).
 
+Supersession (2026-09-28): accepted [ADR 0001](../docs/adr-0001-pytest-and-nix-ci.md)
+authorizes immutable project-build and pure-unit-result caching subject to new
+correctness and measurement gates. The dependency-only restriction below records
+this completed task's scope; fresh proof verdicts and host acceptance remain required.
+
 ## Required outcome
 
 Complete Linux and macOS CI retains every source, independent kernel, native/model,

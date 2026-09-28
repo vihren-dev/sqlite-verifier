@@ -1,8 +1,9 @@
 # ADR 0001: Discoverable pytest cases and Nix build caching
 
-- Status: Proposed
+- Status: Accepted; implementation in progress
 - Date: 2026-09-26
 - Updated: 2026-09-28
+- Accepted: 2026-09-28 by the product owner
 - Repository examined: `2e173c7aa6adca5f4ba4292cba172f8c11a144f7`
 - Decision owner: technical lead; product owner accepts changes to test coverage
 - Related proposal: ADR 0002, compile-project caching (separate draft)
@@ -20,15 +21,15 @@ in section 4.2. Project build reuse does not authorize reuse of verification ver
 Each test scenario must be implemented as a separate pytest test
 case. CI should avoid rebuilding unchanged components and rerunning eligible pure
 unit checks, while preserving every scenario and the fresh-execution requirements
-above. This ADR remains a proposal; the recent CI optimizations have not implemented
-pytest discovery or Nix derivations for project builds.
+above. The product owner accepted this ADR on 2026-09-28. Implementation is tracked
+in the [task](../plans/20260928-pytest-nix-builds.task.md) and
+[status](../plans/20260928-pytest-nix-builds.status.md). The examined baseline has
+not implemented pytest discovery or Nix derivations for project builds.
 
-This ADR proposes changing the build-output caching restriction in [CI
-policy](ci.md). Update that policy when implementation is
-accepted. The separate [CI performance
+This ADR authorizes the narrow build-output caching change described below in [CI
+policy](ci.md), subject to the rollout measurements. The separate [CI performance
 task](../plans/20260925-ci-performance.task.md) remains historical
-evidence of the current policy, which this proposal would supersede; add a
-supersession note when the replacement is accepted.
+evidence of the previous decision; its supersession note records this acceptance.
 
 ## 2. Current behavior and evidence
 
