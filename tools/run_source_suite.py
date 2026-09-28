@@ -4,6 +4,7 @@ import json
 import os
 from pathlib import Path
 import sys
+import traceback
 from uuid import uuid4
 
 from tests.runtime_support import run_command
@@ -11,6 +12,7 @@ from tools.run_independent_suites import SUITES, run_suites
 
 ROOT = Path(__file__).resolve().parents[1]
 DEADLINES = {
+    "collection": 30,
     "tests/test_toolchain_smoke.py": 15,
     "tests/parser_test.py": 30,
     "tests/parser_build_test.py": 30,
@@ -64,29 +66,57 @@ def main() -> int:
     (ROOT / "build/coverage.json").unlink(missing_ok=True)
     catalogue = ROOT / "build/source-catalogue.json"
     catalogue.parent.mkdir(parents=True, exist_ok=True)
-    result = run_command([sys.executable, "-m", "pytest", "tests",
+    catalogue.unlink(missing_ok=True)
+    failure = None
+    failed = 1
+    try:
+        result = run_command([sys.executable, "-m", "pytest", "tests",
                           "--ignore=tests/runtime_package_test.py", "--catalog-json", str(catalogue),
-                          "--runtime-root", str(runtime), "--run-id", run_id], cwd=ROOT, timeout=30)
-    if result.returncode:
-        print(result.diagnostic(), file=sys.stderr)
-        return result.returncode
-    cases = json.loads(catalogue.read_text())
-    cached: set[str] = set()
-    if location := os.environ.get("SQLITE_VERIFIER_UNIT_CHECKS"):
-        from tools.unit_cache import validated_cache
-        cached = validated_cache(Path(location), cases, ROOT)
-    selections = partition_cases(cases, cached)
-    independent = tuple((script, deadline) for script, deadline in SUITES if script in selections)
-    failed = run_suites(independent, runtime_root=runtime, run_id=run_id, selections=selections)
-    remaining = tuple((script, DEADLINES.get(script, 60)) for script in selections
-                      if script not in dict(SUITES))
-    failed |= run_suites(remaining, max_workers=1, runtime_root=runtime,
+                          "--runtime-root", str(runtime), "--run-id", run_id], cwd=ROOT,
+                          timeout=DEADLINES["collection"],
+                          artifacts=ROOT / "build/test-logs/source-collection" / run_id)
+        if result.returncode:
+            raise RuntimeError(result.diagnostic())
+        cases = json.loads(catalogue.read_text())
+        cached: set[str] = set()
+        if location := os.environ.get("SQLITE_VERIFIER_UNIT_CHECKS"):
+            from tools.unit_cache import validated_cache
+            cached = validated_cache(Path(location), cases, ROOT)
+        selections = partition_cases(cases, cached)
+        independent = tuple((script, deadline) for script, deadline in SUITES if script in selections)
+        failed = run_suites(independent, runtime_root=runtime, run_id=run_id, selections=selections)
+        remaining = tuple((script, DEADLINES.get(script, 60)) for script in selections
+                          if script not in dict(SUITES))
+        failed |= run_suites(remaining, max_workers=1, runtime_root=runtime,
                          run_id=run_id, selections=selections)
-    report = run_command([sys.executable, "conformance/coverage_report.py", "--run-id", run_id,
+    except Exception:
+        failure = traceback.format_exc()
+        print(failure, file=sys.stderr, end="")
+        failed = 1
+    try:
+        report = run_command([sys.executable, "conformance/coverage_report.py", "--run-id", run_id,
                           "--reports", "build/test-results/source", "--runtime-root", str(runtime),
-                          "--output", "build/coverage.json"], cwd=ROOT, timeout=30)
-    print(report.stdout + report.stderr, end="")
-    return int(bool(failed or report.returncode))
+                          "--output", "build/coverage.json"], cwd=ROOT, timeout=30,
+                          artifacts=ROOT / "build/test-logs/source-coverage" / run_id)
+        print(report.stdout + report.stderr, end="")
+        failed |= report.returncode
+        if not (ROOT / "build/coverage.json").is_file():
+            raise RuntimeError(report.diagnostic())
+        coverage = json.loads((ROOT / "build/coverage.json").read_text())
+        if not isinstance(coverage, dict) or coverage.get("run_id") != run_id:
+            raise ValueError("Coverage aggregation did not produce a current-run object")
+        if report.returncode:
+            coverage["status"] = "EVIDENCE_CHECKS_FAILED"
+    except Exception:
+        diagnostic = traceback.format_exc()
+        print(diagnostic, file=sys.stderr, end="")
+        coverage = {"report_version": 1, "run_id": run_id, "status": "EVIDENCE_CHECKS_FAILED",
+                    "diagnostic": diagnostic}
+        failed = 1
+    if failure is not None:
+        coverage.update(status="EVIDENCE_CHECKS_FAILED", orchestration_diagnostic=failure)
+    (ROOT / "build/coverage.json").write_text(json.dumps(coverage, indent=2) + "\n")
+    return int(bool(failed or coverage.get("status") != "EVIDENCE_CHECKS_PASSED"))
 
 
 if __name__ == "__main__":

@@ -154,3 +154,19 @@ No end-to-end performance claim yet.
   `/nix/store/3gbm3vfmgzn6a2wjb214yx7wk5rgkyf6-sqlite-verifier-unit-checks-1`.
   Native run 36406499807 tests implementation `ffc49c06` on both platforms; its
   outcome remains pending. No performance rollout is enabled.
+
+- Native `ffc49c06` is green on both platforms: run 36406499807 completes in
+  12m44s Linux and 16m52s Darwin. Linux staged ELF relocation passes real signed
+  export (0.26s verification) and all nineteen installed cases (142.58s). These
+  are cold correctness observations, not comparative warm-cache measurements.
+- Final independent audit identified a failure-reporting gap when outer deadlines
+  kill pytest, and two remaining coreutils pytest watchdogs. Integrated reviewed
+  `e39a0f32`: source/smoke/installed use the shared descendant cleanup; fallback
+  JSON/JUnit reports retain runtime, UUID, selected IDs and diagnostics without
+  fabricated phase outcomes; early collection/cache failures retain fresh failed
+  coverage. One execution-only selection checkpoint has no per-phase write cost.
+  Existing 15s/1800s smoke/installed limits and all source limits remain unchanged.
+- Sixty-seven focused checks plus two subtests pass; all thirteen new cases pass
+  individually/reversed, and the real smoke command passes. Full integrated
+  catalogue now contains422 unique IDs (416 source,19 installed), preserving244
+  legacy mappings. Final native revalidation and all benchmark gates remain open.

@@ -18,7 +18,7 @@
     "Compilation17 and early-baseline7 now collect independently. Each graph/approval mutation owns a fresh fixture; compiler paths are explicit and only Runtime.locate is patched for imported verify(). Selected-generated-role and artifact aliases require no Lean/native/sandbox resources. Installed selection fails setup instead of using source imports as installed evidence.",
     "ADR0001 source orchestration additions are explicitly identified as infrastructure additions, not legacy baseline scenarios.",
     "origin=new distinguishes ADR infrastructure additions and the new partial declaration attack from preserved legacy behavior; neither additions nor multi-runtime Atuin execution inflate the baseline case count.",
-    "The reconciled inventory has 409 unique IDs, including 244 legacy mappings; thirteen Atuin IDs have separate source and installed executions."
+    "The reconciled inventory has 422 unique IDs, including 244 legacy mappings; thirteen Atuin IDs have separate source and installed executions."
   ],
   "entrypoints": {
     "just test / just check / just coverage": [
@@ -646,7 +646,9 @@
       "concerns": [
         "environment"
       ],
-      "resources": [],
+      "resources": [
+        "requires_native"
+      ],
       "assertions": [
         "self.assertEqual(result.returncode, 1, result.stdout + result.stderr)",
         "self.assertIn(\"exit 124\", result.stdout)",
@@ -681,9 +683,14 @@
       "collection_verified": true,
       "migration_notes": "Children now execute as actual pytest functions: failed case exit1 replaces former script exit7; success remains0, deadline remains124; sibling join and stream assertions retained.",
       "origin": "legacy",
-      "implementation_source": "tests/test_independent_suites.py:21-61",
+      "implementation_source": "tests/test_independent_suites.py:22-62",
       "description": "A failing or timed-out sibling cannot hide the other's completed output.",
-      "parameter_id": null
+      "parameter_id": null,
+      "resource_arguments": {
+        "requires_native": [
+          "/bin/ps"
+        ]
+      }
     },
     {
       "source": "tests/test_independent_suites.py:57-70",
@@ -707,7 +714,7 @@
       "collection_verified": true,
       "migration_notes": "Children now execute as actual pytest functions: failed case exit1 replaces former script exit7; success remains0, deadline remains124; sibling join and stream assertions retained.",
       "origin": "legacy",
-      "implementation_source": "tests/test_independent_suites.py:65-78",
+      "implementation_source": "tests/test_independent_suites.py:66-79",
       "description": "The macOS fallback still runs the next suite after a completed failure.",
       "parameter_id": null
     },
@@ -8404,7 +8411,7 @@
         "assert len(list(root.glob(\"*.count\"))) == len(scripts)",
         "assert str(UUID(report[\"run_id\"])) == report[\"run_id\"]"
       ],
-      "implementation_source": "tests/test_source_runner.py:15-75",
+      "implementation_source": "tests/test_source_runner.py:15-79",
       "description": "All source children share a UUID/runtime and aggregate after each case executes once.",
       "parameter_id": "success"
     },
@@ -8430,7 +8437,7 @@
         "assert len(list(root.glob(\"*.count\"))) == len(scripts)",
         "assert str(UUID(report[\"run_id\"])) == report[\"run_id\"]"
       ],
-      "implementation_source": "tests/test_source_runner.py:15-75",
+      "implementation_source": "tests/test_source_runner.py:15-79",
       "description": "All source children share a UUID/runtime and aggregate after each case executes once.",
       "parameter_id": "failed-suite"
     },
@@ -12619,6 +12626,472 @@
       "resources": [],
       "implementation_source": "tests/test_runtime_staging.py:109-111",
       "collection_verified": true
+    },
+    {
+      "source": "tests/test_suite_checkpoints.py:14-32",
+      "legacy": null,
+      "origin": "new",
+      "node_id": "tests/test_suite_checkpoints.py::test_invalid_suite_checkpoint_retains_failure[malformed]",
+      "runtimes": [
+        "source"
+      ],
+      "assertions": [
+        "Wrong runtime, suite, run or selection remains diagnostic bytes and cannot supply case phases."
+      ],
+      "assertion_source": [
+        "assert result[\"exit_code\"] == 124 and result[\"timed_out\"]",
+        "assert result[\"selected_node_ids\"] == [node] and result[\"selection_status\"] == \"requested\"",
+        "assert result[\"cases\"] == [{\"node_id\": node, \"phases\": {}}]",
+        "assert \"Selection checkpoint unavailable\" in result[\"diagnostic\"]",
+        "assert (artifacts / \"selection.json\").read_text() == original",
+        "assert reports.suite_artifacts() != RunReports(tmp_path, \"installed\", \"probe\", \"current\").suite_artifacts()",
+        "assert reports.suite_artifacts() != RunReports(tmp_path, \"source\", \"other\", \"current\").suite_artifacts()"
+      ],
+      "description": "Wrong runtime, suite, run or selection remains diagnostic bytes and cannot supply case phases.",
+      "parameter_id": "malformed",
+      "level": "unit",
+      "concerns": [
+        "environment"
+      ],
+      "resources": [],
+      "implementation_source": "tests/test_suite_checkpoints.py:14-32",
+      "collection_verified": true
+    },
+    {
+      "source": "tests/test_suite_checkpoints.py:14-32",
+      "legacy": null,
+      "origin": "new",
+      "node_id": "tests/test_suite_checkpoints.py::test_invalid_suite_checkpoint_retains_failure[run_id]",
+      "runtimes": [
+        "source"
+      ],
+      "assertions": [
+        "Wrong runtime, suite, run or selection remains diagnostic bytes and cannot supply case phases."
+      ],
+      "assertion_source": [
+        "assert result[\"exit_code\"] == 124 and result[\"timed_out\"]",
+        "assert result[\"selected_node_ids\"] == [node] and result[\"selection_status\"] == \"requested\"",
+        "assert result[\"cases\"] == [{\"node_id\": node, \"phases\": {}}]",
+        "assert \"Selection checkpoint unavailable\" in result[\"diagnostic\"]",
+        "assert (artifacts / \"selection.json\").read_text() == original",
+        "assert reports.suite_artifacts() != RunReports(tmp_path, \"installed\", \"probe\", \"current\").suite_artifacts()",
+        "assert reports.suite_artifacts() != RunReports(tmp_path, \"source\", \"other\", \"current\").suite_artifacts()"
+      ],
+      "description": "Wrong runtime, suite, run or selection remains diagnostic bytes and cannot supply case phases.",
+      "parameter_id": "run_id",
+      "level": "unit",
+      "concerns": [
+        "environment"
+      ],
+      "resources": [],
+      "implementation_source": "tests/test_suite_checkpoints.py:14-32",
+      "collection_verified": true
+    },
+    {
+      "source": "tests/test_suite_checkpoints.py:14-32",
+      "legacy": null,
+      "origin": "new",
+      "node_id": "tests/test_suite_checkpoints.py::test_invalid_suite_checkpoint_retains_failure[runtime]",
+      "runtimes": [
+        "source"
+      ],
+      "assertions": [
+        "Wrong runtime, suite, run or selection remains diagnostic bytes and cannot supply case phases."
+      ],
+      "assertion_source": [
+        "assert result[\"exit_code\"] == 124 and result[\"timed_out\"]",
+        "assert result[\"selected_node_ids\"] == [node] and result[\"selection_status\"] == \"requested\"",
+        "assert result[\"cases\"] == [{\"node_id\": node, \"phases\": {}}]",
+        "assert \"Selection checkpoint unavailable\" in result[\"diagnostic\"]",
+        "assert (artifacts / \"selection.json\").read_text() == original",
+        "assert reports.suite_artifacts() != RunReports(tmp_path, \"installed\", \"probe\", \"current\").suite_artifacts()",
+        "assert reports.suite_artifacts() != RunReports(tmp_path, \"source\", \"other\", \"current\").suite_artifacts()"
+      ],
+      "description": "Wrong runtime, suite, run or selection remains diagnostic bytes and cannot supply case phases.",
+      "parameter_id": "runtime",
+      "level": "unit",
+      "concerns": [
+        "environment"
+      ],
+      "resources": [],
+      "implementation_source": "tests/test_suite_checkpoints.py:14-32",
+      "collection_verified": true
+    },
+    {
+      "source": "tests/test_suite_checkpoints.py:14-32",
+      "legacy": null,
+      "origin": "new",
+      "node_id": "tests/test_suite_checkpoints.py::test_invalid_suite_checkpoint_retains_failure[selected_node_ids]",
+      "runtimes": [
+        "source"
+      ],
+      "assertions": [
+        "Wrong runtime, suite, run or selection remains diagnostic bytes and cannot supply case phases."
+      ],
+      "assertion_source": [
+        "assert result[\"exit_code\"] == 124 and result[\"timed_out\"]",
+        "assert result[\"selected_node_ids\"] == [node] and result[\"selection_status\"] == \"requested\"",
+        "assert result[\"cases\"] == [{\"node_id\": node, \"phases\": {}}]",
+        "assert \"Selection checkpoint unavailable\" in result[\"diagnostic\"]",
+        "assert (artifacts / \"selection.json\").read_text() == original",
+        "assert reports.suite_artifacts() != RunReports(tmp_path, \"installed\", \"probe\", \"current\").suite_artifacts()",
+        "assert reports.suite_artifacts() != RunReports(tmp_path, \"source\", \"other\", \"current\").suite_artifacts()"
+      ],
+      "description": "Wrong runtime, suite, run or selection remains diagnostic bytes and cannot supply case phases.",
+      "parameter_id": "selected_node_ids",
+      "level": "unit",
+      "concerns": [
+        "environment"
+      ],
+      "resources": [],
+      "implementation_source": "tests/test_suite_checkpoints.py:14-32",
+      "collection_verified": true
+    },
+    {
+      "source": "tests/test_suite_checkpoints.py:14-32",
+      "legacy": null,
+      "origin": "new",
+      "node_id": "tests/test_suite_checkpoints.py::test_invalid_suite_checkpoint_retains_failure[suite]",
+      "runtimes": [
+        "source"
+      ],
+      "assertions": [
+        "Wrong runtime, suite, run or selection remains diagnostic bytes and cannot supply case phases."
+      ],
+      "assertion_source": [
+        "assert result[\"exit_code\"] == 124 and result[\"timed_out\"]",
+        "assert result[\"selected_node_ids\"] == [node] and result[\"selection_status\"] == \"requested\"",
+        "assert result[\"cases\"] == [{\"node_id\": node, \"phases\": {}}]",
+        "assert \"Selection checkpoint unavailable\" in result[\"diagnostic\"]",
+        "assert (artifacts / \"selection.json\").read_text() == original",
+        "assert reports.suite_artifacts() != RunReports(tmp_path, \"installed\", \"probe\", \"current\").suite_artifacts()",
+        "assert reports.suite_artifacts() != RunReports(tmp_path, \"source\", \"other\", \"current\").suite_artifacts()"
+      ],
+      "description": "Wrong runtime, suite, run or selection remains diagnostic bytes and cannot supply case phases.",
+      "parameter_id": "suite",
+      "level": "unit",
+      "concerns": [
+        "environment"
+      ],
+      "resources": [],
+      "implementation_source": "tests/test_suite_checkpoints.py:14-32",
+      "collection_verified": true
+    },
+    {
+      "source": "tests/test_suite_failure_reports.py:90-131",
+      "legacy": null,
+      "origin": "new",
+      "node_id": "tests/test_suite_failure_reports.py::test_early_failure_writes_fresh_coverage[aggregation-error]",
+      "runtimes": [
+        "source"
+      ],
+      "assertions": [
+        "Collection/cache failures still aggregate fresh failed evidence and retain original diagnostics."
+      ],
+      "assertion_source": [
+        "assert run_source_suite.main() != 0",
+        "assert coverage[\"status\"] == \"EVIDENCE_CHECKS_FAILED\" and coverage[\"run_id\"] != \"old\"",
+        "assert diagnostic in coverage[\"orchestration_diagnostic\"] and diagnostic in output.err",
+        "assert coverage[\"run_id\"] in command[\"command\"]",
+        "assert command[\"timed_out\"] == (scenario == \"collection-timeout\")",
+        "assert (harness / \"build/test-logs/source-coverage\" / coverage[\"run_id\"] / \"command-0000.json\").is_file()",
+        "assert \"aggregate-broken\" in output.out",
+        "assert \"aggregate-broken\" in coverage[\"diagnostic\"]",
+        "assert \"stale\" not in (harness / \"build/source-catalogue.json\").read_text()"
+      ],
+      "description": "Collection/cache failures still aggregate fresh failed evidence and retain original diagnostics.",
+      "parameter_id": "aggregation-error",
+      "level": "integration",
+      "concerns": [
+        "environment"
+      ],
+      "resources": [],
+      "implementation_source": "tests/test_suite_failure_reports.py:90-131",
+      "collection_verified": true
+    },
+    {
+      "source": "tests/test_suite_failure_reports.py:90-131",
+      "legacy": null,
+      "origin": "new",
+      "node_id": "tests/test_suite_failure_reports.py::test_early_failure_writes_fresh_coverage[cache-error]",
+      "runtimes": [
+        "source"
+      ],
+      "assertions": [
+        "Collection/cache failures still aggregate fresh failed evidence and retain original diagnostics."
+      ],
+      "assertion_source": [
+        "assert run_source_suite.main() != 0",
+        "assert coverage[\"status\"] == \"EVIDENCE_CHECKS_FAILED\" and coverage[\"run_id\"] != \"old\"",
+        "assert diagnostic in coverage[\"orchestration_diagnostic\"] and diagnostic in output.err",
+        "assert coverage[\"run_id\"] in command[\"command\"]",
+        "assert command[\"timed_out\"] == (scenario == \"collection-timeout\")",
+        "assert (harness / \"build/test-logs/source-coverage\" / coverage[\"run_id\"] / \"command-0000.json\").is_file()",
+        "assert \"aggregate-broken\" in output.out",
+        "assert \"aggregate-broken\" in coverage[\"diagnostic\"]",
+        "assert \"stale\" not in (harness / \"build/source-catalogue.json\").read_text()"
+      ],
+      "description": "Collection/cache failures still aggregate fresh failed evidence and retain original diagnostics.",
+      "parameter_id": "cache-error",
+      "level": "integration",
+      "concerns": [
+        "environment"
+      ],
+      "resources": [
+        "requires_nix"
+      ],
+      "implementation_source": "tests/test_suite_failure_reports.py:90-131",
+      "collection_verified": true
+    },
+    {
+      "source": "tests/test_suite_failure_reports.py:90-131",
+      "legacy": null,
+      "origin": "new",
+      "node_id": "tests/test_suite_failure_reports.py::test_early_failure_writes_fresh_coverage[collection-error]",
+      "runtimes": [
+        "source"
+      ],
+      "assertions": [
+        "Collection/cache failures still aggregate fresh failed evidence and retain original diagnostics."
+      ],
+      "assertion_source": [
+        "assert run_source_suite.main() != 0",
+        "assert coverage[\"status\"] == \"EVIDENCE_CHECKS_FAILED\" and coverage[\"run_id\"] != \"old\"",
+        "assert diagnostic in coverage[\"orchestration_diagnostic\"] and diagnostic in output.err",
+        "assert coverage[\"run_id\"] in command[\"command\"]",
+        "assert command[\"timed_out\"] == (scenario == \"collection-timeout\")",
+        "assert (harness / \"build/test-logs/source-coverage\" / coverage[\"run_id\"] / \"command-0000.json\").is_file()",
+        "assert \"aggregate-broken\" in output.out",
+        "assert \"aggregate-broken\" in coverage[\"diagnostic\"]",
+        "assert \"stale\" not in (harness / \"build/source-catalogue.json\").read_text()"
+      ],
+      "description": "Collection/cache failures still aggregate fresh failed evidence and retain original diagnostics.",
+      "parameter_id": "collection-error",
+      "level": "integration",
+      "concerns": [
+        "environment"
+      ],
+      "resources": [],
+      "implementation_source": "tests/test_suite_failure_reports.py:90-131",
+      "collection_verified": true
+    },
+    {
+      "source": "tests/test_suite_failure_reports.py:90-131",
+      "legacy": null,
+      "origin": "new",
+      "node_id": "tests/test_suite_failure_reports.py::test_early_failure_writes_fresh_coverage[collection-timeout]",
+      "runtimes": [
+        "source"
+      ],
+      "assertions": [
+        "Collection/cache failures still aggregate fresh failed evidence and retain original diagnostics."
+      ],
+      "assertion_source": [
+        "assert run_source_suite.main() != 0",
+        "assert coverage[\"status\"] == \"EVIDENCE_CHECKS_FAILED\" and coverage[\"run_id\"] != \"old\"",
+        "assert diagnostic in coverage[\"orchestration_diagnostic\"] and diagnostic in output.err",
+        "assert coverage[\"run_id\"] in command[\"command\"]",
+        "assert command[\"timed_out\"] == (scenario == \"collection-timeout\")",
+        "assert (harness / \"build/test-logs/source-coverage\" / coverage[\"run_id\"] / \"command-0000.json\").is_file()",
+        "assert \"aggregate-broken\" in output.out",
+        "assert \"aggregate-broken\" in coverage[\"diagnostic\"]",
+        "assert \"stale\" not in (harness / \"build/source-catalogue.json\").read_text()"
+      ],
+      "description": "Collection/cache failures still aggregate fresh failed evidence and retain original diagnostics.",
+      "parameter_id": "collection-timeout",
+      "level": "integration",
+      "concerns": [
+        "environment"
+      ],
+      "resources": [
+        "requires_native"
+      ],
+      "implementation_source": "tests/test_suite_failure_reports.py:90-131",
+      "collection_verified": true,
+      "resource_arguments": {
+        "requires_native": [
+          "/bin/ps"
+        ]
+      }
+    },
+    {
+      "source": "tests/test_suite_failure_reports.py:135-165",
+      "legacy": null,
+      "origin": "new",
+      "node_id": "tests/test_suite_failure_reports.py::test_installed_watchdog_cleans_nested_command",
+      "runtimes": [
+        "source"
+      ],
+      "assertions": [
+        "Installed CLI timeouts kill detached commands and preserve module-selected identities separately."
+      ],
+      "assertion_source": [
+        "assert result.returncode == 1, result.diagnostic()",
+        "assert report[\"runtime\"] == \"installed\" and report[\"exit_code\"] == 124",
+        "assert report[\"selected_node_ids\"] == [NODE] and report[\"selection_status\"] == \"collected\"",
+        "assert report[\"selection\"] == [\"tests/test_probe.py\"] and report[\"cases\"][0][\"phases\"] == {}",
+        "assert checkpoint[\"suite\"] == \"installed\" and checkpoint[\"run_id\"] == report[\"run_id\"]",
+        "assert \"--runtime-archive\" in command[\"command\"] and \"--runtime-root\" not in command[\"command\"]",
+        "assert command[\"cleanup_error\"] is None and command[\"timed_out\"]",
+        "assert not status.stdout.strip() or status.stdout.strip().startswith(\"Z\")",
+        "assert source.read_text() == \"source report\""
+      ],
+      "description": "Installed CLI timeouts kill detached commands and preserve module-selected identities separately.",
+      "parameter_id": null,
+      "level": "integration",
+      "concerns": [
+        "environment"
+      ],
+      "resources": [
+        "requires_native"
+      ],
+      "implementation_source": "tests/test_suite_failure_reports.py:135-165",
+      "collection_verified": true,
+      "resource_arguments": {
+        "requires_native": [
+          "/bin/ps"
+        ]
+      }
+    },
+    {
+      "source": "tests/test_suite_failure_reports.py:25-84",
+      "legacy": null,
+      "origin": "new",
+      "node_id": "tests/test_suite_failure_reports.py::test_interrupted_suite_retains_provenance[missing-report]",
+      "runtimes": [
+        "source"
+      ],
+      "assertions": [
+        "Outer deadlines or absent reports fail with exact selection and unavailable case phases."
+      ],
+      "assertion_source": [
+        "assert run_suites(((\"tests/test_probe.py\", deadline),), max_workers=1,\n                      run_id=\"current\", selections={\"tests/test_probe.py\": (NODE,)},\n                      pytest_args=(\"-s\",), report_dir=harness / \"custom-results\") == 1",
+        "assert report[\"runtime\"] == \"source\" and report[\"run_id\"] == \"current\"",
+        "assert report[\"selection\"] == report[\"selected_node_ids\"] == [NODE]",
+        "assert report[\"selection_status\"] == \"collected\"",
+        "assert report[\"exit_code\"] == (1 if scenario == \"missing-report\" else 124)",
+        "assert report[\"timed_out\"] == (scenario != \"missing-report\")",
+        "assert report[\"cases\"] == [{\"node_id\": NODE, \"phases\": {}}]",
+        "assert \"unavailable\" in report[\"case_phases\"]",
+        "assert command[\"timed_out\"] == report[\"timed_out\"] and \"case reached\" in command[\"stdout\"]",
+        "assert NODE in command[\"command\"] and \"--run-id\" in command[\"command\"]",
+        "assert xml.find(\".//testcase\").attrib == {\n        \"classname\": \"suite_runner\", \"name\": \"suite execution\", \"time\": str(report[\"elapsed\"])}",
+        "assert xml.find(\".//error\") is not None",
+        "assert properties[\"run_id\"] == \"current\" and properties[\"runtime\"] == \"source\"",
+        "assert json.loads(properties[\"selection\"]) == [NODE]",
+        "assert installed.read_text() == \"installed report\"",
+        "assert partial[\"run_id\"] == \"current\" and partial[\"exit_code\"] == 0",
+        "assert setup[\"outcome\"] == \"passed\" and setup[\"duration\"] >= 0",
+        "assert (artifacts / \"pytest.xml\").read_text() == \"<testsuites/>\"",
+        "assert not (artifacts / \"pytest.json\").exists()"
+      ],
+      "description": "Outer deadlines or absent reports fail with exact selection and unavailable case phases.",
+      "parameter_id": "missing-report",
+      "level": "integration",
+      "concerns": [
+        "environment"
+      ],
+      "resources": [],
+      "implementation_source": "tests/test_suite_failure_reports.py:25-84",
+      "collection_verified": true
+    },
+    {
+      "source": "tests/test_suite_failure_reports.py:25-84",
+      "legacy": null,
+      "origin": "new",
+      "node_id": "tests/test_suite_failure_reports.py::test_interrupted_suite_retains_provenance[partial-timeout]",
+      "runtimes": [
+        "source"
+      ],
+      "assertions": [
+        "Outer deadlines or absent reports fail with exact selection and unavailable case phases."
+      ],
+      "assertion_source": [
+        "assert run_suites(((\"tests/test_probe.py\", deadline),), max_workers=1,\n                      run_id=\"current\", selections={\"tests/test_probe.py\": (NODE,)},\n                      pytest_args=(\"-s\",), report_dir=harness / \"custom-results\") == 1",
+        "assert report[\"runtime\"] == \"source\" and report[\"run_id\"] == \"current\"",
+        "assert report[\"selection\"] == report[\"selected_node_ids\"] == [NODE]",
+        "assert report[\"selection_status\"] == \"collected\"",
+        "assert report[\"exit_code\"] == (1 if scenario == \"missing-report\" else 124)",
+        "assert report[\"timed_out\"] == (scenario != \"missing-report\")",
+        "assert report[\"cases\"] == [{\"node_id\": NODE, \"phases\": {}}]",
+        "assert \"unavailable\" in report[\"case_phases\"]",
+        "assert command[\"timed_out\"] == report[\"timed_out\"] and \"case reached\" in command[\"stdout\"]",
+        "assert NODE in command[\"command\"] and \"--run-id\" in command[\"command\"]",
+        "assert xml.find(\".//testcase\").attrib == {\n        \"classname\": \"suite_runner\", \"name\": \"suite execution\", \"time\": str(report[\"elapsed\"])}",
+        "assert xml.find(\".//error\") is not None",
+        "assert properties[\"run_id\"] == \"current\" and properties[\"runtime\"] == \"source\"",
+        "assert json.loads(properties[\"selection\"]) == [NODE]",
+        "assert installed.read_text() == \"installed report\"",
+        "assert partial[\"run_id\"] == \"current\" and partial[\"exit_code\"] == 0",
+        "assert setup[\"outcome\"] == \"passed\" and setup[\"duration\"] >= 0",
+        "assert (artifacts / \"pytest.xml\").read_text() == \"<testsuites/>\"",
+        "assert not (artifacts / \"pytest.json\").exists()"
+      ],
+      "description": "Outer deadlines or absent reports fail with exact selection and unavailable case phases.",
+      "parameter_id": "partial-timeout",
+      "level": "integration",
+      "concerns": [
+        "environment"
+      ],
+      "resources": [
+        "requires_native"
+      ],
+      "implementation_source": "tests/test_suite_failure_reports.py:25-84",
+      "collection_verified": true,
+      "resource_arguments": {
+        "requires_native": [
+          "/bin/ps"
+        ]
+      }
+    },
+    {
+      "source": "tests/test_suite_failure_reports.py:25-84",
+      "legacy": null,
+      "origin": "new",
+      "node_id": "tests/test_suite_failure_reports.py::test_interrupted_suite_retains_provenance[timeout]",
+      "runtimes": [
+        "source"
+      ],
+      "assertions": [
+        "Outer deadlines or absent reports fail with exact selection and unavailable case phases."
+      ],
+      "assertion_source": [
+        "assert run_suites(((\"tests/test_probe.py\", deadline),), max_workers=1,\n                      run_id=\"current\", selections={\"tests/test_probe.py\": (NODE,)},\n                      pytest_args=(\"-s\",), report_dir=harness / \"custom-results\") == 1",
+        "assert report[\"runtime\"] == \"source\" and report[\"run_id\"] == \"current\"",
+        "assert report[\"selection\"] == report[\"selected_node_ids\"] == [NODE]",
+        "assert report[\"selection_status\"] == \"collected\"",
+        "assert report[\"exit_code\"] == (1 if scenario == \"missing-report\" else 124)",
+        "assert report[\"timed_out\"] == (scenario != \"missing-report\")",
+        "assert report[\"cases\"] == [{\"node_id\": NODE, \"phases\": {}}]",
+        "assert \"unavailable\" in report[\"case_phases\"]",
+        "assert command[\"timed_out\"] == report[\"timed_out\"] and \"case reached\" in command[\"stdout\"]",
+        "assert NODE in command[\"command\"] and \"--run-id\" in command[\"command\"]",
+        "assert xml.find(\".//testcase\").attrib == {\n        \"classname\": \"suite_runner\", \"name\": \"suite execution\", \"time\": str(report[\"elapsed\"])}",
+        "assert xml.find(\".//error\") is not None",
+        "assert properties[\"run_id\"] == \"current\" and properties[\"runtime\"] == \"source\"",
+        "assert json.loads(properties[\"selection\"]) == [NODE]",
+        "assert installed.read_text() == \"installed report\"",
+        "assert partial[\"run_id\"] == \"current\" and partial[\"exit_code\"] == 0",
+        "assert setup[\"outcome\"] == \"passed\" and setup[\"duration\"] >= 0",
+        "assert (artifacts / \"pytest.xml\").read_text() == \"<testsuites/>\"",
+        "assert not (artifacts / \"pytest.json\").exists()"
+      ],
+      "description": "Outer deadlines or absent reports fail with exact selection and unavailable case phases.",
+      "parameter_id": "timeout",
+      "level": "integration",
+      "concerns": [
+        "environment"
+      ],
+      "resources": [
+        "requires_native"
+      ],
+      "implementation_source": "tests/test_suite_failure_reports.py:25-84",
+      "collection_verified": true,
+      "resource_arguments": {
+        "requires_native": [
+          "/bin/ps"
+        ]
+      }
     }
   ],
   "fixture_contracts": {
@@ -12629,18 +13102,18 @@
     "source_identity": "One tiny synthetic baseline is evaluated once per session with the real locked Nix library; each case copies only declared fixture bytes into its private tree. No repository/build copying or package build occurs. Missing fixed paths fail evaluation; unselected source components remain unchanged."
   },
   "collection_checks": {
-    "case_count": 409,
+    "case_count": 422,
     "legacy_mapped_case_count": 244,
-    "new_case_count": 165,
-    "source_case_count": 403,
+    "new_case_count": 178,
+    "source_case_count": 416,
     "installed_case_count": 19,
     "baseline_hashes_verified": 39,
     "result": "Every inventory identity exactly matches this single-tree collection; baseline evidence remains immutable.",
     "evidence": [
       {
-        "path": "/Users/tzankomatev/work/sqlite-verifier-adr1/build/integrated-409-catalogue.json",
-        "sha256": "8497f49b5e3e64671f7d16afd4da8d87d12c24de8e0f8f7f35799e5c2965a6e2",
-        "case_count": 409
+        "path": "/Users/tzankomatev/work/sqlite-verifier-adr1/build/integrated-422-catalogue.json",
+        "sha256": "d46426a293328e6610b7a383e0b6ab0c0a669f04b0b70c5deafd8389aad6e2b8",
+        "case_count": 422
       }
     ],
     "runtime_build_required": false
@@ -12654,12 +13127,12 @@
     "conformance/coverage_report.py": "87e162ba0ca92122b64fab4bcaaff19a57d99c6d91ea4e862c824c5424087e0f",
     "conformance/model_check.py": "b32ef390f507b0e24fc2c9aa4fb6b0ca4d5f45159a888b9e97d82da228c18ce3",
     "conformance/native_fixture.py": "05ec96bc3ad3cf4717aee87616dc2c03f6c2e8d7926a2cdcedc9b0c143f6efa3",
-    "conftest.py": "e61ce0d37e30b4e0dc5ec2a4fffc8916c7ff421a4973811ce7aa4d085d01ef9e",
+    "conftest.py": "16974c7ace594e19e692aae6d92775b595ec8ab6d24e2f6fe961b6e40e3d90c6",
     "packaging/build_runtime.py": "9b07ac9ac52da9ae43fd7b8b86cbecc20c88bdcc291487c2b4b3fed5a994fe67",
     "packaging/relocate_elf.py": "33161e4df8e63fa19100b95fef5ff1cb5f96e0df34a333e8dc21410104d52a1d",
     "tests/atuin_cli_test.py": "51dcee60df053de18800037f6e1f7d2ab4ef5fe6d6298d3e099dfa91fae64dc9",
     "tests/atuin_sql_test.py": "ff088e3878a25c86ef98a135d2c8c174b0496c3dcb278382d03d6f40b4c1f3fc",
-    "tests/case_reports.py": "f9b3d6bf20d90dac7706d049049b31ded5a6cc1584e741d0687154028526b9b3",
+    "tests/case_reports.py": "271e1802779b187a393d24ee76270b8ae6e18fdf7aa0ddb4e297000a301332e3",
     "tests/catalogue.py": "15d38731fe34caa12f8191b2b587582d7115a021c5fe051483768445c13b76c6",
     "tests/cli_test.py": "7b370a9cfc0fb2e9a8e32bcdc0b49494282b69054471a1e08b7143769e9a3e71",
     "tests/compilation_test.py": "45d4b954d018232e472b9dcacfc8e97cbf4bd8414a70d61c63ddbd28e79c0c6a",
@@ -12686,7 +13159,7 @@
     "tests/test_cli_inputs.py": "4df14d84ccb1bf0b3a3d24584f7e605770255075dc5ca2ceebc7499ab03ca1e9",
     "tests/test_coverage_receipts.py": "17d5f528ce144fd1dc9df8a2396ca58f331d174c27d9473071a7d88f56679321",
     "tests/test_elf_relocation.py": "d3eeddb969953d1df43aa1865c84fc7eb02579606a188c8b8c2bc289835421b1",
-    "tests/test_independent_suites.py": "8f69d5687cdf7d42f269c90f118412192f1093730e081f277249ebdeecdbe16c",
+    "tests/test_independent_suites.py": "72fee0b8076064b97aa0c61f9a142c7004bafb3e985e22fb4249c9bb445b399b",
     "tests/test_native_dependencies.py": "4845be545a8c00d5c9db4348063df7de4659dc1b23d5b1f6c6c9319c24b00e09",
     "tests/test_parser_cache_environment.py": "920073eb1e069e58645a6801cb11a3b3b10af998da12effaf7d2fc27b175a682",
     "tests/test_profiles.py": "48e7ba1b75959c3023c3ec8f1e3133bff8b350b385891dd4e56dda110cfee354",
@@ -12700,7 +13173,7 @@
     "tests/test_schema_translation.py": "8d4053893d6356cfe3848716bf44fbfea99a4b1febdca5e0e679c2c365cde547",
     "tests/test_source_identity.py": "7794eb3d99477511f67c0f68397915285f5498d6747986a178f286a8ff2481f4",
     "tests/test_source_orchestration.py": "6f260532a697b65a747e53909ffe9f1495d034f280d7a5f36fe4922cadf98541",
-    "tests/test_source_runner.py": "1f0f8ba01b4ddcd8a6ebc1879fa4ce76b0359cff6b9bc965501f19523e6ca955",
+    "tests/test_source_runner.py": "d23b75a4a2796899eea6849dce5b263dd19f5a8743c402ab65d1ae1f3275cdd4",
     "tests/test_sql_writes.py": "6717e9c6356af2c99fb0831eaa9870c6a15e73da7aac41c1e1727711cea64158",
     "tests/test_timeout_cleanup.py": "73d9767a6d58a80440e12cf2833d5284053c5f8675f12d5d38715b1478720aaa",
     "tests/test_toolchain_smoke.py": "5193ad5376fa2ed90043503efc7fb26bbffcf6dd622067688b63a59023adc4f9",
@@ -12708,9 +13181,11 @@
     "tests/test_unit_cache_contract.py": "16216cf070ff93e4c3da18509c8a8d0a98f26814739b8a405138e87440f928f4",
     "tools/cache_fingerprint.py": "1c6e85b46537c0a584ba1ffc1cd68fa82042a17a591f7ac9fb5594507b4d1a8b",
     "tools/ci_checks.py": "e4a8622ad062b838122c5e0eeb05d37d66110328abd796702ad7b5633987b62d",
-    "tools/run_independent_suites.py": "e32f05852ffd0ee7b0441504aa7c20d18651918b609d04999c43389a3cb45213",
-    "tools/run_source_suite.py": "a946c278b2f36109d64d44b4bebf9e6a2d037dd0323cedc453ea05d12fa928dd",
-    "tools/unit_cache.py": "92293d893f4bb708ba00ea47f67ba01dfb05efd232a1858e3cf2d37779b42f98"
+    "tools/run_independent_suites.py": "70418c4b1d09f87ea7a56e3fc49ec1b510f71a2d2967553d4864b81016c98b6e",
+    "tools/run_source_suite.py": "2b99d8062df543b1047ec3f8f88d56320869c4f56ed614b6cf19aed6262ad033",
+    "tools/unit_cache.py": "92293d893f4bb708ba00ea47f67ba01dfb05efd232a1858e3cf2d37779b42f98",
+    "tests/test_suite_checkpoints.py": "a85230570b7e3b609afe64cd0e4a2a9e6db8000f20c959f3a7f422910fee4fcb",
+    "tests/test_suite_failure_reports.py": "c43112febc1a02fd737269965be6e7965aa03b1dd7829fe7d4a56196443d2fdc"
   },
   "baseline_entrypoints": {
     "just smoke": [

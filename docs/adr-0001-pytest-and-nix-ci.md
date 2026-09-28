@@ -84,9 +84,9 @@ passed the complete two-platform acceptance and performance gates.
 
 | Area | Verified implementation evidence | Still required |
 | --- | --- | --- |
-| Test harness | 409 collected cases reconciled with the inventory; resource-free discovery; nested timeout cleanup; all 403 source and 19 installed cases pass alone and reversed | Final native CI of the integrated changes |
-| Source and installed cases | Complete Darwin source and installed gates pass; 395 source cases pass in one reversed run with fresh coverage, plus eight added packaging cases pass independently/reversed; all 19 installed cases pass alone/reversed | Final both-platform acceptance after the Linux packaging correction |
-| Nix outputs | Both native platforms build the graph and pass source gates; Darwin archive/signature/installation passes; all input-identity and 64 pure-unit checks pass locally | Linux relocated archive/signature/installation validation |
+| Test harness | 422 collected cases reconciled with the inventory; resource-free discovery; nested timeout cleanup; all 416 source and 19 installed cases pass alone and reversed | Final native CI of the integrated changes |
+| Source and installed cases | Complete Darwin source and installed gates pass; 395 source cases pass in one reversed run with fresh coverage, plus eight added packaging cases pass independently/reversed; all 19 installed cases pass alone/reversed | Final both-platform acceptance after watchdog/report changes |
+| Nix outputs | Both native platforms build the graph and pass source gates; Darwin archive/signature/installation passes; all input-identity and 64 pure-unit checks pass locally | Final native rerun after watchdog/report changes |
 | CI transport | Workflow, fingerprints, scope routing and report retention implemented; build-output PR merged after all required gates | Native benchmark pilot, full measurement matrix and measured rollout decision |
 
 Implementation evidence is recorded in the [status file](../plans/20260928-pytest-nix-builds.status.md)
