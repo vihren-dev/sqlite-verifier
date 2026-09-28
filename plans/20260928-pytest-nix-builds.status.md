@@ -214,3 +214,15 @@ No end-to-end performance claim yet.
   job identities, fresh runners, read-only permissions and post-save dependencies.
   Applied its concurrency correction: one fixed, non-cancelling benchmark group
   also prevents overlapping manual experiments from competing for active seeds.
+- Integrated reviewed loader-test fix `6e41b26c` and collector fix `22fa0370`.
+  Both failed main jobs had exactly the same isolated import failure: 415 other
+  source cases passed, with fresh complete coverage; packaging correctly stopped.
+  All 19 affected loader/packaging cases now pass alone and reversed, including
+  an adversarial preloaded-module check and exact import-state restoration.
+- The collector retains completed Sent/Received totals and existing Cache Size
+  records, deduplicating progress repeats. All 15 collector cases pass alone and
+  reversed; measured cold totals match the cache API. Integrated focused checks
+  pass 18 cases, the catalogue/inventory remains exactly 422 IDs, and the rebuilt
+  pure-unit output passes 64 cases plus 62 subtests in 0.62s at
+  `/nix/store/j978sc1463jzims0s7z9533j6kbrf6dk-sqlite-verifier-unit-checks-1`.
+  A fresh native source-mode CI run remains required before the full benchmark.

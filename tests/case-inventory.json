@@ -792,7 +792,7 @@
       ],
       "collection_verified": true,
       "origin": "legacy",
-      "implementation_source": "tests/test_native_dependencies.py:44-124",
+      "implementation_source": "tests/test_native_dependencies.py:44-128",
       "description": "Preserve the interpreter root and bundled symlinks; reject missing/foreign libraries.",
       "parameter_id": null
     },
@@ -824,7 +824,7 @@
       "legacy_variants": [],
       "collection_verified": true,
       "origin": "legacy",
-      "implementation_source": "tests/test_native_dependencies.py:130-158",
+      "implementation_source": "tests/test_native_dependencies.py:134-162",
       "description": "The build-owned manifest supplies loader roots to compilation and kernel checking.",
       "parameter_id": null
     },
@@ -10936,7 +10936,7 @@
         "assert report[\"disk\"][\"workspace\"][\"peak_used_bytes\"] == 456",
         "assert observations(job, \"\") [\"reported_cache_bytes\"] == []"
       ],
-      "implementation_source": "tests/test_benchmark_ci.py:100-109",
+      "implementation_source": "tests/test_benchmark_ci.py:100-115",
       "description": "Inclusive runner timing and disk markers survive after artifact upload/cache saving.",
       "parameter_id": null,
       "level": "unit",
@@ -13111,7 +13111,7 @@
     "result": "Every inventory identity exactly matches this single-tree collection; baseline evidence remains immutable.",
     "evidence": [
       {
-        "path": "/Users/tzankomatev/work/sqlite-verifier-adr1/build/integrated-422-catalogue.json",
+        "path": "/Users/tzankomatev/work/sqlite-verifier-adr1/build/final-pilot-fixes-catalogue.json",
         "sha256": "d46426a293328e6610b7a383e0b6ab0c0a669f04b0b70c5deafd8389aad6e2b8",
         "case_count": 422
       }
@@ -13152,7 +13152,7 @@
     "tests/runtime_support.py": "839f3e2125116e521b773834b005d803a7778f1582a6877e13bfb1d717b0d6e8",
     "tests/schema_generation_test.py": "c083e190e20dfd99e0eaa4b3e84836c54420c130beaf5d9588b94c7c39e9e982",
     "tests/test_baseline_ci.py": "992fdf69c88e37e48b09186be1041a86d6cbfbbd63668abce4f628cabe1c6716",
-    "tests/test_benchmark_ci.py": "9f50a8395d6c3bbac1461b2807c7f9cee33d5835444ea20b397f2d5ec24d9be3",
+    "tests/test_benchmark_ci.py": "7be07fb0efc82701adb084465e68a3a7fbd17eb17af0f103144eba85a8ad01ff",
     "tests/test_cache_fingerprint.py": "a8537c9cda80efbc9d8d397b6368fa707c5bea40daa886c7ec852cddadf6c83c",
     "tests/test_ci_checks.py": "98bef5a0e6ff3edff8ddb6dc04d6d2572dfd59af1cf7173aee5d7d51d86c3ee6",
     "tests/test_ci_scope.py": "d6ecbae731706baa24083eec5934666eb5d3d9fa905292c96f3e520500c027a3",
@@ -13160,7 +13160,7 @@
     "tests/test_coverage_receipts.py": "17d5f528ce144fd1dc9df8a2396ca58f331d174c27d9473071a7d88f56679321",
     "tests/test_elf_relocation.py": "d3eeddb969953d1df43aa1865c84fc7eb02579606a188c8b8c2bc289835421b1",
     "tests/test_independent_suites.py": "72fee0b8076064b97aa0c61f9a142c7004bafb3e985e22fb4249c9bb445b399b",
-    "tests/test_native_dependencies.py": "4845be545a8c00d5c9db4348063df7de4659dc1b23d5b1f6c6c9319c24b00e09",
+    "tests/test_native_dependencies.py": "b98171a0db40298e76f25ddda530d5bff629b3290043a448af97b5947a843501",
     "tests/test_parser_cache_environment.py": "920073eb1e069e58645a6801cb11a3b3b10af998da12effaf7d2fc27b175a682",
     "tests/test_profiles.py": "48e7ba1b75959c3023c3ec8f1e3133bff8b350b385891dd4e56dda110cfee354",
     "tests/test_pytest_harness.py": "6806d6137c5e79d2aae809f9fb72d4ae5466de71c91b4379be3bde5059d6e567",
