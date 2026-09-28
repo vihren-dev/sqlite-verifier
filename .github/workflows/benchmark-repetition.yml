@@ -1,0 +1,41 @@
+name: ADR 0001 native repetition
+on:
+  workflow_call:
+    inputs:
+      replica:
+        type: number
+        required: true
+      pilot:
+        type: boolean
+        required: true
+permissions:
+  contents: read
+jobs:
+  cold:
+    strategy:
+      fail-fast: false
+      max-parallel: 4
+      matrix:
+        variant: ${{ fromJSON(inputs.pilot && '["candidate"]' || '["baseline", "candidate"]') }}
+        system: [x86_64-linux, aarch64-darwin]
+    uses: ./.github/workflows/benchmark-native.yml
+    with:
+      variant: ${{ matrix.variant }}
+      system: ${{ matrix.system }}
+      replica: ${{ inputs.replica }}
+      scenario: cold
+  restored:
+    needs: cold
+    strategy:
+      fail-fast: false
+      max-parallel: 12
+      matrix:
+        variant: ${{ fromJSON(inputs.pilot && '["candidate"]' || '["baseline", "candidate"]') }}
+        system: [x86_64-linux, aarch64-darwin]
+        scenario: ${{ fromJSON(inputs.pilot && '["warm"]' || '["warm", "python", "lean", "package"]') }}
+    uses: ./.github/workflows/benchmark-native.yml
+    with:
+      variant: ${{ matrix.variant }}
+      system: ${{ matrix.system }}
+      replica: ${{ inputs.replica }}
+      scenario: ${{ matrix.scenario }}

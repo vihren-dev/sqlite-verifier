@@ -194,3 +194,23 @@ No end-to-end performance claim yet.
   [36410934815](https://github.com/vihren-dev/sqlite-verifier/actions/runs/36410934815)
   is running cold then warm candidate jobs on both platforms. The full sixty
   measurements and rollout decision remain pending. No release or tag was made.
+
+- Pilot cold jobs passed and saved exact isolated main-ref caches: Linux 8m46s,
+  1,731,976,808 bytes; Darwin 10m41s, 1,780,962,687 bytes. Both disk markers follow
+  cache saving. Warm restores remain in progress. The collector is being adjusted
+  to recognize the action's actual completed-transfer log format.
+- Cache capacity is a measured scheduling constraint: the read-only storage-limit
+  API returns 10 GB, while six candidate seeds alone total 10,538,818,485 bytes.
+  Group the unchanged sixty samples by repetition, finishing each group's four
+  cold and sixteen restored jobs before starting another group. This keeps four
+  active seeds; no cache deletion, capacity increase or billing change is needed.
+- Normal main Linux CI exposed a test isolation defect in the loader test's
+  dynamic import of `build_runtime.py`: the new `relocate_elf` sibling was visible
+  only after another test module altered the search path. A scoped fixture fix
+  and refreshed affected standalone/reverse receipts are in progress. Production
+  proof acceptance and the experimental native gates are unaffected.
+- The benchmark grouping passes YAML parsing and exact matrix expansion checks
+  (60 full samples; 4 pilot samples). Independent review confirms unchanged leaf
+  job identities, fresh runners, read-only permissions and post-save dependencies.
+  Applied its concurrency correction: one fixed, non-cancelling benchmark group
+  also prevents overlapping manual experiments from competing for active seeds.
