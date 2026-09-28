@@ -93,18 +93,16 @@ def collect(evidence: Path, output: Path) -> list[dict]:
         artifact = path.parent.parent
         sample["case_reports"] = [json.loads(report.read_text())
                                   for report in sorted(artifact.glob("work/build/test-results/*/*.json"))]
-        sample["cached_unit_reports"] = [json.loads(report.read_text())
-                                          for report in artifact.glob("work/build/cached-unit/source/unit.json")]
-        source_catalogue = artifact / "work/build/source-catalogue.json"
-        sample["source_ids"] = ([row["node_id"] for row in json.loads(source_catalogue.read_text())]
-                                if source_catalogue.exists() else [])
-        manifest = artifact / "work/build/cached-unit/unit-cases.json"
-        sample["unit_ids"] = json.loads(manifest.read_text()) if manifest.exists() else []
+        sample["cached_test_reports"] = [json.loads(report.read_text())
+                                          for report in artifact.glob("work/build/nix-tests*/source/*.json")]
         inventory = json.loads((path.parent / "legacy-to-node-mapping.json").read_text())
+        sample["source_ids"] = [row["node_id"] for row in inventory["cases"] if "source" in row["runtimes"]]
+        sample["cached_ids"] = [case["node_id"] for report in sample["cached_test_reports"]
+                              for case in report["cases"]]
         sample["installed_ids"] = [row["node_id"] for row in inventory["cases"]
                                    if "installed" in row["runtimes"]]
-        coverage = artifact / "work/build/coverage.json"
-        sample["source_run_id"] = json.loads(coverage.read_text()).get("run_id") if coverage.exists() else None
+        source = artifact / "work/build/test-results/source/source.json"
+        sample["source_run_id"] = json.loads(source.read_text()).get("run_id") if source.exists() else None
         sample["environment"] = [json.loads(report.read_text())
                                   for report in artifact.glob("work/build/ci-environment.json")]
         samples.append(sample)

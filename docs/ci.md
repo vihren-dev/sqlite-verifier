@@ -1,61 +1,44 @@
 # Continuous integration
 
-[ADR 0001](adr-0001-pytest-and-nix-ci.md), accepted on 2026-09-28, authorizes
-immutable project-build and pure-unit-result caching with compatible prefix
-restoration, subject to its correctness and performance gates. Implementation is
-[in progress](../plans/20260928-pytest-nix-builds.status.md). Production retains the
-dependency-only fallback until native correctness and measured performance gates
-pass. The workflow-dispatch `experimental-build-cache` input or a PR branch
-prefixed `experiment/adr-0001-` exercises the new graph without enabling rollout.
+CI uses Nix to cache builds and expensive hermetic pytest suites. The earlier
+[ADR 0001](adr-0001-pytest-and-nix-ci.md) unit-result receipts and coverage
+aggregation have been superseded by [Nix test targets](../build-support/README.md).
 
-`.github/workflows/ci.yml` runs on pull requests, pushes to `main`, and manual
-requests. The two required `Check` jobs remain present for every run. Their
-scope is selected from the complete changed-path list by `tests/ci_scope.py`:
+`.github/workflows/ci.yml` checks Linux and macOS on pull requests, main pushes,
+release tags and manual requests. `tests/ci_scope.py` routes documentation-only
+changes to link checks, ordinary changes to `just test`, and runtime/package
+changes to `just package`. Tags and manual requests always package.
 
-- Documentation-only changes check authored Markdown file links, without Nix or
-  archives. External URLs and section anchors are outside this bounded check.
-- Ordinary verifier, conformance and test changes run the full `just test` on
-  both platforms. Unknown paths also run full checks.
-- Packaging, CLI, parser, toolchain/environment, example and workflow changes run
-  `just package`, including the complete checks and installed-runtime tests.
-- Release tags and manual requests always run `just package`.
+Each native job enters the pinned Nix environment once. `tools/ci_checks.py`
+checks resources, builds the runtime, probes the Linux sandbox capability and
+invokes the selected recipe. `just test` builds two independent Nix test targets:
 
-Each build job enters `nix develop path:./nix` once. `tools/ci_checks.py` runs
-setup, the Linux sandbox check and its selected recipe. In experimental mode it
-builds `runtime` and `unitChecks` with Nix, supplies their explicit roots to the
-same fresh host recipe, and retains cached unit receipts separately. This explicit path contains only the
-environment definition, even in additional Jujutsu workspaces. Adding checks to
-shared recipes extends CI. Superseded ordinary runs on the same ref are cancelled;
-tags and manual runs have unique concurrency groups and are never auto-cancelled.
-Jobs have a 30-minute timeout; individual tests keep their own shorter limits.
+- `tests.kernel`: real Lean compilation and proof-checker replay attacks.
+- `tests.model`: production SQL translation, pinned native SQLite observations
+  and concrete Lean model assertions.
 
-After shared build prerequisites, kernel-gate and ordinary CLI suites
-run with two workers on Linux. macOS runs them sequentially: hosted overlap caused
-a valid proof to hit the unchanged production checker deadline. Each suite keeps
-its own deadline (360 and 600 seconds), private
-test directories and complete log under `build/test-logs/`. Both children are
-awaited; either failure fails CI. Other suites remain sequential. Logs, fresh JSON/JUnit reports and failure artifacts are retained
-on failure as well as success; cached unit reports use a separate directory. Runtime packaging reports copying, Nix export,
-signature verification and compression times. Installed Atuin cases retain the
-same phase reports and captured failure diagnostics as source cases. Coverage
-aggregation reads the current run's receipts after all source suites finish.
-The offline Nix cache uses its native zstd encoding; the outer archive remains
-gzip level1. Nix verifies the decoded contents and signatures before archiving.
+Each target runs ordinary pytest on a cache miss. Its explicit source files,
+Python/pytest, native tools, Lean artifacts and command determine its Nix identity.
+Successful outputs retain pytest reports. There is no Python cache validator or
+coverage-report gate. Nix sandboxing is enabled, with fallback disabled.
 
-The pinned [cache-nix-action v7](https://github.com/nix-community/cache-nix-action/tree/7df957e333c1e5da7721f60227dbba6d06080569)
-reuses the Nix store with an exact platform and `nix/flake.nix`/`nix/flake.lock`
-hash key. Only successful `main` jobs save caches; pull requests and tags only
-restore. The fallback has no prefix restoration and keeps checkout build outputs outside
-the cache. Experimental mode uses the canonical `build-v2` environment/source
-key and the matching environment prefix; Nix derivation identity decides reuse.
-Only reviewed resource-free unit receipts may replace host unit execution.
-Proof acceptance, conformance, host sandbox and installed tests always run freshly.
-Neither mode adds checkout cache paths, purging, garbage collection or permissions.
-A miss rebuilds from declared pinned inputs. Hosted cold
-and warm package runs must establish whether restoration and saving pay for
-themselves; the timing report records measured results rather than assuming a gain.
-See [CI performance measurements](ci-performance.md) for complete runs and the
-per-invocation import reuse that reduces checker work without caching verdicts.
+The remaining source cases run in one pytest invocation. In particular, CLI,
+Atuin, production containment, Nix daemon and installation tests run on the host;
+we do not treat a cached build-sandbox result as proof of host sandbox behavior.
+Cheap unit tests rerun normally. Direct `just test-cases FILE` always executes
+pytest, even if the corresponding Nix target is already cached.
+
+The pinned cache-nix-action restores the Nix store using a platform/environment
+prefix and a commit-specific key. Only successful main jobs save caches. PRs and
+tags restore them. Nix, not the GitHub cache key, determines which outputs can be
+reused. An unrelated test edit can reuse kernel/model results; changing a declared
+input creates a different test derivation. No extra signing credentials, custom
+source fingerprinting in production CI, or checkout build caches are required.
+
+Host JSON/JUnit reports, cached Nix test outputs and CI phase diagnostics are
+retained for 14 days. Pytest's exit status decides success. Individual subprocess
+and whole-command deadlines remain bounded; the job limit is 30 minutes.
+Superseded ordinary runs are cancelled; release/manual runs are not.
 
 The matrix follows GitHub's documented native runner architectures:
 `ubuntu-22.04` is x64 (`x86_64-linux`), and `macos-14` is Apple Silicon
@@ -80,8 +63,7 @@ credentials, and the workflow requests read-only repository content permission.
 
 Successful packaging jobs retain development-source snapshots and checked native
 runtime archives for 14 days; ordinary checks do not create these archives.
-The fresh bounded `build/coverage.json` report is retained
-for each platform, including failed reports when the file is available. Runtime
+Runtime
 acceptance installs into a fresh directory with spaces, Unicode and URI-special
 characters, and checks both parsers, the positive, refuted and unsupported examples,
 the installed dependency roots, and all thirteen Atuin cases under
@@ -119,5 +101,5 @@ published on 2026-09-28 after both complete platform jobs passed twice at `7a99c
 published checksum files match the archive asset digests. The failed v0.1.0 tag
 remains unchanged, and v0.1.0-rc.1 is an earlier engineering preview.
 
-The [native benchmark protocol](adr1-benchmarks.md) defines the isolated
-60-job comparison and the evidence required before rollout.
+The [native benchmark protocol](adr1-benchmarks.md) records the earlier isolated
+60-job comparison; it is not a gate for the current target-based cache design.

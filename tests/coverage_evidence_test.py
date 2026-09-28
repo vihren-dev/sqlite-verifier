@@ -69,16 +69,3 @@ def test_named_proofs(lean_sysroot: Path, lean_library: Path, tmp_path: Path,
     (case_artifacts / "named-proofs.json").write_text(json.dumps(evidence, indent=2) + "\n")
     assert evidence["status"] == "PASSED", evidence
 
-
-def test_fresh_coverage_report(tmp_path: Path, command_runner: Callable[..., CommandResult]) -> None:
-    """A previous success file never replaces absent current-run receipts; failure JSON is still written."""
-    output = tmp_path / "coverage.json"
-    output.write_text('{"status":"EVIDENCE_CHECKS_PASSED"}\n')
-    result = command_runner([sys.executable, str(ROOT / "conformance/coverage_report.py"),
-        "--reports", str(tmp_path / "source"), "--run-id", "missing-fresh-run",
-        "--runtime-root", str(ROOT), "--output", str(output)], cwd=ROOT, timeout=5)
-    assert result.returncode == 1, result.diagnostic()
-    report = json.loads(output.read_text())
-    assert report["status"] == "EVIDENCE_CHECKS_FAILED"
-    assert report["native_model"]["observed_discrepancies"] is None
-    assert report["atuin_sql"]["observed_discrepancies"] is None

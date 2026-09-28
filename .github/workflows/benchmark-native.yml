@@ -44,6 +44,9 @@ jobs:
         with:
           enable_kvm: false
           set_as_trusted_user: false
+          extra_nix_config: |
+            sandbox = true
+            sandbox-fallback = false
       - name: Restore experiment store
         id: cache
         uses: nix-community/cache-nix-action@7df957e333c1e5da7721f60227dbba6d06080569 # v7
@@ -70,9 +73,7 @@ jobs:
             work/build/ci-environment.json
             work/build/ci-phases/
             work/build/test-results/
-            work/build/cached-unit/
+            work/build/nix-tests*/
             work/build/test-logs/
-            work/build/coverage.json
-            work/build/source-catalogue.json
           if-no-files-found: warn
           retention-days: 30

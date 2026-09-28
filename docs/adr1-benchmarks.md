@@ -1,5 +1,9 @@
 # ADR 0001 native benchmark protocol
 
+Historical protocol: the unit-cache/coverage rollout described here was
+superseded on 2026-09-28 by [Nix test targets](../build-support/README.md).
+The measurement tools retain independent cached-test reports for comparisons.
+
 The build-output cache remains experimental. `ci.yml` defaults to the dependency
 cache and checkout build. A manual experimental CI input, or a pull request branch
 starting `experiment/adr-0001-`, exercises the candidate graph while retaining the

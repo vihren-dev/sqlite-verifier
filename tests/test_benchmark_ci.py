@@ -31,7 +31,7 @@ def samples() -> list[dict]:
                        "conclusion": "success", "disk": {"workspace": {"peak_used_bytes": 1}},
                        "cache": {"RESTORED_KEY": "" if scenario == "cold" else "seed"},
                        "cache_key": "seed", "cache_prefix": "",
-                       "source_ids": ["tests/example.py::test_example"], "unit_ids": [],
+                       "source_ids": ["tests/example.py::test_example"], "cached_ids": [],
                        "source_run_id": "fresh", "installed_ids": [f"installed::{i}" for i in range(19)],
                        "total_seconds": 90 if variant == "candidate" else 100, "case_reports": reports})
     return result

@@ -1,21 +1,8 @@
 """Run bounded evidence commands and preserve errors without manufacturing a passing result."""
 
-import json
 import re
 
 from coverage_catalog import THEOREMS
-
-
-def structured(evidence: dict[str, object]) -> object:
-    """Parse runner output only after success; bad output cannot count as zero discrepancies."""
-    if evidence["status"] != "PASSED":
-        return None
-    try:
-        value = json.loads(str(evidence["stdout"]))
-    except ValueError as error:
-        evidence.update(status="FAILED", diagnostic=f"Invalid evidence JSON: {error}")
-        return None
-    return value
 
 
 def audit_proofs(evidence: dict[str, object]) -> dict[str, object]:

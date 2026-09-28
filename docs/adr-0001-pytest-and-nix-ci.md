@@ -1,5 +1,10 @@
 # ADR 0001: Discoverable pytest cases and Nix build caching
 
+Update (2026-09-28): the owner superseded the unit-receipt cache, source-suite
+orchestrator and aggregate coverage gate with independently cached expensive
+pytest derivations. See [current build/test behavior](../build-support/README.md)
+and [CI](ci.md). The decision and rollout protocol below are historical.
+
 - Status: Accepted; implementation in progress
 - Date: 2026-09-26
 - Updated: 2026-09-28

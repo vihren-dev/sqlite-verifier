@@ -51,9 +51,10 @@ These native checks are evidence, not a proof of correspondence with SQLite C.
 
 `just build` compiles the upstream-derived parser, public Lean library, and
 independent kernel checker.
-`just test` builds prerequisites and runs the source test suite.
+`just test` builds prerequisites, reuses independently cached Nix kernel/model
+test targets, and runs the remaining source tests with pytest.
 Commands run under explicit timeouts and are also the entry points for CI.
-The same run refreshes the [bounded coverage report](docs/coverage.md).
+Test scopes and limitations are described in [conformance coverage](docs/coverage.md).
 `just package` runs the shared checks, builds a native runtime archive in `dist/`,
 and tests its actual installed entrypoint before retaining a source snapshot.
 See [CI and release procedure](docs/ci.md).

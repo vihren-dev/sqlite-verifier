@@ -1,30 +1,17 @@
-# Bounded coverage report
+# Conformance test scope
 
-Run inside the pinned
-`nix develop path:./nix` environment:
+`just test` runs the source checks through pytest and independently cached Nix
+test targets. There is no aggregate `coverage.json` or extra evidence gate.
+A pytest failure fails its host invocation or Nix derivation.
 
-```sh
-just test
-```
+The native/model target runs the pinned SQLite 3.51.0 engine, production parser
+and translator, and Lean kernel assertions. The kernel target tests independent
+proof replay. Their dependencies determine Nix cache invalidation. Other tests,
+including production host containment and Atuin CLI examples, execute freshly.
+See [test targets](../build-support/README.md) for direct and cached commands.
 
-`SQLITE3` may select the exact pinned 3.51.0 engine. Shared `just test` and CI
-use this command; the JSON is a check artifact, not a proof certificate. Each
-subprocess has a timeout. The command refreshes the existing evidence and exits
-nonzero if any check fails. A failed or unavailable comparison has unknown
-counts (`null`), never zero discrepancies. Diagnostics retain the failing command.
-The source suite runs the native and model pytest cases once, including
-vendored-source/fixture checks and the rejected false-empty model assertion.
-`conformance/coverage_report.py` aggregates their fresh evidence using the current
-run ID; it does not execute the tests itself. Existing reports from other runs
-are never reused as conformance evidence.
-`just test` prepares those prerequisites. The Atuin check executes ordinary
-SQL through the pinned SQLite CLI; it has no application or framework dependency.
-The top-level native/model profile remains 3.51.0. The `additional_grammars`
-entry separately reports 3.46.0 syntax evidence; it does not transfer the 3.51.0
-native/model observations to the older engine. Both grammar inventories and
-their own smoke-test counts must be available for a passing report.
-
-The report keeps these scopes separate:
+Passing tests support only their declared scenarios, not a percentage of all
+SQLite behavior. These scopes remain distinct:
 
 | Scope | Denominator and limitation |
 | --- | --- |
@@ -37,25 +24,12 @@ The report keeps these scopes separate:
 | Native/model observations | All five authored derived cases compared against independent expected results through the production parser/translator and Lean checks. Zero discrepancies means only those completed comparisons. |
 | Atuin SQL (`atuin_sql`, SQLite 3.46.0) | Three independent native SQL cases: empty, singleton and three-row histories. Each checks preservation of all old stored fields under the supplied payload. These are bounded storage observations, not framework traces or witnesses of the example's approved assumptions. |
 
-The fresh Atuin test output must have the complete case identities, source SQL
-hashes and native-only status labels. Missing, duplicated,
-failed or altered observations leave comparison counts unknown. It runs once per
-aggregate check and writes `build/atuin-sql.json` for inspection; an old file is
-never substituted for its current output. Native fixtures include adversarial
-storage values outside the business decoder's admitted domain; their preservation
-is additional finite evidence, not an application interpretation witness.
-`model_status` remains `NOT_COMPARED_BY_THIS_TEST`: these observations are not
-presented as native/model refinement proofs. Public CLI and kernel checks separately
-establish whether the supplied example proof is accepted.
+Atuin SQL tests use SQLite 3.46.0 and preserve old stored classes/bytes under the
+supplied SQL. They do not establish a universal native/model refinement proof or
+application-query guarantee. Model comparisons use SQLite 3.51.0; syntax tests for
+3.46.0 do not transfer model evidence to that version.
 
-`conformance/coverage_catalog.py` links documentation claims to definitions,
-lemmas, and fixtures without treating a citation as a proof. Detailed native
-observations and named theorem axiom output are embedded in the report. Failures
-may indicate resource/tool problems or mismatches; a failed check alone is not a
-witness of violated requirements. The CLI's `VERIFIED`/`VIOLATED` outcomes remain
-separate from this report's evidence-check status.
-
-No corpus completion, universal native refinement, schema-text/physical-layout
-proof, application-query guarantee, real-pilot acceptance, or owner approval
-follows from this report. Existing fixture and model-comparison documentation
-remains authoritative about provenance and exclusions.
+`conformance/coverage_catalog.py` retains the documented claim/theorem inventory.
+Named theorem tests check their allowed axiom sets. Pytest reports and command
+artifacts retain diagnostics without revalidating successful reports in Python.
+No corpus completeness or owner approval follows from a passing test run.

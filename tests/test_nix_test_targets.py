@@ -1,0 +1,76 @@
+"""Exercise Nix's real dependency identities and failed-test behavior, without receipt validation."""
+
+import json
+from pathlib import Path
+import shutil
+
+import pytest
+
+from tests.runtime_support import run_command
+
+ROOT = Path(__file__).resolve().parents[1]
+pytestmark = [pytest.mark.integration, pytest.mark.environment, pytest.mark.requires_nix]
+
+
+def expression(root: Path) -> str:
+    """Reuse the actual test definitions with a private source tree and unchanged runtime dependencies."""
+    quote = lambda path: json.dumps(str(path)).replace("${", "\\${")
+    return f'''let
+      pkgs = import (builtins.toPath {quote(ROOT / 'build-support/locked-nixpkgs.nix')}) {{}};
+      builds = import (builtins.toPath {quote(ROOT / 'build-support/default.nix')}) {{}};
+    in import (builtins.toPath {quote(ROOT / 'build-support/tests.nix')}) {{
+      inherit pkgs; inherit (builds) leanToolchain leanRuntime parsers;
+      root = /. + {quote(root)};
+    }}'''
+
+
+def identities(root: Path) -> dict[str, str]:
+    """Evaluate derivation paths, which include sources, commands and all declared tool dependencies."""
+    result = run_command(['nix-instantiate', '--eval', '--strict', '--json',
+        '--extra-experimental-features', 'nix-command flakes', '--expr',
+        f'builtins.mapAttrs (_: test: test.drvPath) ({expression(root)})'], cwd=ROOT, timeout=30)
+    assert result.returncode == 0, result.diagnostic()
+    return json.loads(result.stdout)
+
+
+@pytest.fixture
+def source_tree(tmp_path: Path) -> Path:
+    """Copy only small potential test inputs; no store outputs, vendored parsers or build trees."""
+    for name in ('pytest.ini', 'conftest.py'):
+        shutil.copy2(ROOT / name, tmp_path / name)
+    for name in ('tests', 'migration_check', 'conformance'):
+        shutil.copytree(ROOT / name, tmp_path / name,
+                        ignore=shutil.ignore_patterns('__pycache__', '*.pyc', 'upstream'))
+    return tmp_path
+
+
+@pytest.mark.parametrize('relative,affected', [
+    ('tests/kernel_gate_test.py', {'kernel'}),
+    ('tests/kernel_gate/Proofs.lean', {'kernel'}),
+    ('conformance/model_cases.py', {'model'}),
+    ('migration_check/translate.py', {'model'}),
+    ('conftest.py', {'kernel', 'model'}),
+    ('tests/test_translation.py', set()),
+])
+def test_dependency_invalidation(source_tree: Path, relative: str, affected: set[str]) -> None:
+    """Changing a declared input invalidates only dependent suites; unrelated tests leave both cached."""
+    before = identities(source_tree)
+    path = source_tree / relative
+    path.write_text(path.read_text() + '\n')
+    after = identities(source_tree)
+    assert {name for name in before if before[name] != after[name]} == affected
+
+
+def test_failed_pytest_target_has_no_output(source_tree: Path) -> None:
+    """A real sandboxed target with a failed pytest assertion cannot create a reusable successful output."""
+    (source_tree / 'tests/kernel_gate_test.py').write_text('''import pytest
+pytestmark = [pytest.mark.integration, pytest.mark.kernel]
+def test_failure():
+    """Deliberate failure must propagate through the Nix build."""
+    assert False, "intentional pytest failure"
+''')
+    result = run_command(['nix-build', '--no-out-link', '--option', 'sandbox', 'true',
+        '--option', 'sandbox-fallback', 'false', '--extra-experimental-features', 'nix-command flakes',
+        '--expr', f'({expression(source_tree)}).kernel'], cwd=ROOT, timeout=90)
+    assert result.returncode != 0, result.diagnostic()
+    assert 'intentional pytest failure' in result.stderr, result.diagnostic()
