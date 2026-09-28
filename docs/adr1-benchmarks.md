@@ -72,6 +72,8 @@ or incomplete metrics prevent a passing recommendation. The
 [completed four-job pilot](adr1-cache-pilot.md) verifies native cache restoration,
 output reuse, artifact paths and GitHub post-hook integration. The full replicated
 baseline/candidate comparison remains pending.
+The [performance analysis](adr1-performance-analysis.md) attributes the observed
+regression to specific measured steps and records where baseline timing is missing.
 
 The pinned cache action's [output contract](https://raw.githubusercontent.com/nix-community/cache-nix-action/7df957e333c1e5da7721f60227dbba6d06080569/action.yml)
 includes primary and prefix matches in its hit signal; the collector additionally

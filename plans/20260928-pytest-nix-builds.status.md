@@ -287,3 +287,15 @@ No end-to-end performance claim yet.
   alone and reversed. This read-only audit is retained locally in
   `build/closeout-retained-receipts-audit.json`; it did not rerun tests or substitute
   historical receipts for the corrected import/collector cases.
+- Repetition two also passed all twenty samples, and repetition three is running.
+  The first two Linux warm pairs already preclude an improved three-sample median
+  for this revision. The owner requested root-cause analysis before deciding the
+  next action. The [analysis](../docs/adr1-performance-analysis.md) records measured
+  fresh-test additions, extra verification calls, cache transport and Nix lookup
+  overhead, without attributing unmeasured legacy phases to a guessed cause.
+  Implementation and benchmark inputs remain unchanged while that review proceeds.
+- Updated the primary workspace onto merged main `2aacaa4d`, preserving all local
+  draft documents byte-for-byte. The accumulated measurement documentation is
+  published in draft [PR 6](https://github.com/vihren-dev/sqlite-verifier/pull/6);
+  its docs-only native checks and protected-baseline check pass. The final benchmark
+  results and rollout decision remain open, and the overall task is not DONE.
