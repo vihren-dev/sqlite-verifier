@@ -42,7 +42,7 @@ def test_ci_modes_retain_fresh_checks(tmp_path: Path, mode: str, system: str) ->
         assert [command[3] for command in commands[:2]] == ["runtime", "unitChecks"]
         assert environments[-1]["SQLITE_VERIFIER_RUNTIME_ROOT"] == str(runtime)
         assert environments[-1]["SQLITE_VERIFIER_UNIT_CHECKS"] == str(units)
-        assert (tmp_path / "build/cached-unit/unit-cases.json").exists()
+        assert not (tmp_path / "build/cached-unit").exists()
     else:
         assert commands[0] == ["just", "setup"]
         assert "SQLITE_VERIFIER_UNIT_CHECKS" not in environments[-1]
