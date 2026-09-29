@@ -11,3 +11,7 @@ Original W2 report remains historical evidence until a replacement is measured.
 Connection profile corrected: removed the global DQS build override; both writer
 and reader explicitly disable and independently read back DQS_DML/DQS_DDL.
 Live pinned-library test passed (1 test), including DML and DDL rejection.
+
+Independent metadata validation added in `conformance/native_metadata.py`. Native
+column fields, affinity, keys and indexes are cross-checked; ten translator faults
+are rejected. Live pipeline and original fixture suites passed (17 tests).

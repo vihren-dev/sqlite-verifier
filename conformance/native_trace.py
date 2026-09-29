@@ -10,6 +10,7 @@ from migration_check.sql_model import Table, sql_inputs
 from migration_check.diagnostics import Rejection
 from migration_check.sql_tree import parse
 from migration_check.translate import starting_schema, statements
+from conformance.native_metadata import check_metadata, integer, quoted, text
 from conformance.case_format import Json, cell_wire, schema_wire, statement_wire, table_wire
 from conformance.native_connection import Cell, Connection, NativeError, SOURCE_ID, library_path, load_library
 
@@ -21,11 +22,6 @@ class Fixture:
     migration_sql: str
     rows: dict[str, list[tuple[int, tuple[Cell, ...]]]]
     name: str
-
-
-def quoted(name: str) -> str:
-    """Identifiers originate from admitted schemas but still require SQL quoting."""
-    return '"' + name.replace('"', '""') + '"'
 
 
 def cell_sql(cell: Cell) -> str:
@@ -44,22 +40,6 @@ def cell_sql(cell: Cell) -> str:
     return f"CAST({blob} AS TEXT)" if kind == 3 else blob
 
 
-def text(cell: Cell) -> str:
-    """Only SQL metadata is decoded as UTF-8; application TEXT remains arbitrary bytes."""
-    kind, value = cell
-    if kind != 3 or not isinstance(value, bytes):
-        raise ValueError("Expected native textual schema metadata")
-    return value.decode("utf-8")
-
-
-def integer(cell: Cell) -> int:
-    """Physical rowids must be native INTEGER, never a coerced observation."""
-    kind, value = cell
-    if kind != 1 or not isinstance(value, int):
-        raise ValueError("Expected native integer")
-    return value
-
-
 def snapshot(connection: Connection, parser: Path) -> list[Json]:
     """Read all supported objects and chunk wide rows below the fixed result-column limit."""
     metadata = connection.query("SELECT type,name,sql FROM sqlite_schema ORDER BY name;")
@@ -73,11 +53,11 @@ def snapshot(connection: Connection, parser: Path) -> list[Json]:
         schema = starting_schema(parse(parser, "\n".join(declarations).encode(), "native-schema.sql"))
     except Rejection as error:
         raise ValueError(f"Cannot observe native schema: {error}") from error
+    if sorted(table.name for table in schema) != sorted(text(name) for kind, name, _ in metadata if text(kind) == "table"):
+        raise ValueError("Native table inventory differs from parsed declaration")
     tables: list[Json] = []
     for table in sorted(schema, key=lambda entry: entry.name):
-        info = connection.query(f"PRAGMA table_info({quoted(table.name)});")
-        if len(info) != len(table.columns):
-            raise ValueError("Native column inventory differs from parsed declaration")
+        check_metadata(connection, table)
         rowids = [integer(row[0]) for row in connection.query(
             f"SELECT rowid FROM {quoted(table.name)} ORDER BY rowid;")]
         cells: dict[int, list[Cell]] = {rowid: [] for rowid in rowids}

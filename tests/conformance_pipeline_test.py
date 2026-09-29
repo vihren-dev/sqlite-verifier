@@ -118,3 +118,35 @@ def test_connection_dqs_profile(tmp_path: Path) -> None:
                 connection.query('CREATE TABLE t(x CHECK(x <> "not_an_identifier"));')
         finally:
             connection.close()
+
+
+def test_native_metadata_catches_translator_faults(runtime_root: Path, tmp_path: Path,
+                                                  monkeypatch: pytest.MonkeyPatch) -> None:
+    """Independent PRAGMAs reject corrupted metadata even when the parser accepts it."""
+    from dataclasses import replace
+    from conformance import native_trace
+    from conformance.native_connection import Connection, library_path, load_library
+    from migration_check.sql_tree import parse
+    from migration_check.translate import starting_schema
+    sql = ("CREATE TABLE t(id BIGINT PRIMARY KEY, stamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP, "
+           "flag INTEGER NOT NULL, value TEXT, UNIQUE(flag,value)); "
+           "CREATE UNIQUE INDEX by_value ON t(value,flag);")
+    parser = runtime_root / "build/sqlite-parser"
+    table = starting_schema(parse(parser, sql.encode(), "metadata.sql"))[0]
+    connection = Connection(load_library(library_path()), tmp_path / "metadata.db")
+    try:
+        connection.execute_script(sql)
+        native_trace.snapshot(connection, parser)
+        column = table.columns[2]
+        faults = [replace(table, columns=table.columns[:2] + (replace(column, **change),) + table.columns[3:])
+                  for change in ({"affinity": "text"}, {"name": "wrong"}, {"not_null": False},
+                                 {"declared_type": "bigInt"}, {"current_timestamp": True})]
+        faults += [replace(table, primary_key=()), replace(table, unique_keys=()),
+                   replace(table, indexes=()), replace(table, indexes=(replace(table.indexes[0], unique=False),)),
+                   replace(table, indexes=(replace(table.indexes[0], columns=("flag", "value")),))]
+        for faulty in faults:
+            monkeypatch.setattr(native_trace, "starting_schema", lambda tree: (faulty,))
+            with pytest.raises(ValueError, match="Native .* differs"):
+                native_trace.snapshot(connection, parser)
+    finally:
+        connection.close()

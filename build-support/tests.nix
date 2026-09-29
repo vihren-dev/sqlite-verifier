@@ -58,7 +58,7 @@ in {
     ] ++ map (name: root + "/conformance/${name}.py") [
       "model_assertions" "model_cases" "model_check"
       "native_fixture" "import_fixture" "schema"
-      "case_format" "native_connection" "native_trace" "pipeline"
+      "case_format" "native_connection" "native_metadata" "native_trace" "pipeline"
     ];
     runtime = conformance;
     tools = [ native.sqlite ];

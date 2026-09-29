@@ -87,6 +87,12 @@ sets DQS_DML and DQS_DDL off with `sqlite3_db_config` and reads both settings ba
 the pinned engine retains its default build configuration. Connections use native
 autocommit, defensive mode off, trusted schema on, and writable schema off.
 
+Native columns are cross-checked against `table_xinfo` (including type, independently
+derived affinity, nullability, default and primary-key order). `index_list` and
+`index_xinfo` independently check uniqueness, ordered keys, collation and explicit
+index identity. A translator mismatch is a harness error, never agreement. The
+affinity check follows [SQLite’s ordered rules](https://sqlite.org/datatype3.html#determination_of_column_affinity).
+
 Per-statement observations retain primary and extended error codes; comparison
 uses primary codes at the current model's granularity. TEXT/BLOB use bytes and
 REAL uses its 64-bit pattern. A second connection observes committed state while
