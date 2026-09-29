@@ -39,3 +39,8 @@ and five frozen-case replays passed (6 tests), including kernel round-trip guard
 Final metadata audit corrected ASCII identifier folding without importing the
 production translator helper. Mixed-case table/column/index names and mutation
 checks pass (2 focused tests).
+
+Final timing isolates classification from optional proof-term emission as well as
+kernel checks. The real pipeline run passed all 15 cases and all five proofs;
+0.75476 s native acquisition + 0.28403 s compiled batch = 14.44 cases/s.
+The timed batch uses one process; proof terms use one separate untimed batch.

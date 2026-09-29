@@ -44,14 +44,17 @@ def main() -> int:
                 pending.append((fixture, len(reports) - 1, case))
     native_seconds = time.monotonic() - start
     start = time.monotonic()
-    results = compiled_many([case for _, _, case in pending], runtime, emit_lean=args.prove)
+    results = compiled_many([case for _, _, case in pending], runtime)
     compiled_seconds = time.monotonic() - start
+    proof_cases = [case for (_, index, case), result in zip(pending, results, strict=True)
+                   if args.prove and reports[index]["iteration"] == 0 and result["verdict"] == "AGREE"]
+    proof_terms = iter(compiled_many(proof_cases, runtime, emit_lean=True) if proof_cases else [])
     for (fixture, index, case), result in zip(pending, results, strict=True):
         reports[index].update({key: value for key, value in result.items() if key not in {"decoded", "caseLean"}})
         if reports[index]["iteration"] == 0:
             (args.output / f"{fixture.name}.json").write_text(json.dumps(case, indent=2) + "\n")
             if args.prove and result["verdict"] == "AGREE":
-                term = result.get("caseLean")
+                term = next(proof_terms).get("caseLean")
                 if not isinstance(term, str):
                     raise ValueError("Missing decoded proof term")
                 failure = next(c.lean_failure for c in cases() if c.name == fixture.name)
@@ -62,7 +65,8 @@ def main() -> int:
               "casesPerSecond": len(reports) / elapsed, "kernelProofTimeIncluded": False,
               "nativeObservationCount": observations,
               "nativeAcquisitionSeconds": native_seconds, "compiledBatchSeconds": compiled_seconds,
-              "runnerProcesses": 1, "proofTermEmissionIncluded": args.prove,
+              "runnerProcesses": 1, "proofTermEmissionIncluded": False,
+              "proofEmissionRunnerProcessesOutsideTiming": int(bool(proof_cases)),
               "runtime": str(runtime), "sqliteLibrary": str(library_path()), "sqliteSourceId": SOURCE_ID,
               "platform": os.uname().sysname + "-" + os.uname().machine}
     (args.output / "report.json").write_text(json.dumps(report, indent=2) + "\n")
