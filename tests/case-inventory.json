@@ -2,7 +2,7 @@
   "version": 2,
   "baseline": "4df62fa71ec64d0eb4b7aa4643a0912ab60e18a9",
   "implementation_base": "d1af75e6 shared stable base; audited descendant files are identified by implementation_sha256",
-  "state": "Active cases reconciled with pytest after removing OS containment and adding cached Atuin; see plans/20260929-trusted-execution.status.md.",
+  "state": "Active cases reconciled with pytest after exposing existing cached targets through flake checks.",
   "runtime_definitions": {
     "source": "Kernel/model/Atuin run in independently cached Nix pytest derivations; remaining cases execute freshly on the host. All source execution is trusted.",
     "installed": "development pytest harness invokes installed executable/examples under poisoned sanitized child environment"
@@ -19,11 +19,12 @@
     "2026-09-28: Nine obsolete local-cache scenarios retired explicitly; one generator validation scenario added. Retired cases retain their original audit metadata separately.",
     "2026-09-28: complete runtime build and offline archive use Nix closures. Loader discovery/relocation/copy-selection tests retired explicitly; replacement archive tests assert content-addressed export and enabled import verification.",
     "2026-09-28: kernel/model result caching uses Nix dependencies and sandboxed pytest. Removed aggregate coverage and cached-unit receipts. Obsolete infrastructure tests retained only as retired history.",
-    "2026-09-29: OS containment removed under explicit trusted-execution scope. Sandbox policy and loader manifest tests retired; bounded process tests retained separately. Nix dependency cases updated for Atuin."
+    "2026-09-29: OS containment removed under explicit trusted-execution scope. Sandbox policy and loader manifest tests retired; bounded process tests retained separately. Nix dependency cases updated for Atuin.",
+    "2026-09-29: flake checks expose the existing test derivations without changing cache identities; SQLite definitions are shared with the development environment."
   ],
   "entrypoints": {
     "just test": [
-      "Nix tests.kernel, tests.model and tests.atuin; one host pytest invocation for remaining source cases"
+      "nix flake check ./nix: kernel, model, Atuin; retain Nix output links; host pytest for remaining source cases"
     ],
     "just test-cases *args": [
       "python3 -m pytest: explicitly selected scenarios, no implicit build"
@@ -416,7 +417,8 @@
       "origin": "legacy",
       "implementation_source": "tests/test_resources.py:60-89",
       "description": "Accept small pins, reject oversized/symlinked inputs and low-space destinations.",
-      "parameter_id": null
+      "parameter_id": null,
+      "migration_notes": "Environment now includes shared sqlite.nix alongside flake.nix/flake.lock; the tiny fixture totals six bytes."
     },
     {
       "source": "tests/test_runtime_package.py:39-58",
@@ -10356,6 +10358,76 @@
       "implementation_source": "tests/test_timeout_cleanup.py",
       "collection_verified": true,
       "migration_notes": "Trusted process limits or Atuin Nix dependency regression."
+    },
+    {
+      "node_id": "tests/test_cache_fingerprint.py::test_pin_changes_invalidate_compatible_prefix[nix/sqlite.nix]",
+      "description": "Every declared environment pin creates a different compatibility namespace.",
+      "parameter_id": "nix/sqlite.nix",
+      "level": "unit",
+      "concerns": [
+        "environment"
+      ],
+      "resources": [],
+      "source": "tests/test_cache_fingerprint.py",
+      "implementation_source": "tests/test_cache_fingerprint.py",
+      "legacy": null,
+      "origin": "new",
+      "runtimes": [
+        "source"
+      ],
+      "assertions": [
+        "Every declared environment pin creates a different compatibility namespace."
+      ],
+      "collection_verified": true,
+      "migration_notes": "Flake check target equivalence or shared native environment input."
+    },
+    {
+      "node_id": "tests/test_nix_test_targets.py::test_flake_checks_reuse_existing_targets[aarch64-darwin]",
+      "description": "Flake checks expose the same three derivations, preserving existing cached results.",
+      "parameter_id": "aarch64-darwin",
+      "level": "integration",
+      "concerns": [
+        "environment"
+      ],
+      "resources": [
+        "requires_nix"
+      ],
+      "source": "tests/test_nix_test_targets.py",
+      "implementation_source": "tests/test_nix_test_targets.py",
+      "legacy": null,
+      "origin": "new",
+      "runtimes": [
+        "source"
+      ],
+      "assertions": [
+        "Flake checks expose the same three derivations, preserving existing cached results."
+      ],
+      "collection_verified": true,
+      "migration_notes": "Flake check target equivalence or shared native environment input."
+    },
+    {
+      "node_id": "tests/test_nix_test_targets.py::test_flake_checks_reuse_existing_targets[x86_64-linux]",
+      "description": "Flake checks expose the same three derivations, preserving existing cached results.",
+      "parameter_id": "x86_64-linux",
+      "level": "integration",
+      "concerns": [
+        "environment"
+      ],
+      "resources": [
+        "requires_nix"
+      ],
+      "source": "tests/test_nix_test_targets.py",
+      "implementation_source": "tests/test_nix_test_targets.py",
+      "legacy": null,
+      "origin": "new",
+      "runtimes": [
+        "source"
+      ],
+      "assertions": [
+        "Flake checks expose the same three derivations, preserving existing cached results."
+      ],
+      "collection_verified": true,
+      "migration_notes": "Flake check target equivalence or shared native environment input."
     }
   ],
   "fixture_contracts": {
@@ -10366,10 +10438,10 @@
     "source_identity": "One tiny synthetic baseline is evaluated once per session with the real locked Nix library; each case copies only declared fixture bytes into its private tree. No repository/build copying or package build occurs. Missing fixed paths fail evaluation; unselected source components remain unchanged."
   },
   "collection_checks": {
-    "case_count": 332,
+    "case_count": 335,
     "legacy_mapped_case_count": 214,
-    "new_case_count": 118,
-    "source_case_count": 326,
+    "new_case_count": 121,
+    "source_case_count": 329,
     "installed_case_count": 19,
     "baseline_hashes_verified": 39,
     "result": "Active identities match pytest collection after removing OS containment.",
@@ -10398,6 +10470,11 @@
         "path": "build/trusted-execution-catalogue.json",
         "sha256": "402f0128d38cd2b0ab2737b6fbc8cfc6814c387b93a818c2aebf7db0598677e0",
         "case_count": 332
+      },
+      {
+        "path": "build/flake-check-catalogue.json",
+        "sha256": "fdce188971d6a89e819f3f0e3fae90f9fe73c1ca8d8d15909d979ef7ef045a29",
+        "case_count": 335
       }
     ],
     "runtime_build_required": false,
@@ -10413,23 +10490,23 @@
     "tests/coverage_evidence_test.py": "e5ccbfcf2533fbd1f385bedfe1368d802b879a7a4df4b92c422b8817fa530706",
     "tests/docs_test.py": "721b8e59cfa8fcafa9f83eadc719c1f32694ce7cfbc751259cd9d17cdc786227",
     "tests/early_baseline_test.py": "0d02cecef4c20b716a2f81862b2795dde2928db6758c0d7321349e9deeba5992",
-    "tests/environment_snapshot_test.py": "46a705b5c3e6a91ff74187f0bfe815cb5c854d2557bdb549d31405b6564f57fa",
+    "tests/environment_snapshot_test.py": "ddda7f9bd3fd9b4649adf775515f399c2fd2a7346aec2f80f5235fa54fdb66d1",
     "tests/kernel_gate_test.py": "bcf56bbc46e91dfe01a6272ed86496dc31712f919b7e608f5feb821d9d668704",
     "tests/parser_build_test.py": "1ab2b6618d77d10176764fa0ac906c3bd141877102167c6c9b537f7c9c427ee5",
     "tests/parser_test.py": "115e689cb4e7c2841759ea94cda55795bec1d74d400add72852e116df3180bb2",
     "tests/runtime_package_test.py": "753f1cdbf84d24b7e26899bdd694b7bffdf8cc74f8d1e41f254096721481677a",
     "tests/schema_generation_test.py": "c083e190e20dfd99e0eaa4b3e84836c54420c130beaf5d9588b94c7c39e9e982",
     "tests/test_baseline_ci.py": "992fdf69c88e37e48b09186be1041a86d6cbfbbd63668abce4f628cabe1c6716",
-    "tests/test_benchmark_ci.py": "bd9bc000124312c226ee901ff3619bd6d4dffacc97836dca4c27b096357946e6",
+    "tests/test_benchmark_ci.py": "a9f057298c069e12e6e0daac98c4e15879bde6725e555a723d656587ee28cfd6",
     "tests/test_cache_fingerprint.py": "a8537c9cda80efbc9d8d397b6368fa707c5bea40daa886c7ec852cddadf6c83c",
     "tests/test_ci_checks.py": "478a81ebf232a3bd0e92fcac20eed967766322b5e464575df3dc7b88d832a230",
     "tests/test_ci_scope.py": "d7f8a9328c5545a6f7ec140d15f8eccaa87b3483747fa703fd8741107f13cc95",
     "tests/test_cli_inputs.py": "4df14d84ccb1bf0b3a3d24584f7e605770255075dc5ca2ceebc7499ab03ca1e9",
-    "tests/test_nix_test_targets.py": "7423a2d997b209e64d8ca575e23e9ab0252dec1b468fa4054717465029860b39",
+    "tests/test_nix_test_targets.py": "84ca2ff754d49981ee68e9b4ce94f79205545b0807858c54b83071c07acedef4",
     "tests/test_process.py": "616dfc51a129a557f16b745a2e94926d35076b8ba25aa1414aac775188734430",
     "tests/test_profiles.py": "48e7ba1b75959c3023c3ec8f1e3133bff8b350b385891dd4e56dda110cfee354",
     "tests/test_pytest_harness.py": "6806d6137c5e79d2aae809f9fb72d4ae5466de71c91b4379be3bde5059d6e567",
-    "tests/test_resources.py": "11fe33cf61971a03736047bf995441431fbbe8a6bfc1697563dfa8f1b17503e1",
+    "tests/test_resources.py": "742219ccc979bdd72d0b45e70a473544c47073b98aee3608d8b3cb3f712f92f3",
     "tests/test_runtime_package.py": "11b4b051cf22d1e66f72f06645325ad2e5ff23735752d898a1d0233d450aba2c",
     "tests/test_runtime_selection.py": "d3bb57eda495ea5620fa2fbc5575f925b7c086bf806add6033c63397f56b370d",
     "tests/test_runtime_staging.py": "6af01c88da0a362459c6610a33ab744ac44291a72baeb32b882a51392a235838",

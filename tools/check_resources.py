@@ -12,22 +12,22 @@ MAX_ENVIRONMENT_BYTES = 1024 ** 2
 
 
 def check_environment(root: Path) -> int:
-    """Only the two regular pinned files belong in the environment source boundary."""
+    """Only the declared regular environment files belong in the environment source boundary."""
     directory = root / 'nix'
     if directory.is_symlink() or not directory.is_dir():
         raise ValueError(f'Environment must be a real directory: {directory}')
-    expected = {'flake.nix', 'flake.lock'}
+    expected = {'flake.nix', 'flake.lock', 'sqlite.nix'}
     size = 0
     found: set[str] = set()
     for path in directory.iterdir():
         if path.name not in expected or path.is_symlink() or not path.is_file():
-            raise ValueError(f'Unexpected environment input: {path}; only regular flake.nix/flake.lock are allowed')
+            raise ValueError(f'Unexpected environment input: {path}; only regular flake.nix/flake.lock/sqlite.nix are allowed')
         found.add(path.name)
         size += path.stat().st_size
         if size > MAX_ENVIRONMENT_BYTES:
             raise ValueError('Environment inputs exceed 1 MiB; keep generated artifacts outside nix/')
     if found != expected:
-        raise ValueError(f'Environment requires both flake.nix and flake.lock in {directory}')
+        raise ValueError(f'Environment requires flake.nix, flake.lock and sqlite.nix in {directory}')
     return size
 
 

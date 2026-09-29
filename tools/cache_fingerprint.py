@@ -8,7 +8,7 @@ import os
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
-ENVIRONMENT_FILES = ("nix/flake.nix", "nix/flake.lock", "lean-toolchain")
+ENVIRONMENT_FILES = ("nix/flake.nix", "nix/flake.lock", "nix/sqlite.nix", "lean-toolchain")
 SOURCE_FILES = ("LICENSE", "lakefile.toml", "lake-manifest.json", "pytest.ini", "conftest.py", "justfile",
                 ".envrc", "docs/install.md")
 # A conservative superset of build-support/sources.nix plus all test/coverage inputs.

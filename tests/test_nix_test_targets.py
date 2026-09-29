@@ -83,3 +83,20 @@ def test_failure():
         '--expr', f'({expression(source_tree)}).kernel'], cwd=ROOT, timeout=90)
     assert result.returncode != 0, result.diagnostic()
     assert 'intentional pytest failure' in result.stderr, result.diagnostic()
+
+
+@pytest.mark.parametrize('system', ['aarch64-darwin', 'x86_64-linux'])
+def test_flake_checks_reuse_existing_targets(system: str) -> None:
+    """Flake checks expose the same three derivations, preserving existing cached results."""
+    flags = ['--extra-experimental-features', 'nix-command flakes']
+    projection = 'builtins.mapAttrs (_: test: test.drvPath)'
+    flake = run_command(['nix', *flags, 'eval', '--json', '--no-update-lock-file',
+                         f'./nix#checks.{system}', '--apply', projection], cwd=ROOT, timeout=60)
+    legacy = run_command(['nix-instantiate', *flags, '--eval', '--strict', '--json', '--expr',
+        f'{projection} ((import ./build-support/default.nix {{ system = "{system}"; }}).tests)'],
+        cwd=ROOT, timeout=60)
+    assert flake.returncode == 0, flake.diagnostic()
+    assert legacy.returncode == 0, legacy.diagnostic()
+    checks = json.loads(flake.stdout)
+    assert set(checks) == {'atuin', 'kernel', 'model'}
+    assert checks == json.loads(legacy.stdout)

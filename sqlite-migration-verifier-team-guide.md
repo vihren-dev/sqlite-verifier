@@ -118,7 +118,7 @@ of environment inputs. Failure stops the expensive operation with a diagnostic;
 no check deletes anything. Bootstrap Python 3 is required before environment
 entry; the pinned shell supplies Python for subsequent commands.
 
-The complete environment input is `nix/flake.nix` plus `nix/flake.lock`. Always
+The complete environment input is `nix/flake.nix`, `nix/flake.lock` and `nix/sqlite.nix`. Always
 use explicit `path:./nix` references; `./nix` alone can discover a parent Git
 repository, while a root path flake can copy a whole non-Git workspace. Never put
 build outputs, archives, workspace metadata or application data in `nix/`.

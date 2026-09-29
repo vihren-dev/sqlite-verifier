@@ -33,7 +33,7 @@ just test
 ```
 
 Alternatively, install direnv with Nix-flake integration and run `direnv allow`.
-The committed `nix/flake.lock` fixes Nix dependencies. The two-file `nix/`
+The committed `nix/flake.lock` fixes Nix dependencies. The small `nix/`
 directory is the complete environment source; always use the explicit `path:`
 reference, including from non-Git Jujutsu workspaces. See the
 [resource and cleanup policy](sqlite-migration-verifier-team-guide.md#development-resources).
@@ -52,7 +52,8 @@ These native checks are evidence, not a proof of correspondence with SQLite C.
 `just build` compiles the upstream-derived parser, public Lean library, and
 independent kernel checker.
 `just test` builds prerequisites, reuses independently cached Nix kernel/model/Atuin
-test targets, and runs the remaining source tests through pytest.
+test targets through `nix flake check ./nix -L`, and runs the remaining source
+tests through pytest.
 `just test-atuin` selects only the cached 16-case Atuin target.
 
 Lean source executes with your permissions. The verifier assumes trusted execution

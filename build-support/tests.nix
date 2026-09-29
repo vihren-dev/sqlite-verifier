@@ -1,5 +1,7 @@
 # Independent pytest targets: Nix owns isolation, dependency identity and reuse.
-{ pkgs, leanToolchain, leanRuntime, parsers, runtime, root ? ../. }:
+{ pkgs, leanToolchain, leanRuntime, parsers, runtime, root ? ../.
+, native ? import ../nix/sqlite.nix { inherit pkgs; }
+}:
 let
   fs = pkgs.lib.fileset;
   common = map (name: root + "/${name}") [
@@ -19,7 +21,6 @@ let
     ln -s ${leanRuntime}/.lake "$out/.lake"
     ln -s ${parsers}/build "$out/build"
   '';
-  native = (builtins.getFlake (builtins.unsafeDiscardStringContext "path:${../nix}")).packages.${pkgs.stdenv.hostPlatform.system};
   suite = name: { file, inputs, runtime, tools ? [], extraFiles ? [] }:
     pkgs.stdenvNoCC.mkDerivation {
       pname = "sqlite-verifier-test-${name}";
