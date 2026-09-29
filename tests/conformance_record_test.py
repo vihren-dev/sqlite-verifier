@@ -49,3 +49,29 @@ def test_nonmain_state_cannot_disappear() -> None:
     """Excluded connection contexts fail acquisition rather than silently dropping objects."""
     with pytest.raises(ValueError, match="temporary schema"):
         record_sql("CREATE TEMP TABLE t(x);", "", name="temporary")
+
+
+def test_statement_alignment_is_harness_error(runtime_root: Path) -> None:
+    """A missing/merged observation cannot masquerade as a production model disagreement."""
+    from copy import deepcopy
+    record = record_sql("CREATE TABLE t(v BLOB);", "BEGIN; ROLLBACK;", name="alignment")
+    for trace in (record["trace"][:1], record["trace"] + record["trace"][-1:]):
+        broken = deepcopy(record)
+        broken["trace"] = trace
+        assert prepare(broken, runtime_root / "build/sqlite-parser")[1]["verdict"] == "HARNESS_ERROR"
+    record["trace"][0]["sql"] = "BEGIN; ROLLBACK;"
+    assert prepare(record, runtime_root / "build/sqlite-parser")[1]["verdict"] == "HARNESS_ERROR"
+
+
+def test_native_semantic_errors_are_recorded(tmp_path: Path) -> None:
+    """Rowid mismatch and a real length-limit failure retain native result codes."""
+    from conformance.native_connection import Connection, library_path, load_library
+    from conformance.native_record import execute
+    record = record_sql("CREATE TABLE t(v);", "INSERT INTO t(rowid,v) VALUES('no',1);", name="rowid")
+    assert record["trace"][0]["primaryCode"] == 20
+    connection = Connection(load_library(library_path()), tmp_path / "length.db")
+    try:
+        connection.library.sqlite3_limit(connection.handle, 0, 100)
+        assert list(execute(connection, "SELECT zeroblob(101);"))[0]["primaryCode"] == 18
+    finally:
+        connection.close()

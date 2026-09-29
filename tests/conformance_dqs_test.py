@@ -24,12 +24,15 @@ def test_library_default_and_frontend(version: str, suffix: str, runtime_root: P
         connection.query('INSERT INTO t VALUES(1,"fallback");')
         assert connection.query('SELECT "value" FROM "t";') == [((3, b"fallback"),)]
         connection.query('CREATE TABLE checks(x CHECK(x != "forbidden"));')
+        connection.query('CREATE INDEX i ON t("nosuch");')
+        assert connection.query("PRAGMA index_xinfo(i);")[0][1] == (1, -2)
         schema = starting_schema(parse(parser, schema_sql.encode(), "schema.sql", version))
         good = statements(parse(parser, b'UPDATE "t" SET "value"=\'ok\' WHERE "id"=1;', "good.sql", version))
         sql_inputs(schema, good)
         for sql in ('INSERT INTO t(id,value) VALUES(2,"fallback");',
                     'UPDATE t SET value="fallback" WHERE id=1;',
-                    'UPDATE t SET value=\'ok\' WHERE "absent"=1;'):
+                    'UPDATE t SET value=\'ok\' WHERE "absent"=1;',
+                    'CREATE INDEX i ON t("nosuch");'):
             with pytest.raises(Rejection) as caught:
                 sql_inputs(schema, statements(parse(parser, sql.encode(), "bad.sql", version)))
             assert caught.value.status == "UNSUPPORTED"

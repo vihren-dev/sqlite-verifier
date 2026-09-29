@@ -11,3 +11,4 @@ Review findings verified against generator, native recorder/replay, upstream pro
 ## Progress
 
 - Task and validation outcomes recorded before implementation. Archive provenance verified against the prior user instruction supplying ~/Downloads/sqlite-docsrc.tar; no new download required.
+- Native replay now rejects missing/merged/extra statement observations as harness errors while preserving legitimate first-error truncation. Both native paths retain SQLITE_TOOBIG and SQLITE_MISMATCH as SQL outcomes. DQS CREATE INDEX on an unknown quoted key is rejected on both pinned engines. Validation: record and DQS suites, 7 passed (0.91s).

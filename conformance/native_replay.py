@@ -53,6 +53,15 @@ def model_case(record: dict[str, Json], parser: Path) -> dict[str, Json]:
     initial_sql = schema_sql(record["initial"]["visible"])
     schema = starting_schema(parse(parser, initial_sql.encode(), "corpus-schema.sql"))
     script = statements(parse(parser, record["migrationSql"].encode(), "corpus-migration.sql"))
+    trace = record["trace"]
+    if (len(trace) > len(script) or any(event["primaryCode"] for event in trace[:-1])
+            or (not trace or not trace[-1]["primaryCode"]) and len(trace) != len(script)):
+        raise ValueError("Native/frontend statement-count mismatch")
+    for index, event in enumerate(trace):
+        if not event["primaryCode"]:
+            native_statement = statements(parse(parser, event["sql"].encode(), "native-statement.sql"))
+            if [statement_wire(item) for item in native_statement] != [statement_wire(script[index])]:
+                raise ValueError("Native/frontend statement alignment mismatch")
     sql_inputs(schema, script)
     cache: dict[str, tuple[Table, ...]] = {initial_sql: schema}
 

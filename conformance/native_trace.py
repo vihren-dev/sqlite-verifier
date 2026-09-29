@@ -12,7 +12,7 @@ from migration_check.sql_tree import parse
 from migration_check.translate import starting_schema, statements
 from conformance.native_metadata import check_metadata, identifier, integer, quoted, text
 from conformance.case_format import Json, schema_wire, statement_wire, table_wire
-from conformance.native_connection import Cell, Connection, NativeError, SOURCE_ID, library_path, load_library
+from conformance.native_connection import Cell, Connection, NativeError, SQL_ERRORS, SOURCE_ID, library_path, load_library
 
 
 @dataclass(frozen=True)
@@ -120,7 +120,7 @@ def record(fixture: Fixture, parser: Path, library: Path | None = None) -> dict[
             try:
                 writer.query(sql_bytes[statement.start:statement.end].decode())
             except NativeError as error:
-                if error.code & 255 not in (1, 19):
+                if error.code & 255 not in SQL_ERRORS:
                     raise
                 code = error.code
                 native_error = str(error)

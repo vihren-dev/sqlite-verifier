@@ -8,7 +8,7 @@ import time
 from collections.abc import Iterator
 
 from conformance.case_format import Json, cell_wire
-from conformance.native_connection import Cell, Row, Connection, NativeError, SOURCE_ID, library_path, load_library
+from conformance.native_connection import Cell, Row, Connection, NativeError, SQL_ERRORS, SOURCE_ID, library_path, load_library
 from conformance.native_metadata import integer, quoted, text
 
 
@@ -86,7 +86,7 @@ def execute(connection: Connection, sql: str) -> Iterator[dict[str, Json]]:
                         connection.library.sqlite3_column_count(statement))))
         except NativeError as error:
             code, message = error.code, str(error)
-            if code & 255 not in (1, 19):
+            if code & 255 not in SQL_ERRORS:
                 raise
         finally:
             connection.library.sqlite3_finalize(statement)

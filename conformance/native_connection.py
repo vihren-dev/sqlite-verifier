@@ -10,6 +10,8 @@ from typing import TypeAlias
 
 Cell: TypeAlias = tuple[int, int | bytes | None]
 Row: TypeAlias = tuple[Cell, ...]
+# SQL semantic errors; environmental/connection failures must never become model evidence.
+SQL_ERRORS = (1, 18, 19, 20)  # ERROR, TOOBIG, CONSTRAINT, MISMATCH
 SOURCE_ID = "2025-11-04 19:38:17 fb2c931ae597f8d00a37574ff67aeed3eced4e5547f9120744ae4bfa8e74527b"
 
 
