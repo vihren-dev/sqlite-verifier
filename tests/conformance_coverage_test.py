@@ -69,3 +69,27 @@ def test_parser_failure_is_not_subset_exclusion(runtime_root: Path, monkeypatch:
         raise Rejection("UNVERIFIED", "SQL parser exceeded its time limit", source="case.sql")
     monkeypatch.setattr("conformance.native_replay.parse", failed)
     assert prepare(record, runtime_root / "build/sqlite-parser")[1]["verdict"] == "HARNESS_ERROR"
+
+
+def test_review_corpus_extends_and_replays(runtime_root: Path) -> None:
+    """V3 retains v2, adds scoped requirement evidence, and separates query-only blockers."""
+    import gzip
+    _, previous = load(ROOT / "conformance/corpus-v2")
+    manifest, records = load(ROOT / "conformance/corpus-v3")
+    assert records[:len(previous)] == previous
+    additions = records[len(previous):]
+    assert manifest["addedAuthoredCases"] == 23
+    assert len(additions) == manifest["addedAuthoredCases"] + manifest["addedUpstreamCases"]
+    native_replay(additions)
+    extraction = gzip.decompress((ROOT / "conformance/corpus-v3/extraction.json.gz").read_bytes())
+    assert hashlib.sha256(extraction).hexdigest() == manifest["upstreamManifestSha256"]
+    assert any(record.get("upstream", {}).get("file", "").startswith("e_") and record["requirements"] for record in additions)
+    report = progress(ROOT / "conformance/corpus-v3", ROOT / "conformance/requirements-3.51.0.json", runtime_root)
+    assert report["counts"].get("HARNESS_ERROR", 0) == report["counts"].get("DISAGREE", 0) == 0
+    assert sum(report["counts"].values()) == len(records)
+    assert sum(any(row["counts"].values()) for row in report["requirementMatrix"]) > 40
+    assert report["queryDiagnostics"]["QUERY_ONLY_CASE"] >= 4
+    authored = {record["name"]: record for record in additions if "upstream" not in record}
+    assert authored["numeric-text-integer"]["trace"][0]["visible"]["tables"][0]["rows"][0]["values"] == [{"integer": {"value": 1}}]
+    assert authored["text-numeric-conversion"]["trace"][0]["visible"]["tables"][0]["rows"][0]["values"] == [{"text": {"bytes": [52, 50]}}]
+    assert authored["create-unique-duplicate"]["trace"][0]["primaryCode"] == 19

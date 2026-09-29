@@ -59,6 +59,7 @@ in {
       (root + /VerifierConformance/Laws.lean)
       (root + /conformance/corpus-v1)
       (root + /reports/20260929-adr4-corpus-v2-progress.json)
+      (root + /conformance/corpus-v3)
       (root + /conformance/corpus-v2) (root + /conformance/requirements-3.51.0.json)
       (root + /conformance/regressions)
     ] ++ map (name: root + "/conformance/${name}.py") [

@@ -1,0 +1,16 @@
+{
+  "corpusVersion": 3,
+  "recordedCases": 370,
+  "casesSha256": "fe50427ba3cf7b06b29eb2aa2af8e2eaf5c501e9f0d95680f2f4069f73654afb",
+  "parentVersion": 2,
+  "parentCasesSha256": "a9e754c995f90b7f571c667fcf4a014d7466b3f2b353470db69a773d1b5188dd",
+  "upstreamCaptureSha256": "24522b2cdd819006665a2252b7d3a2337e7731de91d1b252d17e17191e67458d",
+  "upstreamManifestSha256": "59fdfd4b86ba65bef44551c365d8a861ee83e6d73e28283cd73fa4e16229e41b",
+  "requirementsSha256": "e1398b8264374a0abe848673fefa7fa2f5601a949c85e09f820b3f6b37b9f742",
+  "addedUpstreamCases": 164,
+  "addedAuthoredCases": 23,
+  "sourceSha256": {
+    "refresh_corpus.py": "e0a1ee19cdfb90dd1369764c77f63d02027d9be2b396cc11b5f48f16f2c3da57",
+    "requirement_cases.py": "b95c01dc5b0a3eef2fc20807e0187ccbab9dcbbfead9059aa92648a1ff79b7c2"
+  }
+}

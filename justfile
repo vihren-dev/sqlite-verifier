@@ -78,14 +78,17 @@ package: test test-nix runtime-package
 conformance-upstream: conformance-build
     timeout 900 nix-build build-support/default.nix -A conformanceNative.fixture --out-link build/testfixture --extra-experimental-features 'nix-command flakes'
     timeout 900 nix-build build-support/default.nix -A conformanceNative.upstream --out-link build/upstream-sqlite --extra-experimental-features 'nix-command flakes'
-    timeout 900 python3 -m conformance.upstream_pilot --fixture build/testfixture/bin/testfixture --upstream build/upstream-sqlite --output build/upstream-pilot
+    timeout 900 python3 -m conformance.upstream_pilot --fixture build/testfixture/bin/testfixture --upstream build/upstream-sqlite --output build/upstream-pilot --pattern 'alter*.test' --pattern 'e_*.test'
 
 conformance-corpus: conformance-build
-    timeout 420 python3 -m conformance.corpus conformance/corpus-v1 --native-check --output build/corpus-progress.json
+    timeout 420 python3 -m conformance.corpus conformance/corpus-v3 --native-check --output build/corpus-progress.json
 
 # The transaction/DML profiling gate is recorded in the W3/W4 status and reports.
 conformance-generate: conformance-build
     timeout 120 python3 -m conformance.generate
+
+conformance-mutations: conformance-generate
+    timeout 180 python3 -m conformance.mutation_check build/generated/cases.jsonl --output build/generated/mutations.json
 
 conformance-long: conformance-build
     timeout 600 python3 -m conformance.generate --examples 500 --steps 25 --output build/generated-long
@@ -96,7 +99,7 @@ conformance-requirements:
     python3 -m conformance.requirement_inventory build/conformance-docs/docinfo.db build/requirements-3.51.0.json
 
 conformance-progress: conformance-build
-    timeout 120 python3 -m conformance.progress --output build/corpus-v2-progress.json
+    timeout 120 python3 -m conformance.progress --output build/corpus-v3-progress.json
 
 # Supply llvm-cov's executable path and a fresh output directory for each measurement.
 conformance-coverage llvm_cov output: conformance-generate
