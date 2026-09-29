@@ -1,0 +1,54 @@
+{
+  "admittedCases": 88,
+  "caseCount": 88,
+  "sourceSha256": {
+    "SqliteVerifier/Execution.lean": "65cc542a4a6e2605b6b462f485a321bec2c418e097717df8de9bf08f1a7f9f52",
+    "SqliteVerifier/LiteralData.lean": "eb0c8f1d632899b008f9b2be5ec22428d3620d6045e906b19eef07a36879baec",
+    "SqliteVerifier/SqlExecution.lean": "bb37fd7c5aa32d4334c64bc595a5f7e23775b2764c613b4fa2df20aeb777e794",
+    "VerifierConformance/Trace.lean": "0235abf7e08459c912d3e33d7764c19b15cee6b4498c4deb0f55b56fb8a81776",
+    "VerifierConformance/Case.lean": "e2ed1f2130461500f0a1100bbb0e44048e65ccc3749a8954e82e804ef0711fb0"
+  },
+  "mutants": {
+    "update_ignored": {
+      "killed": true,
+      "killCount": 7,
+      "firstKill": {
+        "caseIndex": 4,
+        "verdict": "SqliteVerifier.update_ignored.Conformance.Verdict.disagree (some 1)",
+        "migrationSql": "INSERT INTO t(id,v) VALUES(3,NULL);\nUPDATE t SET v=X'6368616e676564' WHERE id=3;\nBEGIN;\nINSERT INTO t(id,v) VALUES(4,' 1');\nROLLBACK;\nBEGIN;\nINSERT INTO t(id,v) VALUES(8,'1.0');\nCOMMIT;"
+      },
+      "unsupported": 0
+    },
+    "add_unpadded": {
+      "killed": true,
+      "killCount": 16,
+      "firstKill": {
+        "caseIndex": 1,
+        "verdict": "SqliteVerifier.add_unpadded.Conformance.Verdict.disagree (some 1)",
+        "migrationSql": "CREATE TABLE a2(v BLOB);\nALTER TABLE exists_table ADD extra2 BLOB;\nCREATE TABLE a3(v BLOB);\nALTER TABLE exists_table ADD extra3 BLOB;\nCREATE TABLE a4(v BLOB);\nALTER TABLE exists_table ADD extra4 BLOB;\nCREATE TABLE a5(v BLOB);\nALTER TABLE exists_table ADD extra5 BLOB;\nCREATE TABLE a6(v BLOB);\nALTER TABLE exists_table ADD extra6 BLOB;\nCREATE TABLE a7(v BLOB);\nALTER TABLE exists_table ADD extra7 BLOB;\nCREATE TABLE a8(v BLOB);\nALTER TABLE exists_table ADD extra8 BLOB;"
+      },
+      "unsupported": 0
+    },
+    "rollback_ignored": {
+      "killed": true,
+      "killCount": 7,
+      "firstKill": {
+        "caseIndex": 4,
+        "verdict": "SqliteVerifier.rollback_ignored.Conformance.Verdict.disagree (some 4)",
+        "migrationSql": "INSERT INTO t(id,v) VALUES(3,NULL);\nUPDATE t SET v=X'6368616e676564' WHERE id=3;\nBEGIN;\nINSERT INTO t(id,v) VALUES(4,' 1');\nROLLBACK;\nBEGIN;\nINSERT INTO t(id,v) VALUES(8,'1.0');\nCOMMIT;"
+      },
+      "unsupported": 0
+    },
+    "unique_disabled": {
+      "killed": true,
+      "killCount": 20,
+      "firstKill": {
+        "caseIndex": 44,
+        "verdict": "SqliteVerifier.unique_disabled.Conformance.Verdict.disagree (some 0)",
+        "migrationSql": "INSERT INTO t(id,v) VALUES(1,NULL);"
+      },
+      "unsupported": 0
+    }
+  },
+  "casesSha256": "be8a5e154eb405b117240dcaf48e86e93068333cb0d88177351ce7768c63202c"
+}

@@ -6,7 +6,7 @@ from pathlib import Path
 from conformance.case_format import Json, statement_wire
 from conformance.native_trace import Fixture
 from conformance.native_connection import Cell
-from migration_check.sql_model import Column, Statement
+from migration_check.sql_model import Affinity, Column, Statement
 from migration_check.sql_tree import parse
 from migration_check.sql_values import SqlValue
 from migration_check.translate import statements
@@ -22,15 +22,15 @@ def literal(value: SqlValue) -> str:
 
 
 def command(kind: str, table: str = "", *, column: str = "v", value: SqlValue = None,
-            key: int = 1) -> tuple[Statement, str]:
+            key: int = 1, affinity: Affinity = "blob") -> tuple[Statement, str]:
     """Generate constructors before syntax, independent of the parser under test."""
     statement = Statement(kind, table, (), "generated.sql", 0, 0)
     if kind in ("beginTransaction", "commit", "rollback"):
         return statement, {"beginTransaction": "BEGIN;", "commit": "COMMIT;", "rollback": "ROLLBACK;"}[kind]
     if kind in ("createTable", "addColumn"):
-        columns = (Column(column, "blob"),)
+        columns = (Column(column, affinity),)
         statement = Statement(kind, table, columns, "generated.sql", 0, 0)
-        sql = f"CREATE TABLE {table}({column} BLOB);" if kind == "createTable" else f"ALTER TABLE {table} ADD {column} BLOB;"
+        sql = f"CREATE TABLE {table}({column} {affinity.upper()});" if kind == "createTable" else f"ALTER TABLE {table} ADD {column} {affinity.upper()};"
     elif kind == "insert":
         statement = Statement(kind, table, (), "generated.sql", 0, 0, ("id", "v"), (key, value))
         sql = f"INSERT INTO {table}(id,v) VALUES({literal(key)},{literal(value)});"

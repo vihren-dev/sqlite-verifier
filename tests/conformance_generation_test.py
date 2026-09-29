@@ -21,8 +21,18 @@ pytestmark = [pytest.mark.integration, pytest.mark.conformance,
 @pytest.mark.parametrize("error_seeking", [False, True])
 def test_stateful_modes(runtime_root: Path, error_seeking: bool) -> None:
     """Both modes reach compiled comparison, with native law checks on every executed case."""
-    counts, cases = generate(runtime_root, error_seeking=error_seeking)
-    assert counts == {"AGREE": len(cases)} and len(cases) >= 20
+    counts, cases, boundaries = generate(runtime_root, error_seeking=error_seeking)
+    assert counts["AGREE"] == len(cases) and len(cases) >= 20
+    assert counts["MODEL_UNSUPPORTED"] == len(boundaries) and boundaries
+    if error_seeking:
+        from conformance.mutation_check import measure
+        mutations = measure(cases, runtime_root)
+        assert all(item["killed"] for item in mutations["mutants"].values()), mutations
+    assert len({case["schemaSql"] for case in cases}) >= 4
+    assert any(event["visible"] != case["nativeTrace"][index]["visible"]
+               for case in cases for index, event in enumerate(case["nativeTrace"][1:])
+               if isinstance(case["script"][index], dict) and "update" in case["script"][index])
+    assert any(dict(case["initial"])["exists_table"]["rows"] for case in cases if "exists_table" in dict(case["initial"]))
 
 
 @pytest.mark.parametrize("literal", ["'1'", "' 1'", "'1.0'", "1e20", "0.0", "-0.0", "9223372036854775808"])

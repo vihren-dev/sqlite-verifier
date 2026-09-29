@@ -53,6 +53,7 @@ in {
       (fs.fileFilter (file: file.hasExt "py") (root + /migration_check))
       (fs.fileFilter (file: file.hasExt "json") (root + /conformance/cases))
       (root + /SqliteVerifier/SqlExecution.lean)
+      (root + /SqliteVerifier/Execution.lean) (root + /SqliteVerifier/LiteralData.lean)
       (root + /VerifierConformance/Trace.lean)
       (root + /VerifierConformance/Case.lean)
       (root + /VerifierConformance/Laws.lean)
@@ -63,7 +64,7 @@ in {
     ] ++ map (name: root + "/conformance/${name}.py") [
       "model_assertions" "model_cases" "model_check"
       "native_fixture" "import_fixture" "schema"
-      "case_format" "native_connection" "native_metadata" "native_record" "native_replay" "upstream_pilot" "upstream_fidelity" "corpus" "generated_program" "state_machine" "regressions" "progress" "measure_coverage" "native_trace" "pipeline"
+      "case_format" "native_connection" "native_metadata" "native_record" "native_replay" "upstream_pilot" "upstream_fidelity" "corpus" "generated_program" "mutation_check" "state_machine" "regressions" "progress" "measure_coverage" "native_trace" "pipeline"
     ];
     runtime = conformance;
     tools = [ native.sqlite native.sqlite346 ];

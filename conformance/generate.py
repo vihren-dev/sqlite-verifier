@@ -18,13 +18,15 @@ def main() -> None:
     args = parser.parse_args()
     args.output.mkdir(parents=True, exist_ok=True)
     report = {"seed": args.seed, "maxExamplesPerMode": args.examples, "maxSteps": args.steps, "modes": {}}
-    records = []
+    records, boundaries = [], []
     for mode in (False, True):
-        counts, cases = generate(args.runtime_root.resolve(), error_seeking=mode,
+        counts, cases, probes = generate(args.runtime_root.resolve(), error_seeking=mode,
             examples=args.examples, steps=args.steps, fixed_seed=args.seed)
         report["modes"]["error-seeking" if mode else "well-scoped"] = counts
         records.extend(cases)
+        boundaries.extend(probes)
     (args.output / "cases.jsonl").write_text("".join(json.dumps(case) + "\n" for case in records))
+    (args.output / "boundaries.jsonl").write_text("".join(json.dumps(case) + "\n" for case in boundaries))
     (args.output / "report.json").write_text(json.dumps(report, indent=2) + "\n")
     print(json.dumps(report))
 
