@@ -53,6 +53,7 @@ in {
   };
   model = suite "model" {
     file = "tests/conformance_model_test.py";
+    extraFiles = [ "tests/conformance_trace_test.py" ];
     inputs = [
       (fs.fileFilter (file: file.hasExt "py") (root + /migration_check))
     ] ++ map (name: root + "/conformance/${name}.py") [
