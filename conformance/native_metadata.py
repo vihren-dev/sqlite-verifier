@@ -17,6 +17,11 @@ def text(cell: Cell) -> str:
     return value.decode("utf-8")
 
 
+def identifier(cell: Cell) -> str:
+    """Compare SQLite identifiers with ASCII case folding, independently of the translator."""
+    return text(cell).translate(str.maketrans("ABCDEFGHIJKLMNOPQRSTUVWXYZ", "abcdefghijklmnopqrstuvwxyz"))
+
+
 def integer(cell: Cell) -> int:
     """Reject coerced native metadata and rowids."""
     kind, value = cell
@@ -51,13 +56,13 @@ def check_metadata(connection: Connection, table: Table) -> None:
         expected_type = {"bigInt": "BIGINT", "timestamp": "TIMESTAMP", "boolean": "BOOLEAN",
                          "untyped": "", "canonical": column.affinity.upper()}[column.declared_type]
         default_sql = None if default[0] == 5 else text(default).upper()
-        if (integer(cid) != number or text(name) != column.name or integer(hidden) != 0
+        if (integer(cid) != number or identifier(name) != column.name or integer(hidden) != 0
                 or spelling != expected_type or affinity(spelling) != column.affinity
                 or integer(not_null) != int(column.not_null)
                 or default_sql != ("CURRENT_TIMESTAMP" if column.current_timestamp else None)):
             raise ValueError(f"Native column metadata differs: {table.name}.{column.name}")
         if integer(pk):
-            primary.append((integer(pk), text(name)))
+            primary.append((integer(pk), identifier(name)))
     if tuple(name for _, name in sorted(primary)) != table.primary_key:
         raise ValueError(f"Native primary key differs: {table.name}")
     explicit: set[tuple[str, tuple[str, ...], bool]] = set()
@@ -70,13 +75,13 @@ def check_metadata(connection: Connection, table: Table) -> None:
                 continue  # Auxiliary rowid is not part of the declared index key.
             if (integer(cid) < 0 or integer(descending) or text(collation) != "BINARY"
                     or integer(cid) >= len(table.columns)
-                    or text(column) != table.columns[integer(cid)].name):
+                    or identifier(column) != table.columns[integer(cid)].name):
                 raise ValueError(f"Unsupported native index metadata: {text(name)}")
-            columns.append(text(column))
+            columns.append(identifier(column))
         if integer(partial):
             raise ValueError(f"Unexpected partial native index: {text(name)}")
         if text(origin) == "c":
-            explicit.add((text(name), tuple(columns), bool(integer(unique))))
+            explicit.add((identifier(name), tuple(columns), bool(integer(unique))))
         elif text(origin) in ("u", "pk") and integer(unique):
             implicit.add(tuple(columns))
         else:

@@ -100,8 +100,8 @@ def test_fail_closed_transport(runtime_root: Path) -> None:
 
 def test_preserved_schema_metadata(runtime_root: Path, tmp_path: Path) -> None:
     """Aliases, defaults, primary/unique keys and explicit indexes survive the shared codec."""
-    fixture = Fixture("CREATE TABLE records(id BIGINT PRIMARY KEY, stamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP, "
-        "flag BOOLEAN, value, UNIQUE(flag)); CREATE UNIQUE INDEX by_id ON records(id);",
+    fixture = Fixture("CREATE TABLE Records(ID BIGINT PRIMARY KEY, Stamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP, "
+        "Flag BOOLEAN, Value, UNIQUE(Flag)); CREATE UNIQUE INDEX By_ID ON Records(ID);",
         "ALTER TABLE records ADD extra NUMERIC;", {}, "schema-properties")
     case = record(fixture, runtime_root / "build/sqlite-parser")
     result = compiled(case, runtime_root, emit_lean=True)

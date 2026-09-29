@@ -9,7 +9,7 @@ from migration_check.sql_model import Table, sql_inputs
 from migration_check.diagnostics import Rejection
 from migration_check.sql_tree import parse
 from migration_check.translate import starting_schema, statements
-from conformance.native_metadata import check_metadata, integer, quoted, text
+from conformance.native_metadata import check_metadata, identifier, integer, quoted, text
 from conformance.case_format import Json, schema_wire, statement_wire, table_wire
 from conformance.native_connection import Cell, Connection, NativeError, SOURCE_ID, library_path, load_library
 
@@ -41,7 +41,7 @@ def snapshot(connection: Connection, parser: Path,
         schema = cache[key]
     except Rejection as error:
         raise ValueError(f"Cannot observe native schema: {error}") from error
-    if sorted(table.name for table in schema) != sorted(text(name) for kind, name, _ in metadata if text(kind) == "table"):
+    if sorted(table.name for table in schema) != sorted(identifier(name) for kind, name, _ in metadata if text(kind) == "table"):
         raise ValueError("Native table inventory differs from parsed declaration")
     tables: list[Json] = []
     for table in sorted(schema, key=lambda entry: entry.name):
