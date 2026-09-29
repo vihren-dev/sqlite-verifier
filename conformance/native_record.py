@@ -100,14 +100,24 @@ def execute(connection: Connection, sql: str) -> Iterator[dict[str, Json]]:
         remaining = suffix
 
 
-def record_sql(setup: str, migration: str, *, name: str, requirements: list[str] | None = None,
+def record_sql(setup: str | list[str], migration: str, *, name: str, requirements: list[str] | None = None,
                library: Path | None = None) -> dict[str, Json]:
     """Keep native evidence even when today's frontend cannot represent the SQL."""
     with TemporaryDirectory(prefix="native-corpus-") as directory, ExitStack() as stack:
         engine = load_library(library or library_path())
         writer = Connection(engine, Path(directory) / "case.db")
         stack.callback(writer.close)
-        writer.execute_script(setup)
+        setup_outcomes: list[Json] = []
+        setup_results: list[Json] = []
+        setup_errors: list[Json] = []
+        if isinstance(setup, str):
+            writer.execute_script(setup)
+        else:
+            for command in setup:
+                events = list(execute(writer, command))
+                setup_outcomes.append(events[-1]["primaryCode"] if events else 0)
+                setup_results.append([row for event in events for row in event["rows"]])
+                setup_errors.append(events[-1]["error"] if events else "")
         if writer.transaction_open:
             raise ValueError("Corpus setup must end outside a transaction")
         reader = Connection(engine, Path(directory) / "case.db")
@@ -121,5 +131,7 @@ def record_sql(setup: str, migration: str, *, name: str, requirements: list[str]
 
         initial = snapshot()
         trace = [{**event, **snapshot()} for event in execute(writer, migration)]
-    return {"nativeVersion": 1, "name": name, "setupSql": setup, "migrationSql": migration,
+    return {"nativeVersion": 1, "name": name, "setupSql": setup if isinstance(setup, str) else "\n".join(setup),
+            "setupCommands": [setup] if isinstance(setup, str) else setup, "setupOutcomes": setup_outcomes,
+            "setupResults": setup_results, "setupErrors": setup_errors, "migrationSql": migration,
             "sourceId": SOURCE_ID, "requirements": requirements or [], "initial": initial, "trace": trace}

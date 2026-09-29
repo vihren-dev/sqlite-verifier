@@ -53,7 +53,7 @@ smoke:
 # The same derivations are the flake's checks; nix-build also keeps result links.
 test: build
     timeout 900 nix-build build-support/default.nix -A tests --out-link build/nix-tests --option sandbox true --option sandbox-fallback false --extra-experimental-features 'nix-command flakes'
-    timeout --foreground 600 python3 -u -m pytest -v tests -m "not requires_nix" --ignore=tests/runtime_package_test.py --ignore=tests/kernel_gate_test.py --ignore=tests/conformance_model_test.py --ignore=tests/conformance_trace_test.py --ignore=tests/conformance_pipeline_test.py --ignore=tests/conformance_mutation_test.py --ignore=tests/conformance_laws_test.py --ignore=tests/conformance_record_test.py --ignore=tests/conformance_dqs_test.py --ignore=tests/atuin_cli_test.py --ignore=tests/cli_test.py --runtime-root "${SQLITE_VERIFIER_RUNTIME_ROOT:-$PWD}" --junitxml build/test-results/source.xml
+    timeout --foreground 600 python3 -u -m pytest -v tests -m "not requires_nix" --ignore=tests/runtime_package_test.py --ignore=tests/kernel_gate_test.py --ignore=tests/conformance_model_test.py --ignore=tests/conformance_trace_test.py --ignore=tests/conformance_pipeline_test.py --ignore=tests/conformance_mutation_test.py --ignore=tests/conformance_laws_test.py --ignore=tests/conformance_record_test.py --ignore=tests/conformance_dqs_test.py --ignore=tests/conformance_upstream_test.py --ignore=tests/atuin_cli_test.py --ignore=tests/cli_test.py --runtime-root "${SQLITE_VERIFIER_RUNTIME_ROOT:-$PWD}" --junitxml build/test-results/source.xml
 
 # Check Nix source identities, test-target invalidation, environment snapshots and the installer cache.
 test-nix:
@@ -73,3 +73,12 @@ runtime-package: build
 package: test test-nix runtime-package
     mkdir -p dist
     tar --exclude='./.jj' --exclude='./.git' --exclude='./.lake' --exclude='./.direnv' --exclude='./dist' --exclude='./build' --exclude='__pycache__' --exclude='./result*' -czf dist/sqlite-verifier-source.tar.gz .
+
+# Refresh into build/, then review and assign a new corpus version before freezing.
+conformance-upstream: conformance-build
+    timeout 900 nix-build build-support/default.nix -A conformanceNative.fixture --out-link build/testfixture --extra-experimental-features 'nix-command flakes'
+    timeout 900 nix-build build-support/default.nix -A conformanceNative.upstream --out-link build/upstream-sqlite --extra-experimental-features 'nix-command flakes'
+    timeout 900 python3 -m conformance.upstream_pilot --fixture build/testfixture/bin/testfixture --upstream build/upstream-sqlite --output build/upstream-pilot
+
+conformance-corpus: conformance-build
+    timeout 420 python3 -m conformance.corpus conformance/corpus-v1 --native-check --output build/corpus-progress.json

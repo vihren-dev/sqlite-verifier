@@ -1,0 +1,5317 @@
+{
+  "corpusVersion": 1,
+  "sourceRelease": "3.51.0",
+  "perFileLimit": 20,
+  "sourceId": "2025-11-04 19:38:17 fb2c931ae597f8d00a37574ff67aeed3eced4e5547f9120744ae4bfa8e74527b",
+  "sourceArchiveSha256": "5330719b8b80bf563991ff7a373052943f5357aae76cd1f3367eab845d3a75b7",
+  "extractorSha256": {
+    "upstream_pilot.py": "35c9498814914751e78cd9b55235de46327331790bc1578ee0d6d40d668b8162",
+    "upstream_proxy.tcl": "62117a2923723f81c8aaeacfa67cc9f688c13dac2571b37885da7732581d4f66",
+    "upstream_fidelity.py": "b9b04664787b25325ac77c716af2eb9d73fddd15160aa2c0ce51d02497a8d1e1",
+    "native_record.py": "cf18eb44e4b4c4153554e0e246a767003e23d608eebcd2e5e5226d5fd126d83a"
+  },
+  "files": [
+    {
+      "file": "alter.test",
+      "sha256": "bbaed129498087083e7d37a6eb0c88bb22080d44a09a3670deae6765d7a1ec1e",
+      "runtimeExit": 0,
+      "runtimeAssertions": 119,
+      "recorded": 12,
+      "reasons": {
+        "native acquisition: Excluded connection context: temporary schema": 7,
+        "application callback: close": 53,
+        "application callback: close; connection or SQL callback context; multiple connections": 41,
+        "no SQL observation": 6,
+        "recorded": 12
+      },
+      "instances": [
+        {
+          "id": "alter-1.1",
+          "occurrence": 0,
+          "result": "native acquisition: Excluded connection context: temporary schema"
+        },
+        {
+          "id": "alter-1.2",
+          "occurrence": 1,
+          "result": "native acquisition: Excluded connection context: temporary schema"
+        },
+        {
+          "id": "alter-1.3.0",
+          "occurrence": 2,
+          "result": "native acquisition: Excluded connection context: temporary schema"
+        },
+        {
+          "id": "alter-1.3",
+          "occurrence": 3,
+          "result": "native acquisition: Excluded connection context: temporary schema"
+        },
+        {
+          "id": "alter-1.3.1",
+          "occurrence": 4,
+          "result": "native acquisition: Excluded connection context: temporary schema"
+        },
+        {
+          "id": "alter-1.4",
+          "occurrence": 5,
+          "result": "native acquisition: Excluded connection context: temporary schema"
+        },
+        {
+          "id": "alter-1.5",
+          "occurrence": 6,
+          "result": "native acquisition: Excluded connection context: temporary schema"
+        },
+        {
+          "id": "alter-1.6",
+          "occurrence": 7,
+          "result": "application callback: close"
+        },
+        {
+          "id": "alter-1.7-prep",
+          "occurrence": 8,
+          "result": "application callback: close"
+        },
+        {
+          "id": "alter-1.7",
+          "occurrence": 9,
+          "result": "application callback: close"
+        },
+        {
+          "id": "alter-1.8.1",
+          "occurrence": 10,
+          "result": "application callback: close"
+        },
+        {
+          "id": "alter-1.8.2",
+          "occurrence": 11,
+          "result": "application callback: close"
+        },
+        {
+          "id": "alter-1.8.3",
+          "occurrence": 12,
+          "result": "application callback: close"
+        },
+        {
+          "id": "alter-1.8.4",
+          "occurrence": 13,
+          "result": "application callback: close"
+        },
+        {
+          "id": "alter-1.8.5",
+          "occurrence": 14,
+          "result": "application callback: close"
+        },
+        {
+          "id": "alter-1.8.6",
+          "occurrence": 15,
+          "result": "application callback: close"
+        },
+        {
+          "id": "alter-1.8.7",
+          "occurrence": 16,
+          "result": "application callback: close"
+        },
+        {
+          "id": "alter-1.9.1",
+          "occurrence": 17,
+          "result": "application callback: close"
+        },
+        {
+          "id": "alter-1.9.2",
+          "occurrence": 18,
+          "result": "application callback: close"
+        },
+        {
+          "id": "alter-1.9.3",
+          "occurrence": 19,
+          "result": "application callback: close"
+        },
+        {
+          "id": "alter-1.9.4",
+          "occurrence": 20,
+          "result": "application callback: close"
+        },
+        {
+          "id": "alter-2.1",
+          "occurrence": 21,
+          "result": "application callback: close"
+        },
+        {
+          "id": "alter-2.2",
+          "occurrence": 22,
+          "result": "application callback: close"
+        },
+        {
+          "id": "alter-2.3",
+          "occurrence": 23,
+          "result": "application callback: close"
+        },
+        {
+          "id": "alter-2.4",
+          "occurrence": 24,
+          "result": "application callback: close"
+        },
+        {
+          "id": "alter-2.5",
+          "occurrence": 25,
+          "result": "application callback: close"
+        },
+        {
+          "id": "alter-2.6",
+          "occurrence": 26,
+          "result": "application callback: close"
+        },
+        {
+          "id": "alter-3.1.0",
+          "occurrence": 27,
+          "result": "application callback: close"
+        },
+        {
+          "id": "alter-3.1.1",
+          "occurrence": 28,
+          "result": "application callback: close"
+        },
+        {
+          "id": "alter-3.1.2",
+          "occurrence": 29,
+          "result": "application callback: close"
+        },
+        {
+          "id": "alter-3.1.3",
+          "occurrence": 30,
+          "result": "application callback: close"
+        },
+        {
+          "id": "alter-3.1.4",
+          "occurrence": 31,
+          "result": "application callback: close"
+        },
+        {
+          "id": "alter-3.1.5",
+          "occurrence": 32,
+          "result": "application callback: close"
+        },
+        {
+          "id": "alter-3.1.6",
+          "occurrence": 33,
+          "result": "application callback: close"
+        },
+        {
+          "id": "alter-3.1.7",
+          "occurrence": 34,
+          "result": "application callback: close"
+        },
+        {
+          "id": "alter-3.1.8",
+          "occurrence": 35,
+          "result": "application callback: close"
+        },
+        {
+          "id": "alter-3.2.1",
+          "occurrence": 36,
+          "result": "application callback: close"
+        },
+        {
+          "id": "alter-3.2.2",
+          "occurrence": 37,
+          "result": "application callback: close"
+        },
+        {
+          "id": "alter-3.2.3",
+          "occurrence": 38,
+          "result": "application callback: close"
+        },
+        {
+          "id": "alter-3.2.4",
+          "occurrence": 39,
+          "result": "application callback: close"
+        },
+        {
+          "id": "alter-3.2.4",
+          "occurrence": 40,
+          "result": "application callback: close"
+        },
+        {
+          "id": "alter-3.2.5",
+          "occurrence": 41,
+          "result": "application callback: close"
+        },
+        {
+          "id": "alter-3.2.6",
+          "occurrence": 42,
+          "result": "application callback: close"
+        },
+        {
+          "id": "alter-3.2.7",
+          "occurrence": 43,
+          "result": "application callback: close"
+        },
+        {
+          "id": "alter-3.2.8",
+          "occurrence": 44,
+          "result": "application callback: close"
+        },
+        {
+          "id": "alter-3.2.9",
+          "occurrence": 45,
+          "result": "application callback: close"
+        },
+        {
+          "id": "alter-3.2.10",
+          "occurrence": 46,
+          "result": "application callback: close"
+        },
+        {
+          "id": "alter-3.3.1",
+          "occurrence": 47,
+          "result": "application callback: close"
+        },
+        {
+          "id": "alter-3.3.2",
+          "occurrence": 48,
+          "result": "application callback: close"
+        },
+        {
+          "id": "alter-3.3.3",
+          "occurrence": 49,
+          "result": "application callback: close"
+        },
+        {
+          "id": "alter-3.3.4",
+          "occurrence": 50,
+          "result": "application callback: close"
+        },
+        {
+          "id": "alter-3.3.5",
+          "occurrence": 51,
+          "result": "application callback: close"
+        },
+        {
+          "id": "alter-3.3.6",
+          "occurrence": 52,
+          "result": "application callback: close"
+        },
+        {
+          "id": "alter-3.3.7",
+          "occurrence": 53,
+          "result": "application callback: close"
+        },
+        {
+          "id": "alter-3.3.8",
+          "occurrence": 54,
+          "result": "application callback: close"
+        },
+        {
+          "id": "alter-4.1",
+          "occurrence": 55,
+          "result": "application callback: close"
+        },
+        {
+          "id": "alter-4.2",
+          "occurrence": 56,
+          "result": "application callback: close"
+        },
+        {
+          "id": "alter-4.3",
+          "occurrence": 57,
+          "result": "application callback: close"
+        },
+        {
+          "id": "alter-4.4",
+          "occurrence": 58,
+          "result": "application callback: close"
+        },
+        {
+          "id": "alter-5.1",
+          "occurrence": 59,
+          "result": "application callback: close"
+        },
+        {
+          "id": "alter-5.2",
+          "occurrence": 60,
+          "result": "application callback: close; connection or SQL callback context; multiple connections"
+        },
+        {
+          "id": "alter-5.3",
+          "occurrence": 61,
+          "result": "no SQL observation"
+        },
+        {
+          "id": "alter-6.1",
+          "occurrence": 62,
+          "result": "no SQL observation"
+        },
+        {
+          "id": "alter-6.2",
+          "occurrence": 63,
+          "result": "application callback: close; connection or SQL callback context; multiple connections"
+        },
+        {
+          "id": "alter-6.3",
+          "occurrence": 64,
+          "result": "application callback: close; connection or SQL callback context; multiple connections"
+        },
+        {
+          "id": "alter-6.4",
+          "occurrence": 65,
+          "result": "application callback: close; connection or SQL callback context; multiple connections"
+        },
+        {
+          "id": "alter-6.5",
+          "occurrence": 66,
+          "result": "application callback: close; connection or SQL callback context; multiple connections"
+        },
+        {
+          "id": "alter-6.6",
+          "occurrence": 67,
+          "result": "application callback: close; connection or SQL callback context; multiple connections"
+        },
+        {
+          "id": "alter-6.7",
+          "occurrence": 68,
+          "result": "application callback: close; connection or SQL callback context; multiple connections"
+        },
+        {
+          "id": "alter-7.1",
+          "occurrence": 69,
+          "result": "application callback: close; connection or SQL callback context; multiple connections"
+        },
+        {
+          "id": "alter-8.1",
+          "occurrence": 70,
+          "result": "application callback: close; connection or SQL callback context; multiple connections"
+        },
+        {
+          "id": "alter-8.2",
+          "occurrence": 71,
+          "result": "application callback: close; connection or SQL callback context; multiple connections"
+        },
+        {
+          "id": "alter-9.1",
+          "occurrence": 72,
+          "result": "application callback: close; connection or SQL callback context; multiple connections"
+        },
+        {
+          "id": "alter-9.2.1",
+          "occurrence": 73,
+          "result": "application callback: close; connection or SQL callback context; multiple connections"
+        },
+        {
+          "id": "alter-9.2.2",
+          "occurrence": 74,
+          "result": "application callback: close; connection or SQL callback context; multiple connections"
+        },
+        {
+          "id": "alter-9.2.3",
+          "occurrence": 75,
+          "result": "application callback: close; connection or SQL callback context; multiple connections"
+        },
+        {
+          "id": "alter-9.3",
+          "occurrence": 76,
+          "result": "application callback: close; connection or SQL callback context; multiple connections"
+        },
+        {
+          "id": "alter-10.1",
+          "occurrence": 77,
+          "result": "application callback: close; connection or SQL callback context; multiple connections"
+        },
+        {
+          "id": "alter-10.2",
+          "occurrence": 78,
+          "result": "application callback: close; connection or SQL callback context; multiple connections"
+        },
+        {
+          "id": "alter-10.3",
+          "occurrence": 79,
+          "result": "application callback: close; connection or SQL callback context; multiple connections"
+        },
+        {
+          "id": "alter-10.4",
+          "occurrence": 80,
+          "result": "application callback: close; connection or SQL callback context; multiple connections"
+        },
+        {
+          "id": "alter-11.1",
+          "occurrence": 81,
+          "result": "application callback: close; connection or SQL callback context; multiple connections"
+        },
+        {
+          "id": "alter-11.2",
+          "occurrence": 82,
+          "result": "application callback: close; connection or SQL callback context; multiple connections"
+        },
+        {
+          "id": "alter-11.3",
+          "occurrence": 83,
+          "result": "application callback: close; connection or SQL callback context; multiple connections"
+        },
+        {
+          "id": "alter-11.4",
+          "occurrence": 84,
+          "result": "application callback: close; connection or SQL callback context; multiple connections"
+        },
+        {
+          "id": "alter-11.5",
+          "occurrence": 85,
+          "result": "no SQL observation"
+        },
+        {
+          "id": "alter-11.6",
+          "occurrence": 86,
+          "result": "no SQL observation"
+        },
+        {
+          "id": "alter-11.7",
+          "occurrence": 87,
+          "result": "application callback: close; connection or SQL callback context; multiple connections"
+        },
+        {
+          "id": "alter-11.8",
+          "occurrence": 88,
+          "result": "application callback: close; connection or SQL callback context; multiple connections"
+        },
+        {
+          "id": "alter-11.9",
+          "occurrence": 89,
+          "result": "no SQL observation"
+        },
+        {
+          "id": "alter-11.10",
+          "occurrence": 90,
+          "result": "no SQL observation"
+        },
+        {
+          "id": "alter-12.1",
+          "occurrence": 91,
+          "result": "application callback: close; connection or SQL callback context; multiple connections"
+        },
+        {
+          "id": "alter-12.2",
+          "occurrence": 92,
+          "result": "application callback: close; connection or SQL callback context; multiple connections"
+        },
+        {
+          "id": "alter-12.3",
+          "occurrence": 93,
+          "result": "application callback: close; connection or SQL callback context; multiple connections"
+        },
+        {
+          "id": "alter-12.4",
+          "occurrence": 94,
+          "result": "application callback: close; connection or SQL callback context; multiple connections"
+        },
+        {
+          "id": "alter-12.5",
+          "occurrence": 95,
+          "result": "application callback: close; connection or SQL callback context; multiple connections"
+        },
+        {
+          "id": "alter-13.1",
+          "occurrence": 96,
+          "result": "application callback: close; connection or SQL callback context; multiple connections"
+        },
+        {
+          "id": "alter-13.2",
+          "occurrence": 97,
+          "result": "application callback: close; connection or SQL callback context; multiple connections"
+        },
+        {
+          "id": "alter-13.3",
+          "occurrence": 98,
+          "result": "application callback: close; connection or SQL callback context; multiple connections"
+        },
+        {
+          "id": "alter-14.1",
+          "occurrence": 99,
+          "result": "application callback: close; connection or SQL callback context; multiple connections"
+        },
+        {
+          "id": "alter-14.2",
+          "occurrence": 100,
+          "result": "application callback: close; connection or SQL callback context; multiple connections"
+        },
+        {
+          "id": "alter-15.1.1",
+          "occurrence": 101,
+          "result": "application callback: close; connection or SQL callback context; multiple connections"
+        },
+        {
+          "id": "alter-15.1.2",
+          "occurrence": 102,
+          "result": "application callback: close; connection or SQL callback context; multiple connections"
+        },
+        {
+          "id": "alter-15.2.1",
+          "occurrence": 103,
+          "result": "application callback: close; connection or SQL callback context; multiple connections"
+        },
+        {
+          "id": "alter-15.2.2",
+          "occurrence": 104,
+          "result": "application callback: close; connection or SQL callback context; multiple connections"
+        },
+        {
+          "id": "alter-16.1",
+          "occurrence": 105,
+          "result": "application callback: close; connection or SQL callback context; multiple connections"
+        },
+        {
+          "id": "alter-16.2",
+          "occurrence": 106,
+          "result": "application callback: close; connection or SQL callback context; multiple connections"
+        },
+        {
+          "id": "alter-18.1",
+          "occurrence": 107,
+          "result": "recorded"
+        },
+        {
+          "id": "alter-19.1",
+          "occurrence": 108,
+          "result": "recorded"
+        },
+        {
+          "id": "alter-19.2",
+          "occurrence": 109,
+          "result": "recorded"
+        },
+        {
+          "id": "alter-19.3",
+          "occurrence": 110,
+          "result": "recorded"
+        },
+        {
+          "id": "alter-20.1",
+          "occurrence": 111,
+          "result": "recorded"
+        },
+        {
+          "id": "alter-20.2",
+          "occurrence": 112,
+          "result": "recorded"
+        },
+        {
+          "id": "alter-20.2",
+          "occurrence": 113,
+          "result": "recorded"
+        },
+        {
+          "id": "alter-20.3",
+          "occurrence": 114,
+          "result": "recorded"
+        },
+        {
+          "id": "alter-21.1",
+          "occurrence": 115,
+          "result": "recorded"
+        },
+        {
+          "id": "alter-21.2",
+          "occurrence": 116,
+          "result": "recorded"
+        },
+        {
+          "id": "alter-21.3",
+          "occurrence": 117,
+          "result": "recorded"
+        },
+        {
+          "id": "alter-21.4",
+          "occurrence": 118,
+          "result": "recorded"
+        }
+      ],
+      "runtimeDiagnostics": ""
+    },
+    {
+      "file": "alter2.test",
+      "sha256": "89ba6022075f750c3f39d06e7458c849c87216b50438179e66fe83553792ac62",
+      "runtimeExit": 0,
+      "runtimeAssertions": 46,
+      "recorded": 0,
+      "reasons": {
+        "native acquisition: assertion error outcome differs from Tcl execution": 1,
+        "native acquisition: prefix error outcomes differ from Tcl execution": 1,
+        "application callback: close; connection or SQL callback context; external/configuration operation: sqlite3_db_config; multiple connections": 29,
+        "no SQL observation": 6,
+        "assertion continues after a SQL error": 1,
+        "application callback: close; application callback: function; connection or SQL callback context; external/configuration operation: sqlite3_db_config; multiple connections": 8
+      },
+      "instances": [
+        {
+          "id": "alter2-1.0",
+          "occurrence": 0,
+          "result": "native acquisition: assertion error outcome differs from Tcl execution"
+        },
+        {
+          "id": "alter2-1.1",
+          "occurrence": 1,
+          "result": "native acquisition: prefix error outcomes differ from Tcl execution"
+        },
+        {
+          "id": "alter2-1.2",
+          "occurrence": 2,
+          "result": "application callback: close; connection or SQL callback context; external/configuration operation: sqlite3_db_config; multiple connections"
+        },
+        {
+          "id": "alter2-1.3",
+          "occurrence": 3,
+          "result": "application callback: close; connection or SQL callback context; external/configuration operation: sqlite3_db_config; multiple connections"
+        },
+        {
+          "id": "alter2-1.4",
+          "occurrence": 4,
+          "result": "application callback: close; connection or SQL callback context; external/configuration operation: sqlite3_db_config; multiple connections"
+        },
+        {
+          "id": "alter2-1.5",
+          "occurrence": 5,
+          "result": "application callback: close; connection or SQL callback context; external/configuration operation: sqlite3_db_config; multiple connections"
+        },
+        {
+          "id": "alter2-1.6",
+          "occurrence": 6,
+          "result": "application callback: close; connection or SQL callback context; external/configuration operation: sqlite3_db_config; multiple connections"
+        },
+        {
+          "id": "alter2-1.7",
+          "occurrence": 7,
+          "result": "application callback: close; connection or SQL callback context; external/configuration operation: sqlite3_db_config; multiple connections"
+        },
+        {
+          "id": "alter2-1.8",
+          "occurrence": 8,
+          "result": "application callback: close; connection or SQL callback context; external/configuration operation: sqlite3_db_config; multiple connections"
+        },
+        {
+          "id": "alter2-1.9",
+          "occurrence": 9,
+          "result": "application callback: close; connection or SQL callback context; external/configuration operation: sqlite3_db_config; multiple connections"
+        },
+        {
+          "id": "alter2-1.10",
+          "occurrence": 10,
+          "result": "application callback: close; connection or SQL callback context; external/configuration operation: sqlite3_db_config; multiple connections"
+        },
+        {
+          "id": "alter2-1.99",
+          "occurrence": 11,
+          "result": "application callback: close; connection or SQL callback context; external/configuration operation: sqlite3_db_config; multiple connections"
+        },
+        {
+          "id": "alter2-2.1",
+          "occurrence": 12,
+          "result": "application callback: close; connection or SQL callback context; external/configuration operation: sqlite3_db_config; multiple connections"
+        },
+        {
+          "id": "alter2-2.2",
+          "occurrence": 13,
+          "result": "application callback: close; connection or SQL callback context; external/configuration operation: sqlite3_db_config; multiple connections"
+        },
+        {
+          "id": "alter2-2.3",
+          "occurrence": 14,
+          "result": "application callback: close; connection or SQL callback context; external/configuration operation: sqlite3_db_config; multiple connections"
+        },
+        {
+          "id": "alter2-3.1",
+          "occurrence": 15,
+          "result": "application callback: close; connection or SQL callback context; external/configuration operation: sqlite3_db_config; multiple connections"
+        },
+        {
+          "id": "alter2-3.2",
+          "occurrence": 16,
+          "result": "application callback: close; connection or SQL callback context; external/configuration operation: sqlite3_db_config; multiple connections"
+        },
+        {
+          "id": "alter2-3.3",
+          "occurrence": 17,
+          "result": "application callback: close; connection or SQL callback context; external/configuration operation: sqlite3_db_config; multiple connections"
+        },
+        {
+          "id": "alter2-3.4",
+          "occurrence": 18,
+          "result": "application callback: close; connection or SQL callback context; external/configuration operation: sqlite3_db_config; multiple connections"
+        },
+        {
+          "id": "alter2-3.5",
+          "occurrence": 19,
+          "result": "application callback: close; connection or SQL callback context; external/configuration operation: sqlite3_db_config; multiple connections"
+        },
+        {
+          "id": "alter2-3.6",
+          "occurrence": 20,
+          "result": "application callback: close; connection or SQL callback context; external/configuration operation: sqlite3_db_config; multiple connections"
+        },
+        {
+          "id": "alter2-4.1",
+          "occurrence": 21,
+          "result": "no SQL observation"
+        },
+        {
+          "id": "alter2-4.2",
+          "occurrence": 22,
+          "result": "assertion continues after a SQL error"
+        },
+        {
+          "id": "alter2-4.3",
+          "occurrence": 23,
+          "result": "no SQL observation"
+        },
+        {
+          "id": "alter2-4.4",
+          "occurrence": 24,
+          "result": "application callback: close; connection or SQL callback context; external/configuration operation: sqlite3_db_config; multiple connections"
+        },
+        {
+          "id": "alter2-4.5",
+          "occurrence": 25,
+          "result": "no SQL observation"
+        },
+        {
+          "id": "alter2-5.1",
+          "occurrence": 26,
+          "result": "application callback: close; connection or SQL callback context; external/configuration operation: sqlite3_db_config; multiple connections"
+        },
+        {
+          "id": "alter2-5.2",
+          "occurrence": 27,
+          "result": "application callback: close; connection or SQL callback context; external/configuration operation: sqlite3_db_config; multiple connections"
+        },
+        {
+          "id": "alter2-5.3",
+          "occurrence": 28,
+          "result": "no SQL observation"
+        },
+        {
+          "id": "alter2-6.1",
+          "occurrence": 29,
+          "result": "no SQL observation"
+        },
+        {
+          "id": "alter2-6.2",
+          "occurrence": 30,
+          "result": "application callback: close; connection or SQL callback context; external/configuration operation: sqlite3_db_config; multiple connections"
+        },
+        {
+          "id": "alter2-6.3",
+          "occurrence": 31,
+          "result": "application callback: close; connection or SQL callback context; external/configuration operation: sqlite3_db_config; multiple connections"
+        },
+        {
+          "id": "alter2-7.1",
+          "occurrence": 32,
+          "result": "application callback: close; connection or SQL callback context; external/configuration operation: sqlite3_db_config; multiple connections"
+        },
+        {
+          "id": "alter2-7.2",
+          "occurrence": 33,
+          "result": "application callback: close; connection or SQL callback context; external/configuration operation: sqlite3_db_config; multiple connections"
+        },
+        {
+          "id": "alter2-7.3",
+          "occurrence": 34,
+          "result": "application callback: close; connection or SQL callback context; external/configuration operation: sqlite3_db_config; multiple connections"
+        },
+        {
+          "id": "alter2-7.4",
+          "occurrence": 35,
+          "result": "application callback: close; connection or SQL callback context; external/configuration operation: sqlite3_db_config; multiple connections"
+        },
+        {
+          "id": "alter2-7.5",
+          "occurrence": 36,
+          "result": "application callback: close; connection or SQL callback context; external/configuration operation: sqlite3_db_config; multiple connections"
+        },
+        {
+          "id": "alter2-8.1",
+          "occurrence": 37,
+          "result": "application callback: close; application callback: function; connection or SQL callback context; external/configuration operation: sqlite3_db_config; multiple connections"
+        },
+        {
+          "id": "alter2-8.2",
+          "occurrence": 38,
+          "result": "application callback: close; application callback: function; connection or SQL callback context; external/configuration operation: sqlite3_db_config; multiple connections"
+        },
+        {
+          "id": "alter2-8.3",
+          "occurrence": 39,
+          "result": "no SQL observation"
+        },
+        {
+          "id": "alter2-9.1",
+          "occurrence": 40,
+          "result": "application callback: close; application callback: function; connection or SQL callback context; external/configuration operation: sqlite3_db_config; multiple connections"
+        },
+        {
+          "id": "alter2-9.2",
+          "occurrence": 41,
+          "result": "application callback: close; application callback: function; connection or SQL callback context; external/configuration operation: sqlite3_db_config; multiple connections"
+        },
+        {
+          "id": "alter2-10.1",
+          "occurrence": 42,
+          "result": "application callback: close; application callback: function; connection or SQL callback context; external/configuration operation: sqlite3_db_config; multiple connections"
+        },
+        {
+          "id": "alter2-10.2",
+          "occurrence": 43,
+          "result": "application callback: close; application callback: function; connection or SQL callback context; external/configuration operation: sqlite3_db_config; multiple connections"
+        },
+        {
+          "id": "alter2-10.3",
+          "occurrence": 44,
+          "result": "application callback: close; application callback: function; connection or SQL callback context; external/configuration operation: sqlite3_db_config; multiple connections"
+        },
+        {
+          "id": "alter2-10.4",
+          "occurrence": 45,
+          "result": "application callback: close; application callback: function; connection or SQL callback context; external/configuration operation: sqlite3_db_config; multiple connections"
+        }
+      ],
+      "runtimeDiagnostics": ""
+    },
+    {
+      "file": "alter3.test",
+      "sha256": "3a1202f02900700eaad7bbc896099b277607398c0b1ec370cc3ce971ad90135b",
+      "runtimeExit": 0,
+      "runtimeAssertions": 59,
+      "recorded": 7,
+      "reasons": {
+        "external/configuration operation: sqlite3_db_config": 19,
+        "assertion continues after a SQL error": 1,
+        "no SQL observation": 3,
+        "application callback: close; external/configuration operation: sqlite3_db_config": 24,
+        "recorded": 7,
+        "native acquisition: Excluded connection context: temporary schema": 1,
+        "native acquisition: Excluded connection context: attached database": 4
+      },
+      "instances": [
+        {
+          "id": "alter3-1.1",
+          "occurrence": 0,
+          "result": "external/configuration operation: sqlite3_db_config"
+        },
+        {
+          "id": "alter3-1.2",
+          "occurrence": 1,
+          "result": "external/configuration operation: sqlite3_db_config"
+        },
+        {
+          "id": "alter3-1.3",
+          "occurrence": 2,
+          "result": "external/configuration operation: sqlite3_db_config"
+        },
+        {
+          "id": "alter3-1.4",
+          "occurrence": 3,
+          "result": "external/configuration operation: sqlite3_db_config"
+        },
+        {
+          "id": "alter3-1.5",
+          "occurrence": 4,
+          "result": "external/configuration operation: sqlite3_db_config"
+        },
+        {
+          "id": "alter3-1.6",
+          "occurrence": 5,
+          "result": "external/configuration operation: sqlite3_db_config"
+        },
+        {
+          "id": "alter3-1.7",
+          "occurrence": 6,
+          "result": "external/configuration operation: sqlite3_db_config"
+        },
+        {
+          "id": "alter3-1.99",
+          "occurrence": 7,
+          "result": "assertion continues after a SQL error"
+        },
+        {
+          "id": "alter3-2.1",
+          "occurrence": 8,
+          "result": "external/configuration operation: sqlite3_db_config"
+        },
+        {
+          "id": "alter3-2.2",
+          "occurrence": 9,
+          "result": "external/configuration operation: sqlite3_db_config"
+        },
+        {
+          "id": "alter3-2.3",
+          "occurrence": 10,
+          "result": "external/configuration operation: sqlite3_db_config"
+        },
+        {
+          "id": "alter3-2.3",
+          "occurrence": 11,
+          "result": "external/configuration operation: sqlite3_db_config"
+        },
+        {
+          "id": "alter3-2.4",
+          "occurrence": 12,
+          "result": "external/configuration operation: sqlite3_db_config"
+        },
+        {
+          "id": "alter3-2.5",
+          "occurrence": 13,
+          "result": "external/configuration operation: sqlite3_db_config"
+        },
+        {
+          "id": "alter3-2.6",
+          "occurrence": 14,
+          "result": "external/configuration operation: sqlite3_db_config"
+        },
+        {
+          "id": "alter3-2.99",
+          "occurrence": 15,
+          "result": "external/configuration operation: sqlite3_db_config"
+        },
+        {
+          "id": "alter3-3.1",
+          "occurrence": 16,
+          "result": "external/configuration operation: sqlite3_db_config"
+        },
+        {
+          "id": "alter3-3.1",
+          "occurrence": 17,
+          "result": "external/configuration operation: sqlite3_db_config"
+        },
+        {
+          "id": "alter3-3.2",
+          "occurrence": 18,
+          "result": "external/configuration operation: sqlite3_db_config"
+        },
+        {
+          "id": "alter3-3.3",
+          "occurrence": 19,
+          "result": "no SQL observation"
+        },
+        {
+          "id": "alter3-3.4",
+          "occurrence": 20,
+          "result": "external/configuration operation: sqlite3_db_config"
+        },
+        {
+          "id": "alter3-4.1",
+          "occurrence": 21,
+          "result": "application callback: close; external/configuration operation: sqlite3_db_config"
+        },
+        {
+          "id": "alter3-4.1",
+          "occurrence": 22,
+          "result": "application callback: close; external/configuration operation: sqlite3_db_config"
+        },
+        {
+          "id": "alter3-4.2",
+          "occurrence": 23,
+          "result": "application callback: close; external/configuration operation: sqlite3_db_config"
+        },
+        {
+          "id": "alter3-4.3",
+          "occurrence": 24,
+          "result": "no SQL observation"
+        },
+        {
+          "id": "alter3-4.4",
+          "occurrence": 25,
+          "result": "application callback: close; external/configuration operation: sqlite3_db_config"
+        },
+        {
+          "id": "alter3-4.99",
+          "occurrence": 26,
+          "result": "application callback: close; external/configuration operation: sqlite3_db_config"
+        },
+        {
+          "id": "alter3-5.1",
+          "occurrence": 27,
+          "result": "application callback: close; external/configuration operation: sqlite3_db_config"
+        },
+        {
+          "id": "alter3-5.2",
+          "occurrence": 28,
+          "result": "application callback: close; external/configuration operation: sqlite3_db_config"
+        },
+        {
+          "id": "alter3-5.3",
+          "occurrence": 29,
+          "result": "application callback: close; external/configuration operation: sqlite3_db_config"
+        },
+        {
+          "id": "alter3-5.4",
+          "occurrence": 30,
+          "result": "application callback: close; external/configuration operation: sqlite3_db_config"
+        },
+        {
+          "id": "alter3-5.5",
+          "occurrence": 31,
+          "result": "no SQL observation"
+        },
+        {
+          "id": "alter3-5.6",
+          "occurrence": 32,
+          "result": "application callback: close; external/configuration operation: sqlite3_db_config"
+        },
+        {
+          "id": "alter3-5.7",
+          "occurrence": 33,
+          "result": "application callback: close; external/configuration operation: sqlite3_db_config"
+        },
+        {
+          "id": "alter3-5.8",
+          "occurrence": 34,
+          "result": "application callback: close; external/configuration operation: sqlite3_db_config"
+        },
+        {
+          "id": "alter3-5.9",
+          "occurrence": 35,
+          "result": "application callback: close; external/configuration operation: sqlite3_db_config"
+        },
+        {
+          "id": "alter3-5.99",
+          "occurrence": 36,
+          "result": "application callback: close; external/configuration operation: sqlite3_db_config"
+        },
+        {
+          "id": "alter3-6.1",
+          "occurrence": 37,
+          "result": "application callback: close; external/configuration operation: sqlite3_db_config"
+        },
+        {
+          "id": "alter3-6.2",
+          "occurrence": 38,
+          "result": "application callback: close; external/configuration operation: sqlite3_db_config"
+        },
+        {
+          "id": "alter3-7.1",
+          "occurrence": 39,
+          "result": "application callback: close; external/configuration operation: sqlite3_db_config"
+        },
+        {
+          "id": "alter3-7.2",
+          "occurrence": 40,
+          "result": "application callback: close; external/configuration operation: sqlite3_db_config"
+        },
+        {
+          "id": "alter3-7.3",
+          "occurrence": 41,
+          "result": "application callback: close; external/configuration operation: sqlite3_db_config"
+        },
+        {
+          "id": "alter3-7.4",
+          "occurrence": 42,
+          "result": "application callback: close; external/configuration operation: sqlite3_db_config"
+        },
+        {
+          "id": "alter3-7.5",
+          "occurrence": 43,
+          "result": "application callback: close; external/configuration operation: sqlite3_db_config"
+        },
+        {
+          "id": "alter3-8.1",
+          "occurrence": 44,
+          "result": "application callback: close; external/configuration operation: sqlite3_db_config"
+        },
+        {
+          "id": "alter3-8.2",
+          "occurrence": 45,
+          "result": "application callback: close; external/configuration operation: sqlite3_db_config"
+        },
+        {
+          "id": "alter3-8.2",
+          "occurrence": 46,
+          "result": "application callback: close; external/configuration operation: sqlite3_db_config"
+        },
+        {
+          "id": "alter3-9.1",
+          "occurrence": 47,
+          "result": "recorded"
+        },
+        {
+          "id": "alter3-9.2",
+          "occurrence": 48,
+          "result": "recorded"
+        },
+        {
+          "id": "alter3-9.3",
+          "occurrence": 49,
+          "result": "recorded"
+        },
+        {
+          "id": "alter3-9.4",
+          "occurrence": 50,
+          "result": "recorded"
+        },
+        {
+          "id": "alter3-9.5",
+          "occurrence": 51,
+          "result": "recorded"
+        },
+        {
+          "id": "alter3-9.6",
+          "occurrence": 52,
+          "result": "recorded"
+        },
+        {
+          "id": "alter3-9.7",
+          "occurrence": 53,
+          "result": "recorded"
+        },
+        {
+          "id": "alter3-9.10",
+          "occurrence": 54,
+          "result": "native acquisition: Excluded connection context: temporary schema"
+        },
+        {
+          "id": "alter3-9.11",
+          "occurrence": 55,
+          "result": "native acquisition: Excluded connection context: attached database"
+        },
+        {
+          "id": "alter3-9.12",
+          "occurrence": 56,
+          "result": "native acquisition: Excluded connection context: attached database"
+        },
+        {
+          "id": "alter3-9.13",
+          "occurrence": 57,
+          "result": "native acquisition: Excluded connection context: attached database"
+        },
+        {
+          "id": "alter3-9.14",
+          "occurrence": 58,
+          "result": "native acquisition: Excluded connection context: attached database"
+        }
+      ],
+      "runtimeDiagnostics": ""
+    },
+    {
+      "file": "alter4.test",
+      "sha256": "8c2a99eb53f66c80262a85cf9ef6ec179e784964b69ac0d10ef3961bd165f009",
+      "runtimeExit": 0,
+      "runtimeAssertions": 52,
+      "recorded": 4,
+      "reasons": {
+        "native acquisition: Excluded connection context: temporary schema": 24,
+        "assertion continues after a SQL error": 1,
+        "application callback: close": 22,
+        "application callback: close; external/configuration operation: sqlite3_db_config": 1,
+        "recorded": 4
+      },
+      "instances": [
+        {
+          "id": "alter4-1.1",
+          "occurrence": 0,
+          "result": "native acquisition: Excluded connection context: temporary schema"
+        },
+        {
+          "id": "alter4-1.1b",
+          "occurrence": 1,
+          "result": "native acquisition: Excluded connection context: temporary schema"
+        },
+        {
+          "id": "alter4-1.2",
+          "occurrence": 2,
+          "result": "native acquisition: Excluded connection context: temporary schema"
+        },
+        {
+          "id": "alter4-1.2b",
+          "occurrence": 3,
+          "result": "native acquisition: Excluded connection context: temporary schema"
+        },
+        {
+          "id": "alter4-1.3",
+          "occurrence": 4,
+          "result": "native acquisition: Excluded connection context: temporary schema"
+        },
+        {
+          "id": "alter4-1.3b",
+          "occurrence": 5,
+          "result": "native acquisition: Excluded connection context: temporary schema"
+        },
+        {
+          "id": "alter4-1.4",
+          "occurrence": 6,
+          "result": "native acquisition: Excluded connection context: temporary schema"
+        },
+        {
+          "id": "alter4-1.4b",
+          "occurrence": 7,
+          "result": "native acquisition: Excluded connection context: temporary schema"
+        },
+        {
+          "id": "alter4-1.5",
+          "occurrence": 8,
+          "result": "native acquisition: Excluded connection context: temporary schema"
+        },
+        {
+          "id": "alter4-1.6",
+          "occurrence": 9,
+          "result": "native acquisition: Excluded connection context: temporary schema"
+        },
+        {
+          "id": "alter4-1.7",
+          "occurrence": 10,
+          "result": "native acquisition: Excluded connection context: temporary schema"
+        },
+        {
+          "id": "alter4-1.99",
+          "occurrence": 11,
+          "result": "assertion continues after a SQL error"
+        },
+        {
+          "id": "alter4-2.1",
+          "occurrence": 12,
+          "result": "native acquisition: Excluded connection context: temporary schema"
+        },
+        {
+          "id": "alter4-2.2",
+          "occurrence": 13,
+          "result": "native acquisition: Excluded connection context: temporary schema"
+        },
+        {
+          "id": "alter4-2.3",
+          "occurrence": 14,
+          "result": "native acquisition: Excluded connection context: temporary schema"
+        },
+        {
+          "id": "alter4-2.3",
+          "occurrence": 15,
+          "result": "native acquisition: Excluded connection context: temporary schema"
+        },
+        {
+          "id": "alter4-2.4",
+          "occurrence": 16,
+          "result": "native acquisition: Excluded connection context: temporary schema"
+        },
+        {
+          "id": "alter4-2.5",
+          "occurrence": 17,
+          "result": "native acquisition: Excluded connection context: temporary schema"
+        },
+        {
+          "id": "alter4-2.6",
+          "occurrence": 18,
+          "result": "native acquisition: Excluded connection context: temporary schema"
+        },
+        {
+          "id": "alter4-2.7",
+          "occurrence": 19,
+          "result": "native acquisition: Excluded connection context: temporary schema"
+        },
+        {
+          "id": "alter4-2.99",
+          "occurrence": 20,
+          "result": "native acquisition: Excluded connection context: temporary schema"
+        },
+        {
+          "id": "alter4-3.1",
+          "occurrence": 21,
+          "result": "native acquisition: Excluded connection context: temporary schema"
+        },
+        {
+          "id": "alter4-3.1",
+          "occurrence": 22,
+          "result": "native acquisition: Excluded connection context: temporary schema"
+        },
+        {
+          "id": "alter4-3.2",
+          "occurrence": 23,
+          "result": "native acquisition: Excluded connection context: temporary schema"
+        },
+        {
+          "id": "alter4-3.4",
+          "occurrence": 24,
+          "result": "native acquisition: Excluded connection context: temporary schema"
+        },
+        {
+          "id": "alter4-4.1",
+          "occurrence": 25,
+          "result": "application callback: close"
+        },
+        {
+          "id": "alter4-4.1",
+          "occurrence": 26,
+          "result": "application callback: close"
+        },
+        {
+          "id": "alter4-4.2",
+          "occurrence": 27,
+          "result": "application callback: close"
+        },
+        {
+          "id": "alter4-4.4",
+          "occurrence": 28,
+          "result": "application callback: close"
+        },
+        {
+          "id": "alter4-4.99",
+          "occurrence": 29,
+          "result": "application callback: close"
+        },
+        {
+          "id": "alter4-5.1",
+          "occurrence": 30,
+          "result": "application callback: close"
+        },
+        {
+          "id": "alter4-5.2",
+          "occurrence": 31,
+          "result": "application callback: close"
+        },
+        {
+          "id": "alter4-5.3",
+          "occurrence": 32,
+          "result": "application callback: close"
+        },
+        {
+          "id": "alter4-5.4",
+          "occurrence": 33,
+          "result": "application callback: close"
+        },
+        {
+          "id": "alter4-5.6",
+          "occurrence": 34,
+          "result": "application callback: close"
+        },
+        {
+          "id": "alter4-5.7",
+          "occurrence": 35,
+          "result": "application callback: close"
+        },
+        {
+          "id": "alter4-5.8",
+          "occurrence": 36,
+          "result": "application callback: close"
+        },
+        {
+          "id": "alter4-5.9",
+          "occurrence": 37,
+          "result": "application callback: close"
+        },
+        {
+          "id": "alter4-5.99",
+          "occurrence": 38,
+          "result": "application callback: close"
+        },
+        {
+          "id": "alter4-6.1",
+          "occurrence": 39,
+          "result": "application callback: close"
+        },
+        {
+          "id": "alter4-6.2",
+          "occurrence": 40,
+          "result": "application callback: close"
+        },
+        {
+          "id": "alter4-8.1",
+          "occurrence": 41,
+          "result": "application callback: close"
+        },
+        {
+          "id": "alter4-8.2",
+          "occurrence": 42,
+          "result": "application callback: close"
+        },
+        {
+          "id": "alter4-8.2",
+          "occurrence": 43,
+          "result": "application callback: close"
+        },
+        {
+          "id": "alter4-9.1",
+          "occurrence": 44,
+          "result": "application callback: close"
+        },
+        {
+          "id": "alter4-9.2",
+          "occurrence": 45,
+          "result": "application callback: close"
+        },
+        {
+          "id": "alter4-9.3",
+          "occurrence": 46,
+          "result": "application callback: close"
+        },
+        {
+          "id": "alter4-10.1",
+          "occurrence": 47,
+          "result": "application callback: close; external/configuration operation: sqlite3_db_config"
+        },
+        {
+          "id": "alter4-11.0",
+          "occurrence": 48,
+          "result": "recorded"
+        },
+        {
+          "id": "alter4-11.1",
+          "occurrence": 49,
+          "result": "recorded"
+        },
+        {
+          "id": "alter4-11.2",
+          "occurrence": 50,
+          "result": "recorded"
+        },
+        {
+          "id": "alter4-11.3",
+          "occurrence": 51,
+          "result": "recorded"
+        }
+      ],
+      "runtimeDiagnostics": ""
+    },
+    {
+      "file": "alterauth.test",
+      "sha256": "fdfd854ea93865690c76db4cd52ee5a7189d38881660dde244523ed80619f19a",
+      "excludedFile": "fault injection, authorizer, corruption or query-plan context"
+    },
+    {
+      "file": "alterauth2.test",
+      "sha256": "cc0dee55b37e13bd896bc96c85a4775b93eca4e2f0caa02abea49bef0c3ea433",
+      "excludedFile": "fault injection, authorizer, corruption or query-plan context"
+    },
+    {
+      "file": "altercol.test",
+      "sha256": "0177b7b3831d29b35749302565698daecaee54ea739f545c31b7bd23af10f18d",
+      "runtimeExit": 0,
+      "runtimeAssertions": 253,
+      "recorded": 20,
+      "reasons": {
+        "recorded": 20,
+        "bounded pilot selection limit": 233
+      },
+      "instances": [
+        {
+          "id": "altercol-1.1.0",
+          "occurrence": 0,
+          "result": "recorded"
+        },
+        {
+          "id": "altercol-1.1.1",
+          "occurrence": 1,
+          "result": "recorded"
+        },
+        {
+          "id": "altercol-1.1.2",
+          "occurrence": 2,
+          "result": "recorded"
+        },
+        {
+          "id": "altercol-1.1.3",
+          "occurrence": 3,
+          "result": "recorded"
+        },
+        {
+          "id": "altercol-1.1.4",
+          "occurrence": 4,
+          "result": "recorded"
+        },
+        {
+          "id": "altercol-1.2.0",
+          "occurrence": 5,
+          "result": "recorded"
+        },
+        {
+          "id": "altercol-1.2.1",
+          "occurrence": 6,
+          "result": "recorded"
+        },
+        {
+          "id": "altercol-1.2.2",
+          "occurrence": 7,
+          "result": "recorded"
+        },
+        {
+          "id": "altercol-1.2.3",
+          "occurrence": 8,
+          "result": "recorded"
+        },
+        {
+          "id": "altercol-1.2.4",
+          "occurrence": 9,
+          "result": "recorded"
+        },
+        {
+          "id": "altercol-1.3.0",
+          "occurrence": 10,
+          "result": "recorded"
+        },
+        {
+          "id": "altercol-1.3.1",
+          "occurrence": 11,
+          "result": "recorded"
+        },
+        {
+          "id": "altercol-1.3.2",
+          "occurrence": 12,
+          "result": "recorded"
+        },
+        {
+          "id": "altercol-1.3.3",
+          "occurrence": 13,
+          "result": "recorded"
+        },
+        {
+          "id": "altercol-1.3.4",
+          "occurrence": 14,
+          "result": "recorded"
+        },
+        {
+          "id": "altercol-1.4.0",
+          "occurrence": 15,
+          "result": "recorded"
+        },
+        {
+          "id": "altercol-1.4.1",
+          "occurrence": 16,
+          "result": "recorded"
+        },
+        {
+          "id": "altercol-1.4.2",
+          "occurrence": 17,
+          "result": "recorded"
+        },
+        {
+          "id": "altercol-1.4.3",
+          "occurrence": 18,
+          "result": "recorded"
+        },
+        {
+          "id": "altercol-1.4.4",
+          "occurrence": 19,
+          "result": "recorded"
+        },
+        {
+          "id": "altercol-1.5.0",
+          "occurrence": 20,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "altercol-1.5.1",
+          "occurrence": 21,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "altercol-1.5.2",
+          "occurrence": 22,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "altercol-1.5.3",
+          "occurrence": 23,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "altercol-1.5.4",
+          "occurrence": 24,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "altercol-1.6.0",
+          "occurrence": 25,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "altercol-1.6.1",
+          "occurrence": 26,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "altercol-1.6.2",
+          "occurrence": 27,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "altercol-1.6.3",
+          "occurrence": 28,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "altercol-1.6.4",
+          "occurrence": 29,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "altercol-1.7.0",
+          "occurrence": 30,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "altercol-1.7.1",
+          "occurrence": 31,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "altercol-1.7.2",
+          "occurrence": 32,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "altercol-1.7.3",
+          "occurrence": 33,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "altercol-1.7.4",
+          "occurrence": 34,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "altercol-1.8.0",
+          "occurrence": 35,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "altercol-1.8.1",
+          "occurrence": 36,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "altercol-1.8.2",
+          "occurrence": 37,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "altercol-1.8.3",
+          "occurrence": 38,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "altercol-1.8.4",
+          "occurrence": 39,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "altercol-1.9.0",
+          "occurrence": 40,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "altercol-1.9.1",
+          "occurrence": 41,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "altercol-1.9.2",
+          "occurrence": 42,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "altercol-1.9.3",
+          "occurrence": 43,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "altercol-1.9.4",
+          "occurrence": 44,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "altercol-1.10.0",
+          "occurrence": 45,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "altercol-1.10.1",
+          "occurrence": 46,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "altercol-1.10.2",
+          "occurrence": 47,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "altercol-1.10.3",
+          "occurrence": 48,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "altercol-1.10.4",
+          "occurrence": 49,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "altercol-1.11.0",
+          "occurrence": 50,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "altercol-1.11.1",
+          "occurrence": 51,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "altercol-1.11.2",
+          "occurrence": 52,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "altercol-1.11.3",
+          "occurrence": 53,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "altercol-1.11.4",
+          "occurrence": 54,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "altercol-1.12.0",
+          "occurrence": 55,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "altercol-1.12.1",
+          "occurrence": 56,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "altercol-1.12.2",
+          "occurrence": 57,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "altercol-1.12.3",
+          "occurrence": 58,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "altercol-1.12.4",
+          "occurrence": 59,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "altercol-1.13.0",
+          "occurrence": 60,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "altercol-1.13.1",
+          "occurrence": 61,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "altercol-1.13.2",
+          "occurrence": 62,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "altercol-1.13.3",
+          "occurrence": 63,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "altercol-1.13.4",
+          "occurrence": 64,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "altercol-1.14.0",
+          "occurrence": 65,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "altercol-1.14.1",
+          "occurrence": 66,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "altercol-1.14.2",
+          "occurrence": 67,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "altercol-1.14.3",
+          "occurrence": 68,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "altercol-1.14.4",
+          "occurrence": 69,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "altercol-1.15.0",
+          "occurrence": 70,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "altercol-1.15.1",
+          "occurrence": 71,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "altercol-1.15.2",
+          "occurrence": 72,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "altercol-1.15.3",
+          "occurrence": 73,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "altercol-1.15.4",
+          "occurrence": 74,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "altercol-1.16.0",
+          "occurrence": 75,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "altercol-1.16.1",
+          "occurrence": 76,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "altercol-1.16.2",
+          "occurrence": 77,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "altercol-1.16.3",
+          "occurrence": 78,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "altercol-1.16.4",
+          "occurrence": 79,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "altercol-1.17.0",
+          "occurrence": 80,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "altercol-1.17.1",
+          "occurrence": 81,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "altercol-1.17.2",
+          "occurrence": 82,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "altercol-1.17.3",
+          "occurrence": 83,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "altercol-1.17.4",
+          "occurrence": 84,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "altercol-2.0",
+          "occurrence": 85,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "altercol-2.1",
+          "occurrence": 86,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "altercol-2.2",
+          "occurrence": 87,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "altercol-2.3",
+          "occurrence": 88,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "altercol-3.0",
+          "occurrence": 89,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "altercol-3.1",
+          "occurrence": 90,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "altercol-3.2",
+          "occurrence": 91,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "altercol-3.3",
+          "occurrence": 92,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "altercol-3.4",
+          "occurrence": 93,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "altercol-4.0",
+          "occurrence": 94,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "altercol-4.1",
+          "occurrence": 95,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "altercol-4.2",
+          "occurrence": 96,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "altercol-4.3",
+          "occurrence": 97,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "altercol-4.4",
+          "occurrence": 98,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "altercol-5.0",
+          "occurrence": 99,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "altercol-5.1",
+          "occurrence": 100,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "altercol-6.1",
+          "occurrence": 101,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "altercol-6.0",
+          "occurrence": 102,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "altercol-6.1",
+          "occurrence": 103,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "altercol-6.2",
+          "occurrence": 104,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "altercol-6.3",
+          "occurrence": 105,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "altercol-7.0",
+          "occurrence": 106,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "altercol-7.1.1",
+          "occurrence": 107,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "altercol-7.1.2",
+          "occurrence": 108,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "altercol-7.1.3",
+          "occurrence": 109,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "altercol-8.0",
+          "occurrence": 110,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "altercol-8.1",
+          "occurrence": 111,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "altercol-8.2.1",
+          "occurrence": 112,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "altercol-8.2.2",
+          "occurrence": 113,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "altercol-8.2.3",
+          "occurrence": 114,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "altercol-8.3.1",
+          "occurrence": 115,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "altercol-8.3.2",
+          "occurrence": 116,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "altercol-8.3.3",
+          "occurrence": 117,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "altercol-8.4.0",
+          "occurrence": 118,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "altercol-8.4.1",
+          "occurrence": 119,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "altercol-8.4.2",
+          "occurrence": 120,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "altercol-8.4.3",
+          "occurrence": 121,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "altercol-8.4.4",
+          "occurrence": 122,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "altercol-8.4.5",
+          "occurrence": 123,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "altercol-8.5",
+          "occurrence": 124,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "altercol-8.5.1",
+          "occurrence": 125,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "altercol-8.5.2",
+          "occurrence": 126,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "altercol-9.1.0.1",
+          "occurrence": 127,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "altercol-9.1.0.2",
+          "occurrence": 128,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "altercol-9.1.0.3",
+          "occurrence": 129,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "altercol-9.1.1.1",
+          "occurrence": 130,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "altercol-9.1.1.2",
+          "occurrence": 131,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "altercol-9.1.1.3",
+          "occurrence": 132,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "altercol-9.2.0.1",
+          "occurrence": 133,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "altercol-9.2.0.2",
+          "occurrence": 134,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "altercol-9.2.0.3",
+          "occurrence": 135,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "altercol-9.2.1.1",
+          "occurrence": 136,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "altercol-9.2.1.2",
+          "occurrence": 137,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "altercol-9.2.1.3",
+          "occurrence": 138,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "altercol-9.3.0.1",
+          "occurrence": 139,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "altercol-9.3.0.2",
+          "occurrence": 140,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "altercol-9.3.0.3",
+          "occurrence": 141,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "altercol-9.3.1.1",
+          "occurrence": 142,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "altercol-9.3.1.2",
+          "occurrence": 143,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "altercol-9.3.1.3",
+          "occurrence": 144,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "altercol-9.4.0.1",
+          "occurrence": 145,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "altercol-9.4.0.2",
+          "occurrence": 146,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "altercol-9.4.0.3",
+          "occurrence": 147,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "altercol-9.4.1.1",
+          "occurrence": 148,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "altercol-9.4.1.2",
+          "occurrence": 149,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "altercol-9.4.1.3",
+          "occurrence": 150,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "altercol-9.4.0.1",
+          "occurrence": 151,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "altercol-9.4.0.2",
+          "occurrence": 152,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "altercol-9.4.0.3",
+          "occurrence": 153,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "altercol-9.4.1.1",
+          "occurrence": 154,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "altercol-9.4.1.2",
+          "occurrence": 155,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "altercol-9.4.1.3",
+          "occurrence": 156,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "altercol-10.1.0.1",
+          "occurrence": 157,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "altercol-10.1.0.2",
+          "occurrence": 158,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "altercol-10.1.0.3",
+          "occurrence": 159,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "altercol-10.1.1.1",
+          "occurrence": 160,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "altercol-10.1.1.2",
+          "occurrence": 161,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "altercol-10.1.1.3",
+          "occurrence": 162,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "altercol-10.2.0.1",
+          "occurrence": 163,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "altercol-10.2.0.2",
+          "occurrence": 164,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "altercol-10.2.0.3",
+          "occurrence": 165,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "altercol-10.2.1.1",
+          "occurrence": 166,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "altercol-10.2.1.2",
+          "occurrence": 167,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "altercol-10.2.1.3",
+          "occurrence": 168,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "altercol-10.3.0.1",
+          "occurrence": 169,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "altercol-10.3.0.2",
+          "occurrence": 170,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "altercol-10.3.0.3",
+          "occurrence": 171,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "altercol-10.3.1.1",
+          "occurrence": 172,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "altercol-10.3.1.2",
+          "occurrence": 173,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "altercol-10.3.1.3",
+          "occurrence": 174,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "altercol-10.4.0.1",
+          "occurrence": 175,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "altercol-10.4.0.2",
+          "occurrence": 176,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "altercol-10.4.0.3",
+          "occurrence": 177,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "altercol-10.4.1.1",
+          "occurrence": 178,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "altercol-10.4.1.2",
+          "occurrence": 179,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "altercol-10.4.1.3",
+          "occurrence": 180,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "altercol-11.0",
+          "occurrence": 181,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "altercol-11.1",
+          "occurrence": 182,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "altercol-11.2",
+          "occurrence": 183,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "altercol-11.3",
+          "occurrence": 184,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "altercol-12.1.1",
+          "occurrence": 185,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "altercol-12.1.2",
+          "occurrence": 186,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "altercol-12.1.3",
+          "occurrence": 187,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "altercol-12.2.1",
+          "occurrence": 188,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "altercol-12.2.2",
+          "occurrence": 189,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "altercol-12.2.3",
+          "occurrence": 190,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "altercol-12.4.1",
+          "occurrence": 191,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "altercol-12.4.2",
+          "occurrence": 192,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "altercol-12.5.1",
+          "occurrence": 193,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "altercol-13.1.1",
+          "occurrence": 194,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "altercol-13.1.2",
+          "occurrence": 195,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "altercol-13.1.3",
+          "occurrence": 196,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "altercol-13.1.4",
+          "occurrence": 197,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "altercol-13.1.5",
+          "occurrence": 198,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "altercol-13.1.6",
+          "occurrence": 199,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "altercol-13.1.7",
+          "occurrence": 200,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "altercol-13.1.8",
+          "occurrence": 201,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "altercol-13.2.0",
+          "occurrence": 202,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "altercol-13.2.1.1",
+          "occurrence": 203,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "altercol-13.2.1.2",
+          "occurrence": 204,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "altercol-13.2.2.1",
+          "occurrence": 205,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "altercol-13.2.2.2",
+          "occurrence": 206,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "altercol-13.2.3.1",
+          "occurrence": 207,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "altercol-13.2.3.2",
+          "occurrence": 208,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "altercol-13.2.4.1",
+          "occurrence": 209,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "altercol-13.2.4.2",
+          "occurrence": 210,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "altercol-14.1",
+          "occurrence": 211,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "altercol-14.2",
+          "occurrence": 212,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "altercol-14.3",
+          "occurrence": 213,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "altercol-15.0",
+          "occurrence": 214,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "altercol-15.1",
+          "occurrence": 215,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "altercol-15.2",
+          "occurrence": 216,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "altercol-16.1.0",
+          "occurrence": 217,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "altercol-16.1.1",
+          "occurrence": 218,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "altercol-16.1.2",
+          "occurrence": 219,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "altercol-16.1.3",
+          "occurrence": 220,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "altercol-16.1.4",
+          "occurrence": 221,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "altercol-16.1.5",
+          "occurrence": 222,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "altercol-16.1.6",
+          "occurrence": 223,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "altercol-16.2.1",
+          "occurrence": 224,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "altercol-16.2.2",
+          "occurrence": 225,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "altercol-16.2.3",
+          "occurrence": 226,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "altercol-17.0",
+          "occurrence": 227,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "altercol-17.1",
+          "occurrence": 228,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "altercol-17.2",
+          "occurrence": 229,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "altercol-17.3",
+          "occurrence": 230,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "altercol-18.0",
+          "occurrence": 231,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "altercol-18.1",
+          "occurrence": 232,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "altercol-19.0",
+          "occurrence": 233,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "altercol-19.1",
+          "occurrence": 234,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "altercol-20.100",
+          "occurrence": 235,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "altercol-20.105",
+          "occurrence": 236,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "altercol-20.110",
+          "occurrence": 237,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "altercol-21.0",
+          "occurrence": 238,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "altercol-21.1",
+          "occurrence": 239,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "altercol-21.2",
+          "occurrence": 240,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "altercol-22.0",
+          "occurrence": 241,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "altercol-22.0",
+          "occurrence": 242,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "altercol-23.0",
+          "occurrence": 243,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "altercol-23.0",
+          "occurrence": 244,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "altercol-23.1",
+          "occurrence": 245,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "altercol-23.2",
+          "occurrence": 246,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "altercol-23.3",
+          "occurrence": 247,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "altercol-23.10",
+          "occurrence": 248,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "altercol-23.11",
+          "occurrence": 249,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "altercol-23.12",
+          "occurrence": 250,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "altercol-23.13",
+          "occurrence": 251,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "altercol-23.20",
+          "occurrence": 252,
+          "result": "bounded pilot selection limit"
+        }
+      ],
+      "runtimeDiagnostics": ""
+    },
+    {
+      "file": "altercorrupt.test",
+      "sha256": "c7f6147eef826156b2c102ddf67a5ac4cbd5c09457f17b771078705672156a39",
+      "excludedFile": "fault injection, authorizer, corruption or query-plan context"
+    },
+    {
+      "file": "alterdropcol.test",
+      "sha256": "6a3f0c49fd0beba90c2cfdb27f8404e9684b20603f45496c3906718f1a666b0b",
+      "runtimeExit": 0,
+      "runtimeAssertions": 100,
+      "recorded": 20,
+      "reasons": {
+        "recorded": 20,
+        "bounded pilot selection limit": 80
+      },
+      "instances": [
+        {
+          "id": "alterdropcol-1.0",
+          "occurrence": 0,
+          "result": "recorded"
+        },
+        {
+          "id": "alterdropcol-1.1",
+          "occurrence": 1,
+          "result": "recorded"
+        },
+        {
+          "id": "alterdropcol-1.2",
+          "occurrence": 2,
+          "result": "recorded"
+        },
+        {
+          "id": "alterdropcol-1.4",
+          "occurrence": 3,
+          "result": "recorded"
+        },
+        {
+          "id": "alterdropcol-1.5",
+          "occurrence": 4,
+          "result": "recorded"
+        },
+        {
+          "id": "alterdropcol-1.6.1",
+          "occurrence": 5,
+          "result": "recorded"
+        },
+        {
+          "id": "alterdropcol-1.6.2",
+          "occurrence": 6,
+          "result": "recorded"
+        },
+        {
+          "id": "alterdropcol-1.7.1",
+          "occurrence": 7,
+          "result": "recorded"
+        },
+        {
+          "id": "alterdropcol-1.7.2",
+          "occurrence": 8,
+          "result": "recorded"
+        },
+        {
+          "id": "alterdropcol-1.7.3",
+          "occurrence": 9,
+          "result": "recorded"
+        },
+        {
+          "id": "alterdropcol-1.8",
+          "occurrence": 10,
+          "result": "recorded"
+        },
+        {
+          "id": "alterdropcol-1.9",
+          "occurrence": 11,
+          "result": "recorded"
+        },
+        {
+          "id": "alterdropcol-1.10",
+          "occurrence": 12,
+          "result": "recorded"
+        },
+        {
+          "id": "alterdropcol-1.11",
+          "occurrence": 13,
+          "result": "recorded"
+        },
+        {
+          "id": "alterdropcol-2.1.0",
+          "occurrence": 14,
+          "result": "recorded"
+        },
+        {
+          "id": "alterdropcol-2.1.1",
+          "occurrence": 15,
+          "result": "recorded"
+        },
+        {
+          "id": "alterdropcol-2.1.2",
+          "occurrence": 16,
+          "result": "recorded"
+        },
+        {
+          "id": "alterdropcol-2.2.0",
+          "occurrence": 17,
+          "result": "recorded"
+        },
+        {
+          "id": "alterdropcol-2.2.1",
+          "occurrence": 18,
+          "result": "recorded"
+        },
+        {
+          "id": "alterdropcol-2.2.2",
+          "occurrence": 19,
+          "result": "recorded"
+        },
+        {
+          "id": "alterdropcol-3.0",
+          "occurrence": 20,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "alterdropcol-3.1",
+          "occurrence": 21,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "alterdropcol-3.2",
+          "occurrence": 22,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "alterdropcol-4.1.0",
+          "occurrence": 23,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "alterdropcol-4.1.1",
+          "occurrence": 24,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "alterdropcol-4.1.2",
+          "occurrence": 25,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "alterdropcol-4.1.3",
+          "occurrence": 26,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "alterdropcol-4.1.4",
+          "occurrence": 27,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "alterdropcol-4.1.5",
+          "occurrence": 28,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "alterdropcol-4.1.6",
+          "occurrence": 29,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "alterdropcol-4.1.7",
+          "occurrence": 30,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "alterdropcol-4.1.8",
+          "occurrence": 31,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "alterdropcol-4.1.9",
+          "occurrence": 32,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "alterdropcol-4.2.0",
+          "occurrence": 33,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "alterdropcol-4.2.1",
+          "occurrence": 34,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "alterdropcol-4.2.2",
+          "occurrence": 35,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "alterdropcol-4.2.3",
+          "occurrence": 36,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "alterdropcol-4.2.4",
+          "occurrence": 37,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "alterdropcol-4.2.5",
+          "occurrence": 38,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "alterdropcol-4.2.6",
+          "occurrence": 39,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "alterdropcol-4.2.7",
+          "occurrence": 40,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "alterdropcol-4.2.8",
+          "occurrence": 41,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "alterdropcol-4.2.9",
+          "occurrence": 42,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "alterdropcol-4.3.0",
+          "occurrence": 43,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "alterdropcol-4.3.1",
+          "occurrence": 44,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "alterdropcol-4.3.2",
+          "occurrence": 45,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "alterdropcol-4.3.3",
+          "occurrence": 46,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "alterdropcol-4.3.4",
+          "occurrence": 47,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "alterdropcol-4.3.5",
+          "occurrence": 48,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "alterdropcol-4.3.6",
+          "occurrence": 49,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "alterdropcol-4.3.7",
+          "occurrence": 50,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "alterdropcol-4.3.8",
+          "occurrence": 51,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "alterdropcol-4.3.9",
+          "occurrence": 52,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "alterdropcol-4.4.0",
+          "occurrence": 53,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "alterdropcol-4.4.1",
+          "occurrence": 54,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "alterdropcol-4.4.2",
+          "occurrence": 55,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "alterdropcol-4.4.3",
+          "occurrence": 56,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "alterdropcol-4.4.4",
+          "occurrence": 57,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "alterdropcol-4.4.5",
+          "occurrence": 58,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "alterdropcol-4.4.6",
+          "occurrence": 59,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "alterdropcol-4.4.7",
+          "occurrence": 60,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "alterdropcol-4.4.8",
+          "occurrence": 61,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "alterdropcol-4.4.9",
+          "occurrence": 62,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "alterdropcol-4.5.0",
+          "occurrence": 63,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "alterdropcol-4.5.1",
+          "occurrence": 64,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "alterdropcol-4.5.2",
+          "occurrence": 65,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "alterdropcol-4.5.3",
+          "occurrence": 66,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "alterdropcol-4.5.4",
+          "occurrence": 67,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "alterdropcol-4.5.5",
+          "occurrence": 68,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "alterdropcol-4.5.6",
+          "occurrence": 69,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "alterdropcol-4.5.7",
+          "occurrence": 70,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "alterdropcol-4.5.8",
+          "occurrence": 71,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "alterdropcol-4.5.9",
+          "occurrence": 72,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "alterdropcol-5.0",
+          "occurrence": 73,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "alterdropcol-5.1",
+          "occurrence": 74,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "alterdropcol-5.2.1",
+          "occurrence": 75,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "alterdropcol-5.2.2",
+          "occurrence": 76,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "alterdropcol-5.3.1",
+          "occurrence": 77,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "alterdropcol-5.3.2",
+          "occurrence": 78,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "alterdropcol-5.4.1",
+          "occurrence": 79,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "alterdropcol-5.4.2",
+          "occurrence": 80,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "alterdropcol-5.5.1",
+          "occurrence": 81,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "alterdropcol-5.5.2",
+          "occurrence": 82,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "alterdropcol-6.0",
+          "occurrence": 83,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "alterdropcol-6.1",
+          "occurrence": 84,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "alterdropcol-7.0",
+          "occurrence": 85,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "alterdropcol-7.1",
+          "occurrence": 86,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "alterdropcol-7.2",
+          "occurrence": 87,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "alterdropcol-7.3",
+          "occurrence": 88,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "alterdropcol-8.0",
+          "occurrence": 89,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "alterdropcol-8.1",
+          "occurrence": 90,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "alterdropcol-8.2",
+          "occurrence": 91,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "alterdropcol-9.1.0",
+          "occurrence": 92,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "alterdropcol-9.1.1",
+          "occurrence": 93,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "alterdropcol-9.1.2",
+          "occurrence": 94,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "alterdropcol-9.1.3",
+          "occurrence": 95,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "alterdropcol-9.2.0",
+          "occurrence": 96,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "alterdropcol-9.2.1",
+          "occurrence": 97,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "alterdropcol-9.2.2",
+          "occurrence": 98,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "alterdropcol-9.2.3",
+          "occurrence": 99,
+          "result": "bounded pilot selection limit"
+        }
+      ],
+      "runtimeDiagnostics": ""
+    },
+    {
+      "file": "alterdropcol2.test",
+      "sha256": "35dd321abb00e29aa0055f8626c48f48051723af804b9a4dfa33484d82158624",
+      "runtimeExit": 0,
+      "runtimeAssertions": 23,
+      "recorded": 20,
+      "reasons": {
+        "recorded": 20,
+        "bounded pilot selection limit": 3
+      },
+      "instances": [
+        {
+          "id": "alterdropcol2-1.0",
+          "occurrence": 0,
+          "result": "recorded"
+        },
+        {
+          "id": "alterdropcol2-1.1",
+          "occurrence": 1,
+          "result": "recorded"
+        },
+        {
+          "id": "alterdropcol2-1.2.1",
+          "occurrence": 2,
+          "result": "recorded"
+        },
+        {
+          "id": "alterdropcol2-1.2.2",
+          "occurrence": 3,
+          "result": "recorded"
+        },
+        {
+          "id": "alterdropcol2-2.1.1",
+          "occurrence": 4,
+          "result": "recorded"
+        },
+        {
+          "id": "alterdropcol2-2.1.2",
+          "occurrence": 5,
+          "result": "recorded"
+        },
+        {
+          "id": "alterdropcol2-2.2.1",
+          "occurrence": 6,
+          "result": "recorded"
+        },
+        {
+          "id": "alterdropcol2-2.2.2",
+          "occurrence": 7,
+          "result": "recorded"
+        },
+        {
+          "id": "alterdropcol2-2.3.1",
+          "occurrence": 8,
+          "result": "recorded"
+        },
+        {
+          "id": "alterdropcol2-2.3.2",
+          "occurrence": 9,
+          "result": "recorded"
+        },
+        {
+          "id": "alterdropcol2-2.4.1",
+          "occurrence": 10,
+          "result": "recorded"
+        },
+        {
+          "id": "alterdropcol2-2.5.1",
+          "occurrence": 11,
+          "result": "recorded"
+        },
+        {
+          "id": "alterdropcol2-2.6.1",
+          "occurrence": 12,
+          "result": "recorded"
+        },
+        {
+          "id": "alterdropcol2-2.7.1",
+          "occurrence": 13,
+          "result": "recorded"
+        },
+        {
+          "id": "alterdropcol2-2.7.2",
+          "occurrence": 14,
+          "result": "recorded"
+        },
+        {
+          "id": "alterdropcol2-2.8.1",
+          "occurrence": 15,
+          "result": "recorded"
+        },
+        {
+          "id": "alterdropcol2-2.8.2",
+          "occurrence": 16,
+          "result": "recorded"
+        },
+        {
+          "id": "alterdropcol2-2.8.3",
+          "occurrence": 17,
+          "result": "recorded"
+        },
+        {
+          "id": "alterdropcol2-3.0",
+          "occurrence": 18,
+          "result": "recorded"
+        },
+        {
+          "id": "alterdropcol2-3.1.1",
+          "occurrence": 19,
+          "result": "recorded"
+        },
+        {
+          "id": "alterdropcol2-3.1.2",
+          "occurrence": 20,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "alterdropcol2-3.2.1",
+          "occurrence": 21,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "alterdropcol2-3.2.2",
+          "occurrence": 22,
+          "result": "bounded pilot selection limit"
+        }
+      ],
+      "runtimeDiagnostics": ""
+    },
+    {
+      "file": "alterfault.test",
+      "sha256": "274060ec9ab8204e69b45cc8483dafe69407be44baecf26c22ffe660dcb51c27",
+      "excludedFile": "fault injection, authorizer, corruption or query-plan context"
+    },
+    {
+      "file": "alterlegacy.test",
+      "sha256": "698afa540ea6c3613d6da45e708885b43e60dd5ff16a73e5fd876b36dffb39de",
+      "runtimeExit": 0,
+      "runtimeAssertions": 60,
+      "recorded": 14,
+      "reasons": {
+        "recorded": 14,
+        "native acquisition: assertion error outcome differs from Tcl execution": 2,
+        "native acquisition: prefix error outcomes differ from Tcl execution": 1,
+        "application callback: close": 1,
+        "native acquisition: Excluded connection context: temporary schema": 23,
+        "native acquisition: Excluded connection context: attached database": 12,
+        "native acquisition: no such table: main.t2": 4,
+        "no SQL observation": 2,
+        "native acquisition: no such table: main.t1": 1
+      },
+      "instances": [
+        {
+          "id": "alterlegacy-1.0",
+          "occurrence": 0,
+          "result": "recorded"
+        },
+        {
+          "id": "alterlegacy-1.1",
+          "occurrence": 1,
+          "result": "recorded"
+        },
+        {
+          "id": "alterlegacy-1.2",
+          "occurrence": 2,
+          "result": "recorded"
+        },
+        {
+          "id": "alterlegacy-1.3",
+          "occurrence": 3,
+          "result": "recorded"
+        },
+        {
+          "id": "alterlegacy-1.4",
+          "occurrence": 4,
+          "result": "recorded"
+        },
+        {
+          "id": "alterlegacy-1.3",
+          "occurrence": 5,
+          "result": "recorded"
+        },
+        {
+          "id": "alterlegacy-1.4",
+          "occurrence": 6,
+          "result": "recorded"
+        },
+        {
+          "id": "alterlegacy-2.0",
+          "occurrence": 7,
+          "result": "native acquisition: assertion error outcome differs from Tcl execution"
+        },
+        {
+          "id": "alterlegacy-2.1",
+          "occurrence": 8,
+          "result": "native acquisition: prefix error outcomes differ from Tcl execution"
+        },
+        {
+          "id": "alterlegacy-2.2",
+          "occurrence": 9,
+          "result": "application callback: close"
+        },
+        {
+          "id": "alterlegacy-3.0",
+          "occurrence": 10,
+          "result": "native acquisition: Excluded connection context: temporary schema"
+        },
+        {
+          "id": "alterlegacy-3.1.1",
+          "occurrence": 11,
+          "result": "native acquisition: Excluded connection context: temporary schema"
+        },
+        {
+          "id": "alterlegacy-3.1.2a",
+          "occurrence": 12,
+          "result": "native acquisition: Excluded connection context: temporary schema"
+        },
+        {
+          "id": "alterlegacy-3.1.2b",
+          "occurrence": 13,
+          "result": "native acquisition: Excluded connection context: temporary schema"
+        },
+        {
+          "id": "alterlegacy-3.1.3",
+          "occurrence": 14,
+          "result": "native acquisition: Excluded connection context: temporary schema"
+        },
+        {
+          "id": "alterlegacy-3.2.1",
+          "occurrence": 15,
+          "result": "native acquisition: Excluded connection context: temporary schema"
+        },
+        {
+          "id": "alterlegacy-3.2.2",
+          "occurrence": 16,
+          "result": "native acquisition: Excluded connection context: temporary schema"
+        },
+        {
+          "id": "alterlegacy-3.3.1",
+          "occurrence": 17,
+          "result": "native acquisition: Excluded connection context: temporary schema"
+        },
+        {
+          "id": "alterlegacy-3.3.2",
+          "occurrence": 18,
+          "result": "native acquisition: Excluded connection context: temporary schema"
+        },
+        {
+          "id": "alterlegacy-4.0",
+          "occurrence": 19,
+          "result": "recorded"
+        },
+        {
+          "id": "alterlegacy-4.1",
+          "occurrence": 20,
+          "result": "recorded"
+        },
+        {
+          "id": "alterlegacy-4.1a",
+          "occurrence": 21,
+          "result": "recorded"
+        },
+        {
+          "id": "alterlegacy-4.1b",
+          "occurrence": 22,
+          "result": "recorded"
+        },
+        {
+          "id": "alterlegacy-4.1c",
+          "occurrence": 23,
+          "result": "recorded"
+        },
+        {
+          "id": "4.2",
+          "occurrence": 24,
+          "result": "native acquisition: assertion error outcome differs from Tcl execution"
+        },
+        {
+          "id": "alterlegacy-5.0",
+          "occurrence": 25,
+          "result": "native acquisition: Excluded connection context: temporary schema"
+        },
+        {
+          "id": "alterlegacy-5.1",
+          "occurrence": 26,
+          "result": "native acquisition: Excluded connection context: temporary schema"
+        },
+        {
+          "id": "alterlegacy-5.2",
+          "occurrence": 27,
+          "result": "native acquisition: Excluded connection context: temporary schema"
+        },
+        {
+          "id": "alterlegacy-5.3",
+          "occurrence": 28,
+          "result": "native acquisition: Excluded connection context: temporary schema"
+        },
+        {
+          "id": "alterlegacy-5.4",
+          "occurrence": 29,
+          "result": "native acquisition: Excluded connection context: temporary schema"
+        },
+        {
+          "id": "alterlegacy-5.5",
+          "occurrence": 30,
+          "result": "native acquisition: Excluded connection context: temporary schema"
+        },
+        {
+          "id": "alterlegacy-5.6",
+          "occurrence": 31,
+          "result": "native acquisition: Excluded connection context: temporary schema"
+        },
+        {
+          "id": "alterlegacy-5.7",
+          "occurrence": 32,
+          "result": "native acquisition: Excluded connection context: temporary schema"
+        },
+        {
+          "id": "alterlegacy-6.0",
+          "occurrence": 33,
+          "result": "native acquisition: Excluded connection context: temporary schema"
+        },
+        {
+          "id": "alterlegacy-6.1",
+          "occurrence": 34,
+          "result": "native acquisition: Excluded connection context: temporary schema"
+        },
+        {
+          "id": "alterlegacy-7.1",
+          "occurrence": 35,
+          "result": "native acquisition: Excluded connection context: temporary schema"
+        },
+        {
+          "id": "alterlegacy-8.1",
+          "occurrence": 36,
+          "result": "native acquisition: Excluded connection context: attached database"
+        },
+        {
+          "id": "alterlegacy-8.2",
+          "occurrence": 37,
+          "result": "native acquisition: Excluded connection context: attached database"
+        },
+        {
+          "id": "alterlegacy-8.2",
+          "occurrence": 38,
+          "result": "native acquisition: Excluded connection context: attached database"
+        },
+        {
+          "id": "alterlegacy-9.0",
+          "occurrence": 39,
+          "result": "native acquisition: no such table: main.t2"
+        },
+        {
+          "id": "alterlegacy-9.1",
+          "occurrence": 40,
+          "result": "native acquisition: no such table: main.t2"
+        },
+        {
+          "id": "alterlegacy-9.1b",
+          "occurrence": 41,
+          "result": "native acquisition: no such table: main.t2"
+        },
+        {
+          "id": "alterlegacy-9.2",
+          "occurrence": 42,
+          "result": "native acquisition: no such table: main.t2"
+        },
+        {
+          "id": "alterlegacy-9.3",
+          "occurrence": 43,
+          "result": "recorded"
+        },
+        {
+          "id": "alterlegacy-9.4",
+          "occurrence": 44,
+          "result": "native acquisition: Excluded connection context: attached database"
+        },
+        {
+          "id": "alterlegacy-9.5",
+          "occurrence": 45,
+          "result": "native acquisition: Excluded connection context: attached database"
+        },
+        {
+          "id": "alterlegacy-9.6",
+          "occurrence": 46,
+          "result": "native acquisition: Excluded connection context: attached database"
+        },
+        {
+          "id": "alterlegacy-11.0",
+          "occurrence": 47,
+          "result": "native acquisition: Excluded connection context: attached database"
+        },
+        {
+          "id": "alterlegacy-11.1",
+          "occurrence": 48,
+          "result": "native acquisition: Excluded connection context: attached database"
+        },
+        {
+          "id": "11.2",
+          "occurrence": 49,
+          "result": "no SQL observation"
+        },
+        {
+          "id": "alterlegacy-11.3",
+          "occurrence": 50,
+          "result": "native acquisition: Excluded connection context: attached database"
+        },
+        {
+          "id": "alterlegacy-11.4",
+          "occurrence": 51,
+          "result": "native acquisition: Excluded connection context: attached database"
+        },
+        {
+          "id": "alterlegacy-11.5",
+          "occurrence": 52,
+          "result": "native acquisition: Excluded connection context: attached database"
+        },
+        {
+          "id": "alterlegacy-11.6",
+          "occurrence": 53,
+          "result": "native acquisition: Excluded connection context: attached database"
+        },
+        {
+          "id": "11.7",
+          "occurrence": 54,
+          "result": "no SQL observation"
+        },
+        {
+          "id": "alterlegacy-12.0",
+          "occurrence": 55,
+          "result": "native acquisition: Excluded connection context: temporary schema"
+        },
+        {
+          "id": "alterlegacy-12.1",
+          "occurrence": 56,
+          "result": "native acquisition: Excluded connection context: temporary schema"
+        },
+        {
+          "id": "alterlegacy-12.2",
+          "occurrence": 57,
+          "result": "native acquisition: Excluded connection context: temporary schema"
+        },
+        {
+          "id": "alterlegacy-14.5",
+          "occurrence": 58,
+          "result": "recorded"
+        },
+        {
+          "id": "alterlegacy-14.6",
+          "occurrence": 59,
+          "result": "native acquisition: no such table: main.t1"
+        }
+      ],
+      "runtimeDiagnostics": ""
+    },
+    {
+      "file": "altermalloc.test",
+      "sha256": "cb95ff9a5708274163108b810ded27ca6e41d06511ced3543f041957dab62a51",
+      "excludedFile": "fault injection, authorizer, corruption or query-plan context"
+    },
+    {
+      "file": "altermalloc2.test",
+      "sha256": "99c54cdfc3fff536ac809343ec998e080c9eddf5f4c855067f712c8a37bf0dbd",
+      "excludedFile": "fault injection, authorizer, corruption or query-plan context"
+    },
+    {
+      "file": "altermalloc3.test",
+      "sha256": "b71840759ed3294d5daf91492bba05fe6998d3420874f95128b2d24b7b9656bb",
+      "excludedFile": "fault injection, authorizer, corruption or query-plan context"
+    },
+    {
+      "file": "alterqf.test",
+      "sha256": "dd8eaf8768b9020891e6745d2bb292e82990487974d65dee65b0e0d87e9665f2",
+      "excludedFile": "fault injection, authorizer, corruption or query-plan context"
+    },
+    {
+      "file": "altertab.test",
+      "sha256": "c38eb791a8f53f8e2b7c2c5d1d5beb1f4dc92a06e6de1f6670ad6c9bfedacbc2",
+      "runtimeExit": 0,
+      "runtimeAssertions": 119,
+      "recorded": 20,
+      "reasons": {
+        "recorded": 20,
+        "native acquisition: assertion error outcome differs from Tcl execution": 2,
+        "native acquisition: prefix error outcomes differ from Tcl execution": 1,
+        "application callback: close": 1,
+        "native acquisition: Excluded connection context: temporary schema": 22,
+        "native acquisition: Excluded connection context: attached database": 12,
+        "native acquisition: no such table: main.t2": 3,
+        "no SQL observation": 2,
+        "bounded pilot selection limit": 56
+      },
+      "instances": [
+        {
+          "id": "altertab-1.0",
+          "occurrence": 0,
+          "result": "recorded"
+        },
+        {
+          "id": "altertab-1.1",
+          "occurrence": 1,
+          "result": "recorded"
+        },
+        {
+          "id": "altertab-1.2",
+          "occurrence": 2,
+          "result": "recorded"
+        },
+        {
+          "id": "altertab-1.3",
+          "occurrence": 3,
+          "result": "recorded"
+        },
+        {
+          "id": "altertab-1.4",
+          "occurrence": 4,
+          "result": "recorded"
+        },
+        {
+          "id": "altertab-1.3",
+          "occurrence": 5,
+          "result": "recorded"
+        },
+        {
+          "id": "altertab-1.4",
+          "occurrence": 6,
+          "result": "recorded"
+        },
+        {
+          "id": "altertab-2.0",
+          "occurrence": 7,
+          "result": "native acquisition: assertion error outcome differs from Tcl execution"
+        },
+        {
+          "id": "altertab-2.1",
+          "occurrence": 8,
+          "result": "native acquisition: prefix error outcomes differ from Tcl execution"
+        },
+        {
+          "id": "altertab-2.2",
+          "occurrence": 9,
+          "result": "application callback: close"
+        },
+        {
+          "id": "altertab-3.0",
+          "occurrence": 10,
+          "result": "native acquisition: Excluded connection context: temporary schema"
+        },
+        {
+          "id": "altertab-3.1.1",
+          "occurrence": 11,
+          "result": "native acquisition: Excluded connection context: temporary schema"
+        },
+        {
+          "id": "altertab-3.1.2",
+          "occurrence": 12,
+          "result": "native acquisition: Excluded connection context: temporary schema"
+        },
+        {
+          "id": "altertab-3.1.3",
+          "occurrence": 13,
+          "result": "native acquisition: Excluded connection context: temporary schema"
+        },
+        {
+          "id": "altertab-3.2.1",
+          "occurrence": 14,
+          "result": "native acquisition: Excluded connection context: temporary schema"
+        },
+        {
+          "id": "altertab-3.2.2",
+          "occurrence": 15,
+          "result": "native acquisition: Excluded connection context: temporary schema"
+        },
+        {
+          "id": "altertab-3.3.1",
+          "occurrence": 16,
+          "result": "native acquisition: Excluded connection context: temporary schema"
+        },
+        {
+          "id": "altertab-3.3.2",
+          "occurrence": 17,
+          "result": "native acquisition: Excluded connection context: temporary schema"
+        },
+        {
+          "id": "altertab-4.0",
+          "occurrence": 18,
+          "result": "recorded"
+        },
+        {
+          "id": "altertab-4.1",
+          "occurrence": 19,
+          "result": "recorded"
+        },
+        {
+          "id": "4.2",
+          "occurrence": 20,
+          "result": "native acquisition: assertion error outcome differs from Tcl execution"
+        },
+        {
+          "id": "altertab-5.0",
+          "occurrence": 21,
+          "result": "native acquisition: Excluded connection context: temporary schema"
+        },
+        {
+          "id": "altertab-5.1",
+          "occurrence": 22,
+          "result": "native acquisition: Excluded connection context: temporary schema"
+        },
+        {
+          "id": "altertab-5.2",
+          "occurrence": 23,
+          "result": "native acquisition: Excluded connection context: temporary schema"
+        },
+        {
+          "id": "altertab-5.3",
+          "occurrence": 24,
+          "result": "native acquisition: Excluded connection context: temporary schema"
+        },
+        {
+          "id": "altertab-5.4",
+          "occurrence": 25,
+          "result": "native acquisition: Excluded connection context: temporary schema"
+        },
+        {
+          "id": "altertab-5.5",
+          "occurrence": 26,
+          "result": "native acquisition: Excluded connection context: temporary schema"
+        },
+        {
+          "id": "altertab-5.6",
+          "occurrence": 27,
+          "result": "native acquisition: Excluded connection context: temporary schema"
+        },
+        {
+          "id": "altertab-6.0",
+          "occurrence": 28,
+          "result": "native acquisition: Excluded connection context: temporary schema"
+        },
+        {
+          "id": "altertab-6.1",
+          "occurrence": 29,
+          "result": "native acquisition: Excluded connection context: temporary schema"
+        },
+        {
+          "id": "altertab-7.1",
+          "occurrence": 30,
+          "result": "native acquisition: Excluded connection context: temporary schema"
+        },
+        {
+          "id": "altertab-7.2",
+          "occurrence": 31,
+          "result": "native acquisition: Excluded connection context: temporary schema"
+        },
+        {
+          "id": "altertab-8.1",
+          "occurrence": 32,
+          "result": "native acquisition: Excluded connection context: attached database"
+        },
+        {
+          "id": "altertab-8.2",
+          "occurrence": 33,
+          "result": "native acquisition: Excluded connection context: attached database"
+        },
+        {
+          "id": "altertab-8.2",
+          "occurrence": 34,
+          "result": "native acquisition: Excluded connection context: attached database"
+        },
+        {
+          "id": "altertab-9.0",
+          "occurrence": 35,
+          "result": "native acquisition: no such table: main.t2"
+        },
+        {
+          "id": "altertab-9.1",
+          "occurrence": 36,
+          "result": "native acquisition: no such table: main.t2"
+        },
+        {
+          "id": "altertab-9.2",
+          "occurrence": 37,
+          "result": "native acquisition: no such table: main.t2"
+        },
+        {
+          "id": "altertab-9.3",
+          "occurrence": 38,
+          "result": "recorded"
+        },
+        {
+          "id": "altertab-9.4",
+          "occurrence": 39,
+          "result": "native acquisition: Excluded connection context: attached database"
+        },
+        {
+          "id": "altertab-9.5",
+          "occurrence": 40,
+          "result": "native acquisition: Excluded connection context: attached database"
+        },
+        {
+          "id": "altertab-9.6",
+          "occurrence": 41,
+          "result": "native acquisition: Excluded connection context: attached database"
+        },
+        {
+          "id": "altertab-11.0",
+          "occurrence": 42,
+          "result": "native acquisition: Excluded connection context: attached database"
+        },
+        {
+          "id": "altertab-11.1",
+          "occurrence": 43,
+          "result": "native acquisition: Excluded connection context: attached database"
+        },
+        {
+          "id": "11.2",
+          "occurrence": 44,
+          "result": "no SQL observation"
+        },
+        {
+          "id": "altertab-11.3",
+          "occurrence": 45,
+          "result": "native acquisition: Excluded connection context: attached database"
+        },
+        {
+          "id": "altertab-11.4",
+          "occurrence": 46,
+          "result": "native acquisition: Excluded connection context: attached database"
+        },
+        {
+          "id": "altertab-11.5",
+          "occurrence": 47,
+          "result": "native acquisition: Excluded connection context: attached database"
+        },
+        {
+          "id": "altertab-11.6",
+          "occurrence": 48,
+          "result": "native acquisition: Excluded connection context: attached database"
+        },
+        {
+          "id": "11.7",
+          "occurrence": 49,
+          "result": "no SQL observation"
+        },
+        {
+          "id": "altertab-12.0",
+          "occurrence": 50,
+          "result": "native acquisition: Excluded connection context: temporary schema"
+        },
+        {
+          "id": "altertab-12.1",
+          "occurrence": 51,
+          "result": "native acquisition: Excluded connection context: temporary schema"
+        },
+        {
+          "id": "altertab-12.2",
+          "occurrence": 52,
+          "result": "native acquisition: Excluded connection context: temporary schema"
+        },
+        {
+          "id": "altertab-13.0",
+          "occurrence": 53,
+          "result": "recorded"
+        },
+        {
+          "id": "altertab-13.1",
+          "occurrence": 54,
+          "result": "recorded"
+        },
+        {
+          "id": "altertab-13.2",
+          "occurrence": 55,
+          "result": "recorded"
+        },
+        {
+          "id": "altertab-14.5",
+          "occurrence": 56,
+          "result": "recorded"
+        },
+        {
+          "id": "altertab-14.6",
+          "occurrence": 57,
+          "result": "recorded"
+        },
+        {
+          "id": "altertab-15.0",
+          "occurrence": 58,
+          "result": "recorded"
+        },
+        {
+          "id": "altertab-15.1",
+          "occurrence": 59,
+          "result": "recorded"
+        },
+        {
+          "id": "altertab-15.2",
+          "occurrence": 60,
+          "result": "recorded"
+        },
+        {
+          "id": "altertab-15.3",
+          "occurrence": 61,
+          "result": "recorded"
+        },
+        {
+          "id": "altertab-15.4",
+          "occurrence": 62,
+          "result": "recorded"
+        },
+        {
+          "id": "altertab-15.5",
+          "occurrence": 63,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "altertab-17.0",
+          "occurrence": 64,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "altertab-18.1.0",
+          "occurrence": 65,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "altertab-18.1.1",
+          "occurrence": 66,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "altertab-18.1.2",
+          "occurrence": 67,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "altertab-18.2.0",
+          "occurrence": 68,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "altertab-18.2.1",
+          "occurrence": 69,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "altertab-18.2.2",
+          "occurrence": 70,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "altertab-19.100",
+          "occurrence": 71,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "altertab-19.110",
+          "occurrence": 72,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "altertab-19.120",
+          "occurrence": 73,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "altertab-20.0",
+          "occurrence": 74,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "altertab-20.1",
+          "occurrence": 75,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "altertab-21.0",
+          "occurrence": 76,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "altertab-21.1",
+          "occurrence": 77,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "altertab-21.2",
+          "occurrence": 78,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "altertab-21.3",
+          "occurrence": 79,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "altertab-22.0",
+          "occurrence": 80,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "altertab-22.1",
+          "occurrence": 81,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "altertab-23.1",
+          "occurrence": 82,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "altertab-23.2",
+          "occurrence": 83,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "altertab-23.3",
+          "occurrence": 84,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "altertab-23.4",
+          "occurrence": 85,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "altertab-24.1.0",
+          "occurrence": 86,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "altertab-24.1.1",
+          "occurrence": 87,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "altertab-24.2.0",
+          "occurrence": 88,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "altertab-24.2.1",
+          "occurrence": 89,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "altertab-25.1",
+          "occurrence": 90,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "altertab-25.2",
+          "occurrence": 91,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "altertab-26.1",
+          "occurrence": 92,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "altertab-27.1",
+          "occurrence": 93,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "altertab-27.2",
+          "occurrence": 94,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "altertab-29.1",
+          "occurrence": 95,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "altertab-29.2",
+          "occurrence": 96,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "altertab-29.2",
+          "occurrence": 97,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "altertab-29.3",
+          "occurrence": 98,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "altertab-29.4",
+          "occurrence": 99,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "altertab-29.4",
+          "occurrence": 100,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "altertab-29.5",
+          "occurrence": 101,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "altertab-29.5",
+          "occurrence": 102,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "altertab-28.1",
+          "occurrence": 103,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "altertab-28.2",
+          "occurrence": 104,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "altertab-28.3",
+          "occurrence": 105,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "altertab-28.4",
+          "occurrence": 106,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "altertab-28.5",
+          "occurrence": 107,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "altertab-30.0",
+          "occurrence": 108,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "altertab-30.1",
+          "occurrence": 109,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "altertab-30.2",
+          "occurrence": 110,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "altertab-31.0",
+          "occurrence": 111,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "altertab-31.1",
+          "occurrence": 112,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "altertab-31.2",
+          "occurrence": 113,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "altertab-31.3",
+          "occurrence": 114,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "altertab-32.0",
+          "occurrence": 115,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "altertab-33.0",
+          "occurrence": 116,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "altertab-33.1",
+          "occurrence": 117,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "altertab-33.2",
+          "occurrence": 118,
+          "result": "bounded pilot selection limit"
+        }
+      ],
+      "runtimeDiagnostics": ""
+    },
+    {
+      "file": "altertab2.test",
+      "sha256": "f9f1fd75d9a3cca76ff7135a046fc496b6ae12b9d0e5d5e930a6627c2ab89961",
+      "runtimeExit": 0,
+      "runtimeAssertions": 46,
+      "recorded": 20,
+      "reasons": {
+        "recorded": 20,
+        "bounded pilot selection limit": 26
+      },
+      "instances": [
+        {
+          "id": "altertab2-2.0",
+          "occurrence": 0,
+          "result": "recorded"
+        },
+        {
+          "id": "altertab2-2.1",
+          "occurrence": 1,
+          "result": "recorded"
+        },
+        {
+          "id": "altertab2-2.2",
+          "occurrence": 2,
+          "result": "recorded"
+        },
+        {
+          "id": "altertab2-2.3",
+          "occurrence": 3,
+          "result": "recorded"
+        },
+        {
+          "id": "altertab2-3.1.1",
+          "occurrence": 4,
+          "result": "recorded"
+        },
+        {
+          "id": "altertab2-3.1.2",
+          "occurrence": 5,
+          "result": "recorded"
+        },
+        {
+          "id": "altertab2-3.1.3",
+          "occurrence": 6,
+          "result": "recorded"
+        },
+        {
+          "id": "altertab2-3.1.4",
+          "occurrence": 7,
+          "result": "recorded"
+        },
+        {
+          "id": "altertab2-3.2.1",
+          "occurrence": 8,
+          "result": "recorded"
+        },
+        {
+          "id": "altertab2-3.2.2",
+          "occurrence": 9,
+          "result": "recorded"
+        },
+        {
+          "id": "altertab2-3.2.3",
+          "occurrence": 10,
+          "result": "recorded"
+        },
+        {
+          "id": "altertab2-3.2.4",
+          "occurrence": 11,
+          "result": "recorded"
+        },
+        {
+          "id": "altertab2-3.3.1",
+          "occurrence": 12,
+          "result": "recorded"
+        },
+        {
+          "id": "altertab2-3.3.2",
+          "occurrence": 13,
+          "result": "recorded"
+        },
+        {
+          "id": "altertab2-3.3.3",
+          "occurrence": 14,
+          "result": "recorded"
+        },
+        {
+          "id": "altertab2-3.3.4",
+          "occurrence": 15,
+          "result": "recorded"
+        },
+        {
+          "id": "altertab2-3.4.1",
+          "occurrence": 16,
+          "result": "recorded"
+        },
+        {
+          "id": "altertab2-3.4.2",
+          "occurrence": 17,
+          "result": "recorded"
+        },
+        {
+          "id": "altertab2-3.4.3",
+          "occurrence": 18,
+          "result": "recorded"
+        },
+        {
+          "id": "altertab2-3.4.4",
+          "occurrence": 19,
+          "result": "recorded"
+        },
+        {
+          "id": "altertab2-4.0",
+          "occurrence": 20,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "altertab2-4.1",
+          "occurrence": 21,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "altertab2-4.2",
+          "occurrence": 22,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "altertab2-4.3",
+          "occurrence": 23,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "altertab2-5.0",
+          "occurrence": 24,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "altertab2-5.0.1",
+          "occurrence": 25,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "altertab2-5.1",
+          "occurrence": 26,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "altertab2-5.2",
+          "occurrence": 27,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "altertab2-5.3",
+          "occurrence": 28,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "altertab2-6.0",
+          "occurrence": 29,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "altertab2-6.1",
+          "occurrence": 30,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "altertab2-6.2",
+          "occurrence": 31,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "altertab2-7.0",
+          "occurrence": 32,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "altertab2-7.1",
+          "occurrence": 33,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "altertab2-7.2",
+          "occurrence": 34,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "altertab2-7.3",
+          "occurrence": 35,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "altertab2-7.3",
+          "occurrence": 36,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "altertab2-8.0",
+          "occurrence": 37,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "altertab2-8.1",
+          "occurrence": 38,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "altertab2-8.2",
+          "occurrence": 39,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "altertab2-8.3",
+          "occurrence": 40,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "altertab2-8.4",
+          "occurrence": 41,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "altertab2-8.5",
+          "occurrence": 42,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "altertab2-8.6",
+          "occurrence": 43,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "altertab2-9.0",
+          "occurrence": 44,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "altertab2-9.1",
+          "occurrence": 45,
+          "result": "bounded pilot selection limit"
+        }
+      ],
+      "runtimeDiagnostics": ""
+    },
+    {
+      "file": "altertab3.test",
+      "sha256": "070ad481ac3f8aa1e212d2be35ef32571971045b22ffc544be4d27d177b67da8",
+      "runtimeExit": 0,
+      "runtimeAssertions": 99,
+      "recorded": 20,
+      "reasons": {
+        "recorded": 20,
+        "native acquisition: Corpus setup must end outside a transaction": 2,
+        "native acquisition: Excluded connection context: temporary schema": 2,
+        "bounded pilot selection limit": 75
+      },
+      "instances": [
+        {
+          "id": "altertab3-1.0",
+          "occurrence": 0,
+          "result": "recorded"
+        },
+        {
+          "id": "altertab3-1.1",
+          "occurrence": 1,
+          "result": "recorded"
+        },
+        {
+          "id": "altertab3-1.2",
+          "occurrence": 2,
+          "result": "recorded"
+        },
+        {
+          "id": "altertab3-1.3",
+          "occurrence": 3,
+          "result": "recorded"
+        },
+        {
+          "id": "altertab3-2.0",
+          "occurrence": 4,
+          "result": "recorded"
+        },
+        {
+          "id": "altertab3-2.1",
+          "occurrence": 5,
+          "result": "recorded"
+        },
+        {
+          "id": "altertab3-3.0",
+          "occurrence": 6,
+          "result": "recorded"
+        },
+        {
+          "id": "altertab3-3.1",
+          "occurrence": 7,
+          "result": "recorded"
+        },
+        {
+          "id": "altertab3-3.2",
+          "occurrence": 8,
+          "result": "recorded"
+        },
+        {
+          "id": "altertab3-4.0",
+          "occurrence": 9,
+          "result": "recorded"
+        },
+        {
+          "id": "altertab3-4.1.2",
+          "occurrence": 10,
+          "result": "recorded"
+        },
+        {
+          "id": "altertab3-4.1.2",
+          "occurrence": 11,
+          "result": "native acquisition: Corpus setup must end outside a transaction"
+        },
+        {
+          "id": "altertab3-4.1.3",
+          "occurrence": 12,
+          "result": "recorded"
+        },
+        {
+          "id": "altertab3-4.2.1",
+          "occurrence": 13,
+          "result": "recorded"
+        },
+        {
+          "id": "altertab3-4.2.2",
+          "occurrence": 14,
+          "result": "native acquisition: Corpus setup must end outside a transaction"
+        },
+        {
+          "id": "altertab3-4.2.3",
+          "occurrence": 15,
+          "result": "recorded"
+        },
+        {
+          "id": "altertab3-5.0",
+          "occurrence": 16,
+          "result": "recorded"
+        },
+        {
+          "id": "altertab3-5.1",
+          "occurrence": 17,
+          "result": "recorded"
+        },
+        {
+          "id": "altertab3-6.0",
+          "occurrence": 18,
+          "result": "native acquisition: Excluded connection context: temporary schema"
+        },
+        {
+          "id": "altertab3-6.1",
+          "occurrence": 19,
+          "result": "native acquisition: Excluded connection context: temporary schema"
+        },
+        {
+          "id": "altertab3-7.1.0",
+          "occurrence": 20,
+          "result": "recorded"
+        },
+        {
+          "id": "altertab3-7.1.2",
+          "occurrence": 21,
+          "result": "recorded"
+        },
+        {
+          "id": "altertab3-7.2.1",
+          "occurrence": 22,
+          "result": "recorded"
+        },
+        {
+          "id": "altertab3-7.2.2",
+          "occurrence": 23,
+          "result": "recorded"
+        },
+        {
+          "id": "altertab3-8.0",
+          "occurrence": 24,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "altertab3-8.1",
+          "occurrence": 25,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "altertab3-8.2.1",
+          "occurrence": 26,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "altertab3-8.2.2",
+          "occurrence": 27,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "8.2.3",
+          "occurrence": 28,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "altertab3-9.1",
+          "occurrence": 29,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "altertab3-9.2",
+          "occurrence": 30,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "altertab3-10.1",
+          "occurrence": 31,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "altertab3-10.2",
+          "occurrence": 32,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "altertab3-11.1",
+          "occurrence": 33,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "altertab3-11.2",
+          "occurrence": 34,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "altertab3-11.3",
+          "occurrence": 35,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "altertab3-11.4",
+          "occurrence": 36,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "altertab3-12.1",
+          "occurrence": 37,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "altertab3-12.2",
+          "occurrence": 38,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "altertab3-13.1",
+          "occurrence": 39,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "altertab3-13.2",
+          "occurrence": 40,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "altertab3-14.1",
+          "occurrence": 41,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "altertab3-14.2",
+          "occurrence": 42,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "altertab3-16.1",
+          "occurrence": 43,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "altertab3-16.2",
+          "occurrence": 44,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "altertab3-17.1",
+          "occurrence": 45,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "altertab3-17.2",
+          "occurrence": 46,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "altertab3-18.1",
+          "occurrence": 47,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "altertab3-18.2",
+          "occurrence": 48,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "altertab3-18.3",
+          "occurrence": 49,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "altertab3-19.0",
+          "occurrence": 50,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "altertab3-19.1.1",
+          "occurrence": 51,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "altertab3-19.1.2",
+          "occurrence": 52,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "altertab3-19.2.1",
+          "occurrence": 53,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "altertab3-19.2.2",
+          "occurrence": 54,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "altertab3-19.3.1",
+          "occurrence": 55,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "altertab3-19.3.2",
+          "occurrence": 56,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "altertab3-20.10",
+          "occurrence": 57,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "altertab3-21.1",
+          "occurrence": 58,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "altertab3-22.1",
+          "occurrence": 59,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "altertab3-22.2",
+          "occurrence": 60,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "altertab3-22.3",
+          "occurrence": 61,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "altertab3-22.4",
+          "occurrence": 62,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "altertab3-22.5",
+          "occurrence": 63,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "altertab3-22.6",
+          "occurrence": 64,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "altertab3-23.1",
+          "occurrence": 65,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "altertab3-23.2",
+          "occurrence": 66,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "altertab3-23.1",
+          "occurrence": 67,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "altertab3-23.2",
+          "occurrence": 68,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "altertab3-23.3",
+          "occurrence": 69,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "altertab3-24.1",
+          "occurrence": 70,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "altertab3-24.2",
+          "occurrence": 71,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "altertab3-24.3",
+          "occurrence": 72,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "altertab3-24.4",
+          "occurrence": 73,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "altertab3-25.1",
+          "occurrence": 74,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "altertab3-26.1",
+          "occurrence": 75,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "altertab3-26.2",
+          "occurrence": 76,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "altertab3-26.3",
+          "occurrence": 77,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "altertab3-26.4",
+          "occurrence": 78,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "altertab3-26.5",
+          "occurrence": 79,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "altertab3-26.6",
+          "occurrence": 80,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "altertab3-27.1",
+          "occurrence": 81,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "altertab3-27.2",
+          "occurrence": 82,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "altertab3-28.1",
+          "occurrence": 83,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "altertab3-28.2",
+          "occurrence": 84,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "altertab3-29.1",
+          "occurrence": 85,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "altertab3-29.2",
+          "occurrence": 86,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "altertab3-29.3",
+          "occurrence": 87,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "altertab3-29.4",
+          "occurrence": 88,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "altertab3-29.5",
+          "occurrence": 89,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "altertab3-29.6",
+          "occurrence": 90,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "altertab3-29.7",
+          "occurrence": 91,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "altertab3-30.0",
+          "occurrence": 92,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "altertab3-30.1",
+          "occurrence": 93,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "altertab3-30.1",
+          "occurrence": 94,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "altertab3-30.2",
+          "occurrence": 95,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "altertab3-31.0",
+          "occurrence": 96,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "31.1",
+          "occurrence": 97,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "altertab3-31.2",
+          "occurrence": 98,
+          "result": "bounded pilot selection limit"
+        }
+      ],
+      "runtimeDiagnostics": ""
+    },
+    {
+      "file": "altertrig.test",
+      "sha256": "63d0fbca56a914f92d4e23ec742c1717496e3b3ab2fc0446729e61f7d1e502ae",
+      "runtimeExit": 0,
+      "runtimeAssertions": 36,
+      "recorded": 20,
+      "reasons": {
+        "recorded": 20,
+        "no SQL observation": 10,
+        "bounded pilot selection limit": 6
+      },
+      "instances": [
+        {
+          "id": "altertrig-1.0",
+          "occurrence": 0,
+          "result": "recorded"
+        },
+        {
+          "id": "1.1",
+          "occurrence": 1,
+          "result": "no SQL observation"
+        },
+        {
+          "id": "altertrig-1.2",
+          "occurrence": 2,
+          "result": "recorded"
+        },
+        {
+          "id": "1.3",
+          "occurrence": 3,
+          "result": "no SQL observation"
+        },
+        {
+          "id": "altertrig-2.1.1",
+          "occurrence": 4,
+          "result": "recorded"
+        },
+        {
+          "id": "altertrig-2.1.2",
+          "occurrence": 5,
+          "result": "recorded"
+        },
+        {
+          "id": "altertrig-2.1.3",
+          "occurrence": 6,
+          "result": "recorded"
+        },
+        {
+          "id": "2.1.4",
+          "occurrence": 7,
+          "result": "no SQL observation"
+        },
+        {
+          "id": "altertrig-2.2.1",
+          "occurrence": 8,
+          "result": "recorded"
+        },
+        {
+          "id": "altertrig-2.2.2",
+          "occurrence": 9,
+          "result": "recorded"
+        },
+        {
+          "id": "altertrig-2.2.3",
+          "occurrence": 10,
+          "result": "recorded"
+        },
+        {
+          "id": "2.2.4",
+          "occurrence": 11,
+          "result": "no SQL observation"
+        },
+        {
+          "id": "altertrig-2.3.1",
+          "occurrence": 12,
+          "result": "recorded"
+        },
+        {
+          "id": "altertrig-2.3.2",
+          "occurrence": 13,
+          "result": "recorded"
+        },
+        {
+          "id": "altertrig-2.3.3",
+          "occurrence": 14,
+          "result": "recorded"
+        },
+        {
+          "id": "2.3.4",
+          "occurrence": 15,
+          "result": "no SQL observation"
+        },
+        {
+          "id": "altertrig-2.4.1",
+          "occurrence": 16,
+          "result": "recorded"
+        },
+        {
+          "id": "altertrig-2.4.2",
+          "occurrence": 17,
+          "result": "recorded"
+        },
+        {
+          "id": "altertrig-2.4.3",
+          "occurrence": 18,
+          "result": "recorded"
+        },
+        {
+          "id": "2.4.4",
+          "occurrence": 19,
+          "result": "no SQL observation"
+        },
+        {
+          "id": "altertrig-2.5.1",
+          "occurrence": 20,
+          "result": "recorded"
+        },
+        {
+          "id": "altertrig-2.5.2",
+          "occurrence": 21,
+          "result": "recorded"
+        },
+        {
+          "id": "altertrig-2.5.3",
+          "occurrence": 22,
+          "result": "recorded"
+        },
+        {
+          "id": "2.5.4",
+          "occurrence": 23,
+          "result": "no SQL observation"
+        },
+        {
+          "id": "altertrig-2.6.1",
+          "occurrence": 24,
+          "result": "recorded"
+        },
+        {
+          "id": "altertrig-2.6.2",
+          "occurrence": 25,
+          "result": "recorded"
+        },
+        {
+          "id": "altertrig-2.6.3",
+          "occurrence": 26,
+          "result": "recorded"
+        },
+        {
+          "id": "2.6.4",
+          "occurrence": 27,
+          "result": "no SQL observation"
+        },
+        {
+          "id": "altertrig-2.7.1",
+          "occurrence": 28,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "altertrig-2.7.2",
+          "occurrence": 29,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "altertrig-2.7.3",
+          "occurrence": 30,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "2.7.4",
+          "occurrence": 31,
+          "result": "no SQL observation"
+        },
+        {
+          "id": "altertrig-2.8.1",
+          "occurrence": 32,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "altertrig-2.8.2",
+          "occurrence": 33,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "altertrig-2.8.3",
+          "occurrence": 34,
+          "result": "bounded pilot selection limit"
+        },
+        {
+          "id": "2.8.4",
+          "occurrence": 35,
+          "result": "no SQL observation"
+        }
+      ],
+      "runtimeDiagnostics": ""
+    }
+  ],
+  "recordedCases": 177,
+  "casesSha256": "ecff991fa48eab1dc43bc01d70bfeef55b34e847fc0f5e41e2e07e732984f230"
+}

@@ -8,6 +8,7 @@ let
   leanToolchain = import ./lean-toolchain.nix { inherit pkgs; };
 in rec {
   inherit leanToolchain sources;
+  conformanceNative = import ./conformance-native.nix { inherit pkgs; };
   tests = import ./tests.nix {
     inherit pkgs leanToolchain leanRuntime parsers runtime native conformance;
   };
