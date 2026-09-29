@@ -18,6 +18,10 @@ authorizers, concurrent connections, application callbacks, or custom collations
 may change supported statement behavior. Writable-schema mode is off. Other
 SQLite resource limits must not interrupt the modeled execution.
 
+> Owner decision (2026-09-29): the profile moves to SQLite's library-default DQS
+> setting. The DQS=0 assumption above remains the implemented behavior until the
+> profile-change task lands; see [ADR 0004](adr-0004-model-conformance-validation.md#owner-decisions-2026-09-29).
+
 Submit each complete statement in script order on one connection and stop on
 the first statement error. Statements outside explicit transactions use
 autocommit. Transaction operations must appear in the supplied SQL; no framework

@@ -1,6 +1,6 @@
 # ADR 0004: Validate the semantic model by differential testing and proven regressions
 
-- Status: Proposed — W1–W2 implemented; W3+ awaits the owner decision in §7
+- Status: Accepted 2026-09-29 — W1–W2 implemented; W3–W7 approved (see Owner decisions)
 - Date: 2026-09-29
 - Implementation examined: working copy on top of `adce4843`
 - Decision owners: formal methods lead for model fidelity and proof policy;
@@ -9,8 +9,10 @@
   [ADR 0003](adr-0003-agent-proof-preparation.md) and its
   [trust extension](adr-0003-trust-extension.md),
   [research report](../reports/Validating%20a%20Lean%20SQLite%20semantic%20model.md)
-- This proposal does not change current behavior, supported SQL, statuses, or
-  the trust policy. It adds evidence about the model; it never adds axioms.
+- The validation pipeline does not change current behavior, supported SQL,
+  statuses, or the trust policy; it adds evidence about the model and never adds
+  axioms. The DQS execution-profile decision recorded below does change the
+  profile and is implemented by its own task.
 
 ## Prototype implementation (2026-09-29)
 
@@ -20,11 +22,57 @@ the shared encoding is [conformance-format-v1.md](conformance-format-v1.md).
 The [reviewed prototype evidence](../reports/20260929-adr4-review-validation.json) records live
 native/kernel agreement, validation results, source hashes and measured throughput.
 The starting baseline below is retained as the motivation for the proposal.
-W3 and later packages remain subject to the decision point in §7.
+The owner decisions below resolve the decision point in §7.
 
-## Decision in brief
+## Owner decisions (2026-09-29)
 
-Approve a bounded prototype, not the whole pipeline:
+The product owner approved the following after reviewing the W1–W2 evidence.
+
+1. **W1–W2 accepted** as delivered and reviewed, on the evidence in the
+   [review validation report](../reports/20260929-adr4-review-validation.json).
+2. **W3 and W4 approved, bounded.** The Hypothesis generator runs in both modes
+   (well-scoped and error-seeking) at a fixed seed within `just test`, plus an
+   on-demand long run. Every disagreement is classified and, once resolved, kept
+   as a tier 2 regression. Condition: before long runs are scheduled, profile
+   native acquisition and classification on a transaction/DML mix and fix the
+   dominant cost. Hypothesis is retained; a Rust harness in the style of Cedar is
+   considered only if millions of cases per day become a requirement.
+3. **W5 approved now**, independent of the runner.
+4. **W6 and W7 approved now, before further model work.** The test suite is
+   prepared ahead of the model and used to measure model progress. Consequences:
+   - Native recording must not depend on the translator. Objects outside the
+     admitted subset (views, triggers, constraints, WITHOUT ROWID tables and so
+     on) are recorded from SQLite's own `PRAGMA` metadata and rows. The
+     translator cross-check in `native_metadata.py` remains for admitted cases.
+   - The corpus keeps the SQL and native trace of every case, including cases
+     the model cannot yet represent. Structural statements are derived again by
+     the current frontend on each run, so a case moves from `MODEL_UNSUPPORTED`
+     to `AGREE` or `DISAGREE` as the model grows.
+   - Progress metric: over a frozen corpus, the counts of `AGREE`, `DISAGREE` and
+     `MODEL_UNSUPPORTED` by requirement ID and test-file area, with model and
+     SQLite (gcov) coverage. Model work progresses when unsupported cases become
+     agreements without new disagreements. Corpus changes are recorded as
+     separate versions so denominators stay comparable.
+5. **Order of work:** W5 and translator-independent native recording first; then
+   the W6 pilot on the `alter*` files; then W3/W4 and W7 in parallel.
+6. **Execution profile uses SQLite's library-default DQS setting.** Applications
+   normally use SQLite as a library, whose default build accepts a double-quoted
+   token as a string literal in DML and DDL when it does not resolve to an
+   identifier. This supersedes the DQS=0 assumption in
+   [execution-profile.md](execution-profile.md) and
+   [sqlite-parser.md](sqlite-parser.md). Both supported versions share the
+   profile assumptions, so it applies to 3.51.0 and 3.46.0. It is implemented by
+   a separate profile-change task: the translator must model SQLite's
+   double-quoted-string fallback or reject the ambiguous uses as `UNSUPPORTED`,
+   and native checks must verify the library default instead of disabling DQS.
+   Until that task lands, the implemented profile and the conformance runner stay
+   at DQS=0. Both switch in the same change, so the model and native evidence
+   never use different settings.
+7. **Merge order:** `adr4` merges into main first; `adr3` rebases onto it.
+
+## Prototype decision (delivered as W1–W2)
+
+The original request was to approve a bounded prototype, not the whole pipeline:
 
 1. Lean `classifyCase` is the single comparison authority; `checkCase` is its
    Boolean proof predicate. Python records native traces and prints
@@ -39,8 +87,8 @@ If W2 cannot demonstrate faithful native observation, the existing conformance
 checks (`conformance/model_check.py` and the native fixture runner) remain the
 evidence, W3 is not authorized, and the obstacle is recorded in this ADR.
 
-The four-tier pipeline in §4 is the intended destination. Its later tiers are
-recorded here so the prototype is built toward them, not approved by this ADR.
+The four-tier pipeline in §4 is the intended destination. The owner decisions
+above approve its remaining packages except tier 3, which stays tied to ADR 0003.
 
 ## 1. Observed problem (pre-prototype baseline)
 
@@ -283,7 +331,10 @@ For the current subset, prove over `advance` and `runSql`, under `SupportedSql`:
 Each law also runs as a native property under the same preconditions. The list
 grows as Step 2 adds rename and copy semantics.
 
-### 4.7 Later: upstream mining and coverage
+### 4.7 Upstream mining and coverage
+
+Approved before further model work; see Owner decision 4.
+
 
 Replace the bounded static extractor with an execution-based one: run the
 `version-3.51.0` Tcl test files under a logging proxy for the Tcl `sqlite3`
@@ -347,14 +398,15 @@ the production parser. sqllogictest matters for the expression phase.
 | W1: case format, `classifyCase` and `checkCase` | None; shares the ADR 0003 P3 encoding | Five existing cases re-expressed, their fixtures (including rowids `-4`, `9`, `22`, the NULL and UTF-8 cells, and the 2000-column table) surviving serialization and matching the initial native observation; kernel proof and compiled run agree; a deliberately wrong trace is rejected by both; a lemma shows `modelUnsupported` cases never satisfy `checkCase`; the trace's final observation is proved equal to `runSql`'s; axiom test covers `_native` names |
 | W2: persistent native runner and compiled runner | W1 | Existing cases agree; an admitted transactional literal write reaches comparison; an error inside an open transaction is observed with connection-visible changes and an unchanged committed snapshot on both sides; a data-domain rejection (`statementReady` false) and `invalidDefinition` yield `MODEL_UNSUPPORTED` before comparison; injected model mutation yields `DISAGREE`; measured cases/second including native snapshots |
 | W5: general laws | None | The three §4.6 theorems proved with stated preconditions |
-| Decision point | W2 | Owners review W2 evidence and decide whether and at what scale W3 proceeds |
+| Decision point | W2 | Resolved 2026-09-29: W3–W7 approved (Owner decisions) |
 | W3: generator | Decision point | Both modes run in `just test` at a fixed seed within budget; round-trip checked; shrunk failure reproduces; W5 laws run as native properties |
 | W4: regression freezing and mismatch log | W3 | Every disagreement classified and, if resolved, committed as a tier 2 theorem |
-| W6: upstream extractor | W2; scheduled with Step 2 | Pilot on `alter*`/`altertab*` at 3.51.0 with per-file yield and exclusion reasons |
-| W7: requirement matrix and coverage | W2; scheduled with Step 2 | Requirement list regenerated; model and gcov coverage reports produced |
+| W6: upstream extractor | W2; translator-independent native recording | Pilot on `alter*`/`altertab*` at 3.51.0 with per-file yield and exclusion reasons; out-of-subset cases retained with SQL and native trace |
+| W7: requirement matrix and coverage | W2; W6 corpus for the progress metric | Requirement list regenerated; model and gcov coverage reports produced; progress metric reported over the frozen corpus |
 
-W5 is pure Lean over the model and does not wait for the runner. Each package
-follows the repository task/status file process.
+W5 is pure Lean over the model and does not wait for the runner. Work proceeds
+in the order set by Owner decision 5. Each package follows the repository
+task/status file process.
 
 ## 8. Rollout and rollback
 
