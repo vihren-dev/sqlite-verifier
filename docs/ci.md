@@ -35,36 +35,12 @@ sandbox is supplied or tested. Nix daemon and installation tests run on the host
 Cheap unit tests rerun normally. Direct `just test-cases FILE` always executes
 pytest, even if the corresponding Nix target is already cached.
 
-CI downloads signed outputs from the private Attic cache at
-`https://cache.vihren.dev/sqlite-verifier`, alongside `cache.nixos.org`.
-Nix identities determine reuse across commits without an environment-hash archive
-boundary. An unrelated test edit can reuse kernel/model results; changing a
-declared input creates a different test derivation. There are no checkout caches.
-
-`ATTIC_READ_TOKEN` is a repository secret. Before Nix installation, the workflow
-creates a root-readable netrc file and supplies the cache URL and public signing
-key to the daemon configuration. Jobs without this secret, including fork PRs and
-Dependabot jobs, omit the private substituter and build using public dependencies.
-
-Only successful main-branch jobs upload the runtime, four test outputs and both
-custom SQLite packages, including their closures. The Attic client comes from the
-existing pinned nixpkgs. `ATTIC_WRITE_TOKEN` is an environment secret in
-`attic-publish`, whose deployment policy permits only the `main` branch. Other refs
-use the `attic-read` environment, which has no upload secret. Keep this GitHub
-environment restriction: the step condition alone does not protect credentials
-against a modified PR workflow. Uploads fail visibly if publishing fails.
-
-Both tokens were issued on 2026-09-29 with 90-day validity. Rotate them before
-expiry from the Vihren VM; the root-only source files are
-`/root/attic-credentials/read.token` and `/root/attic-credentials/write.token`.
-Update the repository read secret and the environment write secret through stdin,
-never command-line literals or logs. Cache credentials are removed before artifact
-collection. No cache credential or signing secret belongs in a release archive.
-
-`just test-attic` is an explicit live smoke check, requiring both token environment
-variables. It uses the pinned client to upload a tiny output, downloads it into an
-isolated store using the CI netrc format, verifies its signature and contents, and
-checks anonymous access denial. Ordinary source tests never require credentials.
+The pinned cache-nix-action restores the Nix store using a platform/environment
+prefix and a commit-specific key. Only successful main jobs save caches. PRs and
+tags restore them. Nix, not the GitHub cache key, determines which outputs can be
+reused. An unrelated test edit can reuse kernel/model results; changing a declared
+input creates a different test derivation. No extra signing credentials, custom
+source fingerprinting in production CI, or checkout build caches are required.
 
 Host JUnit reports, cached Nix test outputs and CI phase diagnostics are
 retained for 14 days. Pytest's exit status decides success. Individual subprocess
