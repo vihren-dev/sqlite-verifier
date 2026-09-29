@@ -10,7 +10,7 @@
   for proof acceptance
 - Related: [ADR 0001](adr-0001-pytest-and-nix-ci.md) (accepted, partly superseded),
   [ADR 0002](adr-0002-compile-project-cache.md) (proposed; replaced by this ADR if
-  accepted), [ADR 0004](adr-0004-model-conformance-validation.md) (depends on this
+  accepted), ADR 0004, model conformance validation (draft, not yet published; depends on this
   ADR), [latency experiments](../experiments/adr-0003-latency/README.md),
   [deferred trust design](adr-0003-trust-extension.md)
 
