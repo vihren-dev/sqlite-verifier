@@ -4,7 +4,7 @@
 - Date: 2026-09-26
 - Repository examined: `54ea013ab12d16fdc35d9b08bd26078c24c547aa`
 - Decision owner: formal methods / technical lead
-- Related: [ADR 0001](0001-pytest-and-nix-ci.md)
+- Related: [ADR 0001](adr-0001-pytest-and-nix-ci.md)
 
 ## 1. Observed pain
 
@@ -90,7 +90,7 @@ The investigation therefore identifies two separate requirements for reuse:
 compilation must depend only on the identified inputs, and a restored artifact must
 come from the trusted compilation of those inputs. Kernel replay remains necessary
 but does not establish the second requirement by itself. See
-[the current checker](../../ProofChecker.lean), particularly `importData`, `additions`,
+[the current checker](../ProofChecker.lean), particularly `importData`, `additions`,
 and `checkProof`.
 
 ### 3.4 What the investigation has not established
@@ -101,10 +101,10 @@ or that restoring their artifacts is cheaper than compiling them. In particular,
 header discovery and kernel replay would remain even with perfect compilation
 cache hits. Treating all elapsed test time as recoverable would overstate the benefit.
 
-The current [CI policy](../ci.md) also requires fresh source elaboration and proof
+The current [CI policy](ci.md) also requires fresh source elaboration and proof
 checks. Reusing compilation inside the verifier changes that execution policy for
 the enabled stages and needs its own decision; it is distinct from caching fixed
-project build outputs under [ADR 0001](0001-pytest-and-nix-ci.md).
+project build outputs under [ADR 0001](adr-0001-pytest-and-nix-ci.md).
 
 ## 4. Assumptions and how to challenge them
 
@@ -202,8 +202,8 @@ verification result retains its existing meaning.
 Cache enabled stages only after explicit local opt-in. Required CI acceptance and
 mutable installed runtimes remain uncached initially. The cache is not distributed
 through ADR 0001's Nix or Actions cache. If accepted, document this limited exception
-to [CI policy](../ci.md) and the
-[earlier performance task](../../plans/20260925-ci-performance.task.md).
+to [CI policy](ci.md) and the
+[earlier performance task](../plans/20260925-ci-performance.task.md).
 
 A generic source/import-hash cache would not address the identified elaboration
 and provenance problems. Caching final verdicts would omit required fresh checks.
@@ -512,12 +512,12 @@ is modified by this feature.
 Consulted 2026-09-26. The design is derived primarily from the repository's pinned
 code, not a claim that the latest Lean documentation proves cache safety.
 
-- [Compilation, snapshots and artifact validation](../../migration_check/compile.py)
-- [Closure discovery and compiler sandbox inputs](../../migration_check/source_closure.py)
-- [Sandbox policy and process cleanup](../../migration_check/sandbox.py)
-- [CLI verification and fresh kernel invocation](../../migration_check/cli.py)
-- [Independent replay and target reconstruction](../../ProofChecker.lean)
-- [Existing early-baseline regression](../../tests/early_baseline_test.py)
+- [Compilation, snapshots and artifact validation](../migration_check/compile.py)
+- [Closure discovery and compiler sandbox inputs](../migration_check/source_closure.py)
+- Sandbox policy and process cleanup (`migration_check/sandbox.py`, removed 2026-09-29)
+- [CLI verification and fresh kernel invocation](../migration_check/cli.py)
+- [Independent replay and target reconstruction](../ProofChecker.lean)
+- [Existing early-baseline regression](../tests/early_baseline_test.py)
 - [Lean build tools and checker overview](https://lean-lang.org/doc/reference/latest/Build-Tools-and-Distribution/)
 - [Lean module semantics](https://lean-lang.org/doc/reference/latest/Source-Files-and-Modules/)
 - [Lean module initializer behavior](https://lean-lang.org/doc/reference/latest/Run-Time-Code/Foreign-Function-Interface/)
