@@ -1,7 +1,6 @@
 """Verify native/model agreement through production translation, plus a failing model assertion."""
 
 from dataclasses import replace
-import json
 import os
 from pathlib import Path
 import subprocess
@@ -28,7 +27,7 @@ pytestmark = [pytest.mark.integration, pytest.mark.conformance, pytest.mark.kern
 
 @pytest.mark.requires_native("sqlite-parser", "sqlite3")
 @pytest.mark.parametrize("name", [case.name for case in cases()])
-def test_native_model(name: str, runtime_root: Path, case_artifacts: Path,
+def test_native_model(name: str, runtime_root: Path,
                       lean_sysroot: Path, lean_library: Path) -> None:
     """A native case matches independent rows/errors and its production translation kernel-checks."""
     case = next(case for case in cases() if case.name == name)
@@ -37,8 +36,6 @@ def test_native_model(name: str, runtime_root: Path, case_artifacts: Path,
     assert [report["case"] for report in reports] == [name]
     assert reports[0]["model_status"] == "KERNEL_CHECKED_CONCRETE_ASSERTIONS"
     assert reports[0]["translation_status"] == "PRODUCTION_PIPELINE"
-    case_artifacts.mkdir(parents=True, exist_ok=True)
-    (case_artifacts / "native-model.json").write_text(json.dumps(reports, indent=2) + "\n")
 
 
 @pytest.mark.requires_native("sqlite-parser")

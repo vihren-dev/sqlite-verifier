@@ -41,7 +41,7 @@ def test_upstream_pin_and_import_fidelity() -> None:
 @pytest.mark.parser
 @pytest.mark.requires_native("sqlite-parser", "sqlite3")
 @pytest.mark.parametrize("selected", range(3), ids=["alter3-3.1-1", "alter3-3.1-2", "alter3-3.2-1"])
-def test_upstream_case(selected: int, runtime_root: Path, case_artifacts: Path) -> None:
+def test_upstream_case(selected: int, runtime_root: Path) -> None:
     """A selected upstream call matches Tcl expectations after its required connection/setup prefix."""
     report = run(os.environ.get("SQLITE3", "sqlite3"), str(runtime_root / "build/sqlite-parser"), selected)
     assert len(report["cases"]) == 1
@@ -49,8 +49,6 @@ def test_upstream_case(selected: int, runtime_root: Path, case_artifacts: Path) 
     assert report["cases"][0]["grammar_status"] == "PARSED"
     assert report["model_status"] == "NOT_YET_MODEL_CHECKED"
     assert report["translation_status"] == "NOT_YET_TRANSLATED"
-    case_artifacts.mkdir(parents=True, exist_ok=True)
-    (case_artifacts / "upstream-native.json").write_text(json.dumps(report, indent=2) + "\n")
 
 
 def final_observations(report: dict[str, object]) -> None:
@@ -69,10 +67,8 @@ def final_observations(report: dict[str, object]) -> None:
 
 
 @pytest.mark.requires_native("sqlite3")
-def test_final_native_observations(runtime_root: Path, case_artifacts: Path) -> None:
+def test_final_native_observations(runtime_root: Path) -> None:
     """Final replay observations retain physical row identity, schema state and explicit evidence limits."""
     report = run(os.environ.get("SQLITE3", "sqlite3"), str(runtime_root / "build/sqlite-parser"), final_only=True)
     assert report["cases"] == [], "Final replay must not repeat separately selected case comparisons"
     final_observations(report)
-    case_artifacts.mkdir(parents=True, exist_ok=True)
-    (case_artifacts / "upstream-final.json").write_text(json.dumps(report, indent=2) + "\n")

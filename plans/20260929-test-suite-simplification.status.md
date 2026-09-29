@@ -19,3 +19,11 @@ Relevant sources: `justfile`, `conftest.py`, `pytest.ini`, `tests/`,
 - 2026-09-29: Removed ADR-0001 benchmark tools, workflows, disk action,
   `tools/cache_fingerprint.py`, `tests/case-inventory.json` and their tests;
   dropped stale CI-scope entries. 299 cases collect; CI-scope tests pass.
+- 2026-09-29: Replaced the custom reporting layer with plain pytest (removed
+  `tests/case_reports.py`, `tests/catalogue.py`, catalogue/suite/run-id/report
+  options, per-case artifacts and receipts; `--junitxml` in recipes and Nix
+  targets; `just test-list` uses `--collect-only`). `run_command` kills the
+  process group only; removed `tests/test_timeout_cleanup.py`, merged runtime
+  selection cases into `tests/test_pytest_harness.py`. Axiom audit now returns
+  problems and has a negative unit test. Host: 237 passed, 1 known docs
+  failure (161s). Nix: atuin 16, kernel 19, model 6 passed.
