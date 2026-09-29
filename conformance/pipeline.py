@@ -9,7 +9,7 @@ import time
 from conformance.case_format import Json, literal_cell
 from conformance.model_cases import cases, schema_sql
 from conformance.native_trace import Fixture
-from conformance.model_check import compiled, evaluate, prove
+from conformance.model_check import acquire, compiled_many, prove
 from conformance.native_connection import SOURCE_ID, library_path
 
 
@@ -34,28 +34,35 @@ def main() -> int:
     runtime = args.runtime_root.resolve()
     args.output.mkdir(parents=True, exist_ok=True)
     reports: list[dict[str, Json]] = []
-    elapsed = 0.0
-    observations = 0
+    pending: list[tuple[Fixture, int, dict[str, Json]]] = []
+    start = time.monotonic()
     for iteration in range(args.repeat):
         for fixture in fixtures():
-            start = time.monotonic()
-            case, result = evaluate(fixture, runtime)
-            elapsed += time.monotonic() - start
-            if case is not None:
-                observations += len(case["nativeTrace"])
+            case, result = acquire(fixture, runtime)
             reports.append({"fixture": fixture.name, "iteration": iteration, **result})
-            if case is not None and iteration == 0:
-                (args.output / f"{fixture.name}.json").write_text(json.dumps(case, indent=2) + "\n")
-                if args.prove and result["verdict"] == "AGREE":
-                    emitted = compiled(case, runtime, emit_lean=True)
-                    term = emitted.get("caseLean")
-                    if not isinstance(term, str):
-                        raise ValueError("Missing decoded proof term")
-                    failure = next(case.lean_failure for case in cases() if case.name == fixture.name)
-                    prove(term, runtime, args.output / f"{fixture.name}.lean", failure=failure)
+            if case is not None:
+                pending.append((fixture, len(reports) - 1, case))
+    native_seconds = time.monotonic() - start
+    start = time.monotonic()
+    results = compiled_many([case for _, _, case in pending], runtime, emit_lean=args.prove)
+    compiled_seconds = time.monotonic() - start
+    for (fixture, index, case), result in zip(pending, results, strict=True):
+        reports[index].update({key: value for key, value in result.items() if key not in {"decoded", "caseLean"}})
+        if reports[index]["iteration"] == 0:
+            (args.output / f"{fixture.name}.json").write_text(json.dumps(case, indent=2) + "\n")
+            if args.prove and result["verdict"] == "AGREE":
+                term = result.get("caseLean")
+                if not isinstance(term, str):
+                    raise ValueError("Missing decoded proof term")
+                failure = next(c.lean_failure for c in cases() if c.name == fixture.name)
+                prove(term, runtime, args.output / f"{fixture.name}.lean", failure=failure)
+    elapsed = native_seconds + compiled_seconds
+    observations = sum(len(case["nativeTrace"]) for _, _, case in pending)
     report = {"cases": reports, "secondsIncludingNativeSnapshots": elapsed,
               "casesPerSecond": len(reports) / elapsed, "kernelProofTimeIncluded": False,
               "nativeObservationCount": observations,
+              "nativeAcquisitionSeconds": native_seconds, "compiledBatchSeconds": compiled_seconds,
+              "runnerProcesses": 1, "proofTermEmissionIncluded": args.prove,
               "runtime": str(runtime), "sqliteLibrary": str(library_path()), "sqliteSourceId": SOURCE_ID,
               "platform": os.uname().sysname + "-" + os.uname().machine}
     (args.output / "report.json").write_text(json.dumps(report, indent=2) + "\n")

@@ -150,3 +150,39 @@ def test_native_metadata_catches_translator_faults(runtime_root: Path, tmp_path:
                 native_trace.snapshot(connection, parser)
     finally:
         connection.close()
+
+
+def test_schema_cache_and_batch(runtime_root: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    """Unchanged schemas reuse parsing; rollback restores metadata and batch order is exact."""
+    from conformance import native_trace, model_check
+    from migration_check.sql_tree import Tree
+    parser = native_trace.parse
+    parsed: list[str] = []
+
+    def counted(path: Path, source: bytes, name: str) -> Tree:
+        """Count actual native schema parser invocations without replacing their behavior."""
+        if name == "native-schema.sql":
+            parsed.append(source.decode())
+        return parser(path, source, name)
+
+    monkeypatch.setattr(native_trace, "parse", counted)
+    fixture = Fixture("CREATE TABLE t(id INTEGER);",
+        "BEGIN; ALTER TABLE t ADD a TEXT; ROLLBACK; "
+        "BEGIN; ALTER TABLE t ADD b BLOB; COMMIT;", {}, "schema-cache")
+    case = record(fixture, runtime_root / "build/sqlite-parser")
+    assert len(parsed) == len(set(parsed)) == 3
+    assert case["nativeTrace"][3]["visible"] == case["nativeTrace"][0]["visible"]
+    invalid = deepcopy(case)
+    invalid["version"] = 2
+    calls = []
+    run = subprocess.run
+
+    def counted_run(*args: object, **kwargs: object) -> subprocess.CompletedProcess[str]:
+        """Delegate to the real runner while asserting one process for the whole batch."""
+        calls.append(args)
+        return run(*args, **kwargs)
+
+    monkeypatch.setattr(model_check.subprocess, "run", counted_run)
+    results = model_check.compiled_many([case, invalid, case], runtime_root)
+    assert [r["verdict"] for r in results] == ["AGREE", "HARNESS_ERROR", "AGREE"]
+    assert len(calls) == 1

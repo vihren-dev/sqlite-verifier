@@ -40,7 +40,8 @@ def cell_sql(cell: Cell) -> str:
     return f"CAST({blob} AS TEXT)" if kind == 3 else blob
 
 
-def snapshot(connection: Connection, parser: Path) -> list[Json]:
+def snapshot(connection: Connection, parser: Path,
+             cache: dict[str, tuple[Table, ...]] | None = None) -> list[Json]:
     """Read all supported objects and chunk wide rows below the fixed result-column limit."""
     metadata = connection.query("SELECT type,name,sql FROM sqlite_schema ORDER BY name;")
     declarations: list[str] = []
@@ -49,8 +50,12 @@ def snapshot(connection: Connection, parser: Path) -> list[Json]:
             raise ValueError(f"Unsupported native schema object: {text(name)}")
         if sql[0] != 5:  # Implicit constraint indexes are represented in the table definition.
             declarations.append(text(sql) + ";")
+    cache = {} if cache is None else cache
+    key = "\n".join(declarations)
     try:
-        schema = starting_schema(parse(parser, "\n".join(declarations).encode(), "native-schema.sql"))
+        if key not in cache:
+            cache[key] = starting_schema(parse(parser, key.encode(), "native-schema.sql"))
+        schema = cache[key]
     except Rejection as error:
         raise ValueError(f"Cannot observe native schema: {error}") from error
     if sorted(table.name for table in schema) != sorted(text(name) for kind, name, _ in metadata if text(kind) == "table"):
@@ -100,10 +105,12 @@ def record(fixture: Fixture, parser: Path, library: Path | None = None) -> dict[
         reader = Connection(pinned, database)
         stack.callback(reader.close)
 
+        schema_cache: dict[str, tuple[Table, ...]] = {}
+
         def observe(code: int) -> dict[str, Json]:
             """No observation failure can produce an agreement candidate."""
-            visible = snapshot(writer, parser)
-            persisted = snapshot(reader, parser) if writer.transaction_open else visible
+            visible = snapshot(writer, parser, schema_cache)
+            persisted = snapshot(reader, parser, schema_cache) if writer.transaction_open else visible
             return {"visible": visible, "persisted": persisted,
                     "transactionOpen": writer.transaction_open,
                     "primaryCode": code & 255, "extendedCode": code}

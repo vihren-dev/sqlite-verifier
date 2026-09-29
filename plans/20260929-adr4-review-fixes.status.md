@@ -15,3 +15,9 @@ Live pinned-library test passed (1 test), including DML and DDL rejection.
 Independent metadata validation added in `conformance/native_metadata.py`. Native
 column fields, affinity, keys and indexes are cross-checked; ten translator faults
 are rejected. Live pipeline and original fixture suites passed (17 tests).
+
+Schema declarations are parsed once per distinct schema in a case; visible and
+committed views share the content-keyed cache. Benchmark cases share one runner
+process and report acquisition/classification separately. Six transaction/cache/
+batch tests passed, including rollback followed by different DDL and malformed
+input between valid cases. A fresh final benchmark is still pending.

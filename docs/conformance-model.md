@@ -99,7 +99,12 @@ REAL uses its 64-bit pattern. A second connection observes committed state while
 a transaction is open. Contention that prevents observation is a harness failure,
 not semantic evidence. Native statements have a five-second progress deadline
 and a 100 ms lock wait; outer test/recipe deadlines also bound complete runs.
-Parsing is bounded to five seconds, compiled classification to 30 seconds, and
+Native schema parsing is cached by the actual declaration text within each case,
+shared by visible and committed observations, so rollback cannot reuse metadata
+from a different schema with the same schema version. Benchmark cases are sent
+through one JSON-lines runner process; reports separate native acquisition and
+compiled batch time (including transport and optional proof-term emission).
+Parsing is bounded to five seconds, each compiled batch to 30 seconds, and
 concrete kernel checks to 120 seconds (including the wide case).
 
 The denominator remains **five authored derived cases**, plus the specifically
