@@ -53,7 +53,7 @@ smoke:
 # The same derivations are the flake's checks; nix-build also keeps result links.
 test: build
     timeout 900 nix-build build-support/default.nix -A tests --out-link build/nix-tests --option sandbox true --option sandbox-fallback false --extra-experimental-features 'nix-command flakes'
-    timeout --foreground 600 python3 -u -m pytest -v tests -m "not requires_nix" --ignore=tests/runtime_package_test.py --ignore=tests/kernel_gate_test.py --ignore=tests/conformance_model_test.py --ignore=tests/conformance_trace_test.py --ignore=tests/conformance_pipeline_test.py --ignore=tests/conformance_mutation_test.py --ignore=tests/atuin_cli_test.py --ignore=tests/cli_test.py --runtime-root "${SQLITE_VERIFIER_RUNTIME_ROOT:-$PWD}" --junitxml build/test-results/source.xml
+    timeout --foreground 600 python3 -u -m pytest -v tests -m "not requires_nix" --ignore=tests/runtime_package_test.py --ignore=tests/kernel_gate_test.py --ignore=tests/conformance_model_test.py --ignore=tests/conformance_trace_test.py --ignore=tests/conformance_pipeline_test.py --ignore=tests/conformance_mutation_test.py --ignore=tests/conformance_laws_test.py --ignore=tests/atuin_cli_test.py --ignore=tests/cli_test.py --runtime-root "${SQLITE_VERIFIER_RUNTIME_ROOT:-$PWD}" --junitxml build/test-results/source.xml
 
 # Check Nix source identities, test-target invalidation, environment snapshots and the installer cache.
 test-nix:

@@ -11,7 +11,7 @@ root = "ProofChecker"
 
 [[lean_lib]]
 name = "VerifierConformance"
-roots = ["VerifierConformance.Trace", "VerifierConformance.Case", "VerifierConformance.Json"]
+roots = ["VerifierConformance.Trace", "VerifierConformance.Case", "VerifierConformance.Json", "VerifierConformance.Laws"]
 
 [[lean_exe]]
 name = "conformance-runner"
