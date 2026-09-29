@@ -132,21 +132,35 @@ The native side uses one persistent connection to the Nix-pinned 3.51.0 library,
 retaining the existing version, source-ID, compile-option and connection
 configuration checks. The binding must run in autocommit mode (Python's
 `sqlite3` inserts implicit `BEGIN` statements otherwise) and must load the pinned
-library, not the system one. While a transaction is open, a second connection
-reads the committed state; `SQLITE_BUSY` or any other failure to observe is a
+library, not the system one. Like the production profile, it stops at the first
+statement error. While a transaction is open, a second connection reads the
+committed state; `SQLITE_BUSY` or any other failure to observe is a
 `HARNESS_ERROR`, never agreement.
 
-On the model side, per-statement observation steps `step` over the script,
-exposing `Outcome.database` and `Outcome.persistedDatabase`. `Database` stays
-`String → Option Table`: the contract proofs in `Contract.lean` quantify over it,
-and the current kernel assertions already observe it by name. Observation
-enumerates the finite set of table names appearing in the case's statements plus
-the names in native `sqlite_schema`; the model cannot create tables under any
-other name.
+On the model side, observation uses the production execution path, not a second
+evaluator. The trace folds `advance` (`SqlExecution.lean`) over the script from
+`{ database := initial }`, exactly as `runSqlFrom` does. After each `.next state`
+it records `state.database` as connection-visible and `state.snapshot` as the
+committed state when a transaction is open. A `.halt outcome` ends the trace with
+`outcome.database` and `outcome.persistedDatabase`. The legacy `step`/`run`
+helpers in `Execution.lean` cover only schema extensions and are not used. A
+theorem in W1 states that the trace's final observation equals the observation of
+`runSql` on the same input, so tier 2 cases and the verifier describe the same
+execution.
+
+`Database` stays `String → Option Table`: the contract proofs in `Contract.lean`
+quantify over it, and the current kernel assertions already observe it by name.
+Observation enumerates the finite set of table names appearing in the case's
+statements plus the names in native `sqlite_schema`; the model cannot create
+tables under any other name.
 
 Comparisons produce `AGREE`, `DISAGREE`, `MODEL_UNSUPPORTED`, or `HARNESS_ERROR`.
-`MODEL_UNSUPPORTED` never counts as agreement. The modeled `invalidDefinition`
-error is a subset-admission failure, not a SQLite error, and maps to
+`MODEL_UNSUPPORTED` never counts as agreement. Admission is decided before any
+comparison, using the production checks: a case whose script fails the frontend's
+admission, `schemaAllows`, or `supportedSqlFrom` (which applies `statementReady`
+to every reached statement) is `MODEL_UNSUPPORTED` as a whole. `checkCase`
+therefore evaluates `SupportedSql` first. The modeled `invalidDefinition` error
+is also a subset-admission failure, not a SQLite error, and maps to
 `MODEL_UNSUPPORTED`.
 
 ### 4.3 Compiled runner
@@ -190,16 +204,17 @@ prohibited in all proofs: since Lean 4.29 each use introduces its own axiom.
 
 ### 4.6 General laws
 
-For the current subset, prove:
+For the current subset, prove over `advance` and `runSql`, under `SupportedSql`:
 
-- Rollback: from an idle connection, if `S` contains no transaction-control
-  statement and every statement of `S` succeeds, then `BEGIN; S; ROLLBACK`
-  succeeds and leaves the database equal to the initial one. The model stops at
-  the first error, so a failing `S` never reaches `ROLLBACK`; that case is covered
-  by the atomicity law instead.
-- Statement atomicity: a single `step` that fails with a modeled error leaves the
-  connection-visible and committed databases unchanged.
-- ADD COLUMN preservation: a successful, admitted `ADD COLUMN` preserves the
+- Rollback: from an idle state, if `S` contains no transaction-control statement
+  and every statement of `S` succeeds, then `runSql (BEGIN :: S ++ [ROLLBACK])`
+  succeeds with the initial database. `runSql` stops at the first error, so a
+  failing `S` never reaches `ROLLBACK`; that case is covered by atomicity instead.
+- Statement atomicity: if `advance` halts with a modeled error from state `s`,
+  the outcome's connection-visible database is `s.database` and its committed
+  database is `s.snapshot`, or `s.database` when no transaction is open. This
+  covers DDL, literal writes, and transaction-control errors alike.
+- ADD COLUMN preservation: a successful, admitted `ADD COLUMN` step preserves the
   table's row count, rowids and existing cells, and the new column reads NULL.
 
 Each law also runs as a native property under the same preconditions. The list
@@ -266,8 +281,8 @@ the production parser. sqllogictest matters for the expression phase.
 
 | Package | Depends on | Completion evidence |
 | --- | --- | --- |
-| W1: case format and `checkCase` | None; shares the ADR 0003 P3 encoding | Five existing cases re-expressed; kernel proof and compiled run agree; a deliberately wrong trace is rejected by both; axiom test covers `_native` names |
-| W2: persistent native runner and compiled runner | W1 | Existing cases agree; an error inside an open transaction is observed with connection-visible changes and an unchanged committed snapshot on both sides; injected model mutation yields `DISAGREE`; `invalidDefinition` yields `MODEL_UNSUPPORTED`; measured cases/second including native snapshots |
+| W1: case format and `checkCase` | None; shares the ADR 0003 P3 encoding | Five existing cases re-expressed; kernel proof and compiled run agree; a deliberately wrong trace is rejected by both; the trace's final observation is proved equal to `runSql`'s; axiom test covers `_native` names |
+| W2: persistent native runner and compiled runner | W1 | Existing cases agree; an admitted transactional literal write reaches comparison; an error inside an open transaction is observed with connection-visible changes and an unchanged committed snapshot on both sides; a data-domain rejection (`statementReady` false) and `invalidDefinition` yield `MODEL_UNSUPPORTED` before comparison; injected model mutation yields `DISAGREE`; measured cases/second including native snapshots |
 | W5: general laws | None | The three §4.6 theorems proved with stated preconditions |
 | Decision point | W2 | Owners review W2 evidence and decide whether and at what scale W3 proceeds |
 | W3: generator | Decision point | Both modes run in `just test` at a fixed seed within budget; round-trip checked; shrunk failure reproduces; W5 laws run as native properties |
