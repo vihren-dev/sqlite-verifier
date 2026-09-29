@@ -39,3 +39,9 @@ Workspace: jj workspace `adr3` at `~/work/sqlite-verifier-adr3`.
   `p1_report.py`) and the manual Linux workflow `.github/workflows/adr3-p1.yml`
   (baseline default `6a6705167b4f7cf614875c6f81ceb91cdacfe6e4`, the commit before
   the P1 changes). Smoke run on the refutation example: all statuses correct.
+- 2026-09-29: macOS matrix complete (234 runs, 0 wrong statuses, no regressions);
+  results in `experiments/adr-0003-latency/results/Darwin-arm64.jsonl` and
+  `p1-results.md`. Linux: pushed `adr3/p1-measure` (ADR 0003 and P1 commits
+  duplicated onto the PR #7 head, without the unpushed ADR 0004 docs, per owner)
+  with a branch push trigger; run 36553342277 in progress. Outcome open until
+  Linux results arrive.
