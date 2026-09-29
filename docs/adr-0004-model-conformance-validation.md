@@ -214,8 +214,9 @@ error is also a subset-admission failure, not a SQLite error, and maps to
 ### 4.3 Compiled runner
 
 Add a `lake exe` target that reads case records as JSON lines, decodes the
-structural statements into `SqliteVerifier.Statement`, evaluates `checkCase`,
-and prints the verdict with optional model observations. The statement encoding
+structural statements into `SqliteVerifier.Statement`, evaluates
+`classifyCase`, and prints the verdict with optional model observations.
+`checkCase` remains the tier 2 proof predicate. The statement encoding
 is the versioned structural encoding in ADR 0003's P3 package, so both efforts
 share one decoder and its tests. Whichever package lands first defines it; neither
 blocks on the other ADR's approval.
@@ -348,6 +349,7 @@ statuses, or release artifacts. Documentation updates [coverage.md](coverage.md)
 and [conformance-model.md](conformance-model.md) with each package, keeping exact
 denominators and separating generated-run counts from proven cases. Rollback
 removes a tier's test targets; proven cases stay, since they are ordinary Lean
-theorems about the model. The existing `model_check.py` comparisons are removed
-only after W1 shows the re-expressed cases pass with the same fixtures and
-expectations.
+theorems about the model. The existing `model_check.py` comparisons stay executable
+until W2 re-executes all five existing cases natively through the persistent
+runner, with unchanged fixtures and expectations, and they agree. W1 alone does
+not establish the native execution boundary, so it is not a removal condition.
