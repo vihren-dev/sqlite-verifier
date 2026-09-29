@@ -1,12 +1,15 @@
 # ADR-0004 evidence review status
 
-Created 2026-09-29. Status: ACTIVE.
+Created 2026-09-29. Status: DONE.
 Task: [evidence review corrections](20260929-adr4-evidence-review.task.md).
 Spec: [ADR 0004](../docs/adr-0004-model-conformance-validation.md).
 
 ## Current state
 
-Review findings verified against generator, native recorder/replay, upstream proxy and measurement code. Previous W1–W7 reports remain historical; this follow-up strengthens their evidential scope. Work remains in the dedicated adr4 workspace, unmerged pending owner approval.
+DONE. Review corrections are committed in focused changes, all required validation
+passed, and the final model target verifies the frozen v3 corpus. No main merge
+or adr3 rebase was performed; owner approval is still required before merging.
+[Completion and evidence](../reports/20260929-adr4-evidence-review-completion.json).
 
 ## Progress
 
@@ -20,3 +23,5 @@ Review findings verified against generator, native recorder/replay, upstream pro
 - Final diagnostic edge check: EXPLAIN remains an ordinary unsupported case rather than crashing the optional trailing-query projection. The bounded native-record suite passes all 8 tests. No model semantics changed.
 - Corpus v3 is frozen at 370 cases (v2's exact 183 plus 164 upstream and 23 authored): 11 AGREE, 359 MODEL_UNSUPPORTED, no disagreements or harness errors. Requirement scenarios populate 60/182 matrix rows. Native replay passes; capture/source digests are verified. Final pinned model target: 56 passed in 136.12s, output /nix/store/2lf1pzvzbwjlcnwb2whcj8vvp404rd2j-sqlite-verifier-test-model-1. The final capture scans 45 files / 21,546 assertions and retains 341 candidates; derivation metadata and every exclusion are compressed with v3.
 - Current documentation separates initial implementation evidence from the review corrections, names query-only cases explicitly, and confirms user-supplied archive provenance. Strengthened long run: 2,088 agreements and 1,044 unsupported probes (executed instances, not distinct programs), no disagreements. Final migration-only coverage uses 104 admitted cases: 36/41 model arms and 4,707/14,023 native arcs in reached functions; source/case/corpus identities verified. Documentation checks pass (2 tests).
+
+- Final source identity audit and documentation link checks passed. Task complete; dedicated workspace ready for owner review.
