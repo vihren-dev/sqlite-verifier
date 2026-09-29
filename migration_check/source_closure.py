@@ -97,8 +97,13 @@ def imports(source: Path, sysroot: Path, library: Path, workspace: Path) -> tupl
 def discover_sources(*, initial: dict[str, Source], roots: Sequence[Path],
                      excluded: set[Path], forbidden: set[str], available: set[str],
                      directory: Path, sysroot: Path, library: Path,
-                     workspace: Path) -> tuple[dict[str, Source], tuple[str, ...]]:
-    """Snapshot only reachable local sources and reject ambiguous or cyclic dependencies."""
+                     workspace: Path, external: set[str] | None = None) -> tuple[dict[str, Source], tuple[str, ...]]:
+    """Snapshot only reachable local sources and reject ambiguous or cyclic dependencies.
+
+    When given, `external` collects imports resolved from the pinned sysroot or
+    verifier library; exported bundles name these trusted modules instead of
+    repeating their declarations.
+    """
     sources = dict(initial)
     excluded_ids = {file_identity(path) for path in excluded}
     forbidden_folded = {name.casefold() for name in forbidden}
@@ -125,6 +130,8 @@ def discover_sources(*, initial: dict[str, Source], roots: Sequence[Path],
                 raise ValueError(f"Protected source {name} imports reserved module {dependency}")
             if any((base / dep_path).with_suffix(
                     dep_path.suffix + ".olean").is_file() for base in (sysroot / "lib/lean", library)):
+                if external is not None:
+                    external.add(dependency)
                 continue
             if dependency not in sources:
                 choices: dict[tuple[int, int], Path] = {}

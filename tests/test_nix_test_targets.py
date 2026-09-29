@@ -54,11 +54,12 @@ def source_tree(tmp_path: Path) -> Path:
     ('tests/kernel_gate_test.py', {'kernel'}),
     ('tests/kernel_gate/Proofs.lean', {'kernel'}),
     ('conformance/model_cases.py', {'model'}),
-    ('migration_check/translate.py', {'model', 'atuin', 'cli'}),
-    ('conftest.py', {'kernel', 'model', 'atuin', 'cli'}),
+    ('migration_check/translate.py', {'model', 'atuin', 'cli', 'bundle'}),
+    ('conftest.py', {'kernel', 'model', 'atuin', 'cli', 'bundle'}),
     ('tests/atuin_cli_test.py', {'atuin'}),
     ('tests/cli_test.py', {'cli'}),
-    ('examples/atuin/Proofs.lean', {'atuin', 'cli'}),
+    ('tests/bundle_test.py', {'bundle'}),
+    ('examples/atuin/Proofs.lean', {'atuin', 'cli', 'bundle'}),
     ('tests/test_translation.py', set()),
 ])
 def test_dependency_invalidation(source_tree: Path, relative: str, affected: set[str]) -> None:
@@ -87,7 +88,7 @@ def test_failure():
 
 @pytest.mark.parametrize('system', ['aarch64-darwin', 'x86_64-linux'])
 def test_flake_checks_reuse_existing_targets(system: str) -> None:
-    """Flake checks expose the same four derivations, preserving existing cached results."""
+    """Flake checks expose the same derivations as the legacy entrypoint, preserving cached results."""
     flags = ['--extra-experimental-features', 'nix-command flakes']
     projection = 'builtins.mapAttrs (_: test: test.drvPath)'
     flake = run_command(['nix', *flags, 'eval', '--json', '--no-update-lock-file',
@@ -98,5 +99,5 @@ def test_flake_checks_reuse_existing_targets(system: str) -> None:
     assert flake.returncode == 0, flake.diagnostic()
     assert legacy.returncode == 0, legacy.diagnostic()
     checks = json.loads(flake.stdout)
-    assert set(checks) == {'atuin', 'cli', 'kernel', 'model'}
+    assert set(checks) == {'atuin', 'bundle', 'cli', 'kernel', 'model'}
     assert checks == json.loads(legacy.stdout)
