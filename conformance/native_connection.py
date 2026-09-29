@@ -63,7 +63,7 @@ def load_library(path: Path) -> c.CDLL:
         function.argtypes, function.restype = arguments, result
     if library.sqlite3_libversion() != b"3.51.0" or library.sqlite3_sourceid().decode() != SOURCE_ID:
         raise RuntimeError("SQLite library version/source ID does not match the pin")
-    if not all(library.sqlite3_compileoption_used(option) for option in (b"MAX_COLUMN=2000", b"DQS=0")):
+    if not library.sqlite3_compileoption_used(b"MAX_COLUMN=2000"):
         raise RuntimeError("SQLite compile options do not match the profile")
     return library
 
@@ -84,12 +84,24 @@ class Connection:
         library.sqlite3_busy_timeout(self.handle, 100)
         library.sqlite3_limit(self.handle, 2, 2000)
         library.sqlite3_progress_handler(self.handle, 1000, self.progress, None)
-        defensive = c.c_int()
-        self.check(library.sqlite3_db_config(self.handle, 1010, c.c_int(0), c.byref(defensive)))
-        if defensive.value != 0 or library.sqlite3_limit(self.handle, 2, -1) != 2000:
+        try:
+            # Match the shell profile without changing the shared engine build.
+            for option in (1010, 1013, 1014):  # DEFENSIVE, DQS_DML, DQS_DDL
+                self.configure(option, 0)
+                if self.configure(option, -1) != 0:
+                    raise RuntimeError("SQLite connection configuration readback failed")
+            if library.sqlite3_limit(self.handle, 2, -1) != 2000:
+                raise RuntimeError("SQLite connection does not match the execution profile")
+            self.execute_script("PRAGMA trusted_schema=ON; PRAGMA writable_schema=OFF;")
+        except Exception:
             self.close()
-            raise RuntimeError("SQLite connection does not match the execution profile")
-        self.execute_script("PRAGMA trusted_schema=ON; PRAGMA writable_schema=OFF;")
+            raise
+
+    def configure(self, option: int, value: int) -> int:
+        """Set or query a boolean sqlite3_db_config option, checking the native result."""
+        actual = c.c_int()
+        self.check(self.library.sqlite3_db_config(self.handle, option, c.c_int(value), c.byref(actual)))
+        return actual.value
 
     def check(self, code: int) -> None:
         """Capture the error before another operation can overwrite the connection state."""

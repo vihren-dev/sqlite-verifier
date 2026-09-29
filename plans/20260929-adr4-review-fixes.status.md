@@ -7,3 +7,7 @@ Spec: [ADR 0004](../docs/adr-0004-model-conformance-validation.md).
 Review confirmed the connection-profile, independent metadata, streaming, and
 proof-term gaps. Corrections will be committed as individually checked changes.
 Original W2 report remains historical evidence until a replacement is measured.
+
+Connection profile corrected: removed the global DQS build override; both writer
+and reader explicitly disable and independently read back DQS_DML/DQS_DDL.
+Live pinned-library test passed (1 test), including DML and DDL rejection.
