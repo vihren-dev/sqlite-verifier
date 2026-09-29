@@ -1,38 +1,52 @@
-# Runtime upstream pilot (W6)
+# Runtime upstream mining (W6)
 
-`just conformance-upstream` builds the pinned 3.51.0 Tcl testfixture and runs the
-real upstream harness through execution traces. Tcl expands loops, substitutions
-and capability guards. The source ZIP digest and every selected file digest are
-in [corpus-v1/manifest.json](../conformance/corpus-v1/manifest.json).
-The ZIP lacks Fossil's generated `manifest.tags`; the test-only derivation restores
-release metadata. SQLite still verifies all source hashes, and acquisition checks
-the exact release source ID.
+`just conformance-upstream` builds the pinned SQLite 3.51.0 Tcl testfixture and
+runs the real harness over `alter*.test` and `e_*.test`. Tcl expands loops,
+substitutions and capability guards. SQL is replayed through the pinned C library;
+Tcl outcomes/results cross-check extraction, never supply the model oracle.
 
-The 2026-09-29 pilot executed 12 of 20 `alter*.test` files successfully, observing
-1,012 runtime assertions and recording 177 cases (at most 20 per file). Eight
-files require fault-injection, corruption, authorizer or query-plan contexts.
-Every executed assertion has an outcome or exclusion reason in the manifest.
-The loop-expanded `altercol` assertions are included. Two independent extractions
-produced the same case digest.
+The review extraction scanned 45 files, executed 37, observed 21,546 assertions
+and retained 341 cases with a cap of 20 per file. Eight files require fault,
+corruption, authorizer or query-plan contexts. The complete per-instance reasons
+and source hashes are retained in the compressed
+[extraction manifest](../conformance/corpus-v3/extraction.json.gz).
+Its digest is bound by [corpus v3](../conformance/corpus-v3/manifest.json).
+The original 177-case `alter*` pilot remains immutable in v1.
 
-Fresh C-API execution must reproduce each captured successful Tcl result list,
-and error outcome/text, including the setup prefix. Tcl's untyped formatting is
-only an extraction check. REAL/BLOB result formatting, callbacks, multiple
-connections, file/configuration operations, TEMP/ATTACH state, unreadable objects
-and setup ending in a transaction have explicit exclusions. Views, triggers,
-constraints and WITHOUT ROWID tables otherwise remain in the typed native corpus.
-Native-only deletion removes redundant prefix commands while preserving the exact
-initial observation and full trace; trials are bounded to 32 per case. Original
-prefixes and minimization counts remain in each record.
+A same-file close/reopen is a capture boundary backed by a real native connection
+close: committed data survives and pending writes roll back. It no longer
+poisons later assertions. Compatible DQS=1, DEFENSIVE=0 and TRUSTED_SCHEMA=1
+configuration calls are replayed and read back. Other settings, connection open options and memory-database reopens remain excluded.
+Native record version 2 represents these setup operations as `{"reopen":true}`
+or `{"dbConfig":[option,value]}` among SQL strings; version 1 remains readable.
+The SQL after the last connection boundary becomes the candidate migration.
 
-`just conformance-corpus` checks fresh native replay and derives structural input
-again with today's production frontend. The initial [progress report](../reports/20260929-adr4-upstream-progress.json)
-is **2 AGREE, 175 MODEL_UNSUPPORTED, 0 DISAGREE, 0 HARNESS_ERROR**. No unsupported
-case counts as agreement. File-level requirement references are provenance only;
-they are not attributed to every case. Untagged cases remain explicitly untagged.
+Removing the close exclusion does not by itself widen the supported execution
+profile. `alter.test` still yields 12/119 and `alter3.test` 7/59: TEMP/ATTACH,
+multiple connections and LEGACY_FILE_FORMAT=1 account for remaining exclusions.
+Callbacks, ambiguous Tcl REAL/BLOB formatting and setup ending in a transaction
+also remain excluded. External database access is denied before file creation;
+nondeterministic functions are excluded rather than frozen as unstable truth.
+Views, triggers, constraints and WITHOUT ROWID tables otherwise retain native
+metadata and rows even when the model cannot represent them.
 
-The frozen version is immutable evidence. Refreshes write under `build/`; a
-reviewed change to its cases requires a new corpus version and denominator.
-The bounded replay check runs in `just test`; rebuilding the upstream Tcl pilot
-is a separate target. This replaces static extraction for new mining, while the
-three original static fixtures remain historical regression evidence.
+Native-only minimization tries at most 32 prefix deletions, preserving exact
+initial state and trace. Every selected case must repeat exactly before capture.
+Original prefixes and minimization counts remain in each record. Runtime-generated Tcl data may vary across extractions; frozen cases bind the actual expanded SQL, not just the source file. The source ZIP
+and testfixture identities are checked, including SQLite's own manifest hashes.
+Nearest EVIDENCE-OF blocks are attributed using runtime source frames, not every
+requirement found anywhere in a file. Ambiguous blocks remain uncredited.
+
+Refresh under `build/`, then create a new version without overwriting evidence:
+
+```sh
+python3 -m conformance.refresh_corpus --base conformance/corpus-v2 \
+  --upstream build/upstream-pilot --output build/corpus-v3
+```
+
+V3 retains v2's exact records and adds 164 newly selected upstream cases plus 23
+authored scenarios. `just conformance-corpus` replays fresh native observations;
+`just conformance-progress` reports [versioned progress](conformance-progress.md).
+The bounded frozen replay runs in `just test`; upstream re-extraction is an
+explicit separate target. The three original static fixtures remain historical
+regression evidence.

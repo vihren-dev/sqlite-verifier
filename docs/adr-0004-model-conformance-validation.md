@@ -1,8 +1,8 @@
 # ADR 0004: Validate the semantic model by differential testing and proven regressions
 
-- Status: Accepted 2026-09-29 — W1–W7 implemented and validated; merge awaits owner approval
+- Status: Accepted 2026-09-29 — W1–W7 implemented; evidence-review validation in progress; merge awaits owner approval
 - Date: 2026-09-29
-- Implementation examined: working copy on top of `adce4843`
+- Implementation examined: dedicated workspace, evidence-review follow-up to `3a5ac3e5`
 - Decision owners: formal methods lead for model fidelity and proof policy;
   product owner for the conformance claims made in documentation and releases
 - Related: [ADR 0001](adr-0001-pytest-and-nix-ci.md),
@@ -20,7 +20,9 @@ W3–W7 and the DQS profile change are implemented in the dedicated `adr4` works
 [Generation and regression freezing](conformance-generation.md),
 [general laws](conformance-laws.md), [runtime upstream mining](upstream-pilot.md),
 and [frozen progress/coverage](conformance-progress.md) document exact commands,
-denominators and limitations. The [completion report](../reports/20260929-adr4-completion.json) records passing validation. No merge to main
+denominators and limitations. The [evidence-review status](../plans/20260929-adr4-evidence-review.status.md)
+tracks the strengthened generator and four mutation kills, migration-only native
+coverage, corpus v3 and separate query-only diagnostics. The earlier [completion report](../reports/20260929-adr4-completion.json) records validation of the initial implementation, before these corrections. No merge to main
 or adr3 rebase is authorized until the owner approves this implementation.
 
 ## Prototype implementation (2026-09-29)

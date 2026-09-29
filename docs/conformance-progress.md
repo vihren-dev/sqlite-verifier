@@ -1,70 +1,81 @@
 # Frozen progress and measured coverage (W7)
 
-Use `just conformance-progress` to replay **corpus v2: 183 cases** through today's
-frontend and compiled classifier. Its baseline is 8 AGREE, 175 MODEL_UNSUPPORTED,
-0 DISAGREE and 0 HARNESS_ERROR. The [report](../reports/20260929-adr4-corpus-v2-progress.json)
-contains per-case, test-area and requirement-ID counts. V2 contains v1's exact 177
-records plus six authored cases; its increase in agreements is **corpus growth**,
-not model progress. V1 remains immutable. Comparisons across model revisions use
-the same corpus version and content digest. Tests require all prior agreements
-and reject disagreements and harness errors.
+`just conformance-progress` replays **corpus v3: 370 cases** through the current
+frontend and compiled classifier. The [review report](../reports/20260929-adr4-corpus-v3-progress.json)
+records 11 AGREE, 359 MODEL_UNSUPPORTED, no disagreements and no harness errors.
+V3 preserves v2's 183 records exactly and adds 164 upstream and 23 authored cases.
+These added agreements are corpus growth, not model progress. V1 and v2 remain
+immutable; compare model revisions using the same corpus version and digest.
 
-The six authored cases cover BLOB affinity, explicit rollback, nested BEGIN,
-unique-index duplicates, distinct NULL index entries, and ADD on populated rows.
-Their nine requirement tags identify specific scenarios, not exhaustive satisfaction
-of those requirements. Untagged upstream cases receive no credit merely because
-their source file cites a requirement elsewhere.
+The raw verdict remains unchanged when a case contains queries. A separate
+`queryDiagnostic` examines successful trailing SELECTs and metadata PRAGMAs,
+requires unchanged native state, and submits the remaining prefix to Lean:
 
-## Regenerated requirements
+- `BLOCKED_ONLY_BY_QUERIES`: a nonempty migration prefix agrees (currently zero).
+- `QUERY_ONLY_CASE`: the agreeing prefix is empty (42 cases).
+- `PREFIX_MODEL_UNSUPPORTED`: removing trailing observations still leaves an
+  unsupported prefix (50 cases).
+- `OTHER_UNSUPPORTED`: no qualifying trailing observation projection (267 cases).
 
-`just conformance-requirements` rebuilds marked HTML and its database using the
-release's own `wrap.tcl`, `matrix.tcl`, and public source/test evidence scanner.
-The vendored archive is the user-supplied `version-3.51.0` documentation source,
-revision `93f1a4577785f72b4183843a7c8d33285bc36bce6f6b5258f428a6c844a0099c`.
+Original SQL, query result rows and traces remain frozen. Queries between writes,
+setting PRAGMAs and failed queries are not removed. No query-only case counts as
+DDL progress. Frontend syntax rejection matching a native SQL error remains an
+unsupported input with `frontendStatus: INPUT_ERROR`; parser transport failures
+and inconsistent statement boundaries are harness errors.
+
+## Requirement evidence
+
+The working matrix now has **60 of 182 rows with cases**, up from 9 of 164 in v2.
+The denominator includes the four selected documentation areas and any additional
+requirements referenced by the expanded corpus. Zero-case rows remain visible.
+Nearest, unambiguous upstream `EVIDENCE-OF` comment blocks carry source lines and
+file digests; ambiguous or obsolete references remain provenance without credit.
+These are scenario counts, not proof of entire requirements.
+
+Authored additions cover numeric/text/REAL conversions, declared-type precedence,
+transaction commit/rollback and savepoints, CREATE INDEX, uniqueness failures,
+IF NOT EXISTS, DROP INDEX, collation, descending indexes and prohibited subqueries.
+Unsupported cases intentionally remain useful future-model evidence.
+
+`just conformance-requirements` uses SQLite's own `wrap.tcl`, `matrix.tcl` and
+public evidence scanner. The [inventory](../conformance/requirements-3.51.0.json)
+contains 3,500 requirements; tests independently hash every full ID. The selected
+areas contain 99 datatype, 26 transaction, 17 CREATE INDEX and 21 ALTER TABLE
+requirements. Only the last area has public per-requirement Tcl citations (9).
+
+The 3,603,661-byte vendored documentation archive **was supplied by the user** as
+`~/Downloads/sqlite-docsrc.tar`, then compressed reproducibly. It is retained with
+the generated inventory for offline reproducibility, not required of consumers.
+Release: `version-3.51.0`; revision
+`93f1a4577785f72b4183843a7c8d33285bc36bce6f6b5258f428a6c844a0099c`.
 Original tar SHA256: `f3a39333897823546bca5924899bafaf7f593571863666221e5a38246f065423`.
-The archive is retained because automated downloads encountered access gates.
-
-The [inventory](../conformance/requirements-3.51.0.json) contains 3,500 extracted
-text requirements, with full IDs and normalized text. Tests independently hash
-every ID. The working matrix has 164 rows: the four selected areas below plus
-the referenced omitted-default requirement. Zero-test rows remain visible.
-
-| Release documentation area | Requirements | Public Tcl evidence IDs |
-| --- | ---: | ---: |
-| datatype3 | 99 | 0 |
-| lang_transaction | 26 | 0 |
-| lang_createindex | 17 | 0 |
-| lang_altertable | 21 | 9 |
-
-These are the regenerated 3.51.0 counts, not the live-site counts quoted in the
-historical research report. Public Tcl evidence references do not mean those
-tests were imported into our corpus.
 
 ## Measured execution coverage
 
 Run `just conformance-coverage /path/to/llvm-cov build/fresh-coverage-directory`.
-On macOS, `xcrun --find llvm-cov` locates the tool. The command records its version;
-Nix supplies separately instrumented model and Clang SQLite builds. Existing
-counter directories are rejected to prevent accumulation across measurements.
+On macOS, `xcrun --find llvm-cov` locates the tool. Separate instrumented builds
+must preserve ordinary model verdicts/positions and native traces. Existing
+counter directories are rejected. Reports bind source, corpus and case digests.
 
-The [measurement](../reports/20260929-adr4-coverage.json) uses 93 admitted cases:
-80 fixed-seed generated, five original curated, and eight admitted frozen cases.
-The other 175 frozen cases are explicitly excluded as model-unsupported.
-Instrumented model verdicts/positions must equal the normal runner's; instrumented
-native traces must equal the recorded traces. The report binds source and case
-digests and lists every instrumented arm and reached native function.
+Native counters reset immediately before each migration's prepare/step/finalize,
+then dump and reset immediately afterward. Setup, observations and connection
+cleanup are excluded, including the automatic process-exit dump. An assertion
+rejects leaked fixture open/close/binding function counts. The denominator is
+branch arcs in reached functions, not all of SQLite.
 
-- Model: 7/7 statement constructors, 7/8 error constructors, and 36/41 explicit
-  match arms in `step`, `SqlState.finish`, `literalStep`, `statementReady`,
-  `advance`, `runSqlFrom`, and `supportedSqlFrom`. `invalidDefinition` is an
-  admission boundary, absent from this admitted workload. Uncovered arms remain
-  listed; helper functions and Boolean branches are outside this measurement.
-- Native: 6,003/16,272 gcov branch arcs within reached functions. This includes
-  initialization and observation SQL as well as migrations, under a separate
-  `-O0` instrumented library. It is not whole-SQLite coverage. Unreached functions
-  are counted separately and excluded from this branch denominator.
+Model coverage counts explicit match arms in `step`, `SqlState.finish`,
+`literalStep`, `statementReady`, `advance`, `runSqlFrom` and `supportedSqlFrom`.
+It does not cover every helper or Boolean branch. Instrumented executables are
+measurement tools, never tier-two proof tools; kernel checks use ordinary builds.
 
-Coverage is a work list, not proof of refinement. These instrumented executables
-are neither shipped artifacts nor tier-two/four proof tools. Ordinary kernel and
-axiom tests use the uninstrumented library. Linux execution remains for native CI;
-the recorded live measurements were taken on aarch64-darwin.
+The reviewed workload has 104 admitted cases: 88 generated, five original
+curated, and 11 from v3. The other 359 corpus cases are excluded from execution
+coverage; generated unsupported probes remain separately recorded. Results:
+36/41 scoped model arms, 7/7 statement constructors, 7/8 error constructors, and
+4,707/14,023 native branch arcs in reached functions.
+
+The [migration-only report](../reports/20260929-adr4-migration-coverage.json)
+replaces the headline use of the [historical report](../reports/20260929-adr4-coverage.json),
+whose 6,003/16,272 native arcs included harness queries. The denominators are not
+comparable. Live measurements are aarch64-darwin; Linux remains for native CI.
+Coverage guides further work and does not prove refinement.

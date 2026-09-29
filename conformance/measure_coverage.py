@@ -22,7 +22,7 @@ def workload(runtime: Path, generated: Path) -> tuple[list[dict[str, Json]], dic
     cases = [json.loads(line) for line in (generated / "cases.jsonl").read_text().splitlines()]
     cases += [json.loads(path.read_text()) for path in sorted(Path("conformance/cases").glob("*.json"))]
     counts: Counter[str] = Counter()
-    for record in load(Path("conformance/corpus-v2"))[1]:
+    for record in load(Path("conformance/corpus-v3"))[1]:
         case, error = prepare(record, runtime / "build/sqlite-parser")
         if case is not None:
             cases.append(case)
@@ -130,10 +130,11 @@ def main() -> None:
         sourceSha256=hashlib.sha256((native / "sqlite3.c").read_bytes()).hexdigest(),
         scope="Migration statements only (prepare/step/finalize); reset before each, dump and reset after each; fixture/observation/connection cleanup excluded. Separately compiled -O0 gcov library")
     result = {"cases": len(cases), "workloadCounts": workload_counts,
-              "corpusVersion": 2, "corpusSha256": load(Path("conformance/corpus-v2"))[0]["casesSha256"],
+              "corpusVersion": 3, "corpusSha256": load(Path("conformance/corpus-v3"))[0]["casesSha256"],
               "sourceSha256": {str(path): hashlib.sha256(path.read_bytes()).hexdigest()
                   for path in [*sorted(Path("SqliteVerifier").glob("*.lean")), Path(__file__),
-                      Path("conformance/instrument_model.py"), Path("conformance/measure_native.py")]},
+                      Path("conformance/instrument_model.py"), Path("conformance/measure_native.py"),
+                      Path("conformance/native_trace.py"), Path("conformance/native_connection.py")]},
               "casesSha256": hashlib.sha256(payload.encode()).hexdigest(),
               "model": model, "native": gcov}
     (args.output / "report.json").write_text(json.dumps(result, indent=2) + "\n")

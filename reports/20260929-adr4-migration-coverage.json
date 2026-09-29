@@ -1,11 +1,11 @@
 {
-  "cases": 101,
+  "cases": 104,
   "workloadCounts": {
-    "MODEL_UNSUPPORTED": 175,
-    "AGREE": 101
+    "MODEL_UNSUPPORTED": 359,
+    "AGREE": 104
   },
-  "corpusVersion": 2,
-  "corpusSha256": "a9e754c995f90b7f571c667fcf4a014d7466b3f2b353470db69a773d1b5188dd",
+  "corpusVersion": 3,
+  "corpusSha256": "fe50427ba3cf7b06b29eb2aa2af8e2eaf5c501e9f0d95680f2f4069f73654afb",
   "sourceSha256": {
     "SqliteVerifier/Contract.lean": "fde6978ffb4dc1bfcd5e9ed69b59a22b1df54208c3128c275d98c8392410fd96",
     "SqliteVerifier/Declarations.lean": "6ba9ba01ba23037588420d8c79518b20fcd22f3992954b28a89bb91379fc1979",
@@ -26,11 +26,13 @@
     "SqliteVerifier/SchemaPreservation.lean": "c06fb07003fc97f9c355ed45de1b114baee4d5854b7343ee6dc2c8e9f0cfd5ce",
     "SqliteVerifier/SqlExamples.lean": "3736757b529643afb1db7f51015652d082c49e31adb081a6febfe0f850e2ae3a",
     "SqliteVerifier/SqlExecution.lean": "bb37fd7c5aa32d4334c64bc595a5f7e23775b2764c613b4fa2df20aeb777e794",
-    "/Users/tzankomatev/work/sqlite-verifier-adr4/conformance/measure_coverage.py": "7b0cb0dd7ab5f32baba57fca1e84a880b521964ae150857f64f1754897f12f18",
+    "/Users/tzankomatev/work/sqlite-verifier-adr4/conformance/measure_coverage.py": "38e71e4dc17ecc6cf24cf1ec4c848140a6eae3bd7a6707ef095ef667afe9a699",
     "conformance/instrument_model.py": "f7d65bdd0e0ea5f3c978b587544c7b56d683a0c3bcc2e513117f9741ba887452",
-    "conformance/measure_native.py": "bc8b8309047661bac57d4cf2f659d3d666a6ab65794a046ac5375961ef677908"
+    "conformance/measure_native.py": "bc8b8309047661bac57d4cf2f659d3d666a6ab65794a046ac5375961ef677908",
+    "conformance/native_trace.py": "a8d4819b9d089e1b61d0dd0ba3e9ef6c4bbe96da06a39f49ef319e2715dc790b",
+    "conformance/native_connection.py": "c0afd893bad645a5812583adea557ce550f91671e33edf03c6daf1a6b908ca95"
   },
-  "casesSha256": "cc234065e80332c203064bef2f593a69a0b31c4f838d937a5c9d9204fbfc59a3",
+  "casesSha256": "324f6d961eff86deade5c634724cb8ee9f618518cfae2b375b9553176bbaf302",
   "model": {
     "scope": "Explicit match arms in step, finish, literalStep, statementReady, advance, runSqlFrom, supportedSqlFrom",
     "limitations": "Not every helper or Boolean branch; debug identity instrumentation, not proof evidence. Counts include classifier admission and diagnostic re-execution.",
@@ -76,12 +78,12 @@
       {
         "id": "SqlExecution.lean:SqlState.finish:22",
         "arm": "| none, _ ",
-        "hits": 949
+        "hits": 964
       },
       {
         "id": "SqlExecution.lean:SqlState.finish:23",
         "arm": "| some original, .success result ",
-        "hits": 422
+        "hits": 428
       },
       {
         "id": "SqlExecution.lean:SqlState.finish:24",
@@ -96,7 +98,7 @@
       {
         "id": "SqlExecution.lean:literalStep:35",
         "arm": "| .insert name _ _ | .update name _ _ _ _ ",
-        "hits": 748
+        "hits": 756
       },
       {
         "id": "SqlExecution.lean:literalStep:37",
@@ -106,12 +108,12 @@
       {
         "id": "SqlExecution.lean:literalStep:38",
         "arm": "| some table ",
-        "hits": 748
+        "hits": 756
       },
       {
         "id": "SqlExecution.lean:literalStep:40",
         "arm": "| .insert _ _ values ",
-        "hits": 636
+        "hits": 644
       },
       {
         "id": "SqlExecution.lean:literalStep:41",
@@ -131,7 +133,7 @@
       {
         "id": "SqlExecution.lean:statementReady:50",
         "arm": "| .insert name columns values ",
-        "hits": 159
+        "hits": 161
       },
       {
         "id": "SqlExecution.lean:statementReady:52",
@@ -141,12 +143,12 @@
       {
         "id": "SqlExecution.lean:statementReady:54",
         "arm": "| _ ",
-        "hits": 337
+        "hits": 341
       },
       {
         "id": "SqlExecution.lean:advance:59",
         "arm": "| .beginTransaction ",
-        "hits": 428
+        "hits": 436
       },
       {
         "id": "SqlExecution.lean:advance:60",
@@ -156,12 +158,12 @@
       {
         "id": "SqlExecution.lean:advance:61",
         "arm": "| none ",
-        "hits": 424
+        "hits": 432
       },
       {
         "id": "SqlExecution.lean:advance:62",
         "arm": "| .commit ",
-        "hits": 360
+        "hits": 368
       },
       {
         "id": "SqlExecution.lean:advance:63",
@@ -171,7 +173,7 @@
       {
         "id": "SqlExecution.lean:advance:64",
         "arm": "| some _ ",
-        "hits": 360
+        "hits": 368
       },
       {
         "id": "SqlExecution.lean:advance:65",
@@ -191,12 +193,12 @@
       {
         "id": "SqlExecution.lean:advance:68",
         "arm": "| _ ",
-        "hits": 1244
+        "hits": 1252
       },
       {
         "id": "SqlExecution.lean:advance:69",
         "arm": "| .success database ",
-        "hits": 1140
+        "hits": 1148
       },
       {
         "id": "SqlExecution.lean:advance:70",
@@ -206,12 +208,12 @@
       {
         "id": "SqlExecution.lean:runSqlFrom:75",
         "arm": "| [] ",
-        "hits": 73
+        "hits": 76
       },
       {
         "id": "SqlExecution.lean:runSqlFrom:76",
         "arm": "| statement :: rest ",
-        "hits": 524
+        "hits": 530
       },
       {
         "id": "SqlExecution.lean:runSqlFrom:77",
@@ -221,17 +223,17 @@
       {
         "id": "SqlExecution.lean:runSqlFrom:78",
         "arm": "| .next next ",
-        "hits": 496
+        "hits": 502
       },
       {
         "id": "SqlExecution.lean:supportedSqlFrom:87",
         "arm": "| [] ",
-        "hits": 73
+        "hits": 76
       },
       {
         "id": "SqlExecution.lean:supportedSqlFrom:88",
         "arm": "| statement :: rest ",
-        "hits": 524
+        "hits": 530
       },
       {
         "id": "SqlExecution.lean:supportedSqlFrom:90",
@@ -241,16 +243,16 @@
       {
         "id": "SqlExecution.lean:supportedSqlFrom:91",
         "arm": "| .next next ",
-        "hits": 496
+        "hits": 502
       }
     ],
     "constructors": {
       "createTable": 62,
       "addColumn": 62,
-      "beginTransaction": 107,
-      "commit": 90,
+      "beginTransaction": 109,
+      "commit": 92,
       "rollback": 16,
-      "insert": 159,
+      "insert": 161,
       "update": 28
     },
     "errors": {
@@ -276,57 +278,57 @@
         "taken": 0
       },
       "sqlite3StatusUp": {
-        "calls": 24317,
+        "calls": 24325,
         "branches": 2,
         "taken": 2
       },
       "sqlite3StatusDown": {
-        "calls": 22646,
+        "calls": 22650,
         "branches": 0,
         "taken": 0
       },
       "sqlite3StatusHighwater": {
-        "calls": 12690,
+        "calls": 12694,
         "branches": 2,
         "taken": 1
       },
       "sqlite3OsClose": {
-        "calls": 1505,
+        "calls": 1515,
         "branches": 2,
         "taken": 2
       },
       "sqlite3OsRead": {
-        "calls": 666,
+        "calls": 669,
         "branches": 0,
         "taken": 0
       },
       "sqlite3OsWrite": {
-        "calls": 2853,
+        "calls": 2873,
         "branches": 0,
         "taken": 0
       },
       "sqlite3OsSync": {
-        "calls": 810,
+        "calls": 816,
         "branches": 2,
         "taken": 1
       },
       "sqlite3OsFileSize": {
-        "calls": 249,
+        "calls": 250,
         "branches": 0,
         "taken": 0
       },
       "sqlite3OsLock": {
-        "calls": 781,
+        "calls": 786,
         "branches": 0,
         "taken": 0
       },
       "sqlite3OsUnlock": {
-        "calls": 616,
+        "calls": 621,
         "branches": 0,
         "taken": 0
       },
       "sqlite3OsFileControl": {
-        "calls": 823,
+        "calls": 829,
         "branches": 2,
         "taken": 1
       },
@@ -336,22 +338,22 @@
         "taken": 2
       },
       "sqlite3OsDeviceCharacteristics": {
-        "calls": 879,
+        "calls": 886,
         "branches": 2,
         "taken": 1
       },
       "sqlite3OsOpen": {
-        "calls": 285,
+        "calls": 287,
         "branches": 0,
         "taken": 0
       },
       "sqlite3OsDelete": {
-        "calls": 285,
+        "calls": 287,
         "branches": 2,
         "taken": 1
       },
       "sqlite3OsAccess": {
-        "calls": 408,
+        "calls": 410,
         "branches": 0,
         "taken": 0
       },
@@ -366,17 +368,17 @@
         "taken": 1
       },
       "sqlite3MemMalloc": {
-        "calls": 11627,
+        "calls": 11631,
         "branches": 2,
         "taken": 1
       },
       "sqlite3MemFree": {
-        "calls": 11264,
+        "calls": 11266,
         "branches": 0,
         "taken": 0
       },
       "sqlite3MemSize": {
-        "calls": 25477,
+        "calls": 25483,
         "branches": 2,
         "taken": 1
       },
@@ -386,42 +388,42 @@
         "taken": 1
       },
       "sqlite3MemRoundup": {
-        "calls": 12574,
+        "calls": 12578,
         "branches": 0,
         "taken": 0
       },
       "sqlite3MutexAlloc": {
-        "calls": 285,
+        "calls": 287,
         "branches": 2,
         "taken": 1
       },
       "sqlite3_mutex_enter": {
-        "calls": 30022,
+        "calls": 30058,
         "branches": 2,
         "taken": 1
       },
       "sqlite3_mutex_leave": {
-        "calls": 30022,
+        "calls": 30058,
         "branches": 2,
         "taken": 1
       },
       "sqlite3MemoryBarrier": {
-        "calls": 285,
+        "calls": 287,
         "branches": 0,
         "taken": 0
       },
       "pthreadMutexAlloc": {
-        "calls": 285,
+        "calls": 287,
         "branches": 7,
         "taken": 1
       },
       "pthreadMutexEnter": {
-        "calls": 30022,
+        "calls": 30058,
         "branches": 0,
         "taken": 0
       },
       "pthreadMutexLeave": {
-        "calls": 30022,
+        "calls": 30058,
         "branches": 0,
         "taken": 0
       },
@@ -436,12 +438,12 @@
         "taken": 1
       },
       "mallocWithAlarm": {
-        "calls": 11627,
+        "calls": 11631,
         "branches": 10,
         "taken": 2
       },
       "sqlite3Malloc": {
-        "calls": 11627,
+        "calls": 11631,
         "branches": 6,
         "taken": 3
       },
@@ -451,7 +453,7 @@
         "taken": 2
       },
       "sqlite3MallocSize": {
-        "calls": 25116,
+        "calls": 25122,
         "branches": 0,
         "taken": 0
       },
@@ -461,27 +463,27 @@
         "taken": 1
       },
       "sqlite3DbMallocSize": {
-        "calls": 4269,
+        "calls": 4277,
         "branches": 8,
         "taken": 7
       },
       "sqlite3_free": {
-        "calls": 15745,
+        "calls": 15764,
         "branches": 4,
         "taken": 3
       },
       "sqlite3DbFreeNN": {
-        "calls": 6481,
+        "calls": 6491,
         "branches": 10,
         "taken": 8
       },
       "sqlite3DbNNFreeNN": {
-        "calls": 17019,
+        "calls": 17059,
         "branches": 8,
         "taken": 7
       },
       "sqlite3DbFree": {
-        "calls": 6597,
+        "calls": 6607,
         "branches": 2,
         "taken": 2
       },
@@ -491,12 +493,12 @@
         "taken": 12
       },
       "sqlite3MallocZero": {
-        "calls": 580,
+        "calls": 582,
         "branches": 2,
         "taken": 1
       },
       "sqlite3DbMallocZero": {
-        "calls": 1092,
+        "calls": 1098,
         "branches": 2,
         "taken": 1
       },
@@ -506,17 +508,17 @@
         "taken": 1
       },
       "sqlite3DbMallocRaw": {
-        "calls": 9429,
+        "calls": 9441,
         "branches": 2,
         "taken": 2
       },
       "sqlite3DbMallocRawNN": {
-        "calls": 23785,
+        "calls": 23835,
         "branches": 16,
         "taken": 10
       },
       "sqlite3DbRealloc": {
-        "calls": 3324,
+        "calls": 3332,
         "branches": 12,
         "taken": 9
       },
@@ -526,7 +528,7 @@
         "taken": 5
       },
       "sqlite3DbReallocOrFree": {
-        "calls": 547,
+        "calls": 549,
         "branches": 2,
         "taken": 1
       },
@@ -536,7 +538,7 @@
         "taken": 2
       },
       "sqlite3DbStrNDup": {
-        "calls": 3891,
+        "calls": 3907,
         "branches": 4,
         "taken": 2
       },
@@ -546,7 +548,7 @@
         "taken": 2
       },
       "sqlite3ApiExit": {
-        "calls": 3354,
+        "calls": 3372,
         "branches": 4,
         "taken": 3
       },
@@ -556,7 +558,7 @@
         "taken": 1
       },
       "sqlite3_str_vappendf": {
-        "calls": 1017,
+        "calls": 1019,
         "branches": 398,
         "taken": 90
       },
@@ -576,7 +578,7 @@
         "taken": 1
       },
       "sqlite3_str_append": {
-        "calls": 4447,
+        "calls": 4449,
         "branches": 4,
         "taken": 4
       },
@@ -596,7 +598,7 @@
         "taken": 4
       },
       "sqlite3StrAccumInit": {
-        "calls": 1172,
+        "calls": 1174,
         "branches": 0,
         "taken": 0
       },
@@ -611,7 +613,7 @@
         "taken": 0
       },
       "sqlite3_snprintf": {
-        "calls": 270,
+        "calls": 272,
         "branches": 2,
         "taken": 1
       },
@@ -631,17 +633,17 @@
         "taken": 4
       },
       "sqlite3_randomness": {
-        "calls": 285,
+        "calls": 287,
         "branches": 14,
         "taken": 7
       },
       "sqlite3FaultSim": {
-        "calls": 508,
+        "calls": 510,
         "branches": 2,
         "taken": 1
       },
       "sqlite3Strlen30": {
-        "calls": 3531,
+        "calls": 3536,
         "branches": 2,
         "taken": 2
       },
@@ -656,7 +658,7 @@
         "taken": 2
       },
       "sqlite3ErrorClear": {
-        "calls": 1044,
+        "calls": 1050,
         "branches": 2,
         "taken": 1
       },
@@ -681,7 +683,7 @@
         "taken": 3
       },
       "sqlite3Dequote": {
-        "calls": 3662,
+        "calls": 3666,
         "branches": 10,
         "taken": 7
       },
@@ -701,7 +703,7 @@
         "taken": 2
       },
       "sqlite3StrICmp": {
-        "calls": 7845,
+        "calls": 7849,
         "branches": 6,
         "taken": 6
       },
@@ -711,7 +713,7 @@
         "taken": 10
       },
       "sqlite3StrIHash": {
-        "calls": 5987,
+        "calls": 5989,
         "branches": 4,
         "taken": 3
       },
@@ -741,7 +743,7 @@
         "taken": 2
       },
       "sqlite3GetInt32": {
-        "calls": 385,
+        "calls": 387,
         "branches": 36,
         "taken": 19
       },
@@ -751,7 +753,7 @@
         "taken": 5
       },
       "sqlite3PutVarint": {
-        "calls": 456,
+        "calls": 458,
         "branches": 4,
         "taken": 3
       },
@@ -771,12 +773,12 @@
         "taken": 2
       },
       "sqlite3Get4byte": {
-        "calls": 2678,
+        "calls": 2689,
         "branches": 0,
         "taken": 0
       },
       "sqlite3Put4byte": {
-        "calls": 4469,
+        "calls": 4499,
         "branches": 0,
         "taken": 0
       },
@@ -791,7 +793,7 @@
         "taken": 3
       },
       "sqlite3SafetyCheckOk": {
-        "calls": 764,
+        "calls": 770,
         "branches": 6,
         "taken": 2
       },
@@ -826,7 +828,7 @@
         "taken": 2
       },
       "strHash": {
-        "calls": 3012,
+        "calls": 3016,
         "branches": 2,
         "taken": 2
       },
@@ -841,12 +843,12 @@
         "taken": 5
       },
       "findElementWithHash": {
-        "calls": 3012,
+        "calls": 3016,
         "branches": 10,
         "taken": 9
       },
       "sqlite3HashFind": {
-        "calls": 2608,
+        "calls": 2612,
         "branches": 0,
         "taken": 0
       },
@@ -856,117 +858,117 @@
         "taken": 9
       },
       "posixOpen": {
-        "calls": 555,
+        "calls": 559,
         "branches": 0,
         "taken": 0
       },
       "robustFchown": {
-        "calls": 285,
+        "calls": 287,
         "branches": 2,
         "taken": 1
       },
       "robust_open": {
-        "calls": 555,
+        "calls": 559,
         "branches": 22,
         "taken": 10
       },
       "robust_close": {
-        "calls": 555,
+        "calls": 559,
         "branches": 4,
         "taken": 1
       },
       "storeLastErrno": {
-        "calls": 557,
+        "calls": 561,
         "branches": 0,
         "taken": 0
       },
       "closePendingFds": {
-        "calls": 309,
+        "calls": 312,
         "branches": 2,
         "taken": 1
       },
       "fileHasMoved": {
-        "calls": 283,
+        "calls": 285,
         "branches": 4,
         "taken": 2
       },
       "verifyDbFile": {
-        "calls": 285,
+        "calls": 287,
         "branches": 10,
         "taken": 1
       },
       "unixFileLock": {
-        "calls": 2382,
+        "calls": 2398,
         "branches": 6,
         "taken": 1
       },
       "unixLock": {
-        "calls": 781,
+        "calls": 786,
         "branches": 50,
         "taken": 28
       },
       "posixUnlock": {
-        "calls": 616,
+        "calls": 621,
         "branches": 32,
         "taken": 13
       },
       "unixUnlock": {
-        "calls": 616,
+        "calls": 621,
         "branches": 0,
         "taken": 0
       },
       "closeUnixFile": {
-        "calls": 285,
+        "calls": 287,
         "branches": 2,
         "taken": 1
       },
       "nolockClose": {
-        "calls": 285,
+        "calls": 287,
         "branches": 0,
         "taken": 0
       },
       "seekAndRead": {
-        "calls": 666,
+        "calls": 669,
         "branches": 10,
         "taken": 5
       },
       "unixRead": {
-        "calls": 666,
+        "calls": 669,
         "branches": 10,
         "taken": 4
       },
       "seekAndWriteFd": {
-        "calls": 2853,
+        "calls": 2873,
         "branches": 6,
         "taken": 3
       },
       "seekAndWrite": {
-        "calls": 2853,
+        "calls": 2873,
         "branches": 0,
         "taken": 0
       },
       "unixWrite": {
-        "calls": 2853,
+        "calls": 2873,
         "branches": 10,
         "taken": 3
       },
       "full_fsync": {
-        "calls": 1080,
+        "calls": 1088,
         "branches": 4,
         "taken": 2
       },
       "openDirectory": {
-        "calls": 270,
+        "calls": 272,
         "branches": 12,
         "taken": 6
       },
       "unixSync": {
-        "calls": 810,
+        "calls": 816,
         "branches": 6,
         "taken": 4
       },
       "unixFileSize": {
-        "calls": 249,
+        "calls": 250,
         "branches": 4,
         "taken": 2
       },
@@ -976,72 +978,72 @@
         "taken": 2
       },
       "unixFileControl": {
-        "calls": 914,
+        "calls": 920,
         "branches": 30,
         "taken": 8
       },
       "setDeviceCharacteristics": {
-        "calls": 879,
+        "calls": 886,
         "branches": 4,
         "taken": 1
       },
       "unixDeviceCharacteristics": {
-        "calls": 879,
+        "calls": 886,
         "branches": 0,
         "taken": 0
       },
       "unixIsSharingShmNode": {
-        "calls": 577,
+        "calls": 581,
         "branches": 8,
         "taken": 1
       },
       "unixUnmapfile": {
-        "calls": 285,
+        "calls": 287,
         "branches": 2,
         "taken": 1
       },
       "fillInUnixFile": {
-        "calls": 285,
+        "calls": 287,
         "branches": 28,
         "taken": 9
       },
       "getFileMode": {
-        "calls": 285,
+        "calls": 287,
         "branches": 2,
         "taken": 1
       },
       "findCreateFileMode": {
-        "calls": 285,
+        "calls": 287,
         "branches": 14,
         "taken": 5
       },
       "unixOpen": {
-        "calls": 285,
+        "calls": 287,
         "branches": 92,
         "taken": 29
       },
       "unixDelete": {
-        "calls": 285,
+        "calls": 287,
         "branches": 10,
         "taken": 2
       },
       "unixAccess": {
-        "calls": 408,
+        "calls": 410,
         "branches": 6,
         "taken": 2
       },
       "sqlite3IsMemdb": {
-        "calls": 285,
+        "calls": 288,
         "branches": 0,
         "taken": 0
       },
       "sqlite3BitvecCreate": {
-        "calls": 285,
+        "calls": 287,
         "branches": 2,
         "taken": 1
       },
       "sqlite3BitvecTestNotNull": {
-        "calls": 629,
+        "calls": 633,
         "branches": 12,
         "taken": 4
       },
@@ -1051,22 +1053,22 @@
         "taken": 1
       },
       "sqlite3BitvecSet": {
-        "calls": 566,
+        "calls": 570,
         "branches": 34,
         "taken": 4
       },
       "sqlite3BitvecDestroy": {
-        "calls": 1218,
+        "calls": 1225,
         "branches": 6,
         "taken": 3
       },
       "pcacheManageDirtyList": {
-        "calls": 1823,
+        "calls": 1833,
         "branches": 20,
         "taken": 19
       },
       "pcacheUnpin": {
-        "calls": 798,
+        "calls": 803,
         "branches": 2,
         "taken": 1
       },
@@ -1091,7 +1093,7 @@
         "taken": 4
       },
       "sqlite3PcacheFetch": {
-        "calls": 1448,
+        "calls": 1453,
         "branches": 0,
         "taken": 0
       },
@@ -1101,27 +1103,27 @@
         "taken": 0
       },
       "sqlite3PcacheFetchFinish": {
-        "calls": 1568,
+        "calls": 1573,
         "branches": 2,
         "taken": 2
       },
       "sqlite3PcacheRelease": {
-        "calls": 1553,
+        "calls": 1560,
         "branches": 4,
         "taken": 4
       },
       "sqlite3PcacheMakeDirty": {
-        "calls": 688,
+        "calls": 692,
         "branches": 4,
         "taken": 2
       },
       "sqlite3PcacheMakeClean": {
-        "calls": 688,
+        "calls": 692,
         "branches": 2,
         "taken": 2
       },
       "sqlite3PcacheCleanAll": {
-        "calls": 577,
+        "calls": 581,
         "branches": 2,
         "taken": 2
       },
@@ -1131,12 +1133,12 @@
         "taken": 2
       },
       "sqlite3PcacheClearSyncFlags": {
-        "calls": 270,
+        "calls": 272,
         "branches": 2,
         "taken": 2
       },
       "sqlite3PcacheTruncate": {
-        "calls": 543,
+        "calls": 545,
         "branches": 12,
         "taken": 9
       },
@@ -1151,22 +1153,22 @@
         "taken": 0
       },
       "pcacheMergeDirtyList": {
-        "calls": 330,
+        "calls": 332,
         "branches": 6,
         "taken": 5
       },
       "pcacheSortDirtyList": {
-        "calls": 270,
+        "calls": 272,
         "branches": 14,
         "taken": 12
       },
       "sqlite3PcacheDirtyList": {
-        "calls": 270,
+        "calls": 272,
         "branches": 2,
         "taken": 2
       },
       "sqlite3PcacheRefCount": {
-        "calls": 553,
+        "calls": 556,
         "branches": 0,
         "taken": 0
       },
@@ -1226,7 +1228,7 @@
         "taken": 5
       },
       "pcache1PinPage": {
-        "calls": 632,
+        "calls": 635,
         "branches": 0,
         "taken": 0
       },
@@ -1256,22 +1258,22 @@
         "taken": 14
       },
       "pcache1FetchNoMutex": {
-        "calls": 1448,
+        "calls": 1453,
         "branches": 10,
         "taken": 8
       },
       "pcache1Fetch": {
-        "calls": 1448,
+        "calls": 1453,
         "branches": 0,
         "taken": 0
       },
       "pcache1Unpin": {
-        "calls": 798,
+        "calls": 803,
         "branches": 4,
         "taken": 2
       },
       "pcache1Truncate": {
-        "calls": 484,
+        "calls": 486,
         "branches": 2,
         "taken": 2
       },
@@ -1291,22 +1293,22 @@
         "taken": 1
       },
       "write32bits": {
-        "calls": 1132,
+        "calls": 1140,
         "branches": 0,
         "taken": 0
       },
       "pagerUnlockDb": {
-        "calls": 734,
+        "calls": 739,
         "branches": 6,
         "taken": 4
       },
       "pagerLockDb": {
-        "calls": 1110,
+        "calls": 1117,
         "branches": 12,
         "taken": 6
       },
       "jrnlBufferSize": {
-        "calls": 285,
+        "calls": 287,
         "branches": 0,
         "taken": 0
       },
@@ -1316,12 +1318,12 @@
         "taken": 7
       },
       "journalHdrOffset": {
-        "calls": 585,
+        "calls": 589,
         "branches": 2,
         "taken": 2
       },
       "writeJournalHdr": {
-        "calls": 285,
+        "calls": 287,
         "branches": 18,
         "taken": 9
       },
@@ -1331,7 +1333,7 @@
         "taken": 17
       },
       "writeSuperJournal": {
-        "calls": 270,
+        "calls": 272,
         "branches": 26,
         "taken": 1
       },
@@ -1341,42 +1343,42 @@
         "taken": 0
       },
       "releaseAllSavepoints": {
-        "calls": 852,
+        "calls": 857,
         "branches": 6,
         "taken": 4
       },
       "addToSavepointBitvecs": {
-        "calls": 627,
+        "calls": 631,
         "branches": 4,
         "taken": 1
       },
       "pager_unlock": {
-        "calls": 427,
+        "calls": 430,
         "branches": 22,
         "taken": 11
       },
       "pager_error": {
-        "calls": 307,
+        "calls": 309,
         "branches": 4,
         "taken": 2
       },
       "pagerFlushOnCommit": {
-        "calls": 695,
+        "calls": 699,
         "branches": 6,
         "taken": 3
       },
       "pager_end_transaction": {
-        "calls": 734,
+        "calls": 739,
         "branches": 54,
         "taken": 28
       },
       "pagerUnlockAndRollback": {
-        "calls": 427,
+        "calls": 430,
         "branches": 14,
         "taken": 7
       },
       "pager_cksum": {
-        "calls": 595,
+        "calls": 599,
         "branches": 2,
         "taken": 2
       },
@@ -1401,17 +1403,17 @@
         "taken": 28
       },
       "pager_write_changecounter": {
-        "calls": 540,
+        "calls": 544,
         "branches": 2,
         "taken": 1
       },
       "pagerPagecount": {
-        "calls": 204,
+        "calls": 205,
         "branches": 8,
         "taken": 4
       },
       "pagerOpenWalIfPresent": {
-        "calls": 204,
+        "calls": 205,
         "branches": 12,
         "taken": 4
       },
@@ -1451,12 +1453,12 @@
         "taken": 1
       },
       "sqlite3PagerPagecount": {
-        "calls": 263,
+        "calls": 264,
         "branches": 0,
         "taken": 0
       },
       "pager_wait_on_lock": {
-        "calls": 744,
+        "calls": 749,
         "branches": 4,
         "taken": 2
       },
@@ -1466,7 +1468,7 @@
         "taken": 1
       },
       "databaseIsUnmoved": {
-        "calls": 344,
+        "calls": 346,
         "branches": 10,
         "taken": 7
       },
@@ -1476,12 +1478,12 @@
         "taken": 5
       },
       "syncJournal": {
-        "calls": 270,
+        "calls": 272,
         "branches": 36,
         "taken": 15
       },
       "pager_write_pagelist": {
-        "calls": 270,
+        "calls": 272,
         "branches": 24,
         "taken": 16
       },
@@ -1491,22 +1493,22 @@
         "taken": 12
       },
       "hasHotJournal": {
-        "calls": 204,
+        "calls": 205,
         "branches": 30,
         "taken": 3
       },
       "sqlite3PagerSharedLock": {
-        "calls": 263,
+        "calls": 264,
         "branches": 58,
         "taken": 19
       },
       "pagerUnlockIfUnused": {
-        "calls": 405,
+        "calls": 408,
         "branches": 2,
         "taken": 2
       },
       "getPageNormal": {
-        "calls": 1419,
+        "calls": 1424,
         "branches": 32,
         "taken": 13
       },
@@ -1516,7 +1518,7 @@
         "taken": 0
       },
       "sqlite3PagerGet": {
-        "calls": 1478,
+        "calls": 1483,
         "branches": 0,
         "taken": 0
       },
@@ -1526,67 +1528,67 @@
         "taken": 1
       },
       "sqlite3PagerUnrefNotNull": {
-        "calls": 1119,
+        "calls": 1123,
         "branches": 2,
         "taken": 1
       },
       "sqlite3PagerUnref": {
-        "calls": 331,
+        "calls": 333,
         "branches": 2,
         "taken": 1
       },
       "sqlite3PagerUnrefPageOne": {
-        "calls": 405,
+        "calls": 408,
         "branches": 0,
         "taken": 0
       },
       "pager_open_journal": {
-        "calls": 344,
+        "calls": 346,
         "branches": 20,
         "taken": 11
       },
       "sqlite3PagerBegin": {
-        "calls": 366,
+        "calls": 368,
         "branches": 18,
         "taken": 6
       },
       "pagerAddPageToRollbackJournal": {
-        "calls": 566,
+        "calls": 570,
         "branches": 6,
         "taken": 3
       },
       "pager_write": {
-        "calls": 688,
+        "calls": 692,
         "branches": 18,
         "taken": 13
       },
       "sqlite3PagerWrite": {
-        "calls": 1259,
+        "calls": 1263,
         "branches": 10,
         "taken": 6
       },
       "pager_incr_changecounter": {
-        "calls": 270,
+        "calls": 272,
         "branches": 8,
         "taken": 4
       },
       "sqlite3PagerSync": {
-        "calls": 270,
+        "calls": 272,
         "branches": 6,
         "taken": 3
       },
       "sqlite3PagerExclusiveLock": {
-        "calls": 540,
+        "calls": 544,
         "branches": 4,
         "taken": 2
       },
       "sqlite3PagerCommitPhaseOne": {
-        "calls": 270,
+        "calls": 272,
         "branches": 34,
         "taken": 13
       },
       "sqlite3PagerCommitPhaseTwo": {
-        "calls": 270,
+        "calls": 272,
         "branches": 8,
         "taken": 2
       },
@@ -1606,17 +1608,17 @@
         "taken": 0
       },
       "sqlite3PagerIsMemdb": {
-        "calls": 270,
+        "calls": 272,
         "branches": 2,
         "taken": 1
       },
       "sqlite3PagerOpenSavepoint": {
-        "calls": 366,
+        "calls": 368,
         "branches": 4,
         "taken": 1
       },
       "sqlite3PagerFilename": {
-        "calls": 285,
+        "calls": 288,
         "branches": 6,
         "taken": 3
       },
@@ -1631,17 +1633,17 @@
         "taken": 0
       },
       "sqlite3PagerGetExtra": {
-        "calls": 1189,
+        "calls": 1192,
         "branches": 0,
         "taken": 0
       },
       "sqlite3PagerGetJournalMode": {
-        "calls": 270,
+        "calls": 272,
         "branches": 0,
         "taken": 0
       },
       "sqlite3PagerWalCallback": {
-        "calls": 405,
+        "calls": 408,
         "branches": 0,
         "taken": 0
       },
@@ -1651,52 +1653,52 @@
         "taken": 1
       },
       "sqlite3WalDbsize": {
-        "calls": 204,
+        "calls": 205,
         "branches": 4,
         "taken": 1
       },
       "sqlite3WalCallback": {
-        "calls": 405,
+        "calls": 408,
         "branches": 2,
         "taken": 1
       },
       "sqlite3BtreeEnter": {
-        "calls": 3325,
+        "calls": 3339,
         "branches": 4,
         "taken": 1
       },
       "sqlite3BtreeLeave": {
-        "calls": 3266,
+        "calls": 3280,
         "branches": 4,
         "taken": 1
       },
       "sqlite3BtreeEnterAll": {
-        "calls": 682,
+        "calls": 688,
         "branches": 2,
         "taken": 1
       },
       "sqlite3BtreeLeaveAll": {
-        "calls": 682,
+        "calls": 688,
         "branches": 2,
         "taken": 1
       },
       "querySharedCacheTableLock": {
-        "calls": 368,
+        "calls": 370,
         "branches": 16,
         "taken": 1
       },
       "clearAllSharedCacheTableLocks": {
-        "calls": 368,
+        "calls": 371,
         "branches": 10,
         "taken": 4
       },
       "btreeClearHasContent": {
-        "calls": 366,
+        "calls": 368,
         "branches": 0,
         "taken": 0
       },
       "btreeReleaseAllCursorPages": {
-        "calls": 788,
+        "calls": 790,
         "branches": 4,
         "taken": 2
       },
@@ -1711,7 +1713,7 @@
         "taken": 0
       },
       "sqlite3BtreeCursorHintFlags": {
-        "calls": 729,
+        "calls": 731,
         "branches": 0,
         "taken": 0
       },
@@ -1736,7 +1738,7 @@
         "taken": 10
       },
       "allocateSpace": {
-        "calls": 535,
+        "calls": 537,
         "branches": 24,
         "taken": 11
       },
@@ -1766,17 +1768,17 @@
         "taken": 1
       },
       "btreePageFromDbPage": {
-        "calls": 372,
+        "calls": 373,
         "branches": 2,
         "taken": 2
       },
       "btreeGetPage": {
-        "calls": 420,
+        "calls": 421,
         "branches": 2,
         "taken": 2
       },
       "btreePagecount": {
-        "calls": 1388,
+        "calls": 1390,
         "branches": 0,
         "taken": 0
       },
@@ -1786,12 +1788,12 @@
         "taken": 0
       },
       "getAndInitPage": {
-        "calls": 788,
+        "calls": 790,
         "branches": 8,
         "taken": 5
       },
       "releasePageNotNull": {
-        "calls": 788,
+        "calls": 790,
         "branches": 0,
         "taken": 0
       },
@@ -1801,7 +1803,7 @@
         "taken": 1
       },
       "releasePageOne": {
-        "calls": 405,
+        "calls": 408,
         "branches": 0,
         "taken": 0
       },
@@ -1841,42 +1843,42 @@
         "taken": 0
       },
       "lockBtree": {
-        "calls": 263,
+        "calls": 264,
         "branches": 44,
         "taken": 20
       },
       "unlockBtreeIfUnused": {
-        "calls": 1157,
+        "calls": 1162,
         "branches": 4,
         "taken": 4
       },
       "newDatabase": {
-        "calls": 366,
+        "calls": 368,
         "branches": 4,
         "taken": 3
       },
       "btreeBeginTrans": {
-        "calls": 1100,
+        "calls": 1106,
         "branches": 76,
         "taken": 43
       },
       "sqlite3BtreeBeginTrans": {
-        "calls": 488,
+        "calls": 490,
         "branches": 12,
         "taken": 8
       },
       "sqlite3BtreeCommitPhaseOne": {
-        "calls": 272,
+        "calls": 274,
         "branches": 8,
         "taken": 4
       },
       "btreeEndTransaction": {
-        "calls": 369,
+        "calls": 372,
         "branches": 8,
         "taken": 6
       },
       "sqlite3BtreeCommitPhaseTwo": {
-        "calls": 272,
+        "calls": 275,
         "branches": 8,
         "taken": 4
       },
@@ -1901,27 +1903,27 @@
         "taken": 11
       },
       "btreeCursor": {
-        "calls": 788,
+        "calls": 790,
         "branches": 14,
         "taken": 12
       },
       "sqlite3BtreeCursor": {
-        "calls": 788,
+        "calls": 790,
         "branches": 2,
         "taken": 1
       },
       "sqlite3BtreeCursorSize": {
-        "calls": 788,
+        "calls": 790,
         "branches": 0,
         "taken": 0
       },
       "sqlite3BtreeCursorZero": {
-        "calls": 788,
+        "calls": 790,
         "branches": 0,
         "taken": 0
       },
       "sqlite3BtreeCloseCursor": {
-        "calls": 788,
+        "calls": 790,
         "branches": 12,
         "taken": 7
       },
@@ -1951,7 +1953,7 @@
         "taken": 0
       },
       "moveToRoot": {
-        "calls": 852,
+        "calls": 856,
         "branches": 24,
         "taken": 11
       },
@@ -1971,17 +1973,17 @@
         "taken": 1
       },
       "btreeLast": {
-        "calls": 220,
+        "calls": 222,
         "branches": 6,
         "taken": 4
       },
       "sqlite3BtreeLast": {
-        "calls": 220,
+        "calls": 222,
         "branches": 4,
         "taken": 1
       },
       "sqlite3BtreeTableMoveto": {
-        "calls": 406,
+        "calls": 408,
         "branches": 44,
         "taken": 20
       },
@@ -2016,7 +2018,7 @@
         "taken": 7
       },
       "fillInCell": {
-        "calls": 535,
+        "calls": 537,
         "branches": 36,
         "taken": 8
       },
@@ -2026,7 +2028,7 @@
         "taken": 5
       },
       "insertCellFast": {
-        "calls": 535,
+        "calls": 537,
         "branches": 12,
         "taken": 5
       },
@@ -2041,7 +2043,7 @@
         "taken": 3
       },
       "sqlite3BtreeInsert": {
-        "calls": 538,
+        "calls": 540,
         "branches": 100,
         "taken": 38
       },
@@ -2066,17 +2068,17 @@
         "taken": 2
       },
       "sqlite3BtreePager": {
-        "calls": 675,
+        "calls": 680,
         "branches": 0,
         "taken": 0
       },
       "sqlite3BtreeGetFilename": {
-        "calls": 285,
+        "calls": 288,
         "branches": 0,
         "taken": 0
       },
       "sqlite3BtreeTxnState": {
-        "calls": 1779,
+        "calls": 1795,
         "branches": 2,
         "taken": 2
       },
@@ -2091,12 +2093,12 @@
         "taken": 0
       },
       "sqlite3BtreeSharable": {
-        "calls": 787,
+        "calls": 789,
         "branches": 0,
         "taken": 0
       },
       "sqlite3BackupUpdate": {
-        "calls": 600,
+        "calls": 604,
         "branches": 2,
         "taken": 1
       },
@@ -2116,12 +2118,12 @@
         "taken": 2
       },
       "sqlite3VdbeMemGrow": {
-        "calls": 2914,
+        "calls": 2916,
         "branches": 20,
         "taken": 11
       },
       "sqlite3VdbeMemClearAndResize": {
-        "calls": 2032,
+        "calls": 2034,
         "branches": 2,
         "taken": 2
       },
@@ -2231,7 +2233,7 @@
         "taken": 1
       },
       "sqlite3VdbeCreate": {
-        "calls": 640,
+        "calls": 646,
         "branches": 4,
         "taken": 3
       },
@@ -2241,22 +2243,22 @@
         "taken": 0
       },
       "sqlite3VdbeSetSql": {
-        "calls": 524,
+        "calls": 530,
         "branches": 4,
         "taken": 3
       },
       "growOpArray": {
-        "calls": 699,
+        "calls": 705,
         "branches": 6,
         "taken": 4
       },
       "growOp3": {
-        "calls": 699,
+        "calls": 705,
         "branches": 2,
         "taken": 1
       },
       "sqlite3VdbeAddOp0": {
-        "calls": 808,
+        "calls": 816,
         "branches": 0,
         "taken": 0
       },
@@ -2266,22 +2268,22 @@
         "taken": 0
       },
       "sqlite3VdbeAddOp2": {
-        "calls": 2325,
+        "calls": 2335,
         "branches": 0,
         "taken": 0
       },
       "sqlite3VdbeAddOp3": {
-        "calls": 10459,
+        "calls": 10495,
         "branches": 2,
         "taken": 2
       },
       "sqlite3VdbeAddOp4Int": {
-        "calls": 1340,
+        "calls": 1344,
         "branches": 2,
         "taken": 1
       },
       "sqlite3VdbeGoto": {
-        "calls": 640,
+        "calls": 646,
         "branches": 0,
         "taken": 0
       },
@@ -2321,22 +2323,22 @@
         "taken": 2
       },
       "sqlite3VdbeMakeLabel": {
-        "calls": 1445,
+        "calls": 1447,
         "branches": 0,
         "taken": 0
       },
       "resizeResolveLabel": {
-        "calls": 427,
+        "calls": 429,
         "branches": 6,
         "taken": 2
       },
       "sqlite3VdbeResolveLabel": {
-        "calls": 1445,
+        "calls": 1447,
         "branches": 2,
         "taken": 2
       },
       "resolveP2Values": {
-        "calls": 640,
+        "calls": 646,
         "branches": 19,
         "taken": 12
       },
@@ -2351,17 +2353,17 @@
         "taken": 0
       },
       "sqlite3VdbeChangeP2": {
-        "calls": 701,
+        "calls": 707,
         "branches": 0,
         "taken": 0
       },
       "sqlite3VdbeChangeP5": {
-        "calls": 2423,
+        "calls": 2427,
         "branches": 2,
         "taken": 1
       },
       "sqlite3VdbeJumpHere": {
-        "calls": 701,
+        "calls": 707,
         "branches": 0,
         "taken": 0
       },
@@ -2381,7 +2383,7 @@
         "taken": 6
       },
       "vdbeFreeOpArray": {
-        "calls": 640,
+        "calls": 646,
         "branches": 6,
         "taken": 5
       },
@@ -2406,7 +2408,7 @@
         "taken": 12
       },
       "sqlite3VdbeAppendP4": {
-        "calls": 521,
+        "calls": 523,
         "branches": 2,
         "taken": 1
       },
@@ -2416,47 +2418,47 @@
         "taken": 1
       },
       "sqlite3VdbeGetOp": {
-        "calls": 849,
+        "calls": 855,
         "branches": 2,
         "taken": 1
       },
       "sqlite3VdbeUsesBtree": {
-        "calls": 905,
+        "calls": 907,
         "branches": 4,
         "taken": 3
       },
       "sqlite3VdbeEnter": {
-        "calls": 640,
+        "calls": 646,
         "branches": 10,
         "taken": 1
       },
       "sqlite3VdbeLeave": {
-        "calls": 640,
+        "calls": 646,
         "branches": 2,
         "taken": 1
       },
       "initMemArray": {
-        "calls": 1400,
+        "calls": 1412,
         "branches": 4,
         "taken": 4
       },
       "releaseMemArray": {
-        "calls": 1400,
+        "calls": 1412,
         "branches": 16,
         "taken": 9
       },
       "allocSpace": {
-        "calls": 3044,
+        "calls": 3068,
         "branches": 4,
         "taken": 4
       },
       "sqlite3VdbeRewind": {
-        "calls": 640,
+        "calls": 646,
         "branches": 0,
         "taken": 0
       },
       "sqlite3VdbeMakeReady": {
-        "calls": 640,
+        "calls": 646,
         "branches": 16,
         "taken": 10
       },
@@ -2466,17 +2468,17 @@
         "taken": 2
       },
       "sqlite3VdbeFreeCursorNN": {
-        "calls": 788,
+        "calls": 790,
         "branches": 6,
         "taken": 2
       },
       "closeCursorsInFrame": {
-        "calls": 640,
+        "calls": 646,
         "branches": 4,
         "taken": 4
       },
       "closeAllCursors": {
-        "calls": 640,
+        "calls": 646,
         "branches": 8,
         "taken": 3
       },
@@ -2491,27 +2493,27 @@
         "taken": 1
       },
       "vdbeCommit": {
-        "calls": 285,
+        "calls": 288,
         "branches": 82,
         "taken": 27
       },
       "sqlite3VdbeCloseStatement": {
-        "calls": 332,
+        "calls": 335,
         "branches": 4,
         "taken": 1
       },
       "sqlite3VdbeCheckFkImmediate": {
-        "calls": 616,
+        "calls": 622,
         "branches": 2,
         "taken": 1
       },
       "sqlite3VdbeCheckFkDeferred": {
-        "calls": 481,
+        "calls": 488,
         "branches": 2,
         "taken": 1
       },
       "sqlite3VdbeHalt": {
-        "calls": 640,
+        "calls": 646,
         "branches": 84,
         "taken": 41
       },
@@ -2521,7 +2523,7 @@
         "taken": 3
       },
       "sqlite3VdbeReset": {
-        "calls": 640,
+        "calls": 646,
         "branches": 10,
         "taken": 7
       },
@@ -2531,12 +2533,12 @@
         "taken": 1
       },
       "sqlite3VdbeClearObject": {
-        "calls": 640,
+        "calls": 646,
         "branches": 12,
         "taken": 9
       },
       "sqlite3VdbeDelete": {
-        "calls": 640,
+        "calls": 646,
         "branches": 4,
         "taken": 3
       },
@@ -2606,12 +2608,12 @@
         "taken": 9
       },
       "sqlite3VdbeSetChanges": {
-        "calls": 187,
+        "calls": 189,
         "branches": 0,
         "taken": 0
       },
       "sqlite3VdbeCountChanges": {
-        "calls": 187,
+        "calls": 189,
         "branches": 0,
         "taken": 0
       },
@@ -2621,17 +2623,17 @@
         "taken": 0
       },
       "vdbeSafety": {
-        "calls": 1446,
+        "calls": 1458,
         "branches": 2,
         "taken": 1
       },
       "vdbeSafetyNotNull": {
-        "calls": 926,
+        "calls": 932,
         "branches": 2,
         "taken": 1
       },
       "sqlite3_finalize": {
-        "calls": 924,
+        "calls": 930,
         "branches": 6,
         "taken": 4
       },
@@ -2671,17 +2673,17 @@
         "taken": 2
       },
       "doWalCallbacks": {
-        "calls": 405,
+        "calls": 408,
         "branches": 10,
         "taken": 5
       },
       "sqlite3Step": {
-        "calls": 926,
+        "calls": 932,
         "branches": 42,
         "taken": 23
       },
       "sqlite3_step": {
-        "calls": 926,
+        "calls": 932,
         "branches": 12,
         "taken": 3
       },
@@ -2721,7 +2723,7 @@
         "taken": 0
       },
       "allocateCursor": {
-        "calls": 788,
+        "calls": 790,
         "branches": 14,
         "taken": 10
       },
@@ -2736,7 +2738,7 @@
         "taken": 11
       },
       "out2Prerelease": {
-        "calls": 2610,
+        "calls": 2614,
         "branches": 2,
         "taken": 1
       },
@@ -2746,17 +2748,17 @@
         "taken": 1
       },
       "sqlite3VdbeExec": {
-        "calls": 1156,
+        "calls": 1162,
         "branches": 1505,
         "taken": 338
       },
       "sqlite3JournalOpen": {
-        "calls": 285,
+        "calls": 287,
         "branches": 4,
         "taken": 1
       },
       "sqlite3JournalIsInMemory": {
-        "calls": 403,
+        "calls": 405,
         "branches": 0,
         "taken": 0
       },
@@ -2766,7 +2768,7 @@
         "taken": 1
       },
       "sqlite3WalkExprNN": {
-        "calls": 8522,
+        "calls": 8524,
         "branches": 22,
         "taken": 15
       },
@@ -2816,7 +2818,7 @@
         "taken": 44
       },
       "resolveExprStep": {
-        "calls": 3308,
+        "calls": 3310,
         "branches": 173,
         "taken": 34
       },
@@ -2846,7 +2848,7 @@
         "taken": 4
       },
       "sqlite3ResolveExprListNames": {
-        "calls": 279,
+        "calls": 281,
         "branches": 12,
         "taken": 7
       },
@@ -2931,7 +2933,7 @@
         "taken": 4
       },
       "sqlite3ExprCheckHeight": {
-        "calls": 2627,
+        "calls": 2629,
         "branches": 2,
         "taken": 1
       },
@@ -2961,7 +2963,7 @@
         "taken": 2
       },
       "sqlite3ExprAlloc": {
-        "calls": 1219,
+        "calls": 1221,
         "branches": 20,
         "taken": 15
       },
@@ -2991,12 +2993,12 @@
         "taken": 4
       },
       "sqlite3ExprDeleteNN": {
-        "calls": 3266,
+        "calls": 3268,
         "branches": 18,
         "taken": 12
       },
       "sqlite3ExprDelete": {
-        "calls": 4616,
+        "calls": 4624,
         "branches": 2,
         "taken": 2
       },
@@ -3026,7 +3028,7 @@
         "taken": 1
       },
       "sqlite3ExprListAppendNew": {
-        "calls": 1023,
+        "calls": 1025,
         "branches": 2,
         "taken": 1
       },
@@ -3036,7 +3038,7 @@
         "taken": 1
       },
       "sqlite3ExprListAppend": {
-        "calls": 2431,
+        "calls": 2433,
         "branches": 4,
         "taken": 4
       },
@@ -3056,12 +3058,12 @@
         "taken": 2
       },
       "exprListDeleteNN": {
-        "calls": 1023,
+        "calls": 1025,
         "branches": 4,
         "taken": 4
       },
       "sqlite3ExprListDelete": {
-        "calls": 2943,
+        "calls": 2951,
         "branches": 2,
         "taken": 2
       },
@@ -3111,7 +3113,7 @@
         "taken": 2
       },
       "codeInteger": {
-        "calls": 263,
+        "calls": 265,
         "branches": 18,
         "taken": 12
       },
@@ -3131,7 +3133,7 @@
         "taken": 1
       },
       "sqlite3ExprCodeTarget": {
-        "calls": 2638,
+        "calls": 2640,
         "branches": 197,
         "taken": 46
       },
@@ -3221,7 +3223,7 @@
         "taken": 4
       },
       "sqlite3AuthCheck": {
-        "calls": 2111,
+        "calls": 2117,
         "branches": 12,
         "taken": 1
       },
@@ -3236,7 +3238,7 @@
         "taken": 2
       },
       "sqlite3FinishCoding": {
-        "calls": 1166,
+        "calls": 1172,
         "branches": 42,
         "taken": 25
       },
@@ -3246,17 +3248,17 @@
         "taken": 3
       },
       "sqlite3FindTable": {
-        "calls": 1247,
+        "calls": 1249,
         "branches": 40,
         "taken": 25
       },
       "sqlite3LocateTable": {
-        "calls": 489,
+        "calls": 491,
         "branches": 32,
         "taken": 17
       },
       "sqlite3LocateTableItem": {
-        "calls": 489,
+        "calls": 491,
         "branches": 2,
         "taken": 1
       },
@@ -3266,7 +3268,7 @@
         "taken": 7
       },
       "sqlite3CommitInternalChanges": {
-        "calls": 347,
+        "calls": 350,
         "branches": 0,
         "taken": 0
       },
@@ -3291,12 +3293,12 @@
         "taken": 2
       },
       "sqlite3DeleteTable": {
-        "calls": 954,
+        "calls": 956,
         "branches": 6,
         "taken": 5
       },
       "sqlite3NameFromToken": {
-        "calls": 1387,
+        "calls": 1391,
         "branches": 2,
         "taken": 1
       },
@@ -3356,7 +3358,7 @@
         "taken": 32
       },
       "sqlite3ViewGetColumnNames": {
-        "calls": 307,
+        "calls": 309,
         "branches": 4,
         "taken": 2
       },
@@ -3366,17 +3368,17 @@
         "taken": 1
       },
       "sqlite3IdListAppend": {
-        "calls": 310,
+        "calls": 312,
         "branches": 10,
         "taken": 5
       },
       "sqlite3IdListDelete": {
-        "calls": 159,
+        "calls": 161,
         "branches": 4,
         "taken": 3
       },
       "sqlite3SrcListAppend": {
-        "calls": 489,
+        "calls": 491,
         "branches": 12,
         "taken": 7
       },
@@ -3386,7 +3388,7 @@
         "taken": 5
       },
       "sqlite3SrcListDelete": {
-        "calls": 648,
+        "calls": 652,
         "branches": 22,
         "taken": 13
       },
@@ -3406,17 +3408,17 @@
         "taken": 2
       },
       "sqlite3BeginTransaction": {
-        "calls": 107,
+        "calls": 109,
         "branches": 14,
         "taken": 3
       },
       "sqlite3EndTransaction": {
-        "calls": 106,
+        "calls": 108,
         "branches": 6,
         "taken": 3
       },
       "sqlite3CodeVerifySchemaAtToplevel": {
-        "calls": 636,
+        "calls": 638,
         "branches": 4,
         "taken": 3
       },
@@ -3426,7 +3428,7 @@
         "taken": 1
       },
       "sqlite3BeginWriteOperation": {
-        "calls": 368,
+        "calls": 370,
         "branches": 2,
         "taken": 1
       },
@@ -3486,17 +3488,17 @@
         "taken": 4
       },
       "sqlite3SrcListLookup": {
-        "calls": 307,
+        "calls": 309,
         "branches": 8,
         "taken": 3
       },
       "tabIsReadOnly": {
-        "calls": 307,
+        "calls": 309,
         "branches": 8,
         "taken": 5
       },
       "sqlite3IsReadOnly": {
-        "calls": 307,
+        "calls": 309,
         "branches": 10,
         "taken": 2
       },
@@ -3546,7 +3548,7 @@
         "taken": 1
       },
       "sqlite3OpenTable": {
-        "calls": 486,
+        "calls": 488,
         "branches": 4,
         "taken": 2
       },
@@ -3561,37 +3563,37 @@
         "taken": 2
       },
       "sqlite3TableAffinityStr": {
-        "calls": 46,
+        "calls": 48,
         "branches": 10,
         "taken": 8
       },
       "sqlite3TableAffinity": {
-        "calls": 307,
+        "calls": 309,
         "branches": 12,
         "taken": 8
       },
       "autoIncBegin": {
-        "calls": 159,
+        "calls": 161,
         "branches": 22,
         "taken": 1
       },
       "autoIncStep": {
-        "calls": 159,
+        "calls": 161,
         "branches": 2,
         "taken": 1
       },
       "sqlite3AutoincrementEnd": {
-        "calls": 187,
+        "calls": 189,
         "branches": 2,
         "taken": 1
       },
       "sqlite3Insert": {
-        "calls": 159,
+        "calls": 161,
         "branches": 228,
         "taken": 65
       },
       "indexIteratorFirst": {
-        "calls": 307,
+        "calls": 309,
         "branches": 2,
         "taken": 1
       },
@@ -3601,17 +3603,17 @@
         "taken": 1
       },
       "sqlite3GenerateConstraintChecks": {
-        "calls": 307,
+        "calls": 309,
         "branches": 267,
         "taken": 63
       },
       "sqlite3CompleteInsertion": {
-        "calls": 307,
+        "calls": 309,
         "branches": 26,
         "taken": 19
       },
       "sqlite3OpenTableAndIndices": {
-        "calls": 307,
+        "calls": 309,
         "branches": 24,
         "taken": 17
       },
@@ -3646,47 +3648,47 @@
         "taken": 10
       },
       "sqlite3SchemaToIndex": {
-        "calls": 1587,
+        "calls": 1591,
         "branches": 6,
         "taken": 4
       },
       "sqlite3ParseObjectReset": {
-        "calls": 1048,
+        "calls": 1054,
         "branches": 10,
         "taken": 6
       },
       "sqlite3Prepare": {
-        "calls": 1048,
+        "calls": 1054,
         "branches": 46,
         "taken": 25
       },
       "sqlite3LockAndPrepare": {
-        "calls": 644,
+        "calls": 650,
         "branches": 16,
         "taken": 8
       },
       "sqlite3_prepare_v2": {
-        "calls": 644,
+        "calls": 650,
         "branches": 0,
         "taken": 0
       },
       "clearSelect": {
-        "calls": 279,
+        "calls": 281,
         "branches": 10,
         "taken": 6
       },
       "sqlite3SelectNew": {
-        "calls": 279,
+        "calls": 281,
         "branches": 8,
         "taken": 5
       },
       "sqlite3SelectDelete": {
-        "calls": 438,
+        "calls": 442,
         "branches": 2,
         "taken": 2
       },
       "sqlite3ColumnIndex": {
-        "calls": 2639,
+        "calls": 2641,
         "branches": 10,
         "taken": 8
       },
@@ -3741,7 +3743,7 @@
         "taken": 7
       },
       "sqlite3GetVdbe": {
-        "calls": 1037,
+        "calls": 1043,
         "branches": 6,
         "taken": 4
       },
@@ -3826,12 +3828,12 @@
         "taken": 50
       },
       "tempTriggersExist": {
-        "calls": 307,
+        "calls": 309,
         "branches": 4,
         "taken": 2
       },
       "sqlite3TriggersExist": {
-        "calls": 307,
+        "calls": 309,
         "branches": 6,
         "taken": 3
       },
@@ -3861,17 +3863,17 @@
         "taken": 130
       },
       "sqlite3UpsertDelete": {
-        "calls": 159,
+        "calls": 161,
         "branches": 2,
         "taken": 1
       },
       "callFinaliser": {
-        "calls": 323,
+        "calls": 326,
         "branches": 8,
         "taken": 1
       },
       "sqlite3VtabSync": {
-        "calls": 285,
+        "calls": 288,
         "branches": 8,
         "taken": 2
       },
@@ -3881,7 +3883,7 @@
         "taken": 0
       },
       "sqlite3VtabCommit": {
-        "calls": 285,
+        "calls": 288,
         "branches": 0,
         "taken": 0
       },
@@ -4181,7 +4183,7 @@
         "taken": 0
       },
       "parserDoubleLinkSelect": {
-        "calls": 279,
+        "calls": 281,
         "branches": 14,
         "taken": 1
       },
@@ -4191,7 +4193,7 @@
         "taken": 4
       },
       "sqlite3ParserInit": {
-        "calls": 1168,
+        "calls": 1174,
         "branches": 0,
         "taken": 0
       },
@@ -4201,27 +4203,27 @@
         "taken": 1
       },
       "sqlite3ParserFinalize": {
-        "calls": 1168,
+        "calls": 1174,
         "branches": 6,
         "taken": 5
       },
       "yy_find_shift_action": {
-        "calls": 40227,
+        "calls": 40304,
         "branches": 12,
         "taken": 6
       },
       "yy_find_reduce_action": {
-        "calls": 25024,
+        "calls": 25070,
         "branches": 0,
         "taken": 0
       },
       "yy_shift": {
-        "calls": 15083,
+        "calls": 15114,
         "branches": 6,
         "taken": 3
       },
       "yy_reduce": {
-        "calls": 25024,
+        "calls": 25070,
         "branches": 472,
         "taken": 75
       },
@@ -4231,27 +4233,27 @@
         "taken": 0
       },
       "sqlite3Parser": {
-        "calls": 15203,
+        "calls": 15234,
         "branches": 12,
         "taken": 8
       },
       "keywordCode": {
-        "calls": 6510,
+        "calls": 6521,
         "branches": 14,
         "taken": 12
       },
       "sqlite3GetToken": {
-        "calls": 20629,
+        "calls": 20667,
         "branches": 177,
         "taken": 64
       },
       "sqlite3RunParser": {
-        "calls": 1168,
+        "calls": 1174,
         "branches": 54,
         "taken": 28
       },
       "sqlite3_initialize": {
-        "calls": 285,
+        "calls": 287,
         "branches": 34,
         "taken": 1
       },
@@ -4266,12 +4268,12 @@
         "taken": 1
       },
       "sqlite3CloseSavepoints": {
-        "calls": 211,
+        "calls": 215,
         "branches": 2,
         "taken": 1
       },
       "sqlite3LeaveMutexAndCloseZombie": {
-        "calls": 520,
+        "calls": 526,
         "branches": 28,
         "taken": 1
       },
@@ -4281,7 +4283,7 @@
         "taken": 9
       },
       "sqlite3TempInMemory": {
-        "calls": 425,
+        "calls": 427,
         "branches": 0,
         "taken": 0
       },
@@ -4296,12 +4298,12 @@
         "taken": 4
       },
       "sqlite3_uri_parameter": {
-        "calls": 285,
+        "calls": 287,
         "branches": 4,
         "taken": 1
       },
       "sqlite3_uri_boolean": {
-        "calls": 285,
+        "calls": 287,
         "branches": 2,
         "taken": 1
       }
