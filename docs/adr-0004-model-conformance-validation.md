@@ -6,10 +6,27 @@
 - Decision owners: formal methods lead for model fidelity and proof policy;
   product owner for the conformance claims made in documentation and releases
 - Related: [ADR 0001](adr-0001-pytest-and-nix-ci.md),
-  [ADR 0003](adr-0003-agent-proof-preparation.md),
+  [ADR 0003](adr-0003-agent-proof-preparation.md) and its
+  [trust extension](adr-0003-trust-extension.md),
   [research report](../reports/Validating%20a%20Lean%20SQLite%20semantic%20model.md)
 - This proposal does not change current behavior, supported SQL, statuses, or
   the trust policy. It adds evidence about the model; it never adds axioms.
+
+## Decision in brief
+
+Approve a bounded prototype, not the whole pipeline:
+
+1. Lean `checkCase` is the single comparison authority. Every tier that compares
+   the model with SQLite evaluates it; Python records native traces and prints
+   diagnostics but never decides agreement.
+2. A persistent-connection native runner supplies the per-statement observation
+   boundary, including connection-visible and committed state inside an open
+   transaction.
+3. Work packages W1–W2 demonstrate both, with measured throughput. W3
+   (generation at scale) proceeds only on that evidence.
+
+The four-tier pipeline in §4 is the intended destination. Its later tiers are
+recorded here so the prototype is built toward them, not approved by this ADR.
 
 ## 1. Observed problem
 
@@ -24,17 +41,21 @@ That evidence is honest about its scope, but it cannot grow at the rate the
 roadmap requires. Step 2 (table rebuilds) and Step 3 (data transformations) add
 INSERT…SELECT, DROP, RENAME, constraints, indexes, affinity, and expression
 evaluation. Each is a larger opportunity for a silent model/engine divergence
-than the current additive subset. Three current mechanisms limit scaling:
+than the current additive subset. Four current mechanisms limit scaling:
 
 - Cases are authored by hand, including their expected values
   (`conformance/model_cases.py`). Nobody writes combinations they did not think of.
 - The static Tcl extractor accepts only trivial assertion shapes. It imports 3 of
   59 `alter3.test` call sites; 774 of 1,195 upstream test files use `ifcapable`
   and 389 use `foreach`, so static parsing has a low ceiling.
-- Every comparison is a `decide +kernel` proof. That is the right evidence to
-  keep, but it is the wrong loop for thousands of generated cases: a local
-  micro-benchmark measured 7.6 s and ~840 MB for 500 small theorems, and every
-  model change invalidates every generated module.
+- Every comparison is a `decide +kernel` proof. A local micro-benchmark measured
+  7.6 s and ~840 MB for 500 small theorems, and every model change invalidates
+  every generated module. This motivates exploring a compiled runner; it does not
+  establish that runner's end-to-end throughput.
+- The native runner (`conformance/model_native.py`) pipes a whole migration into a
+  terminating `sqlite3 -bail` process, then reopens the database to inspect
+  committed results. It cannot observe state after each statement, nor
+  connection-visible state while a transaction is open.
 
 ## 2. Goals
 
@@ -62,71 +83,82 @@ differentially at scale, with a smaller proven or curated tier:
 
 None of them kernel-checks the whole conformance suite.
 
-## 4. Decision
-
-Adopt a four-tier validation pipeline sharing one case format.
+## 4. Target pipeline
 
 | Tier | Input | Runs | Evidence |
 | --- | --- | --- | --- |
-| 1. Bulk differential | Generated programs; mined upstream cases | Compiled Lean model vs. native 3.51.0, per statement | Compiled model agrees on these runs; trusts the Lean compiler |
-| 2. Proven regression | Minimized disagreements, requirement-tagged and hand-written cases | `decide +kernel` theorems, sharded modules | Kernel-checked model behavior for each case |
-| 3. Independent replay | Tier 2 declarations | Second kernel, once ADR 0003 lands | Checker-independent tier 2 |
-| 4. General laws | Rollback, atomicity, ADD COLUMN preservation | Lean theorems, also run as properties against SQLite | Holds for all model inputs |
+| 1. Bulk differential | Generated programs; mined upstream cases | Compiled `checkCase` over native traces | Compiled model agrees on these runs; trusts the Lean compiler |
+| 2. Proven regression | Minimized disagreements, requirement-tagged and hand-written cases | `checkCase c = true` by `decide +kernel`, sharded modules | Kernel-checked claim about the model for each case |
+| 3. Independent replay | Tier 2 and tier 4 declarations | Independent kernel from the [trust extension](adr-0003-trust-extension.md) | Checker-independent tiers 2 and 4 |
+| 4. General laws | Rollback, atomicity, ADD COLUMN preservation | Lean theorems; the same laws also run as native properties | Kernel-checked claim about the model for all inputs |
 
-Tier 2 remains the only tier that produces proof evidence. Tier 1 finds
-disagreements; it does not certify agreement. Native re-execution, not a Lean
-proof, is what ties any expected value to SQLite.
+Tiers 2 and 4 provide kernel-checked claims about the model. Native traces and
+native property runs provide the empirical connection to SQLite. Neither kind of
+evidence proves universal refinement of SQLite by the model. Tier 3 depends on
+ADR 0003's deferred independent-kernel milestone, not on its latency milestone.
 
-### 4.1 One case format and one check function
+### 4.1 One case format and one comparison authority
 
 A case is a versioned JSON record: SQL text, the parsed structural statements,
 the native per-statement trace, and optional requirement IDs (`R-…`) and source
 provenance (generator seed, upstream file and test name). The native trace is the
 expected value; it is produced only by the pinned engine.
 
-Add a `Bool`-valued `checkCase` in Lean that compares the model's per-statement
-observation with the recorded trace. Tier 1 runs it compiled; tier 2 proves
-`checkCase c = true` by `decide +kernel`. Both tiers therefore evaluate the same
-function, and a disagreement between them isolates a compiler or
-`implemented_by` inconsistency instead of a test-encoding difference. The current
-generated assertions in `conformance/model_assertions.py` become instances of this
-check rather than a separate format.
+`checkCase : Case → Bool` in Lean compares the model's per-statement observations
+with the recorded trace and is the only comparator. Tier 1 runs it compiled;
+tier 2 proves `checkCase c = true` by `decide +kernel`. The compiled runner may
+also print the model's observations so Python can show a readable diff for a
+failing case, but that diff is diagnostic only. The current generated assertions
+in `conformance/model_assertions.py` become instances of this check.
 
-### 4.2 Observation and comparison
+If the compiled and kernel evaluations of the same case disagree, first confirm
+that both decoded the same statements and trace. Only then is a compiler or
+`implemented_by` inconsistency a candidate explanation; it is not isolated
+automatically.
 
-After each statement, record on both sides:
+### 4.2 Observation boundary
+
+After each statement, both sides record:
 
 - The outcome: success, or a modeled error mapped to SQLite's primary/extended
   result code. Error message text is not compared.
-- The schema: supported table declarations in `sqlite_schema` name order.
-- Every table's rows ordered by rowid, as `(rowid, typeof, exact value)`; text and
-  blobs by bytes, reals by their 64-bit pattern.
-- Whether a transaction is open, and separately the committed state (the existing
-  runner already reopens the database for this).
+- The connection-visible schema and rows: supported table declarations in
+  `sqlite_schema` name order, and each table's rows ordered by rowid as
+  `(rowid, typeof, exact value)`; text and blobs by bytes, reals by their 64-bit
+  pattern.
+- Whether a transaction is open, and the committed state when one is.
 
-`Database` stays `String → Option Table`. The contract proofs in
-`Contract.lean` and the demonstrations quantify over it, and the current kernel
-assertions already observe it by name. Observation enumerates the finite set of
-table names appearing in the case's statements plus the names in native
-`sqlite_schema`; the model cannot create tables under any other name. Replacing
-the representation with an association list is recorded as an alternative in §6.
+The native side uses one persistent connection to the Nix-pinned 3.51.0 library,
+retaining the existing version, source-ID, compile-option and connection
+configuration checks. The binding must run in autocommit mode (Python's
+`sqlite3` inserts implicit `BEGIN` statements otherwise) and must load the pinned
+library, not the system one. While a transaction is open, a second connection
+reads the committed state; `SQLITE_BUSY` or any other failure to observe is a
+`HARNESS_ERROR`, never agreement.
 
-Outcomes fall into four verdicts: `AGREE`, `DISAGREE`, `MODEL_UNSUPPORTED`, and
-`HARNESS_ERROR`. `MODEL_UNSUPPORTED` never counts as agreement. The modeled
-`invalidDefinition` error is a subset-admission failure, not a SQLite error, and
-must map to `MODEL_UNSUPPORTED` in comparisons.
+On the model side, per-statement observation steps `step` over the script,
+exposing `Outcome.database` and `Outcome.persistedDatabase`. `Database` stays
+`String → Option Table`: the contract proofs in `Contract.lean` quantify over it,
+and the current kernel assertions already observe it by name. Observation
+enumerates the finite set of table names appearing in the case's statements plus
+the names in native `sqlite_schema`; the model cannot create tables under any
+other name.
+
+Comparisons produce `AGREE`, `DISAGREE`, `MODEL_UNSUPPORTED`, or `HARNESS_ERROR`.
+`MODEL_UNSUPPORTED` never counts as agreement. The modeled `invalidDefinition`
+error is a subset-admission failure, not a SQLite error, and maps to
+`MODEL_UNSUPPORTED`.
 
 ### 4.3 Compiled runner
 
 Add a `lake exe` target that reads case records as JSON lines, decodes the
-structural statements into `SqliteVerifier.Statement`, runs the model, and prints
-observations as JSON lines. Python performs the native side and the comparison,
-reusing the connection configuration, version/source-ID and compile-option
-checks in `conformance/model_native.py` and `model_check.py`. The structural
-statement encoding should be the versioned format ADR 0003 proposes for passing
-frontend results to Lean, so the two efforts share one decoder and its tests.
+structural statements into `SqliteVerifier.Statement`, evaluates `checkCase`,
+and prints the verdict with optional model observations. The statement encoding
+is the versioned structural encoding in ADR 0003's P3 package, so both efforts
+share one decoder and its tests. Whichever package lands first defines it; neither
+blocks on the other ADR's approval.
 
-### 4.4 Generation
+### 4.4 Generation (tier 1, conditional on W2)
 
 Generate programs from the model's statement forms and render them to SQL, so
 every program is in scope by construction and constructor coverage is directly
@@ -134,70 +166,62 @@ measurable. Route every rendered statement back through the production parser
 and translator, and reject the run if translation does not reproduce the
 generated statement; this also tests parser round-tripping.
 
-Use a Hypothesis `RuleBasedStateMachine` in pytest. Bundles carry created table
-and column names; failing runs shrink to a minimal statement sequence. Run two
-modes: a well-scoped mode that mostly produces successful programs, and an
-error-seeking mode that targets duplicate names, missing tables, the 2000-column
-limit, NOT NULL and uniqueness violations, and transaction-state errors. Bias
-values toward affinity corner cases (`'1'`, `' 1'`, `'1.0'`, `1e20`, ±0.0,
-integers at 2⁶³, empty TEXT vs. empty BLOB, NULL).
-
-A fixed-seed, bounded run belongs in `just test` within the existing time
-budgets. Long runs are a separate nightly or manually dispatched target and never
-gate ordinary development.
+Use a Hypothesis `RuleBasedStateMachine` in pytest, with a well-scoped mode and
+an error-seeking mode (duplicate names, missing tables, the 2000-column limit,
+NOT NULL and uniqueness violations, transaction-state errors). Bias values toward
+affinity corner cases (`'1'`, `' 1'`, `'1.0'`, `1e20`, ±0.0, integers at 2⁶³,
+empty TEXT vs. empty BLOB, NULL). A fixed-seed bounded run belongs in `just test`
+within the existing budgets; long runs are a separate target that never gates
+ordinary development. Hypothesis must be added to the pinned Nix environment.
 
 ### 4.5 Freezing disagreements as proven regressions
 
-Every confirmed disagreement is minimized (Hypothesis shrinking, then statement
-deletion that preserves the same disagreement signature) and classified as model
-bug, harness bug, documentation gap, or engine quirk deliberately modeled. After
+Every confirmed disagreement is minimized (shrinking, then statement deletion
+that preserves the same disagreement signature) and classified as model bug,
+harness bug, documentation gap, or engine quirk deliberately modeled. After
 resolution, the minimized case is committed as a tier 2 theorem with its
-classification. Classifications are recorded in a mismatch log next to the
-fixtures; a disagreement is never resolved by editing the recorded native trace.
+classification in a mismatch log next to the fixtures. A disagreement is never
+resolved by editing a recorded native trace.
 
-Tier 2 modules hold 100–300 cases each so Lake can build them in parallel, and a
-test rejects any tier 2 theorem whose axioms include `sorryAx`, `ofReduceBool`,
-or a `_native` name. `native_decide` and `decide +native` are prohibited in all
-tiers' proofs: since Lean 4.29 each use introduces its own axiom.
+Tier 2 modules hold 100–300 cases each so Lake can build them in parallel. A test
+rejects any tier 2 or tier 4 theorem whose axioms include `sorryAx`,
+`ofReduceBool`, or a `_native` name. `native_decide` and `decide +native` are
+prohibited in all proofs: since Lean 4.29 each use introduces its own axiom.
 
-### 4.6 Mining upstream tests
+### 4.6 General laws
 
-Replace the bounded static extractor with an execution-based one. Run the
-`version-3.51.0` Tcl test files under a proxy for the Tcl `sqlite3` command that
-logs each statement, its typed result and result code, and test boundaries
-(redefine `do_test`; `do_execsql_test` and `do_catchsql_test` route through it).
-A case is the statements on `db` since the last reset or reopen, followed by the
-assertion; minimize it natively and record a fresh typed trace. The Tcl expected
-list only confirms the extraction: it is untyped, and NULL prints as an empty
-string. Exclude multi-connection, file-level, user-function, fault-injection and
-query-plan tests, and tag every excluded file with its reason. Existing
-`conformance/upstream/` provenance hashing applies to the added files.
+For the current subset, prove:
 
-Upstream mining becomes most useful when Step 2 begins: the current subset is
-narrow, and only a few upstream assertions fall inside it.
+- Rollback: from an idle connection, if `S` contains no transaction-control
+  statement and every statement of `S` succeeds, then `BEGIN; S; ROLLBACK`
+  succeeds and leaves the database equal to the initial one. The model stops at
+  the first error, so a failing `S` never reaches `ROLLBACK`; that case is covered
+  by the atomicity law instead.
+- Statement atomicity: a single `step` that fails with a modeled error leaves the
+  connection-visible and committed databases unchanged.
+- ADD COLUMN preservation: a successful, admitted `ADD COLUMN` preserves the
+  table's row count, rowids and existing cells, and the new column reads NULL.
 
-### 4.7 Requirement coverage and code coverage
+Each law also runs as a native property under the same preconditions. The list
+grows as Step 2 adds rename and copy semantics.
 
-Regenerate the 3.51.0 requirement list (R-IDs are an MD5 of normalized sentences
-in the docs source) and extend the traceability table in
-[conformance-fixtures.md](conformance-fixtures.md) into a matrix of admitted-subset
-requirements and the tier 2 cases citing them. Public Tcl tests cite none of the
-requirements in type affinity (`datatype3`), `lang_transaction`, or
-`lang_createindex`, and 9 of 21 in `lang_altertable`; these are written by hand.
+### 4.7 Later: upstream mining and coverage
 
-Measure two kinds of coverage and treat both as work lists, not finish lines:
-constructor, error-variant and match-arm coverage of the model reached by tiers
-1–2, and gcov branch coverage of a separately built 3.51.0 limited to the C
-functions the subset reaches. The coverage build is a test tool only; it never
-replaces the pinned production engine.
+Replace the bounded static extractor with an execution-based one: run the
+`version-3.51.0` Tcl test files under a logging proxy for the Tcl `sqlite3`
+command, cut each assertion into the statements since the last reset followed by
+the assertion, minimize natively, and record a fresh typed trace. The Tcl
+expected list only confirms extraction; it is untyped, and NULL prints as an
+empty string. Exclude multi-connection, file-level, user-function,
+fault-injection and query-plan tests with a recorded reason.
 
-### 4.8 General laws
-
-Prove, for the current subset: `BEGIN; S; ROLLBACK` restores the prior state; a
-statement that fails with a modeled error leaves the state unchanged; ADD COLUMN
-preserves row count, rowids and existing cells, with the new column reading
-NULL. Run each law as a Hypothesis property against the native engine too. Extend
-the list as Step 2 adds rename and copy semantics.
+Regenerate the 3.51.0 requirement list and extend the traceability table into a
+matrix over the admitted subset. Public Tcl tests cite none of the requirements
+in type affinity (`datatype3`), `lang_transaction`, or `lang_createindex`, and
+only 9 of 21 in `lang_altertable`; those cases are written by hand. Measure model
+constructor/error/match-arm coverage and gcov branch coverage of a separately
+built 3.51.0 limited to functions the subset reaches, as work lists rather than
+finish lines.
 
 ## 5. Assumptions and limits
 
@@ -206,24 +230,26 @@ the list as Step 2 adds rename and copy semantics.
 - SQLite behavior that is implementation fact rather than documented semantics,
   such as unordered row order, which of several violations is reported, and rowid
   choice at the maximum rowid, must be either modeled deliberately with a
-  mismatch-log entry or excluded from the admitted domain. Comparisons use
-  `ORDER BY rowid` and, where order is unspecified, also run under
+  mismatch-log entry or excluded from the admitted domain. Observations use
+  `ORDER BY rowid`; where order is unspecified, cases also run under
   `PRAGMA reverse_unordered_selects`.
-- Tier 1 trusts the Lean compiler and the Python harness. That is acceptable for
-  finding bugs and unacceptable as proof evidence, which is why tiers stay separate.
-- The Hypothesis dependency must be added to the pinned Nix environment.
+- Tier 1 trusts the Lean compiler, the decoder, and the native harness. That is
+  acceptable for finding bugs and unacceptable as proof evidence.
 - The string-literal replay issue in comparator (`leanprover/comparator#93`)
-  affects tier 3; check Nanoda replay of tier 2 early.
+  concerns tier 3 and belongs with the trust extension's kernel qualification.
 
 ## 6. Alternatives considered
 
 **Prove every case in the kernel.** Rejected as the primary loop: cost scales with
-suite size times model changes, and no precedent does it. Kept for the curated tier.
+suite size times model changes, and no precedent does it. Kept for tier 2.
+
+**Compare in Python.** Rejected: two comparators could disagree about what
+agreement means, and tier 1 results would then say nothing about tier 2.
 
 **Replace `Database` with an association list.** It makes whole-state equality
-decidable, but it churns every contract proof for no gain in conformance power,
-since observation over a finite name set already suffices. Revisit if kernel
-lookup through nested `Database.set` closures becomes a measured bottleneck.
+decidable, but churns every contract proof for no gain in conformance power,
+since observation over a finite name set suffices. Revisit if kernel lookup
+through nested `Database.set` closures becomes a measured bottleneck.
 
 **Use `native_decide` for bulk tiers.** Rejected: it adds per-use axioms that the
 product policy and independent replay cannot accept, and a compiled runner gives
@@ -233,23 +259,24 @@ the same speed without pretending to be proof.
 substitution make static extraction brittle, and it cannot recover typed values.
 
 **Adopt SQLancer or sqllogictest wholesale.** Deferred. SQLancer's oracles compare
-SQLite with itself; its SQLite generator is a later diversity source filtered
-through the production parser. sqllogictest matters for the expression phase.
+SQLite with itself; its generator is a later diversity source filtered through
+the production parser. sqllogictest matters for the expression phase.
 
 ## 7. Work packages
 
 | Package | Depends on | Completion evidence |
 | --- | --- | --- |
-| W1: case format and `checkCase` | None | Five existing cases re-expressed; kernel and `#guard` agree; axiom test covers `_native` names |
-| W2: compiled runner and comparator | W1 | Existing cases agree through the runner; injected model mutation produces `DISAGREE`; `invalidDefinition` yields `MODEL_UNSUPPORTED` |
-| W3: Hypothesis generator | W2 | Both modes run in `just test` at a fixed seed within budget; parser round-trip checked; shrunk failure reproduces |
-| W4: regression freezing and mismatch log | W3 | Every disagreement found by W3 is classified and, if resolved, committed as a tier 2 theorem |
-| W5: general laws | W1 | Three theorems proved; matching native properties pass |
-| W6: execution-based upstream extractor | W2 | Pilot on `alter*`/`altertab*` at 3.51.0 with per-file yield and exclusion reasons recorded |
-| W7: requirement matrix and coverage | W2 | Requirement list regenerated; model and gcov coverage reports produced |
+| W1: case format and `checkCase` | None; shares the ADR 0003 P3 encoding | Five existing cases re-expressed; kernel proof and compiled run agree; a deliberately wrong trace is rejected by both; axiom test covers `_native` names |
+| W2: persistent native runner and compiled runner | W1 | Existing cases agree; an error inside an open transaction is observed with connection-visible changes and an unchanged committed snapshot on both sides; injected model mutation yields `DISAGREE`; `invalidDefinition` yields `MODEL_UNSUPPORTED`; measured cases/second including native snapshots |
+| W5: general laws | None | The three §4.6 theorems proved with stated preconditions |
+| Decision point | W2 | Owners review W2 evidence and decide whether and at what scale W3 proceeds |
+| W3: generator | Decision point | Both modes run in `just test` at a fixed seed within budget; round-trip checked; shrunk failure reproduces; W5 laws run as native properties |
+| W4: regression freezing and mismatch log | W3 | Every disagreement classified and, if resolved, committed as a tier 2 theorem |
+| W6: upstream extractor | W2; scheduled with Step 2 | Pilot on `alter*`/`altertab*` at 3.51.0 with per-file yield and exclusion reasons |
+| W7: requirement matrix and coverage | W2; scheduled with Step 2 | Requirement list regenerated; model and gcov coverage reports produced |
 
-W1–W5 fit the current subset and precede Step 2; W6–W7 are scheduled with Step 2.
-Each package follows the repository task/status file process.
+W5 is pure Lean over the model and does not wait for the runner. Each package
+follows the repository task/status file process.
 
 ## 8. Rollout and rollback
 
@@ -257,5 +284,5 @@ Tiers are additive test infrastructure. Nothing in this ADR changes the CLI,
 statuses, or release artifacts. Documentation updates [coverage.md](coverage.md)
 and [conformance-model.md](conformance-model.md) with each package, keeping exact
 denominators and separating generated-run counts from proven cases. Rollback
-removes a tier's test targets; proven regression cases stay, since they are
-ordinary Lean theorems about the model.
+removes a tier's test targets; proven cases stay, since they are ordinary Lean
+theorems about the model.
