@@ -42,6 +42,7 @@ def load_library(path: Path, version: str = "3.51.0") -> c.CDLL:
         "libversion": ([], c.c_char_p), "sourceid": ([], c.c_char_p),
         "compileoption_used": ([c.c_char_p], c.c_int),
         "get_autocommit": ([c.c_void_p], c.c_int),
+        "set_authorizer": ([c.c_void_p, c.c_void_p, c.c_void_p], c.c_int),
         "busy_timeout": ([c.c_void_p, c.c_int], c.c_int),
         "db_config": ([c.c_void_p, c.c_int], c.c_int),
         "limit": ([c.c_void_p, c.c_int, c.c_int], c.c_int),

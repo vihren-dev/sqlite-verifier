@@ -85,6 +85,8 @@ def execute(connection: Connection, sql: str) -> Iterator[dict[str, Json]]:
                     rows.append(tuple(connection.cell(statement, index) for index in range(
                         connection.library.sqlite3_column_count(statement))))
         except NativeError as error:
+            if getattr(connection, "recording_exclusion", None):
+                raise ValueError(connection.recording_exclusion) from error
             code, message = error.code, str(error)
             if code & 255 not in SQL_ERRORS:
                 raise
@@ -100,13 +102,30 @@ def execute(connection: Connection, sql: str) -> Iterator[dict[str, Json]]:
         remaining = suffix
 
 
-def record_sql(setup: str | list[str], migration: str, *, name: str, requirements: list[str] | None = None,
+def record_sql(setup: str | list[str | dict[str, Json]], migration: str, *, name: str, requirements: list[str] | None = None,
                library: Path | None = None) -> dict[str, Json]:
     """Keep native evidence even when today's frontend cannot represent the SQL."""
     with TemporaryDirectory(prefix="native-corpus-") as directory, ExitStack() as stack:
         engine = load_library(library or library_path())
-        writer = Connection(engine, Path(directory) / "case.db")
-        stack.callback(writer.close)
+        def open_writer() -> Connection:
+            """Reject external databases before ATTACH/VACUUM can create files outside the fixture."""
+            connection = Connection(engine, Path(directory) / "case.db")
+            stack.callback(connection.close)
+            def authorize(_context: int, action: int, _a: bytes, function: bytes,
+                          _database: bytes, _trigger: bytes) -> int:
+                """Deny unrecordable contexts without turning our denial into SQLite evidence."""
+                nondeterministic = {b"random", b"randomblob", b"current_timestamp", b"current_date", b"current_time",
+                    b"date", b"time", b"datetime", b"julianday", b"unixepoch", b"strftime", b"timediff"}
+                if action == 24 or action == 31 and function in nondeterministic:
+                    connection.recording_exclusion = "Excluded connection context: external database or nondeterministic function"
+                    return 1
+                return 0
+            connection.authorizer = c.CFUNCTYPE(c.c_int, c.c_void_p, c.c_int,
+                c.c_char_p, c.c_char_p, c.c_char_p, c.c_char_p)(authorize)
+            connection.check(engine.sqlite3_set_authorizer(connection.handle, connection.authorizer, None))
+            return connection
+
+        writer = open_writer()
         setup_outcomes: list[Json] = []
         setup_results: list[Json] = []
         setup_errors: list[Json] = []
@@ -114,7 +133,21 @@ def record_sql(setup: str | list[str], migration: str, *, name: str, requirement
             writer.execute_script(setup)
         else:
             for command in setup:
-                events = list(execute(writer, command))
+                if isinstance(command, dict):
+                    if command == {"reopen": True}:
+                        writer.close()
+                        writer = open_writer()
+                    elif set(command) == {"dbConfig"}:
+                        option, value = command["dbConfig"]
+                        if (option, value) not in {(1010, 0), (1013, 1), (1014, 1), (1017, 1)}:
+                            raise ValueError("Configuration outside the native profile")
+                        if writer.configure(option, value) != value:
+                            raise ValueError("Configuration readback differs")
+                    else:
+                        raise ValueError("Unknown native setup operation")
+                    events = []
+                else:
+                    events = list(execute(writer, command))
                 setup_outcomes.append(events[-1]["primaryCode"] if events else 0)
                 setup_results.append([row for event in events for row in event["rows"]])
                 setup_errors.append(events[-1]["error"] if events else "")
@@ -131,7 +164,7 @@ def record_sql(setup: str | list[str], migration: str, *, name: str, requirement
 
         initial = snapshot()
         trace = [{**event, **snapshot()} for event in execute(writer, migration)]
-    return {"nativeVersion": 1, "name": name, "setupSql": setup if isinstance(setup, str) else "\n".join(setup),
+    return {"nativeVersion": 2 if isinstance(setup, list) and any(isinstance(item, dict) for item in setup) else 1, "name": name, "setupSql": setup if isinstance(setup, str) else "\n".join(item for item in setup if isinstance(item, str)),
             "setupCommands": [setup] if isinstance(setup, str) else setup, "setupOutcomes": setup_outcomes,
             "setupResults": setup_results, "setupErrors": setup_errors, "migrationSql": migration,
             "sourceId": SOURCE_ID, "requirements": requirements or [], "initial": initial, "trace": trace}

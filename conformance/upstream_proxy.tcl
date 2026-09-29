@@ -16,27 +16,42 @@ proc capture_connection {name command args} {
         capture_event result $name 0 {*}[lindex $args 1]
       } else { capture_event result $name [lindex $args 0] [lindex $args 1] }
     }
-  } elseif {$operation in {close function collation authorizer progress trace update_hook rollback_hook commit_hook}} {
+  } elseif {$operation eq "close"} {
+    if {[lindex $args end] eq "leave" && [lindex $args 0] == 0} { capture_event close $name }
+  } elseif {$operation in {function collation authorizer progress trace update_hook rollback_hook commit_hook}} {
     capture_event exclude "application callback: $operation"
   }
 }
 proc capture_factory {command code result operation} {
   set name [lindex $command 1]
   if {$code == 0 && ![string match -* $name] && [llength [info commands ::$name]]} {
-    capture_event open $name [lindex $command 2]
+    set ::capture_file($name) [file normalize [lindex $command 2]]
+    capture_event open $name $::capture_file($name)
     trace add execution ::$name {enter leave} [list capture_connection $name]
   }
 }
 proc capture_test {command args} {
   if {[lindex $args end] eq "enter"} {
     set ::capture_active 1
-    capture_event begin [lindex $command 1] [lindex $command 3]
+    set line 0
+    for {set i 1} {$i < [info frame]} {incr i} {
+      set frame [info frame $i]
+      if {[dict exists $frame file] && [dict get $frame file] eq $::env(CONFORMANCE_TEST)} {
+        set line [dict get $frame line]
+        break
+      }
+    }
+    capture_event begin [lindex $command 1] [lindex $command 3] $line
   } else { capture_event end [lindex $command 1]; set ::capture_active 0 }
 }
-proc capture_reset {command args} { capture_event reset }
+proc capture_reset {command args} {
+  if {[info exists ::capture_file(db)]} { capture_event reset $::capture_file(db) } else { capture_event reset }
+}
 proc capture_failure {command operation} { capture_event failed [lindex $command 1] }
 proc capture_external {command operation} {
-  if {[info exists ::capture_active] && $::capture_active} {
+  if {[lindex $command 0] eq "sqlite3_db_config"} {
+    capture_event config {*}[lrange $command 1 end]
+  } elseif {[info exists ::capture_active] && $::capture_active} {
     capture_event exclude "external/configuration operation: [lindex $command 0]"
   }
 }
@@ -49,7 +64,7 @@ proc capture_source {command code result operation} {
     foreach command {open sqlite3_db_config sqlite3_limit sqlite3_test_control} {
       if {[llength [info commands $command]]} { trace add execution $command enter capture_external }
     }
-    capture_event reset
+    capture_reset {}
   }
 }
 trace add execution sqlite3 leave capture_factory

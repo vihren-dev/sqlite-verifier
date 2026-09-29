@@ -75,3 +75,29 @@ def test_native_semantic_errors_are_recorded(tmp_path: Path) -> None:
         assert list(execute(connection, "SELECT zeroblob(101);"))[0]["primaryCode"] == 18
     finally:
         connection.close()
+
+
+def test_trailing_queries_do_not_hide_migration_progress(runtime_root: Path) -> None:
+    """Report only an agreeing migration prefix as query-blocked; keep queries and settings honest."""
+    from conformance.corpus import replay
+    records = [record_sql("CREATE TABLE t(v BLOB); INSERT INTO t VALUES(1);", sql, name=str(index))
+               for index, sql in enumerate([
+                   "ALTER TABLE t ADD x TEXT; SELECT * FROM t; PRAGMA table_info(t);",
+                   "ALTER TABLE t RENAME TO renamed; SELECT * FROM renamed;",
+                   "PRAGMA user_version=4;",
+                   "SELECT * FROM t; ALTER TABLE t ADD x TEXT;"])]
+    report = replay(records, runtime_root)
+    assert report["queryDiagnostics"] == {"BLOCKED_ONLY_BY_QUERIES": 1, "PREFIX_MODEL_UNSUPPORTED": 1, "OTHER_UNSUPPORTED": 2}
+    assert records[0]["trace"][-2]["rows"] == [[{"integer": {"value": 1}}, "null"]]
+    assert report["counts"] == {"MODEL_UNSUPPORTED": 4}
+
+
+def test_external_files_are_rejected_before_creation(tmp_path: Path) -> None:
+    """Excluded ATTACH cannot create files before the recorder notices its extra schema."""
+    from conformance.native_connection import NativeError
+    destination = tmp_path / "external.db"
+    with pytest.raises(NativeError, match="authorized"):
+        record_sql(f"ATTACH '{destination}' AS extra;", "", name="external")
+    assert not destination.exists()
+    with pytest.raises(ValueError, match="nondeterministic"):
+        record_sql("CREATE TABLE t(v);", "INSERT INTO t VALUES(randomblob(8));", name="random")

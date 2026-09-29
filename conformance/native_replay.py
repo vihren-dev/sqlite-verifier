@@ -9,7 +9,7 @@ from conformance.native_metadata import check_inventory, identifier, integer, te
 from migration_check.diagnostics import Rejection
 from migration_check.sql_model import Table, sql_inputs
 from migration_check.sql_tree import parse
-from migration_check.translate import starting_schema, statements
+from migration_check.translate import commands, starting_schema, statements
 
 
 def decode_cell(value: Json) -> Cell:
@@ -48,7 +48,7 @@ def schema_sql(observation: dict[str, Json]) -> str:
 
 def model_case(record: dict[str, Json], parser: Path) -> dict[str, Json]:
     """Re-translate on every replay, preserving frozen native truth as the model grows."""
-    if record.get("nativeVersion") != 1 or record.get("sourceId") != SOURCE_ID:
+    if record.get("nativeVersion") not in (1, 2) or record.get("sourceId") != SOURCE_ID:
         raise ValueError("Unsupported native record version or engine identity")
     initial_sql = schema_sql(record["initial"]["visible"])
     schema = starting_schema(parse(parser, initial_sql.encode(), "corpus-schema.sql"))
@@ -105,3 +105,33 @@ def prepare(record: dict[str, Json], parser: Path) -> tuple[dict[str, Json] | No
         return None, {"verdict": "MODEL_UNSUPPORTED" if error.status == "UNSUPPORTED" else "HARNESS_ERROR", "error": str(error)}
     except (ValueError, KeyError, TypeError, IndexError, OSError, RuntimeError, subprocess.SubprocessError) as error:
         return None, {"verdict": "HARNESS_ERROR", "error": str(error)}
+
+
+def without_trailing_queries(record: dict[str, Json], parser: Path) -> dict[str, Json] | None:
+    """Project only successful trailing SELECT/metadata PRAGMAs with unchanged recorded state.
+
+    The original record retains query SQL and exact result rows. This diagnostic does
+    not claim query support, or remove setting PRAGMAs and queries between writes.
+    """
+    tree = parse(parser, record["migrationSql"].encode(), "corpus-queries.sql")
+    nodes = commands(tree)
+    trace = record["trace"]
+    if len(nodes) != len(trace) or any(event["primaryCode"] for event in trace):
+        return None
+    end = len(trace)
+    safe_pragmas = {"table_info", "table_xinfo", "index_info", "index_xinfo", "index_list", "foreign_key_list"}
+    while end:
+        node, after = nodes[end - 1], trace[end - 1]
+        children = tree.children(node)
+        symbols = [child.symbol for child in children]
+        readonly = symbols == ["select"]
+        if symbols and symbols[0] == "PRAGMA" and "EQ" not in symbols:
+            names = [tree.text(child).lower() for child in children if child.symbol == "nm"]
+            readonly = bool(names and names[0] in safe_pragmas)
+        before = trace[end - 2] if end > 1 else record["initial"]
+        if not readonly or any(after[field] != before[field] for field in ("visible", "persisted", "transactionOpen")):
+            break
+        end -= 1
+    if end == len(trace):
+        return None
+    return {**record, "migrationSql": "\n".join(event["sql"] for event in trace[:end]), "trace": trace[:end]}

@@ -26,6 +26,11 @@ def test_library_default_and_frontend(version: str, suffix: str, runtime_root: P
         connection.query('CREATE TABLE checks(x CHECK(x != "forbidden"));')
         connection.query('CREATE INDEX i ON t("nosuch");')
         assert connection.query("PRAGMA index_xinfo(i);")[0][1] == (1, -2)
+        with pytest.raises(Rejection) as caught:
+            starting_schema(parse(parser, (schema_sql + 'CREATE INDEX i ON t("nosuch");').encode(), "index.sql", version))
+        assert caught.value.status == "UNSUPPORTED"
+        indexed = starting_schema(parse(parser, (schema_sql + 'CREATE INDEX i ON t("id");').encode(), "index.sql", version))
+        assert indexed[0].indexes[0].columns == ("id",)
         schema = starting_schema(parse(parser, schema_sql.encode(), "schema.sql", version))
         good = statements(parse(parser, b'UPDATE "t" SET "value"=\'ok\' WHERE "id"=1;', "good.sql", version))
         sql_inputs(schema, good)

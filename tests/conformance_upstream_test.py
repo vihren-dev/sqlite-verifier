@@ -41,3 +41,28 @@ def test_frozen_corpus_replays(runtime_root: Path) -> None:
     assert progress["counts"].get("AGREE", 0) >= 2
     assert not progress["counts"].get("DISAGREE", 0)
     assert not progress["counts"].get("HARNESS_ERROR", 0)
+
+
+def test_reopen_preserves_commit_and_discards_pending_write() -> None:
+    """A real close/reopen boundary retains committed rows and rolls back pending rows."""
+    events = [("reset", "/tmp/test.db"),
+              ("sql", "db", "CREATE TABLE t(v); INSERT INTO t VALUES(1); BEGIN; INSERT INTO t VALUES(2);", "0", "eval"),
+              ("result", "db", "0"), ("close", "db"), ("open", "db", "/tmp/test.db"),
+              ("config", "db", "SQLITE_DBCONFIG_DQS_DDL", "1"),
+              ("begin", "after-reopen", "1"), ("sql", "db", "SELECT * FROM t;", "0", "eval"),
+              ("result", "db", "0", "1"), ("end", "after-reopen")]
+    encoded = "\n".join("\t".join(value.encode().hex() for value in event) for event in events)
+    candidate = assertions(encoded)[0]
+    assert not candidate["exclusions"]
+    record = record_sql(candidate["prefix"], "\n".join(candidate["commands"]), name="reopen")
+    check_results(record, candidate)
+    assert record["nativeVersion"] == 2
+    assert record["trace"][0]["rows"] == [[{"integer": {"value": 1}}]]
+    assert not record["initial"]["transactionOpen"]
+
+
+def test_nearest_requirement_context() -> None:
+    """Record local comment lines without crediting every requirement mentioned in the file."""
+    from conformance.upstream_pilot import evidence
+    source = "# EVIDENCE-OF: R-00001-00002 old\ndo_test old {} {}\n# EVIDENCE-OF: R-00003-00004 current\n# continued\ndo_test new {} {}\n"
+    assert evidence(source, 5) == [{"id": "R-00003-00004", "line": 3}]

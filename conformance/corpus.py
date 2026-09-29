@@ -10,7 +10,7 @@ from pathlib import Path
 from conformance.case_format import Json
 from conformance.model_check import compiled_many
 from conformance.native_record import record_sql
-from conformance.native_replay import prepare
+from conformance.native_replay import prepare, without_trailing_queries
 
 
 def load(directory: Path) -> tuple[dict[str, Json], list[dict[str, Json]]]:
@@ -38,6 +38,21 @@ def replay(records: list[dict[str, Json]], runtime: Path) -> dict[str, Json]:
             cases.append(case)
     for position, answer in zip(positions, compiled_many(cases, runtime) if cases else [], strict=True):
         answers[position] = answer
+    query_counts: Counter[str] = Counter()
+    for record, answer in zip(records, answers, strict=True):
+        if answer["verdict"] != "MODEL_UNSUPPORTED":
+            continue
+        projection = without_trailing_queries(record, runtime / "build/sqlite-parser")
+        if projection is None:
+            query_counts["OTHER_UNSUPPORTED"] += 1
+            continue
+        case, prefix_answer = prepare(projection, runtime / "build/sqlite-parser")
+        if case is not None:
+            prefix_answer = compiled_many([case], runtime)[0]
+        category = "BLOCKED_ONLY_BY_QUERIES" if prefix_answer["verdict"] == "AGREE" else "PREFIX_" + prefix_answer["verdict"]
+        query_counts[category] += 1
+        answer["queryDiagnostic"] = {"category": category, "prefix": prefix_answer,
+            "migrationStatements": len(projection["trace"]), "trailingObservations": len(record["trace"]) - len(projection["trace"])}
     areas: dict[str, Counter[str]] = defaultdict(Counter)
     requirements: dict[str, Counter[str]] = defaultdict(Counter)
     details: list[Json] = []
@@ -47,7 +62,7 @@ def replay(records: list[dict[str, Json]], runtime: Path) -> dict[str, Json]:
         for requirement in record["requirements"] or ["UNTAGGED"]:
             requirements[requirement][verdict] += 1
         details.append({"name": record["name"], **answer})
-    return {"counts": dict(Counter(answer["verdict"] for answer in answers)),
+    return {"queryDiagnostics": dict(query_counts), "counts": dict(Counter(answer["verdict"] for answer in answers)),
             "byArea": {key: dict(value) for key, value in sorted(areas.items())},
             "byRequirement": {key: dict(value) for key, value in sorted(requirements.items())}, "cases": details}
 
