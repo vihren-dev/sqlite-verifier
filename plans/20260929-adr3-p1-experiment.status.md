@@ -1,6 +1,6 @@
 # ADR 0003 P1 comparative experiment status
 
-Created 2026-09-29. Status: IN PROGRESS.
+Created 2026-09-29. Status: DONE.
 Task: [P1 experiment](20260929-adr3-p1-experiment.task.md).
 Spec: [ADR 0003](../docs/adr-0003-agent-proof-preparation.md);
 evidence: [latency experiments](../experiments/adr-0003-latency/README.md).
@@ -49,3 +49,7 @@ Workspace: jj workspace `adr3` at `~/work/sqlite-verifier-adr3`.
   in `results/Linux-x86_64.jsonl`; `p1-results.md` updated. Literal decision-rule
   outcome across both platforms: ship tuning. Owner is considering overriding the
   rule in favor of the data path; not recorded in the ADR yet.
+- 2026-09-29: DONE. Owner decision recorded in ADR 0003: continue with the data
+  path despite the rule's literal "ship tuning" outcome; P2 scope updated
+  (supported commands, dependency-aware `prepare`, keep tuning changes, decide on
+  upstreaming the exporter option, re-run the matrix).
