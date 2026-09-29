@@ -127,7 +127,12 @@ def without_trailing_queries(record: dict[str, Json], parser: Path) -> dict[str,
     if any(event["primaryCode"] for event in record["trace"]):
         return None
     tree = parse(parser, record["migrationSql"].encode(), "corpus-queries.sql")
-    nodes = commands(tree)
+    try:
+        nodes = commands(tree)
+    except Rejection as error:
+        if error.status == "UNSUPPORTED":
+            return None  # EXPLAIN and other wrappers are outside this diagnostic projection.
+        raise
     trace = record["trace"]
     if len(nodes) != len(trace) or any(event["primaryCode"] for event in trace):
         return None

@@ -89,11 +89,11 @@ def test_trailing_queries_do_not_hide_migration_progress(runtime_root: Path) -> 
                    "ALTER TABLE t ADD x TEXT; SELECT * FROM t; PRAGMA table_info(t);",
                    "ALTER TABLE t RENAME TO renamed; SELECT * FROM renamed;",
                    "PRAGMA user_version=4;",
-                   "SELECT * FROM t; ALTER TABLE t ADD x TEXT;"])]
+                   "SELECT * FROM t; ALTER TABLE t ADD x TEXT;", "EXPLAIN SELECT * FROM t;"])]
     report = replay(records, runtime_root)
-    assert report["queryDiagnostics"] == {"BLOCKED_ONLY_BY_QUERIES": 1, "PREFIX_MODEL_UNSUPPORTED": 1, "OTHER_UNSUPPORTED": 2}
+    assert report["queryDiagnostics"] == {"BLOCKED_ONLY_BY_QUERIES": 1, "PREFIX_MODEL_UNSUPPORTED": 1, "OTHER_UNSUPPORTED": 3}
     assert records[0]["trace"][-2]["rows"] == [[{"integer": {"value": 1}}, "null"]]
-    assert report["counts"] == {"MODEL_UNSUPPORTED": 4}
+    assert report["counts"] == {"MODEL_UNSUPPORTED": 5}
 
 
 def test_external_files_are_rejected_before_creation(tmp_path: Path) -> None:
