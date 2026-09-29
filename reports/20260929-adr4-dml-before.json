@@ -1,0 +1,14 @@
+{
+  "cases": 40,
+  "schemaCache": false,
+  "workload": "40 cases: BEGIN, INSERT, UPDATE; equal COMMIT/ROLLBACK/open/constraint-error endings",
+  "nativeAcquisitionSeconds": 0.703147083055228,
+  "compiledBatchSeconds": 0.03442466724663973,
+  "casesPerSecond": 54.23201198206019,
+  "runtime": "/nix/store/xv8v76zxhak63y7djnvgql9a6ld7p232-sqlite-verifier-conformance",
+  "sourceSha256": {
+    "profile_dml.py": "e1af97bcba477170fd16aeb4e163cf84a80473c71ea325f2303499dca7a3d220",
+    "native_trace.py": "96ca7a9d421db614021a05f67d53d25df4ace95ca1e5dba254ccf687d90c4f36",
+    "model_check.py": "56ad417fc322e903edd5fff2a9d5917d2e6e27ccd99c255ddc2b608ada6bd409"
+  }
+}

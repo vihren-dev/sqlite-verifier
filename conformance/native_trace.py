@@ -2,6 +2,7 @@
 
 from contextlib import ExitStack
 from dataclasses import dataclass
+from functools import lru_cache
 from pathlib import Path
 from tempfile import TemporaryDirectory
 
@@ -23,6 +24,19 @@ class Fixture:
     name: str
 
 
+@lru_cache(maxsize=128)
+def parsed_schema(parser: Path, identity: tuple[int, int, int], sql: str) -> tuple[Table, ...]:
+    """Reuse immutable declarations across cases; executable identity prevents stale parser reuse."""
+    return starting_schema(parse(parser, sql.encode(), "conformance-schema.sql"))
+
+
+def read_schema(parser: Path, sql: str) -> tuple[Table, ...]:
+    """Bound caching to exact SQL and the current parser executable, never native observations."""
+    parser = parser.resolve()
+    stat = parser.stat()
+    return parsed_schema(parser, (stat.st_ino, stat.st_size, stat.st_mtime_ns), sql)
+
+
 def snapshot(connection: Connection, parser: Path,
              cache: dict[str, tuple[Table, ...]] | None = None) -> list[Json]:
     """Read all supported objects and chunk wide rows below the fixed result-column limit."""
@@ -37,7 +51,7 @@ def snapshot(connection: Connection, parser: Path,
     key = "\n".join(declarations)
     try:
         if key not in cache:
-            cache[key] = starting_schema(parse(parser, key.encode(), "native-schema.sql"))
+            cache[key] = read_schema(parser, key)
         schema = cache[key]
     except Rejection as error:
         raise ValueError(f"Cannot observe native schema: {error}") from error
@@ -76,7 +90,7 @@ def initialize(connection: Connection, schema: tuple[Table, ...], fixture: Fixtu
 
 def record(fixture: Fixture, parser: Path, library: Path | None = None) -> dict[str, Json]:
     """Acquire real evidence; admission failures are raised before native execution."""
-    schema = starting_schema(parse(parser, fixture.schema_sql.encode(), "schema.sql"))
+    schema = read_schema(parser, fixture.schema_sql)
     script = statements(parse(parser, fixture.migration_sql.encode(), "migration.sql"))
     sql_inputs(schema, script)  # Includes production schema and literal-write admission.
     pinned = load_library(library or library_path())

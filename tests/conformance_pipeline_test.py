@@ -154,10 +154,12 @@ def test_native_metadata_catches_translator_faults(runtime_root: Path, tmp_path:
                    replace(table, indexes=()), replace(table, indexes=(replace(table.indexes[0], unique=False),)),
                    replace(table, indexes=(replace(table.indexes[0], columns=("flag", "value")),))]
         for faulty in faults:
+            native_trace.parsed_schema.cache_clear()
             monkeypatch.setattr(native_trace, "starting_schema", lambda tree: (faulty,))
             with pytest.raises(ValueError, match="Native .* differs"):
                 native_trace.snapshot(connection, parser)
     finally:
+        native_trace.parsed_schema.cache_clear()
         connection.close()
 
 
@@ -170,16 +172,19 @@ def test_schema_cache_and_batch(runtime_root: Path, monkeypatch: pytest.MonkeyPa
 
     def counted(path: Path, source: bytes, name: str) -> Tree:
         """Count actual native schema parser invocations without replacing their behavior."""
-        if name == "native-schema.sql":
+        if name == "conformance-schema.sql":
             parsed.append(source.decode())
         return parser(path, source, name)
 
+    native_trace.parsed_schema.cache_clear()
     monkeypatch.setattr(native_trace, "parse", counted)
     fixture = Fixture("CREATE TABLE t(id INTEGER);",
         "BEGIN; ALTER TABLE t ADD a TEXT; ROLLBACK; "
         "BEGIN; ALTER TABLE t ADD b BLOB; COMMIT;", {}, "schema-cache")
     case = record(fixture, runtime_root / "build/sqlite-parser")
     assert len(parsed) == len(set(parsed)) == 3
+    assert record(fixture, runtime_root / "build/sqlite-parser") == case
+    assert len(parsed) == 3
     assert case["nativeTrace"][3]["visible"] == case["nativeTrace"][0]["visible"]
     invalid = deepcopy(case)
     invalid["version"] = 2
