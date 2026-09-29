@@ -1,5 +1,5 @@
 # Independent pytest targets: Nix owns isolation, dependency identity and reuse.
-{ pkgs, leanToolchain, leanRuntime, parsers, runtime, root ? ../.
+{ pkgs, leanToolchain, leanRuntime, parsers, runtime, conformance ? runtime, root ? ../.
 , native ? import ../nix/sqlite.nix { inherit pkgs; }
 }:
 let
@@ -13,12 +13,6 @@ let
     mkdir -p "$out"
     ln -s ${leanToolchain} "$out/lean"
     ln -s ${leanRuntime}/.lake "$out/.lake"
-  '';
-  modelRoot = pkgs.runCommand "sqlite-verifier-test-model" {} ''
-    mkdir -p "$out"
-    ln -s ${leanToolchain} "$out/lean"
-    ln -s ${leanRuntime}/.lake "$out/.lake"
-    ln -s ${parsers}/build "$out/build"
   '';
   suite = name: { file, inputs, runtime, tools ? [], extraFiles ? [] }:
     pkgs.stdenvNoCC.mkDerivation {
@@ -53,14 +47,20 @@ in {
   };
   model = suite "model" {
     file = "tests/conformance_model_test.py";
-    extraFiles = [ "tests/conformance_trace_test.py" ];
+    extraFiles = [ "tests/conformance_trace_test.py" "tests/conformance_pipeline_test.py"
+      "tests/conformance_mutation_test.py" ];
     inputs = [
       (fs.fileFilter (file: file.hasExt "py") (root + /migration_check))
+      (fs.fileFilter (file: file.hasExt "json") (root + /conformance/cases))
+      (root + /SqliteVerifier/SqlExecution.lean)
+      (root + /SqliteVerifier/ConformanceTrace.lean)
+      (root + /SqliteVerifier/ConformanceCase.lean)
     ] ++ map (name: root + "/conformance/${name}.py") [
-      "model_assertions" "model_cases" "model_check" "model_native"
+      "model_assertions" "model_cases" "model_check"
       "native_fixture" "import_fixture" "schema"
+      "case_format" "native_connection" "native_trace" "pipeline"
     ];
-    runtime = modelRoot;
+    runtime = conformance;
     tools = [ native.sqlite ];
   };
 }

@@ -12,12 +12,22 @@
 - This proposal does not change current behavior, supported SQL, statuses, or
   the trust policy. It adds evidence about the model; it never adds axioms.
 
+## Prototype implementation (2026-09-29)
+
+W1–W2 are implemented in the dedicated `adr4` workspace. The executable commands,
+evidence boundaries and regression scope are in [conformance-model.md](conformance-model.md);
+the shared encoding is [conformance-format-v1.md](conformance-format-v1.md).
+The [prototype evidence](../reports/20260929-adr4-prototype.json) records live
+native/kernel agreement, validation results, source hashes and measured throughput.
+The starting baseline below is retained as the motivation for the proposal.
+W3 and later packages remain subject to the decision point in §7.
+
 ## Decision in brief
 
 Approve a bounded prototype, not the whole pipeline:
 
-1. Lean `checkCase` is the single comparison authority. Every tier that compares
-   the model with SQLite evaluates it; Python records native traces and prints
+1. Lean `classifyCase` is the single comparison authority; `checkCase` is its
+   Boolean proof predicate. Python records native traces and prints
    diagnostics but never decides agreement.
 2. A persistent-connection native runner supplies the per-statement observation
    boundary, including connection-visible and committed state inside an open
@@ -32,11 +42,11 @@ evidence, W3 is not authorized, and the obstacle is recorded in this ADR.
 The four-tier pipeline in §4 is the intended destination. Its later tiers are
 recorded here so the prototype is built toward them, not approved by this ADR.
 
-## 1. Observed problem
+## 1. Observed problem (pre-prototype baseline)
 
 Every `VERIFIED` result is a statement about the Lean model in `SqliteVerifier/`.
 Its value to users depends on the model agreeing with the pinned SQLite 3.51.0
-engine for every admitted statement. Today that agreement rests on five authored
+engine for every admitted statement. At proposal time that agreement rested on five authored
 cases in [conformance-model.md](conformance-model.md), three imported `alter3`
 assertions that are not model-checked ([conformance-fixtures.md](conformance-fixtures.md)),
 and five requirement-ID traceability entries ([coverage.md](coverage.md)).
@@ -91,7 +101,7 @@ None of them kernel-checks the whole conformance suite.
 
 | Tier | Input | Runs | Evidence |
 | --- | --- | --- | --- |
-| 1. Bulk differential | Generated programs; mined upstream cases | Compiled `checkCase` over native traces | Compiled model agrees on these runs; trusts the Lean compiler |
+| 1. Bulk differential | Generated programs; mined upstream cases | Compiled `classifyCase` over native traces | Compiled model agrees on these runs; trusts the Lean compiler |
 | 2. Proven regression | Minimized disagreements, requirement-tagged and hand-written cases | `checkCase c = true` by `decide +kernel`, sharded modules | Kernel-checked claim about the model for each case |
 | 3. Independent replay | Tier 2 and tier 4 declarations | Independent kernel from the [trust extension](adr-0003-trust-extension.md) | Checker-independent tiers 2 and 4 |
 | 4. General laws | Rollback, atomicity, ADD COLUMN preservation | Lean theorems; the same laws also run as native properties | Kernel-checked claim about the model for all inputs |
@@ -160,8 +170,12 @@ automatically.
 
 After each statement, both sides record:
 
-- The outcome: success, or a modeled error mapped to SQLite's primary/extended
-  result code. Error message text is not compared.
+- The outcome: success, or a modeled error mapped to SQLite's primary result code.
+  Extended codes are retained diagnostically: the current model's single
+  `constraintViolation` constructor cannot distinguish constraint subtypes.
+  Error message text is not compared by `classifyCase`. The five preexisting
+  curated regressions additionally retain their authored native diagnostic and
+  modeled-error expectations, including column-limit precedence.
 - The connection-visible schema and rows: supported table declarations in
   `sqlite_schema` name order, and each table's rows ordered by rowid as
   `(rowid, typeof, exact value)`; text and blobs by bytes, reals by their 64-bit

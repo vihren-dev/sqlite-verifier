@@ -9,7 +9,7 @@ let
 in rec {
   inherit leanToolchain sources;
   tests = import ./tests.nix {
-    inherit pkgs leanToolchain leanRuntime parsers runtime native;
+    inherit pkgs leanToolchain leanRuntime parsers runtime native conformance;
   };
   runtime = import ./runtime.nix {
     inherit pkgs sources leanToolchain parsers leanRuntime;
@@ -71,4 +71,18 @@ in rec {
       cp .lake/build/bin/migration-proof-checker "$out/.lake/build/bin/"
     '';
   };
+  # Test-only model executable; the shipped verifier runtime keeps its existing commands.
+  conformanceRuntime = leanRuntime.overrideAttrs (old: {
+    pname = "sqlite-verifier-conformance-runtime";
+    buildPhase = old.buildPhase + "\nlake build conformance-runner\n";
+    installPhase = old.installPhase + ''
+      cp .lake/build/bin/conformance-runner "$out/.lake/build/bin/"
+    '';
+  });
+  conformance = pkgs.runCommand "sqlite-verifier-conformance" {} ''
+    mkdir -p "$out"
+    ln -s ${leanToolchain} "$out/lean"
+    ln -s ${conformanceRuntime}/.lake "$out/.lake"
+    ln -s ${parsers}/build "$out/build"
+  '';
 }

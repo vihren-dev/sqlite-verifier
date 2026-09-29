@@ -21,7 +21,7 @@ SQLite behavior. These scopes remain distinct:
 | Documented claims | Five traceability entries: three upstream requirement IDs and two version-matched snapshot anchors. The total SQLite documentation claim count is unknown. Runtime-limit lowering is reference-only and excluded by the fixed profile. |
 | Imported fixtures | Three selected assertion instances of 59 textual alter3.test call sites; two distinct IDs of 55. Not runtime-expanded Tcl cases or the whole SQLite corpus. The inherited view is retained, so model checking remains unsupported. |
 | Semantic support | Named restricted statement forms, including explicit transactions and literal writes, as defined in semantic-subset.md; this inventory is not a coverage denominator. |
-| Native/model observations | All five authored derived cases compared against independent expected results through the production parser/translator and Lean checks. Zero discrepancies means only those completed comparisons. |
+| Native/model observations | All five authored derived cases retain independent expected results and now run through persistent native observation, compiled `classifyCase` and kernel `checkCase` proofs. Focused transaction, storage, admission, transport and mutation regressions are listed in conformance-model.md. No generated corpus or universal refinement claim. |
 
 Model comparisons use SQLite 3.51.0; syntax tests for 3.46.0 do not transfer
 model evidence to that version. The former native Atuin SQL cases only observed

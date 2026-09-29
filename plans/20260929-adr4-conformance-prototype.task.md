@@ -1,8 +1,10 @@
 # ADR 0004 conformance prototype
 
-Created 2026-09-29. Status: ACTIVE.
+Created 2026-09-29. Status: DONE (W1–W2).
 Status: [progress](20260929-adr4-conformance-prototype.status.md).
 Specification: [ADR 0004](../docs/adr-0004-model-conformance-validation.md).
+
+Completed 2026-09-29; measured evidence and requirement mapping are in the status file.
 
 ## Observable outcome
 

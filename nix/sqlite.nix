@@ -10,6 +10,8 @@ let
     };
     preConfigure = "patchShebangs configure";
     configureFlags = [ "--disable-readline" ];
+    # The shell sets this itself; the persistent C-API runner needs the same library policy.
+    env.NIX_CFLAGS_COMPILE = "-DSQLITE_DQS=0";
     meta.license = pkgs.lib.licenses.publicDomain;
   };
 in {

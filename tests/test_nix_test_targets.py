@@ -19,7 +19,7 @@ def expression(root: Path) -> str:
       pkgs = import (builtins.toPath {quote(ROOT / 'build-support/locked-nixpkgs.nix')}) {{}};
       builds = import (builtins.toPath {quote(ROOT / 'build-support/default.nix')}) {{}};
     in import (builtins.toPath {quote(ROOT / 'build-support/tests.nix')}) {{
-      inherit pkgs; inherit (builds) leanToolchain leanRuntime parsers;
+      inherit pkgs; inherit (builds) leanToolchain leanRuntime parsers conformance;
       runtime = import (builtins.toPath {quote(ROOT / 'build-support/runtime.nix')}) {{
         inherit pkgs; inherit (builds) leanToolchain leanRuntime parsers;
         sources = builds.sources // {{ runtime = (import (builtins.toPath {quote(ROOT / 'build-support/sources.nix')}) {{
@@ -44,7 +44,7 @@ def source_tree(tmp_path: Path) -> Path:
     """Copy only small potential test inputs; no store outputs, vendored parsers or build trees."""
     for name in ('pytest.ini', 'conftest.py', 'LICENSE'):
         shutil.copy2(ROOT / name, tmp_path / name)
-    for name in ('tests', 'migration_check', 'conformance', 'examples', 'docs', 'packaging'):
+    for name in ('tests', 'migration_check', 'conformance', 'examples', 'docs', 'packaging', 'SqliteVerifier'):
         shutil.copytree(ROOT / name, tmp_path / name,
                         ignore=shutil.ignore_patterns('__pycache__', '*.pyc', 'upstream'))
     return tmp_path
@@ -54,6 +54,11 @@ def source_tree(tmp_path: Path) -> Path:
     ('tests/kernel_gate_test.py', {'kernel'}),
     ('tests/kernel_gate/Proofs.lean', {'kernel'}),
     ('conformance/model_cases.py', {'model'}),
+    ('conformance/cases/add_then_create.json', {'model'}),
+    ('conformance/native_trace.py', {'model'}),
+    ('conformance/case_format.py', {'model'}),
+    ('SqliteVerifier/ConformanceTrace.lean', {'model'}),
+    ('tests/conformance_pipeline_test.py', {'model'}),
     ('migration_check/translate.py', {'model', 'atuin', 'cli'}),
     ('conftest.py', {'kernel', 'model', 'atuin', 'cli'}),
     ('tests/atuin_cli_test.py', {'atuin'}),
@@ -85,13 +90,26 @@ def test_failure():
     assert 'intentional pytest failure' in result.stderr, result.diagnostic()
 
 
+@pytest.fixture(scope="session")
+def flake_source(tmp_path_factory: pytest.TempPathFactory) -> Path:
+    """Nix 2.18 needs a Git source boundary for a subdirectory flake, including in jj workspaces."""
+    destination = tmp_path_factory.mktemp("flake-source") / "checkout"
+    shutil.copytree(ROOT, destination, symlinks=True, ignore=shutil.ignore_patterns(
+        ".git", ".jj", ".lake", ".direnv", ".pytest_cache", "build", "dist", "lean",
+        "result*", "__pycache__", "*.pyc"))
+    for command in (["git", "init", "-q"], ["git", "add", "."]):
+        result = run_command(command, cwd=destination, timeout=30)
+        assert result.returncode == 0, result.diagnostic()
+    return destination
+
+
 @pytest.mark.parametrize('system', ['aarch64-darwin', 'x86_64-linux'])
-def test_flake_checks_reuse_existing_targets(system: str) -> None:
+def test_flake_checks_reuse_existing_targets(system: str, flake_source: Path) -> None:
     """Flake checks expose the same four derivations, preserving existing cached results."""
     flags = ['--extra-experimental-features', 'nix-command flakes']
     projection = 'builtins.mapAttrs (_: test: test.drvPath)'
     flake = run_command(['nix', *flags, 'eval', '--json', '--no-update-lock-file',
-                         f'./nix#checks.{system}', '--apply', projection], cwd=ROOT, timeout=60)
+                         f'git+file://{flake_source}?dir=nix#checks.{system}', '--apply', projection], cwd=ROOT, timeout=60)
     legacy = run_command(['nix-instantiate', *flags, '--eval', '--strict', '--json', '--expr',
         f'{projection} ((import ./build-support/default.nix {{ system = "{system}"; }}).tests)'],
         cwd=ROOT, timeout=60)
