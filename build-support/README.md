@@ -60,8 +60,8 @@ Use `just conformance-build`, then `python3 -m pytest tests/conformance_model_te
 --runtime-root build/conformance`, to force a focused local run. `just conformance
 --repeat 3 --prove` writes the prototype's JSON cases, proofs and timing report.
 The native engine uses its default build configuration. The runner checks version,
-source ID and MAX_COLUMN, then sets and reads back DQS_DML/DQS_DDL on every
-connection to match the shell profile.
+source ID and MAX_COLUMN, then verifies library-default DQS_DML/DQS_DDL on every
+connection. The shell fixture runner enables both to match the library profile.
 
 Flake equivalence tests stage a temporary Git source boundary so the real Nix 2.18
 subdirectory-flake command also works from a dedicated Jujutsu workspace without

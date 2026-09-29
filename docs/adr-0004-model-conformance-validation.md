@@ -65,9 +65,9 @@ The product owner approved the following after reviewing the W1–W2 evidence.
    a separate profile-change task: the translator must model SQLite's
    double-quoted-string fallback or reject the ambiguous uses as `UNSUPPORTED`,
    and native checks must verify the library default instead of disabling DQS.
-   Until that task lands, the implemented profile and the conformance runner stay
-   at DQS=0. Both switch in the same change, so the model and native evidence
-   never use different settings.
+   Implemented in the [profile-change task](../plans/20260929-adr4-dqs-profile.status.md):
+   ambiguous expression uses reject as UNSUPPORTED and native checks verify
+   DQS_DML=1/DQS_DDL=1 on both versions. The frontend and native boundary changed together.
 7. **Merge order:** `adr4` merges into main first; `adr3` rebases onto it.
 
 ## Prototype decision (delivered as W1–W2)

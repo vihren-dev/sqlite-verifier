@@ -115,18 +115,16 @@ def test_preserved_schema_metadata(runtime_root: Path, tmp_path: Path) -> None:
 
 
 def test_connection_dqs_profile(tmp_path: Path) -> None:
-    """Each connection overrides default-library DQS and verifies both native settings."""
+    """Each connection verifies the library default without disabling DQS fallback."""
     from conformance.native_connection import Connection, NativeError, library_path, load_library
     library = load_library(library_path())
     assert not library.sqlite3_compileoption_used(b"DQS=0")
     for name in ("writer", "reader"):
         connection = Connection(library, tmp_path / name)
         try:
-            assert connection.configure(1013, -1) == connection.configure(1014, -1) == 0
-            with pytest.raises(NativeError):
-                connection.query('SELECT "not_an_identifier";')
-            with pytest.raises(NativeError):
-                connection.query('CREATE TABLE t(x CHECK(x <> "not_an_identifier"));')
+            assert connection.configure(1013, -1) == connection.configure(1014, -1) == 1
+            assert connection.query('SELECT "not_an_identifier";') == [((3, b"not_an_identifier"),)]
+            connection.query('CREATE TABLE t(x CHECK(x <> "not_an_identifier"));')
         finally:
             connection.close()
 

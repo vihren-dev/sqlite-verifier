@@ -21,9 +21,9 @@ class NativeError(RuntimeError):
         self.code = code
 
 
-def library_path() -> Path:
+def library_path(executable_name: str = "sqlite3") -> Path:
     """Resolve the library beside the Nix shell's SQLite, never the system loader default."""
-    executable = shutil.which("sqlite3")
+    executable = shutil.which(executable_name)
     if executable is None:
         raise RuntimeError("Enter the pinned Nix development shell: sqlite3 is missing")
     suffix = "dylib" if sys.platform == "darwin" else "so"
@@ -31,7 +31,7 @@ def library_path() -> Path:
     return path.resolve(strict=True)
 
 
-def load_library(path: Path) -> c.CDLL:
+def load_library(path: Path, version: str = "3.51.0") -> c.CDLL:
     """Declare C argument widths once; pointer defaults would truncate addresses."""
     library = c.CDLL(str(path))
     signatures = {
@@ -66,7 +66,8 @@ def load_library(path: Path) -> c.CDLL:
     for name, (arguments, result) in signatures.items():
         function = getattr(library, "sqlite3_" + name)
         function.argtypes, function.restype = arguments, result
-    if library.sqlite3_libversion() != b"3.51.0" or library.sqlite3_sourceid().decode() != SOURCE_ID:
+    source = {"3.51.0": SOURCE_ID, "3.46.0": "2024-05-23 13:25:27 96c92aba00c8375bc32fafcdf12429c58bd8aabfcadab6683e35bbb9cdebf19e"}[version]
+    if library.sqlite3_libversion().decode() != version or library.sqlite3_sourceid().decode() != source:
         raise RuntimeError("SQLite library version/source ID does not match the pin")
     if not library.sqlite3_compileoption_used(b"MAX_COLUMN=2000"):
         raise RuntimeError("SQLite compile options do not match the profile")
@@ -90,10 +91,9 @@ class Connection:
         library.sqlite3_limit(self.handle, 2, 2000)
         library.sqlite3_progress_handler(self.handle, 1000, self.progress, None)
         try:
-            # Match the shell profile without changing the shared engine build.
-            for option in (1010, 1013, 1014):  # DEFENSIVE, DQS_DML, DQS_DDL
-                self.configure(option, 0)
-                if self.configure(option, -1) != 0:
+            self.configure(1010, 0)  # DEFENSIVE: preserve the reviewed native profile.
+            for option in (1013, 1014):  # Verify library-default DQS_DML and DQS_DDL.
+                if self.configure(option, -1) != 1:
                     raise RuntimeError("SQLite connection configuration readback failed")
             if library.sqlite3_limit(self.handle, 2, -1) != 2000:
                 raise RuntimeError("SQLite connection does not match the execution profile")

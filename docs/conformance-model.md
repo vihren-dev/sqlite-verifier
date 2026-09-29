@@ -87,7 +87,7 @@ native refinement, arbitrary application-query preservation, or pilot acceptance
 
 The C-API runner loads the library beside the Nix-pinned SQLite executable,
 checking version 3.51.0, exact source ID and MAX_COLUMN=2000. Each connection
-sets DQS_DML and DQS_DDL off with `sqlite3_db_config` and reads both settings back;
+verifies library-default DQS_DML=1 and DQS_DDL=1 with `sqlite3_db_config`;
 the pinned engine retains its default build configuration. Connections use native
 autocommit, defensive mode off, trusted schema on, and writable schema off.
 

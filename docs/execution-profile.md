@@ -13,14 +13,17 @@ with source/archive hashes recorded under `parser/upstream/` and Nix.
 The semantic subset is described in [semantic-subset.md](semantic-subset.md).
 It assumes one ordinary main database, valid SQLite storage, ordinary rowid
 tables, only the admitted schema objects, no ambient transaction, and the pinned default
-build with DQS=0 and an effective column limit of 2000. No extensions, custom
+build with library-default DQS_DML=1 and DQS_DDL=1 and an effective column limit of 2000. No extensions, custom
 authorizers, concurrent connections, application callbacks, or custom collations
 may change supported statement behavior. Writable-schema mode is off. Other
 SQLite resource limits must not interrupt the modeled execution.
 
-> Owner decision (2026-09-29): the profile moves to SQLite's library-default DQS
-> setting. The DQS=0 assumption above remains the implemented behavior until the
-> profile-change task lands; see [ADR 0004](adr-0004-model-conformance-validation.md#owner-decisions-2026-09-29).
+Double-quoted tokens in expression positions may fall back to string literals in
+SQLite. The frontend conservatively rejects such literal/assignment expressions
+as `UNSUPPORTED`; quoted identifiers that resolve to declared columns remain
+usable. This implements the [ADR 0004 owner decision](adr-0004-model-conformance-validation.md).
+Native C-API connections verify both defaults without overriding them. The shell
+runner explicitly enables both settings because the shell starts with DQS off.
 
 Submit each complete statement in script order on one connection and stop on
 the first statement error. Statements outside explicit transactions use
