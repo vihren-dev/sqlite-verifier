@@ -1,6 +1,6 @@
 # Test suite simplification status
 
-Created 2026-09-29. Status: IN PROGRESS.
+Created 2026-09-29. Status: DONE.
 Task: [test suite simplification](20260929-test-suite-simplification.task.md).
 Related: [ADR 0001](../docs/adr-0001-pytest-and-nix-ci.md),
 [CI](../docs/ci.md), [build support](../build-support/README.md).
@@ -60,3 +60,19 @@ Relevant sources: `justfile`, `conftest.py`, `pytest.ini`, `tests/`,
   to packaging. `just test`: Nix targets pass (cli 13), host 259 passed plus
   the known draft-docs failure in 30s (was ~186s). `just test-nix`: 49 passed
   in 40s.
+- 2026-09-29: Updated README, CI and build-support docs and recorded the
+  owner's decisions in ADR 0001. Installed acceptance step of
+  `just runtime-package` against the existing (unchanged-runtime) archive:
+  18 passed. A fresh archive build was not run; the runtime inputs did not
+  change in this task.
+
+## Outcome (DONE)
+
+- Host `just test` pytest step: ~186s → 30s; `cli_test.py` 97s → 49s and now
+  cached in Nix; Atuin 16 → 12 cases.
+- Known remaining failure: `tests/docs_test.py::test_local_markdown_links`
+  reports broken links in the unrelated uncommitted drafts
+  (`docs/0003-component-research.md`, `docs/adr-0002-compile-project-cache.md`).
+- Not changed: the 2000-column model case (only check of column-limit error
+  precedence against native SQLite); the pinned SQLite 3.46.0 binary, now only
+  used by the smoke identity check.

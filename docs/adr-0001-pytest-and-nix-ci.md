@@ -5,6 +5,14 @@ orchestrator and aggregate coverage gate with independently cached expensive
 pytest derivations. See [current build/test behavior](../build-support/README.md)
 and [CI](ci.md). The decision and rollout protocol below are historical.
 
+Update (2026-09-29): the owner also removed the benchmark rollout tooling, the
+custom pytest reporting layer (catalogue, per-case receipts, separate
+source/installed report trees, mandatory level markers), descendant cleanup
+beyond a timed-out command's process group, and duplicated end-to-end cases,
+including the requirement to keep every Atuin case. Pytest's own output and
+JUnit XML are the reports. See the
+[test suite simplification task](../plans/20260929-test-suite-simplification.task.md).
+
 - Status: Accepted; implementation in progress
 - Date: 2026-09-26
 - Updated: 2026-09-28

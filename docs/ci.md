@@ -11,20 +11,25 @@ changes to `just package`. Tags and manual requests always package.
 
 Each native job enters the pinned Nix environment once. `tools/ci_checks.py`
 checks resources, builds the runtime and
-invokes the selected recipe. `just test` runs `nix flake check ./nix -L`, exposing
-three independent Nix test targets as `checks.<system>`:
+invokes the selected recipe. `just test` builds four independent Nix test targets
+with `nix-build -A tests`; the flake exposes the same derivations as
+`checks.<system>`:
 
 - `tests.kernel`: real Lean compilation and proof-checker replay attacks.
 - `tests.model`: production SQL translation, pinned native SQLite observations
   and concrete Lean model assertions.
-- `tests.atuin`: all 16 application CLI and native SQL scenarios.
+- `tests.atuin`: the Atuin application CLI scenarios.
+- `tests.cli`: public-entrypoint acceptance and adversarial input scenarios.
 
 Each target runs ordinary pytest on a cache miss. Its explicit source files,
 Python/pytest, native tools, Lean artifacts and command determine its Nix identity.
-Successful outputs retain pytest reports. There is no Python cache validator or
+Successful outputs retain pytest's JUnit XML. There is no Python cache validator or
 coverage-report gate. Nix sandboxing is enabled, with fallback disabled.
 
-The remaining source cases run in one pytest invocation. `just test-atuin` selects
+The remaining cheap source cases run in one pytest invocation. Cases marked
+`requires_nix` (source identities, test-target invalidation, environment snapshots,
+installer cache paths) run in `just test-nix`, which `just package` includes; CI
+routes changes to Nix, build, tooling, packaging and those test files to packaging. `just test-atuin` selects
 only the cached Atuin target. Tests use trusted repository fixtures; no production
 sandbox is supplied or tested. Nix daemon and installation tests run on the host.
 Cheap unit tests rerun normally. Direct `just test-cases FILE` always executes
@@ -37,9 +42,10 @@ reused. An unrelated test edit can reuse kernel/model results; changing a declar
 input creates a different test derivation. No extra signing credentials, custom
 source fingerprinting in production CI, or checkout build caches are required.
 
-Host JSON/JUnit reports, cached Nix test outputs and CI phase diagnostics are
+Host JUnit reports, cached Nix test outputs and CI phase diagnostics are
 retained for 14 days. Pytest's exit status decides success. Individual subprocess
-and whole-command deadlines remain bounded; the job limit is 30 minutes.
+and whole-command deadlines remain bounded (a timed-out test command's process
+group is killed); the job limit is 30 minutes.
 Superseded ordinary runs are cancelled; release/manual runs are not.
 
 The matrix follows GitHub's documented native runner architectures:
@@ -60,7 +66,7 @@ runtime archives for 14 days; ordinary checks do not create these archives.
 Runtime
 acceptance installs into a fresh directory with spaces, Unicode and URI-special
 characters, and checks both parsers, the positive, refuted and unsupported examples,
-the installed dependency roots, and all thirteen Atuin cases under
+the installed dependency roots, and the Atuin cases under
 a controlled environment without elan or ambient Python imports. The Nix local
 cache retains the complete content-addressed runtime closure with import
 verification enabled. Execution isolation is the caller’s responsibility.

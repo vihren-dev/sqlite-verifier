@@ -51,10 +51,10 @@ These native checks are evidence, not a proof of correspondence with SQLite C.
 
 `just build` compiles the upstream-derived parser, public Lean library, and
 independent kernel checker.
-`just test` builds prerequisites, reuses independently cached Nix kernel/model/Atuin
-test targets through `nix flake check ./nix -L`, and runs the remaining source
-tests through pytest.
-`just test-atuin` selects only the cached 16-case Atuin target.
+`just test` builds prerequisites, reuses independently cached Nix kernel/model/Atuin/CLI
+test targets, and runs the remaining cheap source tests through pytest.
+`just test-atuin` selects only the cached Atuin target. `just test-nix` checks the
+Nix build and installer infrastructure; `just package` runs it.
 
 Lean source executes with your permissions. The verifier assumes trusted execution
 and does not sandbox tactics; see the [trust boundary](docs/trust-boundary.md).

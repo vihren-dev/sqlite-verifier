@@ -1,6 +1,6 @@
 # Test suite simplification
 
-Created 2026-09-29. Status: IN PROGRESS.
+Created 2026-09-29. Status: DONE.
 Status file: [status](20260929-test-suite-simplification.status.md).
 
 A review of the complete test suite (2026-09-29) found that most test code
