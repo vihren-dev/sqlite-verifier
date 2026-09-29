@@ -53,6 +53,9 @@ jobs:
       - name: Restore Nix builds and test results
         if: steps.scope.outputs.scope != 'docs'
         uses: nix-community/cache-nix-action@7df957e333c1e5da7721f60227dbba6d06080569 # v7
+        env:
+          # Failed Nix builds can leave unreadable transient locks; never archive them.
+          TAR_OPTIONS: --no-wildcards-match-slash --exclude=nix/store/*.lock
         with:
           primary-key: nix-tests-v1-${{ matrix.system }}-${{ hashFiles('nix/*.nix', 'nix/flake.lock') }}-${{ github.sha }}
           restore-prefixes-first-match: nix-tests-v1-${{ matrix.system }}-${{ hashFiles('nix/*.nix', 'nix/flake.lock') }}-
