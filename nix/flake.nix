@@ -20,7 +20,7 @@
       devShells = forSystems (system:
         let
           tools = packagesFor system;
-          testPython = tools.pkgs.python3.withPackages (ps: [ ps.pytest ]);
+          testPython = tools.pkgs.python3.withPackages (ps: [ ps.pytest ps.hypothesis ]);
           runtimePackages = with tools.pkgs; [ just coreutils testPython tools.sqlite tools.sqlite346 ]
             ++ lib.optionals stdenv.hostPlatform.isLinux [ patchelf ];
         in {
