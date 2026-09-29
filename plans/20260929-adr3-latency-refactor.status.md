@@ -17,3 +17,9 @@ Sources: [ADR 0003](../docs/adr-0003-agent-proof-preparation.md),
 - 2026-09-29: Rewrote ADR 0003 around the latency milestone; moved deferred
   adversarial design to `docs/adr-0003-trust-extension.md`; marked conflicts in
   the component research. Docs link check passes.
+- 2026-09-29: Revised after review: the decision is now a bounded comparative
+  experiment (data path versus tuning) with per-platform relative thresholds on
+  acceptance and edit-to-result time; approved-contract reuse adopts ADR 0002's
+  determinism/eligibility policy with a fresh-compile fallback; projections are
+  shown with fresh and reused contracts; future trust is a separate benefit with
+  its cost stated. Docs link check passes.
