@@ -42,21 +42,21 @@ def test_wrong_trace_and_unsupported(runtime_root: Path, tmp_path: Path) -> None
     wrong["nativeTrace"][-1]["visible"] = []
     rejected = compiled(wrong, runtime_root, emit_lean=True)
     assert rejected["verdict"] == "DISAGREE"
-    prove(rejected["caseLean"], runtime_root, tmp_path / "WrongTrace.lean", expected=False)
+    prove(rejected["caseLean"], runtime_root, tmp_path / "WrongTrace.lean", case=wrong, expected=False)
     with pytest.raises(AssertionError, match="false|failed"):
-        prove(rejected["caseLean"], runtime_root, tmp_path / "FalseProof.lean")
+        prove(rejected["caseLean"], runtime_root, tmp_path / "FalseProof.lean", case=wrong)
     invalid = deepcopy(case)
     invalid["script"][0]["addColumn"]["column"]["notNull"] = True
     result = compiled(invalid, runtime_root, emit_lean=True)
     assert result["verdict"] == "MODEL_UNSUPPORTED"
-    prove(result["caseLean"], runtime_root, tmp_path / "InvalidDefinition.lean", expected=False)
+    prove(result["caseLean"], runtime_root, tmp_path / "InvalidDefinition.lean", case=invalid, expected=False)
     fixture = Fixture("CREATE TABLE records(id INTEGER,UNIQUE(id));",
         "UPDATE records SET id=2 WHERE id=1;",
         {"records": [(1, ((3, b"not-a-number"),))]}, "unsupported-key-domain")
     domain = record(fixture, runtime_root / "build/sqlite-parser")
     result = compiled(domain, runtime_root, emit_lean=True)
     assert result["verdict"] == "MODEL_UNSUPPORTED"
-    prove(result["caseLean"], runtime_root, tmp_path / "UnsupportedDomain.lean", expected=False)
+    prove(result["caseLean"], runtime_root, tmp_path / "UnsupportedDomain.lean", case=domain, expected=False)
 
 
 def test_exact_storage_and_wide_rows(runtime_root: Path) -> None:
@@ -100,7 +100,11 @@ def test_preserved_schema_metadata(runtime_root: Path, tmp_path: Path) -> None:
     result = compiled(case, runtime_root, emit_lean=True)
     assert result["verdict"] == "AGREE", result
     assert result["decoded"] == case
-    prove(result["caseLean"], runtime_root, tmp_path / "Metadata.lean")
+    prove(result["caseLean"], runtime_root, tmp_path / "Metadata.lean", case=case)
+    changed = deepcopy(case)
+    changed["provenance"] = []
+    with pytest.raises(AssertionError, match="did not evaluate to `true`"):
+        prove(result["caseLean"], runtime_root, tmp_path / "ChangedTerm.lean", case=changed)
 
 
 def test_connection_dqs_profile(tmp_path: Path) -> None:

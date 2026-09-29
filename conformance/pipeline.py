@@ -55,7 +55,7 @@ def main() -> int:
                 if not isinstance(term, str):
                     raise ValueError("Missing decoded proof term")
                 failure = next(c.lean_failure for c in cases() if c.name == fixture.name)
-                prove(term, runtime, args.output / f"{fixture.name}.lean", failure=failure)
+                prove(term, runtime, args.output / f"{fixture.name}.lean", case=case, failure=failure)
     elapsed = native_seconds + compiled_seconds
     observations = sum(len(case["nativeTrace"]) for _, _, case in pending)
     report = {"cases": reports, "secondsIncludingNativeSnapshots": elapsed,

@@ -58,10 +58,10 @@ def evaluate(fixture: Fixture, runtime: Path) -> tuple[dict[str, Json] | None, d
         return None, {"verdict": "HARNESS_ERROR", "error": str(error)}
 
 
-def prove(term: str, runtime: Path, destination: Path, *, expected: bool = True,
+def prove(term: str, runtime: Path, destination: Path, *, case: dict[str, Json], expected: bool = True,
           failure: str | None = None) -> str:
     """Kernel-check the runner's decoded closed term, keeping native code out of the proof."""
-    destination.write_text(assertions(term, expected=expected, failure=failure))
+    destination.write_text(assertions(term, json.dumps(case, ensure_ascii=False), expected=expected, failure=failure))
     checked = subprocess.run([str(runtime / "lean/bin/lean"), str(destination)],
                              env={**os.environ, "LEAN_PATH": str(runtime / ".lake/build/lib/lean")},
                              capture_output=True, text=True, timeout=120)

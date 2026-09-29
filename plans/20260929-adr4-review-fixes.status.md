@@ -21,3 +21,7 @@ committed views share the content-keyed cache. Benchmark cases share one runner
 process and report acquisition/classification separately. Six transaction/cache/
 batch tests passed, including rollback followed by different DDL and malformed
 input between valid cases. A fresh final benchmark is still pending.
+
+Generated proofs now guard the elaborated term’s re-encoding against the original
+case JSON. All five frozen cases pass; a changed provenance payload fails the
+guard even though the semantic theorem still passes (metadata test verified).

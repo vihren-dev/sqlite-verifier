@@ -43,7 +43,7 @@ def test_native_model(name: str, runtime_root: Path, tmp_path: Path) -> None:
     answer = compiled(case, runtime_root, emit_lean=True)
     assert answer["verdict"] == "AGREE", answer
     assert answer["decoded"] == case
-    prove(answer["caseLean"], runtime_root, tmp_path / "Regression.lean", failure=old.lean_failure)
+    prove(answer["caseLean"], runtime_root, tmp_path / "Regression.lean", case=case, failure=old.lean_failure)
 
 
 def test_lost_rows_rejected(runtime_root: Path, tmp_path: Path) -> None:
@@ -52,6 +52,6 @@ def test_lost_rows_rejected(runtime_root: Path, tmp_path: Path) -> None:
     case["nativeTrace"][-1]["visible"][1][1]["rows"] = []
     result = compiled(case, runtime_root, emit_lean=True)
     assert result["verdict"] == "DISAGREE"
-    prove(result["caseLean"], runtime_root, tmp_path / "Rejected.lean", expected=False)
+    prove(result["caseLean"], runtime_root, tmp_path / "Rejected.lean", case=case, expected=False)
     with pytest.raises(AssertionError, match="false|failed"):
-        prove(result["caseLean"], runtime_root, tmp_path / "FalseProof.lean")
+        prove(result["caseLean"], runtime_root, tmp_path / "FalseProof.lean", case=case)
