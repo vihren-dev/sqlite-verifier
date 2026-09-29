@@ -59,6 +59,8 @@ def test_reopen_preserves_commit_and_discards_pending_write() -> None:
     assert record["nativeVersion"] == 2
     assert record["trace"][0]["rows"] == [[{"integer": {"value": 1}}]]
     assert not record["initial"]["transactionOpen"]
+    memory_events = encoded.replace("/tmp/test.db".encode().hex(), ":memory:".encode().hex())
+    assert "memory database reopened without reset_db" in assertions(memory_events)[0]["exclusions"]
 
 
 def test_nearest_requirement_context() -> None:

@@ -25,7 +25,9 @@ proc capture_connection {name command args} {
 proc capture_factory {command code result operation} {
   set name [lindex $command 1]
   if {$code == 0 && ![string match -* $name] && [llength [info commands ::$name]]} {
-    set ::capture_file($name) [file normalize [lindex $command 2]]
+    set filename [lindex $command 2]
+    set ::capture_file($name) [expr {$filename in {"" ":memory:"} ? ":memory:" : [file normalize $filename]}]
+    if {[llength $command] > 3} { capture_event exclude "connection open options" }
     capture_event open $name $::capture_file($name)
     trace add execution ::$name {enter leave} [list capture_connection $name]
   }
