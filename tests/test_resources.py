@@ -60,7 +60,8 @@ class ResourceTests(unittest.TestCase):
             flake = environment / 'flake.nix'
             flake.write_text('{}')
             (environment / 'flake.lock').write_text('{}')
-            self.assertEqual(check_environment(root), 4)
+            (environment / 'sqlite.nix').write_text('{}')
+            self.assertEqual(check_environment(root), 6)
             with patch('tools.check_resources.shutil.disk_usage', return_value=SimpleNamespace(free=MIN_FREE_BYTES)):
                 check_resources(root)
             with patch('tools.check_resources.shutil.disk_usage', return_value=SimpleNamespace(free=MIN_FREE_BYTES - 1)):

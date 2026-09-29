@@ -84,7 +84,7 @@ def test_benchmark_rejects_incomplete_or_regressed_matrix(problem: str) -> None:
 @pytest.mark.parametrize("scenario,path", [("python", "tests/test_translation.py"), ("lean", "SqliteVerifier/Model.lean")])
 def test_baseline_controlled_mutation_is_recorded(tmp_path: Path, scenario: str, path: str) -> None:
     """Mutation changes only an explicit comment while preserving the reviewed baseline revision."""
-    for name in ("nix/flake.nix", "nix/flake.lock", "lean-toolchain", path):
+    for name in ("nix/flake.nix", "nix/flake.lock", "nix/sqlite.nix", "lean-toolchain", path):
         target = tmp_path / name
         target.parent.mkdir(parents=True, exist_ok=True)
         target.write_text("original\n")

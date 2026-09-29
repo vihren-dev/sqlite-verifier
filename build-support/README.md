@@ -2,8 +2,9 @@
 
 Run `nix-build build-support/default.nix -A runtime --no-out-link` with Nix's
 `flakes` experimental feature enabled (`builtins.fetchTree` needs it). This is an
-ordinary Nix expression, not a root flake. The development environment remains
-exactly `nix/flake.nix` and `nix/flake.lock`; enter it only as `path:./nix`.
+ordinary Nix expression. The flake in `nix/flake.nix` also exposes the same test
+derivations as `checks.<system>`. The development shell remains
+`nix develop path:./nix`, with the existing `nix/flake.lock` pin.
 
 Targets `leanToolchain`, `parsers`, `leanRuntime` and `runtime` share the locked
 nixpkgs input. Derivations build offline after their declared archives/packages
@@ -48,16 +49,24 @@ adds its two test files, native SQL helpers, SQLite 3.46.0 and the complete runt
 (including Python implementation and examples). Changes to those runtime inputs
 invalidate Atuin. Changes to shared pytest support invalidate all three. Nix owns all result reuse.
 
-Run all three (also done by `just test`):
+Run all three checks (also done by `just test`):
 
 ```sh
-nix-build build-support/default.nix -A tests --out-link build/nix-tests \
+nix flake check ./nix -L \
   --option sandbox true --option sandbox-fallback false \
   --extra-experimental-features 'nix-command flakes'
 ```
 
-Use `-A tests.kernel` or `-A tests.model` or `-A tests.atuin` for one cached target. Use
-`just test-cases tests/kernel_gate_test.py` to force an ordinary pytest run.
+Use `./nix` for checks: Nix includes the Git repository, allowing the subdirectory
+flake to access project sources above it. `path:./nix` copies only that directory
+and is suitable for the standalone development shell, not project checks.
+`--no-build --all-systems` evaluates both platforms without running their tests.
+
+The installed Nix 2.18 cannot create result links from `flake check`. After checks,
+`just test` uses `nix-build -A tests` to retain those same cached outputs under
+`build/nix-tests*` for CI reports; it does not rerun pytest. `just test-atuin`
+selects only Atuin. `just test-cases tests/kernel_gate_test.py` forces an ordinary
+pytest run. The non-flake `nix-build -A tests.kernel` entrypoints remain available.
 On a miss, the target runs pytest and saves JSON/JUnit reports under its output.
 On a hit, Nix reuses the successful output; no pytest process or receipt validator
 runs. Failed pytest executions fail the derivation.

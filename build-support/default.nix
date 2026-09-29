@@ -1,13 +1,15 @@
 # Invoke with nix-build build-support/default.nix -A TARGET (flakes enabled).
-{ system ? builtins.currentSystem }:
+{ system ? builtins.currentSystem
+, pkgs ? import ./locked-nixpkgs.nix { inherit system; }
+, native ? import ../nix/sqlite.nix { inherit pkgs; }
+}:
 let
-  pkgs = import ./locked-nixpkgs.nix { inherit system; };
   sources = import ./sources.nix { inherit (pkgs) lib; };
   leanToolchain = import ./lean-toolchain.nix { inherit pkgs; };
 in rec {
   inherit leanToolchain sources;
   tests = import ./tests.nix {
-    inherit pkgs leanToolchain leanRuntime parsers runtime;
+    inherit pkgs leanToolchain leanRuntime parsers runtime native;
   };
   runtime = import ./runtime.nix {
     inherit pkgs sources leanToolchain parsers leanRuntime;

@@ -28,7 +28,7 @@ def identity(directory: Path) -> tuple[str, str, int]:
                                '--no-write-lock-file', 'path:./nix'], directory))
     assert metadata['resolvedUrl'].startswith('path:'), metadata
     source = Path(metadata['path'])
-    assert {entry.name for entry in source.iterdir()} == {'flake.nix', 'flake.lock'}
+    assert {entry.name for entry in source.iterdir()} == {'flake.nix', 'flake.lock', 'sqlite.nix'}
     information = json.loads(run(['nix', 'path-info', '--json', str(source)], directory))
     info = information[0] if isinstance(information, list) else information[str(source)]
     assert info['narSize'] < MAX_ENVIRONMENT_BYTES, info

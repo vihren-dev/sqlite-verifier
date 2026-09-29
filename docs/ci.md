@@ -11,7 +11,8 @@ changes to `just package`. Tags and manual requests always package.
 
 Each native job enters the pinned Nix environment once. `tools/ci_checks.py`
 checks resources, builds the runtime and
-invokes the selected recipe. `just test` builds three independent Nix test targets:
+invokes the selected recipe. `just test` runs `nix flake check ./nix -L`, exposing
+three independent Nix test targets as `checks.<system>`:
 
 - `tests.kernel`: real Lean compilation and proof-checker replay attacks.
 - `tests.model`: production SQL translation, pinned native SQLite observations
