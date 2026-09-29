@@ -1,0 +1,4314 @@
+{
+  "cases": 101,
+  "workloadCounts": {
+    "MODEL_UNSUPPORTED": 175,
+    "AGREE": 101
+  },
+  "corpusVersion": 2,
+  "corpusSha256": "a9e754c995f90b7f571c667fcf4a014d7466b3f2b353470db69a773d1b5188dd",
+  "sourceSha256": {
+    "SqliteVerifier/Contract.lean": "fde6978ffb4dc1bfcd5e9ed69b59a22b1df54208c3128c275d98c8392410fd96",
+    "SqliteVerifier/Declarations.lean": "6ba9ba01ba23037588420d8c79518b20fcd22f3992954b28a89bb91379fc1979",
+    "SqliteVerifier/Demonstration.lean": "eb5939a707391e576fa066b75da1a31a607706d820b82dea131e53fa9f4ef5b2",
+    "SqliteVerifier/Examples.lean": "c37d7d2f80021c7b1e60b7e8280c298deecf92c57ea0a72d6ff278b4ffbb07c4",
+    "SqliteVerifier/Execution.lean": "65cc542a4a6e2605b6b462f485a321bec2c418e097717df8de9bf08f1a7f9f52",
+    "SqliteVerifier/ExtensionExecution.lean": "f5a06f93902a192dc65ee802ff40d6de13691d51c39d74269a4b69cf3de76208",
+    "SqliteVerifier/FailureDemonstration.lean": "6df09cb0e16c646f92b411e3eee4f6fa9069aec6c51f2c378312297fa0570227",
+    "SqliteVerifier/Library.lean": "b716300be8a90cf292dbe1821fed48a5d0c475cccf7a7a048c68c9eab61eacd9",
+    "SqliteVerifier/LiteralData.lean": "eb0c8f1d632899b008f9b2be5ec22428d3620d6045e906b19eef07a36879baec",
+    "SqliteVerifier/LiteralPreservation.lean": "fcc0f06a71ca305a93d1eeb8d602b740034ff45408192424aafee73816c2d5eb",
+    "SqliteVerifier/Model.lean": "c2372ab1910f63c0f72f67e77b03864922932bc05ee99705db3e41a96aa0d28c",
+    "SqliteVerifier/NullableProjection.lean": "7487669b89e370c54e19d3aaccc4f7aafd64dabddaeb3f52390fd3feb191dd08",
+    "SqliteVerifier/Preservation.lean": "b3d8e09b1b633c6336319d5f9303c6ffe942c619eecbba90636c536d045c2abb",
+    "SqliteVerifier/ReverseDemonstration.lean": "7e0786794f70bb1755c3039c3d91f8483cd98a5e8da557267c50de5b65208111",
+    "SqliteVerifier/SchemaExamples.lean": "e545c0cca54384721b98ede50838144ab67532ef2b5f74475fa4d4a6b9e2ff80",
+    "SqliteVerifier/SchemaExtension.lean": "71514a4d904fbadefe786549df8be5988f4178754b125810aecb7a800b8207c5",
+    "SqliteVerifier/SchemaPreservation.lean": "c06fb07003fc97f9c355ed45de1b114baee4d5854b7343ee6dc2c8e9f0cfd5ce",
+    "SqliteVerifier/SqlExamples.lean": "3736757b529643afb1db7f51015652d082c49e31adb081a6febfe0f850e2ae3a",
+    "SqliteVerifier/SqlExecution.lean": "bb37fd7c5aa32d4334c64bc595a5f7e23775b2764c613b4fa2df20aeb777e794",
+    "/Users/tzankomatev/work/sqlite-verifier-adr4/conformance/measure_coverage.py": "7b0cb0dd7ab5f32baba57fca1e84a880b521964ae150857f64f1754897f12f18",
+    "conformance/instrument_model.py": "f7d65bdd0e0ea5f3c978b587544c7b56d683a0c3bcc2e513117f9741ba887452",
+    "conformance/measure_native.py": "bc8b8309047661bac57d4cf2f659d3d666a6ab65794a046ac5375961ef677908"
+  },
+  "casesSha256": "cc234065e80332c203064bef2f593a69a0b31c4f838d937a5c9d9204fbfc59a3",
+  "model": {
+    "scope": "Explicit match arms in step, finish, literalStep, statementReady, advance, runSqlFrom, supportedSqlFrom",
+    "limitations": "Not every helper or Boolean branch; debug identity instrumentation, not proof evidence. Counts include classifier admission and diagnostic re-execution.",
+    "instrumentedRuntime": "/nix/store/sp88x0f8dp0hi3bd72d52avj06f5av3b-sqlite-verifier-conformance-coverage-1",
+    "armsCovered": 36,
+    "armsTotal": 41,
+    "arms": [
+      {
+        "id": "Execution.lean:step:55",
+        "arm": "| .createTable name columns ",
+        "hits": 248
+      },
+      {
+        "id": "Execution.lean:step:59",
+        "arm": "| some _ ",
+        "hits": 4
+      },
+      {
+        "id": "Execution.lean:step:60",
+        "arm": "| none ",
+        "hits": 244
+      },
+      {
+        "id": "Execution.lean:step:61",
+        "arm": "| .addColumn name column ",
+        "hits": 248
+      },
+      {
+        "id": "Execution.lean:step:65",
+        "arm": "| none ",
+        "hits": 4
+      },
+      {
+        "id": "Execution.lean:step:66",
+        "arm": "| some table ",
+        "hits": 244
+      },
+      {
+        "id": "Execution.lean:step:72",
+        "arm": "| _ ",
+        "hits": 0
+      },
+      {
+        "id": "SqlExecution.lean:SqlState.finish:22",
+        "arm": "| none, _ ",
+        "hits": 949
+      },
+      {
+        "id": "SqlExecution.lean:SqlState.finish:23",
+        "arm": "| some original, .success result ",
+        "hits": 422
+      },
+      {
+        "id": "SqlExecution.lean:SqlState.finish:24",
+        "arm": "| some original, .failure index reason result ",
+        "hits": 4
+      },
+      {
+        "id": "SqlExecution.lean:SqlState.finish:25",
+        "arm": "| _, .pending .. ",
+        "hits": 0
+      },
+      {
+        "id": "SqlExecution.lean:literalStep:35",
+        "arm": "| .insert name _ _ | .update name _ _ _ _ ",
+        "hits": 748
+      },
+      {
+        "id": "SqlExecution.lean:literalStep:37",
+        "arm": "| none ",
+        "hits": 0
+      },
+      {
+        "id": "SqlExecution.lean:literalStep:38",
+        "arm": "| some table ",
+        "hits": 748
+      },
+      {
+        "id": "SqlExecution.lean:literalStep:40",
+        "arm": "| .insert _ _ values ",
+        "hits": 636
+      },
+      {
+        "id": "SqlExecution.lean:literalStep:41",
+        "arm": "| .update _ column value key equals ",
+        "hits": 112
+      },
+      {
+        "id": "SqlExecution.lean:literalStep:42",
+        "arm": "| _ ",
+        "hits": 0
+      },
+      {
+        "id": "SqlExecution.lean:literalStep:45",
+        "arm": "| _ ",
+        "hits": 496
+      },
+      {
+        "id": "SqlExecution.lean:statementReady:50",
+        "arm": "| .insert name columns values ",
+        "hits": 159
+      },
+      {
+        "id": "SqlExecution.lean:statementReady:52",
+        "arm": "| .update name column value key equals ",
+        "hits": 28
+      },
+      {
+        "id": "SqlExecution.lean:statementReady:54",
+        "arm": "| _ ",
+        "hits": 337
+      },
+      {
+        "id": "SqlExecution.lean:advance:59",
+        "arm": "| .beginTransaction ",
+        "hits": 428
+      },
+      {
+        "id": "SqlExecution.lean:advance:60",
+        "arm": "| some _ ",
+        "hits": 4
+      },
+      {
+        "id": "SqlExecution.lean:advance:61",
+        "arm": "| none ",
+        "hits": 424
+      },
+      {
+        "id": "SqlExecution.lean:advance:62",
+        "arm": "| .commit ",
+        "hits": 360
+      },
+      {
+        "id": "SqlExecution.lean:advance:63",
+        "arm": "| none ",
+        "hits": 0
+      },
+      {
+        "id": "SqlExecution.lean:advance:64",
+        "arm": "| some _ ",
+        "hits": 360
+      },
+      {
+        "id": "SqlExecution.lean:advance:65",
+        "arm": "| .rollback ",
+        "hits": 64
+      },
+      {
+        "id": "SqlExecution.lean:advance:66",
+        "arm": "| none ",
+        "hits": 4
+      },
+      {
+        "id": "SqlExecution.lean:advance:67",
+        "arm": "| some original ",
+        "hits": 60
+      },
+      {
+        "id": "SqlExecution.lean:advance:68",
+        "arm": "| _ ",
+        "hits": 1244
+      },
+      {
+        "id": "SqlExecution.lean:advance:69",
+        "arm": "| .success database ",
+        "hits": 1140
+      },
+      {
+        "id": "SqlExecution.lean:advance:70",
+        "arm": "| outcome ",
+        "hits": 104
+      },
+      {
+        "id": "SqlExecution.lean:runSqlFrom:75",
+        "arm": "| [] ",
+        "hits": 73
+      },
+      {
+        "id": "SqlExecution.lean:runSqlFrom:76",
+        "arm": "| statement :: rest ",
+        "hits": 524
+      },
+      {
+        "id": "SqlExecution.lean:runSqlFrom:77",
+        "arm": "| .halt outcome ",
+        "hits": 28
+      },
+      {
+        "id": "SqlExecution.lean:runSqlFrom:78",
+        "arm": "| .next next ",
+        "hits": 496
+      },
+      {
+        "id": "SqlExecution.lean:supportedSqlFrom:87",
+        "arm": "| [] ",
+        "hits": 73
+      },
+      {
+        "id": "SqlExecution.lean:supportedSqlFrom:88",
+        "arm": "| statement :: rest ",
+        "hits": 524
+      },
+      {
+        "id": "SqlExecution.lean:supportedSqlFrom:90",
+        "arm": "| .halt _ ",
+        "hits": 28
+      },
+      {
+        "id": "SqlExecution.lean:supportedSqlFrom:91",
+        "arm": "| .next next ",
+        "hits": 496
+      }
+    ],
+    "constructors": {
+      "createTable": 62,
+      "addColumn": 62,
+      "beginTransaction": 107,
+      "commit": 90,
+      "rollback": 16,
+      "insert": 159,
+      "update": 28
+    },
+    "errors": {
+      "invalidDefinition": 0,
+      "tableExists": 1,
+      "missingTable": 1,
+      "columnExists": 1,
+      "tooManyColumns": 1,
+      "transactionAlreadyActive": 1,
+      "noActiveTransaction": 1,
+      "constraintViolation": 22
+    }
+  },
+  "native": {
+    "functionsReached": 807,
+    "functionsInReport": 2596,
+    "branchesInReachedFunctions": 14023,
+    "branchesTaken": 4707,
+    "functions": {
+      "sqlite3StatusValue": {
+        "calls": 888,
+        "branches": 0,
+        "taken": 0
+      },
+      "sqlite3StatusUp": {
+        "calls": 24317,
+        "branches": 2,
+        "taken": 2
+      },
+      "sqlite3StatusDown": {
+        "calls": 22646,
+        "branches": 0,
+        "taken": 0
+      },
+      "sqlite3StatusHighwater": {
+        "calls": 12690,
+        "branches": 2,
+        "taken": 1
+      },
+      "sqlite3OsClose": {
+        "calls": 1505,
+        "branches": 2,
+        "taken": 2
+      },
+      "sqlite3OsRead": {
+        "calls": 666,
+        "branches": 0,
+        "taken": 0
+      },
+      "sqlite3OsWrite": {
+        "calls": 2853,
+        "branches": 0,
+        "taken": 0
+      },
+      "sqlite3OsSync": {
+        "calls": 810,
+        "branches": 2,
+        "taken": 1
+      },
+      "sqlite3OsFileSize": {
+        "calls": 249,
+        "branches": 0,
+        "taken": 0
+      },
+      "sqlite3OsLock": {
+        "calls": 781,
+        "branches": 0,
+        "taken": 0
+      },
+      "sqlite3OsUnlock": {
+        "calls": 616,
+        "branches": 0,
+        "taken": 0
+      },
+      "sqlite3OsFileControl": {
+        "calls": 823,
+        "branches": 2,
+        "taken": 1
+      },
+      "sqlite3OsFileControlHint": {
+        "calls": 150,
+        "branches": 2,
+        "taken": 2
+      },
+      "sqlite3OsDeviceCharacteristics": {
+        "calls": 879,
+        "branches": 2,
+        "taken": 1
+      },
+      "sqlite3OsOpen": {
+        "calls": 285,
+        "branches": 0,
+        "taken": 0
+      },
+      "sqlite3OsDelete": {
+        "calls": 285,
+        "branches": 2,
+        "taken": 1
+      },
+      "sqlite3OsAccess": {
+        "calls": 408,
+        "branches": 0,
+        "taken": 0
+      },
+      "sqlite3BeginBenignMalloc": {
+        "calls": 303,
+        "branches": 2,
+        "taken": 1
+      },
+      "sqlite3EndBenignMalloc": {
+        "calls": 303,
+        "branches": 2,
+        "taken": 1
+      },
+      "sqlite3MemMalloc": {
+        "calls": 11627,
+        "branches": 2,
+        "taken": 1
+      },
+      "sqlite3MemFree": {
+        "calls": 11264,
+        "branches": 0,
+        "taken": 0
+      },
+      "sqlite3MemSize": {
+        "calls": 25477,
+        "branches": 2,
+        "taken": 1
+      },
+      "sqlite3MemRealloc": {
+        "calls": 943,
+        "branches": 4,
+        "taken": 1
+      },
+      "sqlite3MemRoundup": {
+        "calls": 12574,
+        "branches": 0,
+        "taken": 0
+      },
+      "sqlite3MutexAlloc": {
+        "calls": 285,
+        "branches": 2,
+        "taken": 1
+      },
+      "sqlite3_mutex_enter": {
+        "calls": 30022,
+        "branches": 2,
+        "taken": 1
+      },
+      "sqlite3_mutex_leave": {
+        "calls": 30022,
+        "branches": 2,
+        "taken": 1
+      },
+      "sqlite3MemoryBarrier": {
+        "calls": 285,
+        "branches": 0,
+        "taken": 0
+      },
+      "pthreadMutexAlloc": {
+        "calls": 285,
+        "branches": 7,
+        "taken": 1
+      },
+      "pthreadMutexEnter": {
+        "calls": 30022,
+        "branches": 0,
+        "taken": 0
+      },
+      "pthreadMutexLeave": {
+        "calls": 30022,
+        "branches": 0,
+        "taken": 0
+      },
+      "sqlite3HeapNearlyFull": {
+        "calls": 120,
+        "branches": 0,
+        "taken": 0
+      },
+      "sqlite3MallocAlarm": {
+        "calls": 888,
+        "branches": 2,
+        "taken": 1
+      },
+      "mallocWithAlarm": {
+        "calls": 11627,
+        "branches": 10,
+        "taken": 2
+      },
+      "sqlite3Malloc": {
+        "calls": 11627,
+        "branches": 6,
+        "taken": 3
+      },
+      "isLookaside": {
+        "calls": 1067,
+        "branches": 2,
+        "taken": 2
+      },
+      "sqlite3MallocSize": {
+        "calls": 25116,
+        "branches": 0,
+        "taken": 0
+      },
+      "lookasideMallocSize": {
+        "calls": 120,
+        "branches": 2,
+        "taken": 1
+      },
+      "sqlite3DbMallocSize": {
+        "calls": 4269,
+        "branches": 8,
+        "taken": 7
+      },
+      "sqlite3_free": {
+        "calls": 15745,
+        "branches": 4,
+        "taken": 3
+      },
+      "sqlite3DbFreeNN": {
+        "calls": 6481,
+        "branches": 10,
+        "taken": 8
+      },
+      "sqlite3DbNNFreeNN": {
+        "calls": 17019,
+        "branches": 8,
+        "taken": 7
+      },
+      "sqlite3DbFree": {
+        "calls": 6597,
+        "branches": 2,
+        "taken": 2
+      },
+      "sqlite3Realloc": {
+        "calls": 947,
+        "branches": 22,
+        "taken": 12
+      },
+      "sqlite3MallocZero": {
+        "calls": 580,
+        "branches": 2,
+        "taken": 1
+      },
+      "sqlite3DbMallocZero": {
+        "calls": 1092,
+        "branches": 2,
+        "taken": 1
+      },
+      "dbMallocRawFinish": {
+        "calls": 10373,
+        "branches": 2,
+        "taken": 1
+      },
+      "sqlite3DbMallocRaw": {
+        "calls": 9429,
+        "branches": 2,
+        "taken": 2
+      },
+      "sqlite3DbMallocRawNN": {
+        "calls": 23785,
+        "branches": 16,
+        "taken": 10
+      },
+      "sqlite3DbRealloc": {
+        "calls": 3324,
+        "branches": 12,
+        "taken": 9
+      },
+      "dbReallocFinish": {
+        "calls": 1067,
+        "branches": 8,
+        "taken": 5
+      },
+      "sqlite3DbReallocOrFree": {
+        "calls": 547,
+        "branches": 2,
+        "taken": 1
+      },
+      "sqlite3DbStrDup": {
+        "calls": 2919,
+        "branches": 4,
+        "taken": 2
+      },
+      "sqlite3DbStrNDup": {
+        "calls": 3891,
+        "branches": 4,
+        "taken": 2
+      },
+      "apiHandleError": {
+        "calls": 52,
+        "branches": 4,
+        "taken": 2
+      },
+      "sqlite3ApiExit": {
+        "calls": 3354,
+        "branches": 4,
+        "taken": 3
+      },
+      "getTextArg": {
+        "calls": 118,
+        "branches": 2,
+        "taken": 1
+      },
+      "sqlite3_str_vappendf": {
+        "calls": 1017,
+        "branches": 398,
+        "taken": 90
+      },
+      "sqlite3RecordErrorByteOffset": {
+        "calls": 1,
+        "branches": 12,
+        "taken": 6
+      },
+      "sqlite3StrAccumEnlarge": {
+        "calls": 512,
+        "branches": 18,
+        "taken": 12
+      },
+      "enlargeAndAppend": {
+        "calls": 512,
+        "branches": 2,
+        "taken": 1
+      },
+      "sqlite3_str_append": {
+        "calls": 4447,
+        "branches": 4,
+        "taken": 4
+      },
+      "sqlite3_str_appendall": {
+        "calls": 310,
+        "branches": 0,
+        "taken": 0
+      },
+      "strAccumFinishRealloc": {
+        "calls": 426,
+        "branches": 2,
+        "taken": 1
+      },
+      "sqlite3StrAccumFinish": {
+        "calls": 902,
+        "branches": 6,
+        "taken": 4
+      },
+      "sqlite3StrAccumInit": {
+        "calls": 1172,
+        "branches": 0,
+        "taken": 0
+      },
+      "sqlite3VMPrintf": {
+        "calls": 629,
+        "branches": 2,
+        "taken": 1
+      },
+      "sqlite3MPrintf": {
+        "calls": 477,
+        "branches": 0,
+        "taken": 0
+      },
+      "sqlite3_snprintf": {
+        "calls": 270,
+        "branches": 2,
+        "taken": 1
+      },
+      "sqlite3_log": {
+        "calls": 28,
+        "branches": 2,
+        "taken": 1
+      },
+      "sqlite3_str_appendf": {
+        "calls": 118,
+        "branches": 0,
+        "taken": 0
+      },
+      "chacha_block": {
+        "calls": 12,
+        "branches": 4,
+        "taken": 4
+      },
+      "sqlite3_randomness": {
+        "calls": 285,
+        "branches": 14,
+        "taken": 7
+      },
+      "sqlite3FaultSim": {
+        "calls": 508,
+        "branches": 2,
+        "taken": 1
+      },
+      "sqlite3Strlen30": {
+        "calls": 3531,
+        "branches": 2,
+        "taken": 2
+      },
+      "sqlite3ColumnType": {
+        "calls": 600,
+        "branches": 4,
+        "taken": 2
+      },
+      "sqlite3Error": {
+        "calls": 120,
+        "branches": 4,
+        "taken": 2
+      },
+      "sqlite3ErrorClear": {
+        "calls": 1044,
+        "branches": 2,
+        "taken": 1
+      },
+      "sqlite3SystemError": {
+        "calls": 6,
+        "branches": 6,
+        "taken": 3
+      },
+      "sqlite3ErrorWithMsg": {
+        "calls": 4,
+        "branches": 6,
+        "taken": 3
+      },
+      "sqlite3ProgressCheck": {
+        "calls": 240,
+        "branches": 10,
+        "taken": 4
+      },
+      "sqlite3ErrorMsg": {
+        "calls": 4,
+        "branches": 6,
+        "taken": 3
+      },
+      "sqlite3Dequote": {
+        "calls": 3662,
+        "branches": 10,
+        "taken": 7
+      },
+      "sqlite3DequoteExpr": {
+        "calls": 707,
+        "branches": 0,
+        "taken": 0
+      },
+      "sqlite3DequoteToken": {
+        "calls": 2352,
+        "branches": 8,
+        "taken": 7
+      },
+      "sqlite3_stricmp": {
+        "calls": 1812,
+        "branches": 4,
+        "taken": 2
+      },
+      "sqlite3StrICmp": {
+        "calls": 7845,
+        "branches": 6,
+        "taken": 6
+      },
+      "sqlite3_strnicmp": {
+        "calls": 3534,
+        "branches": 12,
+        "taken": 10
+      },
+      "sqlite3StrIHash": {
+        "calls": 5987,
+        "branches": 4,
+        "taken": 3
+      },
+      "sqlite3AtoF": {
+        "calls": 38,
+        "branches": 108,
+        "taken": 19
+      },
+      "sqlite3Int64ToText": {
+        "calls": 286,
+        "branches": 8,
+        "taken": 3
+      },
+      "compare2pow63": {
+        "calls": 19,
+        "branches": 6,
+        "taken": 4
+      },
+      "sqlite3Atoi64": {
+        "calls": 19,
+        "branches": 52,
+        "taken": 25
+      },
+      "sqlite3DecOrHexToI64": {
+        "calls": 19,
+        "branches": 16,
+        "taken": 2
+      },
+      "sqlite3GetInt32": {
+        "calls": 385,
+        "branches": 36,
+        "taken": 19
+      },
+      "sqlite3GetUInt32": {
+        "calls": 404,
+        "branches": 8,
+        "taken": 5
+      },
+      "sqlite3PutVarint": {
+        "calls": 456,
+        "branches": 4,
+        "taken": 3
+      },
+      "sqlite3GetVarint": {
+        "calls": 334,
+        "branches": 16,
+        "taken": 1
+      },
+      "sqlite3GetVarint32": {
+        "calls": 70,
+        "branches": 6,
+        "taken": 1
+      },
+      "sqlite3VarintLen": {
+        "calls": 572,
+        "branches": 2,
+        "taken": 2
+      },
+      "sqlite3Get4byte": {
+        "calls": 2678,
+        "branches": 0,
+        "taken": 0
+      },
+      "sqlite3Put4byte": {
+        "calls": 4469,
+        "branches": 0,
+        "taken": 0
+      },
+      "sqlite3HexToInt": {
+        "calls": 312,
+        "branches": 0,
+        "taken": 0
+      },
+      "sqlite3HexToBlob": {
+        "calls": 45,
+        "branches": 4,
+        "taken": 3
+      },
+      "sqlite3SafetyCheckOk": {
+        "calls": 764,
+        "branches": 6,
+        "taken": 2
+      },
+      "sqlite3SafetyCheckSickOrOk": {
+        "calls": 56,
+        "branches": 6,
+        "taken": 2
+      },
+      "sqlite3AddInt64": {
+        "calls": 59,
+        "branches": 10,
+        "taken": 3
+      },
+      "sqlite3LogEstAdd": {
+        "calls": 478,
+        "branches": 10,
+        "taken": 4
+      },
+      "sqlite3LogEst": {
+        "calls": 823,
+        "branches": 10,
+        "taken": 4
+      },
+      "sqlite3HashInit": {
+        "calls": 236,
+        "branches": 0,
+        "taken": 0
+      },
+      "sqlite3HashClear": {
+        "calls": 472,
+        "branches": 2,
+        "taken": 2
+      },
+      "strHash": {
+        "calls": 3012,
+        "branches": 2,
+        "taken": 2
+      },
+      "insertElement": {
+        "calls": 556,
+        "branches": 10,
+        "taken": 9
+      },
+      "rehash": {
+        "calls": 38,
+        "branches": 8,
+        "taken": 5
+      },
+      "findElementWithHash": {
+        "calls": 3012,
+        "branches": 10,
+        "taken": 9
+      },
+      "sqlite3HashFind": {
+        "calls": 2608,
+        "branches": 0,
+        "taken": 0
+      },
+      "sqlite3HashInsert": {
+        "calls": 404,
+        "branches": 14,
+        "taken": 9
+      },
+      "posixOpen": {
+        "calls": 555,
+        "branches": 0,
+        "taken": 0
+      },
+      "robustFchown": {
+        "calls": 285,
+        "branches": 2,
+        "taken": 1
+      },
+      "robust_open": {
+        "calls": 555,
+        "branches": 22,
+        "taken": 10
+      },
+      "robust_close": {
+        "calls": 555,
+        "branches": 4,
+        "taken": 1
+      },
+      "storeLastErrno": {
+        "calls": 557,
+        "branches": 0,
+        "taken": 0
+      },
+      "closePendingFds": {
+        "calls": 309,
+        "branches": 2,
+        "taken": 1
+      },
+      "fileHasMoved": {
+        "calls": 283,
+        "branches": 4,
+        "taken": 2
+      },
+      "verifyDbFile": {
+        "calls": 285,
+        "branches": 10,
+        "taken": 1
+      },
+      "unixFileLock": {
+        "calls": 2382,
+        "branches": 6,
+        "taken": 1
+      },
+      "unixLock": {
+        "calls": 781,
+        "branches": 50,
+        "taken": 28
+      },
+      "posixUnlock": {
+        "calls": 616,
+        "branches": 32,
+        "taken": 13
+      },
+      "unixUnlock": {
+        "calls": 616,
+        "branches": 0,
+        "taken": 0
+      },
+      "closeUnixFile": {
+        "calls": 285,
+        "branches": 2,
+        "taken": 1
+      },
+      "nolockClose": {
+        "calls": 285,
+        "branches": 0,
+        "taken": 0
+      },
+      "seekAndRead": {
+        "calls": 666,
+        "branches": 10,
+        "taken": 5
+      },
+      "unixRead": {
+        "calls": 666,
+        "branches": 10,
+        "taken": 4
+      },
+      "seekAndWriteFd": {
+        "calls": 2853,
+        "branches": 6,
+        "taken": 3
+      },
+      "seekAndWrite": {
+        "calls": 2853,
+        "branches": 0,
+        "taken": 0
+      },
+      "unixWrite": {
+        "calls": 2853,
+        "branches": 10,
+        "taken": 3
+      },
+      "full_fsync": {
+        "calls": 1080,
+        "branches": 4,
+        "taken": 2
+      },
+      "openDirectory": {
+        "calls": 270,
+        "branches": 12,
+        "taken": 6
+      },
+      "unixSync": {
+        "calls": 810,
+        "branches": 6,
+        "taken": 4
+      },
+      "unixFileSize": {
+        "calls": 249,
+        "branches": 4,
+        "taken": 2
+      },
+      "fcntlSizeHint": {
+        "calls": 61,
+        "branches": 20,
+        "taken": 2
+      },
+      "unixFileControl": {
+        "calls": 914,
+        "branches": 30,
+        "taken": 8
+      },
+      "setDeviceCharacteristics": {
+        "calls": 879,
+        "branches": 4,
+        "taken": 1
+      },
+      "unixDeviceCharacteristics": {
+        "calls": 879,
+        "branches": 0,
+        "taken": 0
+      },
+      "unixIsSharingShmNode": {
+        "calls": 577,
+        "branches": 8,
+        "taken": 1
+      },
+      "unixUnmapfile": {
+        "calls": 285,
+        "branches": 2,
+        "taken": 1
+      },
+      "fillInUnixFile": {
+        "calls": 285,
+        "branches": 28,
+        "taken": 9
+      },
+      "getFileMode": {
+        "calls": 285,
+        "branches": 2,
+        "taken": 1
+      },
+      "findCreateFileMode": {
+        "calls": 285,
+        "branches": 14,
+        "taken": 5
+      },
+      "unixOpen": {
+        "calls": 285,
+        "branches": 92,
+        "taken": 29
+      },
+      "unixDelete": {
+        "calls": 285,
+        "branches": 10,
+        "taken": 2
+      },
+      "unixAccess": {
+        "calls": 408,
+        "branches": 6,
+        "taken": 2
+      },
+      "sqlite3IsMemdb": {
+        "calls": 285,
+        "branches": 0,
+        "taken": 0
+      },
+      "sqlite3BitvecCreate": {
+        "calls": 285,
+        "branches": 2,
+        "taken": 1
+      },
+      "sqlite3BitvecTestNotNull": {
+        "calls": 629,
+        "branches": 12,
+        "taken": 4
+      },
+      "sqlite3BitvecTest": {
+        "calls": 29,
+        "branches": 2,
+        "taken": 1
+      },
+      "sqlite3BitvecSet": {
+        "calls": 566,
+        "branches": 34,
+        "taken": 4
+      },
+      "sqlite3BitvecDestroy": {
+        "calls": 1218,
+        "branches": 6,
+        "taken": 3
+      },
+      "pcacheManageDirtyList": {
+        "calls": 1823,
+        "branches": 20,
+        "taken": 19
+      },
+      "pcacheUnpin": {
+        "calls": 798,
+        "branches": 2,
+        "taken": 1
+      },
+      "numberOfCachePages": {
+        "calls": 118,
+        "branches": 4,
+        "taken": 3
+      },
+      "sqlite3PcacheSize": {
+        "calls": 59,
+        "branches": 0,
+        "taken": 0
+      },
+      "sqlite3PcacheOpen": {
+        "calls": 59,
+        "branches": 0,
+        "taken": 0
+      },
+      "sqlite3PcacheSetPageSize": {
+        "calls": 118,
+        "branches": 6,
+        "taken": 4
+      },
+      "sqlite3PcacheFetch": {
+        "calls": 1448,
+        "branches": 0,
+        "taken": 0
+      },
+      "pcacheFetchFinishWithInit": {
+        "calls": 120,
+        "branches": 0,
+        "taken": 0
+      },
+      "sqlite3PcacheFetchFinish": {
+        "calls": 1568,
+        "branches": 2,
+        "taken": 2
+      },
+      "sqlite3PcacheRelease": {
+        "calls": 1553,
+        "branches": 4,
+        "taken": 4
+      },
+      "sqlite3PcacheMakeDirty": {
+        "calls": 688,
+        "branches": 4,
+        "taken": 2
+      },
+      "sqlite3PcacheMakeClean": {
+        "calls": 688,
+        "branches": 2,
+        "taken": 2
+      },
+      "sqlite3PcacheCleanAll": {
+        "calls": 577,
+        "branches": 2,
+        "taken": 2
+      },
+      "sqlite3PcacheClearWritable": {
+        "calls": 118,
+        "branches": 2,
+        "taken": 2
+      },
+      "sqlite3PcacheClearSyncFlags": {
+        "calls": 270,
+        "branches": 2,
+        "taken": 2
+      },
+      "sqlite3PcacheTruncate": {
+        "calls": 543,
+        "branches": 12,
+        "taken": 9
+      },
+      "sqlite3PcacheClose": {
+        "calls": 59,
+        "branches": 0,
+        "taken": 0
+      },
+      "sqlite3PcacheClear": {
+        "calls": 118,
+        "branches": 0,
+        "taken": 0
+      },
+      "pcacheMergeDirtyList": {
+        "calls": 330,
+        "branches": 6,
+        "taken": 5
+      },
+      "pcacheSortDirtyList": {
+        "calls": 270,
+        "branches": 14,
+        "taken": 12
+      },
+      "sqlite3PcacheDirtyList": {
+        "calls": 270,
+        "branches": 2,
+        "taken": 2
+      },
+      "sqlite3PcacheRefCount": {
+        "calls": 553,
+        "branches": 0,
+        "taken": 0
+      },
+      "sqlite3PcachePageRefcount": {
+        "calls": 90,
+        "branches": 0,
+        "taken": 0
+      },
+      "sqlite3PcacheSetCachesize": {
+        "calls": 59,
+        "branches": 0,
+        "taken": 0
+      },
+      "pcache1InitBulk": {
+        "calls": 59,
+        "branches": 12,
+        "taken": 7
+      },
+      "pcache1Alloc": {
+        "calls": 120,
+        "branches": 8,
+        "taken": 3
+      },
+      "pcache1Free": {
+        "calls": 177,
+        "branches": 6,
+        "taken": 4
+      },
+      "pcache1AllocPage": {
+        "calls": 120,
+        "branches": 12,
+        "taken": 4
+      },
+      "pcache1FreePage": {
+        "calls": 59,
+        "branches": 2,
+        "taken": 1
+      },
+      "sqlite3PageMalloc": {
+        "calls": 120,
+        "branches": 0,
+        "taken": 0
+      },
+      "sqlite3PageFree": {
+        "calls": 177,
+        "branches": 0,
+        "taken": 0
+      },
+      "pcache1UnderMemoryPressure": {
+        "calls": 120,
+        "branches": 4,
+        "taken": 1
+      },
+      "pcache1ResizeHash": {
+        "calls": 59,
+        "branches": 12,
+        "taken": 5
+      },
+      "pcache1PinPage": {
+        "calls": 632,
+        "branches": 0,
+        "taken": 0
+      },
+      "pcache1EnforceMaxPage": {
+        "calls": 177,
+        "branches": 8,
+        "taken": 5
+      },
+      "pcache1TruncateUnsafe": {
+        "calls": 59,
+        "branches": 10,
+        "taken": 6
+      },
+      "pcache1Create": {
+        "calls": 59,
+        "branches": 10,
+        "taken": 5
+      },
+      "pcache1Cachesize": {
+        "calls": 118,
+        "branches": 4,
+        "taken": 2
+      },
+      "pcache1FetchStage2": {
+        "calls": 120,
+        "branches": 28,
+        "taken": 14
+      },
+      "pcache1FetchNoMutex": {
+        "calls": 1448,
+        "branches": 10,
+        "taken": 8
+      },
+      "pcache1Fetch": {
+        "calls": 1448,
+        "branches": 0,
+        "taken": 0
+      },
+      "pcache1Unpin": {
+        "calls": 798,
+        "branches": 4,
+        "taken": 2
+      },
+      "pcache1Truncate": {
+        "calls": 484,
+        "branches": 2,
+        "taken": 2
+      },
+      "pcache1Destroy": {
+        "calls": 59,
+        "branches": 2,
+        "taken": 1
+      },
+      "setGetterMethod": {
+        "calls": 207,
+        "branches": 4,
+        "taken": 3
+      },
+      "read32bits": {
+        "calls": 163,
+        "branches": 2,
+        "taken": 1
+      },
+      "write32bits": {
+        "calls": 1132,
+        "branches": 0,
+        "taken": 0
+      },
+      "pagerUnlockDb": {
+        "calls": 734,
+        "branches": 6,
+        "taken": 4
+      },
+      "pagerLockDb": {
+        "calls": 1110,
+        "branches": 12,
+        "taken": 6
+      },
+      "jrnlBufferSize": {
+        "calls": 285,
+        "branches": 0,
+        "taken": 0
+      },
+      "readSuperJournal": {
+        "calls": 30,
+        "branches": 24,
+        "taken": 7
+      },
+      "journalHdrOffset": {
+        "calls": 585,
+        "branches": 2,
+        "taken": 2
+      },
+      "writeJournalHdr": {
+        "calls": 285,
+        "branches": 18,
+        "taken": 9
+      },
+      "readJournalHdr": {
+        "calls": 30,
+        "branches": 36,
+        "taken": 17
+      },
+      "writeSuperJournal": {
+        "calls": 270,
+        "branches": 26,
+        "taken": 1
+      },
+      "pager_reset": {
+        "calls": 118,
+        "branches": 0,
+        "taken": 0
+      },
+      "releaseAllSavepoints": {
+        "calls": 852,
+        "branches": 6,
+        "taken": 4
+      },
+      "addToSavepointBitvecs": {
+        "calls": 627,
+        "branches": 4,
+        "taken": 1
+      },
+      "pager_unlock": {
+        "calls": 427,
+        "branches": 22,
+        "taken": 11
+      },
+      "pager_error": {
+        "calls": 307,
+        "branches": 4,
+        "taken": 2
+      },
+      "pagerFlushOnCommit": {
+        "calls": 695,
+        "branches": 6,
+        "taken": 3
+      },
+      "pager_end_transaction": {
+        "calls": 734,
+        "branches": 54,
+        "taken": 28
+      },
+      "pagerUnlockAndRollback": {
+        "calls": 427,
+        "branches": 14,
+        "taken": 7
+      },
+      "pager_cksum": {
+        "calls": 595,
+        "branches": 2,
+        "taken": 2
+      },
+      "pager_playback_one_page": {
+        "calls": 29,
+        "branches": 58,
+        "taken": 21
+      },
+      "pager_truncate": {
+        "calls": 15,
+        "branches": 16,
+        "taken": 3
+      },
+      "setSectorSize": {
+        "calls": 74,
+        "branches": 6,
+        "taken": 4
+      },
+      "pager_playback": {
+        "calls": 15,
+        "branches": 60,
+        "taken": 28
+      },
+      "pager_write_changecounter": {
+        "calls": 540,
+        "branches": 2,
+        "taken": 1
+      },
+      "pagerPagecount": {
+        "calls": 204,
+        "branches": 8,
+        "taken": 4
+      },
+      "pagerOpenWalIfPresent": {
+        "calls": 204,
+        "branches": 12,
+        "taken": 4
+      },
+      "sqlite3PagerSetCachesize": {
+        "calls": 59,
+        "branches": 0,
+        "taken": 0
+      },
+      "pagerFixMaplimit": {
+        "calls": 207,
+        "branches": 4,
+        "taken": 3
+      },
+      "sqlite3PagerSetMmapLimit": {
+        "calls": 59,
+        "branches": 0,
+        "taken": 0
+      },
+      "sqlite3PagerSetFlags": {
+        "calls": 59,
+        "branches": 18,
+        "taken": 5
+      },
+      "sqlite3PagerSetBusyHandler": {
+        "calls": 59,
+        "branches": 0,
+        "taken": 0
+      },
+      "sqlite3PagerSetPagesize": {
+        "calls": 148,
+        "branches": 24,
+        "taken": 15
+      },
+      "sqlite3PagerReadFileheader": {
+        "calls": 59,
+        "branches": 4,
+        "taken": 1
+      },
+      "sqlite3PagerPagecount": {
+        "calls": 263,
+        "branches": 0,
+        "taken": 0
+      },
+      "pager_wait_on_lock": {
+        "calls": 744,
+        "branches": 4,
+        "taken": 2
+      },
+      "pagerFreeMapHdrs": {
+        "calls": 59,
+        "branches": 2,
+        "taken": 1
+      },
+      "databaseIsUnmoved": {
+        "calls": 344,
+        "branches": 10,
+        "taken": 7
+      },
+      "sqlite3PagerClose": {
+        "calls": 59,
+        "branches": 10,
+        "taken": 5
+      },
+      "syncJournal": {
+        "calls": 270,
+        "branches": 36,
+        "taken": 15
+      },
+      "pager_write_pagelist": {
+        "calls": 270,
+        "branches": 24,
+        "taken": 16
+      },
+      "sqlite3PagerOpen": {
+        "calls": 59,
+        "branches": 68,
+        "taken": 12
+      },
+      "hasHotJournal": {
+        "calls": 204,
+        "branches": 30,
+        "taken": 3
+      },
+      "sqlite3PagerSharedLock": {
+        "calls": 263,
+        "branches": 58,
+        "taken": 19
+      },
+      "pagerUnlockIfUnused": {
+        "calls": 405,
+        "branches": 2,
+        "taken": 2
+      },
+      "getPageNormal": {
+        "calls": 1419,
+        "branches": 32,
+        "taken": 13
+      },
+      "getPageError": {
+        "calls": 59,
+        "branches": 0,
+        "taken": 0
+      },
+      "sqlite3PagerGet": {
+        "calls": 1478,
+        "branches": 0,
+        "taken": 0
+      },
+      "sqlite3PagerLookup": {
+        "calls": 29,
+        "branches": 2,
+        "taken": 1
+      },
+      "sqlite3PagerUnrefNotNull": {
+        "calls": 1119,
+        "branches": 2,
+        "taken": 1
+      },
+      "sqlite3PagerUnref": {
+        "calls": 331,
+        "branches": 2,
+        "taken": 1
+      },
+      "sqlite3PagerUnrefPageOne": {
+        "calls": 405,
+        "branches": 0,
+        "taken": 0
+      },
+      "pager_open_journal": {
+        "calls": 344,
+        "branches": 20,
+        "taken": 11
+      },
+      "sqlite3PagerBegin": {
+        "calls": 366,
+        "branches": 18,
+        "taken": 6
+      },
+      "pagerAddPageToRollbackJournal": {
+        "calls": 566,
+        "branches": 6,
+        "taken": 3
+      },
+      "pager_write": {
+        "calls": 688,
+        "branches": 18,
+        "taken": 13
+      },
+      "sqlite3PagerWrite": {
+        "calls": 1259,
+        "branches": 10,
+        "taken": 6
+      },
+      "pager_incr_changecounter": {
+        "calls": 270,
+        "branches": 8,
+        "taken": 4
+      },
+      "sqlite3PagerSync": {
+        "calls": 270,
+        "branches": 6,
+        "taken": 3
+      },
+      "sqlite3PagerExclusiveLock": {
+        "calls": 540,
+        "branches": 4,
+        "taken": 2
+      },
+      "sqlite3PagerCommitPhaseOne": {
+        "calls": 270,
+        "branches": 34,
+        "taken": 13
+      },
+      "sqlite3PagerCommitPhaseTwo": {
+        "calls": 270,
+        "branches": 8,
+        "taken": 2
+      },
+      "sqlite3PagerRollback": {
+        "calls": 96,
+        "branches": 16,
+        "taken": 9
+      },
+      "sqlite3PagerIsreadonly": {
+        "calls": 59,
+        "branches": 0,
+        "taken": 0
+      },
+      "sqlite3PagerPageRefcount": {
+        "calls": 90,
+        "branches": 0,
+        "taken": 0
+      },
+      "sqlite3PagerIsMemdb": {
+        "calls": 270,
+        "branches": 2,
+        "taken": 1
+      },
+      "sqlite3PagerOpenSavepoint": {
+        "calls": 366,
+        "branches": 4,
+        "taken": 1
+      },
+      "sqlite3PagerFilename": {
+        "calls": 285,
+        "branches": 6,
+        "taken": 3
+      },
+      "sqlite3PagerFile": {
+        "calls": 59,
+        "branches": 0,
+        "taken": 0
+      },
+      "sqlite3PagerGetData": {
+        "calls": 120,
+        "branches": 0,
+        "taken": 0
+      },
+      "sqlite3PagerGetExtra": {
+        "calls": 1189,
+        "branches": 0,
+        "taken": 0
+      },
+      "sqlite3PagerGetJournalMode": {
+        "calls": 270,
+        "branches": 0,
+        "taken": 0
+      },
+      "sqlite3PagerWalCallback": {
+        "calls": 405,
+        "branches": 0,
+        "taken": 0
+      },
+      "sqlite3WalClose": {
+        "calls": 59,
+        "branches": 16,
+        "taken": 1
+      },
+      "sqlite3WalDbsize": {
+        "calls": 204,
+        "branches": 4,
+        "taken": 1
+      },
+      "sqlite3WalCallback": {
+        "calls": 405,
+        "branches": 2,
+        "taken": 1
+      },
+      "sqlite3BtreeEnter": {
+        "calls": 3325,
+        "branches": 4,
+        "taken": 1
+      },
+      "sqlite3BtreeLeave": {
+        "calls": 3266,
+        "branches": 4,
+        "taken": 1
+      },
+      "sqlite3BtreeEnterAll": {
+        "calls": 682,
+        "branches": 2,
+        "taken": 1
+      },
+      "sqlite3BtreeLeaveAll": {
+        "calls": 682,
+        "branches": 2,
+        "taken": 1
+      },
+      "querySharedCacheTableLock": {
+        "calls": 368,
+        "branches": 16,
+        "taken": 1
+      },
+      "clearAllSharedCacheTableLocks": {
+        "calls": 368,
+        "branches": 10,
+        "taken": 4
+      },
+      "btreeClearHasContent": {
+        "calls": 366,
+        "branches": 0,
+        "taken": 0
+      },
+      "btreeReleaseAllCursorPages": {
+        "calls": 788,
+        "branches": 4,
+        "taken": 2
+      },
+      "saveAllCursors": {
+        "calls": 82,
+        "branches": 12,
+        "taken": 3
+      },
+      "sqlite3BtreeCursorHasMoved": {
+        "calls": 2791,
+        "branches": 0,
+        "taken": 0
+      },
+      "sqlite3BtreeCursorHintFlags": {
+        "calls": 729,
+        "branches": 0,
+        "taken": 0
+      },
+      "btreeParseCellPtr": {
+        "calls": 1246,
+        "branches": 26,
+        "taken": 8
+      },
+      "btreeParseCellPtrIndex": {
+        "calls": 28,
+        "branches": 10,
+        "taken": 3
+      },
+      "btreeParseCell": {
+        "calls": 1130,
+        "branches": 0,
+        "taken": 0
+      },
+      "pageFindSlot": {
+        "calls": 136,
+        "branches": 16,
+        "taken": 10
+      },
+      "allocateSpace": {
+        "calls": 535,
+        "branches": 24,
+        "taken": 11
+      },
+      "freeSpace": {
+        "calls": 144,
+        "branches": 36,
+        "taken": 22
+      },
+      "decodeFlags": {
+        "calls": 133,
+        "branches": 10,
+        "taken": 4
+      },
+      "btreeComputeFreeSpace": {
+        "calls": 18,
+        "branches": 16,
+        "taken": 3
+      },
+      "btreeInitPage": {
+        "calls": 11,
+        "branches": 6,
+        "taken": 3
+      },
+      "zeroPage": {
+        "calls": 122,
+        "branches": 2,
+        "taken": 1
+      },
+      "btreePageFromDbPage": {
+        "calls": 372,
+        "branches": 2,
+        "taken": 2
+      },
+      "btreeGetPage": {
+        "calls": 420,
+        "branches": 2,
+        "taken": 2
+      },
+      "btreePagecount": {
+        "calls": 1388,
+        "branches": 0,
+        "taken": 0
+      },
+      "sqlite3BtreeLastPage": {
+        "calls": 120,
+        "branches": 0,
+        "taken": 0
+      },
+      "getAndInitPage": {
+        "calls": 788,
+        "branches": 8,
+        "taken": 5
+      },
+      "releasePageNotNull": {
+        "calls": 788,
+        "branches": 0,
+        "taken": 0
+      },
+      "releasePage": {
+        "calls": 122,
+        "branches": 2,
+        "taken": 1
+      },
+      "releasePageOne": {
+        "calls": 405,
+        "branches": 0,
+        "taken": 0
+      },
+      "btreeGetUnusedPage": {
+        "calls": 61,
+        "branches": 4,
+        "taken": 2
+      },
+      "pageReinit": {
+        "calls": 29,
+        "branches": 4,
+        "taken": 2
+      },
+      "sqlite3BtreeOpen": {
+        "calls": 59,
+        "branches": 106,
+        "taken": 24
+      },
+      "allocateTempSpace": {
+        "calls": 61,
+        "branches": 2,
+        "taken": 1
+      },
+      "freeTempSpace": {
+        "calls": 59,
+        "branches": 2,
+        "taken": 1
+      },
+      "sqlite3BtreeClose": {
+        "calls": 59,
+        "branches": 12,
+        "taken": 4
+      },
+      "sqlite3BtreeSetCacheSize": {
+        "calls": 59,
+        "branches": 0,
+        "taken": 0
+      },
+      "lockBtree": {
+        "calls": 263,
+        "branches": 44,
+        "taken": 20
+      },
+      "unlockBtreeIfUnused": {
+        "calls": 1157,
+        "branches": 4,
+        "taken": 4
+      },
+      "newDatabase": {
+        "calls": 366,
+        "branches": 4,
+        "taken": 3
+      },
+      "btreeBeginTrans": {
+        "calls": 1100,
+        "branches": 76,
+        "taken": 43
+      },
+      "sqlite3BtreeBeginTrans": {
+        "calls": 488,
+        "branches": 12,
+        "taken": 8
+      },
+      "sqlite3BtreeCommitPhaseOne": {
+        "calls": 272,
+        "branches": 8,
+        "taken": 4
+      },
+      "btreeEndTransaction": {
+        "calls": 369,
+        "branches": 8,
+        "taken": 6
+      },
+      "sqlite3BtreeCommitPhaseTwo": {
+        "calls": 272,
+        "branches": 8,
+        "taken": 4
+      },
+      "sqlite3BtreeCommit": {
+        "calls": 2,
+        "branches": 2,
+        "taken": 1
+      },
+      "sqlite3BtreeTripAllCursors": {
+        "calls": 15,
+        "branches": 14,
+        "taken": 2
+      },
+      "btreeSetNPage": {
+        "calls": 37,
+        "branches": 2,
+        "taken": 1
+      },
+      "sqlite3BtreeRollback": {
+        "calls": 97,
+        "branches": 14,
+        "taken": 11
+      },
+      "btreeCursor": {
+        "calls": 788,
+        "branches": 14,
+        "taken": 12
+      },
+      "sqlite3BtreeCursor": {
+        "calls": 788,
+        "branches": 2,
+        "taken": 1
+      },
+      "sqlite3BtreeCursorSize": {
+        "calls": 788,
+        "branches": 0,
+        "taken": 0
+      },
+      "sqlite3BtreeCursorZero": {
+        "calls": 788,
+        "branches": 0,
+        "taken": 0
+      },
+      "sqlite3BtreeCloseCursor": {
+        "calls": 788,
+        "branches": 12,
+        "taken": 7
+      },
+      "getCellInfo": {
+        "calls": 1189,
+        "branches": 2,
+        "taken": 2
+      },
+      "sqlite3BtreeIntegerKey": {
+        "calls": 394,
+        "branches": 0,
+        "taken": 0
+      },
+      "sqlite3BtreePayloadSize": {
+        "calls": 795,
+        "branches": 0,
+        "taken": 0
+      },
+      "fetchPayload": {
+        "calls": 795,
+        "branches": 4,
+        "taken": 1
+      },
+      "sqlite3BtreePayloadFetch": {
+        "calls": 795,
+        "branches": 0,
+        "taken": 0
+      },
+      "moveToRoot": {
+        "calls": 852,
+        "branches": 24,
+        "taken": 11
+      },
+      "moveToLeftmost": {
+        "calls": 238,
+        "branches": 4,
+        "taken": 2
+      },
+      "moveToRightmost": {
+        "calls": 215,
+        "branches": 4,
+        "taken": 1
+      },
+      "sqlite3BtreeFirst": {
+        "calls": 238,
+        "branches": 4,
+        "taken": 1
+      },
+      "btreeLast": {
+        "calls": 220,
+        "branches": 6,
+        "taken": 4
+      },
+      "sqlite3BtreeLast": {
+        "calls": 220,
+        "branches": 4,
+        "taken": 1
+      },
+      "sqlite3BtreeTableMoveto": {
+        "calls": 406,
+        "branches": 44,
+        "taken": 20
+      },
+      "indexCellCompare": {
+        "calls": 1,
+        "branches": 6,
+        "taken": 1
+      },
+      "cursorOnLastPage": {
+        "calls": 1,
+        "branches": 4,
+        "taken": 1
+      },
+      "sqlite3BtreeIndexMoveto": {
+        "calls": 183,
+        "branches": 60,
+        "taken": 19
+      },
+      "btreeNext": {
+        "calls": 238,
+        "branches": 30,
+        "taken": 6
+      },
+      "sqlite3BtreeNext": {
+        "calls": 739,
+        "branches": 6,
+        "taken": 4
+      },
+      "allocateBtreePage": {
+        "calls": 61,
+        "branches": 112,
+        "taken": 7
+      },
+      "fillInCell": {
+        "calls": 535,
+        "branches": 36,
+        "taken": 8
+      },
+      "dropCell": {
+        "calls": 144,
+        "branches": 8,
+        "taken": 5
+      },
+      "insertCellFast": {
+        "calls": 535,
+        "branches": 12,
+        "taken": 5
+      },
+      "btreeOverwriteContent": {
+        "calls": 3,
+        "branches": 18,
+        "taken": 4
+      },
+      "btreeOverwriteCell": {
+        "calls": 3,
+        "branches": 6,
+        "taken": 3
+      },
+      "sqlite3BtreeInsert": {
+        "calls": 538,
+        "branches": 100,
+        "taken": 38
+      },
+      "btreeCreateTable": {
+        "calls": 61,
+        "branches": 36,
+        "taken": 3
+      },
+      "sqlite3BtreeCreateTable": {
+        "calls": 61,
+        "branches": 0,
+        "taken": 0
+      },
+      "sqlite3BtreeGetMeta": {
+        "calls": 417,
+        "branches": 2,
+        "taken": 1
+      },
+      "sqlite3BtreeUpdateMeta": {
+        "calls": 124,
+        "branches": 4,
+        "taken": 2
+      },
+      "sqlite3BtreePager": {
+        "calls": 675,
+        "branches": 0,
+        "taken": 0
+      },
+      "sqlite3BtreeGetFilename": {
+        "calls": 285,
+        "branches": 0,
+        "taken": 0
+      },
+      "sqlite3BtreeTxnState": {
+        "calls": 1779,
+        "branches": 2,
+        "taken": 2
+      },
+      "sqlite3BtreeSchema": {
+        "calls": 59,
+        "branches": 4,
+        "taken": 2
+      },
+      "sqlite3BtreeCursorHasHint": {
+        "calls": 28,
+        "branches": 0,
+        "taken": 0
+      },
+      "sqlite3BtreeSharable": {
+        "calls": 787,
+        "branches": 0,
+        "taken": 0
+      },
+      "sqlite3BackupUpdate": {
+        "calls": 600,
+        "branches": 2,
+        "taken": 1
+      },
+      "sqlite3BackupRestart": {
+        "calls": 118,
+        "branches": 2,
+        "taken": 1
+      },
+      "vdbeMemRenderNum": {
+        "calls": 286,
+        "branches": 4,
+        "taken": 1
+      },
+      "sqlite3VdbeChangeEncoding": {
+        "calls": 463,
+        "branches": 4,
+        "taken": 2
+      },
+      "sqlite3VdbeMemGrow": {
+        "calls": 2914,
+        "branches": 20,
+        "taken": 11
+      },
+      "sqlite3VdbeMemClearAndResize": {
+        "calls": 2032,
+        "branches": 2,
+        "taken": 2
+      },
+      "sqlite3VdbeMemZeroTerminateIfAble": {
+        "calls": 59,
+        "branches": 14,
+        "taken": 4
+      },
+      "vdbeMemAddTerminator": {
+        "calls": 59,
+        "branches": 2,
+        "taken": 1
+      },
+      "sqlite3VdbeMemMakeWriteable": {
+        "calls": 61,
+        "branches": 12,
+        "taken": 1
+      },
+      "sqlite3VdbeMemNulTerminate": {
+        "calls": 59,
+        "branches": 2,
+        "taken": 1
+      },
+      "sqlite3VdbeMemStringify": {
+        "calls": 286,
+        "branches": 4,
+        "taken": 2
+      },
+      "sqlite3VdbeMemRelease": {
+        "calls": 228,
+        "branches": 4,
+        "taken": 2
+      },
+      "sqlite3VdbeMemReleaseMalloc": {
+        "calls": 28,
+        "branches": 2,
+        "taken": 1
+      },
+      "sqlite3VdbeIntValue": {
+        "calls": 118,
+        "branches": 8,
+        "taken": 1
+      },
+      "sqlite3VdbeBooleanValue": {
+        "calls": 61,
+        "branches": 4,
+        "taken": 1
+      },
+      "sqlite3VdbeMemIntegerify": {
+        "calls": 59,
+        "branches": 0,
+        "taken": 0
+      },
+      "sqlite3VdbeMemInit": {
+        "calls": 28,
+        "branches": 0,
+        "taken": 0
+      },
+      "sqlite3VdbeMemSetNull": {
+        "calls": 148,
+        "branches": 2,
+        "taken": 1
+      },
+      "sqlite3VdbeMemSetInt64": {
+        "calls": 213,
+        "branches": 2,
+        "taken": 1
+      },
+      "sqlite3VdbeMemTooBig": {
+        "calls": 177,
+        "branches": 4,
+        "taken": 2
+      },
+      "sqlite3VdbeMemShallowCopy": {
+        "calls": 215,
+        "branches": 4,
+        "taken": 2
+      },
+      "sqlite3VdbeMemSetStr": {
+        "calls": 1535,
+        "branches": 36,
+        "taken": 18
+      },
+      "sqlite3VdbeMemFromBtreeZeroOffset": {
+        "calls": 28,
+        "branches": 2,
+        "taken": 1
+      },
+      "valueToText": {
+        "calls": 345,
+        "branches": 16,
+        "taken": 7
+      },
+      "sqlite3ValueText": {
+        "calls": 2412,
+        "branches": 8,
+        "taken": 5
+      },
+      "sqlite3ValueNew": {
+        "calls": 28,
+        "branches": 2,
+        "taken": 1
+      },
+      "sqlite3ValueSetStr": {
+        "calls": 52,
+        "branches": 2,
+        "taken": 1
+      },
+      "sqlite3VdbeCreate": {
+        "calls": 640,
+        "branches": 4,
+        "taken": 3
+      },
+      "sqlite3VdbeError": {
+        "calls": 24,
+        "branches": 0,
+        "taken": 0
+      },
+      "sqlite3VdbeSetSql": {
+        "calls": 524,
+        "branches": 4,
+        "taken": 3
+      },
+      "growOpArray": {
+        "calls": 699,
+        "branches": 6,
+        "taken": 4
+      },
+      "growOp3": {
+        "calls": 699,
+        "branches": 2,
+        "taken": 1
+      },
+      "sqlite3VdbeAddOp0": {
+        "calls": 808,
+        "branches": 0,
+        "taken": 0
+      },
+      "sqlite3VdbeAddOp1": {
+        "calls": 122,
+        "branches": 0,
+        "taken": 0
+      },
+      "sqlite3VdbeAddOp2": {
+        "calls": 2325,
+        "branches": 0,
+        "taken": 0
+      },
+      "sqlite3VdbeAddOp3": {
+        "calls": 10459,
+        "branches": 2,
+        "taken": 2
+      },
+      "sqlite3VdbeAddOp4Int": {
+        "calls": 1340,
+        "branches": 2,
+        "taken": 1
+      },
+      "sqlite3VdbeGoto": {
+        "calls": 640,
+        "branches": 0,
+        "taken": 0
+      },
+      "sqlite3VdbeLoadString": {
+        "calls": 707,
+        "branches": 0,
+        "taken": 0
+      },
+      "sqlite3VdbeAddOp4": {
+        "calls": 1917,
+        "branches": 0,
+        "taken": 0
+      },
+      "sqlite3VdbeAddFunctionCall": {
+        "calls": 236,
+        "branches": 2,
+        "taken": 1
+      },
+      "sqlite3VdbeAddOp4Dup8": {
+        "calls": 19,
+        "branches": 2,
+        "taken": 1
+      },
+      "sqlite3VdbeExplainParent": {
+        "calls": 120,
+        "branches": 2,
+        "taken": 1
+      },
+      "sqlite3VdbeExplainPop": {
+        "calls": 120,
+        "branches": 0,
+        "taken": 0
+      },
+      "sqlite3VdbeAddParseSchemaOp": {
+        "calls": 179,
+        "branches": 2,
+        "taken": 2
+      },
+      "sqlite3VdbeMakeLabel": {
+        "calls": 1445,
+        "branches": 0,
+        "taken": 0
+      },
+      "resizeResolveLabel": {
+        "calls": 427,
+        "branches": 6,
+        "taken": 2
+      },
+      "sqlite3VdbeResolveLabel": {
+        "calls": 1445,
+        "branches": 2,
+        "taken": 2
+      },
+      "resolveP2Values": {
+        "calls": 640,
+        "branches": 19,
+        "taken": 12
+      },
+      "sqlite3VdbeCurrentAddr": {
+        "calls": 1395,
+        "branches": 0,
+        "taken": 0
+      },
+      "sqlite3VdbeChangeOpcode": {
+        "calls": 120,
+        "branches": 0,
+        "taken": 0
+      },
+      "sqlite3VdbeChangeP2": {
+        "calls": 701,
+        "branches": 0,
+        "taken": 0
+      },
+      "sqlite3VdbeChangeP5": {
+        "calls": 2423,
+        "branches": 2,
+        "taken": 1
+      },
+      "sqlite3VdbeJumpHere": {
+        "calls": 701,
+        "branches": 0,
+        "taken": 0
+      },
+      "freeEphemeralFunction": {
+        "calls": 236,
+        "branches": 2,
+        "taken": 1
+      },
+      "freeP4FuncCtx": {
+        "calls": 236,
+        "branches": 0,
+        "taken": 0
+      },
+      "freeP4": {
+        "calls": 2068,
+        "branches": 19,
+        "taken": 6
+      },
+      "vdbeFreeOpArray": {
+        "calls": 640,
+        "branches": 6,
+        "taken": 5
+      },
+      "sqlite3VdbeChangeToNoop": {
+        "calls": 209,
+        "branches": 2,
+        "taken": 1
+      },
+      "sqlite3VdbeDeletePriorOpcode": {
+        "calls": 1,
+        "branches": 4,
+        "taken": 2
+      },
+      "vdbeChangeP4Full": {
+        "calls": 1188,
+        "branches": 6,
+        "taken": 6
+      },
+      "sqlite3VdbeChangeP4": {
+        "calls": 2422,
+        "branches": 16,
+        "taken": 12
+      },
+      "sqlite3VdbeAppendP4": {
+        "calls": 521,
+        "branches": 2,
+        "taken": 1
+      },
+      "sqlite3VdbeSetP4KeyInfo": {
+        "calls": 182,
+        "branches": 2,
+        "taken": 1
+      },
+      "sqlite3VdbeGetOp": {
+        "calls": 849,
+        "branches": 2,
+        "taken": 1
+      },
+      "sqlite3VdbeUsesBtree": {
+        "calls": 905,
+        "branches": 4,
+        "taken": 3
+      },
+      "sqlite3VdbeEnter": {
+        "calls": 640,
+        "branches": 10,
+        "taken": 1
+      },
+      "sqlite3VdbeLeave": {
+        "calls": 640,
+        "branches": 2,
+        "taken": 1
+      },
+      "initMemArray": {
+        "calls": 1400,
+        "branches": 4,
+        "taken": 4
+      },
+      "releaseMemArray": {
+        "calls": 1400,
+        "branches": 16,
+        "taken": 9
+      },
+      "allocSpace": {
+        "calls": 3044,
+        "branches": 4,
+        "taken": 4
+      },
+      "sqlite3VdbeRewind": {
+        "calls": 640,
+        "branches": 0,
+        "taken": 0
+      },
+      "sqlite3VdbeMakeReady": {
+        "calls": 640,
+        "branches": 16,
+        "taken": 10
+      },
+      "sqlite3VdbeFreeCursor": {
+        "calls": 122,
+        "branches": 2,
+        "taken": 2
+      },
+      "sqlite3VdbeFreeCursorNN": {
+        "calls": 788,
+        "branches": 6,
+        "taken": 2
+      },
+      "closeCursorsInFrame": {
+        "calls": 640,
+        "branches": 4,
+        "taken": 4
+      },
+      "closeAllCursors": {
+        "calls": 640,
+        "branches": 8,
+        "taken": 3
+      },
+      "sqlite3VdbeSetNumCols": {
+        "calls": 120,
+        "branches": 4,
+        "taken": 2
+      },
+      "sqlite3VdbeSetColName": {
+        "calls": 1200,
+        "branches": 2,
+        "taken": 1
+      },
+      "vdbeCommit": {
+        "calls": 285,
+        "branches": 82,
+        "taken": 27
+      },
+      "sqlite3VdbeCloseStatement": {
+        "calls": 332,
+        "branches": 4,
+        "taken": 1
+      },
+      "sqlite3VdbeCheckFkImmediate": {
+        "calls": 616,
+        "branches": 2,
+        "taken": 1
+      },
+      "sqlite3VdbeCheckFkDeferred": {
+        "calls": 481,
+        "branches": 2,
+        "taken": 1
+      },
+      "sqlite3VdbeHalt": {
+        "calls": 640,
+        "branches": 84,
+        "taken": 41
+      },
+      "sqlite3VdbeTransferError": {
+        "calls": 48,
+        "branches": 6,
+        "taken": 3
+      },
+      "sqlite3VdbeReset": {
+        "calls": 640,
+        "branches": 10,
+        "taken": 7
+      },
+      "sqlite3VdbeFinalize": {
+        "calls": 120,
+        "branches": 2,
+        "taken": 1
+      },
+      "sqlite3VdbeClearObject": {
+        "calls": 640,
+        "branches": 12,
+        "taken": 9
+      },
+      "sqlite3VdbeDelete": {
+        "calls": 640,
+        "branches": 4,
+        "taken": 3
+      },
+      "sqlite3VdbeFinishMoveto": {
+        "calls": 28,
+        "branches": 4,
+        "taken": 2
+      },
+      "sqlite3VdbeCursorRestore": {
+        "calls": 207,
+        "branches": 2,
+        "taken": 1
+      },
+      "sqlite3VdbeSerialTypeLen": {
+        "calls": 71,
+        "branches": 2,
+        "taken": 2
+      },
+      "sqlite3VdbeOneByteSerialTypeLen": {
+        "calls": 2641,
+        "branches": 0,
+        "taken": 0
+      },
+      "sqlite3VdbeSerialGet": {
+        "calls": 401,
+        "branches": 10,
+        "taken": 3
+      },
+      "vdbeCompareMemString": {
+        "calls": 741,
+        "branches": 2,
+        "taken": 1
+      },
+      "sqlite3MemCompare": {
+        "calls": 741,
+        "branches": 38,
+        "taken": 6
+      },
+      "vdbeRecordDecodeInt": {
+        "calls": 1,
+        "branches": 7,
+        "taken": 1
+      },
+      "sqlite3VdbeRecordCompareWithSkip": {
+        "calls": 2,
+        "branches": 94,
+        "taken": 20
+      },
+      "sqlite3VdbeRecordCompare": {
+        "calls": 2,
+        "branches": 0,
+        "taken": 0
+      },
+      "vdbeRecordCompareInt": {
+        "calls": 400,
+        "branches": 16,
+        "taken": 7
+      },
+      "sqlite3VdbeFindCompare": {
+        "calls": 183,
+        "branches": 12,
+        "taken": 5
+      },
+      "sqlite3VdbeIdxRowid": {
+        "calls": 28,
+        "branches": 18,
+        "taken": 9
+      },
+      "sqlite3VdbeSetChanges": {
+        "calls": 187,
+        "branches": 0,
+        "taken": 0
+      },
+      "sqlite3VdbeCountChanges": {
+        "calls": 187,
+        "branches": 0,
+        "taken": 0
+      },
+      "sqlite3VdbeDb": {
+        "calls": 64,
+        "branches": 0,
+        "taken": 0
+      },
+      "vdbeSafety": {
+        "calls": 1446,
+        "branches": 2,
+        "taken": 1
+      },
+      "vdbeSafetyNotNull": {
+        "calls": 926,
+        "branches": 2,
+        "taken": 1
+      },
+      "sqlite3_finalize": {
+        "calls": 924,
+        "branches": 6,
+        "taken": 4
+      },
+      "sqlite3_value_int64": {
+        "calls": 59,
+        "branches": 0,
+        "taken": 0
+      },
+      "sqlite3_value_text": {
+        "calls": 2412,
+        "branches": 0,
+        "taken": 0
+      },
+      "sqlite3_value_type": {
+        "calls": 118,
+        "branches": 0,
+        "taken": 0
+      },
+      "setResultStrOrError": {
+        "calls": 177,
+        "branches": 6,
+        "taken": 2
+      },
+      "sqlite3_result_int": {
+        "calls": 59,
+        "branches": 0,
+        "taken": 0
+      },
+      "sqlite3_result_text": {
+        "calls": 118,
+        "branches": 0,
+        "taken": 0
+      },
+      "sqlite3_result_text64": {
+        "calls": 59,
+        "branches": 6,
+        "taken": 2
+      },
+      "doWalCallbacks": {
+        "calls": 405,
+        "branches": 10,
+        "taken": 5
+      },
+      "sqlite3Step": {
+        "calls": 926,
+        "branches": 42,
+        "taken": 23
+      },
+      "sqlite3_step": {
+        "calls": 926,
+        "branches": 12,
+        "taken": 3
+      },
+      "sqlite3_context_db_handle": {
+        "calls": 177,
+        "branches": 0,
+        "taken": 0
+      },
+      "sqlite3_column_count": {
+        "calls": 120,
+        "branches": 2,
+        "taken": 1
+      },
+      "columnMem": {
+        "calls": 1430,
+        "branches": 8,
+        "taken": 4
+      },
+      "columnMallocFailure": {
+        "calls": 1430,
+        "branches": 2,
+        "taken": 1
+      },
+      "sqlite3_column_text": {
+        "calls": 1430,
+        "branches": 0,
+        "taken": 0
+      },
+      "columnName": {
+        "calls": 600,
+        "branches": 16,
+        "taken": 5
+      },
+      "sqlite3_column_name": {
+        "calls": 600,
+        "branches": 0,
+        "taken": 0
+      },
+      "allocateCursor": {
+        "calls": 788,
+        "branches": 14,
+        "taken": 10
+      },
+      "applyNumericAffinity": {
+        "calls": 38,
+        "branches": 8,
+        "taken": 1
+      },
+      "applyAffinity": {
+        "calls": 947,
+        "branches": 16,
+        "taken": 11
+      },
+      "out2Prerelease": {
+        "calls": 2610,
+        "branches": 2,
+        "taken": 1
+      },
+      "sqlite3VdbeLogAbort": {
+        "calls": 24,
+        "branches": 4,
+        "taken": 1
+      },
+      "sqlite3VdbeExec": {
+        "calls": 1156,
+        "branches": 1505,
+        "taken": 338
+      },
+      "sqlite3JournalOpen": {
+        "calls": 285,
+        "branches": 4,
+        "taken": 1
+      },
+      "sqlite3JournalIsInMemory": {
+        "calls": 403,
+        "branches": 0,
+        "taken": 0
+      },
+      "sqlite3JournalSize": {
+        "calls": 59,
+        "branches": 2,
+        "taken": 1
+      },
+      "sqlite3WalkExprNN": {
+        "calls": 8522,
+        "branches": 22,
+        "taken": 15
+      },
+      "sqlite3WalkExpr": {
+        "calls": 6125,
+        "branches": 2,
+        "taken": 2
+      },
+      "sqlite3WalkExprList": {
+        "calls": 1900,
+        "branches": 6,
+        "taken": 6
+      },
+      "sqlite3WalkSelectExpr": {
+        "calls": 240,
+        "branches": 20,
+        "taken": 7
+      },
+      "sqlite3WalkSelectFrom": {
+        "calls": 240,
+        "branches": 12,
+        "taken": 5
+      },
+      "sqlite3WalkSelect": {
+        "calls": 360,
+        "branches": 14,
+        "taken": 8
+      },
+      "sqlite3ExprWalkNoop": {
+        "calls": 2294,
+        "branches": 0,
+        "taken": 0
+      },
+      "sqlite3SelectWalkNoop": {
+        "calls": 120,
+        "branches": 0,
+        "taken": 0
+      },
+      "sqlite3ExprColUsed": {
+        "calls": 1045,
+        "branches": 8,
+        "taken": 2
+      },
+      "lookupName": {
+        "calls": 1226,
+        "branches": 242,
+        "taken": 44
+      },
+      "resolveExprStep": {
+        "calls": 3308,
+        "branches": 173,
+        "taken": 34
+      },
+      "resolveAsName": {
+        "calls": 120,
+        "branches": 8,
+        "taken": 5
+      },
+      "sqlite3ResolveOrderGroupBy": {
+        "calls": 120,
+        "branches": 14,
+        "taken": 7
+      },
+      "resolveOrderGroupBy": {
+        "calls": 120,
+        "branches": 20,
+        "taken": 10
+      },
+      "resolveSelectStep": {
+        "calls": 120,
+        "branches": 86,
+        "taken": 28
+      },
+      "sqlite3ResolveExprNames": {
+        "calls": 900,
+        "branches": 6,
+        "taken": 4
+      },
+      "sqlite3ResolveExprListNames": {
+        "calls": 279,
+        "branches": 12,
+        "taken": 7
+      },
+      "sqlite3ResolveSelectNames": {
+        "calls": 120,
+        "branches": 0,
+        "taken": 0
+      },
+      "sqlite3TableColumnAffinity": {
+        "calls": 508,
+        "branches": 4,
+        "taken": 2
+      },
+      "sqlite3ExprAffinity": {
+        "calls": 1044,
+        "branches": 24,
+        "taken": 10
+      },
+      "sqlite3ExprSkipCollate": {
+        "calls": 536,
+        "branches": 4,
+        "taken": 2
+      },
+      "sqlite3ExprSkipCollateAndLikely": {
+        "calls": 2452,
+        "branches": 8,
+        "taken": 3
+      },
+      "sqlite3ExprCollSeq": {
+        "calls": 449,
+        "branches": 42,
+        "taken": 7
+      },
+      "sqlite3ExprNNCollSeq": {
+        "calls": 120,
+        "branches": 2,
+        "taken": 1
+      },
+      "sqlite3CompareAffinity": {
+        "calls": 475,
+        "branches": 10,
+        "taken": 5
+      },
+      "comparisonAffinity": {
+        "calls": 207,
+        "branches": 6,
+        "taken": 1
+      },
+      "sqlite3IndexAffinityOk": {
+        "calls": 207,
+        "branches": 4,
+        "taken": 3
+      },
+      "binaryCompareP5": {
+        "calls": 240,
+        "branches": 0,
+        "taken": 0
+      },
+      "sqlite3BinaryCompareCollSeq": {
+        "calls": 329,
+        "branches": 8,
+        "taken": 4
+      },
+      "sqlite3ExprCompareCollSeq": {
+        "calls": 89,
+        "branches": 2,
+        "taken": 1
+      },
+      "codeCompare": {
+        "calls": 240,
+        "branches": 4,
+        "taken": 2
+      },
+      "sqlite3ExprIsVector": {
+        "calls": 240,
+        "branches": 0,
+        "taken": 0
+      },
+      "sqlite3ExprVectorSize": {
+        "calls": 1166,
+        "branches": 6,
+        "taken": 4
+      },
+      "sqlite3ExprCheckHeight": {
+        "calls": 2627,
+        "branches": 2,
+        "taken": 1
+      },
+      "heightOfExpr": {
+        "calls": 413,
+        "branches": 4,
+        "taken": 3
+      },
+      "heightOfExprList": {
+        "calls": 236,
+        "branches": 4,
+        "taken": 3
+      },
+      "exprSetHeight": {
+        "calls": 236,
+        "branches": 10,
+        "taken": 4
+      },
+      "sqlite3ExprSetHeightAndFlags": {
+        "calls": 236,
+        "branches": 2,
+        "taken": 1
+      },
+      "sqlite3ExprSetErrorOffset": {
+        "calls": 720,
+        "branches": 4,
+        "taken": 2
+      },
+      "sqlite3ExprAlloc": {
+        "calls": 1219,
+        "branches": 20,
+        "taken": 15
+      },
+      "sqlite3Expr": {
+        "calls": 720,
+        "branches": 0,
+        "taken": 0
+      },
+      "sqlite3ExprAttachSubtrees": {
+        "calls": 760,
+        "branches": 8,
+        "taken": 7
+      },
+      "sqlite3PExpr": {
+        "calls": 760,
+        "branches": 2,
+        "taken": 1
+      },
+      "sqlite3ExprAnd": {
+        "calls": 120,
+        "branches": 8,
+        "taken": 3
+      },
+      "sqlite3ExprFunction": {
+        "calls": 236,
+        "branches": 10,
+        "taken": 4
+      },
+      "sqlite3ExprDeleteNN": {
+        "calls": 3266,
+        "branches": 18,
+        "taken": 12
+      },
+      "sqlite3ExprDelete": {
+        "calls": 4616,
+        "branches": 2,
+        "taken": 2
+      },
+      "exprStructSize": {
+        "calls": 476,
+        "branches": 4,
+        "taken": 2
+      },
+      "dupedExprStructSize": {
+        "calls": 476,
+        "branches": 8,
+        "taken": 1
+      },
+      "exprDup": {
+        "calls": 476,
+        "branches": 44,
+        "taken": 14
+      },
+      "sqlite3ExprDup": {
+        "calls": 476,
+        "branches": 2,
+        "taken": 1
+      },
+      "sqlite3ExprListDup": {
+        "calls": 61,
+        "branches": 16,
+        "taken": 1
+      },
+      "sqlite3ExprListAppendNew": {
+        "calls": 1023,
+        "branches": 2,
+        "taken": 1
+      },
+      "sqlite3ExprListAppendGrow": {
+        "calls": 240,
+        "branches": 2,
+        "taken": 1
+      },
+      "sqlite3ExprListAppend": {
+        "calls": 2431,
+        "branches": 4,
+        "taken": 4
+      },
+      "sqlite3ExprListSetSortOrder": {
+        "calls": 120,
+        "branches": 8,
+        "taken": 3
+      },
+      "sqlite3ExprListSetName": {
+        "calls": 392,
+        "branches": 6,
+        "taken": 3
+      },
+      "sqlite3ExprListCheckLength": {
+        "calls": 148,
+        "branches": 4,
+        "taken": 2
+      },
+      "exprListDeleteNN": {
+        "calls": 1023,
+        "branches": 4,
+        "taken": 4
+      },
+      "sqlite3ExprListDelete": {
+        "calls": 2943,
+        "branches": 2,
+        "taken": 2
+      },
+      "sqlite3ExprListFlags": {
+        "calls": 236,
+        "branches": 2,
+        "taken": 2
+      },
+      "exprNodeIsConstant": {
+        "calls": 3786,
+        "branches": 32,
+        "taken": 11
+      },
+      "exprIsConst": {
+        "calls": 1957,
+        "branches": 0,
+        "taken": 0
+      },
+      "sqlite3ExprIsConstant": {
+        "calls": 474,
+        "branches": 0,
+        "taken": 0
+      },
+      "sqlite3ExprIsConstantNotJoin": {
+        "calls": 1483,
+        "branches": 0,
+        "taken": 0
+      },
+      "sqlite3ExprIsInteger": {
+        "calls": 299,
+        "branches": 22,
+        "taken": 3
+      },
+      "sqlite3ExprCanBeNull": {
+        "calls": 28,
+        "branches": 19,
+        "taken": 4
+      },
+      "sqlite3ExprNeedsNoAffinityChange": {
+        "calls": 28,
+        "branches": 20,
+        "taken": 5
+      },
+      "sqlite3IsRowid": {
+        "calls": 181,
+        "branches": 6,
+        "taken": 2
+      },
+      "codeInteger": {
+        "calls": 263,
+        "branches": 18,
+        "taken": 12
+      },
+      "sqlite3ExprCodeLoadIndexColumn": {
+        "calls": 1,
+        "branches": 2,
+        "taken": 1
+      },
+      "sqlite3ExprCodeGetColumnOfTable": {
+        "calls": 1282,
+        "branches": 12,
+        "taken": 5
+      },
+      "sqlite3ExprCodeGetColumn": {
+        "calls": 1017,
+        "branches": 6,
+        "taken": 1
+      },
+      "sqlite3ExprCodeTarget": {
+        "calls": 2638,
+        "branches": 197,
+        "taken": 46
+      },
+      "sqlite3ExprCodeRunJustOnce": {
+        "calls": 476,
+        "branches": 22,
+        "taken": 14
+      },
+      "sqlite3ExprCodeTemp": {
+        "calls": 834,
+        "branches": 10,
+        "taken": 6
+      },
+      "sqlite3ExprCode": {
+        "calls": 868,
+        "branches": 10,
+        "taken": 6
+      },
+      "sqlite3ExprCodeExprList": {
+        "calls": 356,
+        "branches": 26,
+        "taken": 9
+      },
+      "sqlite3ExprIfFalse": {
+        "calls": 240,
+        "branches": 39,
+        "taken": 6
+      },
+      "sqlite3ExprCompare": {
+        "calls": 2215,
+        "branches": 94,
+        "taken": 30
+      },
+      "sqlite3ExprListCompare": {
+        "calls": 600,
+        "branches": 16,
+        "taken": 2
+      },
+      "sqlite3GetTempReg": {
+        "calls": 750,
+        "branches": 2,
+        "taken": 2
+      },
+      "sqlite3ReleaseTempReg": {
+        "calls": 1169,
+        "branches": 4,
+        "taken": 3
+      },
+      "sqlite3GetTempRange": {
+        "calls": 274,
+        "branches": 4,
+        "taken": 3
+      },
+      "sqlite3ReleaseTempRange": {
+        "calls": 274,
+        "branches": 4,
+        "taken": 3
+      },
+      "isAlterableTable": {
+        "calls": 61,
+        "branches": 8,
+        "taken": 3
+      },
+      "renameReloadSchema": {
+        "calls": 59,
+        "branches": 4,
+        "taken": 2
+      },
+      "sqlite3AlterFinishAddColumn": {
+        "calls": 61,
+        "branches": 48,
+        "taken": 18
+      },
+      "sqlite3AlterBeginAddColumn": {
+        "calls": 62,
+        "branches": 18,
+        "taken": 11
+      },
+      "sqlite3AnalysisLoad": {
+        "calls": 59,
+        "branches": 16,
+        "taken": 6
+      },
+      "sqlite3DbIsNamed": {
+        "calls": 930,
+        "branches": 4,
+        "taken": 4
+      },
+      "sqlite3AuthCheck": {
+        "calls": 2111,
+        "branches": 12,
+        "taken": 1
+      },
+      "sqlite3AuthContextPop": {
+        "calls": 148,
+        "branches": 2,
+        "taken": 1
+      },
+      "sqlite3TableLock": {
+        "calls": 61,
+        "branches": 4,
+        "taken": 2
+      },
+      "sqlite3FinishCoding": {
+        "calls": 1166,
+        "branches": 42,
+        "taken": 25
+      },
+      "sqlite3NestedParse": {
+        "calls": 120,
+        "branches": 8,
+        "taken": 3
+      },
+      "sqlite3FindTable": {
+        "calls": 1247,
+        "branches": 40,
+        "taken": 25
+      },
+      "sqlite3LocateTable": {
+        "calls": 489,
+        "branches": 32,
+        "taken": 17
+      },
+      "sqlite3LocateTableItem": {
+        "calls": 489,
+        "branches": 2,
+        "taken": 1
+      },
+      "sqlite3FindIndex": {
+        "calls": 465,
+        "branches": 10,
+        "taken": 7
+      },
+      "sqlite3CommitInternalChanges": {
+        "calls": 347,
+        "branches": 0,
+        "taken": 0
+      },
+      "sqlite3ColumnExpr": {
+        "calls": 59,
+        "branches": 8,
+        "taken": 1
+      },
+      "sqlite3ColumnColl": {
+        "calls": 329,
+        "branches": 8,
+        "taken": 1
+      },
+      "sqlite3DeleteColumnNames": {
+        "calls": 465,
+        "branches": 10,
+        "taken": 6
+      },
+      "deleteTable": {
+        "calls": 465,
+        "branches": 10,
+        "taken": 2
+      },
+      "sqlite3DeleteTable": {
+        "calls": 954,
+        "branches": 6,
+        "taken": 5
+      },
+      "sqlite3NameFromToken": {
+        "calls": 1387,
+        "branches": 2,
+        "taken": 1
+      },
+      "sqlite3OpenSchemaTable": {
+        "calls": 61,
+        "branches": 2,
+        "taken": 1
+      },
+      "sqlite3TwoPartName": {
+        "calls": 348,
+        "branches": 6,
+        "taken": 1
+      },
+      "sqlite3WritableSchema": {
+        "calls": 586,
+        "branches": 0,
+        "taken": 0
+      },
+      "sqlite3CheckObjectName": {
+        "calls": 466,
+        "branches": 20,
+        "taken": 11
+      },
+      "sqlite3TableColumnToStorage": {
+        "calls": 1589,
+        "branches": 10,
+        "taken": 1
+      },
+      "sqlite3StartTable": {
+        "calls": 466,
+        "branches": 56,
+        "taken": 30
+      },
+      "sqlite3AddColumn": {
+        "calls": 1177,
+        "branches": 46,
+        "taken": 22
+      },
+      "sqlite3ChangeCookie": {
+        "calls": 120,
+        "branches": 0,
+        "taken": 0
+      },
+      "estimateTableWidth": {
+        "calls": 465,
+        "branches": 4,
+        "taken": 3
+      },
+      "sqlite3ShadowTableName": {
+        "calls": 465,
+        "branches": 6,
+        "taken": 3
+      },
+      "sqlite3EndTable": {
+        "calls": 465,
+        "branches": 100,
+        "taken": 32
+      },
+      "sqlite3ViewGetColumnNames": {
+        "calls": 307,
+        "branches": 4,
+        "taken": 2
+      },
+      "sqlite3ReadOnlyShadowTables": {
+        "calls": 62,
+        "branches": 10,
+        "taken": 1
+      },
+      "sqlite3IdListAppend": {
+        "calls": 310,
+        "branches": 10,
+        "taken": 5
+      },
+      "sqlite3IdListDelete": {
+        "calls": 159,
+        "branches": 4,
+        "taken": 3
+      },
+      "sqlite3SrcListAppend": {
+        "calls": 489,
+        "branches": 12,
+        "taken": 7
+      },
+      "sqlite3SrcListAssignCursors": {
+        "calls": 120,
+        "branches": 8,
+        "taken": 5
+      },
+      "sqlite3SrcListDelete": {
+        "calls": 648,
+        "branches": 22,
+        "taken": 13
+      },
+      "sqlite3SrcListAppendFromTerm": {
+        "calls": 120,
+        "branches": 30,
+        "taken": 10
+      },
+      "sqlite3SrcListIndexedBy": {
+        "calls": 148,
+        "branches": 8,
+        "taken": 2
+      },
+      "sqlite3SrcListShiftJoinType": {
+        "calls": 120,
+        "branches": 14,
+        "taken": 2
+      },
+      "sqlite3BeginTransaction": {
+        "calls": 107,
+        "branches": 14,
+        "taken": 3
+      },
+      "sqlite3EndTransaction": {
+        "calls": 106,
+        "branches": 6,
+        "taken": 3
+      },
+      "sqlite3CodeVerifySchemaAtToplevel": {
+        "calls": 636,
+        "branches": 4,
+        "taken": 3
+      },
+      "sqlite3CodeVerifySchema": {
+        "calls": 268,
+        "branches": 2,
+        "taken": 1
+      },
+      "sqlite3BeginWriteOperation": {
+        "calls": 368,
+        "branches": 2,
+        "taken": 1
+      },
+      "sqlite3MultiWrite": {
+        "calls": 59,
+        "branches": 2,
+        "taken": 1
+      },
+      "sqlite3MayAbort": {
+        "calls": 783,
+        "branches": 2,
+        "taken": 1
+      },
+      "sqlite3HaltConstraint": {
+        "calls": 155,
+        "branches": 2,
+        "taken": 1
+      },
+      "sqlite3UniqueConstraint": {
+        "calls": 155,
+        "branches": 6,
+        "taken": 4
+      },
+      "sqlite3KeyInfoOfIndex": {
+        "calls": 182,
+        "branches": 16,
+        "taken": 8
+      },
+      "sqlite3CheckCollSeq": {
+        "calls": 449,
+        "branches": 6,
+        "taken": 3
+      },
+      "sqlite3FindCollSeq": {
+        "calls": 329,
+        "branches": 4,
+        "taken": 1
+      },
+      "matchQuality": {
+        "calls": 590,
+        "branches": 16,
+        "taken": 9
+      },
+      "sqlite3FunctionSearch": {
+        "calls": 472,
+        "branches": 4,
+        "taken": 3
+      },
+      "sqlite3FindFunction": {
+        "calls": 472,
+        "branches": 30,
+        "taken": 10
+      },
+      "sqlite3SchemaClear": {
+        "calls": 118,
+        "branches": 6,
+        "taken": 4
+      },
+      "sqlite3SrcListLookup": {
+        "calls": 307,
+        "branches": 8,
+        "taken": 3
+      },
+      "tabIsReadOnly": {
+        "calls": 307,
+        "branches": 8,
+        "taken": 5
+      },
+      "sqlite3IsReadOnly": {
+        "calls": 307,
+        "branches": 10,
+        "taken": 2
+      },
+      "sqlite3GenerateRowIndexDelete": {
+        "calls": 148,
+        "branches": 14,
+        "taken": 9
+      },
+      "sqlite3GenerateIndexKey": {
+        "calls": 1,
+        "branches": 26,
+        "taken": 10
+      },
+      "sqlite3ResolvePartIdxLabel": {
+        "calls": 1,
+        "branches": 2,
+        "taken": 1
+      },
+      "lengthFunc": {
+        "calls": 59,
+        "branches": 11,
+        "taken": 5
+      },
+      "printfFunc": {
+        "calls": 118,
+        "branches": 4,
+        "taken": 2
+      },
+      "substrFunc": {
+        "calls": 59,
+        "branches": 60,
+        "taken": 18
+      },
+      "sqlite3FkClearTriggerCache": {
+        "calls": 120,
+        "branches": 6,
+        "taken": 4
+      },
+      "sqlite3FkRequired": {
+        "calls": 148,
+        "branches": 24,
+        "taken": 2
+      },
+      "sqlite3FkDelete": {
+        "calls": 465,
+        "branches": 10,
+        "taken": 1
+      },
+      "sqlite3OpenTable": {
+        "calls": 486,
+        "branches": 4,
+        "taken": 2
+      },
+      "computeIndexAffStr": {
+        "calls": 7,
+        "branches": 12,
+        "taken": 8
+      },
+      "sqlite3IndexAffinityStr": {
+        "calls": 28,
+        "branches": 2,
+        "taken": 2
+      },
+      "sqlite3TableAffinityStr": {
+        "calls": 46,
+        "branches": 10,
+        "taken": 8
+      },
+      "sqlite3TableAffinity": {
+        "calls": 307,
+        "branches": 12,
+        "taken": 8
+      },
+      "autoIncBegin": {
+        "calls": 159,
+        "branches": 22,
+        "taken": 1
+      },
+      "autoIncStep": {
+        "calls": 159,
+        "branches": 2,
+        "taken": 1
+      },
+      "sqlite3AutoincrementEnd": {
+        "calls": 187,
+        "branches": 2,
+        "taken": 1
+      },
+      "sqlite3Insert": {
+        "calls": 159,
+        "branches": 228,
+        "taken": 65
+      },
+      "indexIteratorFirst": {
+        "calls": 307,
+        "branches": 2,
+        "taken": 1
+      },
+      "indexIteratorNext": {
+        "calls": 182,
+        "branches": 4,
+        "taken": 1
+      },
+      "sqlite3GenerateConstraintChecks": {
+        "calls": 307,
+        "branches": 267,
+        "taken": 63
+      },
+      "sqlite3CompleteInsertion": {
+        "calls": 307,
+        "branches": 26,
+        "taken": 19
+      },
+      "sqlite3OpenTableAndIndices": {
+        "calls": 307,
+        "branches": 24,
+        "taken": 17
+      },
+      "sqlite3_exec": {
+        "calls": 120,
+        "branches": 52,
+        "taken": 28
+      },
+      "sqlite3InitCallback": {
+        "calls": 404,
+        "branches": 50,
+        "taken": 11
+      },
+      "sqlite3InitOne": {
+        "calls": 118,
+        "branches": 54,
+        "taken": 22
+      },
+      "sqlite3Init": {
+        "calls": 62,
+        "branches": 12,
+        "taken": 5
+      },
+      "sqlite3ReadSchema": {
+        "calls": 527,
+        "branches": 6,
+        "taken": 4
+      },
+      "schemaIsValid": {
+        "calls": 2,
+        "branches": 18,
+        "taken": 10
+      },
+      "sqlite3SchemaToIndex": {
+        "calls": 1587,
+        "branches": 6,
+        "taken": 4
+      },
+      "sqlite3ParseObjectReset": {
+        "calls": 1048,
+        "branches": 10,
+        "taken": 6
+      },
+      "sqlite3Prepare": {
+        "calls": 1048,
+        "branches": 46,
+        "taken": 25
+      },
+      "sqlite3LockAndPrepare": {
+        "calls": 644,
+        "branches": 16,
+        "taken": 8
+      },
+      "sqlite3_prepare_v2": {
+        "calls": 644,
+        "branches": 0,
+        "taken": 0
+      },
+      "clearSelect": {
+        "calls": 279,
+        "branches": 10,
+        "taken": 6
+      },
+      "sqlite3SelectNew": {
+        "calls": 279,
+        "branches": 8,
+        "taken": 5
+      },
+      "sqlite3SelectDelete": {
+        "calls": 438,
+        "branches": 2,
+        "taken": 2
+      },
+      "sqlite3ColumnIndex": {
+        "calls": 2639,
+        "branches": 10,
+        "taken": 8
+      },
+      "sqlite3ProcessJoin": {
+        "calls": 120,
+        "branches": 62,
+        "taken": 1
+      },
+      "innerLoopLoadRow": {
+        "calls": 120,
+        "branches": 0,
+        "taken": 0
+      },
+      "codeOffset": {
+        "calls": 120,
+        "branches": 2,
+        "taken": 1
+      },
+      "selectInnerLoop": {
+        "calls": 120,
+        "branches": 96,
+        "taken": 19
+      },
+      "sqlite3KeyInfoAlloc": {
+        "calls": 302,
+        "branches": 4,
+        "taken": 2
+      },
+      "sqlite3KeyInfoUnref": {
+        "calls": 302,
+        "branches": 4,
+        "taken": 2
+      },
+      "sqlite3KeyInfoFromExprList": {
+        "calls": 120,
+        "branches": 4,
+        "taken": 3
+      },
+      "columnTypeImpl": {
+        "calls": 600,
+        "branches": 23,
+        "taken": 11
+      },
+      "generateColumnTypes": {
+        "calls": 120,
+        "branches": 2,
+        "taken": 2
+      },
+      "sqlite3GenerateColumnNames": {
+        "calls": 120,
+        "branches": 24,
+        "taken": 7
+      },
+      "sqlite3GetVdbe": {
+        "calls": 1037,
+        "branches": 6,
+        "taken": 4
+      },
+      "constInsert": {
+        "calls": 61,
+        "branches": 16,
+        "taken": 6
+      },
+      "findConstInWhere": {
+        "calls": 183,
+        "branches": 16,
+        "taken": 9
+      },
+      "propagateConstantExprRewriteOne": {
+        "calls": 427,
+        "branches": 20,
+        "taken": 10
+      },
+      "propagateConstantExprRewrite": {
+        "calls": 427,
+        "branches": 10,
+        "taken": 1
+      },
+      "propagateConstants": {
+        "calls": 61,
+        "branches": 10,
+        "taken": 5
+      },
+      "cannotBeFunction": {
+        "calls": 120,
+        "branches": 2,
+        "taken": 1
+      },
+      "sqlite3WithPush": {
+        "calls": 120,
+        "branches": 8,
+        "taken": 1
+      },
+      "resolveFromTermToCte": {
+        "calls": 120,
+        "branches": 70,
+        "taken": 1
+      },
+      "sqlite3SelectPopWith": {
+        "calls": 120,
+        "branches": 6,
+        "taken": 1
+      },
+      "selectExpander": {
+        "calls": 120,
+        "branches": 194,
+        "taken": 53
+      },
+      "sqlite3SelectExpand": {
+        "calls": 120,
+        "branches": 2,
+        "taken": 1
+      },
+      "selectAddSubqueryTypeInfo": {
+        "calls": 120,
+        "branches": 8,
+        "taken": 4
+      },
+      "sqlite3SelectAddTypeInfo": {
+        "calls": 120,
+        "branches": 0,
+        "taken": 0
+      },
+      "sqlite3SelectPrep": {
+        "calls": 120,
+        "branches": 8,
+        "taken": 4
+      },
+      "countOfViewOptimization": {
+        "calls": 120,
+        "branches": 46,
+        "taken": 1
+      },
+      "sqlite3Select": {
+        "calls": 120,
+        "branches": 374,
+        "taken": 50
+      },
+      "tempTriggersExist": {
+        "calls": 307,
+        "branches": 4,
+        "taken": 2
+      },
+      "sqlite3TriggersExist": {
+        "calls": 307,
+        "branches": 6,
+        "taken": 3
+      },
+      "sqlite3TriggerColmask": {
+        "calls": 148,
+        "branches": 14,
+        "taken": 2
+      },
+      "sqlite3ColumnDefault": {
+        "calls": 1282,
+        "branches": 8,
+        "taken": 2
+      },
+      "indexColumnIsBeingUpdated": {
+        "calls": 28,
+        "branches": 2,
+        "taken": 1
+      },
+      "indexWhereClauseMightChange": {
+        "calls": 28,
+        "branches": 2,
+        "taken": 1
+      },
+      "sqlite3Update": {
+        "calls": 148,
+        "branches": 330,
+        "taken": 130
+      },
+      "sqlite3UpsertDelete": {
+        "calls": 159,
+        "branches": 2,
+        "taken": 1
+      },
+      "callFinaliser": {
+        "calls": 323,
+        "branches": 8,
+        "taken": 1
+      },
+      "sqlite3VtabSync": {
+        "calls": 285,
+        "branches": 8,
+        "taken": 2
+      },
+      "sqlite3VtabRollback": {
+        "calls": 38,
+        "branches": 0,
+        "taken": 0
+      },
+      "sqlite3VtabCommit": {
+        "calls": 285,
+        "branches": 0,
+        "taken": 0
+      },
+      "sqlite3VtabOverloadFunction": {
+        "calls": 236,
+        "branches": 14,
+        "taken": 5
+      },
+      "sqlite3WhereExplainOneScan": {
+        "calls": 268,
+        "branches": 8,
+        "taken": 2
+      },
+      "disableTerm": {
+        "calls": 89,
+        "branches": 16,
+        "taken": 5
+      },
+      "codeApplyAffinity": {
+        "calls": 28,
+        "branches": 12,
+        "taken": 8
+      },
+      "codeEqualityTerm": {
+        "calls": 89,
+        "branches": 10,
+        "taken": 2
+      },
+      "codeAllEqualityTerms": {
+        "calls": 28,
+        "branches": 28,
+        "taken": 11
+      },
+      "codeDeferredSeek": {
+        "calls": 28,
+        "branches": 12,
+        "taken": 1
+      },
+      "sqlite3WhereCodeOneLoopStart": {
+        "calls": 268,
+        "branches": 372,
+        "taken": 72
+      },
+      "whereClauseInsert": {
+        "calls": 329,
+        "branches": 12,
+        "taken": 4
+      },
+      "allowedOp": {
+        "calls": 329,
+        "branches": 8,
+        "taken": 5
+      },
+      "operatorMask": {
+        "calls": 268,
+        "branches": 6,
+        "taken": 1
+      },
+      "isAuxiliaryVtabOperator": {
+        "calls": 329,
+        "branches": 46,
+        "taken": 11
+      },
+      "exprMightBeIndexed": {
+        "calls": 536,
+        "branches": 14,
+        "taken": 8
+      },
+      "exprAnalyze": {
+        "calls": 329,
+        "branches": 132,
+        "taken": 25
+      },
+      "sqlite3WhereSplit": {
+        "calls": 508,
+        "branches": 4,
+        "taken": 4
+      },
+      "sqlite3WhereClauseInit": {
+        "calls": 268,
+        "branches": 0,
+        "taken": 0
+      },
+      "sqlite3WhereClauseClear": {
+        "calls": 268,
+        "branches": 10,
+        "taken": 6
+      },
+      "sqlite3WhereExprUsageFull": {
+        "calls": 61,
+        "branches": 16,
+        "taken": 7
+      },
+      "sqlite3WhereExprUsageNN": {
+        "calls": 658,
+        "branches": 6,
+        "taken": 5
+      },
+      "sqlite3WhereExprUsage": {
+        "calls": 658,
+        "branches": 2,
+        "taken": 1
+      },
+      "sqlite3WhereExprAnalyze": {
+        "calls": 268,
+        "branches": 2,
+        "taken": 2
+      },
+      "sqlite3WhereTabFuncArgs": {
+        "calls": 268,
+        "branches": 16,
+        "taken": 1
+      },
+      "sqlite3WhereOutputRowCount": {
+        "calls": 240,
+        "branches": 0,
+        "taken": 0
+      },
+      "sqlite3WhereIsOrdered": {
+        "calls": 120,
+        "branches": 2,
+        "taken": 1
+      },
+      "sqlite3WhereOrderByLimitOptLabel": {
+        "calls": 120,
+        "branches": 4,
+        "taken": 1
+      },
+      "sqlite3WhereContinueLabel": {
+        "calls": 120,
+        "branches": 0,
+        "taken": 0
+      },
+      "sqlite3WhereBreakLabel": {
+        "calls": 120,
+        "branches": 0,
+        "taken": 0
+      },
+      "sqlite3WhereOkOnePass": {
+        "calls": 148,
+        "branches": 0,
+        "taken": 0
+      },
+      "sqlite3WhereUsesDeferredSeek": {
+        "calls": 148,
+        "branches": 0,
+        "taken": 0
+      },
+      "sqlite3WhereGetMask": {
+        "calls": 776,
+        "branches": 6,
+        "taken": 1
+      },
+      "createMask": {
+        "calls": 268,
+        "branches": 0,
+        "taken": 0
+      },
+      "whereScanNext": {
+        "calls": 715,
+        "branches": 56,
+        "taken": 22
+      },
+      "whereScanInit": {
+        "calls": 715,
+        "branches": 10,
+        "taken": 6
+      },
+      "sqlite3WhereFindTerm": {
+        "calls": 240,
+        "branches": 10,
+        "taken": 1
+      },
+      "estLog": {
+        "calls": 358,
+        "branches": 2,
+        "taken": 1
+      },
+      "columnIsGoodIndexCandidate": {
+        "calls": 179,
+        "branches": 12,
+        "taken": 1
+      },
+      "termCanDriveIndex": {
+        "calls": 240,
+        "branches": 14,
+        "taken": 7
+      },
+      "whereLoopInit": {
+        "calls": 567,
+        "branches": 0,
+        "taken": 0
+      },
+      "whereLoopClearUnion": {
+        "calls": 777,
+        "branches": 10,
+        "taken": 5
+      },
+      "whereLoopClear": {
+        "calls": 478,
+        "branches": 2,
+        "taken": 1
+      },
+      "whereLoopXfer": {
+        "calls": 299,
+        "branches": 8,
+        "taken": 4
+      },
+      "whereLoopDelete": {
+        "calls": 299,
+        "branches": 0,
+        "taken": 0
+      },
+      "whereInfoFree": {
+        "calls": 268,
+        "branches": 4,
+        "taken": 3
+      },
+      "whereLoopAdjustCost": {
+        "calls": 358,
+        "branches": 20,
+        "taken": 1
+      },
+      "whereLoopFindLesser": {
+        "calls": 358,
+        "branches": 30,
+        "taken": 15
+      },
+      "whereLoopInsert": {
+        "calls": 358,
+        "branches": 26,
+        "taken": 10
+      },
+      "whereLoopOutputAdjust": {
+        "calls": 179,
+        "branches": 44,
+        "taken": 21
+      },
+      "whereLoopAddBtreeIndex": {
+        "calls": 179,
+        "branches": 134,
+        "taken": 7
+      },
+      "indexMightHelpWithOrderBy": {
+        "calls": 179,
+        "branches": 26,
+        "taken": 8
+      },
+      "whereLoopAddBtree": {
+        "calls": 179,
+        "branches": 122,
+        "taken": 32
+      },
+      "whereLoopAddAll": {
+        "calls": 179,
+        "branches": 28,
+        "taken": 10
+      },
+      "wherePathSatisfiesOrderBy": {
+        "calls": 240,
+        "branches": 180,
+        "taken": 54
+      },
+      "wherePathSolver": {
+        "calls": 299,
+        "branches": 136,
+        "taken": 53
+      },
+      "whereInterstageHeuristic": {
+        "calls": 120,
+        "branches": 14,
+        "taken": 4
+      },
+      "whereShortCut": {
+        "calls": 268,
+        "branches": 44,
+        "taken": 27
+      },
+      "sqlite3WhereBegin": {
+        "calls": 268,
+        "branches": 214,
+        "taken": 83
+      },
+      "sqlite3WhereEnd": {
+        "calls": 268,
+        "branches": 110,
+        "taken": 32
+      },
+      "sqlite3WindowRewrite": {
+        "calls": 120,
+        "branches": 42,
+        "taken": 1
+      },
+      "disableLookaside": {
+        "calls": 528,
+        "branches": 0,
+        "taken": 0
+      },
+      "parserDoubleLinkSelect": {
+        "calls": 279,
+        "branches": 14,
+        "taken": 1
+      },
+      "tokenExpr": {
+        "calls": 1449,
+        "branches": 6,
+        "taken": 4
+      },
+      "sqlite3ParserInit": {
+        "calls": 1168,
+        "branches": 0,
+        "taken": 0
+      },
+      "yy_destructor": {
+        "calls": 1,
+        "branches": 12,
+        "taken": 1
+      },
+      "sqlite3ParserFinalize": {
+        "calls": 1168,
+        "branches": 6,
+        "taken": 5
+      },
+      "yy_find_shift_action": {
+        "calls": 40227,
+        "branches": 12,
+        "taken": 6
+      },
+      "yy_find_reduce_action": {
+        "calls": 25024,
+        "branches": 0,
+        "taken": 0
+      },
+      "yy_shift": {
+        "calls": 15083,
+        "branches": 6,
+        "taken": 3
+      },
+      "yy_reduce": {
+        "calls": 25024,
+        "branches": 472,
+        "taken": 75
+      },
+      "yy_accept": {
+        "calls": 120,
+        "branches": 0,
+        "taken": 0
+      },
+      "sqlite3Parser": {
+        "calls": 15203,
+        "branches": 12,
+        "taken": 8
+      },
+      "keywordCode": {
+        "calls": 6510,
+        "branches": 14,
+        "taken": 12
+      },
+      "sqlite3GetToken": {
+        "calls": 20629,
+        "branches": 177,
+        "taken": 64
+      },
+      "sqlite3RunParser": {
+        "calls": 1168,
+        "branches": 54,
+        "taken": 28
+      },
+      "sqlite3_initialize": {
+        "calls": 285,
+        "branches": 34,
+        "taken": 1
+      },
+      "binCollFunc": {
+        "calls": 741,
+        "branches": 4,
+        "taken": 4
+      },
+      "sqlite3IsBinary": {
+        "calls": 61,
+        "branches": 2,
+        "taken": 1
+      },
+      "sqlite3CloseSavepoints": {
+        "calls": 211,
+        "branches": 2,
+        "taken": 1
+      },
+      "sqlite3LeaveMutexAndCloseZombie": {
+        "calls": 520,
+        "branches": 28,
+        "taken": 1
+      },
+      "sqlite3RollbackAll": {
+        "calls": 38,
+        "branches": 16,
+        "taken": 9
+      },
+      "sqlite3TempInMemory": {
+        "calls": 425,
+        "branches": 0,
+        "taken": 0
+      },
+      "sqlite3_errmsg": {
+        "calls": 28,
+        "branches": 10,
+        "taken": 5
+      },
+      "sqlite3_extended_errcode": {
+        "calls": 28,
+        "branches": 8,
+        "taken": 4
+      },
+      "sqlite3_uri_parameter": {
+        "calls": 285,
+        "branches": 4,
+        "taken": 1
+      },
+      "sqlite3_uri_boolean": {
+        "calls": 285,
+        "branches": 2,
+        "taken": 1
+      }
+    },
+    "tool": "Apple LLVM version 21.0.0\n  Optimized build.",
+    "library": "/nix/store/ii97zlf0b398avxf047m2s0j4b998p8q-sqlite-conformance-gcov-3.51.0/libsqlite3.dylib",
+    "sourceSha256": "9174464366e4fe607561c4123d7738e2767b16a34ec57f63759b38b8b8d61074",
+    "scope": "Migration statements only (prepare/step/finalize); reset before each, dump and reset after each; fixture/observation/connection cleanup excluded. Separately compiled -O0 gcov library"
+  }
+}

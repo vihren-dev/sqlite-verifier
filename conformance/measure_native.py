@@ -10,7 +10,7 @@ from conformance.native_trace import Fixture, record
 
 
 def main() -> None:
-    """GCOV_PREFIX belongs to this child process; profiling writes on normal process exit."""
+    """GCOV_PREFIX belongs to this child process; counters are dumped only around migration statements."""
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("cases", type=Path)
     parser.add_argument("--library", type=Path, required=True)
@@ -23,7 +23,7 @@ def main() -> None:
         rows = {name: [(row["rowid"], tuple(decode_cell(cell) for cell in row["values"]))
                       for row in table["rows"]] for name, table in case["initial"]}
         fixture = Fixture(case["schemaSql"], case["migrationSql"], rows, "coverage")
-        observed = record(fixture, args.runtime_root.resolve() / "build/sqlite-parser", args.library.resolve())
+        observed = record(fixture, args.runtime_root.resolve() / "build/sqlite-parser", args.library.resolve(), migration_coverage=True)
         assert observed["nativeTrace"] == case["nativeTrace"]
         actual.append(observed)
     assert all(result["verdict"] == "AGREE" for result in compiled_many(actual, args.runtime_root.resolve()))

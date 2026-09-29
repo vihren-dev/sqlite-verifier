@@ -124,10 +124,11 @@ def main() -> None:
         raise RuntimeError(measured.stdout + measured.stderr)
     (counters / "gcov.log").write_text(measured.stdout + measured.stderr)
     gcov = gcov_counts((counters / "sqlite3.c.gcov").read_text())
+    assert not {"sqlite3_open", "sqlite3_close", "sqlite3_bind_int64"} & gcov["functions"].keys(), "Fixture/cleanup counters leaked"
     version = subprocess.run([args.llvm_cov, "--version"], capture_output=True, text=True, timeout=10)
     gcov.update(tool=version.stdout.strip(), library=str(library),
         sourceSha256=hashlib.sha256((native / "sqlite3.c").read_bytes()).hexdigest(),
-        scope="Admitted migrations plus fixture initialization and native observation SQL; separately compiled -O0 gcov library")
+        scope="Migration statements only (prepare/step/finalize); reset before each, dump and reset after each; fixture/observation/connection cleanup excluded. Separately compiled -O0 gcov library")
     result = {"cases": len(cases), "workloadCounts": workload_counts,
               "corpusVersion": 2, "corpusSha256": load(Path("conformance/corpus-v2"))[0]["casesSha256"],
               "sourceSha256": {str(path): hashlib.sha256(path.read_bytes()).hexdigest()

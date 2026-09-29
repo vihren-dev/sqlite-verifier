@@ -88,12 +88,16 @@ def initialize(connection: Connection, schema: tuple[Table, ...], fixture: Fixtu
             connection.query(f"INSERT INTO {quoted(table.name)}({names}) VALUES({values});", ((1, rowid), *cells))
 
 
-def record(fixture: Fixture, parser: Path, library: Path | None = None) -> dict[str, Json]:
+def record(fixture: Fixture, parser: Path, library: Path | None = None, *, migration_coverage: bool = False) -> dict[str, Json]:
     """Acquire real evidence; admission failures are raised before native execution."""
     schema = read_schema(parser, fixture.schema_sql)
     script = statements(parse(parser, fixture.migration_sql.encode(), "migration.sql"))
     sql_inputs(schema, script)  # Includes production schema and literal-write admission.
     pinned = load_library(library or library_path())
+    if migration_coverage:
+        for name in ("__gcov_reset", "__gcov_dump"):
+            function = getattr(pinned, name)
+            function.argtypes, function.restype = [], None
     with TemporaryDirectory(prefix="conformance-") as directory, ExitStack() as stack:
         database = Path(directory) / "case.db"
         writer = Connection(pinned, database)
@@ -117,6 +121,8 @@ def record(fixture: Fixture, parser: Path, library: Path | None = None) -> dict[
         sql_bytes = fixture.migration_sql.encode()
         for statement in script:
             code = 0
+            if migration_coverage:
+                pinned.__gcov_reset()
             try:
                 writer.query(sql_bytes[statement.start:statement.end].decode())
             except NativeError as error:
@@ -124,9 +130,15 @@ def record(fixture: Fixture, parser: Path, library: Path | None = None) -> dict[
                     raise
                 code = error.code
                 native_error = str(error)
+            finally:
+                if migration_coverage:
+                    pinned.__gcov_dump()
+                    pinned.__gcov_reset()
             observations.append(observe(code))
             if code:
                 break
+    if migration_coverage:
+        pinned.__gcov_reset()  # Discard final observation/connection cleanup before the exit dump.
     return {"version": 1, "schemaSql": fixture.schema_sql, "migrationSql": fixture.migration_sql,
             "schema": [schema_wire(table) for table in schema],
             "initial": [[table.name, table_wire(table, fixture.rows.get(table.name, []))] for table in schema],
