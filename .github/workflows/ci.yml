@@ -26,7 +26,6 @@ jobs:
           - runner: macos-14
             system: aarch64-darwin
     runs-on: ${{ matrix.runner }}
-    environment: ${{ github.ref == 'refs/heads/main' && github.event_name != 'pull_request' && 'attic-publish' || 'attic-read' }}
     timeout-minutes: 30
     env:
       BUILD_MODE: build
@@ -43,19 +42,6 @@ jobs:
         run: |
           python3 tests/docs_test.py
           python3 -m unittest tests.test_ci_scope
-      - name: Prepare private cache authentication
-        if: steps.scope.outputs.scope != 'docs'
-        env:
-          ATTIC_READ_TOKEN: ${{ secrets.ATTIC_READ_TOKEN }}
-        run: |
-          umask 077
-          touch "$RUNNER_TEMP/attic.netrc"
-          if [[ -n "$ATTIC_READ_TOKEN" ]]; then
-            printf 'machine cache.vihren.dev login token password %s\n' "$ATTIC_READ_TOKEN" > "$RUNNER_TEMP/attic.netrc"
-          fi
-          sudo mkdir -p /etc/nix
-          sudo install -m 600 "$RUNNER_TEMP/attic.netrc" /etc/nix/attic.netrc
-          rm "$RUNNER_TEMP/attic.netrc"
       - uses: cachix/install-nix-action@13d8dd58da0234aa297dedd986986ccb8e7f3e24 # v31
         if: steps.scope.outputs.scope != 'docs'
         with:
@@ -64,9 +50,16 @@ jobs:
           extra_nix_config: |
             sandbox = true
             sandbox-fallback = false
-            extra-substituters = ${{ secrets.ATTIC_READ_TOKEN != '' && 'https://cache.vihren.dev/sqlite-verifier' || '' }}
-            extra-trusted-public-keys = sqlite-verifier:tbKquH1YWJZFbMzT6Z14DmJ5yeVMnHSYobIDGdkWGis=
-            netrc-file = /etc/nix/attic.netrc
+      - name: Restore Nix builds and test results
+        if: steps.scope.outputs.scope != 'docs'
+        uses: nix-community/cache-nix-action@7df957e333c1e5da7721f60227dbba6d06080569 # v7
+        env:
+          # Failed Nix builds can leave unreadable transient locks; never archive them.
+          TAR_OPTIONS: --no-wildcards-match-slash --exclude=nix/store/*.lock
+        with:
+          primary-key: nix-tests-v1-${{ matrix.system }}-${{ hashFiles('nix/*.nix', 'nix/flake.lock') }}-${{ github.sha }}
+          restore-prefixes-first-match: nix-tests-v1-${{ matrix.system }}-${{ hashFiles('nix/*.nix', 'nix/flake.lock') }}-
+          save: ${{ github.ref == 'refs/heads/main' && github.event_name != 'pull_request' }}
       - name: Run checks in one pinned environment
         if: steps.scope.outputs.scope != 'docs'
         env:
@@ -76,26 +69,6 @@ jobs:
           python3 tools/check_resources.py
           nix develop path:./nix --command python3 tools/ci_checks.py \
             --system "$EXPECTED_SYSTEM" --scope "$CHECK_SCOPE" --mode "$BUILD_MODE"
-      - name: Publish successful Nix builds and test results
-        if: success() && steps.scope.outputs.scope != 'docs' && github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
-        timeout-minutes: 10
-        env:
-          ATTIC_WRITE_TOKEN: ${{ secrets.ATTIC_WRITE_TOKEN }}
-        run: |
-          set -euo pipefail
-          : "${ATTIC_WRITE_TOKEN:?Missing attic-publish environment secret}"
-          attic=$(nix-build --expr '(import ./build-support/locked-nixpkgs.nix {}).attic-client' --no-out-link)
-          export XDG_CONFIG_HOME="$RUNNER_TEMP/attic-client"
-          umask 077
-          "$attic/bin/attic" login vihren https://cache.vihren.dev "$ATTIC_WRITE_TOKEN"
-          nix build path:./nix#sqlite path:./nix#sqlite346 --no-link --print-out-paths > "$RUNNER_TEMP/attic-paths"
-          printf '%s\n' build/runtime build/nix-tests* >> "$RUNNER_TEMP/attic-paths"
-          "$attic/bin/attic" push vihren:sqlite-verifier --stdin < "$RUNNER_TEMP/attic-paths"
-      - name: Remove cache credentials
-        if: always() && steps.scope.outputs.scope != 'docs'
-        run: |
-          sudo rm -f /etc/nix/attic.netrc
-          rm -rf "$RUNNER_TEMP/attic-client"
       - name: Retain pytest reports and Nix test outputs
         if: always() && steps.scope.outputs.scope != 'docs'
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
