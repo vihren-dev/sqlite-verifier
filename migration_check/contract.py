@@ -11,8 +11,8 @@ from pathlib import Path
 
 from .baseline import check_baseline
 from .cache_eligibility import approved_reuse_allowed
-from .source_closure import Source, discover_sources, file_identity, module_path
-from .stage_store import StageStore, stage_key
+from .source_closure import Source, discover_sources, module_path, role_sources
+from .stage_store import StageStore, runtime_identity, stage_key
 
 APPROVED_FORBIDDEN = frozenset({"NextInterpretation", "Generated", "Proofs", "SqlInputs", "SchemaInputs"})
 
@@ -51,8 +51,9 @@ def run_stage(*, stage: str, order: tuple[str, ...], sources: Path, destination:
 
     modules = {name: (sources / module_path(name)).with_suffix(module_path(name).suffix + ".lean").read_bytes()
                for name in order}
-    key = stage_key(stage, modules, previous_keys, (str(sysroot), str(library)))
-    if store is not None and eligible and store.restore(key, destination):
+    key = stage_key(stage, modules, previous_keys, runtime_identity(sysroot, library))
+    required = tuple(f"{module_path(name).as_posix()}.olean" for name in order)
+    if store is not None and eligible and store.restore(key, destination, required):
         return [], key
     diagnostics = compile_modules(order=order, sources=sources, destination=destination,
                                   previous=previous, sysroot=sysroot, library=library, workspace=workspace)
@@ -117,9 +118,7 @@ def compile_contract(*, sysroot: Path, library: Path, requirements: Path, interp
     approved_sources, trusted = workspace / "approved-sources", workspace / "trusted"
     for directory in (approved_sources, trusted):
         directory.mkdir()
-    initial = {name: Source(path, path.read_bytes()) for name, path in selected.items()}
-    if file_identity(selected["Requirements"]) == file_identity(selected["Interpretation"]):
-        initial["Interpretation"] = Source(selected["Interpretation"], b"import Requirements\n")
+    initial = role_sources(selected)
     contract = discover_contract(
         initial=initial,
         roots=tuple(dict.fromkeys(path.parent for path in selected.values())), excluded=set(),

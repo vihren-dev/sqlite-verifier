@@ -53,3 +53,14 @@ Workspace: jj workspace `adr3` at `~/work/sqlite-verifier-adr3`.
   path despite the rule's literal "ship tuning" outcome; P2 scope updated
   (supported commands, dependency-aware `prepare`, keep tuning changes, decide on
   upstreaming the exporter option, re-run the matrix).
+- 2026-09-29: Review fixes. (1) Stage and agent-module cache keys use the resolved
+  toolchain/library identity (`runtime_identity`), so a rebuilt runtime behind the
+  stable `.lake/build` link invalidates them; `compile_project` already resolved it,
+  `compile_contract` and `prepare` did not. (2) `role_sources` shares the
+  physical-file aliasing of `verify` with `compile_contract` and `prepare`; a file
+  supplying both interpretations now prepares and verifies. (3) Stage-store
+  manifests must be non-empty maps of safe relative paths to SHA-256 digests that
+  include every required `.olean`; store creation failures stay inside `save`;
+  incomplete agent-cache entries are rebuilt. New tests cover each case. Nix:
+  atuin 12, bundle 14, cli 13, model 6; host 275. P1 timings are unaffected (keys
+  were stable during measurement; aliasing was not exercised).

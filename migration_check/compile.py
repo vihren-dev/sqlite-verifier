@@ -7,7 +7,8 @@ from tempfile import TemporaryDirectory
 
 from .baseline import check_baseline
 from .contract import compile_trusted, discover_contract, source_hashes
-from .source_closure import CompileError, Source, discover_sources, lean_process, module_path, file_identity
+from .source_closure import (CompileError, Source, discover_sources, file_identity, lean_process, module_path,
+                             role_sources)
 from .stage_store import StageStore
 
 EXPECTED_SOURCE = """import Requirements
@@ -103,18 +104,7 @@ def compile_project(*, sysroot: Path, library: Path, requirements: Path,
     approved_sources, candidate_sources = workspace / "approved-sources", workspace / "candidate-sources"
     for directory in (trusted, candidate, approved_sources, candidate_sources):
         directory.mkdir()
-    snapshots: dict[tuple[int, int], bytes] = {}
-    for path in selected.values():
-        identity = file_identity(path)
-        if identity not in snapshots:
-            snapshots[identity] = path.read_bytes()
-    first_name: dict[tuple[int, int], str] = {}
-    initial: dict[str, Source] = {}
-    for name, path in selected.items():
-        identity = file_identity(path)
-        original = first_name.setdefault(identity, name)
-        initial[name] = Source(path, snapshots[identity] if original == name else
-                               f"import {original}\n".encode())
+    initial = role_sources(selected)
     contract = discover_contract(
         initial={name: initial[name] for name in ("Requirements", "Interpretation")},
         roots=tuple(dict.fromkeys(selected[name].parent for name in ("Requirements", "Interpretation"))),

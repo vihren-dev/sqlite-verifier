@@ -23,8 +23,8 @@ from .contract import compile_contract
 from .diagnostics import Rejection
 from .inputs import generated_inputs
 from .runtime import Runtime
-from .source_closure import CompileError, Source, discover_sources, module_path
-from .stage_store import StageStore, digest
+from .source_closure import CompileError, Source, discover_sources, module_path, role_sources
+from .stage_store import StageStore, digest, runtime_identity
 
 EXPORT_ROOTS = ("Proofs.migrationCorrect", "Proofs.migrationViolated",
                 "NextInterpretation.next", "NextInterpretation.failures")
@@ -39,7 +39,9 @@ def compile_candidates(*, order: tuple[str, ...], sources: Path, candidate: Path
         source = (sources / relative).with_suffix(relative.suffix + ".lean").read_bytes()
         key = digest({"previous": key, "module": name, "source": source.hex()})
         entry = cache / key
-        if not entry.is_dir():
+        if not (entry / relative.parent / f"{relative.name}.olean").is_file():
+            # Missing or incomplete entries are rebuilt; the verifier never trusts this cache.
+            shutil.rmtree(entry, ignore_errors=True)
             with TemporaryDirectory(prefix="module-", dir=workspace) as temporary:
                 output = Path(temporary)
                 compile_modules(order=(name,), sources=sources, destination=output, previous=(trusted, candidate),
@@ -85,22 +87,26 @@ def prepare(options: argparse.Namespace) -> dict[str, object]:
                 interpretation=options.interpretation, schema_inputs=inputs.schema_source,
                 sql_inputs=inputs.sql_source, workspace=workspace,
                 store=StageStore(agent / "stage-store", approved_eligible=True))
-            selected = [path.resolve(strict=True) for path in
-                        (options.requirements, options.interpretation, options.next_interpretation, options.proofs)]
+            selected = {"Requirements": options.requirements.resolve(strict=True),
+                        "Interpretation": options.interpretation.resolve(strict=True),
+                        "NextInterpretation": options.next_interpretation.resolve(strict=True),
+                        "Proofs": options.proofs.resolve(strict=True)}
+            # Same aliasing as `verify`: a file shared with an earlier role is imported, not repeated.
+            roles = role_sources(selected)
             sources, candidate = workspace / "candidate-sources", workspace / "candidate"
             for directory in (sources, candidate):
                 directory.mkdir()
             external: set[str] = set()
             _, order = discover_sources(
-                initial={"NextInterpretation": Source(selected[2], selected[2].read_bytes()),
-                         "Proofs": Source(selected[3], selected[3].read_bytes()),
+                initial={"NextInterpretation": roles["NextInterpretation"], "Proofs": roles["Proofs"],
                          "Generated": Source(None, EXPECTED_SOURCE.encode())},
-                roots=tuple(dict.fromkeys(path.parent for path in selected)), excluded=set(),
+                roots=tuple(dict.fromkeys(path.parent for path in selected.values())), excluded=set(),
                 forbidden={"SchemaInputs", "SqlInputs"},
                 available=set(contract.modules) | {"SchemaInputs", "SqlInputs"},
                 directory=sources, sysroot=runtime.sysroot, library=runtime.library, workspace=workspace,
                 external=external)
-            base_key = digest({"contract": contract.hashes, "runtime": [str(runtime.sysroot), str(runtime.library)]})
+            base_key = digest({"contract": contract.hashes, "runtime": list(runtime_identity(runtime.sysroot,
+                                                                                             runtime.library))})
             compiled, reused = compile_candidates(
                 order=order, sources=sources, candidate=candidate, trusted=contract.trusted,
                 cache=agent / "modules", base_key=base_key, runtime=runtime, workspace=workspace)

@@ -33,6 +33,25 @@ def file_identity(path: Path) -> tuple[int, int]:
     return metadata.st_dev, metadata.st_ino
 
 
+def role_sources(selected: dict[str, Path]) -> dict[str, Source]:
+    """Snapshot each role's file once; a later role naming the same physical file imports the first.
+
+    One file may supply several roles (for example both current and next
+    interpretations). Compiling it twice would declare its contents twice, so only
+    the first role in `selected` order gets the bytes.
+    """
+    snapshots: dict[tuple[int, int], bytes] = {}
+    first_name: dict[tuple[int, int], str] = {}
+    initial: dict[str, Source] = {}
+    for name, path in selected.items():
+        identity = file_identity(path)
+        if identity not in snapshots:
+            snapshots[identity] = path.read_bytes()
+        original = first_name.setdefault(identity, name)
+        initial[name] = Source(path, snapshots[identity] if original == name else f"import {original}\n".encode())
+    return initial
+
+
 def module_path(name: str) -> Path:
     """Decode Lean's printed module name; escaped dots remain filename characters."""
     components: list[str] = []
