@@ -43,7 +43,7 @@ smoke:
 test: build
     timeout 900 nix flake check ./nix -L --option sandbox true --option sandbox-fallback false --extra-experimental-features 'nix-command flakes'
     timeout 900 nix-build build-support/default.nix -A tests --out-link build/nix-tests --option sandbox true --option sandbox-fallback false --extra-experimental-features 'nix-command flakes'
-    timeout --foreground 1800 python3 -u -m pytest -v tests --ignore=tests/runtime_package_test.py --ignore=tests/kernel_gate_test.py --ignore=tests/conformance_model_test.py --ignore=tests/atuin_cli_test.py --ignore=tests/atuin_sql_test.py --runtime-root "${SQLITE_VERIFIER_RUNTIME_ROOT:-$PWD}" --junitxml build/test-results/source.xml
+    timeout --foreground 1800 python3 -u -m pytest -v tests --ignore=tests/runtime_package_test.py --ignore=tests/kernel_gate_test.py --ignore=tests/conformance_model_test.py --ignore=tests/atuin_cli_test.py --runtime-root "${SQLITE_VERIFIER_RUNTIME_ROOT:-$PWD}" --junitxml build/test-results/source.xml
 
 # Select only the cached application-specific suite.
 test-atuin:

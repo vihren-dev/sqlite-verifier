@@ -46,5 +46,4 @@ def check(native: str, database: Path, case: Case) -> dict[str, object]:
             rows = []
         assert [tuple(row.values()) for row in rows] == list(table.rows), (case.name, rows)
         observations.append({"table": table.name, "rows": rows, "column_count": len(columns)})
-    return {"case": case.name, "native_status": "MATCHES_INDEPENDENT_EXPECTATION",
-            "error": case.native_error, "observations": observations}
+    return {"case": case.name, "error": case.native_error, "observations": observations}

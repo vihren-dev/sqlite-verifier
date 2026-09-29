@@ -34,8 +34,6 @@ def test_native_model(name: str, runtime_root: Path,
     reports = run(os.environ.get("SQLITE3", "sqlite3"), runtime_root / "build/sqlite-parser", (case,), runtime_root,
                   compiler=lean_sysroot / "bin/lean", library=lean_library)
     assert [report["case"] for report in reports] == [name]
-    assert reports[0]["model_status"] == "KERNEL_CHECKED_CONCRETE_ASSERTIONS"
-    assert reports[0]["translation_status"] == "PRODUCTION_PIPELINE"
 
 
 @pytest.mark.requires_native("sqlite-parser")

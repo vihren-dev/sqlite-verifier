@@ -36,3 +36,11 @@ Relevant sources: `justfile`, `conftest.py`, `pytest.ini`, `tests/`,
   `schema_generation_test.py`, now also asserting the 3.51 constructor).
   Literal comparison against the originals found one transcription error
   (missing `sqlite.nix`), fixed. Converted files: 120 passed; Nix targets pass.
+- 2026-09-29: Removed tests that could not fail: constant status fields
+  (`*_status`) from conformance reports, the upstream fixture and its schema,
+  and the assertions on them; re-read coverage numbers; `atuin_sql_test.py`
+  with its conformance helpers and the smoke-test nullable ADD (both only
+  observed SQLite itself). The installed GC-root case now checks the root
+  resolves to the runtime store path and is registered with Nix. Installed
+  acceptance (existing archive): 6 passed. Nix: atuin 13, model 6 passed;
+  kernel reused from cache.

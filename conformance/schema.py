@@ -35,11 +35,10 @@ class Case(TypedDict):
 
 
 class Fixture(TypedDict):
-    """A selected slice explicitly reports its unproved formal-model status."""
+    """A selected upstream slice with its setup prefix and expected Tcl results."""
     source: str
     profile: str
     coverage: Coverage
     connection_setup: list[ConnectionSetup]
     prerequisite_setup: list[Prerequisite]
     cases: list[Case]
-    model_status: str

@@ -57,7 +57,6 @@ def source_tree(tmp_path: Path) -> Path:
     ('migration_check/translate.py', {'model', 'atuin'}),
     ('conftest.py', {'kernel', 'model', 'atuin'}),
     ('tests/atuin_cli_test.py', {'atuin'}),
-    ('conformance/atuin_sql_fixture.py', {'atuin'}),
     ('examples/atuin/Proofs.lean', {'atuin'}),
     ('tests/test_translation.py', set()),
 ])

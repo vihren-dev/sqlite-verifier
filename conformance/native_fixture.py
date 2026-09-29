@@ -95,13 +95,10 @@ def run(native: str, parser: str, selected: int | None = None, *, final_only: bo
         if flat_tcl(observed) != case["expected_flat"]:
             raise AssertionError((case["upstream_id"], case["occurrence"], observed, case["expected_tcl"]))
         comparisons.append({"upstream_id": case["upstream_id"], "occurrence": case["occurrence"],
-                            "native_status": "MATCHES_UPSTREAM", "grammar_status": "PARSED",
                             "expected_tcl": case["expected_tcl"], "native_rows": observed})
     return {"profile": "3.51.0", "coverage": imported["coverage"], "cases": comparisons,
             "final_observations": arrays("\n".join(sections.get("OBSERVATIONS", []))),
-            "source_id": SOURCE_ID, "compile_options": options,
-            "model_status": "NOT_YET_MODEL_CHECKED",
-            "translation_status": "NOT_YET_TRANSLATED"}
+            "source_id": SOURCE_ID, "compile_options": options}
 
 
 if __name__ == "__main__":
