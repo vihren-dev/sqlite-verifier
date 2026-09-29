@@ -1,7 +1,0 @@
-name: Measure native benchmark disk usage through cache save
-inputs: {}
-runs:
-  using: node24
-  main: monitor.js
-  post: monitor.js
-  post-if: always()

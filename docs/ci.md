@@ -96,4 +96,4 @@ published checksum files match the archive asset digests. The failed v0.1.0 tag
 remains unchanged, and v0.1.0-rc.1 is an earlier engineering preview.
 
 The [native benchmark protocol](adr1-benchmarks.md) records the earlier isolated
-60-job comparison; it is not a gate for the current target-based cache design.
+60-job comparison. Its workflows and tools were removed on 2026-09-29.
