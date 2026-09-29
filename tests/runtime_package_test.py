@@ -1,6 +1,7 @@
 """Independently selectable acceptance checks through the actual installed native runtime."""
 
 from collections.abc import Callable
+import os
 from pathlib import Path
 
 import pytest
@@ -67,6 +68,12 @@ def test_unsupported_migration(installed_verify: Callable[..., CommandResult], t
     assert result.returncode != 0 and result.json_object()["status"] == "UNSUPPORTED", result.diagnostic()
 
 
-def test_installed_gc_roots(runtime_root: Path) -> None:
-    """Installation retains its Nix dependency roots for offline runtime use."""
-    assert (runtime_root / ".nix-roots").is_dir()
+def test_installed_gc_roots(runtime_root: Path, tmp_path: Path,
+                           command_runner: Callable[..., CommandResult]) -> None:
+    """Installation registers one Nix GC root that retains the linked runtime store path."""
+    store_path = (runtime_root / "bin").resolve().parent
+    roots = list((runtime_root / ".nix-roots").iterdir())
+    assert [root.resolve() for root in roots] == [store_path]
+    registered = command_runner(["nix-store", "--query", "--roots", str(store_path)], cwd=tmp_path,
+                                timeout=30, environment=dict(os.environ))
+    assert registered.returncode == 0 and str(roots[0]) in registered.stdout, registered.diagnostic()

@@ -22,14 +22,12 @@ SQLite behavior. These scopes remain distinct:
 | Imported fixtures | Three selected assertion instances of 59 textual alter3.test call sites; two distinct IDs of 55. Not runtime-expanded Tcl cases or the whole SQLite corpus. The inherited view is retained, so model checking remains unsupported. |
 | Semantic support | Named restricted statement forms, including explicit transactions and literal writes, as defined in semantic-subset.md; this inventory is not a coverage denominator. |
 | Native/model observations | All five authored derived cases compared against independent expected results through the production parser/translator and Lean checks. Zero discrepancies means only those completed comparisons. |
-| Atuin SQL (`atuin_sql`, SQLite 3.46.0) | Three independent native SQL cases: empty, singleton and three-row histories. Each checks preservation of all old stored fields under the supplied payload. These are bounded storage observations, not framework traces or witnesses of the example's approved assumptions. |
 
-Atuin SQL tests use SQLite 3.46.0 and preserve old stored classes/bytes under the
-supplied SQL. They do not establish a universal native/model refinement proof or
-application-query guarantee. Model comparisons use SQLite 3.51.0; syntax tests for
-3.46.0 do not transfer model evidence to that version.
+Model comparisons use SQLite 3.51.0; syntax tests for 3.46.0 do not transfer
+model evidence to that version. The former native Atuin SQL cases only observed
+SQLite's own ADD COLUMN behavior and were removed on 2026-09-29.
 
 `conformance/coverage_catalog.py` retains the documented claim/theorem inventory.
-Named theorem tests check their allowed axiom sets. Pytest reports and command
-artifacts retain diagnostics without revalidating successful reports in Python.
+Named theorem tests check their allowed axiom sets. Pytest's own output and JUnit
+XML carry diagnostics; there are no separate per-case receipts.
 No corpus completeness or owner approval follows from a passing test run.

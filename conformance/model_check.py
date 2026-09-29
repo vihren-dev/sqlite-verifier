@@ -47,9 +47,7 @@ def run(native: str, parser: Path, selected: tuple[Case, ...] | None = None,
             if checked.returncode:
                 raise AssertionError((case.name, checked.stdout, checked.stderr))
             assert "sorryAx" not in checked.stdout and "Lean.ofReduceBool" not in checked.stdout
-            report.update({"grammar_status": "PARSED", "translation_status": "PRODUCTION_PIPELINE",
-                           "model_status": "KERNEL_CHECKED_CONCRETE_ASSERTIONS",
-                           "model_evidence": checked.stdout.strip()})
+            report["model_evidence"] = checked.stdout.strip()
             reports.append(report)
     return reports
 

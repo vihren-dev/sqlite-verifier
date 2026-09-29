@@ -38,10 +38,8 @@ let
 in {
   atuin = suite "atuin" {
     file = "tests/atuin_cli_test.py";
-    extraFiles = [ "tests/atuin_sql_test.py" ];
-    inputs = map (name: root + "/conformance/${name}.py") [ "atuin_sql_check" "atuin_sql_fixture" ];
+    inputs = [];
     inherit runtime;
-    tools = [ native.sqlite346 ];
   };
   kernel = suite "kernel" {
     file = "tests/kernel_gate_test.py";

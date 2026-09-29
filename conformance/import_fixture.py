@@ -69,7 +69,6 @@ def fixture() -> Fixture:
         "cases": [execsql_case(source, first, "alter3-3.1", 1),
                   execsql_case(source, second, "alter3-3.1", 2),
                   execsql_case(source, third, "alter3-3.2", 1)],
-        "model_status": "NOT_YET_MODEL_CHECKED",
     }
 
 

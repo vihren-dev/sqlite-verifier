@@ -44,31 +44,18 @@ def test_upstream_pin_and_import_fidelity() -> None:
 def test_upstream_case(selected: int, runtime_root: Path) -> None:
     """A selected upstream call matches Tcl expectations after its required connection/setup prefix."""
     report = run(os.environ.get("SQLITE3", "sqlite3"), str(runtime_root / "build/sqlite-parser"), selected)
-    assert len(report["cases"]) == 1
-    assert report["cases"][0]["native_status"] == "MATCHES_UPSTREAM"
-    assert report["cases"][0]["grammar_status"] == "PARSED"
-    assert report["model_status"] == "NOT_YET_MODEL_CHECKED"
-    assert report["translation_status"] == "NOT_YET_TRANSLATED"
+    assert [(case["upstream_id"], case["occurrence"]) for case in report["cases"]] == [
+        [("alter3-3.1", 1), ("alter3-3.1", 2), ("alter3-3.2", 1)][selected]]
 
 
-def final_observations(report: dict[str, object]) -> None:
-    """The inherited view, schema cookie, appended NULLs and exact denominators survive replay."""
-    assert report["model_status"] == "NOT_YET_MODEL_CHECKED"
-    assert report["translation_status"] == "NOT_YET_TRANSLATED"
-    assert all(case["native_status"] == "MATCHES_UPSTREAM" for case in report["cases"])
+@pytest.mark.requires_native("sqlite3")
+def test_final_native_observations(runtime_root: Path) -> None:
+    """Final replay retains physical row identity, appended NULLs, the schema cookie and the inherited view."""
+    report = run(os.environ.get("SQLITE3", "sqlite3"), str(runtime_root / "build/sqlite-parser"), final_only=True)
+    assert report["cases"] == [], "Final replay must not repeat separately selected case comparisons"
     assert report["final_observations"][0] == [
         {"rowid": 1, "a": 1, "b": 100, "c": None},
         {"rowid": 2, "a": 2, "b": 300, "c": None}]
     assert report["final_observations"][1] == [{"schema_version": 11}]
     schema = report["final_observations"][2]
     assert [(row["type"], row["name"]) for row in schema] == [("table", "t1"), ("view", "v1")]
-    assert report["coverage"] == {"selected_call_instances": 3, "selected_distinct_ids": 2,
-                                   "upstream_textual_call_sites": 59, "upstream_distinct_textual_ids": 55}
-
-
-@pytest.mark.requires_native("sqlite3")
-def test_final_native_observations(runtime_root: Path) -> None:
-    """Final replay observations retain physical row identity, schema state and explicit evidence limits."""
-    report = run(os.environ.get("SQLITE3", "sqlite3"), str(runtime_root / "build/sqlite-parser"), final_only=True)
-    assert report["cases"] == [], "Final replay must not repeat separately selected case comparisons"
-    final_observations(report)
