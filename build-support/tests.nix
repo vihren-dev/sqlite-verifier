@@ -35,6 +35,12 @@ in {
     inputs = [];
     inherit runtime;
   };
+  bundle = suite "bundle" {
+    file = "tests/bundle_test.py";
+    extraFiles = [ "tests/stage_reuse_test.py" ];
+    inputs = [ (fs.fileFilter (file: file.hasExt "py") (root + /migration_check)) ];
+    inherit runtime;
+  };
   cli = suite "cli" {
     file = "tests/cli_test.py";
     inputs = [];

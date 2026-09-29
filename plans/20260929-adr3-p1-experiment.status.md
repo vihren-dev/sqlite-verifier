@@ -24,3 +24,14 @@ Workspace: jj workspace `adr3` at `~/work/sqlite-verifier-adr3`.
   Known: `test_flake_checks_reuse_existing_targets` cannot pass in this jj
   workspace because it has no `.git` (flake `./nix` needs Git to see parent
   files); it passes in a Git-backed checkout and CI.
+- 2026-09-29: Added the data path and stage reuse. `contract.py` compiles the
+  trusted stages for `verify`, `verify-bundle` and `prepare`; `stage_store.py` and
+  `cache_eligibility.py` implement opt-in reuse (generated stages eligible,
+  approved closures only via the empty registry or the measurement-only
+  override); `inputs.py` shares SQL translation; `prepare.py` and `bundle.py`
+  implement the experimental commands. Tests: `bundle_test.py` (4 examples match
+  `verify`; `sorry`, forbidden axiom, wrong target, altered contract and wrong SQL
+  rejected), `stage_reuse_test.py`, `test_stage_store.py`; new Nix target
+  `tests.bundle` (13 passed in the sandbox). Regression: Nix targets atuin 12,
+  cli 13, kernel 19, model 6; host 267; Nix infrastructure 48 (plus the 2 known
+  workspace-only flake failures).
