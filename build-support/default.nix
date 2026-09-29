@@ -6,13 +6,15 @@
 let
   sources = import ./sources.nix { inherit (pkgs) lib; };
   leanToolchain = import ./lean-toolchain.nix { inherit pkgs; };
+  lean4export = import ./lean4export.nix { inherit pkgs leanToolchain; };
 in rec {
   inherit leanToolchain sources;
+  inherit (lean4export) exporter;
   tests = import ./tests.nix {
     inherit pkgs leanToolchain leanRuntime parsers runtime native;
   };
   runtime = import ./runtime.nix {
-    inherit pkgs sources leanToolchain parsers leanRuntime;
+    inherit pkgs sources leanToolchain parsers leanRuntime exporter;
   };
   parsers = pkgs.stdenv.mkDerivation {
     pname = "sqlite-verifier-parsers";
@@ -63,12 +65,15 @@ in rec {
     dontConfigure = true;
     buildPhase = ''
       export HOME="$TMPDIR"
-      lake build SqliteVerifier migration-proof-checker
+      mkdir -p build
+      cp -R ${lean4export.src} build/lean4export
+      chmod -R u+w build/lean4export
+      lake build SqliteVerifier migration-proof-checker migration-bundle-checker
     '';
     installPhase = ''
       mkdir -p "$out/.lake/build/bin" "$out/.lake/build/lib"
       cp -R .lake/build/lib/lean "$out/.lake/build/lib/"
-      cp .lake/build/bin/migration-proof-checker "$out/.lake/build/bin/"
+      cp .lake/build/bin/migration-proof-checker .lake/build/bin/migration-bundle-checker "$out/.lake/build/bin/"
     '';
   };
 }
