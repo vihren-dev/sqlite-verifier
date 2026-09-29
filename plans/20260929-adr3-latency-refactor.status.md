@@ -23,3 +23,7 @@ Sources: [ADR 0003](../docs/adr-0003-agent-proof-preparation.md),
   determinism/eligibility policy with a fresh-compile fallback; projections are
   shown with fresh and reused contracts; future trust is a separate benefit with
   its cost stated. Docs link check passes.
+- 2026-09-29: Second review: made the P1 decision outcomes mutually exclusive
+  (ordered: adopt, owner decision, ship tuning; mixed-platform results ship
+  tuning; tuning itself must pass correctness and no-regression checks, else keep
+  the current path) and clarified that P4 applies to whichever option ships.
