@@ -33,18 +33,18 @@ def common_arguments(command: argparse.ArgumentParser, candidate: tuple[str, ...
 
 
 def arguments(values: Sequence[str]) -> argparse.Namespace:
-    """Expose `verify` and the experimental ADR 0003 `prepare`/`verify-bundle` commands."""
+    """Expose `verify` and the ADR 0003 data path: `prepare` (agent side) and `verify-bundle`."""
     parser = Arguments(prog="migration-check", description=__doc__)
     commands = parser.add_subparsers(dest="command", required=True, parser_class=Arguments)
     verify = commands.add_parser("verify", help="Check one migration under approved Lean requirements")
     common_arguments(verify, ("next-interpretation", "proofs"))
     verify.add_argument("--artifacts", type=Path, help="Create a directory with generated SQL and input hashes")
     verify.add_argument("--approved-baseline", type=Path, help="Require unchanged approved source/dependency hashes")
-    prepare = commands.add_parser("prepare", help="Experimental: build and export a proof bundle (agent side)")
+    prepare = commands.add_parser("prepare", help="Build the candidate and export a proof bundle (agent side)")
     common_arguments(prepare, ("next-interpretation", "proofs"))
     prepare.add_argument("--workspace", required=True, type=Path, help="Persistent agent build directory")
     prepare.add_argument("--output", required=True, type=Path, help="Bundle file to write")
-    bundle = commands.add_parser("verify-bundle", help="Experimental: check a proof bundle without candidate source")
+    bundle = commands.add_parser("verify-bundle", help="Check a proof bundle without compiling candidate source")
     common_arguments(bundle, ("bundle",))
     bundle.add_argument("--approved-baseline", type=Path, help="Require unchanged approved source/dependency hashes")
     return parser.parse_args(values)

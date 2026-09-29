@@ -109,7 +109,8 @@ successfully that way.
   stages are eligible; approved closures are eligible only when listed in
   `migration_check/cache_eligibility.py` (empty) or, for these measurements only,
   with `MIGRATION_CHECK_MEASUREMENT_APPROVED_REUSE=1`.
-- **Data path:** experimental commands on the same launcher.
+- **Data path:** `prepare` and `verify-bundle` on the same launcher (supported since P2;
+  see [the data path guide](../../docs/data-path.md)).
 
   ```sh
   bin/migration-check prepare --profile 3.51.0 --schema S --requirements R --interpretation I \
