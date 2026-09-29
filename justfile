@@ -53,7 +53,7 @@ smoke:
 # The same derivations are the flake's checks; nix-build also keeps result links.
 test: build
     timeout 900 nix-build build-support/default.nix -A tests --out-link build/nix-tests --option sandbox true --option sandbox-fallback false --extra-experimental-features 'nix-command flakes'
-    timeout --foreground 600 python3 -u -m pytest -v tests -m "not requires_nix" --ignore=tests/runtime_package_test.py --ignore=tests/kernel_gate_test.py --ignore=tests/conformance_model_test.py --ignore=tests/conformance_trace_test.py --ignore=tests/conformance_pipeline_test.py --ignore=tests/conformance_mutation_test.py --ignore=tests/conformance_laws_test.py --ignore=tests/conformance_record_test.py --ignore=tests/conformance_dqs_test.py --ignore=tests/conformance_upstream_test.py --ignore=tests/conformance_generation_test.py --ignore=tests/atuin_cli_test.py --ignore=tests/cli_test.py --runtime-root "${SQLITE_VERIFIER_RUNTIME_ROOT:-$PWD}" --junitxml build/test-results/source.xml
+    timeout --foreground 600 python3 -u -m pytest -v tests -m "not requires_nix" --ignore=tests/runtime_package_test.py --ignore=tests/kernel_gate_test.py --ignore=tests/conformance_model_test.py --ignore=tests/conformance_trace_test.py --ignore=tests/conformance_pipeline_test.py --ignore=tests/conformance_mutation_test.py --ignore=tests/conformance_laws_test.py --ignore=tests/conformance_record_test.py --ignore=tests/conformance_dqs_test.py --ignore=tests/conformance_upstream_test.py --ignore=tests/conformance_generation_test.py --ignore=tests/conformance_coverage_test.py --ignore=tests/atuin_cli_test.py --ignore=tests/cli_test.py --runtime-root "${SQLITE_VERIFIER_RUNTIME_ROOT:-$PWD}" --junitxml build/test-results/source.xml
 
 # Check Nix source identities, test-target invalidation, environment snapshots and the installer cache.
 test-nix:
@@ -89,3 +89,17 @@ conformance-generate: conformance-build
 
 conformance-long: conformance-build
     timeout 600 python3 -m conformance.generate --examples 500 --steps 25 --output build/generated-long
+
+# Versioned requirement extraction uses the vendored, release-tagged docsrc archive.
+conformance-requirements:
+    timeout 900 nix-build build-support/default.nix -A conformanceDocs --out-link build/conformance-docs --extra-experimental-features 'nix-command flakes'
+    python3 -m conformance.requirement_inventory build/conformance-docs/docinfo.db build/requirements-3.51.0.json
+
+conformance-progress: conformance-build
+    timeout 120 python3 -m conformance.progress --output build/corpus-v2-progress.json
+
+# Supply llvm-cov's executable path and a fresh output directory for each measurement.
+conformance-coverage llvm_cov output: conformance-generate
+    timeout 900 nix-build build-support/default.nix -A conformanceCoverage --out-link build/model-coverage --extra-experimental-features 'nix-command flakes'
+    timeout 900 nix-build build-support/default.nix -A conformanceNative.coverage --out-link build/native-coverage --extra-experimental-features 'nix-command flakes'
+    timeout 300 python3 -m conformance.measure_coverage --llvm-cov {{quote(llvm_cov)}} --output {{quote(output)}}

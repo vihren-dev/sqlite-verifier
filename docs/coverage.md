@@ -1,7 +1,8 @@
 # Conformance test scope
 
 `just test` runs the source checks through pytest and independently cached Nix
-test targets. There is no aggregate `coverage.json` or extra evidence gate.
+test targets. Versioned conformance progress and measured coverage are documented in
+[conformance-progress.md](conformance-progress.md); they do not authorize product proofs.
 A pytest failure fails its host invocation or Nix derivation.
 
 The native/model target runs the pinned SQLite 3.51.0 engine, production parser
@@ -18,10 +19,12 @@ SQLite behavior. These scopes remain distinct:
 | Model proofs | Six explicitly named theorem/axiom probes after a library build; not all library declarations and not a replacement for the independent product gate. |
 | Grammar inventory | Generated and upstream default-grammar production counts; equal counts are not parser equivalence. Production execution coverage is not instrumented. |
 | Parser regressions | Twenty authored smoke scripts per release, plus separate malformed/limit/span and release-distinction checks; not a percentage of productions. |
-| Documented claims | Five traceability entries: three upstream requirement IDs and two version-matched snapshot anchors. The total SQLite documentation claim count is unknown. Runtime-limit lowering is reference-only and excluded by the fixed profile. |
-| Imported fixtures | Three selected assertion instances of 59 textual alter3.test call sites; two distinct IDs of 55. Not runtime-expanded Tcl cases or the whole SQLite corpus. The inherited view is retained, so model checking remains unsupported. |
+| Historical documented claims | Five traceability entries: three upstream requirement IDs and two version-matched snapshot anchors. The total SQLite documentation claim count is unknown. Runtime-limit lowering is reference-only and excluded by the fixed profile. |
+| Historical imported fixtures | Three selected assertion instances of 59 textual alter3.test call sites; two distinct IDs of 55. Not runtime-expanded Tcl cases or the whole SQLite corpus. The inherited view is retained, so model checking remains unsupported. |
+| Frozen corpus | V1: 177 runtime-extracted cases; V2: those same records plus six authored requirement cases. V2 baseline: 8 AGREE, 175 MODEL_UNSUPPORTED; see conformance-progress.md. |
+| Measured execution | 36/41 scoped model match arms; 6,003/16,272 native branch arcs in reached functions on 93 admitted cases. Source-bound reports list exclusions. |
 | Semantic support | Named restricted statement forms, including explicit transactions and literal writes, as defined in semantic-subset.md; this inventory is not a coverage denominator. |
-| Native/model observations | All five authored derived cases retain independent expected results and now run through persistent native observation, compiled `classifyCase` and kernel `checkCase` proofs. Focused transaction, storage, admission, transport and mutation regressions are listed in conformance-model.md. No generated corpus or universal refinement claim. |
+| Native/model observations | All five authored derived cases retain independent expected results and now run through persistent native observation, compiled `classifyCase` and kernel `checkCase` proofs. Focused transaction, storage, admission, transport and mutation regressions are listed in conformance-model.md. Generated runs and frozen corpus counts are reported separately; no universal refinement claim. |
 
 Model comparisons use SQLite 3.51.0; syntax tests for 3.46.0 do not transfer
 model evidence to that version. The former native Atuin SQL cases only observed

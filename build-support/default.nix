@@ -9,6 +9,9 @@ let
 in rec {
   inherit leanToolchain sources;
   conformanceNative = import ./conformance-native.nix { inherit pkgs; };
+  conformanceDocs = import ./conformance-docs.nix {
+    inherit pkgs; inherit (conformanceNative) fixture upstream;
+  };
   tests = import ./tests.nix {
     inherit pkgs leanToolchain leanRuntime parsers runtime native conformance;
   };
@@ -87,4 +90,14 @@ in rec {
     ln -s ${conformanceRuntime}/.lake "$out/.lake"
     ln -s ${parsers}/build "$out/build"
   '';
+  conformanceCoverage = conformanceRuntime.overrideAttrs (old: {
+    pname = "sqlite-verifier-conformance-coverage";
+    postPatch = ''${pkgs.python3}/bin/python3 ${../conformance/instrument_model.py} .'';
+    buildPhase = ''export HOME="$TMPDIR"; lake build conformance-runner'';
+    installPhase = ''
+      mkdir -p "$out/.lake/build/bin"
+      cp .lake/build/bin/conformance-runner "$out/.lake/build/bin/"
+      cp coverage-sites.json "$out/"
+    '';
+  });
 }

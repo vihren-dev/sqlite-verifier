@@ -98,3 +98,9 @@ and `nix copy`. The installer verifies imports, creates a GC root and links the
 installation to the imported immutable runtime. It needs no extra signing key,
 loader scan, copied Lean subset or ELF relocation. Installed acceptance still
 executes freshly against the resulting content-addressed runtime.
+
+ADR 0004's optional `conformanceNative.fixture`, `conformanceNative.coverage`,
+`conformanceCoverage`, and `conformanceDocs` derivations rebuild upstream mining,
+source instrumentation, and release requirement evidence separately. They do not
+alter the product engine or library. See [progress and coverage](../docs/conformance-progress.md).
+Hypothesis is an input only to `tests.model` and the development shell.

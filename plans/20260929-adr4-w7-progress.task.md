@@ -1,6 +1,6 @@
 # Frozen corpus progress and coverage
 
-Created 2026-09-29. Status: ACTIVE.
+Created 2026-09-29. Status: DONE.
 Spec: [ADR 0004](../docs/adr-0004-model-conformance-validation.md).
 
 ## Required outcomes

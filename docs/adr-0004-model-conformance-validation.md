@@ -1,6 +1,6 @@
 # ADR 0004: Validate the semantic model by differential testing and proven regressions
 
-- Status: Accepted 2026-09-29 — W1–W2 implemented; W3–W7 approved (see Owner decisions)
+- Status: Accepted 2026-09-29 — W1–W7 implemented and validated; merge awaits owner approval
 - Date: 2026-09-29
 - Implementation examined: working copy on top of `adce4843`
 - Decision owners: formal methods lead for model fidelity and proof policy;
@@ -13,6 +13,15 @@
   statuses, or the trust policy; it adds evidence about the model and never adds
   axioms. The DQS execution-profile decision recorded below does change the
   profile and is implemented by its own task.
+
+## Current implementation (2026-09-29)
+
+W3–W7 and the DQS profile change are implemented in the dedicated `adr4` workspace.
+[Generation and regression freezing](conformance-generation.md),
+[general laws](conformance-laws.md), [runtime upstream mining](upstream-pilot.md),
+and [frozen progress/coverage](conformance-progress.md) document exact commands,
+denominators and limitations. The [completion report](../reports/20260929-adr4-completion.json) records passing validation. No merge to main
+or adr3 rebase is authorized until the owner approves this implementation.
 
 ## Prototype implementation (2026-09-29)
 

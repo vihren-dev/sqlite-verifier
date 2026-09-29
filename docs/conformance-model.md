@@ -1,6 +1,6 @@
 # Concrete native/model comparisons
 
-ADR 0004's W1–W2 prototype uses one Lean `classifyCase` function for compiled
+ADR 0004's conformance pipeline uses one Lean `classifyCase` function for compiled
 comparison and its `checkCase` predicate for kernel proofs. The
 [version-one format](conformance-format-v1.md) includes explicit initial rows,
 production-translated SQL, and native initial/per-statement observations.
@@ -105,7 +105,7 @@ therefore produces an initial-state disagreement, not an invalid-SQL harness err
 a transaction is open. Contention that prevents observation is a harness failure,
 not semantic evidence. Native statements have a five-second progress deadline
 and a 100 ms lock wait; outer test/recipe deadlines also bound complete runs.
-Native schema parsing is cached by the actual declaration text within each case,
+Native schema parsing is cached by exact declaration text and parser identity, with a bounded cross-case cache,
 shared by visible and committed observations, so rollback cannot reuse metadata
 from a different schema with the same schema version. Benchmark cases are sent
 through one JSON-lines runner process; reports separate native acquisition and
@@ -114,8 +114,9 @@ checks run separately, outside the timing.
 Parsing is bounded to five seconds, each compiled batch to 30 seconds, and
 concrete kernel checks to 120 seconds (including the wide case).
 
-The denominator remains **five authored derived cases**, plus the specifically
-listed regression scenarios. There is no generated corpus yet. W3 requires owner
-review of prototype evidence. Imported `alter3` observations remain
-`NOT_YET_MODEL_CHECKED` because their inherited view dependency is unsupported;
-no view was removed to inflate conformance coverage.
+The original tier-two denominator remains five authored derived cases, plus the
+injected transport regression. [Stateful generation](conformance-generation.md)
+and [frozen corpus progress](conformance-progress.md) have separate denominators.
+W3–W7 were approved and implemented after the prototype review. Original static
+`alter3` fixtures retain their unsupported view dependency; the runtime pilot
+records unsupported objects without removing them to inflate agreement.

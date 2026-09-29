@@ -1,0 +1,73 @@
+{
+  "date": "2026-09-29",
+  "platform": "aarch64-darwin",
+  "status": "complete; awaiting owner review; no merge",
+  "workspace": "sqlite-verifier-adr4",
+  "mergeAuthorized": false,
+  "independentTier3": "deferred under ADR 0003",
+  "checks": {
+    "just test": {
+      "atuin": 12,
+      "cli": 13,
+      "kernel": 19,
+      "model": 48,
+      "host": 264,
+      "hostSubtests": 28,
+      "passed": true
+    },
+    "finalModelRerun": {
+      "passed": 48,
+      "seconds": 47.17
+    },
+    "sourceAndDependencyIdentities": {
+      "passed": 54
+    },
+    "finalDependencyIdentityRerun": {
+      "passed": 17,
+      "seconds": 26.9
+    },
+    "docsrcManifestFilesVerified": 534
+  },
+  "longGeneration": {
+    "seed": 4004,
+    "wellScopedAgree": 1016,
+    "errorSeekingAgree": 1016,
+    "disagreements": 0
+  },
+  "corpusV2": {
+    "cases": 183,
+    "agree": 8,
+    "modelUnsupported": 175,
+    "disagree": 0,
+    "harnessError": 0
+  },
+  "requirements": 3500,
+  "requirementMatrixRows": 164,
+  "coverage": {
+    "admittedCases": 93,
+    "modelMatchArms": [
+      36,
+      41
+    ],
+    "statementConstructors": [
+      7,
+      7
+    ],
+    "errorConstructors": [
+      7,
+      8
+    ],
+    "nativeBranchArcsInReachedFunctions": [
+      6003,
+      16272
+    ]
+  },
+  "modelTestDerivationOutput": "/nix/store/s4m8byz02f1gn4mkb5hg5kxfs120ckpp-sqlite-verifier-test-model-1",
+  "reports": {
+    "reports/20260929-adr4-corpus-v2-progress.json": "e31d82e54b1439c7f3821d3bd751d764adeab23785a0f07b448531d40737aa6d",
+    "reports/20260929-adr4-coverage.json": "1f8b81fca5ddf1a01285c3183698027e41ab1e6fac019b5679a7a29893e884c3",
+    "reports/20260929-adr4-generated-long.json": "0d58d8a9258fd1ea487a448fbaafb87aec110205aab33a4cfcd5659da67ed31f",
+    "reports/20260929-adr4-dml-before.json": "514ae3720371b4e33383c7b9b6eb7247a870b0c46710d4ead92bcb9f410fa562",
+    "reports/20260929-adr4-dml-after.json": "d96b5fae855fa73e0090883c8ee42d6176ee4968ea23c00fe6713b5612cd1f81"
+  }
+}

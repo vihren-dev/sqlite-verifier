@@ -20,7 +20,7 @@ def load(directory: Path) -> tuple[dict[str, Json], list[dict[str, Json]]]:
     if hashlib.sha256(payload).hexdigest() != manifest["casesSha256"]:
         raise ValueError("Corpus digest mismatch")
     records = [json.loads(line) for line in payload.splitlines()]
-    if len(records) != manifest["recordedCases"] or manifest["corpusVersion"] != 1:
+    if len(records) != manifest["recordedCases"] or type(manifest["corpusVersion"]) is not int or manifest["corpusVersion"] < 1:
         raise ValueError("Corpus version/count mismatch")
     return manifest, records
 

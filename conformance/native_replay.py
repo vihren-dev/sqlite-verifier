@@ -1,6 +1,7 @@
 """Derive today's structural model input from frozen translator-independent evidence."""
 
 from pathlib import Path
+import subprocess
 
 from conformance.case_format import Json, schema_wire, statement_wire, table_wire
 from conformance.native_connection import Cell, Row, SOURCE_ID
@@ -40,7 +41,9 @@ def decode_rows(rows: list[Json]) -> list[Row]:
 
 def schema_sql(observation: dict[str, Json]) -> str:
     """Retain every SQL-declared object; unsupported ones must reach frontend admission."""
-    return "\n".join(text(row[3]) + ";" for row in decode_rows(observation["schema"]) if row[3][0] != 5)
+    # SQLite inventories sort indexes before tables; replayable DDL needs the dependencies first.
+    rows = sorted(decode_rows(observation["schema"]), key=lambda row: text(row[0]) != "table")
+    return "\n".join(text(row[3]) + ";" for row in rows if row[3][0] != 5)
 
 
 def model_case(record: dict[str, Json], parser: Path) -> dict[str, Json]:
@@ -90,6 +93,6 @@ def prepare(record: dict[str, Json], parser: Path) -> tuple[dict[str, Json] | No
     try:
         return model_case(record, parser), {}
     except Rejection as error:
-        return None, {"verdict": "MODEL_UNSUPPORTED", "error": str(error)}
-    except (ValueError, KeyError, TypeError, IndexError) as error:
+        return None, {"verdict": "MODEL_UNSUPPORTED" if error.status == "UNSUPPORTED" else "HARNESS_ERROR", "error": str(error)}
+    except (ValueError, KeyError, TypeError, IndexError, OSError, RuntimeError, subprocess.SubprocessError) as error:
         return None, {"verdict": "HARNESS_ERROR", "error": str(error)}
