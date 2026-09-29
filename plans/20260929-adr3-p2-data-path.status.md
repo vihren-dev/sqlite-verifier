@@ -1,6 +1,6 @@
 # ADR 0003 P2 status
 
-Created 2026-09-29. Status: IN PROGRESS.
+Created 2026-09-29. Status: DONE (Linux installed acceptance runs in PR CI).
 Task: [P2 data path](20260929-adr3-p2-data-path.task.md).
 Spec: [ADR 0003](../docs/adr-0003-agent-proof-preparation.md);
 evidence: [P1 results](../experiments/adr-0003-latency/p1-results.md).
@@ -30,3 +30,10 @@ PR #11 (`adr3/data-path`).
   upstreaming is a separate owner-approved step) with its upgrade procedure; the
   README links it. Installed acceptance adds prepared positive, refuted and
   wrong-SQL cases: `just runtime-package` 21 passed on aarch64-darwin.
+- 2026-09-29: Re-ran the matrix on both platforms (macOS local at `ad1c901d`;
+  Linux run 36570573314 on temporary branch `adr3/p2-measure`): 468 runs, all
+  with expected statuses. Atuin SQL edits now 27–38% faster than tuning (P1:
+  2–5%); refutation SQL edits still 28–36% slower (explained in
+  `p2-results.md`); no data-path regression beyond noise. Results in
+  `experiments/adr-0003-latency/p2-results.md` and `results/p2/`; ADR P2 row
+  links them. DONE, except Linux installed acceptance, which PR CI covers.
