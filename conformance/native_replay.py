@@ -57,7 +57,15 @@ def model_case(record: dict[str, Json], parser: Path) -> dict[str, Json]:
     if (len(trace) > len(script) or any(event["primaryCode"] for event in trace[:-1])
             or (not trace or not trace[-1]["primaryCode"]) and len(trace) != len(script)):
         raise ValueError("Native/frontend statement-count mismatch")
+    offset = 0
+    migration = record["migrationSql"].encode()
     for index, event in enumerate(trace):
+        consumed = event["sql"].encode()
+        end = offset + len(consumed)
+        if (migration[offset:end] != consumed or not offset <= script[index].start < end
+                or index + 1 < len(script) and end > script[index + 1].start):
+            raise ValueError("Native/frontend statement boundary mismatch")
+        offset = end
         if not event["primaryCode"]:
             native_statement = statements(parse(parser, event["sql"].encode(), "native-statement.sql"))
             if [statement_wire(item) for item in native_statement] != [statement_wire(script[index])]:
@@ -102,7 +110,10 @@ def prepare(record: dict[str, Json], parser: Path) -> tuple[dict[str, Json] | No
     try:
         return model_case(record, parser), {}
     except Rejection as error:
-        return None, {"verdict": "MODEL_UNSUPPORTED" if error.status == "UNSUPPORTED" else "HARNESS_ERROR", "error": str(error)}
+        native_syntax_error = (error.status == "INPUT_ERROR" and error.source == "corpus-migration.sql"
+                               and bool(record.get("trace")) and record["trace"][-1].get("primaryCode") == 1)
+        return None, {"verdict": "MODEL_UNSUPPORTED" if error.status == "UNSUPPORTED" or native_syntax_error else "HARNESS_ERROR",
+                      "frontendStatus": error.status, "error": str(error)}
     except (ValueError, KeyError, TypeError, IndexError, OSError, RuntimeError, subprocess.SubprocessError) as error:
         return None, {"verdict": "HARNESS_ERROR", "error": str(error)}
 
@@ -113,6 +124,8 @@ def without_trailing_queries(record: dict[str, Json], parser: Path) -> dict[str,
     The original record retains query SQL and exact result rows. This diagnostic does
     not claim query support, or remove setting PRAGMAs and queries between writes.
     """
+    if any(event["primaryCode"] for event in record["trace"]):
+        return None
     tree = parse(parser, record["migrationSql"].encode(), "corpus-queries.sql")
     nodes = commands(tree)
     trace = record["trace"]

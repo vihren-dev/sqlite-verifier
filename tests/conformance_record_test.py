@@ -59,6 +59,10 @@ def test_statement_alignment_is_harness_error(runtime_root: Path) -> None:
         broken = deepcopy(record)
         broken["trace"] = trace
         assert prepare(broken, runtime_root / "build/sqlite-parser")[1]["verdict"] == "HARNESS_ERROR"
+    broken = deepcopy(record)
+    broken["trace"] = [broken["trace"][-1]]
+    broken["trace"][0]["primaryCode"] = 1
+    assert prepare(broken, runtime_root / "build/sqlite-parser")[1]["verdict"] == "HARNESS_ERROR"
     record["trace"][0]["sql"] = "BEGIN; ROLLBACK;"
     assert prepare(record, runtime_root / "build/sqlite-parser")[1]["verdict"] == "HARNESS_ERROR"
 
@@ -101,3 +105,13 @@ def test_external_files_are_rejected_before_creation(tmp_path: Path) -> None:
     assert not destination.exists()
     with pytest.raises(ValueError, match="nondeterministic"):
         record_sql("CREATE TABLE t(v);", "INSERT INTO t VALUES(randomblob(8));", name="random")
+
+
+def test_native_syntax_errors_remain_frontend_exclusions(runtime_root: Path) -> None:
+    """Matching native/parser syntax rejection is unsupported input, not failed transport."""
+    record = record_sql("CREATE TABLE t(v BLOB);", "SELECT FROM;", name="syntax-error")
+    assert record["trace"][-1]["primaryCode"] == 1
+    result = prepare(record, runtime_root / "build/sqlite-parser")[1]
+    assert result["verdict"] == "MODEL_UNSUPPORTED" and result["frontendStatus"] == "INPUT_ERROR"
+    record["trace"][-1]["primaryCode"] = 0
+    assert prepare(record, runtime_root / "build/sqlite-parser")[1]["verdict"] == "HARNESS_ERROR"

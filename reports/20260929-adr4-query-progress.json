@@ -21,6 +21,11 @@
     "migration_check/sql_values.py": "672757c43ec16a33b89b4981dcfb4215b15d409e9c26400977b8e440b764b66b",
     "migration_check/translate.py": "afaad32a107b07d3da4e1fdbf5289bc53ef5ef75b5b7c9b3449613d466df0115"
   },
+  "harnessSha256": {
+    "corpus.py": "b203457030e4e7270b77c2f3441c4cc83ea849ec78faa79b35c5b7a6348eb4b7",
+    "native_replay.py": "00c97e025348790d20234c09d1d3e4dadc09c2268896085d6696d451a6ad8923",
+    "progress.py": "0b3871d457388b1d64357bca44f8ea4ae997e6c49d45b919e1d33d13f626b8f6"
+  },
   "denominator": 183,
   "counts": {
     "MODEL_UNSUPPORTED": 175,
@@ -29,27 +34,31 @@
   "queryDiagnostics": {
     "OTHER_UNSUPPORTED": 130,
     "PREFIX_MODEL_UNSUPPORTED": 41,
-    "BLOCKED_ONLY_BY_QUERIES": 4
+    "QUERY_ONLY_CASE": 4
   },
   "cases": [
     {
       "name": "alter:alter-18.1:107",
       "verdict": "MODEL_UNSUPPORTED",
+      "frontendStatus": "UNSUPPORTED",
       "error": "Use an explicit INTEGER, REAL, TEXT, BLOB, or NUMERIC type"
     },
     {
       "name": "alter:alter-19.1:108",
       "verdict": "MODEL_UNSUPPORTED",
+      "frontendStatus": "UNSUPPORTED",
       "error": "Use an explicit INTEGER, REAL, TEXT, BLOB, or NUMERIC type"
     },
     {
       "name": "alter:alter-19.2:109",
       "verdict": "MODEL_UNSUPPORTED",
+      "frontendStatus": "UNSUPPORTED",
       "error": "Starting schema requires supported tables and indexes",
       "queryDiagnostic": {
         "category": "PREFIX_MODEL_UNSUPPORTED",
         "prefix": {
           "verdict": "MODEL_UNSUPPORTED",
+          "frontendStatus": "UNSUPPORTED",
           "error": "Starting schema requires supported tables and indexes"
         },
         "migrationStatements": 0,
@@ -59,11 +68,13 @@
     {
       "name": "alter:alter-19.3:110",
       "verdict": "MODEL_UNSUPPORTED",
+      "frontendStatus": "UNSUPPORTED",
       "error": "Starting schema requires supported tables and indexes",
       "queryDiagnostic": {
         "category": "PREFIX_MODEL_UNSUPPORTED",
         "prefix": {
           "verdict": "MODEL_UNSUPPORTED",
+          "frontendStatus": "UNSUPPORTED",
           "error": "Starting schema requires supported tables and indexes"
         },
         "migrationStatements": 0,
@@ -73,36 +84,43 @@
     {
       "name": "alter:alter-20.1:111",
       "verdict": "MODEL_UNSUPPORTED",
+      "frontendStatus": "UNSUPPORTED",
       "error": "Unsupported SQL feature: table_option_set"
     },
     {
       "name": "alter:alter-20.2:112",
       "verdict": "MODEL_UNSUPPORTED",
+      "frontendStatus": "UNSUPPORTED",
       "error": "Unsupported SQL feature: table_option_set"
     },
     {
       "name": "alter:alter-20.2:113",
       "verdict": "MODEL_UNSUPPORTED",
+      "frontendStatus": "UNSUPPORTED",
       "error": "Unsupported SQL feature: table_option_set"
     },
     {
       "name": "alter:alter-20.3:114",
       "verdict": "MODEL_UNSUPPORTED",
+      "frontendStatus": "UNSUPPORTED",
       "error": "Unsupported SQL feature: table_option_set"
     },
     {
       "name": "alter:alter-21.1:115",
       "verdict": "MODEL_UNSUPPORTED",
+      "frontendStatus": "UNSUPPORTED",
       "error": "Use an explicit INTEGER, REAL, TEXT, BLOB, or NUMERIC type"
     },
     {
       "name": "alter:alter-21.2:116",
       "verdict": "MODEL_UNSUPPORTED",
+      "frontendStatus": "UNSUPPORTED",
       "error": "Starting schema requires supported tables and indexes",
       "queryDiagnostic": {
         "category": "PREFIX_MODEL_UNSUPPORTED",
         "prefix": {
           "verdict": "MODEL_UNSUPPORTED",
+          "frontendStatus": "UNSUPPORTED",
           "error": "Starting schema requires supported tables and indexes"
         },
         "migrationStatements": 0,
@@ -112,16 +130,19 @@
     {
       "name": "alter:alter-21.3:117",
       "verdict": "MODEL_UNSUPPORTED",
+      "frontendStatus": "UNSUPPORTED",
       "error": "Starting schema requires supported tables and indexes"
     },
     {
       "name": "alter:alter-21.4:118",
       "verdict": "MODEL_UNSUPPORTED",
+      "frontendStatus": "UNSUPPORTED",
       "error": "Starting schema requires supported tables and indexes",
       "queryDiagnostic": {
         "category": "PREFIX_MODEL_UNSUPPORTED",
         "prefix": {
           "verdict": "MODEL_UNSUPPORTED",
+          "frontendStatus": "UNSUPPORTED",
           "error": "Starting schema requires supported tables and indexes"
         },
         "migrationStatements": 0,
@@ -131,56 +152,67 @@
     {
       "name": "alter3:alter3-9.1:47",
       "verdict": "MODEL_UNSUPPORTED",
+      "frontendStatus": "UNSUPPORTED",
       "error": "Use an explicit INTEGER, REAL, TEXT, BLOB, or NUMERIC type"
     },
     {
       "name": "alter3:alter3-9.2:48",
       "verdict": "MODEL_UNSUPPORTED",
+      "frontendStatus": "UNSUPPORTED",
       "error": "Unsupported SQL feature: carglist"
     },
     {
       "name": "alter3:alter3-9.3:49",
       "verdict": "MODEL_UNSUPPORTED",
+      "frontendStatus": "UNSUPPORTED",
       "error": "Unsupported SQL feature: carglist"
     },
     {
       "name": "alter3:alter3-9.4:50",
       "verdict": "MODEL_UNSUPPORTED",
+      "frontendStatus": "UNSUPPORTED",
       "error": "Unsupported SQL feature: carglist"
     },
     {
       "name": "alter3:alter3-9.5:51",
       "verdict": "MODEL_UNSUPPORTED",
+      "frontendStatus": "UNSUPPORTED",
       "error": "Unsupported baseline column constraint"
     },
     {
       "name": "alter3:alter3-9.6:52",
       "verdict": "MODEL_UNSUPPORTED",
+      "frontendStatus": "UNSUPPORTED",
       "error": "Unsupported baseline column constraint"
     },
     {
       "name": "alter3:alter3-9.7:53",
       "verdict": "MODEL_UNSUPPORTED",
+      "frontendStatus": "UNSUPPORTED",
       "error": "Unsupported baseline column constraint"
     },
     {
       "name": "alter4:alter4-11.0:48",
       "verdict": "MODEL_UNSUPPORTED",
+      "frontendStatus": "UNSUPPORTED",
       "error": "Use an explicit INTEGER, REAL, TEXT, BLOB, or NUMERIC type"
     },
     {
       "name": "alter4:alter4-11.1:49",
       "verdict": "MODEL_UNSUPPORTED",
+      "frontendStatus": "UNSUPPORTED",
       "error": "INTEGER PRIMARY KEY rowid aliases are not modeled"
     },
     {
       "name": "alter4:alter4-11.2:50",
       "verdict": "MODEL_UNSUPPORTED",
+      "frontendStatus": "UNSUPPORTED",
       "error": "Unsupported baseline column constraint"
     },
     {
       "name": "alter4:alter4-11.3:51",
       "verdict": "MODEL_UNSUPPORTED",
+      "frontendStatus": "UNSUPPORTED",
       "error": "Unsupported baseline column constraint"
     },
     {
@@ -191,19 +223,22 @@
     {
       "name": "altercol:altercol-1.1.1:1",
       "verdict": "MODEL_UNSUPPORTED",
+      "frontendStatus": "UNSUPPORTED",
       "error": "SQL form is outside the supported literal-write subset"
     },
     {
       "name": "altercol:altercol-1.1.2:2",
       "verdict": "MODEL_UNSUPPORTED",
+      "frontendStatus": "UNSUPPORTED",
       "error": "Only ALTER TABLE ADD COLUMN is supported"
     },
     {
       "name": "altercol:altercol-1.1.3:3",
       "verdict": "MODEL_UNSUPPORTED",
+      "frontendStatus": "UNSUPPORTED",
       "error": "Statement semantics are not implemented",
       "queryDiagnostic": {
-        "category": "BLOCKED_ONLY_BY_QUERIES",
+        "category": "QUERY_ONLY_CASE",
         "prefix": {
           "position": null,
           "verdict": "AGREE"
@@ -215,9 +250,10 @@
     {
       "name": "altercol:altercol-1.1.4:4",
       "verdict": "MODEL_UNSUPPORTED",
+      "frontendStatus": "UNSUPPORTED",
       "error": "Statement semantics are not implemented",
       "queryDiagnostic": {
-        "category": "BLOCKED_ONLY_BY_QUERIES",
+        "category": "QUERY_ONLY_CASE",
         "prefix": {
           "position": null,
           "verdict": "AGREE"
@@ -234,19 +270,22 @@
     {
       "name": "altercol:altercol-1.2.1:6",
       "verdict": "MODEL_UNSUPPORTED",
+      "frontendStatus": "UNSUPPORTED",
       "error": "SQL form is outside the supported literal-write subset"
     },
     {
       "name": "altercol:altercol-1.2.2:7",
       "verdict": "MODEL_UNSUPPORTED",
+      "frontendStatus": "UNSUPPORTED",
       "error": "Only ALTER TABLE ADD COLUMN is supported"
     },
     {
       "name": "altercol:altercol-1.2.3:8",
       "verdict": "MODEL_UNSUPPORTED",
+      "frontendStatus": "UNSUPPORTED",
       "error": "Statement semantics are not implemented",
       "queryDiagnostic": {
-        "category": "BLOCKED_ONLY_BY_QUERIES",
+        "category": "QUERY_ONLY_CASE",
         "prefix": {
           "position": null,
           "verdict": "AGREE"
@@ -258,9 +297,10 @@
     {
       "name": "altercol:altercol-1.2.4:9",
       "verdict": "MODEL_UNSUPPORTED",
+      "frontendStatus": "UNSUPPORTED",
       "error": "Statement semantics are not implemented",
       "queryDiagnostic": {
-        "category": "BLOCKED_ONLY_BY_QUERIES",
+        "category": "QUERY_ONLY_CASE",
         "prefix": {
           "position": null,
           "verdict": "AGREE"
@@ -272,26 +312,31 @@
     {
       "name": "altercol:altercol-1.3.0:10",
       "verdict": "MODEL_UNSUPPORTED",
+      "frontendStatus": "UNSUPPORTED",
       "error": "Unsupported SQL feature: conslist_opt"
     },
     {
       "name": "altercol:altercol-1.3.1:11",
       "verdict": "MODEL_UNSUPPORTED",
+      "frontendStatus": "UNSUPPORTED",
       "error": "Only unnamed UNIQUE table constraints are modeled"
     },
     {
       "name": "altercol:altercol-1.3.2:12",
       "verdict": "MODEL_UNSUPPORTED",
+      "frontendStatus": "UNSUPPORTED",
       "error": "Only unnamed UNIQUE table constraints are modeled"
     },
     {
       "name": "altercol:altercol-1.3.3:13",
       "verdict": "MODEL_UNSUPPORTED",
+      "frontendStatus": "UNSUPPORTED",
       "error": "Only unnamed UNIQUE table constraints are modeled",
       "queryDiagnostic": {
         "category": "PREFIX_MODEL_UNSUPPORTED",
         "prefix": {
           "verdict": "MODEL_UNSUPPORTED",
+          "frontendStatus": "UNSUPPORTED",
           "error": "Only unnamed UNIQUE table constraints are modeled"
         },
         "migrationStatements": 0,
@@ -301,11 +346,13 @@
     {
       "name": "altercol:altercol-1.3.4:14",
       "verdict": "MODEL_UNSUPPORTED",
+      "frontendStatus": "UNSUPPORTED",
       "error": "Only unnamed UNIQUE table constraints are modeled",
       "queryDiagnostic": {
         "category": "PREFIX_MODEL_UNSUPPORTED",
         "prefix": {
           "verdict": "MODEL_UNSUPPORTED",
+          "frontendStatus": "UNSUPPORTED",
           "error": "Only unnamed UNIQUE table constraints are modeled"
         },
         "migrationStatements": 0,
@@ -315,26 +362,31 @@
     {
       "name": "altercol:altercol-1.4.0:15",
       "verdict": "MODEL_UNSUPPORTED",
+      "frontendStatus": "UNSUPPORTED",
       "error": "Unsupported SQL feature: conslist_opt"
     },
     {
       "name": "altercol:altercol-1.4.1:16",
       "verdict": "MODEL_UNSUPPORTED",
+      "frontendStatus": "UNSUPPORTED",
       "error": "Only unnamed UNIQUE table constraints are modeled"
     },
     {
       "name": "altercol:altercol-1.4.2:17",
       "verdict": "MODEL_UNSUPPORTED",
+      "frontendStatus": "UNSUPPORTED",
       "error": "Only unnamed UNIQUE table constraints are modeled"
     },
     {
       "name": "altercol:altercol-1.4.3:18",
       "verdict": "MODEL_UNSUPPORTED",
+      "frontendStatus": "UNSUPPORTED",
       "error": "Only unnamed UNIQUE table constraints are modeled",
       "queryDiagnostic": {
         "category": "PREFIX_MODEL_UNSUPPORTED",
         "prefix": {
           "verdict": "MODEL_UNSUPPORTED",
+          "frontendStatus": "UNSUPPORTED",
           "error": "Only unnamed UNIQUE table constraints are modeled"
         },
         "migrationStatements": 0,
@@ -344,11 +396,13 @@
     {
       "name": "altercol:altercol-1.4.4:19",
       "verdict": "MODEL_UNSUPPORTED",
+      "frontendStatus": "UNSUPPORTED",
       "error": "Only unnamed UNIQUE table constraints are modeled",
       "queryDiagnostic": {
         "category": "PREFIX_MODEL_UNSUPPORTED",
         "prefix": {
           "verdict": "MODEL_UNSUPPORTED",
+          "frontendStatus": "UNSUPPORTED",
           "error": "Only unnamed UNIQUE table constraints are modeled"
         },
         "migrationStatements": 0,
@@ -358,41 +412,49 @@
     {
       "name": "alterdropcol:alterdropcol-1.0:0",
       "verdict": "MODEL_UNSUPPORTED",
+      "frontendStatus": "UNSUPPORTED",
       "error": "Use an explicit INTEGER, REAL, TEXT, BLOB, or NUMERIC type"
     },
     {
       "name": "alterdropcol:alterdropcol-1.1:1",
       "verdict": "MODEL_UNSUPPORTED",
+      "frontendStatus": "UNSUPPORTED",
       "error": "Unsupported baseline column constraint"
     },
     {
       "name": "alterdropcol:alterdropcol-1.2:2",
       "verdict": "MODEL_UNSUPPORTED",
+      "frontendStatus": "UNSUPPORTED",
       "error": "Unsupported baseline column constraint"
     },
     {
       "name": "alterdropcol:alterdropcol-1.4:3",
       "verdict": "MODEL_UNSUPPORTED",
+      "frontendStatus": "UNSUPPORTED",
       "error": "Unsupported baseline column constraint"
     },
     {
       "name": "alterdropcol:alterdropcol-1.5:4",
       "verdict": "MODEL_UNSUPPORTED",
+      "frontendStatus": "UNSUPPORTED",
       "error": "Unsupported baseline column constraint"
     },
     {
       "name": "alterdropcol:alterdropcol-1.6.1:5",
       "verdict": "MODEL_UNSUPPORTED",
+      "frontendStatus": "UNSUPPORTED",
       "error": "Unsupported baseline column constraint"
     },
     {
       "name": "alterdropcol:alterdropcol-1.6.2:6",
       "verdict": "MODEL_UNSUPPORTED",
+      "frontendStatus": "UNSUPPORTED",
       "error": "Unsupported baseline column constraint",
       "queryDiagnostic": {
         "category": "PREFIX_MODEL_UNSUPPORTED",
         "prefix": {
           "verdict": "MODEL_UNSUPPORTED",
+          "frontendStatus": "UNSUPPORTED",
           "error": "Unsupported baseline column constraint"
         },
         "migrationStatements": 0,
@@ -402,16 +464,19 @@
     {
       "name": "alterdropcol:alterdropcol-1.7.1:7",
       "verdict": "MODEL_UNSUPPORTED",
+      "frontendStatus": "UNSUPPORTED",
       "error": "Unsupported baseline column constraint"
     },
     {
       "name": "alterdropcol:alterdropcol-1.7.2:8",
       "verdict": "MODEL_UNSUPPORTED",
+      "frontendStatus": "UNSUPPORTED",
       "error": "Unsupported baseline column constraint",
       "queryDiagnostic": {
         "category": "PREFIX_MODEL_UNSUPPORTED",
         "prefix": {
           "verdict": "MODEL_UNSUPPORTED",
+          "frontendStatus": "UNSUPPORTED",
           "error": "Unsupported baseline column constraint"
         },
         "migrationStatements": 0,
@@ -421,41 +486,49 @@
     {
       "name": "alterdropcol:alterdropcol-1.7.3:9",
       "verdict": "MODEL_UNSUPPORTED",
+      "frontendStatus": "UNSUPPORTED",
       "error": "Unsupported baseline column constraint"
     },
     {
       "name": "alterdropcol:alterdropcol-1.8:10",
       "verdict": "MODEL_UNSUPPORTED",
+      "frontendStatus": "UNSUPPORTED",
       "error": "Unsupported baseline column constraint"
     },
     {
       "name": "alterdropcol:alterdropcol-1.9:11",
       "verdict": "MODEL_UNSUPPORTED",
+      "frontendStatus": "UNSUPPORTED",
       "error": "Unsupported baseline column constraint"
     },
     {
       "name": "alterdropcol:alterdropcol-1.10:12",
       "verdict": "MODEL_UNSUPPORTED",
+      "frontendStatus": "UNSUPPORTED",
       "error": "Unsupported baseline column constraint"
     },
     {
       "name": "alterdropcol:alterdropcol-1.11:13",
       "verdict": "MODEL_UNSUPPORTED",
+      "frontendStatus": "UNSUPPORTED",
       "error": "Unsupported baseline column constraint"
     },
     {
       "name": "alterdropcol:alterdropcol-2.1.0:14",
       "verdict": "MODEL_UNSUPPORTED",
+      "frontendStatus": "UNSUPPORTED",
       "error": "Use an explicit INTEGER, REAL, TEXT, BLOB, or NUMERIC type"
     },
     {
       "name": "alterdropcol:alterdropcol-2.1.1:15",
       "verdict": "MODEL_UNSUPPORTED",
+      "frontendStatus": "UNSUPPORTED",
       "error": "INTEGER PRIMARY KEY rowid aliases are not modeled",
       "queryDiagnostic": {
         "category": "PREFIX_MODEL_UNSUPPORTED",
         "prefix": {
           "verdict": "MODEL_UNSUPPORTED",
+          "frontendStatus": "UNSUPPORTED",
           "error": "INTEGER PRIMARY KEY rowid aliases are not modeled"
         },
         "migrationStatements": 1,
@@ -465,11 +538,13 @@
     {
       "name": "alterdropcol:alterdropcol-2.1.2:16",
       "verdict": "MODEL_UNSUPPORTED",
+      "frontendStatus": "UNSUPPORTED",
       "error": "INTEGER PRIMARY KEY rowid aliases are not modeled",
       "queryDiagnostic": {
         "category": "PREFIX_MODEL_UNSUPPORTED",
         "prefix": {
           "verdict": "MODEL_UNSUPPORTED",
+          "frontendStatus": "UNSUPPORTED",
           "error": "INTEGER PRIMARY KEY rowid aliases are not modeled"
         },
         "migrationStatements": 1,
@@ -479,16 +554,19 @@
     {
       "name": "alterdropcol:alterdropcol-2.2.0:17",
       "verdict": "MODEL_UNSUPPORTED",
+      "frontendStatus": "UNSUPPORTED",
       "error": "Unsupported SQL feature: table_option_set"
     },
     {
       "name": "alterdropcol:alterdropcol-2.2.1:18",
       "verdict": "MODEL_UNSUPPORTED",
+      "frontendStatus": "UNSUPPORTED",
       "error": "Unsupported SQL feature: table_option_set",
       "queryDiagnostic": {
         "category": "PREFIX_MODEL_UNSUPPORTED",
         "prefix": {
           "verdict": "MODEL_UNSUPPORTED",
+          "frontendStatus": "UNSUPPORTED",
           "error": "Unsupported SQL feature: table_option_set"
         },
         "migrationStatements": 1,
@@ -498,11 +576,13 @@
     {
       "name": "alterdropcol:alterdropcol-2.2.2:19",
       "verdict": "MODEL_UNSUPPORTED",
+      "frontendStatus": "UNSUPPORTED",
       "error": "Unsupported SQL feature: table_option_set",
       "queryDiagnostic": {
         "category": "PREFIX_MODEL_UNSUPPORTED",
         "prefix": {
           "verdict": "MODEL_UNSUPPORTED",
+          "frontendStatus": "UNSUPPORTED",
           "error": "Unsupported SQL feature: table_option_set"
         },
         "migrationStatements": 1,
@@ -512,21 +592,25 @@
     {
       "name": "alterdropcol2:alterdropcol2-1.0:0",
       "verdict": "MODEL_UNSUPPORTED",
+      "frontendStatus": "UNSUPPORTED",
       "error": "Unsupported SQL feature: conslist_opt"
     },
     {
       "name": "alterdropcol2:alterdropcol2-1.1:1",
       "verdict": "MODEL_UNSUPPORTED",
+      "frontendStatus": "UNSUPPORTED",
       "error": "Unsupported SQL feature: table_option_set"
     },
     {
       "name": "alterdropcol2:alterdropcol2-1.2.1:2",
       "verdict": "MODEL_UNSUPPORTED",
+      "frontendStatus": "UNSUPPORTED",
       "error": "Unsupported SQL feature: table_option_set",
       "queryDiagnostic": {
         "category": "PREFIX_MODEL_UNSUPPORTED",
         "prefix": {
           "verdict": "MODEL_UNSUPPORTED",
+          "frontendStatus": "UNSUPPORTED",
           "error": "Unsupported SQL feature: table_option_set"
         },
         "migrationStatements": 0,
@@ -536,11 +620,13 @@
     {
       "name": "alterdropcol2:alterdropcol2-1.2.2:3",
       "verdict": "MODEL_UNSUPPORTED",
+      "frontendStatus": "UNSUPPORTED",
       "error": "Unsupported SQL feature: table_option_set",
       "queryDiagnostic": {
         "category": "PREFIX_MODEL_UNSUPPORTED",
         "prefix": {
           "verdict": "MODEL_UNSUPPORTED",
+          "frontendStatus": "UNSUPPORTED",
           "error": "Unsupported SQL feature: table_option_set"
         },
         "migrationStatements": 0,
@@ -550,96 +636,115 @@
     {
       "name": "alterdropcol2:alterdropcol2-2.1.1:4",
       "verdict": "MODEL_UNSUPPORTED",
+      "frontendStatus": "UNSUPPORTED",
       "error": "Only ALTER TABLE ADD COLUMN is supported"
     },
     {
       "name": "alterdropcol2:alterdropcol2-2.1.2:5",
       "verdict": "MODEL_UNSUPPORTED",
+      "frontendStatus": "UNSUPPORTED",
       "error": "Only unnamed UNIQUE table constraints are modeled"
     },
     {
       "name": "alterdropcol2:alterdropcol2-2.2.1:6",
       "verdict": "MODEL_UNSUPPORTED",
+      "frontendStatus": "UNSUPPORTED",
       "error": "Unsupported baseline column constraint"
     },
     {
       "name": "alterdropcol2:alterdropcol2-2.2.2:7",
       "verdict": "MODEL_UNSUPPORTED",
+      "frontendStatus": "UNSUPPORTED",
       "error": "Only ALTER TABLE ADD COLUMN is supported"
     },
     {
       "name": "alterdropcol2:alterdropcol2-2.3.1:8",
       "verdict": "MODEL_UNSUPPORTED",
+      "frontendStatus": "UNSUPPORTED",
       "error": "Keys require plain column references"
     },
     {
       "name": "alterdropcol2:alterdropcol2-2.3.2:9",
       "verdict": "MODEL_UNSUPPORTED",
+      "frontendStatus": "UNSUPPORTED",
       "error": "Only ALTER TABLE ADD COLUMN is supported"
     },
     {
       "name": "alterdropcol2:alterdropcol2-2.4.1:10",
       "verdict": "MODEL_UNSUPPORTED",
+      "frontendStatus": "UNSUPPORTED",
       "error": "Unsupported SQL feature: table_option_set"
     },
     {
       "name": "alterdropcol2:alterdropcol2-2.5.1:11",
       "verdict": "MODEL_UNSUPPORTED",
+      "frontendStatus": "UNSUPPORTED",
       "error": "Unsupported SQL feature: table_option_set"
     },
     {
       "name": "alterdropcol2:alterdropcol2-2.6.1:12",
       "verdict": "MODEL_UNSUPPORTED",
+      "frontendStatus": "UNSUPPORTED",
       "error": "Only unnamed UNIQUE table constraints are modeled"
     },
     {
       "name": "alterdropcol2:alterdropcol2-2.7.1:13",
       "verdict": "MODEL_UNSUPPORTED",
+      "frontendStatus": "UNSUPPORTED",
       "error": "Unsupported baseline column constraint"
     },
     {
       "name": "alterdropcol2:alterdropcol2-2.7.2:14",
       "verdict": "MODEL_UNSUPPORTED",
+      "frontendStatus": "UNSUPPORTED",
       "error": "Unsupported baseline column constraint"
     },
     {
       "name": "alterdropcol2:alterdropcol2-2.8.1:15",
       "verdict": "MODEL_UNSUPPORTED",
+      "frontendStatus": "UNSUPPORTED",
       "error": "Starting schema requires supported tables and indexes"
     },
     {
       "name": "alterdropcol2:alterdropcol2-2.8.2:16",
       "verdict": "MODEL_UNSUPPORTED",
+      "frontendStatus": "UNSUPPORTED",
       "error": "Starting schema requires supported tables and indexes"
     },
     {
       "name": "alterdropcol2:alterdropcol2-2.8.3:17",
       "verdict": "MODEL_UNSUPPORTED",
+      "frontendStatus": "UNSUPPORTED",
       "error": "Starting schema requires supported tables and indexes"
     },
     {
       "name": "alterdropcol2:alterdropcol2-3.0:18",
       "verdict": "MODEL_UNSUPPORTED",
+      "frontendStatus": "UNSUPPORTED",
       "error": "Starting schema requires supported tables and indexes"
     },
     {
       "name": "alterdropcol2:alterdropcol2-3.1.1:19",
       "verdict": "MODEL_UNSUPPORTED",
+      "frontendStatus": "UNSUPPORTED",
       "error": "Unsupported baseline column constraint"
     },
     {
       "name": "alterlegacy:alterlegacy-1.0:0",
       "verdict": "MODEL_UNSUPPORTED",
+      "frontendStatus": "UNSUPPORTED",
       "error": "Statement semantics are not implemented"
     },
     {
       "name": "alterlegacy:alterlegacy-1.1:1",
       "verdict": "MODEL_UNSUPPORTED",
+      "frontendStatus": "UNSUPPORTED",
       "error": "Only unnamed UNIQUE table constraints are modeled",
       "queryDiagnostic": {
         "category": "PREFIX_MODEL_UNSUPPORTED",
         "prefix": {
           "verdict": "MODEL_UNSUPPORTED",
+          "frontendStatus": "UNSUPPORTED",
           "error": "Only unnamed UNIQUE table constraints are modeled"
         },
         "migrationStatements": 0,
@@ -649,21 +754,25 @@
     {
       "name": "alterlegacy:alterlegacy-1.2:2",
       "verdict": "MODEL_UNSUPPORTED",
+      "frontendStatus": "UNSUPPORTED",
       "error": "Only unnamed UNIQUE table constraints are modeled"
     },
     {
       "name": "alterlegacy:alterlegacy-1.3:3",
       "verdict": "MODEL_UNSUPPORTED",
+      "frontendStatus": "UNSUPPORTED",
       "error": "Only unnamed UNIQUE table constraints are modeled"
     },
     {
       "name": "alterlegacy:alterlegacy-1.4:4",
       "verdict": "MODEL_UNSUPPORTED",
+      "frontendStatus": "UNSUPPORTED",
       "error": "Only unnamed UNIQUE table constraints are modeled",
       "queryDiagnostic": {
         "category": "PREFIX_MODEL_UNSUPPORTED",
         "prefix": {
           "verdict": "MODEL_UNSUPPORTED",
+          "frontendStatus": "UNSUPPORTED",
           "error": "Only unnamed UNIQUE table constraints are modeled"
         },
         "migrationStatements": 0,
@@ -673,16 +782,19 @@
     {
       "name": "alterlegacy:alterlegacy-1.3:5",
       "verdict": "MODEL_UNSUPPORTED",
+      "frontendStatus": "UNSUPPORTED",
       "error": "Only unnamed UNIQUE table constraints are modeled"
     },
     {
       "name": "alterlegacy:alterlegacy-1.4:6",
       "verdict": "MODEL_UNSUPPORTED",
+      "frontendStatus": "UNSUPPORTED",
       "error": "Only unnamed UNIQUE table constraints are modeled",
       "queryDiagnostic": {
         "category": "PREFIX_MODEL_UNSUPPORTED",
         "prefix": {
           "verdict": "MODEL_UNSUPPORTED",
+          "frontendStatus": "UNSUPPORTED",
           "error": "Only unnamed UNIQUE table constraints are modeled"
         },
         "migrationStatements": 0,
@@ -692,51 +804,61 @@
     {
       "name": "alterlegacy:alterlegacy-4.0:19",
       "verdict": "MODEL_UNSUPPORTED",
+      "frontendStatus": "UNSUPPORTED",
       "error": "Statement semantics are not implemented"
     },
     {
       "name": "alterlegacy:alterlegacy-4.1:20",
       "verdict": "MODEL_UNSUPPORTED",
+      "frontendStatus": "UNSUPPORTED",
       "error": "Starting schema requires supported tables and indexes"
     },
     {
       "name": "alterlegacy:alterlegacy-4.1a:21",
       "verdict": "MODEL_UNSUPPORTED",
+      "frontendStatus": "UNSUPPORTED",
       "error": "Starting schema requires supported tables and indexes"
     },
     {
       "name": "alterlegacy:alterlegacy-4.1b:22",
       "verdict": "MODEL_UNSUPPORTED",
+      "frontendStatus": "UNSUPPORTED",
       "error": "Starting schema requires supported tables and indexes"
     },
     {
       "name": "alterlegacy:alterlegacy-4.1c:23",
       "verdict": "MODEL_UNSUPPORTED",
+      "frontendStatus": "UNSUPPORTED",
       "error": "Starting schema requires supported tables and indexes"
     },
     {
       "name": "alterlegacy:alterlegacy-9.3:43",
       "verdict": "MODEL_UNSUPPORTED",
+      "frontendStatus": "UNSUPPORTED",
       "error": "Starting schema requires supported tables and indexes"
     },
     {
       "name": "alterlegacy:alterlegacy-14.5:58",
       "verdict": "MODEL_UNSUPPORTED",
+      "frontendStatus": "UNSUPPORTED",
       "error": "Statement semantics are not implemented"
     },
     {
       "name": "altertab:altertab-1.0:0",
       "verdict": "MODEL_UNSUPPORTED",
+      "frontendStatus": "UNSUPPORTED",
       "error": "Unsupported SQL feature: conslist_opt"
     },
     {
       "name": "altertab:altertab-1.1:1",
       "verdict": "MODEL_UNSUPPORTED",
+      "frontendStatus": "UNSUPPORTED",
       "error": "Only unnamed UNIQUE table constraints are modeled",
       "queryDiagnostic": {
         "category": "PREFIX_MODEL_UNSUPPORTED",
         "prefix": {
           "verdict": "MODEL_UNSUPPORTED",
+          "frontendStatus": "UNSUPPORTED",
           "error": "Only unnamed UNIQUE table constraints are modeled"
         },
         "migrationStatements": 0,
@@ -746,21 +868,25 @@
     {
       "name": "altertab:altertab-1.2:2",
       "verdict": "MODEL_UNSUPPORTED",
+      "frontendStatus": "UNSUPPORTED",
       "error": "Only unnamed UNIQUE table constraints are modeled"
     },
     {
       "name": "altertab:altertab-1.3:3",
       "verdict": "MODEL_UNSUPPORTED",
+      "frontendStatus": "UNSUPPORTED",
       "error": "Only unnamed UNIQUE table constraints are modeled"
     },
     {
       "name": "altertab:altertab-1.4:4",
       "verdict": "MODEL_UNSUPPORTED",
+      "frontendStatus": "UNSUPPORTED",
       "error": "Only unnamed UNIQUE table constraints are modeled",
       "queryDiagnostic": {
         "category": "PREFIX_MODEL_UNSUPPORTED",
         "prefix": {
           "verdict": "MODEL_UNSUPPORTED",
+          "frontendStatus": "UNSUPPORTED",
           "error": "Only unnamed UNIQUE table constraints are modeled"
         },
         "migrationStatements": 0,
@@ -770,16 +896,19 @@
     {
       "name": "altertab:altertab-1.3:5",
       "verdict": "MODEL_UNSUPPORTED",
+      "frontendStatus": "UNSUPPORTED",
       "error": "Only unnamed UNIQUE table constraints are modeled"
     },
     {
       "name": "altertab:altertab-1.4:6",
       "verdict": "MODEL_UNSUPPORTED",
+      "frontendStatus": "UNSUPPORTED",
       "error": "Only unnamed UNIQUE table constraints are modeled",
       "queryDiagnostic": {
         "category": "PREFIX_MODEL_UNSUPPORTED",
         "prefix": {
           "verdict": "MODEL_UNSUPPORTED",
+          "frontendStatus": "UNSUPPORTED",
           "error": "Only unnamed UNIQUE table constraints are modeled"
         },
         "migrationStatements": 0,
@@ -789,66 +918,79 @@
     {
       "name": "altertab:altertab-4.0:18",
       "verdict": "MODEL_UNSUPPORTED",
+      "frontendStatus": "UNSUPPORTED",
       "error": "Use an explicit INTEGER, REAL, TEXT, BLOB, or NUMERIC type"
     },
     {
       "name": "altertab:altertab-4.1:19",
       "verdict": "MODEL_UNSUPPORTED",
+      "frontendStatus": "UNSUPPORTED",
       "error": "Starting schema requires supported tables and indexes"
     },
     {
       "name": "altertab:altertab-9.3:38",
       "verdict": "MODEL_UNSUPPORTED",
+      "frontendStatus": "UNSUPPORTED",
       "error": "Starting schema requires supported tables and indexes"
     },
     {
       "name": "altertab:altertab-13.0:53",
       "verdict": "MODEL_UNSUPPORTED",
+      "frontendStatus": "UNSUPPORTED",
       "error": "Use an explicit INTEGER, REAL, TEXT, BLOB, or NUMERIC type"
     },
     {
       "name": "altertab:altertab-13.1:54",
       "verdict": "MODEL_UNSUPPORTED",
+      "frontendStatus": "UNSUPPORTED",
       "error": "Starting schema requires supported tables and indexes"
     },
     {
       "name": "altertab:altertab-13.2:55",
       "verdict": "MODEL_UNSUPPORTED",
+      "frontendStatus": "UNSUPPORTED",
       "error": "Starting schema requires supported tables and indexes"
     },
     {
       "name": "altertab:altertab-14.5:56",
       "verdict": "MODEL_UNSUPPORTED",
+      "frontendStatus": "UNSUPPORTED",
       "error": "Use an explicit INTEGER, REAL, TEXT, BLOB, or NUMERIC type"
     },
     {
       "name": "altertab:altertab-14.6:57",
       "verdict": "MODEL_UNSUPPORTED",
+      "frontendStatus": "UNSUPPORTED",
       "error": "Starting schema requires supported tables and indexes"
     },
     {
       "name": "altertab:altertab-15.0:58",
       "verdict": "MODEL_UNSUPPORTED",
+      "frontendStatus": "UNSUPPORTED",
       "error": "Unsupported SQL feature: carglist"
     },
     {
       "name": "altertab:altertab-15.1:59",
       "verdict": "MODEL_UNSUPPORTED",
+      "frontendStatus": "UNSUPPORTED",
       "error": "INTEGER PRIMARY KEY rowid aliases are not modeled"
     },
     {
       "name": "altertab:altertab-15.2:60",
       "verdict": "MODEL_UNSUPPORTED",
+      "frontendStatus": "UNSUPPORTED",
       "error": "INTEGER PRIMARY KEY rowid aliases are not modeled"
     },
     {
       "name": "altertab:altertab-15.3:61",
       "verdict": "MODEL_UNSUPPORTED",
+      "frontendStatus": "UNSUPPORTED",
       "error": "INTEGER PRIMARY KEY rowid aliases are not modeled",
       "queryDiagnostic": {
         "category": "PREFIX_MODEL_UNSUPPORTED",
         "prefix": {
           "verdict": "MODEL_UNSUPPORTED",
+          "frontendStatus": "UNSUPPORTED",
           "error": "INTEGER PRIMARY KEY rowid aliases are not modeled"
         },
         "migrationStatements": 2,
@@ -858,11 +1000,13 @@
     {
       "name": "altertab:altertab-15.4:62",
       "verdict": "MODEL_UNSUPPORTED",
+      "frontendStatus": "UNSUPPORTED",
       "error": "INTEGER PRIMARY KEY rowid aliases are not modeled",
       "queryDiagnostic": {
         "category": "PREFIX_MODEL_UNSUPPORTED",
         "prefix": {
           "verdict": "MODEL_UNSUPPORTED",
+          "frontendStatus": "UNSUPPORTED",
           "error": "INTEGER PRIMARY KEY rowid aliases are not modeled"
         },
         "migrationStatements": 1,
@@ -872,16 +1016,19 @@
     {
       "name": "altertab2:altertab2-2.0:0",
       "verdict": "MODEL_UNSUPPORTED",
+      "frontendStatus": "UNSUPPORTED",
       "error": "Use an explicit INTEGER, REAL, TEXT, BLOB, or NUMERIC type"
     },
     {
       "name": "altertab2:altertab2-2.1:1",
       "verdict": "MODEL_UNSUPPORTED",
+      "frontendStatus": "UNSUPPORTED",
       "error": "Unsupported baseline column constraint",
       "queryDiagnostic": {
         "category": "PREFIX_MODEL_UNSUPPORTED",
         "prefix": {
           "verdict": "MODEL_UNSUPPORTED",
+          "frontendStatus": "UNSUPPORTED",
           "error": "Unsupported baseline column constraint"
         },
         "migrationStatements": 1,
@@ -891,11 +1038,13 @@
     {
       "name": "altertab2:altertab2-2.2:2",
       "verdict": "MODEL_UNSUPPORTED",
+      "frontendStatus": "UNSUPPORTED",
       "error": "Unsupported baseline column constraint",
       "queryDiagnostic": {
         "category": "PREFIX_MODEL_UNSUPPORTED",
         "prefix": {
           "verdict": "MODEL_UNSUPPORTED",
+          "frontendStatus": "UNSUPPORTED",
           "error": "Unsupported baseline column constraint"
         },
         "migrationStatements": 2,
@@ -905,11 +1054,13 @@
     {
       "name": "altertab2:altertab2-2.3:3",
       "verdict": "MODEL_UNSUPPORTED",
+      "frontendStatus": "UNSUPPORTED",
       "error": "Unsupported baseline column constraint",
       "queryDiagnostic": {
         "category": "PREFIX_MODEL_UNSUPPORTED",
         "prefix": {
           "verdict": "MODEL_UNSUPPORTED",
+          "frontendStatus": "UNSUPPORTED",
           "error": "Unsupported baseline column constraint"
         },
         "migrationStatements": 3,
@@ -919,16 +1070,19 @@
     {
       "name": "altertab2:altertab2-3.1.1:4",
       "verdict": "MODEL_UNSUPPORTED",
+      "frontendStatus": "UNSUPPORTED",
       "error": "Use an explicit INTEGER, REAL, TEXT, BLOB, or NUMERIC type"
     },
     {
       "name": "altertab2:altertab2-3.1.2:5",
       "verdict": "MODEL_UNSUPPORTED",
+      "frontendStatus": "UNSUPPORTED",
       "error": "Only ALTER TABLE ADD COLUMN is supported",
       "queryDiagnostic": {
         "category": "PREFIX_MODEL_UNSUPPORTED",
         "prefix": {
           "verdict": "MODEL_UNSUPPORTED",
+          "frontendStatus": "UNSUPPORTED",
           "error": "Only ALTER TABLE ADD COLUMN is supported"
         },
         "migrationStatements": 1,
@@ -938,16 +1092,19 @@
     {
       "name": "altertab2:altertab2-3.1.3:6",
       "verdict": "MODEL_UNSUPPORTED",
+      "frontendStatus": "UNSUPPORTED",
       "error": "Use an explicit INTEGER, REAL, TEXT, BLOB, or NUMERIC type"
     },
     {
       "name": "altertab2:altertab2-3.1.4:7",
       "verdict": "MODEL_UNSUPPORTED",
+      "frontendStatus": "UNSUPPORTED",
       "error": "Only ALTER TABLE ADD COLUMN is supported",
       "queryDiagnostic": {
         "category": "PREFIX_MODEL_UNSUPPORTED",
         "prefix": {
           "verdict": "MODEL_UNSUPPORTED",
+          "frontendStatus": "UNSUPPORTED",
           "error": "Only ALTER TABLE ADD COLUMN is supported"
         },
         "migrationStatements": 1,
@@ -957,16 +1114,19 @@
     {
       "name": "altertab2:altertab2-3.2.1:8",
       "verdict": "MODEL_UNSUPPORTED",
+      "frontendStatus": "UNSUPPORTED",
       "error": "Use an explicit INTEGER, REAL, TEXT, BLOB, or NUMERIC type"
     },
     {
       "name": "altertab2:altertab2-3.2.2:9",
       "verdict": "MODEL_UNSUPPORTED",
+      "frontendStatus": "UNSUPPORTED",
       "error": "Starting schema requires supported tables and indexes",
       "queryDiagnostic": {
         "category": "PREFIX_MODEL_UNSUPPORTED",
         "prefix": {
           "verdict": "MODEL_UNSUPPORTED",
+          "frontendStatus": "UNSUPPORTED",
           "error": "Starting schema requires supported tables and indexes"
         },
         "migrationStatements": 1,
@@ -976,16 +1136,19 @@
     {
       "name": "altertab2:altertab2-3.2.3:10",
       "verdict": "MODEL_UNSUPPORTED",
+      "frontendStatus": "UNSUPPORTED",
       "error": "Use an explicit INTEGER, REAL, TEXT, BLOB, or NUMERIC type"
     },
     {
       "name": "altertab2:altertab2-3.2.4:11",
       "verdict": "MODEL_UNSUPPORTED",
+      "frontendStatus": "UNSUPPORTED",
       "error": "Starting schema requires supported tables and indexes",
       "queryDiagnostic": {
         "category": "PREFIX_MODEL_UNSUPPORTED",
         "prefix": {
           "verdict": "MODEL_UNSUPPORTED",
+          "frontendStatus": "UNSUPPORTED",
           "error": "Starting schema requires supported tables and indexes"
         },
         "migrationStatements": 1,
@@ -995,16 +1158,19 @@
     {
       "name": "altertab2:altertab2-3.3.1:12",
       "verdict": "MODEL_UNSUPPORTED",
+      "frontendStatus": "UNSUPPORTED",
       "error": "Use an explicit INTEGER, REAL, TEXT, BLOB, or NUMERIC type"
     },
     {
       "name": "altertab2:altertab2-3.3.2:13",
       "verdict": "MODEL_UNSUPPORTED",
+      "frontendStatus": "UNSUPPORTED",
       "error": "Starting schema requires supported tables and indexes",
       "queryDiagnostic": {
         "category": "PREFIX_MODEL_UNSUPPORTED",
         "prefix": {
           "verdict": "MODEL_UNSUPPORTED",
+          "frontendStatus": "UNSUPPORTED",
           "error": "Starting schema requires supported tables and indexes"
         },
         "migrationStatements": 1,
@@ -1014,16 +1180,19 @@
     {
       "name": "altertab2:altertab2-3.3.3:14",
       "verdict": "MODEL_UNSUPPORTED",
+      "frontendStatus": "UNSUPPORTED",
       "error": "Use an explicit INTEGER, REAL, TEXT, BLOB, or NUMERIC type"
     },
     {
       "name": "altertab2:altertab2-3.3.4:15",
       "verdict": "MODEL_UNSUPPORTED",
+      "frontendStatus": "UNSUPPORTED",
       "error": "Starting schema requires supported tables and indexes",
       "queryDiagnostic": {
         "category": "PREFIX_MODEL_UNSUPPORTED",
         "prefix": {
           "verdict": "MODEL_UNSUPPORTED",
+          "frontendStatus": "UNSUPPORTED",
           "error": "Starting schema requires supported tables and indexes"
         },
         "migrationStatements": 1,
@@ -1033,16 +1202,19 @@
     {
       "name": "altertab2:altertab2-3.4.1:16",
       "verdict": "MODEL_UNSUPPORTED",
+      "frontendStatus": "UNSUPPORTED",
       "error": "Use an explicit INTEGER, REAL, TEXT, BLOB, or NUMERIC type"
     },
     {
       "name": "altertab2:altertab2-3.4.2:17",
       "verdict": "MODEL_UNSUPPORTED",
+      "frontendStatus": "UNSUPPORTED",
       "error": "Starting schema requires supported tables and indexes",
       "queryDiagnostic": {
         "category": "PREFIX_MODEL_UNSUPPORTED",
         "prefix": {
           "verdict": "MODEL_UNSUPPORTED",
+          "frontendStatus": "UNSUPPORTED",
           "error": "Starting schema requires supported tables and indexes"
         },
         "migrationStatements": 1,
@@ -1052,16 +1224,19 @@
     {
       "name": "altertab2:altertab2-3.4.3:18",
       "verdict": "MODEL_UNSUPPORTED",
+      "frontendStatus": "UNSUPPORTED",
       "error": "Use an explicit INTEGER, REAL, TEXT, BLOB, or NUMERIC type"
     },
     {
       "name": "altertab2:altertab2-3.4.4:19",
       "verdict": "MODEL_UNSUPPORTED",
+      "frontendStatus": "UNSUPPORTED",
       "error": "Starting schema requires supported tables and indexes",
       "queryDiagnostic": {
         "category": "PREFIX_MODEL_UNSUPPORTED",
         "prefix": {
           "verdict": "MODEL_UNSUPPORTED",
+          "frontendStatus": "UNSUPPORTED",
           "error": "Starting schema requires supported tables and indexes"
         },
         "migrationStatements": 1,
@@ -1071,21 +1246,25 @@
     {
       "name": "altertab3:altertab3-1.0:0",
       "verdict": "MODEL_UNSUPPORTED",
+      "frontendStatus": "UNSUPPORTED",
       "error": "Use an explicit INTEGER, REAL, TEXT, BLOB, or NUMERIC type"
     },
     {
       "name": "altertab3:altertab3-1.1:1",
       "verdict": "MODEL_UNSUPPORTED",
+      "frontendStatus": "UNSUPPORTED",
       "error": "Starting schema requires supported tables and indexes"
     },
     {
       "name": "altertab3:altertab3-1.2:2",
       "verdict": "MODEL_UNSUPPORTED",
+      "frontendStatus": "UNSUPPORTED",
       "error": "Starting schema requires supported tables and indexes",
       "queryDiagnostic": {
         "category": "PREFIX_MODEL_UNSUPPORTED",
         "prefix": {
           "verdict": "MODEL_UNSUPPORTED",
+          "frontendStatus": "UNSUPPORTED",
           "error": "Starting schema requires supported tables and indexes"
         },
         "migrationStatements": 0,
@@ -1095,21 +1274,25 @@
     {
       "name": "altertab3:altertab3-1.3:3",
       "verdict": "MODEL_UNSUPPORTED",
+      "frontendStatus": "UNSUPPORTED",
       "error": "Starting schema requires supported tables and indexes"
     },
     {
       "name": "altertab3:altertab3-2.0:4",
       "verdict": "MODEL_UNSUPPORTED",
+      "frontendStatus": "UNSUPPORTED",
       "error": "Use an explicit INTEGER, REAL, TEXT, BLOB, or NUMERIC type"
     },
     {
       "name": "altertab3:altertab3-2.1:5",
       "verdict": "MODEL_UNSUPPORTED",
+      "frontendStatus": "UNSUPPORTED",
       "error": "Starting schema requires supported tables and indexes",
       "queryDiagnostic": {
         "category": "PREFIX_MODEL_UNSUPPORTED",
         "prefix": {
           "verdict": "MODEL_UNSUPPORTED",
+          "frontendStatus": "UNSUPPORTED",
           "error": "Starting schema requires supported tables and indexes"
         },
         "migrationStatements": 1,
@@ -1119,21 +1302,25 @@
     {
       "name": "altertab3:altertab3-3.0:6",
       "verdict": "MODEL_UNSUPPORTED",
+      "frontendStatus": "UNSUPPORTED",
       "error": "Use an explicit INTEGER, REAL, TEXT, BLOB, or NUMERIC type"
     },
     {
       "name": "altertab3:altertab3-3.1:7",
       "verdict": "MODEL_UNSUPPORTED",
+      "frontendStatus": "UNSUPPORTED",
       "error": "Starting schema requires supported tables and indexes"
     },
     {
       "name": "altertab3:altertab3-3.2:8",
       "verdict": "MODEL_UNSUPPORTED",
+      "frontendStatus": "UNSUPPORTED",
       "error": "Starting schema requires supported tables and indexes",
       "queryDiagnostic": {
         "category": "PREFIX_MODEL_UNSUPPORTED",
         "prefix": {
           "verdict": "MODEL_UNSUPPORTED",
+          "frontendStatus": "UNSUPPORTED",
           "error": "Starting schema requires supported tables and indexes"
         },
         "migrationStatements": 0,
@@ -1143,21 +1330,25 @@
     {
       "name": "altertab3:altertab3-4.0:9",
       "verdict": "MODEL_UNSUPPORTED",
+      "frontendStatus": "UNSUPPORTED",
       "error": "Use an explicit INTEGER, REAL, TEXT, BLOB, or NUMERIC type"
     },
     {
       "name": "altertab3:altertab3-4.1.2:10",
       "verdict": "MODEL_UNSUPPORTED",
+      "frontendStatus": "UNSUPPORTED",
       "error": "Starting schema requires supported tables and indexes"
     },
     {
       "name": "altertab3:altertab3-4.1.3:12",
       "verdict": "MODEL_UNSUPPORTED",
+      "frontendStatus": "UNSUPPORTED",
       "error": "Starting schema requires supported tables and indexes",
       "queryDiagnostic": {
         "category": "PREFIX_MODEL_UNSUPPORTED",
         "prefix": {
           "verdict": "MODEL_UNSUPPORTED",
+          "frontendStatus": "UNSUPPORTED",
           "error": "Starting schema requires supported tables and indexes"
         },
         "migrationStatements": 0,
@@ -1167,16 +1358,19 @@
     {
       "name": "altertab3:altertab3-4.2.1:13",
       "verdict": "MODEL_UNSUPPORTED",
+      "frontendStatus": "UNSUPPORTED",
       "error": "Starting schema requires supported tables and indexes"
     },
     {
       "name": "altertab3:altertab3-4.2.3:15",
       "verdict": "MODEL_UNSUPPORTED",
+      "frontendStatus": "UNSUPPORTED",
       "error": "Starting schema requires supported tables and indexes",
       "queryDiagnostic": {
         "category": "PREFIX_MODEL_UNSUPPORTED",
         "prefix": {
           "verdict": "MODEL_UNSUPPORTED",
+          "frontendStatus": "UNSUPPORTED",
           "error": "Starting schema requires supported tables and indexes"
         },
         "migrationStatements": 0,
@@ -1186,26 +1380,31 @@
     {
       "name": "altertab3:altertab3-5.0:16",
       "verdict": "MODEL_UNSUPPORTED",
+      "frontendStatus": "UNSUPPORTED",
       "error": "Unsupported SQL feature: conslist_opt"
     },
     {
       "name": "altertab3:altertab3-5.1:17",
       "verdict": "MODEL_UNSUPPORTED",
+      "frontendStatus": "UNSUPPORTED",
       "error": "Only unnamed UNIQUE table constraints are modeled"
     },
     {
       "name": "altertab3:altertab3-7.1.0:20",
       "verdict": "MODEL_UNSUPPORTED",
+      "frontendStatus": "UNSUPPORTED",
       "error": "Use an explicit INTEGER, REAL, TEXT, BLOB, or NUMERIC type"
     },
     {
       "name": "altertab3:altertab3-7.1.2:21",
       "verdict": "MODEL_UNSUPPORTED",
+      "frontendStatus": "UNSUPPORTED",
       "error": "Starting schema requires supported tables and indexes",
       "queryDiagnostic": {
         "category": "PREFIX_MODEL_UNSUPPORTED",
         "prefix": {
           "verdict": "MODEL_UNSUPPORTED",
+          "frontendStatus": "UNSUPPORTED",
           "error": "Starting schema requires supported tables and indexes"
         },
         "migrationStatements": 1,
@@ -1215,111 +1414,133 @@
     {
       "name": "altertab3:altertab3-7.2.1:22",
       "verdict": "MODEL_UNSUPPORTED",
+      "frontendStatus": "UNSUPPORTED",
       "error": "Starting schema requires supported tables and indexes"
     },
     {
       "name": "altertab3:altertab3-7.2.2:23",
       "verdict": "MODEL_UNSUPPORTED",
+      "frontendStatus": "UNSUPPORTED",
       "error": "Starting schema requires supported tables and indexes"
     },
     {
       "name": "altertrig:altertrig-1.0:0",
       "verdict": "MODEL_UNSUPPORTED",
+      "frontendStatus": "UNSUPPORTED",
       "error": "Use an explicit INTEGER, REAL, TEXT, BLOB, or NUMERIC type"
     },
     {
       "name": "altertrig:altertrig-1.2:2",
       "verdict": "MODEL_UNSUPPORTED",
+      "frontendStatus": "UNSUPPORTED",
       "error": "Starting schema requires supported tables and indexes"
     },
     {
       "name": "altertrig:altertrig-2.1.1:4",
       "verdict": "MODEL_UNSUPPORTED",
+      "frontendStatus": "UNSUPPORTED",
       "error": "Use an explicit INTEGER, REAL, TEXT, BLOB, or NUMERIC type"
     },
     {
       "name": "altertrig:altertrig-2.1.2:5",
       "verdict": "MODEL_UNSUPPORTED",
+      "frontendStatus": "UNSUPPORTED",
       "error": "Statement semantics are not implemented"
     },
     {
       "name": "altertrig:altertrig-2.1.3:6",
       "verdict": "MODEL_UNSUPPORTED",
+      "frontendStatus": "UNSUPPORTED",
       "error": "Starting schema requires supported tables and indexes"
     },
     {
       "name": "altertrig:altertrig-2.2.1:8",
       "verdict": "MODEL_UNSUPPORTED",
+      "frontendStatus": "UNSUPPORTED",
       "error": "Use an explicit INTEGER, REAL, TEXT, BLOB, or NUMERIC type"
     },
     {
       "name": "altertrig:altertrig-2.2.2:9",
       "verdict": "MODEL_UNSUPPORTED",
+      "frontendStatus": "UNSUPPORTED",
       "error": "Statement semantics are not implemented"
     },
     {
       "name": "altertrig:altertrig-2.2.3:10",
       "verdict": "MODEL_UNSUPPORTED",
+      "frontendStatus": "UNSUPPORTED",
       "error": "Starting schema requires supported tables and indexes"
     },
     {
       "name": "altertrig:altertrig-2.3.1:12",
       "verdict": "MODEL_UNSUPPORTED",
+      "frontendStatus": "UNSUPPORTED",
       "error": "Use an explicit INTEGER, REAL, TEXT, BLOB, or NUMERIC type"
     },
     {
       "name": "altertrig:altertrig-2.3.2:13",
       "verdict": "MODEL_UNSUPPORTED",
+      "frontendStatus": "UNSUPPORTED",
       "error": "Statement semantics are not implemented"
     },
     {
       "name": "altertrig:altertrig-2.3.3:14",
       "verdict": "MODEL_UNSUPPORTED",
+      "frontendStatus": "UNSUPPORTED",
       "error": "Starting schema requires supported tables and indexes"
     },
     {
       "name": "altertrig:altertrig-2.4.1:16",
       "verdict": "MODEL_UNSUPPORTED",
+      "frontendStatus": "UNSUPPORTED",
       "error": "Use an explicit INTEGER, REAL, TEXT, BLOB, or NUMERIC type"
     },
     {
       "name": "altertrig:altertrig-2.4.2:17",
       "verdict": "MODEL_UNSUPPORTED",
+      "frontendStatus": "UNSUPPORTED",
       "error": "Statement semantics are not implemented"
     },
     {
       "name": "altertrig:altertrig-2.4.3:18",
       "verdict": "MODEL_UNSUPPORTED",
+      "frontendStatus": "UNSUPPORTED",
       "error": "Starting schema requires supported tables and indexes"
     },
     {
       "name": "altertrig:altertrig-2.5.1:20",
       "verdict": "MODEL_UNSUPPORTED",
+      "frontendStatus": "UNSUPPORTED",
       "error": "Use an explicit INTEGER, REAL, TEXT, BLOB, or NUMERIC type"
     },
     {
       "name": "altertrig:altertrig-2.5.2:21",
       "verdict": "MODEL_UNSUPPORTED",
+      "frontendStatus": "UNSUPPORTED",
       "error": "Statement semantics are not implemented"
     },
     {
       "name": "altertrig:altertrig-2.5.3:22",
       "verdict": "MODEL_UNSUPPORTED",
+      "frontendStatus": "UNSUPPORTED",
       "error": "Starting schema requires supported tables and indexes"
     },
     {
       "name": "altertrig:altertrig-2.6.1:24",
       "verdict": "MODEL_UNSUPPORTED",
+      "frontendStatus": "UNSUPPORTED",
       "error": "Use an explicit INTEGER, REAL, TEXT, BLOB, or NUMERIC type"
     },
     {
       "name": "altertrig:altertrig-2.6.2:25",
       "verdict": "MODEL_UNSUPPORTED",
+      "frontendStatus": "UNSUPPORTED",
       "error": "Statement semantics are not implemented"
     },
     {
       "name": "altertrig:altertrig-2.6.3:26",
       "verdict": "MODEL_UNSUPPORTED",
+      "frontendStatus": "UNSUPPORTED",
       "error": "Starting schema requires supported tables and indexes"
     },
     {

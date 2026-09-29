@@ -49,7 +49,9 @@ def replay(records: list[dict[str, Json]], runtime: Path) -> dict[str, Json]:
         case, prefix_answer = prepare(projection, runtime / "build/sqlite-parser")
         if case is not None:
             prefix_answer = compiled_many([case], runtime)[0]
-        category = "BLOCKED_ONLY_BY_QUERIES" if prefix_answer["verdict"] == "AGREE" else "PREFIX_" + prefix_answer["verdict"]
+        category = "PREFIX_" + prefix_answer["verdict"]
+        if prefix_answer["verdict"] == "AGREE":
+            category = "BLOCKED_ONLY_BY_QUERIES" if projection["trace"] else "QUERY_ONLY_CASE"
         query_counts[category] += 1
         answer["queryDiagnostic"] = {"category": category, "prefix": prefix_answer,
             "migrationStatements": len(projection["trace"]), "trailingObservations": len(record["trace"]) - len(projection["trace"])}
