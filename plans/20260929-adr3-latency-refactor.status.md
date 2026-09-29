@@ -4,7 +4,7 @@ Created 2026-09-29. Status: DONE.
 Task: [ADR 0003 latency-first refactor](20260929-adr3-latency-refactor.task.md).
 Sources: [ADR 0003](../docs/adr-0003-agent-proof-preparation.md),
 [component research](../docs/0003-component-research.md),
-[ADR 0004](../docs/adr-0004-model-conformance-validation.md),
+ADR 0004 (draft, not yet published),
 `migration_check/cli.py`, `migration_check/compile.py`, `ProofChecker.lean`.
 
 ## Progress log
