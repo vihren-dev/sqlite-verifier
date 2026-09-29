@@ -86,6 +86,26 @@ is upgraded:
    nondep flags to false). `BundleChecker.lean` applies the same normalization when
    comparing protected declarations.
 
+## Tests
+
+Each property is checked at one layer. "Unit" tests need no Lean; "end to end" runs
+the public launcher from the source runtime (Nix target `tests.bundle`);
+"installed" runs the offline-installed archive (`just runtime-package`).
+
+| Property | Layer | Test |
+| --- | --- | --- |
+| Same status as `verify` for the positive, refutation, allowed-failure and Atuin examples | End to end | `tests/bundle_test.py::test_status_parity` |
+| `sorry`, a forbidden axiom and a proof of another statement are `UNVERIFIED` | End to end | `tests/bundle_test.py::test_invalid_proof_rejected` |
+| A bundle built against an altered approved contract is rejected | End to end | `tests/bundle_test.py::test_bundle_from_altered_contract_rejected` |
+| A bundle is bound to the SQL it was prepared for | End to end | `tests/bundle_test.py::test_bundle_bound_to_prepared_sql` |
+| One file may supply two roles, as for `verify` | End to end | `tests/bundle_test.py::test_shared_interpretation_file` |
+| `prepare` keys: an edit invalidates only the edited module and its importers | Unit | `tests/test_module_keys.py` |
+| `prepare` reuses modules after a SQL edit and the bundle still verifies | End to end | `tests/bundle_test.py::test_sql_edit_reuses_modules_without_sql_inputs` |
+| Stage store: verified restore, damaged or malformed entries miss, unwritable store tolerated, identity follows the runtime | Unit | `tests/test_stage_store.py` |
+| `verify` with a stage store: same results, fresh fallback, approved closures excluded unless eligible | End to end | `tests/stage_reuse_test.py` |
+| The installed commands give `VERIFIED`, `VIOLATED` and a wrong-SQL rejection | Installed | `tests/runtime_package_test.py::test_installed_data_path` |
+| Narrowed gate imports keep every existing gate rejection | End to end | `tests/kernel_gate_test.py` (Nix target `tests.kernel`) |
+
 ## Measurements
 
 See the [P1 results](../experiments/adr-0003-latency/p1-results.md) and the

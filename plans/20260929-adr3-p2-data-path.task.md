@@ -1,6 +1,6 @@
 # ADR 0003 P2: data path as the supported interface
 
-Created 2026-09-29. Status: DONE (Linux installed acceptance runs in PR CI).
+Created 2026-09-29. Status: DONE.
 Status file: [status](20260929-adr3-p2-data-path.status.md).
 Spec: [ADR 0003](../docs/adr-0003-agent-proof-preparation.md), "Owner decision",
 "Data path (adopted)", "Approved contract reuse" and the P2 row of "Plan".

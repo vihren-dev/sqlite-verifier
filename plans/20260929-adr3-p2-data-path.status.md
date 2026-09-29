@@ -1,6 +1,6 @@
 # ADR 0003 P2 status
 
-Created 2026-09-29. Status: DONE (Linux installed acceptance runs in PR CI).
+Created 2026-09-29. Status: DONE.
 Task: [P2 data path](20260929-adr3-p2-data-path.task.md).
 Spec: [ADR 0003](../docs/adr-0003-agent-proof-preparation.md);
 evidence: [P1 results](../experiments/adr-0003-latency/p1-results.md).
@@ -37,3 +37,6 @@ PR #11 (`adr3/data-path`).
   `p2-results.md`); no data-path regression beyond noise. Results in
   `experiments/adr-0003-latency/p2-results.md` and `results/p2/`; ADR P2 row
   links them. DONE, except Linux installed acceptance, which PR CI covers.
+- 2026-09-29: PR #11 CI run 36574100133 (package scope) passed on both platforms,
+  including Linux installed acceptance (21 passed) and all 50 Nix infrastructure
+  tests. P2 fully DONE.

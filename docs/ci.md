@@ -11,7 +11,7 @@ changes to `just package`. Tags and manual requests always package.
 
 Each native job enters the pinned Nix environment once. `tools/ci_checks.py`
 checks resources, builds the runtime and
-invokes the selected recipe. `just test` builds four independent Nix test targets
+invokes the selected recipe. `just test` builds five independent Nix test targets
 with `nix-build -A tests`; the flake exposes the same derivations as
 `checks.<system>`:
 
@@ -20,6 +20,7 @@ with `nix-build -A tests`; the flake exposes the same derivations as
   and concrete Lean model assertions.
 - `tests.atuin`: the Atuin application CLI scenarios.
 - `tests.cli`: public-entrypoint acceptance and adversarial input scenarios.
+- `tests.bundle`: the data path (`prepare`/`verify-bundle`) and opt-in stage reuse.
 
 Each target runs ordinary pytest on a cache miss. Its explicit source files,
 Python/pytest, native tools, Lean artifacts and command determine its Nix identity.
@@ -100,6 +101,12 @@ a fix. The owner accepted the Step 1 product on 2026-09-25. Stable v0.1.1 was
 published on 2026-09-28 after both complete platform jobs passed twice at `7a99c71f`;
 published checksum files match the archive asset digests. The failed v0.1.0 tag
 remains unchanged, and v0.1.0-rc.1 is an earlier engineering preview.
+
+The manually dispatched `ADR 0003 P1 measurement` workflow
+(`.github/workflows/adr3-p1.yml`) runs the latency matrix on Linux and uploads its
+results; it gates nothing. See the
+[P1](../experiments/adr-0003-latency/p1-results.md) and
+[P2](../experiments/adr-0003-latency/p2-results.md) results.
 
 The [native benchmark protocol](adr1-benchmarks.md) records the earlier isolated
 60-job comparison. Its workflows and tools were removed on 2026-09-29.
