@@ -13,7 +13,7 @@ on:
       baseline_ref:
         description: Revision measured as "today's verify" (the commit before the P1 changes)
         required: true
-        default: 6a6705167b4f7cf614875c6f81ceb91cdacfe6e4
+        default: a8269f336b2c1c2f69cd0c3ded156c480426d22a
       warm_trials:
         description: Warm trials per cell (ADR 0003 requires at least five)
         required: true
@@ -34,7 +34,7 @@ jobs:
           fetch-depth: 0
       - name: Check out the baseline revision beside the candidate
         env:
-          BASELINE_REF: ${{ inputs.baseline_ref || '6a6705167b4f7cf614875c6f81ceb91cdacfe6e4' }}
+          BASELINE_REF: ${{ inputs.baseline_ref || 'a8269f336b2c1c2f69cd0c3ded156c480426d22a' }}
         run: git worktree add --detach ../baseline "$BASELINE_REF"
       - uses: cachix/install-nix-action@13d8dd58da0234aa297dedd986986ccb8e7f3e24 # v31
         with:
