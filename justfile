@@ -45,6 +45,10 @@ test: build
     timeout 900 nix-build build-support/default.nix -A tests --out-link build/nix-tests --option sandbox true --option sandbox-fallback false --extra-experimental-features 'nix-command flakes'
     timeout --foreground 600 python3 -u -m pytest -v tests -m "not requires_nix" --ignore=tests/runtime_package_test.py --ignore=tests/kernel_gate_test.py --ignore=tests/conformance_model_test.py --ignore=tests/atuin_cli_test.py --ignore=tests/cli_test.py --runtime-root "${SQLITE_VERIFIER_RUNTIME_ROOT:-$PWD}" --junitxml build/test-results/source.xml
 
+# Explicit live cache check; requires ATTIC_READ_TOKEN and ATTIC_WRITE_TOKEN.
+test-attic:
+    timeout 180 bash tools/check_attic.sh
+
 # Check Nix source identities, test-target invalidation, environment snapshots and the installer cache.
 test-nix:
     timeout --foreground 600 python3 -u -m pytest -v tests -m requires_nix --ignore=tests/runtime_package_test.py --runtime-root "${SQLITE_VERIFIER_RUNTIME_ROOT:-$PWD}" --junitxml build/test-results/nix.xml
