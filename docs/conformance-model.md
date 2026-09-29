@@ -95,7 +95,9 @@ affinity check follows [SQLite’s ordered rules](https://sqlite.org/datatype3.h
 
 Per-statement observations retain primary and extended error codes; comparison
 uses primary codes at the current model's granularity. TEXT/BLOB use bytes and
-REAL uses its 64-bit pattern. A second connection observes committed state while
+REAL uses its 64-bit pattern. Fixture cells use C-API parameter binding, including
+positive and negative infinity. SQLite binds NaN as NULL: a requested NaN REAL
+therefore produces an initial-state disagreement, not an invalid-SQL harness error. A second connection observes committed state while
 a transaction is open. Contention that prevents observation is a harness failure,
 not semantic evidence. Native statements have a five-second progress deadline
 and a 100 ms lock wait; outer test/recipe deadlines also bound complete runs.

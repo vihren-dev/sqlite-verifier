@@ -3,7 +3,6 @@
 from contextlib import ExitStack
 from dataclasses import dataclass
 from pathlib import Path
-import struct
 from tempfile import TemporaryDirectory
 
 from migration_check.sql_model import Table, sql_inputs
@@ -11,7 +10,7 @@ from migration_check.diagnostics import Rejection
 from migration_check.sql_tree import parse
 from migration_check.translate import starting_schema, statements
 from conformance.native_metadata import check_metadata, integer, quoted, text
-from conformance.case_format import Json, cell_wire, schema_wire, statement_wire, table_wire
+from conformance.case_format import Json, schema_wire, statement_wire, table_wire
 from conformance.native_connection import Cell, Connection, NativeError, SOURCE_ID, library_path, load_library
 
 
@@ -22,22 +21,6 @@ class Fixture:
     migration_sql: str
     rows: dict[str, list[tuple[int, tuple[Cell, ...]]]]
     name: str
-
-
-def cell_sql(cell: Cell) -> str:
-    """Initialize typed fixture cells with inert literals, preserving embedded bytes."""
-    kind, value = cell
-    cell_wire(cell)  # Validate the tag/payload combination before rendering.
-    if kind == 5:
-        return "NULL"
-    if kind == 1:
-        return str(value)
-    if kind == 2:
-        assert isinstance(value, int)
-        return repr(struct.unpack(">d", struct.pack(">Q", value))[0])
-    assert isinstance(value, bytes)
-    blob = "X'" + value.hex() + "'"
-    return f"CAST({blob} AS TEXT)" if kind == 3 else blob
 
 
 def snapshot(connection: Connection, parser: Path,
@@ -87,8 +70,8 @@ def initialize(connection: Connection, schema: tuple[Table, ...], fixture: Fixtu
         for rowid, cells in fixture.rows.get(table.name, []):
             if not -(2**63) <= rowid < 2**63 or len(cells) != len(table.columns):
                 raise ValueError("Invalid fixture rowid/width")
-            values = ",".join([str(rowid), *(cell_sql(cell) for cell in cells)])
-            connection.query(f"INSERT INTO {quoted(table.name)}({names}) VALUES({values});")
+            values = ",".join("?" for _ in range(len(cells) + 1))
+            connection.query(f"INSERT INTO {quoted(table.name)}({names}) VALUES({values});", ((1, rowid), *cells))
 
 
 def record(fixture: Fixture, parser: Path, library: Path | None = None) -> dict[str, Json]:

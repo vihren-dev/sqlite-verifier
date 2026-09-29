@@ -30,3 +30,8 @@ Conformance now lives in the separate `VerifierConformance` Lean library. The
 production import closure and Nix source set exclude it and the runner. The
 rebuilt conformance suite passed 21 tests; 54 Nix identity/target tests passed,
 including explicit isolation of conformance edits from the production Lean source.
+
+Fixture setup now binds typed parameters instead of rendering SQL literals.
+Infinity signs and bits survive; SQLite converts NaN to NULL, which is reported
+as an initial-state disagreement against a requested NaN REAL. The storage test
+and five frozen-case replays passed (6 tests), including kernel round-trip guards.

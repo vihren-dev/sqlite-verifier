@@ -67,6 +67,13 @@ def test_exact_storage_and_wide_rows(runtime_root: Path) -> None:
                    (9, ((5, None), (5, None), (3, b""), (4, b"\x00\xff")))]}, "storage")
     case = record(fixture, runtime_root / "build/sqlite-parser")
     assert compiled(case, runtime_root)["verdict"] == "AGREE"
+    specials = Fixture("CREATE TABLE t(value REAL);", "", {"t": [
+        (1, ((2, 0x7FF0000000000000),)), (2, ((2, 0xFFF0000000000000),))]}, "infinities")
+    assert evaluate(specials, runtime_root)[1]["verdict"] == "AGREE"
+    nan = Fixture(specials.schema_sql, "", {"t": [(1, ((2, 0x7FF8000000000001),))]}, "nan")
+    case, verdict = evaluate(nan, runtime_root)
+    assert verdict["verdict"] == "DISAGREE" and verdict["position"] is None
+    assert case["nativeTrace"][0]["visible"][0][1]["rows"][0]["values"] == ["null"]
     wide = fixtures()[4]
     populated = Fixture(wide.schema_sql, wide.migration_sql,
                         {"full": [(7, tuple((3, b"x") for _ in range(2000)))]}, "wide")

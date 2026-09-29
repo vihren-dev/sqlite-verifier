@@ -48,6 +48,11 @@ def load_library(path: Path) -> c.CDLL:
         "exec": ([c.c_void_p, c.c_char_p, c.c_void_p, c.c_void_p, c.c_void_p], c.c_int),
         "prepare_v2": ([c.c_void_p, c.c_char_p, c.c_int, c.POINTER(c.c_void_p),
                         c.POINTER(c.c_char_p)], c.c_int),
+        "bind_null": ([c.c_void_p, c.c_int], c.c_int),
+        "bind_int64": ([c.c_void_p, c.c_int, c.c_int64], c.c_int),
+        "bind_double": ([c.c_void_p, c.c_int, c.c_double], c.c_int),
+        "bind_text": ([c.c_void_p, c.c_int, c.c_char_p, c.c_int, c.c_void_p], c.c_int),
+        "bind_blob": ([c.c_void_p, c.c_int, c.c_char_p, c.c_int, c.c_void_p], c.c_int),
         "step": ([c.c_void_p], c.c_int), "finalize": ([c.c_void_p], c.c_int),
         "column_count": ([c.c_void_p], c.c_int),
         "column_type": ([c.c_void_p, c.c_int], c.c_int),
@@ -129,7 +134,24 @@ class Connection:
             return kind, c.string_at(pointer, size) if size else b""
         return 5, None
 
-    def query(self, sql: str) -> list[Row]:
+    def bind(self, statement: c.c_void_p, index: int, cell: Cell) -> None:
+        """Bind exact fixture storage, including infinities and SQLite's NaN-to-NULL conversion."""
+        kind, value = cell
+        if kind == 5 and value is None:
+            code = self.library.sqlite3_bind_null(statement, index)
+        elif kind == 1 and isinstance(value, int) and -(2**63) <= value < 2**63:
+            code = self.library.sqlite3_bind_int64(statement, index, value)
+        elif kind == 2 and isinstance(value, int) and 0 <= value < 2**64:
+            number = struct.unpack(">d", struct.pack(">Q", value))[0]
+            code = self.library.sqlite3_bind_double(statement, index, number)
+        elif kind in (3, 4) and isinstance(value, bytes):
+            function = self.library.sqlite3_bind_text if kind == 3 else self.library.sqlite3_bind_blob
+            code = function(statement, index, value, len(value), c.c_void_p(-1))  # SQLITE_TRANSIENT
+        else:
+            raise ValueError("Invalid typed SQLite fixture cell")
+        self.check(code)
+
+    def query(self, sql: str, parameters: tuple[Cell, ...] = ()) -> list[Row]:
         """Prepare exactly one statement and finalize it even after an execution failure."""
         self.deadline = time.monotonic() + 5
         statement, tail = c.c_void_p(), c.c_char_p()
@@ -139,6 +161,8 @@ class Connection:
         try:
             if not statement.value or (tail.value or b"").strip():
                 raise ValueError("Expected one complete SQL statement")
+            for index, cell in enumerate(parameters, 1):
+                self.bind(statement, index, cell)
             rows: list[Row] = []
             while True:
                 code = self.library.sqlite3_step(statement)
