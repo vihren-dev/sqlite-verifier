@@ -21,7 +21,7 @@ def expression(root: Path) -> str:
     in import (builtins.toPath {quote(ROOT / 'build-support/tests.nix')}) {{
       inherit pkgs; inherit (builds) leanToolchain leanRuntime parsers conformance;
       runtime = import (builtins.toPath {quote(ROOT / 'build-support/runtime.nix')}) {{
-        inherit pkgs; inherit (builds) leanToolchain leanRuntime parsers;
+        inherit pkgs; inherit (builds) leanToolchain leanRuntime parsers exporter;
         sources = builds.sources // {{ runtime = (import (builtins.toPath {quote(ROOT / 'build-support/sources.nix')}) {{
           inherit (pkgs) lib; root = /. + {quote(root)};
         }}).runtime; }};

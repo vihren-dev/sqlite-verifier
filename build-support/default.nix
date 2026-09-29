@@ -6,8 +6,16 @@
 let
   sources = import ./sources.nix { inherit (pkgs) lib; };
   leanToolchain = import ./lean-toolchain.nix { inherit pkgs; };
+  lean4export = import ./lean4export.nix { inherit pkgs leanToolchain; };
+  # lakefile.toml requires lean4export as a path dependency at build/lean4export.
+  lakeDependencies = ''
+    mkdir -p build
+    cp -R ${lean4export.src} build/lean4export
+    chmod -R u+w build/lean4export
+  '';
 in rec {
   inherit leanToolchain sources;
+  inherit (lean4export) exporter;
   conformanceNative = import ./conformance-native.nix { inherit pkgs; };
   conformanceDocs = import ./conformance-docs.nix {
     inherit pkgs; inherit (conformanceNative) fixture upstream;
@@ -16,7 +24,7 @@ in rec {
     inherit pkgs leanToolchain leanRuntime parsers runtime native conformance;
   };
   runtime = import ./runtime.nix {
-    inherit pkgs sources leanToolchain parsers leanRuntime;
+    inherit pkgs sources leanToolchain parsers leanRuntime exporter;
   };
   parsers = pkgs.stdenv.mkDerivation {
     pname = "sqlite-verifier-parsers";
@@ -67,12 +75,13 @@ in rec {
     dontConfigure = true;
     buildPhase = ''
       export HOME="$TMPDIR"
-      lake build SqliteVerifier migration-proof-checker
+      ${lakeDependencies}
+      lake build SqliteVerifier migration-proof-checker migration-bundle-checker
     '';
     installPhase = ''
       mkdir -p "$out/.lake/build/bin" "$out/.lake/build/lib"
       cp -R .lake/build/lib/lean "$out/.lake/build/lib/"
-      cp .lake/build/bin/migration-proof-checker "$out/.lake/build/bin/"
+      cp .lake/build/bin/migration-proof-checker .lake/build/bin/migration-bundle-checker "$out/.lake/build/bin/"
     '';
   };
   # Test-only model executable; the shipped verifier runtime keeps its existing commands.
@@ -93,7 +102,11 @@ in rec {
   conformanceCoverage = conformanceRuntime.overrideAttrs (old: {
     pname = "sqlite-verifier-conformance-coverage";
     postPatch = ''${pkgs.python3}/bin/python3 ${../conformance/instrument_model.py} .'';
-    buildPhase = ''export HOME="$TMPDIR"; lake build conformance-runner'';
+    buildPhase = ''
+      export HOME="$TMPDIR"
+      ${lakeDependencies}
+      lake build conformance-runner
+    '';
     installPhase = ''
       mkdir -p "$out/.lake/build/bin"
       cp .lake/build/bin/conformance-runner "$out/.lake/build/bin/"
