@@ -29,7 +29,6 @@ class CiScopeTest(unittest.TestCase):
                     (["tests/test_toolchain_smoke.py"], "package"),
                     (["pytest.ini"], "package"), (["tests/conftest.py"], "package"), (["conftest.py"], "package"),
                     (["tests/runtime_support.py"], "package"),
-                    (["tests/case_reports.py"], "package"),
                     (["tests/new_shared_helper.py"], "package"),
                     (["tests/test_translation.py"], "package"),
                     (["docs/install.md"], "package"),

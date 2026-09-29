@@ -5,8 +5,7 @@
 let
   fs = pkgs.lib.fileset;
   common = map (name: root + "/${name}") [
-    "pytest.ini" "conftest.py" "tests/__init__.py" "tests/catalogue.py"
-    "tests/case_reports.py" "tests/runtime_support.py" "tests/runtime_fixtures.py"
+    "pytest.ini" "conftest.py" "tests/__init__.py" "tests/runtime_support.py" "tests/runtime_fixtures.py"
     "tests/runtime_installation.py"
   ];
   python = pkgs.python3.withPackages (ps: [ ps.pytest ]);
@@ -33,7 +32,7 @@ let
         export HOME="$TMPDIR"
         export PYTEST_DISABLE_PLUGIN_AUTOLOAD=1
         timeout 420 python3 -m pytest ${file} ${pkgs.lib.concatStringsSep " " extraFiles} --runtime-root ${runtime} \
-          --report-dir "$out" --suite ${name} -v --durations=10
+          -p no:cacheprovider --junitxml "$out/junit.xml" -v --durations=10
       '';
     };
 in {

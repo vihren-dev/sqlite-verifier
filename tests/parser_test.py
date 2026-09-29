@@ -2,13 +2,11 @@
 
 from pathlib import Path
 from tempfile import TemporaryDirectory
-import sys
 
 import pytest
 
-ROOT = Path(__file__).resolve().parents[1]
-sys.path.insert(0, str(ROOT))
 from tests.runtime_support import run_command
+
 pytestmark = [pytest.mark.integration, pytest.mark.parser, pytest.mark.requires_native]
 VERSIONS = ("3.51.0", "3.46.0")
 VALID = (
@@ -52,15 +50,14 @@ INVALID = (
 )
 
 
-def parse(sql: bytes, expected: str = "PARSED", *, runtime: Path, version: str,
-          artifacts: Path | None = None) -> dict[str, object]:
+def parse(sql: bytes, expected: str = "PARSED", *, runtime: Path, version: str) -> dict[str, object]:
     """Check status, exit, profile and every span using the explicitly selected binary."""
     name = "sqlite-parser" if version == "3.51.0" else "sqlite-parser-3.46.0"
     with TemporaryDirectory(prefix="parser-case-") as directory:
         path = Path(directory) / "input.sql"
         path.write_bytes(sql)
         result = run_command([str(runtime / "build" / name), str(path)],
-                             cwd=runtime, timeout=3, artifacts=artifacts)
+                             cwd=runtime, timeout=3)
     value = result.json_object()
     assert value["status"] == expected, result.diagnostic()
     assert result.returncode == (0 if expected == "PARSED" else 1), result.diagnostic()
@@ -77,50 +74,40 @@ def parse(sql: bytes, expected: str = "PARSED", *, runtime: Path, version: str,
 
 @pytest.mark.parametrize("version,sql", [(version, sql) for version in VERSIONS for _, sql in VALID],
                          ids=[f"{version}-{name}" for version in VERSIONS for name, _ in VALID])
-def test_valid_grammar(version: str, sql: bytes, runtime_root: Path, case_artifacts: Path) -> None:
+def test_valid_grammar(version: str, sql: bytes, runtime_root: Path) -> None:
     """A grammar-family script parses with valid byte spans and the selected release."""
-    parse(sql, runtime=runtime_root, version=version, artifacts=case_artifacts)
+    parse(sql, runtime=runtime_root, version=version)
 
 
 @pytest.mark.parametrize("version,sql", [(version, sql) for version in VERSIONS for _, sql in INVALID],
                          ids=[f"{version}-{name}" for version in VERSIONS for name, _ in INVALID])
-def test_invalid_grammar(version: str, sql: bytes, runtime_root: Path, case_artifacts: Path) -> None:
+def test_invalid_grammar(version: str, sql: bytes, runtime_root: Path) -> None:
     """Malformed bytes or syntax produce INPUT_ERROR and a nonzero parser exit."""
-    parse(sql, "INPUT_ERROR", runtime=runtime_root, version=version, artifacts=case_artifacts)
+    parse(sql, "INPUT_ERROR", runtime=runtime_root, version=version)
 
 
 @pytest.mark.parametrize("version", VERSIONS)
-def test_resource_limit(version: str, runtime_root: Path, case_artifacts: Path) -> None:
+def test_resource_limit(version: str, runtime_root: Path) -> None:
     """An oversized SQL file produces the distinct RESOURCE_LIMIT parser result."""
     parse(b" " * (1024 * 1024 + 1), "RESOURCE_LIMIT", runtime=runtime_root,
-          version=version, artifacts=case_artifacts)
+          version=version)
 
 
-def unicode_spans(runtime: Path, version: str, artifacts: Path | None = None) -> None:
-    """Repeated Unicode parsing preserves exact quoted byte spans and all CST output."""
+@pytest.mark.parametrize("version", VERSIONS)
+def test_deterministic_unicode_spans(version: str, runtime_root: Path) -> None:
+    """Repeated Unicode parsing preserves exact quoted byte spans and all CST output in both releases."""
     text = 'CREATE TABLE "café"("💡" TEXT);'.encode()
-    result = parse(text, runtime=runtime, version=version, artifacts=artifacts)
-    assert result == parse(text, runtime=runtime, version=version, artifacts=artifacts)
+    result = parse(text, runtime=runtime_root, version=version)
+    assert result == parse(text, runtime=runtime_root, version=version)
     nodes = result["nodes"]
     assert isinstance(nodes, list)
     quoted = [text[node["start"]:node["end"]] for node in nodes if node["symbol"] == "ID"]
     assert '"café"'.encode() in quoted and '"💡"'.encode() in quoted, quoted
 
 
+
 @pytest.mark.parametrize("version", VERSIONS)
-def test_deterministic_unicode_spans(version: str, runtime_root: Path, case_artifacts: Path) -> None:
-    """Unicode identifiers have deterministic source-bound trees in both releases."""
-    unicode_spans(runtime_root, version, case_artifacts)
-
-
-def raise_expression(runtime: Path, version: str, artifacts: Path | None = None) -> None:
-    """RAISE expressions introduced after 3.46 distinguish the actual selected grammars."""
+def test_raise_expression_version_boundary(version: str, runtime_root: Path) -> None:
+    """An expression in RAISE (added after 3.46) parses only in the newer pinned grammar."""
     parse(b"CREATE TRIGGER tr BEFORE INSERT ON t BEGIN SELECT RAISE(FAIL, 1+2); END;",
-          "PARSED" if version == "3.51.0" else "INPUT_ERROR", runtime=runtime,
-          version=version, artifacts=artifacts)
-
-
-@pytest.mark.parametrize("version", VERSIONS)
-def test_raise_expression_version_boundary(version: str, runtime_root: Path, case_artifacts: Path) -> None:
-    """An expression in RAISE parses only in the newer pinned grammar."""
-    raise_expression(runtime_root, version, case_artifacts)
+          "PARSED" if version == "3.51.0" else "INPUT_ERROR", runtime=runtime_root, version=version)

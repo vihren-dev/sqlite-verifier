@@ -1,6 +1,5 @@
 """Independent native old-data preservation checks of the source-backed application SQL."""
 
-import json
 import os
 from pathlib import Path
 import sys
@@ -16,9 +15,7 @@ pytestmark = [pytest.mark.integration, pytest.mark.atuin, pytest.mark.conformanc
 
 
 @pytest.mark.parametrize("case", CASES)
-def test_native_history(case: str, runtime_root: Path, case_artifacts: Path) -> None:
+def test_native_history(case: str, runtime_root: Path) -> None:
     """One independently seeded history preserves exact old stored classes/bytes and integrity."""
     report = run(os.environ.get("SQLITE346", "sqlite3-3.46.0"), (case,), runtime_root)
     assert len(report) == 1 and report[0]["case"] == case
-    case_artifacts.mkdir(parents=True, exist_ok=True)
-    (case_artifacts / "native-history.json").write_text(json.dumps(report, indent=2) + "\n")

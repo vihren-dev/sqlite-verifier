@@ -30,20 +30,20 @@ parser: resources
 test-cases *args:
     python3 -m pytest --runtime-root "${SQLITE_VERIFIER_RUNTIME_ROOT:-$PWD}" "$@"
 
-# Catalogue selected scenarios without building or executing fixtures.
+# List selected scenarios without building or executing fixtures.
 [positional-arguments]
 test-list *args:
-    python3 -m pytest --catalog "$@"
+    python3 -m pytest --collect-only -q "$@"
 
 # Check pinned tools through the same scenario interface.
 smoke:
-    timeout --foreground 15 python3 -m pytest tests/test_toolchain_smoke.py --suite smoke --runtime-root "${SQLITE_VERIFIER_RUNTIME_ROOT:-$PWD}"
+    timeout --foreground 15 python3 -m pytest tests/test_toolchain_smoke.py --runtime-root "${SQLITE_VERIFIER_RUNTIME_ROOT:-$PWD}"
 
 # Cache expensive hermetic suites; run host-dependent and cheap tests normally.
 test: build
     timeout 900 nix flake check ./nix -L --option sandbox true --option sandbox-fallback false --extra-experimental-features 'nix-command flakes'
     timeout 900 nix-build build-support/default.nix -A tests --out-link build/nix-tests --option sandbox true --option sandbox-fallback false --extra-experimental-features 'nix-command flakes'
-    timeout --foreground 1800 python3 -u -m pytest -v tests --ignore=tests/runtime_package_test.py --ignore=tests/kernel_gate_test.py --ignore=tests/conformance_model_test.py --ignore=tests/atuin_cli_test.py --ignore=tests/atuin_sql_test.py --runtime-root "${SQLITE_VERIFIER_RUNTIME_ROOT:-$PWD}" --suite source
+    timeout --foreground 1800 python3 -u -m pytest -v tests --ignore=tests/runtime_package_test.py --ignore=tests/kernel_gate_test.py --ignore=tests/conformance_model_test.py --ignore=tests/atuin_cli_test.py --ignore=tests/atuin_sql_test.py --runtime-root "${SQLITE_VERIFIER_RUNTIME_ROOT:-$PWD}" --junitxml build/test-results/source.xml
 
 # Select only the cached application-specific suite.
 test-atuin:
@@ -53,7 +53,7 @@ test-atuin:
 # Build a native offline archive and verify its actual installed entrypoint.
 runtime-package: build
     timeout 1200 python3 packaging/build_runtime.py --runtime-root "${SQLITE_VERIFIER_RUNTIME_ROOT:-$PWD/build/runtime}"
-    timeout --foreground 1800 python3 -m pytest --suite installed --runtime-archive "dist/sqlite-verifier-${SQLITE_VERIFIER_SYSTEM:?Enter nix develop path:./nix}.tar.gz" --runtime-variant installed tests/runtime_package_test.py tests/atuin_cli_test.py
+    timeout --foreground 1800 python3 -m pytest --junitxml build/test-results/installed.xml --runtime-archive "dist/sqlite-verifier-${SQLITE_VERIFIER_SYSTEM:?Enter nix develop path:./nix}.tar.gz" --runtime-variant installed tests/runtime_package_test.py tests/atuin_cli_test.py
 
 # Keep a source snapshot alongside the checked installable runtime.
 package: test runtime-package
