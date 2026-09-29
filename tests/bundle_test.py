@@ -98,3 +98,26 @@ def test_bundle_bound_to_prepared_sql(data_path: Callable[..., dict[str, object]
     report = data_path(approved=small["approved"], candidate=small["candidate"], schema=small["schema"],
                        checked_migration=small["reverse"] / "migration.sql")
     assert report["status"] == "UNVERIFIED" and "modified protected declaration" in str(report["message"]), report
+
+
+def test_shared_interpretation_file(data_path: Callable[..., dict[str, object]], small: dict[str, Path],
+                                    tmp_path: Path) -> None:
+    """One file may supply both the current and next interpretation, as `verify` accepts."""
+    shared = tmp_path / "shared"
+    shared.mkdir()
+    (shared / "Requirements.lean").write_bytes((small["approved"] / "Requirements.lean").read_bytes())
+    current = (small["approved"] / "Interpretation.lean").read_text().replace(
+        "import Requirements\n", "import Requirements\nimport SqliteVerifier.Demonstration\n")
+    (shared / "Interpretation.lean").write_text(current + """
+namespace NextInterpretation
+def next : SqliteVerifier.Interpretation Requirements.LogicalState := SqliteVerifier.Demonstration.next
+def failures : SqliteVerifier.FailureRepresentation Requirements.LogicalState := SqliteVerifier.unreachableFailures
+end NextInterpretation
+""")
+    candidate = tmp_path / "candidate"
+    candidate.mkdir()
+    (candidate / "migration.sql").write_bytes((small["candidate"] / "migration.sql").read_bytes())
+    (candidate / "Proofs.lean").write_bytes((small["candidate"] / "Proofs.lean").read_bytes())
+    (candidate / "NextInterpretation.lean").symlink_to(shared / "Interpretation.lean")
+    report = data_path(approved=shared, candidate=candidate, schema=small["schema"])
+    assert report["status"] == "VERIFIED", report

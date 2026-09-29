@@ -11,7 +11,8 @@ from dataclasses import dataclass
 import hashlib
 import json
 import os
-from pathlib import Path
+from pathlib import Path, PurePosixPath
+import re
 import shutil
 from tempfile import mkdtemp
 
@@ -27,6 +28,28 @@ FORMAT = "adr3-stage-store-v1"
 def digest(value: object) -> str:
     """Hash a JSON-serializable value canonically."""
     return hashlib.sha256(json.dumps(value, sort_keys=True, separators=(",", ":")).encode()).hexdigest()
+
+
+def runtime_identity(sysroot: Path, library: Path) -> tuple[str, str]:
+    """Resolved toolchain and library paths: immutable Nix outputs, not the stable links to them.
+
+    `just build` repoints `.lake/build` at a new runtime; keys must change with it.
+    """
+    return str(sysroot.resolve()), str(library.resolve())
+
+
+def valid_manifest(manifest: object, required: tuple[str, ...]) -> dict[str, str] | None:
+    """A non-empty map of safe relative paths to SHA-256 digests that includes every required file."""
+    if not isinstance(manifest, dict) or not manifest:
+        return None
+    for name, value in manifest.items():
+        path = PurePosixPath(name) if isinstance(name, str) else None
+        if (path is None or path.is_absolute() or not path.parts or ".." in path.parts
+                or not isinstance(value, str) or re.fullmatch(r"[0-9a-f]{64}", value) is None):
+            return None
+    if any(name not in manifest for name in required):
+        return None
+    return manifest
 
 
 def stage_key(stage: str, modules: dict[str, bytes], previous: tuple[str, ...], identity: tuple[str, ...]) -> str:
@@ -50,11 +73,17 @@ class StageStore:
             return None
         return cls(Path(location), os.environ.get(MEASUREMENT_APPROVED_VARIABLE) == "1")
 
-    def restore(self, key: str, destination: Path) -> bool:
-        """Copy a verified entry into an empty destination; any problem is a miss."""
+    def restore(self, key: str, destination: Path, required: tuple[str, ...] = ()) -> bool:
+        """Copy a verified entry into an empty destination; any problem is a miss.
+
+        Every file is read and hash-checked before anything is written, so a miss
+        leaves the destination untouched for fresh compilation.
+        """
         entry = self.root / key
         try:
-            manifest: dict[str, str] = json.loads((entry / "manifest.json").read_text())
+            manifest = valid_manifest(json.loads((entry / "manifest.json").read_text()), required)
+            if manifest is None:
+                return False
             files = {name: (entry / "files" / name).read_bytes() for name in manifest}
         except (OSError, ValueError):
             return False
@@ -70,11 +99,12 @@ class StageStore:
     def save(self, key: str, source: Path) -> None:
         """Publish a freshly compiled stage atomically; an existing entry is kept."""
         entry = self.root / key
-        if entry.exists():
-            return
-        self.root.mkdir(parents=True, exist_ok=True)
-        staging = Path(mkdtemp(prefix=".incoming-", dir=self.root))
+        staging: Path | None = None
         try:
+            if entry.exists():
+                return
+            self.root.mkdir(parents=True, exist_ok=True)
+            staging = Path(mkdtemp(prefix=".incoming-", dir=self.root))
             files = {path.relative_to(source).as_posix(): path for path in source.rglob("*") if path.is_file()}
             for name, path in files.items():
                 (staging / "files" / name).parent.mkdir(parents=True, exist_ok=True)
@@ -83,4 +113,6 @@ class StageStore:
             (staging / "manifest.json").write_text(json.dumps(manifest, sort_keys=True))
             staging.rename(entry)
         except OSError:
-            shutil.rmtree(staging, ignore_errors=True)
+            # Reuse is optional: a store that cannot be written only costs the next compile.
+            if staging is not None:
+                shutil.rmtree(staging, ignore_errors=True)

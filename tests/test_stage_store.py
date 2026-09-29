@@ -5,7 +5,8 @@ from pathlib import Path
 import pytest
 
 from migration_check.cache_eligibility import approved_reuse_allowed
-from migration_check.stage_store import MEASUREMENT_APPROVED_VARIABLE, STORE_VARIABLE, StageStore, stage_key
+from migration_check.stage_store import (MEASUREMENT_APPROVED_VARIABLE, STORE_VARIABLE, StageStore,
+                                         runtime_identity, stage_key)
 
 pytestmark = [pytest.mark.unit, pytest.mark.approval]
 
@@ -68,3 +69,47 @@ def test_configuration_and_approved_eligibility(monkeypatch: pytest.MonkeyPatch,
     monkeypatch.setenv(MEASUREMENT_APPROVED_VARIABLE, "1")
     store = StageStore.configured()
     assert store is not None and approved_reuse_allowed("digest", store)
+
+
+@pytest.mark.parametrize("manifest", ["{}", "null", "[]", '{"../escape.olean": "' + "a" * 64 + '"}',
+                                      '{"Requirements.olean": "not-a-digest"}'],
+                         ids=["empty", "null", "list", "traversal", "bad_digest"])
+def test_malformed_manifests_are_misses(tmp_path: Path, manifest: str) -> None:
+    """Only a well-formed manifest of safe relative paths and SHA-256 digests restores."""
+    store = StageStore(tmp_path / "store")
+    store.save("key", compiled_stage(tmp_path / "compiled"))
+    (tmp_path / "store/key/manifest.json").write_text(manifest)
+    destination = tmp_path / "restored"
+    destination.mkdir()
+    assert not store.restore("key", destination, required=("Requirements.olean",))
+    assert list(destination.iterdir()) == []
+
+
+def test_missing_required_artifact_is_a_miss(tmp_path: Path) -> None:
+    """An entry lacking a module the stage must produce is not a successful restore."""
+    store = StageStore(tmp_path / "store")
+    store.save("key", compiled_stage(tmp_path / "compiled"))
+    destination = tmp_path / "restored"
+    destination.mkdir()
+    assert not store.restore("key", destination, required=("Requirements.olean", "Interpretation.olean"))
+
+
+def test_unwritable_store_does_not_raise(tmp_path: Path) -> None:
+    """A store root that cannot be created leaves verification to fresh compilation."""
+    blocked = tmp_path / "blocked"
+    blocked.write_text("a file, not a directory")
+    StageStore(blocked / "store").save("key", compiled_stage(tmp_path / "compiled"))
+    assert not (blocked.is_dir())
+
+
+def test_runtime_identity_follows_symlinks(tmp_path: Path) -> None:
+    """Replacing the runtime behind a stable symlink changes the identity used in keys."""
+    first, second, link = tmp_path / "first", tmp_path / "second", tmp_path / "current"
+    first.mkdir()
+    second.mkdir()
+    link.symlink_to(first, target_is_directory=True)
+    before = runtime_identity(link, link)
+    link.unlink()
+    link.symlink_to(second, target_is_directory=True)
+    assert runtime_identity(link, link) != before
+    assert before == (str(first.resolve()), str(first.resolve()))
