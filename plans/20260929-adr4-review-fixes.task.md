@@ -1,6 +1,6 @@
 # ADR 0004 review corrections
 
-Created 2026-09-29. Status: ACTIVE.
+Created 2026-09-29. Status: DONE.
 
 The W1–W2 prototype must retain the default pinned SQLite engine, configure and
 verify DQS independently on every native connection, and independently check
@@ -21,7 +21,7 @@ regression checks; and a fresh benchmark with stage timings. All checks are boun
 by the existing pytest/command timeouts.
 
 Relevant files: conformance/native_connection.py, native_trace.py, model_check.py,
-model_assertions.py, pipeline.py; SqliteVerifier/Conformance*.lean; lakefile.toml;
+model_assertions.py, pipeline.py; VerifierConformance/*.lean; lakefile.toml;
 build-support/{sources,default,tests}.nix. SQLite deduplicates equivalent UNIQUE
 indexes; integer primary keys need no index. Cache keys must reflect actual schema
 content across visible and committed views. ADR status remains Proposed pending

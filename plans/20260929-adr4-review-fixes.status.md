@@ -1,12 +1,13 @@
 # ADR 0004 review correction status
 
-Created 2026-09-29. Status: ACTIVE.
+Created 2026-09-29. Status: DONE.
 Task: [review outcomes](20260929-adr4-review-fixes.task.md).
 Spec: [ADR 0004](../docs/adr-0004-model-conformance-validation.md).
 
 Review confirmed the connection-profile, independent metadata, streaming, and
-proof-term gaps. Corrections will be committed as individually checked changes.
-Original W2 report remains historical evidence until a replacement is measured.
+proof-term gaps. Corrections were committed as individually checked changes.
+The [replacement report](../reports/20260929-adr4-review-validation.json) separates
+native acquisition and compiled batch time; the original W2 report is historical.
 
 Connection profile corrected: removed the global DQS build override; both writer
 and reader explicitly disable and independently read back DQS_DML/DQS_DDL.
@@ -20,7 +21,7 @@ Schema declarations are parsed once per distinct schema in a case; visible and
 committed views share the content-keyed cache. Benchmark cases share one runner
 process and report acquisition/classification separately. Six transaction/cache/
 batch tests passed, including rollback followed by different DDL and malformed
-input between valid cases. A fresh final benchmark is still pending.
+input between valid cases. The final benchmark is recorded below.
 
 Generated proofs now guard the elaborated term’s re-encoding against the original
 case JSON. All five frozen cases pass; a changed provenance payload fails the
@@ -44,3 +45,14 @@ Final timing isolates classification from optional proof-term emission as well a
 kernel checks. The real pipeline run passed all 15 cases and all five proofs;
 0.75476 s native acquisition + 0.28403 s compiled batch = 14.44 cases/s.
 The timed batch uses one process; proof terms use one separate untimed batch.
+
+Final validation: `just test` passed (264 host tests, 28 subtests; Nix suites:
+19 kernel, 13 CLI, 12 Atuin, 21 model). The host process-cleanup test required
+an approved run outside the agent sandbox for `/bin/ps`; Nix sandboxing stayed
+on. The final model derivation passed 21 tests in 28.63 seconds after the timing
+correction. Source/target identity checks passed 54 tests. All five emitted
+proofs passed their JSON guards, kernel checks and axiom audits.
+
+DONE: every review finding is addressed in checked, focused commits. The earlier
+large commit is preserved as history. The ADR explicitly distinguishes implemented
+W1–W2 from its pending owner decision; this work does not accept W3+ on their behalf.

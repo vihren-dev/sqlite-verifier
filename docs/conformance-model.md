@@ -20,11 +20,15 @@ time is excluded from the reported throughput. The conformance executable is a
 separate test build; it adds no shipped verifier command. `just test` includes the
 same Nix model target, without executing it twice on the host.
 
-The [2026-09-29 prototype report](../reports/20260929-adr4-prototype.json) records
-15 agreements over three repeats of the five authored cases, 42 native
-observations, and 7.66 cases/second on Darwin arm64. It includes source hashes and
-the pinned library/runtime identities. This warm DDL workload is not a generated
-or transactional throughput estimate; Linux was not executed locally.
+The [review validation report](../reports/20260929-adr4-review-validation.json)
+records 15 agreements and 42 native observations in 1.039 seconds on Darwin arm64:
+0.755 seconds of native acquisition and 0.284 seconds for one compiled batch,
+including JSON transport and process startup (14.44 cases/second end to end).
+Proof-term emission and all five kernel checks run outside that timer. This is a
+warm five-case DDL workload, not pure evaluator or generator-scale throughput;
+Linux was not executed locally. The report includes source hashes and runtime
+identities. The [original report](../reports/20260929-adr4-prototype.json) is retained
+as historical evidence from before connection, metadata and streaming corrections.
 
 ## Preserved authored cases
 
@@ -105,7 +109,8 @@ Native schema parsing is cached by the actual declaration text within each case,
 shared by visible and committed observations, so rollback cannot reuse metadata
 from a different schema with the same schema version. Benchmark cases are sent
 through one JSON-lines runner process; reports separate native acquisition and
-compiled batch time (including transport and optional proof-term emission).
+compiled batch time (including transport). Optional proof-term emission and kernel
+checks run separately, outside the timing.
 Parsing is bounded to five seconds, each compiled batch to 30 seconds, and
 concrete kernel checks to 120 seconds (including the wide case).
 

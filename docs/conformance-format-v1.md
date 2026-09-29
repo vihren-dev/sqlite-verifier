@@ -1,7 +1,7 @@
 # Conformance case format v1
 
 ADR 0004's test-only `conformance-runner` accepts one JSON object per line and
-returns one result per line. `ConformanceJson.lean` owns the decoder, shared with
+returns one result per line. `VerifierConformance/Json.lean` owns the decoder, shared with
 ADR 0003's future P3. The Python frontend adapter is `conformance/case_format.py`.
 Neither the production SQL frontend nor verifier commands use this transport yet.
 
@@ -39,7 +39,9 @@ floating-point precision loss. Bytes are integers in 0..255. Physical rowids are
 signed 64-bit integers; duplicate table names, duplicate rowids, and incorrect row
 widths are rejected by the decoder. Native initialization failures are harness
 errors. Initial observations detect affinity changes or other differences between
-the supplied fixture and its actual stored representation.
+the supplied fixture and its actual stored representation. Fixture setup binds
+REAL values through the C API: infinities survive, while NaN becomes native NULL
+and disagrees with a requested NaN REAL in the initial-state comparison.
 
 ## Statements and observations
 
@@ -65,7 +67,9 @@ the model does not distinguish constraint subtypes. Error messages are not compa
 `invalidDefinition` is unsupported admission, not a native error.
 
 Schema SQL is read independently from `sqlite_schema` and normalized through the
-production schema frontend. Implicit indexes are represented by their owning
+production schema frontend, then checked against independent `table_xinfo`,
+`index_list` and `index_xinfo` observations and a separate affinity implementation.
+Declarations are parsed once per distinct schema within a case. Implicit indexes are represented by their owning
 constraints. Explicit indexes are ordered by name. Typed row reads use the C API,
 with column-bounded queries for wide tables. Table and row order are canonical;
 comparison includes absent names from the fixture, statements, and native states.
@@ -82,7 +86,8 @@ before a Lean case exists. Native observation and decoding failures report
 The runner trusts that SQL was translated and observations were acquired by the
 harness. Supplying a fabricated JSON trace does not establish native evidence.
 `--emit-lean` returns the decoded record and its closed Lean term. Kernel
-regressions embed that term and prove `checkCase fixture = true` with
+regressions first use `#guard` to verify the elaborated term re-encodes to the
+original case JSON, then prove `checkCase fixture = true` with
 `decide +kernel`; there is no second Python comparator or source emitter for SQL.
 Axiom audits reject `sorryAx`, `ofReduceBool`, and `_native` names.
 

@@ -1,6 +1,11 @@
 # ADR 0004 conformance prototype status
 
 Created 2026-09-29. Status: DONE (W1–W2).
+Historical completion record for the initial prototype. Subsequent review fixes
+and current evidence are tracked in [review correction status](20260929-adr4-review-fixes.status.md).
+The build-wide DQS setting and throughput measurement below describe the original
+prototype and are superseded by that review.
+
 Task: [outcomes and checks](20260929-adr4-conformance-prototype.task.md).
 Specification: [ADR 0004](../docs/adr-0004-model-conformance-validation.md).
 Evidence: [measured report and source hashes](../reports/20260929-adr4-prototype.json).

@@ -1,6 +1,6 @@
 # ADR 0004: Validate the semantic model by differential testing and proven regressions
 
-- Status: Proposed
+- Status: Proposed — W1–W2 implemented; W3+ awaits the owner decision in §7
 - Date: 2026-09-29
 - Implementation examined: working copy on top of `adce4843`
 - Decision owners: formal methods lead for model fidelity and proof policy;
@@ -17,7 +17,7 @@
 W1–W2 are implemented in the dedicated `adr4` workspace. The executable commands,
 evidence boundaries and regression scope are in [conformance-model.md](conformance-model.md);
 the shared encoding is [conformance-format-v1.md](conformance-format-v1.md).
-The [prototype evidence](../reports/20260929-adr4-prototype.json) records live
+The [reviewed prototype evidence](../reports/20260929-adr4-review-validation.json) records live
 native/kernel agreement, validation results, source hashes and measured throughput.
 The starting baseline below is retained as the motivation for the proposal.
 W3 and later packages remain subject to the decision point in §7.
