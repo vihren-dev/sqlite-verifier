@@ -1,130 +1,114 @@
 """Admit generic literal writes and explicit transaction syntax without skipped CST branches."""
 
-import pytest
+from collections.abc import Callable
 
-from pathlib import Path
-import unittest
+import pytest
 
 from migration_check.diagnostics import Rejection
 from migration_check.profiles import profile
 from migration_check.sql_model import sql_inputs, transition
-from migration_check.sql_tree import Tree, parse
+from migration_check.sql_tree import Tree
 from migration_check.sql_values import literal, lean_value
 from migration_check.translate import starting_schema, statements
 
-ROOT = Path(__file__).resolve().parents[1]
+pytestmark = [pytest.mark.integration, pytest.mark.parser, pytest.mark.requires_native]
 SCHEMA = 'CREATE TABLE ledger(version BIGINT PRIMARY KEY, label TEXT, stamp TIMESTAMP, ok BOOLEAN, data BLOB);'
 
 
-def tree(sql: str, version: str = '3.51.0') -> Tree:
-    """Use the actual pinned native grammar under the selected engine version."""
-    binary = 'sqlite-parser' if version == '3.51.0' else 'sqlite-parser-3.46.0'
-    return parse(ROOT / 'build' / binary, sql.encode(), 'literal.sql', version)
+def test_both_grammars_preserve_all_explicit_operations(parse_sql: Callable[..., Tree]) -> None:
+    """The generated script contains the transaction and each concrete write in order."""
+    sql = ("BEGIN; INSERT INTO ledger(version,label,stamp,ok,data) "
+           "VALUES(7,'can''t λ','2026-09-25 00:00:00',1,X'00ff'); COMMIT; "
+           "UPDATE ledger SET ok=-1 WHERE version=7;")
+    scripts = []
+    for version in ('3.51.0', '3.46.0'):
+        schema = starting_schema(parse_sql(SCHEMA, version))
+        script = statements(parse_sql(sql, version))
+        scripts.append(script)
+        assert [item.kind for item in script] == ['beginTransaction', 'insert', 'commit', 'update']
+        assert script[1].values == (7, "can't λ", '2026-09-25 00:00:00', 1, b'\0\xff')
+        generated = sql_inputs(schema, script, profile(version))
+        assert '.insert "ledger"' in generated
+        assert '.update "ledger" "ok" (.integer (-1)) "version" (7)' in generated
+        assert transition(schema, script) == (schema, '')
+    assert scripts[0] == scripts[1]
 
 
-@pytest.fixture(autouse=True)
-def selected_parser(runtime_root: Path, monkeypatch: pytest.MonkeyPatch) -> None:
-    """Literal-write tests resolve both grammar versions under the selected runtime root."""
-    monkeypatch.setattr(__import__(__name__, fromlist=["ROOT"]), "ROOT", runtime_root)
+def test_transaction_schema_effects_are_explicit(parse_sql: Callable[..., Tree]) -> None:
+    """ROLLBACK restores schema while a pending transaction never implies a commit or rollback."""
+    schema = starting_schema(parse_sql('CREATE TABLE t(x TEXT);'))
+    for end, expected in (('ROLLBACK;', 1), ('COMMIT;', 2), ('', 2)):
+        script = statements(parse_sql('BEGIN DEFERRED TRANSACTION; ALTER TABLE t ADD y TEXT;' + end))
+        assert len(transition(schema, script)[0][0].columns) == expected
+    assert transition(schema, statements(parse_sql('BEGIN; BEGIN;')))[1] == 'transactionAlreadyActive'
+    assert transition(schema, statements(parse_sql('COMMIT;')))[1] == 'noActiveTransaction'
 
 
-class LiteralWriteTests(unittest.TestCase):
-    """Examples use neutral table names; no pilot-specific admission or catalog handling exists."""
-
-    @pytest.mark.integration
-    @pytest.mark.parser
-    @pytest.mark.requires_native
-    def test_both_grammars_preserve_all_explicit_operations(self) -> None:
-        """The generated script contains the transaction and each concrete write in order."""
-        sql = ("BEGIN; INSERT INTO ledger(version,label,stamp,ok,data) "
-               "VALUES(7,'can''t λ','2026-09-25 00:00:00',1,X'00ff'); COMMIT; "
-               "UPDATE ledger SET ok=-1 WHERE version=7;")
-        scripts = []
-        for version in ('3.51.0', '3.46.0'):
-            schema = starting_schema(tree(SCHEMA, version))
-            script = statements(tree(sql, version))
-            scripts.append(script)
-            self.assertEqual([item.kind for item in script], ['beginTransaction', 'insert', 'commit', 'update'])
-            self.assertEqual(script[1].values, (7, "can't λ", '2026-09-25 00:00:00', 1, b'\0\xff'))
-            generated = sql_inputs(schema, script, profile(version))
-            self.assertIn('.insert "ledger"', generated)
-            self.assertIn('.update "ledger" "ok" (.integer (-1)) "version" (7)', generated)
-            self.assertEqual(transition(schema, script), (schema, ''))
-        self.assertEqual(scripts[0], scripts[1])
-
-    @pytest.mark.integration
-    @pytest.mark.parser
-    @pytest.mark.requires_native
-    def test_transaction_schema_effects_are_explicit(self) -> None:
-        """ROLLBACK restores schema while a pending transaction never implies a commit or rollback."""
-        schema = starting_schema(tree('CREATE TABLE t(x TEXT);'))
-        for end, expected in (('ROLLBACK;', 1), ('COMMIT;', 2), ('', 2)):
-            script = statements(tree('BEGIN DEFERRED TRANSACTION; ALTER TABLE t ADD y TEXT;' + end))
-            self.assertEqual(len(transition(schema, script)[0][0].columns), expected)
-        self.assertEqual(transition(schema, statements(tree('BEGIN; BEGIN;')))[1], 'transactionAlreadyActive')
-        self.assertEqual(transition(schema, statements(tree('COMMIT;')))[1], 'noActiveTransaction')
-
-    @pytest.mark.integration
-    @pytest.mark.parser
-    @pytest.mark.requires_native
-    def test_literal_storage_and_unsupported_expressions(self) -> None:
-        """Extreme int64, UTF-8, quoting and blobs retain their exact storage values."""
-        examples = [('NULL', None), ('-9223372036854775808', -(2 ** 63)),
-                    ('+9223372036854775807', 2 ** 63 - 1), ('00007', 7), ("X''", b''),
-                    ("'a''b\\λ'", "a'b\\λ")]
-        for sql, expected in examples:
-            parsed = tree('SELECT ' + sql + ';')
-            expression = next(node for node in parsed.walk(parsed.nodes[parsed.root]) if node.symbol == 'expr')
-            self.assertEqual(literal(parsed, expression), expected)
-            self.assertTrue(lean_value(expected).startswith('.'))
-        for value in ('1.0', '9223372036854775808', '-9223372036854775809', '1+2', '?',
-                      'CURRENT_TIMESTAMP', 'TRUE', '0x10', "CAST('7' AS INTEGER)"):
-            with self.subTest(value=value), self.assertRaises(Rejection):
-                statements(tree(f'INSERT INTO t(x) VALUES({value});'))
-
-    @pytest.mark.integration
-    @pytest.mark.parser
-    @pytest.mark.requires_native
-    def test_unmodeled_key_comparisons_reject(self) -> None:
-        """The static key domain cannot be smuggled into a false runtime-error claim."""
-        cases = [
-            ('CREATE TABLE t(k TEXT PRIMARY KEY,x TEXT);', "INSERT INTO t(k,x) VALUES('key','x');"),
-            ('CREATE TABLE t(k BIGINT,x NUMERIC,UNIQUE(k,x));', 'UPDATE t SET x=2 WHERE k=1;'),
-            ('CREATE TABLE t(k BIGINT PRIMARY KEY,x TEXT);', "INSERT INTO t(k,x) VALUES(X'01','x');"),
-            ('CREATE TABLE t(k BIGINT PRIMARY KEY,x TEXT);', "UPDATE t SET k=X'01' WHERE k=1;"),
-            ('CREATE TABLE t(k INTEGER,x TEXT);', "UPDATE t SET x='x' WHERE k=1;"),
-        ]
-        for schema_sql, sql in cases:
-            schema = starting_schema(tree(schema_sql))
-            with self.subTest(sql=sql), self.assertRaises(Rejection):
-                sql_inputs(schema, statements(tree(sql)))
-        schema = starting_schema(tree('CREATE TABLE t(k BIGINT,x TEXT); CREATE UNIQUE INDEX kidx ON t(k);'))
-        self.assertIn('.update', sql_inputs(schema, statements(tree("UPDATE t SET x='ok' WHERE k=1;"))))
-
-    @pytest.mark.integration
-    @pytest.mark.parser
-    @pytest.mark.requires_native
-    def test_optional_syntax_and_coercions_reject(self) -> None:
-        """Reject optional grammar branches and every write outside the lossless subset."""
-        for sql in ('BEGIN IMMEDIATE;', 'SAVEPOINT a;', 'ROLLBACK TO a;',
-                    'INSERT OR REPLACE INTO t(x) VALUES(1);', 'INSERT INTO t DEFAULT VALUES;',
-                    'INSERT INTO t(x) VALUES(1),(2);', 'INSERT INTO t(x) SELECT 1;',
-                    'INSERT INTO t(x) VALUES(1) RETURNING x;',
-                    'UPDATE t SET x=1;', 'UPDATE t SET x=1,y=2 WHERE id=1;',
-                    'UPDATE t SET x=1 WHERE id=1 OR id=2;', 'UPDATE t SET x=1 WHERE id IS NULL;'):
-            with self.subTest(sql=sql), self.assertRaises(Rejection):
-                statements(tree(sql))
-        schema = starting_schema(tree('CREATE TABLE t(id INTEGER,x TEXT,y NUMERIC,z REAL);'))
-        for sql in ("INSERT INTO t(id,x,y,z) VALUES(1,2,3,NULL);",
-                    "INSERT INTO t(id,x,y,z) VALUES(1,'ok','123',NULL);",
-                    "INSERT INTO t(id,x,y,z) VALUES(1,'ok',3,1);",
-                    "INSERT INTO t(id,x) VALUES(1,'ok');",
-                    "INSERT INTO t(x,id,y,z) VALUES('ok',1,3,NULL);",
-                    'UPDATE t SET x=1 WHERE id=1;', 'UPDATE t SET missing=NULL WHERE id=1;'):
-            with self.subTest(sql=sql), self.assertRaises(Rejection) as rejected:
-                sql_inputs(schema, statements(tree(sql)))
-            self.assertEqual(rejected.exception.status, 'UNSUPPORTED')
+@pytest.mark.parametrize("sql,expected", [
+    ('NULL', None), ('-9223372036854775808', -(2 ** 63)), ('+9223372036854775807', 2 ** 63 - 1),
+    ('00007', 7), ("X''", b''), ("'a''b\\λ'", "a'b\\λ"),
+])
+def test_literal_storage_values(parse_sql: Callable[..., Tree], sql: str, expected: object) -> None:
+    """Extreme int64, UTF-8, quoting and blobs retain their exact storage values."""
+    parsed = parse_sql('SELECT ' + sql + ';')
+    expression = next(node for node in parsed.walk(parsed.nodes[parsed.root]) if node.symbol == 'expr')
+    assert literal(parsed, expression) == expected
+    assert lean_value(expected).startswith('.')
 
 
-if __name__ == '__main__':
-    unittest.main()
+@pytest.mark.parametrize("value", ['1.0', '9223372036854775808', '-9223372036854775809', '1+2', '?',
+                                   'CURRENT_TIMESTAMP', 'TRUE', '0x10', "CAST('7' AS INTEGER)"])
+def test_unsupported_literal_expressions_reject(parse_sql: Callable[..., Tree], value: str) -> None:
+    """Values outside the exact literal subset cannot be written."""
+    with pytest.raises(Rejection):
+        statements(parse_sql(f'INSERT INTO t(x) VALUES({value});'))
+
+
+@pytest.mark.parametrize("schema_sql,sql", [
+    ('CREATE TABLE t(k TEXT PRIMARY KEY,x TEXT);', "INSERT INTO t(k,x) VALUES('key','x');"),
+    ('CREATE TABLE t(k BIGINT,x NUMERIC,UNIQUE(k,x));', 'UPDATE t SET x=2 WHERE k=1;'),
+    ('CREATE TABLE t(k BIGINT PRIMARY KEY,x TEXT);', "INSERT INTO t(k,x) VALUES(X'01','x');"),
+    ('CREATE TABLE t(k BIGINT PRIMARY KEY,x TEXT);', "UPDATE t SET k=X'01' WHERE k=1;"),
+    ('CREATE TABLE t(k INTEGER,x TEXT);', "UPDATE t SET x='x' WHERE k=1;"),
+])
+def test_unmodeled_key_comparisons_reject(parse_sql: Callable[..., Tree], schema_sql: str, sql: str) -> None:
+    """The static key domain cannot be smuggled into a false runtime-error claim."""
+    schema = starting_schema(parse_sql(schema_sql))
+    with pytest.raises(Rejection):
+        sql_inputs(schema, statements(parse_sql(sql)))
+
+
+def test_unique_index_key_update_is_admitted(parse_sql: Callable[..., Tree]) -> None:
+    """An update keyed by a unique-indexed integer column stays inside the modeled domain."""
+    schema = starting_schema(parse_sql('CREATE TABLE t(k BIGINT,x TEXT); CREATE UNIQUE INDEX kidx ON t(k);'))
+    assert '.update' in sql_inputs(schema, statements(parse_sql("UPDATE t SET x='ok' WHERE k=1;")))
+
+
+@pytest.mark.parametrize("sql", [
+    'BEGIN IMMEDIATE;', 'SAVEPOINT a;', 'ROLLBACK TO a;',
+    'INSERT OR REPLACE INTO t(x) VALUES(1);', 'INSERT INTO t DEFAULT VALUES;',
+    'INSERT INTO t(x) VALUES(1),(2);', 'INSERT INTO t(x) SELECT 1;',
+    'INSERT INTO t(x) VALUES(1) RETURNING x;',
+    'UPDATE t SET x=1;', 'UPDATE t SET x=1,y=2 WHERE id=1;',
+    'UPDATE t SET x=1 WHERE id=1 OR id=2;', 'UPDATE t SET x=1 WHERE id IS NULL;',
+])
+def test_optional_syntax_rejects(parse_sql: Callable[..., Tree], sql: str) -> None:
+    """Optional grammar branches outside the lossless subset reject during translation."""
+    with pytest.raises(Rejection):
+        statements(parse_sql(sql))
+
+
+@pytest.mark.parametrize("sql", [
+    "INSERT INTO t(id,x,y,z) VALUES(1,2,3,NULL);",
+    "INSERT INTO t(id,x,y,z) VALUES(1,'ok','123',NULL);",
+    "INSERT INTO t(id,x,y,z) VALUES(1,'ok',3,1);",
+    "INSERT INTO t(id,x) VALUES(1,'ok');",
+    "INSERT INTO t(x,id,y,z) VALUES('ok',1,3,NULL);",
+    'UPDATE t SET x=1 WHERE id=1;', 'UPDATE t SET missing=NULL WHERE id=1;',
+])
+def test_coercing_writes_are_unsupported(parse_sql: Callable[..., Tree], sql: str) -> None:
+    """Writes that would need affinity coercion or omit columns are UNSUPPORTED."""
+    schema = starting_schema(parse_sql('CREATE TABLE t(id INTEGER,x TEXT,y NUMERIC,z REAL);'))
+    with pytest.raises(Rejection) as rejected:
+        sql_inputs(schema, statements(parse_sql(sql)))
+    assert rejected.value.status == 'UNSUPPORTED'

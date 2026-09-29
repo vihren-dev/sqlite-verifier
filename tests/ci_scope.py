@@ -13,8 +13,7 @@ PACKAGE_FILES = {"justfile", ".envrc", "flake.nix", "flake.lock", "lean-toolchai
                  "lakefile.toml", "lake-manifest.json", "ProofChecker.lean",
                  "tests/runtime_package_test.py", "tests/test_toolchain_smoke.py", "pytest.ini",
                  "conftest.py",
-                 "docs/install.md", "tests/test_translation.py",
-                 "tests/test_schema_translation.py"}
+                 "docs/install.md"}
 
 
 def scope(paths: Sequence[str], event: str, ref: str) -> str:

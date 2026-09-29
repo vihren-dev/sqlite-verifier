@@ -27,3 +27,12 @@ Relevant sources: `justfile`, `conftest.py`, `pytest.ini`, `tests/`,
   selection cases into `tests/test_pytest_harness.py`. Axiom audit now returns
   problems and has a negative unit test. Host: 237 passed, 1 known docs
   failure (161s). Nix: atuin 16, kernel 19, model 6 passed.
+- 2026-09-29: Converted the unittest-style test files (except
+  `tests/test_ci_scope.py`, run by CI with stdlib unittest) to pytest; added a
+  lazily importing `parse_sql` fixture and `tests/sql_fixtures.py`, removing
+  the module-global `PARSER`/`ROOT` rebinding and all test-to-test imports. Link
+  checking tests moved to `tests/docs_test.py`, which now asserts and exits
+  nonzero as a script. Removed the duplicated profile-equality test (kept in
+  `schema_generation_test.py`, now also asserting the 3.51 constructor).
+  Literal comparison against the originals found one transcription error
+  (missing `sqlite.nix`), fixed. Converted files: 120 passed; Nix targets pass.

@@ -10,7 +10,6 @@ import unittest
 
 from tests.baseline_ci import git
 from tests.ci_scope import scope
-from tests.docs_test import broken_links
 
 
 class CiScopeTest(unittest.TestCase):
@@ -30,7 +29,7 @@ class CiScopeTest(unittest.TestCase):
                     (["pytest.ini"], "package"), (["tests/conftest.py"], "package"), (["conftest.py"], "package"),
                     (["tests/runtime_support.py"], "package"),
                     (["tests/new_shared_helper.py"], "package"),
-                    (["tests/test_translation.py"], "package"),
+                    (["tests/test_translation.py"], "test"),
                     (["docs/install.md"], "package"),
                     (["README.md", "parser/main.c"], "package"),
                     (["migration_check/runtime.py"], "package"),
@@ -44,18 +43,6 @@ class CiScopeTest(unittest.TestCase):
         """A documentation-only release still builds and installs both native archives."""
         self.assertEqual(scope(["README.md"], "push", "refs/tags/v1-rc.1"), "package")
         self.assertEqual(scope(["README.md"], "workflow_dispatch", "refs/heads/main"), "package")
-
-    def test_documentation_links(self) -> None:
-        """Missing local files fail docs-only CI; external URLs are outside this bounded check."""
-        with TemporaryDirectory() as directory:
-            root = Path(directory)
-            (root / "README.md").write_text("[file](missing.md) [web](https://example.org) [anchor](#x)")
-            self.assertEqual(broken_links(root), ["README.md: missing missing.md"])
-            (root / "missing.md").write_text("present")
-            self.assertEqual(broken_links(root), [])
-            (root / "docs/nested").mkdir(parents=True)
-            (root / "docs/nested/guide.md").write_text("[broken](absent.md)")
-            self.assertEqual(broken_links(root), ["docs/nested/guide.md: missing absent.md"])
 
     def test_real_diff_preserves_removed_runtime_paths(self) -> None:
         """Renaming runtime source to Markdown still packages, using the actual CI entrypoint."""

@@ -10,7 +10,7 @@ Workspace: sqlite-verifier-adr1-tests; implementation base eb8e3c94.
 
 ## Delivered behavior
 
-[case-inventory.json](../tests/case-inventory.json) records 238 proposed stable
+`tests/case-inventory.json` (removed 2026-09-29) records 238 proposed stable
 pytest node IDs, source ranges, legacy labels, assertion contracts, runtime
 variants, level/concern/resource classifications and orchestration routes.
 It includes all 50 existing unittest methods, retaining their nested variants
