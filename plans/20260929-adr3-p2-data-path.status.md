@@ -1,0 +1,26 @@
+# ADR 0003 P2 status
+
+Created 2026-09-29. Status: IN PROGRESS.
+Task: [P2 data path](20260929-adr3-p2-data-path.task.md).
+Spec: [ADR 0003](../docs/adr-0003-agent-proof-preparation.md);
+evidence: [P1 results](../experiments/adr-0003-latency/p1-results.md).
+Relevant sources: `migration_check/prepare.py`, `migration_check/source_closure.py`,
+`migration_check/bundle.py`, `migration_check/cli.py`, `BundleChecker.lean`,
+`build-support/lean4export.nix`, `tests/bundle_test.py`,
+`tests/runtime_package_test.py`.
+
+Workspace: jj workspace `adr3` at `~/work/sqlite-verifier-adr3`, on top of
+PR #11 (`adr3/data-path`).
+
+## Progress log
+
+- 2026-09-29: Task and status created. Atuin's `AtuinWitness` and
+  `HistoryDecodingChecks` do not import `SqlInputs`; P1's chained keys recompiled
+  them on every SQL edit.
+- 2026-09-29: Dependency-aware `prepare`: `discover_sources` can report each
+  module's full import list; `module_keys.py` keys each candidate module by its
+  source, the runtime identity and its imports' keys (approved modules and
+  `SchemaInputs` share a contract key, `SqlInputs` has its own). An Atuin SQL edit
+  now reuses `AtuinWitness` and `HistoryDecodingChecks`. Tests: 5 key unit tests,
+  a bundle case preparing twice around a SQL edit. Nix: atuin 12, bundle 15,
+  cli 13, model 6; host 280.

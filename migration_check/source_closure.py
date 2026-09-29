@@ -116,12 +116,15 @@ def imports(source: Path, sysroot: Path, library: Path, workspace: Path) -> tupl
 def discover_sources(*, initial: dict[str, Source], roots: Sequence[Path],
                      excluded: set[Path], forbidden: set[str], available: set[str],
                      directory: Path, sysroot: Path, library: Path,
-                     workspace: Path, external: set[str] | None = None) -> tuple[dict[str, Source], tuple[str, ...]]:
+                     workspace: Path, external: set[str] | None = None,
+                     imports_out: dict[str, tuple[str, ...]] | None = None) -> tuple[dict[str, Source], tuple[str, ...]]:
     """Snapshot only reachable local sources and reject ambiguous or cyclic dependencies.
 
     When given, `external` collects imports resolved from the pinned sysroot or
     verifier library; exported bundles name these trusted modules instead of
-    repeating their declarations.
+    repeating their declarations. When given, `imports_out` receives each
+    discovered module's complete import list, including contract and library
+    modules, for dependency-aware rebuilds.
     """
     sources = dict(initial)
     excluded_ids = {file_identity(path) for path in excluded}
@@ -140,6 +143,8 @@ def discover_sources(*, initial: dict[str, Source], roots: Sequence[Path],
         snapshot.parent.mkdir(parents=True, exist_ok=True)
         snapshot.write_bytes(sources[name].contents)
         dependencies = imports(snapshot, sysroot, library, workspace)
+        if imports_out is not None:
+            imports_out[name] = dependencies
         graph[name] = set()
         for dependency in dependencies:
             dep_path = module_path(dependency)

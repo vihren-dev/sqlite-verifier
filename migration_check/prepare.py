@@ -5,9 +5,9 @@ is trusted by `verify-bundle`. It keeps a persistent agent workspace, compiles t
 contract and candidate modules incrementally, and exports the proof closure with
 the pinned lean4export, omitting declarations from the trusted library.
 
-Candidate reuse is keyed along the topological compile order: changing a module
-recompiles it and every module after it. This is simpler than a dependency graph
-and never reuses a module whose inputs changed.
+Candidate reuse follows each module's imports (`module_keys.py`): an edit
+recompiles the edited module and the modules that import it, directly or
+transitively, and nothing else.
 """
 
 import argparse
@@ -22,23 +22,22 @@ from .compile import EXPECTED_SOURCE, compile_modules
 from .contract import compile_contract
 from .diagnostics import Rejection
 from .inputs import generated_inputs
+from .module_keys import contract_keys, module_keys
 from .runtime import Runtime
 from .source_closure import CompileError, Source, discover_sources, module_path, role_sources
-from .stage_store import StageStore, digest, runtime_identity
+from .stage_store import StageStore, runtime_identity
 
 EXPORT_ROOTS = ("Proofs.migrationCorrect", "Proofs.migrationViolated",
                 "NextInterpretation.next", "NextInterpretation.failures")
 
 
 def compile_candidates(*, order: tuple[str, ...], sources: Path, candidate: Path, trusted: Path,
-                       cache: Path, base_key: str, runtime: Runtime, workspace: Path) -> tuple[int, int]:
-    """Compile candidate modules in order, reusing cached outputs whose chained key matches."""
-    key, compiled, reused = base_key, 0, 0
+                       cache: Path, keys: dict[str, str], runtime: Runtime, workspace: Path) -> tuple[int, int]:
+    """Compile candidate modules in order, reusing cached outputs whose dependency-aware key matches."""
+    compiled, reused = 0, 0
     for name in order:
         relative = module_path(name)
-        source = (sources / relative).with_suffix(relative.suffix + ".lean").read_bytes()
-        key = digest({"previous": key, "module": name, "source": source.hex()})
-        entry = cache / key
+        entry = cache / keys[name]
         if not (entry / relative.parent / f"{relative.name}.olean").is_file():
             # Missing or incomplete entries are rebuilt; the verifier never trusts this cache.
             shutil.rmtree(entry, ignore_errors=True)
@@ -97,6 +96,7 @@ def prepare(options: argparse.Namespace) -> dict[str, object]:
             for directory in (sources, candidate):
                 directory.mkdir()
             external: set[str] = set()
+            imports: dict[str, tuple[str, ...]] = {}
             _, order = discover_sources(
                 initial={"NextInterpretation": roles["NextInterpretation"], "Proofs": roles["Proofs"],
                          "Generated": Source(None, EXPECTED_SOURCE.encode())},
@@ -104,12 +104,16 @@ def prepare(options: argparse.Namespace) -> dict[str, object]:
                 forbidden={"SchemaInputs", "SqlInputs"},
                 available=set(contract.modules) | {"SchemaInputs", "SqlInputs"},
                 directory=sources, sysroot=runtime.sysroot, library=runtime.library, workspace=workspace,
-                external=external)
-            base_key = digest({"contract": contract.hashes, "runtime": list(runtime_identity(runtime.sysroot,
-                                                                                             runtime.library))})
+                external=external, imports_out=imports)
+            contract_key, sql_key = contract_keys(contract.hashes)
+            keys = module_keys(
+                order=order, imports=imports, contract_modules=contract.modules, contract_key=contract_key,
+                sql_key=sql_key, runtime=runtime_identity(runtime.sysroot, runtime.library),
+                sources={name: (sources / module_path(name)).with_suffix(module_path(name).suffix + ".lean")
+                         .read_bytes() for name in order})
             compiled, reused = compile_candidates(
                 order=order, sources=sources, candidate=candidate, trusted=contract.trusted,
-                cache=agent / "modules", base_key=base_key, runtime=runtime, workspace=workspace)
+                cache=agent / "modules", keys=keys, runtime=runtime, workspace=workspace)
         except CompileError as error:
             raise Rejection("UNVERIFIED", str(error)) from error
         export_bundle(runtime=runtime, trusted=contract.trusted, candidate=candidate,

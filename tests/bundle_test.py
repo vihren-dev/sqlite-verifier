@@ -121,3 +121,35 @@ end NextInterpretation
     (candidate / "NextInterpretation.lean").symlink_to(shared / "Interpretation.lean")
     report = data_path(approved=shared, candidate=candidate, schema=small["schema"])
     assert report["status"] == "VERIFIED", report
+
+
+def test_sql_edit_reuses_modules_without_sql_inputs(runtime_root: Path, example_factory: Callable[[str], Path],
+                                                     tmp_path: Path, command_runner: Callable[..., CommandResult]) -> None:
+    """After an Atuin SQL edit, modules that do not import SqlInputs are reused and the bundle verifies."""
+    atuin = example_factory("atuin")
+    launcher = str(runtime_root / "bin/migration-check")
+    common = ["--profile", "3.46.0", "--format", "json", "--schema", str(atuin / "schema.sql"),
+              "--requirements", str(atuin / "approved/Requirements.lean"),
+              "--interpretation", str(atuin / "approved/Interpretation.lean"),
+              "--migration", str(atuin / "migration.sql")]
+    candidate = ["--next-interpretation", str(atuin / "NextInterpretation.lean"), "--proofs", str(atuin / "Proofs.lean")]
+    bundle = tmp_path / "atuin.bundle"
+
+    def prepare() -> dict[str, object]:
+        """Prepare into the same persistent agent workspace."""
+        result = command_runner([launcher, "prepare", *common, *candidate, "--workspace", str(tmp_path / "agent"),
+                                 "--output", str(bundle)], cwd=tmp_path, timeout=180)
+        report = result.json_object()
+        assert report["status"] == "PREPARED", result.diagnostic()
+        return report
+
+    first = prepare()
+    for path, old, new in ((atuin / "migration.sql", "add column shell text;", "add column other text;"),
+                           (atuin / "AtuinFacts.lean", 'name := "shell"', 'name := "other"')):
+        text = path.read_text()
+        assert old in text
+        path.write_text(text.replace(old, new))
+    second = prepare()
+    assert second["reused_modules"] == 2 and second["compiled_modules"] == first["compiled_modules"] - 2, second
+    checked = command_runner([launcher, "verify-bundle", *common, "--bundle", str(bundle)], cwd=tmp_path, timeout=120)
+    assert checked.json_object()["status"] == "VERIFIED", checked.diagnostic()
