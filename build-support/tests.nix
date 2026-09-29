@@ -48,7 +48,7 @@ in {
   model = suite "model" {
     file = "tests/conformance_model_test.py";
     extraFiles = [ "tests/conformance_trace_test.py" "tests/conformance_pipeline_test.py"
-      "tests/conformance_mutation_test.py" "tests/conformance_laws_test.py" ];
+      "tests/conformance_mutation_test.py" "tests/conformance_laws_test.py" "tests/conformance_record_test.py" ];
     inputs = [
       (fs.fileFilter (file: file.hasExt "py") (root + /migration_check))
       (fs.fileFilter (file: file.hasExt "json") (root + /conformance/cases))
@@ -59,7 +59,7 @@ in {
     ] ++ map (name: root + "/conformance/${name}.py") [
       "model_assertions" "model_cases" "model_check"
       "native_fixture" "import_fixture" "schema"
-      "case_format" "native_connection" "native_metadata" "native_trace" "pipeline"
+      "case_format" "native_connection" "native_metadata" "native_record" "native_replay" "native_trace" "pipeline"
     ];
     runtime = conformance;
     tools = [ native.sqlite ];

@@ -1,7 +1,7 @@
 """Independent PRAGMA checks for the translated subset of native SQLite metadata."""
 
 from migration_check.sql_model import Affinity, Table
-from conformance.native_connection import Cell, Connection
+from conformance.native_connection import Cell, Row, Connection
 
 
 def quoted(name: str) -> str:
@@ -47,6 +47,13 @@ def affinity(declaration: str) -> Affinity:
 def check_metadata(connection: Connection, table: Table) -> None:
     """Fail closed if the translator disagrees with independent native inventories."""
     info = connection.query(f"PRAGMA table_xinfo({quoted(table.name)});")
+    indexes = [(entry, connection.query(f"PRAGMA index_xinfo({quoted(text(entry[1]))});"))
+               for entry in connection.query(f"PRAGMA index_list({quoted(table.name)});")]
+    check_inventory(table, info, indexes)
+
+
+def check_inventory(table: Table, info: list[Row], indexes: list[tuple[Row, list[Row]]]) -> None:
+    """Cross-check live or frozen native metadata without re-executing a recorded case."""
     if len(info) != len(table.columns):
         raise ValueError("Native column inventory differs from parsed declaration")
     primary: list[tuple[int, str]] = []
@@ -67,10 +74,9 @@ def check_metadata(connection: Connection, table: Table) -> None:
         raise ValueError(f"Native primary key differs: {table.name}")
     explicit: set[tuple[str, tuple[str, ...], bool]] = set()
     implicit: set[tuple[str, ...]] = set()
-    for _, name, unique, origin, partial in connection.query(f"PRAGMA index_list({quoted(table.name)});"):
+    for (_, name, unique, origin, partial), index_columns in indexes:
         columns: list[str] = []
-        for _, cid, column, descending, collation, key in connection.query(
-                f"PRAGMA index_xinfo({quoted(text(name))});"):
+        for _, cid, column, descending, collation, key in index_columns:
             if not integer(key):
                 continue  # Auxiliary rowid is not part of the declared index key.
             if (integer(cid) < 0 or integer(descending) or text(collation) != "BINARY"
