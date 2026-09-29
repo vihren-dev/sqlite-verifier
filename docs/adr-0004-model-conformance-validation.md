@@ -25,6 +25,10 @@ Approve a bounded prototype, not the whole pipeline:
 3. Work packages W1–W2 demonstrate both, with measured throughput. W3
    (generation at scale) proceeds only on that evidence.
 
+If W2 cannot demonstrate faithful native observation, the existing conformance
+checks (`conformance/model_check.py` and the native fixture runner) remain the
+evidence, W3 is not authorized, and the obstacle is recorded in this ADR.
+
 The four-tier pipeline in §4 is the intended destination. Its later tiers are
 recorded here so the prototype is built toward them, not approved by this ADR.
 
@@ -99,17 +103,53 @@ ADR 0003's deferred independent-kernel milestone, not on its latency milestone.
 
 ### 4.1 One case format and one comparison authority
 
-A case is a versioned JSON record: SQL text, the parsed structural statements,
-the native per-statement trace, and optional requirement IDs (`R-…`) and source
-provenance (generator seed, upstream file and test name). The native trace is the
-expected value; it is produced only by the pinned engine.
+A case is a versioned JSON record with two separate parts.
 
-`checkCase : Case → Bool` in Lean compares the model's per-statement observations
-with the recorded trace and is the only comparator. Tier 1 runs it compiled;
-tier 2 proves `checkCase c = true` by `decide +kernel`. The compiled runner may
-also print the model's observations so Python can show a readable diff for a
-failing case, but that diff is diagnostic only. The current generated assertions
-in `conformance/model_assertions.py` become instances of this check.
+- The fixture: the starting schema SQL and a finite typed initial database, that
+  is, each table's rows with explicit rowids and typed cells. Fixture
+  initialization is not the migration under test. Natively it may use forms
+  outside the admitted subset, such as INSERT with an explicit `rowid`, as
+  `conformance/model_cases.py` already does for rowids `-4`, `9` and `22`. On the
+  model side the initial `Database` is constructed directly from the typed rows,
+  and the starting `Schema` comes from the production frontend's
+  `starting_schema`, which `SupportedSql` requires.
+- The migration: its SQL text and parsed structural statements.
+
+The record also holds the native trace, and optional requirement IDs (`R-…`) and
+provenance (generator seed, upstream file and test name). The trace begins with
+an observation of the initialized fixture, before any migration statement, then
+has one observation per executed statement. It is the expected value, produced
+only by the pinned engine.
+
+The comparison authority is one Lean function over decoded cases:
+
+```lean
+inductive Verdict where
+  | agree
+  | disagree (position : Option Nat)  -- none: initial observation differs
+  | modelUnsupported
+
+def classifyCase : Case → Verdict
+def checkCase (c : Case) : Bool := classifyCase c == .agree
+```
+
+`classifyCase` first compares the initial observations, so a fixture that the
+two sides constructed differently is a disagreement at no statement position,
+not a migration result. It then decides admission, and only for admitted cases
+compares the per-statement observations. `modelUnsupported` is therefore never
+`agree`, and a tier 2 theorem `checkCase c = true` cannot hold for an unsupported
+case; W1 states this as a lemma.
+
+`HARNESS_ERROR` is not a Lean verdict. It covers every failure before a decoded
+case reaches `classifyCase`: transport, JSON decoding, fixture initialization,
+and native observation, including `SQLITE_BUSY`. The runner reports it and never
+calls the checker.
+
+Tier 1 runs `classifyCase` compiled; tier 2 proves `checkCase c = true` by
+`decide +kernel`. The compiled runner may also print the model's observations so
+Python can show a readable diff for a failing case, but that diff is diagnostic
+only. The current generated assertions in `conformance/model_assertions.py`
+become instances of this check.
 
 If the compiled and kernel evaluations of the same case disagree, first confirm
 that both decoded the same statements and trace. Only then is a compiler or
@@ -127,6 +167,11 @@ After each statement, both sides record:
   `(rowid, typeof, exact value)`; text and blobs by bytes, reals by their 64-bit
   pattern.
 - Whether a transaction is open, and the committed state when one is.
+
+Row observation must respect SQLite's result-column limit: `rowid` plus 2,000
+columns cannot be selected at once, so wide tables are read with `PRAGMA
+table_info` and column-bounded row queries rather than the count-only shortcut
+the current runner uses for the empty 2000-column case.
 
 The native side uses one persistent connection to the Nix-pinned 3.51.0 library,
 retaining the existing version, source-ID, compile-option and connection
@@ -154,14 +199,17 @@ Observation enumerates the finite set of table names appearing in the case's
 statements plus the names in native `sqlite_schema`; the model cannot create
 tables under any other name.
 
-Comparisons produce `AGREE`, `DISAGREE`, `MODEL_UNSUPPORTED`, or `HARNESS_ERROR`.
-`MODEL_UNSUPPORTED` never counts as agreement. Admission is decided before any
-comparison, using the production checks: a case whose script fails the frontend's
-admission, `schemaAllows`, or `supportedSqlFrom` (which applies `statementReady`
-to every reached statement) is `MODEL_UNSUPPORTED` as a whole. `checkCase`
-therefore evaluates `SupportedSql` first. The modeled `invalidDefinition` error
-is also a subset-admission failure, not a SQLite error, and maps to
-`MODEL_UNSUPPORTED`.
+Reported verdicts are `AGREE`, `DISAGREE`, `MODEL_UNSUPPORTED`, and
+`HARNESS_ERROR`; the first three are `classifyCase` results. `MODEL_UNSUPPORTED`
+never counts as agreement. Admission uses the production checks. SQL that the
+Python frontend rejects has no structural statements, so no Lean case exists;
+the runner reports `MODEL_UNSUPPORTED` without calling the checker, and no tier 2
+theorem can be stated for it. For decoded cases, `classifyCase` evaluates
+`SupportedSql` (`schemaAllows`, and `supportedSqlFrom`, which applies
+`statementReady` to every reached statement) before comparing executions; a
+failure makes the whole case `modelUnsupported`. The modeled `invalidDefinition`
+error is also a subset-admission failure, not a SQLite error, and maps to
+`modelUnsupported`.
 
 ### 4.3 Compiled runner
 
@@ -281,7 +329,7 @@ the production parser. sqllogictest matters for the expression phase.
 
 | Package | Depends on | Completion evidence |
 | --- | --- | --- |
-| W1: case format and `checkCase` | None; shares the ADR 0003 P3 encoding | Five existing cases re-expressed; kernel proof and compiled run agree; a deliberately wrong trace is rejected by both; the trace's final observation is proved equal to `runSql`'s; axiom test covers `_native` names |
+| W1: case format, `classifyCase` and `checkCase` | None; shares the ADR 0003 P3 encoding | Five existing cases re-expressed, their fixtures (including rowids `-4`, `9`, `22`, the NULL and UTF-8 cells, and the 2000-column table) surviving serialization and matching the initial native observation; kernel proof and compiled run agree; a deliberately wrong trace is rejected by both; a lemma shows `modelUnsupported` cases never satisfy `checkCase`; the trace's final observation is proved equal to `runSql`'s; axiom test covers `_native` names |
 | W2: persistent native runner and compiled runner | W1 | Existing cases agree; an admitted transactional literal write reaches comparison; an error inside an open transaction is observed with connection-visible changes and an unchanged committed snapshot on both sides; a data-domain rejection (`statementReady` false) and `invalidDefinition` yield `MODEL_UNSUPPORTED` before comparison; injected model mutation yields `DISAGREE`; measured cases/second including native snapshots |
 | W5: general laws | None | The three §4.6 theorems proved with stated preconditions |
 | Decision point | W2 | Owners review W2 evidence and decide whether and at what scale W3 proceeds |
@@ -300,4 +348,6 @@ statuses, or release artifacts. Documentation updates [coverage.md](coverage.md)
 and [conformance-model.md](conformance-model.md) with each package, keeping exact
 denominators and separating generated-run counts from proven cases. Rollback
 removes a tier's test targets; proven cases stay, since they are ordinary Lean
-theorems about the model.
+theorems about the model. The existing `model_check.py` comparisons are removed
+only after W1 shows the re-expressed cases pass with the same fixtures and
+expectations.
