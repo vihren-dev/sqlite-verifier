@@ -28,11 +28,11 @@ proof verdict or installed test result. Set
 `just package`. Fixtures make private writable copies of examples; reports remain
 in the checkout's `build/`, so the runtime itself needs no mutable staging copy.
 
-`just test-cases tests/test_source_identity.py` checks each declared input through
-real Nix source identities. Each declared input relation and component-level
+`just test-nix` (part of `just package`) runs `tests/test_source_identity.py`, which
+checks each declared input through real Nix source identities. Each declared input relation and component-level
 ignore rule is selectable; cases cover additions, edits, renames, deletions and
-missing required inputs. The
-ordinary source suite runs them on both native platforms. Fixtures contain tiny
+missing required inputs. CI runs
+them on both native platforms whenever packaging is selected. Fixtures contain tiny
 synthetic inputs; they never copy a checkout or build a package.
 
 Archive digests were taken from the official GitHub v4.33.0 release asset metadata
@@ -40,16 +40,16 @@ and verified by downloading both actual native archives on 2026-09-28. Darwin
 native graph/build/loader checks passed locally; Linux execution remains a native
 CI requirement. Evaluating its derivations on Darwin is not Linux validation.
 
-`tests.kernel`, `tests.model` and `tests.atuin` are independent pytest derivations declared in
+`tests.kernel`, `tests.model`, `tests.atuin` and `tests.cli` are independent pytest derivations declared in
 `tests.nix`. Kernel inputs are the test/Lean fixtures, shared pytest support,
 pinned Python/pytest and Lean toolchain/library/checker. Model inputs add its
 explicit conformance helpers, Python translator sources, parsers and pinned
 SQLite. Kernel/model targets exclude unrelated tests, examples and documentation. Atuin
-adds its two test files, native SQL helpers, SQLite 3.46.0 and the complete runtime
-(including Python implementation and examples). Changes to those runtime inputs
-invalidate Atuin. Changes to shared pytest support invalidate all three. Nix owns all result reuse.
+and CLI each add their test file and the complete runtime (including Python
+implementation and examples). Changes to those runtime inputs invalidate both.
+Changes to shared pytest support invalidate all four. Nix owns all result reuse.
 
-Run all three checks (also done by `just test`):
+Run all four checks through the flake:
 
 ```sh
 nix flake check ./nix -L \
@@ -62,14 +62,13 @@ flake to access project sources above it. `path:./nix` copies only that director
 and is suitable for the standalone development shell, not project checks.
 `--no-build --all-systems` evaluates both platforms without running their tests.
 
-The installed Nix 2.18 cannot create result links from `flake check`. After checks,
-`just test` uses `nix-build -A tests` to retain those same cached outputs under
-`build/nix-tests*` for CI reports; it does not rerun pytest. `just test-atuin`
+The installed Nix 2.18 cannot create result links from `flake check`, so `just test`
+builds the same derivations with `nix-build -A tests`, retaining outputs under
+`build/nix-tests*` for CI reports. `just test-atuin`
 selects only Atuin. `just test-cases tests/kernel_gate_test.py` forces an ordinary
 pytest run. The non-flake `nix-build -A tests.kernel` entrypoints remain available.
-On a miss, the target runs pytest and saves JSON/JUnit reports under its output.
-On a hit, Nix reuses the successful output; no pytest process or receipt validator
-runs. Failed pytest executions fail the derivation.
+On a miss, the target runs pytest and saves `junit.xml` under its output.
+On a hit, Nix reuses the successful output; no pytest process runs. Failed pytest executions fail the derivation.
 
 Keep sandboxing enabled for these builds, including manual invocations. This is
 explicit in the recipe and CI configuration because Nix defaults differ by OS.
