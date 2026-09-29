@@ -161,27 +161,10 @@ def test_schema_approval_bytes_changed(pilot: Path, verify: Callable[..., dict[s
 
 
 @pytest.mark.approval
-@pytest.mark.parametrize('name', ['HistoryModel', 'HistoryDecoding'])
+@pytest.mark.parametrize('name', ['HistoryModel', 'HistoryDecoding', 'HistoryMapping'])
 def test_approved_source_changed(pilot: Path, verify: Callable[..., dict[str, object]], name: str) -> None:
-    """Name the changed protected model or decoder when source approval drifts."""
+    """Name the changed protected model, decoder or transitive mapping when source approval drifts."""
     path = pilot / f'approved/{name}.lean'
     path.write_bytes(path.read_bytes() + b'\n-- source-only approval drift\n')
     report = verify('INPUT_ERROR')
     assert f'approved/{name}.lean' in str(report['message'])
-
-
-@pytest.mark.approval
-def test_transitive_mapping_changed(pilot: Path, verify: Callable[..., dict[str, object]]) -> None:
-    """Reject and identify drift in the transitive approved interpretation mapping."""
-    path = pilot / 'approved/HistoryMapping.lean'
-    path.write_bytes(path.read_bytes() + b'\n-- Protected interpretation dependency changed.\n')
-    report = verify('INPUT_ERROR')
-    assert 'approved/HistoryMapping.lean' in str(report['message'])
-
-
-@pytest.mark.kernel
-def test_unfinished_proof(pilot: Path, verify: Callable[..., dict[str, object]]) -> None:
-    """Reject an unfinished proof with a proof diagnostic rather than accepting a timeout."""
-    (pilot / 'Proofs.lean').write_text(
-        'import Generated\ntheorem Proofs.migrationCorrect : Generated.expected := by sorry\n')
-    verify('UNVERIFIED')

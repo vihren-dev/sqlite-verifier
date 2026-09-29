@@ -49,14 +49,6 @@ def invoke(runtime_root: Path, approved: Path, candidate: Path,
     return verify
 
 
-@pytest.fixture
-def baseline(invoke: Callable[..., dict[str, object]], tmp_path: Path) -> Path:
-    """Measure required positive setup separately for cases that consume an approved baseline."""
-    artifacts = tmp_path / "baseline-artifacts"
-    invoke("VERIFIED", extra=("--artifacts", str(artifacts)))
-    return artifacts / "inputs.json"
-
-
 def test_valid_migration_artifacts(invoke: Callable[..., dict[str, object]], tmp_path: Path) -> None:
     """A valid migration produces exactly the four sealed source/input artifacts."""
     artifacts = tmp_path / "artifacts"
@@ -69,19 +61,11 @@ def test_valid_migration_artifacts(invoke: Callable[..., dict[str, object]], tmp
 
 
 @pytest.mark.approval
-def test_reverse_migration_reuses_baseline(invoke: Callable[..., dict[str, object]], baseline: Path,
+def test_reverse_migration_reuses_baseline(invoke: Callable[..., dict[str, object]], approved: Path,
                                          example_factory: Callable[[str], Path]) -> None:
-    """A different valid statement order preserves the same approved baseline."""
-    invoke("VERIFIED", alternative=example_factory("table_then_column"), extra=("--approved-baseline", str(baseline)))
-
-
-@pytest.mark.approval
-def test_changed_schema_bytes(invoke: Callable[..., dict[str, object]], baseline: Path, approved: Path) -> None:
-    """Equivalent SQL with changed approved schema bytes is rejected and identifies schema.sql."""
-    schema = approved / "schema.sql"
-    schema.write_bytes(schema.read_bytes() + b"\n-- requires schema-pin review\n")
-    report = invoke("INPUT_ERROR", extra=("--approved-baseline", str(baseline)))
-    assert "schema.sql" in str(report["message"])
+    """A different valid statement order verifies against the same checked-in approved baseline."""
+    invoke("VERIFIED", alternative=example_factory("table_then_column"),
+           extra=("--approved-baseline", str(approved / "baseline.json")))
 
 
 def test_checked_refutation(invoke: Callable[..., dict[str, object]], example_factory: Callable[[str], Path]) -> None:
@@ -103,13 +87,6 @@ def test_application_profile_rejected(invoke: Callable[..., dict[str, object]], 
     invoke("INPUT_ERROR", execution_profile=str(profile))
 
 
-def test_no_transaction_comment(invoke: Callable[..., dict[str, object]], candidate: Path) -> None:
-    """A framework-looking SQL comment does not alter the supported SQL semantics."""
-    migration = candidate / "migration.sql"
-    migration.write_bytes(b"-- no-transaction\n" + migration.read_bytes())
-    invoke("VERIFIED")
-
-
 @pytest.mark.parametrize("sql,status", [
     ("-- no statements", "INPUT_ERROR"), ("CREATE TABLE", "INPUT_ERROR"), ("SELECT 1;", "UNSUPPORTED"),
     ("ALTER TABLE invoices ADD other TEXT; CREATE TABLE audit(message TEXT);", "UNVERIFIED"),
@@ -127,21 +104,14 @@ def test_unsupported_schema_view(invoke: Callable[..., dict[str, object]], appro
     invoke("UNSUPPORTED")
 
 
-@pytest.mark.parametrize("source", [
-    "theorem Proofs.migrationCorrect : Generated.expected := by sorry",
-    "theorem Proofs.migrationCorrect (extra : False) : Generated.expected := False.elim extra",
-    "axiom unapproved : Generated.expected\ntheorem Proofs.migrationCorrect : Generated.expected := unapproved",
-], ids=["sorry", "extra_assumption", "unapproved_axiom"])
-def test_invalid_proof(invoke: Callable[..., dict[str, object]], candidate: Path, source: str) -> None:
-    """Unfinished, extra-premise and unapproved-axiom arguments cannot be verified."""
-    (candidate / "Proofs.lean").write_text("import Generated\n" + source + "\n")
-    invoke("UNVERIFIED")
+def test_extra_assumption_proof(invoke: Callable[..., dict[str, object]], candidate: Path) -> None:
+    """A proof that adds a premise to the required theorem is rejected through the public entrypoint.
 
-
-def test_forged_generated_target(invoke: Callable[..., dict[str, object]], candidate: Path) -> None:
-    """A candidate Generated module cannot substitute a trivial proof target."""
-    (candidate / "Generated.lean").write_text("def Generated.expected : Prop := True\n")
-    (candidate / "Proofs.lean").write_text("import Generated\ntheorem Proofs.migrationCorrect : True := trivial\n")
+    `sorry`, unapproved axioms and forged targets are covered once, directly against the
+    checker, in `kernel_gate_test.py`.
+    """
+    (candidate / "Proofs.lean").write_text(
+        "import Generated\ntheorem Proofs.migrationCorrect (extra : False) : Generated.expected := False.elim extra\n")
     invoke("UNVERIFIED")
 
 
@@ -158,7 +128,7 @@ def test_weakened_next_interpretation(invoke: Callable[..., dict[str, object]], 
 
 @pytest.fixture
 def transitive_contract(approved: Path) -> Path:
-    """Add an approved transitive helper before either positive or drift scenario runs."""
+    """Add an approved transitive helper to the copied contract."""
     requirements = approved / "Requirements.lean"
     requirements.write_text("import Policy\n" + requirements.read_text())
     (approved / "Policy.lean").write_text("/-- Approved supporting context. -/\ndef policyVersion := 1\n")
@@ -169,15 +139,6 @@ def transitive_contract(approved: Path) -> Path:
 def test_approved_transitive_dependency(invoke: Callable[..., dict[str, object]], transitive_contract: Path,
                                       tmp_path: Path) -> None:
     """A valid approved helper is admitted and recorded in the generated input artifacts."""
-    invoke("VERIFIED", contract=transitive_contract, extra=("--artifacts", str(tmp_path / "approved-artifacts")))
-
-
-@pytest.mark.approval
-def test_changed_transitive_dependency(invoke: Callable[..., dict[str, object]], transitive_contract: Path,
-                                     tmp_path: Path) -> None:
-    """A helper changed after approval is rejected with the transitive protected module name."""
-    artifacts = tmp_path / "approved-artifacts"
-    invoke("VERIFIED", contract=transitive_contract, extra=("--artifacts", str(artifacts)))
-    (transitive_contract / "Policy.lean").write_text("/-- A proposed change still requires human review. -/\ndef policyVersion := 2\n")
-    report = invoke("INPUT_ERROR", contract=transitive_contract, extra=("--approved-baseline", str(artifacts / "inputs.json")))
-    assert "approved/Policy.lean" in str(report["message"])
+    report = invoke("VERIFIED", contract=transitive_contract, extra=("--artifacts", str(tmp_path / "artifacts")))
+    assert "approved/Policy.lean" in report["inputs"]
+    assert json.loads((tmp_path / "artifacts/inputs.json").read_text()) == report["inputs"]

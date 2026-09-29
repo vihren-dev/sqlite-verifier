@@ -44,3 +44,12 @@ Relevant sources: `justfile`, `conftest.py`, `pytest.ini`, `tests/`,
   resolves to the runtime store path and is registered with Nix. Installed
   acceptance (existing archive): 6 passed. Nix: atuin 13, model 6 passed;
   kernel reused from cache.
+- 2026-09-29: De-duplicated end-to-end cases. `cli_test.py`: removed
+  `sorry`/unapproved-axiom/forged-`Generated` (covered by `kernel_gate_test.py`),
+  schema/transitive drift (covered by `early_baseline_test.py` and Atuin), the
+  `-- no-transaction` comment case (covered by `test_profiles.py`) and the
+  `baseline` fixture's extra verification (the reverse-order case now uses the
+  checked-in `examples/approved/baseline.json`); the helper case now asserts
+  the recorded input. 13 passed in 49s (was ~97s). Atuin: dropped its `sorry`
+  case and merged transitive-mapping drift into the parametrized drift case;
+  Nix atuin target 12 passed.
