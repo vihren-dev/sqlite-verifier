@@ -249,8 +249,8 @@ when latency gains are small is an owner decision under the rule below.
 | P3: generated inputs | Versioned structural encoding and direct construction, shared with ADR 0004 | Matches today's emitter for every supported constructor, literal and result schema |
 | P4: documentation and CI | Trust-boundary, source-staging, install and CI docs; case mapping | Each property tested at one layer, as in the current test policy |
 
-P3 and P4 apply only if the data path is adopted; P4 documents whichever option
-ships.
+P3 applies only if the data path is adopted. P4 documents and tests whichever
+option ships.
 
 ### P1 measurements and decision rule
 
@@ -269,14 +269,22 @@ data path:
 Record host, toolchain and repository revision. Report medians and ranges, not one
 number.
 
-Decision rule, applied to medians on each platform separately:
+Decision rule, applied to medians. The *required comparisons* are the data path's
+edit-to-result time against tuning's, for proof-only and SQL changes, for every
+example, on both macOS and Linux. A *regression* is any measured cell, on either
+platform, where the option is slower than today's `verify`. Exactly one outcome
+applies, checked in this order:
 
-- **Adopt the data path** if its edit-to-result time for proof-only and SQL
-  changes is at least 30% below tuning's, and no cell is slower than today's
-  `verify`.
-- **Ship tuning** if the data path does not meet that on some platform.
-- **The owner decides** if the data path is faster but by less than 30%, weighing
-  future trust compatibility against the added cost listed in Alternatives.
+1. **Adopt the data path** if both prototypes pass P1's correctness criteria, every
+   required comparison is at least 30% faster, and the data path has no
+   regression.
+2. **Owner decision** if both prototypes pass P1's correctness criteria, every
+   required comparison is faster but at least one misses 30%, and the data path
+   has no regression. The owner chooses between the two options, weighing future
+   trust compatibility against the added cost listed in Alternatives.
+3. **Ship tuning** in every other case, including mixed-platform results. Tuning
+   ships only if it passes P1's correctness criteria and has no regression. If it
+   fails either check, keep the current path and record why.
 
 Keep the 1 MiB SQL limit and the 30-second gate deadline unless a measured change
 is reviewed. Rollback disables `verify-bundle`; the source path is unaffected.
