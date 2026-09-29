@@ -13,7 +13,9 @@ PACKAGE_FILES = {"justfile", ".envrc", "flake.nix", "flake.lock", "lean-toolchai
                  "lakefile.toml", "lake-manifest.json", "ProofChecker.lean",
                  "tests/runtime_package_test.py", "tests/test_toolchain_smoke.py", "pytest.ini",
                  "conftest.py",
-                 "docs/install.md"}
+                 "docs/install.md", "tests/test_source_identity.py", "tests/test_nix_test_targets.py",
+                 "tests/environment_snapshot_test.py", "tests/test_runtime_package.py"}
+"""Files whose checks run only in `just package`, plus shared runtime/test infrastructure."""
 
 
 def scope(paths: Sequence[str], event: str, ref: str) -> str:

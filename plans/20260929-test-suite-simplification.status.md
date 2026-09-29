@@ -53,3 +53,10 @@ Relevant sources: `justfile`, `conftest.py`, `pytest.ini`, `tests/`,
   the recorded input. 13 passed in 49s (was ~97s). Atuin: dropped its `sorry`
   case and merged transitive-mapping drift into the parametrized drift case;
   Nix atuin target 12 passed.
+- 2026-09-29: `just test` builds the Nix test targets once (dropped the
+  equivalent `nix flake check` pass) and excludes `requires_nix` cases; new
+  `just test-nix` runs them and `just package` depends on it. `cli_test.py` is
+  a cached Nix target (`tests.cli`); CI routes the Nix infrastructure test files
+  to packaging. `just test`: Nix targets pass (cli 13), host 259 passed plus
+  the known draft-docs failure in 30s (was ~186s). `just test-nix`: 49 passed
+  in 40s.

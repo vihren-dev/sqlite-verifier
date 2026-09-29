@@ -39,11 +39,15 @@ test-list *args:
 smoke:
     timeout --foreground 15 python3 -m pytest tests/test_toolchain_smoke.py --runtime-root "${SQLITE_VERIFIER_RUNTIME_ROOT:-$PWD}"
 
-# Cache expensive hermetic suites; run host-dependent and cheap tests normally.
+# Cache expensive hermetic suites in Nix; run cheap source tests on the host.
+# The same derivations are the flake's checks; nix-build also keeps result links.
 test: build
-    timeout 900 nix flake check ./nix -L --option sandbox true --option sandbox-fallback false --extra-experimental-features 'nix-command flakes'
     timeout 900 nix-build build-support/default.nix -A tests --out-link build/nix-tests --option sandbox true --option sandbox-fallback false --extra-experimental-features 'nix-command flakes'
-    timeout --foreground 1800 python3 -u -m pytest -v tests --ignore=tests/runtime_package_test.py --ignore=tests/kernel_gate_test.py --ignore=tests/conformance_model_test.py --ignore=tests/atuin_cli_test.py --runtime-root "${SQLITE_VERIFIER_RUNTIME_ROOT:-$PWD}" --junitxml build/test-results/source.xml
+    timeout --foreground 600 python3 -u -m pytest -v tests -m "not requires_nix" --ignore=tests/runtime_package_test.py --ignore=tests/kernel_gate_test.py --ignore=tests/conformance_model_test.py --ignore=tests/atuin_cli_test.py --ignore=tests/cli_test.py --runtime-root "${SQLITE_VERIFIER_RUNTIME_ROOT:-$PWD}" --junitxml build/test-results/source.xml
+
+# Check Nix source identities, test-target invalidation, environment snapshots and the installer cache.
+test-nix:
+    timeout --foreground 600 python3 -u -m pytest -v tests -m requires_nix --ignore=tests/runtime_package_test.py --runtime-root "${SQLITE_VERIFIER_RUNTIME_ROOT:-$PWD}" --junitxml build/test-results/nix.xml
 
 # Select only the cached application-specific suite.
 test-atuin:
@@ -56,6 +60,6 @@ runtime-package: build
     timeout --foreground 1800 python3 -m pytest --junitxml build/test-results/installed.xml --runtime-archive "dist/sqlite-verifier-${SQLITE_VERIFIER_SYSTEM:?Enter nix develop path:./nix}.tar.gz" --runtime-variant installed tests/runtime_package_test.py tests/atuin_cli_test.py
 
 # Keep a source snapshot alongside the checked installable runtime.
-package: test runtime-package
+package: test test-nix runtime-package
     mkdir -p dist
     tar --exclude='./.jj' --exclude='./.git' --exclude='./.lake' --exclude='./.direnv' --exclude='./dist' --exclude='./build' --exclude='__pycache__' --exclude='./result*' -czf dist/sqlite-verifier-source.tar.gz .

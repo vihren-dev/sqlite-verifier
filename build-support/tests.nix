@@ -41,6 +41,11 @@ in {
     inputs = [];
     inherit runtime;
   };
+  cli = suite "cli" {
+    file = "tests/cli_test.py";
+    inputs = [];
+    inherit runtime;
+  };
   kernel = suite "kernel" {
     file = "tests/kernel_gate_test.py";
     inputs = [ (fs.fileFilter (file: file.hasExt "lean") (root + /tests/kernel_gate)) ];
