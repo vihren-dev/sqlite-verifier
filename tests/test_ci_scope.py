@@ -32,7 +32,6 @@ class CiScopeTest(unittest.TestCase):
                     (["tests/case_reports.py"], "package"),
                     (["tests/new_shared_helper.py"], "package"),
                     (["tests/test_translation.py"], "package"),
-                    (["tests/case-inventory.json"], "package"),
                     (["docs/install.md"], "package"),
                     (["README.md", "parser/main.c"], "package"),
                     (["migration_check/runtime.py"], "package"),

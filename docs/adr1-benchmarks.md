@@ -2,7 +2,9 @@
 
 Historical protocol: the unit-cache/coverage rollout described here was
 superseded on 2026-09-28 by [Nix test targets](../build-support/README.md).
-The measurement tools retain independent cached-test reports for comparisons.
+The owner removed the benchmark workflows, `tools/benchmark_*.py`,
+`tools/cache_fingerprint.py` and `tests/case-inventory.json` on 2026-09-29; this
+page only records the earlier protocol and its results.
 
 The build-output cache remains experimental. `ci.yml` defaults to the dependency
 cache and checkout build. A manual experimental CI input, or a pull request branch
