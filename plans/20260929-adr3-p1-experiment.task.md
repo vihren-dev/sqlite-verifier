@@ -1,6 +1,6 @@
 # ADR 0003 P1 comparative experiment
 
-Created 2026-09-29. Status: IN PROGRESS.
+Created 2026-09-29. Status: DONE.
 Status file: [status](20260929-adr3-p1-experiment.status.md).
 Spec: [ADR 0003](../docs/adr-0003-agent-proof-preparation.md), sections "Data path,
 if adopted", "Approved contract reuse", "Plan" and "P1 measurements and decision
