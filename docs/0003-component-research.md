@@ -1,7 +1,7 @@
 # ADR 0003 component research and concrete implementation proposal
 
 Date: 2026-09-28. Status: proposed implementation of
-[ADR 0003](0003-agent-proof-preparation.md), based on source inspection.
+[ADR 0003](adr-0003-agent-proof-preparation.md), based on source inspection.
 No toolchain build, exported SQLite proof, or performance benchmark was run in
 this research environment. The component choices below are concrete; their
 qualification remains an implementation gate, not an established result.
