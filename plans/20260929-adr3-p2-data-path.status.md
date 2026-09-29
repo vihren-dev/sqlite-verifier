@@ -24,3 +24,9 @@ PR #11 (`adr3/data-path`).
   now reuses `AtuinWitness` and `HistoryDecodingChecks`. Tests: 5 key unit tests,
   a bundle case preparing twice around a SQL edit. Nix: atuin 12, bundle 15,
   cli 13, model 6; host 280.
+- 2026-09-29: `prepare` and `verify-bundle` are supported commands: help text no
+  longer says experimental; `docs/data-path.md` documents usage, JSON reports,
+  exit codes, bundle format v1 and the pinned-exporter decision (keep the patch;
+  upstreaming is a separate owner-approved step) with its upgrade procedure; the
+  README links it. Installed acceptance adds prepared positive, refuted and
+  wrong-SQL cases: `just runtime-package` 21 passed on aarch64-darwin.
