@@ -10,7 +10,7 @@ from migration_check.profiles import ExecutionProfile
 from migration_check.sql_model import schema_inputs, sql_inputs
 from migration_check.sql_tree import parse
 from migration_check.translate import starting_schema, statements
-from tests.test_schema_translation import BASELINE
+from tests.sql_fixtures import RICH_BASELINE
 from tests.runtime_support import CommandResult
 
 pytestmark = [pytest.mark.integration, pytest.mark.parser, pytest.mark.requires_native]
@@ -41,7 +41,7 @@ def rich_source(runtime: Path, version: str) -> tuple[str, str]:
     """Emit the same rich baseline and nullable ADD from the selected parser release."""
     filename = "sqlite-parser" if version == "3.51.0" else "sqlite-parser-3.46.0"
     parser = runtime / "build" / filename
-    schema = starting_schema(parse(parser, BASELINE.encode(), "baseline.sql", version))
+    schema = starting_schema(parse(parser, RICH_BASELINE.encode(), "baseline.sql", version))
     script = statements(parse(parser, b"ALTER TABLE events ADD extra TEXT;", "migration.sql", version))
     return schema_inputs(schema), sql_inputs(schema, script, ExecutionProfile(version))
 
@@ -50,6 +50,7 @@ def test_profile_emission_equivalence(runtime_root: Path) -> None:
     """The same syntax has identical generated meaning apart from its sealed SQLite constructor."""
     _, current = rich_source(runtime_root, "3.51.0")
     _, older = rich_source(runtime_root, "3.46.0")
+    assert "def profile : ExecutionProfile := .sqlite351" in current
     assert current.replace(".sqlite351", ".sqlite346") == older, "Shared syntax changed meaning"
 
 

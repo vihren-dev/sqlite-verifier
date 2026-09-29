@@ -1,12 +1,19 @@
 """Resolve only selected runtime prerequisites during setup, never during discovery."""
 
+from __future__ import annotations
+
+from collections.abc import Callable
 import os
 from pathlib import Path
 import shutil
+from typing import TYPE_CHECKING
 
 import pytest
 
 from tests.runtime_support import run_command
+
+if TYPE_CHECKING:
+    from migration_check.sql_tree import Tree
 
 
 def require_file(path: Path, *, executable: bool = False) -> Path:
@@ -67,3 +74,19 @@ def selected_prerequisites(request: pytest.FixtureRequest) -> None:
                 pytest.fail(f"Required native tool is missing: {tool}")
     if request.node.get_closest_marker("requires_nix") is not None and shutil.which("nix") is None:
         pytest.fail("Required Nix command is missing; enter the pinned shell")
+
+
+@pytest.fixture
+def parse_sql(runtime_root: Path) -> Callable[..., Tree]:
+    """Parse SQL with the selected runtime's pinned grammar for the requested SQLite release.
+
+    The implementation import stays inside the fixture: Nix test targets that do not
+    declare the Python sources still load this plugin.
+    """
+    from migration_check.sql_tree import parse
+
+    def parse_with_selected_grammar(sql: str, version: str = "3.51.0") -> Tree:
+        """Choose the parser binary matching the release so its profile check passes."""
+        binary = "sqlite-parser" if version == "3.51.0" else "sqlite-parser-3.46.0"
+        return parse(runtime_root / "build" / binary, sql.encode(), "fixture.sql", version)
+    return parse_with_selected_grammar
