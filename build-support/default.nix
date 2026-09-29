@@ -74,6 +74,7 @@ in rec {
   # Test-only model executable; the shipped verifier runtime keeps its existing commands.
   conformanceRuntime = leanRuntime.overrideAttrs (old: {
     pname = "sqlite-verifier-conformance-runtime";
+    src = sources.conformanceLean;
     buildPhase = old.buildPhase + "\nlake build conformance-runner\n";
     installPhase = old.installPhase + ''
       cp .lake/build/bin/conformance-runner "$out/.lake/build/bin/"

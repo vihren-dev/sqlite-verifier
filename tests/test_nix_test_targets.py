@@ -44,7 +44,7 @@ def source_tree(tmp_path: Path) -> Path:
     """Copy only small potential test inputs; no store outputs, vendored parsers or build trees."""
     for name in ('pytest.ini', 'conftest.py', 'LICENSE'):
         shutil.copy2(ROOT / name, tmp_path / name)
-    for name in ('tests', 'migration_check', 'conformance', 'examples', 'docs', 'packaging', 'SqliteVerifier'):
+    for name in ('tests', 'migration_check', 'conformance', 'examples', 'docs', 'packaging', 'SqliteVerifier', 'VerifierConformance'):
         shutil.copytree(ROOT / name, tmp_path / name,
                         ignore=shutil.ignore_patterns('__pycache__', '*.pyc', 'upstream'))
     return tmp_path
@@ -57,7 +57,7 @@ def source_tree(tmp_path: Path) -> Path:
     ('conformance/cases/add_then_create.json', {'model'}),
     ('conformance/native_trace.py', {'model'}),
     ('conformance/case_format.py', {'model'}),
-    ('SqliteVerifier/ConformanceTrace.lean', {'model'}),
+    ('VerifierConformance/Trace.lean', {'model'}),
     ('tests/conformance_pipeline_test.py', {'model'}),
     ('migration_check/translate.py', {'model', 'atuin', 'cli'}),
     ('conftest.py', {'kernel', 'model', 'atuin', 'cli'}),

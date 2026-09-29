@@ -14,7 +14,7 @@ pytestmark = [pytest.mark.integration, pytest.mark.conformance, pytest.mark.kern
 def test_production_trace(tmp_path: Path, lean_sysroot: Path, lean_library: Path) -> None:
     """Snapshots preserve writes, commits, rollbacks, failure positions and stop-on-error."""
     proof = tmp_path / "TraceChecks.lean"
-    proof.write_text('''import SqliteVerifier.ConformanceTrace
+    proof.write_text('''import VerifierConformance.Trace
 open SqliteVerifier SqliteVerifier.Conformance
 
 def columns : List Column := [{ name := "value", affinity := .integer }]

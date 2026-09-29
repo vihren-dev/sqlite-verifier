@@ -1,5 +1,5 @@
 import Lean
-import SqliteVerifier.ConformanceCase
+import VerifierConformance.Case
 
 /-! Version-one structural encoding, shared with ADR 0003's future frontend path.
 These codecs are transport, not a proof oracle. The pure checker has no JSON dependency. -/

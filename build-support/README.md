@@ -49,10 +49,13 @@ and CLI each add their test file and the complete runtime (including Python
 implementation and examples). Changes to those runtime inputs invalidate both.
 Changes to shared pytest support invalidate all four. Nix owns all result reuse.
 
-`conformanceRuntime` extends the Lean build with the test-only `conformance-runner`;
+`conformanceRuntime` builds the separate `VerifierConformance` Lean library and
+test-only `conformance-runner` from `sources.conformanceLean`;
 `conformance` assembles its compiler, library and parser links. `tests.model` uses
 this runtime, including native acquisition and the model-mutation checks. The
-ordinary `runtime` and its installed commands do not include the new executable.
+ordinary `runtime` excludes both the new executable and conformance modules.
+Changes inside `VerifierConformance/` or to `ConformanceRunner.lean` invalidate
+only the conformance source identity, not the production Lean library.
 Use `just conformance-build`, then `python3 -m pytest tests/conformance_model_test.py
 --runtime-root build/conformance`, to force a focused local run. `just conformance
 --repeat 3 --prove` writes the prototype's JSON cases, proofs and timing report.

@@ -25,17 +25,17 @@ def test_model_mutation(runtime_root: Path, tmp_path: Path) -> None:
     result = compiled(case, runtime_root, emit_lean=True)
     assert result["verdict"] == "AGREE"
     sources = []
-    for filename in ("SqlExecution.lean", "ConformanceTrace.lean", "ConformanceCase.lean"):
-        source = (ROOT / "SqliteVerifier" / filename).read_text()
+    for filename in ("SqliteVerifier/SqlExecution.lean", "VerifierConformance/Trace.lean", "VerifierConformance/Case.lean"):
+        source = (ROOT / filename).read_text()
         source = "\n".join(line for line in source.splitlines() if not line.startswith("import "))
         source = source.replace("namespace SqliteVerifier", "namespace SqliteVerifier.Mutant")
         source = source.replace("end SqliteVerifier", "end SqliteVerifier.Mutant")
-        if filename == "SqlExecution.lean":
+        if filename == "SqliteVerifier/SqlExecution.lean":
             assert source.count("LiteralData.inserted table values") == 1
             source = source.replace("LiteralData.inserted table values", "table")
         sources.append(source)
     proof = tmp_path / "Mutant.lean"
-    proof.write_text("import SqliteVerifier.ConformanceCase\n" + "\n".join(sources) +
+    proof.write_text("import VerifierConformance.Case\n" + "\n".join(sources) +
         "\nopen SqliteVerifier.Mutant.Conformance\n"
         "def mutantCase : Case :=\n" + indent(result["caseLean"], "  ") + "\n"
         "theorem detected : classifyCase mutantCase = .disagree (some 1) := by decide +kernel\n"

@@ -53,8 +53,8 @@ in {
       (fs.fileFilter (file: file.hasExt "py") (root + /migration_check))
       (fs.fileFilter (file: file.hasExt "json") (root + /conformance/cases))
       (root + /SqliteVerifier/SqlExecution.lean)
-      (root + /SqliteVerifier/ConformanceTrace.lean)
-      (root + /SqliteVerifier/ConformanceCase.lean)
+      (root + /VerifierConformance/Trace.lean)
+      (root + /VerifierConformance/Case.lean)
     ] ++ map (name: root + "/conformance/${name}.py") [
       "model_assertions" "model_cases" "model_check"
       "native_fixture" "import_fixture" "schema"

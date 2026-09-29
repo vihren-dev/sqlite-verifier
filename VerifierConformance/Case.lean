@@ -1,4 +1,4 @@
-import SqliteVerifier.ConformanceTrace
+import VerifierConformance.Trace
 
 /-! ADR 0004's finite comparison authority. Native observations remain empirical
 inputs; proving checkCase certifies only the model's agreement with those inputs. -/

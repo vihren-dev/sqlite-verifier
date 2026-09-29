@@ -1,4 +1,4 @@
-import SqliteVerifier.ConformanceJson
+import VerifierConformance.Json
 
 /-! Bounded-by-caller JSON-lines transport for the ADR 0004 compiled model.
 --emit-lean serializes the decoded case as a closed term for kernel regression checks. -/

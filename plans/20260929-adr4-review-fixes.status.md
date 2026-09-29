@@ -25,3 +25,8 @@ input between valid cases. A fresh final benchmark is still pending.
 Generated proofs now guard the elaborated term’s re-encoding against the original
 case JSON. All five frozen cases pass; a changed provenance payload fails the
 guard even though the semantic theorem still passes (metadata test verified).
+
+Conformance now lives in the separate `VerifierConformance` Lean library. The
+production import closure and Nix source set exclude it and the runner. The
+rebuilt conformance suite passed 21 tests; 54 Nix identity/target tests passed,
+including explicit isolation of conformance edits from the production Lean source.

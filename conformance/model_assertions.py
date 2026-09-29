@@ -17,7 +17,7 @@ def assertions(term: str, encoded: str, *, expected: bool = True, failure: str |
         "theorem preservedFailure : (observeOutcome fixture.names "
         "(SqliteVerifier.runSql fixture.script (databaseOf fixture.initial))).error = " + failure +
         " := by decide +kernel\n#print axioms preservedFailure\n")
-    return ("import SqliteVerifier.ConformanceJson\n"
+    return ("import VerifierConformance.Json\n"
             "open SqliteVerifier.Conformance\n"
             "set_option maxRecDepth 100000\nset_option maxHeartbeats 30000000\n"
             "def fixture : Case :=\n" + indent(term, "  ") + "\n" +
