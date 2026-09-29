@@ -45,3 +45,7 @@ Workspace: jj workspace `adr3` at `~/work/sqlite-verifier-adr3`.
   duplicated onto the PR #7 head, without the unpushed ADR 0004 docs, per owner)
   with a branch push trigger; run 36553342277 in progress. Outcome open until
   Linux results arrive.
+- 2026-09-29: Linux results downloaded (234 runs, 0 wrong statuses) and recorded
+  in `results/Linux-x86_64.jsonl`; `p1-results.md` updated. Literal decision-rule
+  outcome across both platforms: ship tuning. Owner is considering overriding the
+  rule in favor of the data path; not recorded in the ADR yet.
