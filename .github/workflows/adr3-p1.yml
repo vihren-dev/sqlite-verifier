@@ -5,6 +5,9 @@ name: ADR 0003 P1 measurement
 # the JSON results and report. It does not gate merges or publish anything. The
 # recorded P1 run used baseline a8269f33 on branch adr3/p1-measure.
 on:
+  # Temporary: measure the P2 branch on push; drop before merging.
+  push:
+    branches: ["adr3/p2-measure"]
   workflow_dispatch:
     inputs:
       baseline_ref:
@@ -31,7 +34,7 @@ jobs:
           fetch-depth: 0
       - name: Check out the baseline revision beside the candidate
         env:
-          BASELINE_REF: ${{ inputs.baseline_ref }}
+          BASELINE_REF: ${{ inputs.baseline_ref || '914c9c297567d4d2373bbeb889c3efcb9012673c' }}
         run: git worktree add --detach ../baseline "$BASELINE_REF"
       - uses: cachix/install-nix-action@13d8dd58da0234aa297dedd986986ccb8e7f3e24 # v31
         with:
@@ -42,7 +45,7 @@ jobs:
             sandbox-fallback = false
       - name: Build both runtimes and measure
         env:
-          WARM_TRIALS: ${{ inputs.warm_trials }}
+          WARM_TRIALS: ${{ inputs.warm_trials || '5' }}
         run: |
           nix develop path:./nix --command bash -euo pipefail -c '
             just build
