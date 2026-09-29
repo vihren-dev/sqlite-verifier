@@ -35,3 +35,7 @@ Workspace: jj workspace `adr3` at `~/work/sqlite-verifier-adr3`.
   `tests.bundle` (13 passed in the sandbox). Regression: Nix targets atuin 12,
   cli 13, kernel 19, model 6; host 267; Nix infrastructure 48 (plus the 2 known
   workspace-only flake failures).
+- 2026-09-29: Added the P1 harness (`p1_cases.py`, `p1_measure.py`,
+  `p1_report.py`) and the manual Linux workflow `.github/workflows/adr3-p1.yml`
+  (baseline default `6a6705167b4f7cf614875c6f81ceb91cdacfe6e4`, the commit before
+  the P1 changes). Smoke run on the refutation example: all statuses correct.

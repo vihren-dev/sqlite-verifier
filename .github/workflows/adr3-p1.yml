@@ -1,0 +1,63 @@
+name: ADR 0003 P1 measurement
+
+# Manually triggered: measures today's verify (baseline revision), tuning and the
+# data path on Linux with experiments/adr-0003-latency/p1_measure.py, then uploads
+# the JSON results and report. It does not gate merges or publish anything. The
+# recorded P1 run used baseline a8269f33 on branch adr3/p1-measure.
+on:
+  workflow_dispatch:
+    inputs:
+      baseline_ref:
+        description: Revision measured as "today's verify" (main before the ADR 0003 changes)
+        required: true
+        default: 914c9c297567d4d2373bbeb889c3efcb9012673c
+      warm_trials:
+        description: Warm trials per cell (ADR 0003 requires at least five)
+        required: true
+        default: "5"
+
+permissions:
+  contents: read
+
+jobs:
+  measure:
+    name: Measure (x86_64-linux)
+    runs-on: ubuntu-22.04
+    timeout-minutes: 300
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          persist-credentials: false
+          fetch-depth: 0
+      - name: Check out the baseline revision beside the candidate
+        env:
+          BASELINE_REF: ${{ inputs.baseline_ref }}
+        run: git worktree add --detach ../baseline "$BASELINE_REF"
+      - uses: cachix/install-nix-action@13d8dd58da0234aa297dedd986986ccb8e7f3e24 # v31
+        with:
+          enable_kvm: false
+          set_as_trusted_user: false
+          extra_nix_config: |
+            sandbox = true
+            sandbox-fallback = false
+      - name: Build both runtimes and measure
+        env:
+          WARM_TRIALS: ${{ inputs.warm_trials }}
+        run: |
+          nix develop path:./nix --command bash -euo pipefail -c '
+            just build
+            (cd ../baseline && just build)
+            mkdir -p build/adr-0003-p1
+            python3 experiments/adr-0003-latency/p1_measure.py --baseline-root ../baseline \
+              --warm "$WARM_TRIALS" --output build/adr-0003-p1/Linux-x86_64.jsonl
+            python3 experiments/adr-0003-latency/p1_report.py build/adr-0003-p1/Linux-x86_64.jsonl \
+              > build/adr-0003-p1/report-linux.md
+          '
+      - name: Retain measurements
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: adr3-p1-linux
+          path: build/adr-0003-p1/
+          if-no-files-found: warn
+          retention-days: 30
