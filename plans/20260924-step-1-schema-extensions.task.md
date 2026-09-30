@@ -10,7 +10,7 @@ interpretation. A script may contain multiple statements. Completion requires
 engineering evidence and a pilot's actual use; neither substitutes for the other.
 
 - [Engineering brief, revision 0.7](../sqlite-migration-verifier-engineering-brief.md)
-- [Product roadmap, proposal v0.1](../sqlite-migration-verifier-roadmap.md)
+- Product roadmap, proposal v0.1 (now kept in the private product documentation)
 - [Team agreement, version 0.2](../sqlite-migration-verifier-team-guide.md)
 - [Progress and decisions](20260924-step-1-schema-extensions.status.md)
 
