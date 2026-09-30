@@ -83,7 +83,7 @@ checker) on the exported data so acceptance does not rest on one kernel. Replayi
 into an empty environment exposes comparator issue
 [#93](https://github.com/leanprover/comparator/issues/93) (string-literal
 reduction); check both kernels on string-heavy proofs early.
-ADR 0004 (model conformance validation, draft not yet published) tier 3 depends on this.
+[ADR 0004](adr-0004-model-conformance-validation.md) tier 3 depends on this.
 
 ### Deployment authority
 
