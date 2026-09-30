@@ -1,0 +1,15 @@
+{
+  "seed": 4004,
+  "maxExamplesPerMode": 500,
+  "maxSteps": 25,
+  "modes": {
+    "well-scoped": {
+      "AGREE": 1044,
+      "MODEL_UNSUPPORTED": 522
+    },
+    "error-seeking": {
+      "AGREE": 1044,
+      "MODEL_UNSUPPORTED": 522
+    }
+  }
+}

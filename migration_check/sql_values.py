@@ -10,6 +10,8 @@ SqlValue: TypeAlias = int | str | bytes | None
 
 def literal(tree: Tree, node: Node) -> SqlValue:
     """Reject expressions, parameters, floats and oversized integers instead of approximating."""
+    if tree.text(node).lstrip().startswith('"'):
+        raise tree.unsupported(node, "Double-quoted expression fallback is outside the modeled literal subset")
     children = tree.children(node)
     sign = 1
     if len(children) == 2 and children[0].symbol in {'MINUS', 'PLUS'} and children[1].symbol == 'expr':

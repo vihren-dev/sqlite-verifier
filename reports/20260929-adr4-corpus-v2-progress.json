@@ -1,0 +1,2828 @@
+{
+  "corpusVersion": 2,
+  "casesSha256": "a9e754c995f90b7f571c667fcf4a014d7466b3f2b353470db69a773d1b5188dd",
+  "runtime": "/nix/store/xv8v76zxhak63y7djnvgql9a6ld7p232-sqlite-verifier-conformance",
+  "requirementsSha256": "e1398b8264374a0abe848673fefa7fa2f5601a949c85e09f820b3f6b37b9f742",
+  "frontendSha256": {
+    "migration_check/__init__.py": "6d6c194478d434d485f2683d8aedd6c47df51c18850f84c9b06fe7fbf84d72db",
+    "migration_check/baseline.py": "11fd1b0a1e1ac1bf61c52bf3749375af5798ab9d11d0175f6e7a92dee60f4bc1",
+    "migration_check/cli.py": "536296d1a0ec689ad21ac97b662bca14e163144533cfc8f25775b3e58c65d17b",
+    "migration_check/compile.py": "f418f8ba5d23402626c6be99b1110f086f6a4b5a9f4aa19108ceb4d83fb0ff45",
+    "migration_check/diagnostics.py": "e9ee30992b288745315ffac44912634056e4464d2bdbcc9e03ded1cc753b6c89",
+    "migration_check/process.py": "9d27906bb40a47f479d7e9298a9ec6900ee9b74a53e04662e50606a793f4d81a",
+    "migration_check/profiles.py": "046b6ca4bbefc4de38e0b399e20e06e5f17e15a8ca565a2fbacb9fdbe5b2605a",
+    "migration_check/runtime.py": "49494d96048c682f54c22467ec1626bd97170b291babaf0746a2b9ba47054167",
+    "migration_check/schema_syntax.py": "26332cb56f74e4b0987ca1706308375473273f7e082af13c49c40586d60654ca",
+    "migration_check/schema_translate.py": "e7dfec6df501b4b92ae85dc1e588767a5c74577dec37f90bbb1696232c45f54f",
+    "migration_check/source_closure.py": "bd78aeba1fb041f941db37c35380d014fd33685c0a1398311c1e1190c0a48079",
+    "migration_check/sql_admission.py": "f8564fb469d32b30d51f0f6a03cd7f28017216dc815c9100fa2972281beb9b85",
+    "migration_check/sql_dml.py": "6751d06c08013156a1db577f49c11c268d95d10ee3f08925457d2bc12a727e15",
+    "migration_check/sql_model.py": "15eafa3279e9079a52b3432ea1066d00f41d7d4ba7b95fa451c0d5df8aa63d3b",
+    "migration_check/sql_tree.py": "de53ca6322c3d335d85215e2deaad4c00f4d7674a3899492ea1547be1f374203",
+    "migration_check/sql_values.py": "672757c43ec16a33b89b4981dcfb4215b15d409e9c26400977b8e440b764b66b",
+    "migration_check/translate.py": "afaad32a107b07d3da4e1fdbf5289bc53ef5ef75b5b7c9b3449613d466df0115"
+  },
+  "denominator": 183,
+  "requirementInventoryCount": 3500,
+  "requirementMatrixRows": 164,
+  "requirementMatrix": [
+    {
+      "id": "R-00220-34634-35173-21345-54000-63909-52170-35980",
+      "file": "datatype3.html",
+      "publicTclEvidence": false,
+      "counts": {
+        "AGREE": 0,
+        "DISAGREE": 0,
+        "MODEL_UNSUPPORTED": 0,
+        "HARNESS_ERROR": 0
+      }
+    },
+    {
+      "id": "R-00243-07929-08239-44820-61576-27318-53216-12960",
+      "file": "datatype3.html",
+      "publicTclEvidence": false,
+      "counts": {
+        "AGREE": 0,
+        "DISAGREE": 0,
+        "MODEL_UNSUPPORTED": 0,
+        "HARNESS_ERROR": 0
+      }
+    },
+    {
+      "id": "R-00640-12624-18808-26941-05585-54150-12700-55718",
+      "file": "datatype3.html",
+      "publicTclEvidence": false,
+      "counts": {
+        "AGREE": 0,
+        "DISAGREE": 0,
+        "MODEL_UNSUPPORTED": 0,
+        "HARNESS_ERROR": 0
+      }
+    },
+    {
+      "id": "R-01152-57473-44061-54925-27979-32970-28134-10667",
+      "file": "lang_transaction.html",
+      "publicTclEvidence": false,
+      "counts": {
+        "AGREE": 0,
+        "DISAGREE": 0,
+        "MODEL_UNSUPPORTED": 0,
+        "HARNESS_ERROR": 0
+      }
+    },
+    {
+      "id": "R-01515-49025-64718-16819-52124-40826-60868-48014",
+      "file": "lang_altertable.html",
+      "publicTclEvidence": true,
+      "counts": {
+        "AGREE": 0,
+        "DISAGREE": 0,
+        "MODEL_UNSUPPORTED": 0,
+        "HARNESS_ERROR": 0
+      }
+    },
+    {
+      "id": "R-01531-37780-56063-13317-41294-63476-04645-64168",
+      "file": "lang_transaction.html",
+      "publicTclEvidence": false,
+      "counts": {
+        "AGREE": 0,
+        "DISAGREE": 0,
+        "MODEL_UNSUPPORTED": 0,
+        "HARNESS_ERROR": 0
+      }
+    },
+    {
+      "id": "R-02402-03425-02840-42627-65060-52098-37241-46689",
+      "file": "datatype3.html",
+      "publicTclEvidence": false,
+      "counts": {
+        "AGREE": 0,
+        "DISAGREE": 0,
+        "MODEL_UNSUPPORTED": 0,
+        "HARNESS_ERROR": 0
+      }
+    },
+    {
+      "id": "R-02854-44844-25004-52722-20972-43816-38252-26758",
+      "file": "lang_transaction.html",
+      "publicTclEvidence": false,
+      "counts": {
+        "AGREE": 0,
+        "DISAGREE": 0,
+        "MODEL_UNSUPPORTED": 0,
+        "HARNESS_ERROR": 0
+      }
+    },
+    {
+      "id": "R-03366-15091-31390-29880-25655-21575-38320-18449",
+      "file": "datatype3.html",
+      "publicTclEvidence": false,
+      "counts": {
+        "AGREE": 1,
+        "DISAGREE": 0,
+        "MODEL_UNSUPPORTED": 0,
+        "HARNESS_ERROR": 0
+      }
+    },
+    {
+      "id": "R-04136-04681-09628-27696-46047-23040-33903-21102",
+      "file": "datatype3.html",
+      "publicTclEvidence": false,
+      "counts": {
+        "AGREE": 0,
+        "DISAGREE": 0,
+        "MODEL_UNSUPPORTED": 0,
+        "HARNESS_ERROR": 0
+      }
+    },
+    {
+      "id": "R-04905-56085-50148-02459-16625-55198-57144-46771",
+      "file": "lang_transaction.html",
+      "publicTclEvidence": false,
+      "counts": {
+        "AGREE": 0,
+        "DISAGREE": 0,
+        "MODEL_UNSUPPORTED": 0,
+        "HARNESS_ERROR": 0
+      }
+    },
+    {
+      "id": "R-04965-15290-07639-47076-03173-25539-55321-39216",
+      "file": "datatype3.html",
+      "publicTclEvidence": false,
+      "counts": {
+        "AGREE": 0,
+        "DISAGREE": 0,
+        "MODEL_UNSUPPORTED": 0,
+        "HARNESS_ERROR": 0
+      }
+    },
+    {
+      "id": "R-05192-57965-21317-62763-55347-54447-59069-43394",
+      "file": "datatype3.html",
+      "publicTclEvidence": false,
+      "counts": {
+        "AGREE": 0,
+        "DISAGREE": 0,
+        "MODEL_UNSUPPORTED": 0,
+        "HARNESS_ERROR": 0
+      }
+    },
+    {
+      "id": "R-05898-54598-22699-61791-29592-33550-33097-15159",
+      "file": "datatype3.html",
+      "publicTclEvidence": false,
+      "counts": {
+        "AGREE": 0,
+        "DISAGREE": 0,
+        "MODEL_UNSUPPORTED": 0,
+        "HARNESS_ERROR": 0
+      }
+    },
+    {
+      "id": "R-06232-47523-18449-58509-42241-16299-63084-14288",
+      "file": "datatype3.html",
+      "publicTclEvidence": false,
+      "counts": {
+        "AGREE": 0,
+        "DISAGREE": 0,
+        "MODEL_UNSUPPORTED": 0,
+        "HARNESS_ERROR": 0
+      }
+    },
+    {
+      "id": "R-06718-34797-20809-29800-16443-15807-57069-06143",
+      "file": "lang_createindex.html",
+      "publicTclEvidence": false,
+      "counts": {
+        "AGREE": 1,
+        "DISAGREE": 0,
+        "MODEL_UNSUPPORTED": 0,
+        "HARNESS_ERROR": 0
+      }
+    },
+    {
+      "id": "R-06868-44093-33901-50180-63066-19596-24201-39627",
+      "file": "datatype3.html",
+      "publicTclEvidence": false,
+      "counts": {
+        "AGREE": 0,
+        "DISAGREE": 0,
+        "MODEL_UNSUPPORTED": 0,
+        "HARNESS_ERROR": 0
+      }
+    },
+    {
+      "id": "R-07051-38416-38857-52812-51917-08930-07930-15860",
+      "file": "datatype3.html",
+      "publicTclEvidence": false,
+      "counts": {
+        "AGREE": 0,
+        "DISAGREE": 0,
+        "MODEL_UNSUPPORTED": 0,
+        "HARNESS_ERROR": 0
+      }
+    },
+    {
+      "id": "R-07327-11967-60382-46381-13455-42235-00328-15671",
+      "file": "datatype3.html",
+      "publicTclEvidence": false,
+      "counts": {
+        "AGREE": 0,
+        "DISAGREE": 0,
+        "MODEL_UNSUPPORTED": 0,
+        "HARNESS_ERROR": 0
+      }
+    },
+    {
+      "id": "R-08041-13327-32920-22476-39167-57805-60221-02084",
+      "file": "datatype3.html",
+      "publicTclEvidence": false,
+      "counts": {
+        "AGREE": 0,
+        "DISAGREE": 0,
+        "MODEL_UNSUPPORTED": 0,
+        "HARNESS_ERROR": 0
+      }
+    },
+    {
+      "id": "R-08551-61977-00536-43869-21824-42581-53338-42827",
+      "file": "datatype3.html",
+      "publicTclEvidence": false,
+      "counts": {
+        "AGREE": 0,
+        "DISAGREE": 0,
+        "MODEL_UNSUPPORTED": 0,
+        "HARNESS_ERROR": 0
+      }
+    },
+    {
+      "id": "R-09773-40602-32968-36782-04559-37578-19507-63398",
+      "file": "lang_createindex.html",
+      "publicTclEvidence": false,
+      "counts": {
+        "AGREE": 0,
+        "DISAGREE": 0,
+        "MODEL_UNSUPPORTED": 0,
+        "HARNESS_ERROR": 0
+      }
+    },
+    {
+      "id": "R-10393-27560-44275-02566-07675-36741-21342-01930",
+      "file": "datatype3.html",
+      "publicTclEvidence": false,
+      "counts": {
+        "AGREE": 0,
+        "DISAGREE": 0,
+        "MODEL_UNSUPPORTED": 0,
+        "HARNESS_ERROR": 0
+      }
+    },
+    {
+      "id": "R-10948-48115-30420-45129-26938-33308-29061-07454",
+      "file": "lang_altertable.html",
+      "publicTclEvidence": false,
+      "counts": {
+        "AGREE": 1,
+        "DISAGREE": 0,
+        "MODEL_UNSUPPORTED": 0,
+        "HARNESS_ERROR": 0
+      }
+    },
+    {
+      "id": "R-11129-23371-40000-09444-50753-04787-03077-31414",
+      "file": "lang_transaction.html",
+      "publicTclEvidence": false,
+      "counts": {
+        "AGREE": 0,
+        "DISAGREE": 0,
+        "MODEL_UNSUPPORTED": 0,
+        "HARNESS_ERROR": 0
+      }
+    },
+    {
+      "id": "R-11135-63542-29250-48049-02589-36558-61016-54500",
+      "file": "lang_createindex.html",
+      "publicTclEvidence": false,
+      "counts": {
+        "AGREE": 0,
+        "DISAGREE": 0,
+        "MODEL_UNSUPPORTED": 0,
+        "HARNESS_ERROR": 0
+      }
+    },
+    {
+      "id": "R-11180-04229-25067-24122-45632-49442-37161-45101",
+      "file": "lang_transaction.html",
+      "publicTclEvidence": false,
+      "counts": {
+        "AGREE": 0,
+        "DISAGREE": 0,
+        "MODEL_UNSUPPORTED": 0,
+        "HARNESS_ERROR": 0
+      }
+    },
+    {
+      "id": "R-11423-52711-44857-10860-28486-08502-59467-30884",
+      "file": "datatype3.html",
+      "publicTclEvidence": false,
+      "counts": {
+        "AGREE": 0,
+        "DISAGREE": 0,
+        "MODEL_UNSUPPORTED": 0,
+        "HARNESS_ERROR": 0
+      }
+    },
+    {
+      "id": "R-11576-11990-36701-63648-24289-51988-09315-26987",
+      "file": "lang_transaction.html",
+      "publicTclEvidence": false,
+      "counts": {
+        "AGREE": 1,
+        "DISAGREE": 0,
+        "MODEL_UNSUPPORTED": 0,
+        "HARNESS_ERROR": 0
+      }
+    },
+    {
+      "id": "R-11628-62147-05445-61752-17620-56103-14750-56419",
+      "file": "datatype3.html",
+      "publicTclEvidence": false,
+      "counts": {
+        "AGREE": 0,
+        "DISAGREE": 0,
+        "MODEL_UNSUPPORTED": 0,
+        "HARNESS_ERROR": 0
+      }
+    },
+    {
+      "id": "R-11684-02844-26168-40557-28007-15193-14492-18686",
+      "file": "lang_transaction.html",
+      "publicTclEvidence": false,
+      "counts": {
+        "AGREE": 0,
+        "DISAGREE": 0,
+        "MODEL_UNSUPPORTED": 0,
+        "HARNESS_ERROR": 0
+      }
+    },
+    {
+      "id": "R-11730-53816-33732-41455-13175-02323-60121-55502",
+      "file": "datatype3.html",
+      "publicTclEvidence": false,
+      "counts": {
+        "AGREE": 0,
+        "DISAGREE": 0,
+        "MODEL_UNSUPPORTED": 0,
+        "HARNESS_ERROR": 0
+      }
+    },
+    {
+      "id": "R-12079-51392-32585-64897-55283-05837-03077-12925",
+      "file": "datatype3.html",
+      "publicTclEvidence": false,
+      "counts": {
+        "AGREE": 0,
+        "DISAGREE": 0,
+        "MODEL_UNSUPPORTED": 0,
+        "HARNESS_ERROR": 0
+      }
+    },
+    {
+      "id": "R-12314-13901-08300-54236-37161-34051-04965-51279",
+      "file": "datatype3.html",
+      "publicTclEvidence": false,
+      "counts": {
+        "AGREE": 0,
+        "DISAGREE": 0,
+        "MODEL_UNSUPPORTED": 0,
+        "HARNESS_ERROR": 0
+      }
+    },
+    {
+      "id": "R-12720-41494-41537-21978-20786-40223-25082-25767",
+      "file": "datatype3.html",
+      "publicTclEvidence": false,
+      "counts": {
+        "AGREE": 0,
+        "DISAGREE": 0,
+        "MODEL_UNSUPPORTED": 0,
+        "HARNESS_ERROR": 0
+      }
+    },
+    {
+      "id": "R-12881-55998-05997-62769-52407-41437-37652-18188",
+      "file": "datatype3.html",
+      "publicTclEvidence": false,
+      "counts": {
+        "AGREE": 0,
+        "DISAGREE": 0,
+        "MODEL_UNSUPPORTED": 0,
+        "HARNESS_ERROR": 0
+      }
+    },
+    {
+      "id": "R-13057-33448-09671-56974-58075-51862-56508-46386",
+      "file": "lang_createindex.html",
+      "publicTclEvidence": false,
+      "counts": {
+        "AGREE": 0,
+        "DISAGREE": 0,
+        "MODEL_UNSUPPORTED": 0,
+        "HARNESS_ERROR": 0
+      }
+    },
+    {
+      "id": "R-13324-20915-18608-14135-49913-18477-24470-37665",
+      "file": "datatype3.html",
+      "publicTclEvidence": false,
+      "counts": {
+        "AGREE": 0,
+        "DISAGREE": 0,
+        "MODEL_UNSUPPORTED": 0,
+        "HARNESS_ERROR": 0
+      }
+    },
+    {
+      "id": "R-13876-13274-06329-28290-52708-34927-05709-26395",
+      "file": "lang_altertable.html",
+      "publicTclEvidence": false,
+      "counts": {
+        "AGREE": 0,
+        "DISAGREE": 0,
+        "MODEL_UNSUPPORTED": 0,
+        "HARNESS_ERROR": 0
+      }
+    },
+    {
+      "id": "R-14014-59687-26564-37068-45971-48448-09846-38995",
+      "file": "datatype3.html",
+      "publicTclEvidence": false,
+      "counts": {
+        "AGREE": 0,
+        "DISAGREE": 0,
+        "MODEL_UNSUPPORTED": 0,
+        "HARNESS_ERROR": 0
+      }
+    },
+    {
+      "id": "R-14302-38934-55936-51388-09326-06316-22131-13547",
+      "file": "lang_altertable.html",
+      "publicTclEvidence": false,
+      "counts": {
+        "AGREE": 0,
+        "DISAGREE": 0,
+        "MODEL_UNSUPPORTED": 0,
+        "HARNESS_ERROR": 0
+      }
+    },
+    {
+      "id": "R-14349-34154-22313-18444-03285-54966-26711-64366",
+      "file": "datatype3.html",
+      "publicTclEvidence": false,
+      "counts": {
+        "AGREE": 0,
+        "DISAGREE": 0,
+        "MODEL_UNSUPPORTED": 0,
+        "HARNESS_ERROR": 0
+      }
+    },
+    {
+      "id": "R-14505-63184-58138-52966-27681-02252-30754-64236",
+      "file": "datatype3.html",
+      "publicTclEvidence": false,
+      "counts": {
+        "AGREE": 0,
+        "DISAGREE": 0,
+        "MODEL_UNSUPPORTED": 0,
+        "HARNESS_ERROR": 0
+      }
+    },
+    {
+      "id": "R-14809-12532-29849-37931-55866-36288-34668-62105",
+      "file": "datatype3.html",
+      "publicTclEvidence": false,
+      "counts": {
+        "AGREE": 0,
+        "DISAGREE": 0,
+        "MODEL_UNSUPPORTED": 0,
+        "HARNESS_ERROR": 0
+      }
+    },
+    {
+      "id": "R-15334-58407-28961-30248-32119-35017-40136-56612",
+      "file": "datatype3.html",
+      "publicTclEvidence": false,
+      "counts": {
+        "AGREE": 0,
+        "DISAGREE": 0,
+        "MODEL_UNSUPPORTED": 0,
+        "HARNESS_ERROR": 0
+      }
+    },
+    {
+      "id": "R-15522-56042-47189-16162-53355-39499-48752-21999",
+      "file": "lang_transaction.html",
+      "publicTclEvidence": false,
+      "counts": {
+        "AGREE": 0,
+        "DISAGREE": 0,
+        "MODEL_UNSUPPORTED": 0,
+        "HARNESS_ERROR": 0
+      }
+    },
+    {
+      "id": "R-16085-53730-63732-38499-15956-61706-03515-37986",
+      "file": "lang_createindex.html",
+      "publicTclEvidence": false,
+      "counts": {
+        "AGREE": 0,
+        "DISAGREE": 0,
+        "MODEL_UNSUPPORTED": 0,
+        "HARNESS_ERROR": 0
+      }
+    },
+    {
+      "id": "R-16625-30785-18660-34070-49109-22249-51329-26220",
+      "file": "datatype3.html",
+      "publicTclEvidence": false,
+      "counts": {
+        "AGREE": 0,
+        "DISAGREE": 0,
+        "MODEL_UNSUPPORTED": 0,
+        "HARNESS_ERROR": 0
+      }
+    },
+    {
+      "id": "R-16727-13091-18593-02936-45365-35968-45386-40640",
+      "file": "lang_altertable.html",
+      "publicTclEvidence": false,
+      "counts": {
+        "AGREE": 0,
+        "DISAGREE": 0,
+        "MODEL_UNSUPPORTED": 0,
+        "HARNESS_ERROR": 0
+      }
+    },
+    {
+      "id": "R-16735-29088-33516-22402-46874-28284-28835-57919",
+      "file": "datatype3.html",
+      "publicTclEvidence": false,
+      "counts": {
+        "AGREE": 0,
+        "DISAGREE": 0,
+        "MODEL_UNSUPPORTED": 0,
+        "HARNESS_ERROR": 0
+      }
+    },
+    {
+      "id": "R-17151-07205-10894-28299-62821-16887-02117-62221",
+      "file": "lang_createindex.html",
+      "publicTclEvidence": false,
+      "counts": {
+        "AGREE": 0,
+        "DISAGREE": 0,
+        "MODEL_UNSUPPORTED": 0,
+        "HARNESS_ERROR": 0
+      }
+    },
+    {
+      "id": "R-17379-32951-58399-57501-33498-60036-41846-10214",
+      "file": "lang_createindex.html",
+      "publicTclEvidence": false,
+      "counts": {
+        "AGREE": 1,
+        "DISAGREE": 0,
+        "MODEL_UNSUPPORTED": 0,
+        "HARNESS_ERROR": 0
+      }
+    },
+    {
+      "id": "R-17591-50446-37876-17822-10375-27592-36497-28987",
+      "file": "datatype3.html",
+      "publicTclEvidence": false,
+      "counts": {
+        "AGREE": 0,
+        "DISAGREE": 0,
+        "MODEL_UNSUPPORTED": 0,
+        "HARNESS_ERROR": 0
+      }
+    },
+    {
+      "id": "R-18085-46797-38544-57069-39269-06542-00638-19188",
+      "file": "datatype3.html",
+      "publicTclEvidence": false,
+      "counts": {
+        "AGREE": 0,
+        "DISAGREE": 0,
+        "MODEL_UNSUPPORTED": 0,
+        "HARNESS_ERROR": 0
+      }
+    },
+    {
+      "id": "R-18219-48316-63080-50419-00617-04513-48558-33147",
+      "file": "datatype3.html",
+      "publicTclEvidence": false,
+      "counts": {
+        "AGREE": 0,
+        "DISAGREE": 0,
+        "MODEL_UNSUPPORTED": 0,
+        "HARNESS_ERROR": 0
+      }
+    },
+    {
+      "id": "R-18364-25640-43471-65335-34300-00271-36361-11229",
+      "file": "datatype3.html",
+      "publicTclEvidence": false,
+      "counts": {
+        "AGREE": 0,
+        "DISAGREE": 0,
+        "MODEL_UNSUPPORTED": 0,
+        "HARNESS_ERROR": 0
+      }
+    },
+    {
+      "id": "R-18404-60208-00331-08583-24532-43133-17599-55121",
+      "file": "datatype3.html",
+      "publicTclEvidence": false,
+      "counts": {
+        "AGREE": 0,
+        "DISAGREE": 0,
+        "MODEL_UNSUPPORTED": 0,
+        "HARNESS_ERROR": 0
+      }
+    },
+    {
+      "id": "R-18692-17694-63404-11739-00590-02418-57066-37741",
+      "file": "lang_altertable.html",
+      "publicTclEvidence": false,
+      "counts": {
+        "AGREE": 0,
+        "DISAGREE": 0,
+        "MODEL_UNSUPPORTED": 0,
+        "HARNESS_ERROR": 0
+      }
+    },
+    {
+      "id": "R-18885-42713-55126-22349-03815-15805-20030-42091",
+      "file": "datatype3.html",
+      "publicTclEvidence": false,
+      "counts": {
+        "AGREE": 0,
+        "DISAGREE": 0,
+        "MODEL_UNSUPPORTED": 0,
+        "HARNESS_ERROR": 0
+      }
+    },
+    {
+      "id": "R-19178-27645-63083-26050-05481-47319-52943-38968",
+      "file": "datatype3.html",
+      "publicTclEvidence": false,
+      "counts": {
+        "AGREE": 0,
+        "DISAGREE": 0,
+        "MODEL_UNSUPPORTED": 0,
+        "HARNESS_ERROR": 0
+      }
+    },
+    {
+      "id": "R-20728-12013-63789-14843-17871-12981-47663-15474",
+      "file": "datatype3.html",
+      "publicTclEvidence": false,
+      "counts": {
+        "AGREE": 0,
+        "DISAGREE": 0,
+        "MODEL_UNSUPPORTED": 0,
+        "HARNESS_ERROR": 0
+      }
+    },
+    {
+      "id": "R-20795-39479-27238-02391-59931-28698-11385-12447",
+      "file": "lang_altertable.html",
+      "publicTclEvidence": true,
+      "counts": {
+        "AGREE": 0,
+        "DISAGREE": 0,
+        "MODEL_UNSUPPORTED": 0,
+        "HARNESS_ERROR": 0
+      }
+    },
+    {
+      "id": "R-21555-60916-58264-59419-46832-30971-06241-53598",
+      "file": "datatype3.html",
+      "publicTclEvidence": false,
+      "counts": {
+        "AGREE": 0,
+        "DISAGREE": 0,
+        "MODEL_UNSUPPORTED": 0,
+        "HARNESS_ERROR": 0
+      }
+    },
+    {
+      "id": "R-21926-12440-51056-61142-44683-61094-56845-29582",
+      "file": "datatype3.html",
+      "publicTclEvidence": false,
+      "counts": {
+        "AGREE": 0,
+        "DISAGREE": 0,
+        "MODEL_UNSUPPORTED": 0,
+        "HARNESS_ERROR": 0
+      }
+    },
+    {
+      "id": "R-22414-48736-05483-33334-64418-18410-20572-40044",
+      "file": "datatype3.html",
+      "publicTclEvidence": false,
+      "counts": {
+        "AGREE": 0,
+        "DISAGREE": 0,
+        "MODEL_UNSUPPORTED": 0,
+        "HARNESS_ERROR": 0
+      }
+    },
+    {
+      "id": "R-22849-20349-24730-37218-10911-22554-30363-05607",
+      "file": "datatype3.html",
+      "publicTclEvidence": false,
+      "counts": {
+        "AGREE": 0,
+        "DISAGREE": 0,
+        "MODEL_UNSUPPORTED": 0,
+        "HARNESS_ERROR": 0
+      }
+    },
+    {
+      "id": "R-23153-04437-57288-59301-62447-22408-58278-59491",
+      "file": "datatype3.html",
+      "publicTclEvidence": false,
+      "counts": {
+        "AGREE": 0,
+        "DISAGREE": 0,
+        "MODEL_UNSUPPORTED": 0,
+        "HARNESS_ERROR": 0
+      }
+    },
+    {
+      "id": "R-23336-07085-33379-01813-11813-48961-61224-20101",
+      "file": "lang_altertable.html",
+      "publicTclEvidence": false,
+      "counts": {
+        "AGREE": 0,
+        "DISAGREE": 0,
+        "MODEL_UNSUPPORTED": 0,
+        "HARNESS_ERROR": 0
+      }
+    },
+    {
+      "id": "R-24098-10282-28593-32391-22620-22460-46080-08998",
+      "file": "lang_altertable.html",
+      "publicTclEvidence": true,
+      "counts": {
+        "AGREE": 0,
+        "DISAGREE": 0,
+        "MODEL_UNSUPPORTED": 0,
+        "HARNESS_ERROR": 0
+      }
+    },
+    {
+      "id": "R-24408-11841-16708-30331-61955-39086-27640-21297",
+      "file": "lang_transaction.html",
+      "publicTclEvidence": false,
+      "counts": {
+        "AGREE": 0,
+        "DISAGREE": 0,
+        "MODEL_UNSUPPORTED": 0,
+        "HARNESS_ERROR": 0
+      }
+    },
+    {
+      "id": "R-24564-50022-48872-56770-06110-00167-03462-09571",
+      "file": "datatype3.html",
+      "publicTclEvidence": false,
+      "counts": {
+        "AGREE": 0,
+        "DISAGREE": 0,
+        "MODEL_UNSUPPORTED": 0,
+        "HARNESS_ERROR": 0
+      }
+    },
+    {
+      "id": "R-24635-37065-50827-53824-24547-23611-48294-22857",
+      "file": "datatype3.html",
+      "publicTclEvidence": false,
+      "counts": {
+        "AGREE": 0,
+        "DISAGREE": 0,
+        "MODEL_UNSUPPORTED": 0,
+        "HARNESS_ERROR": 0
+      }
+    },
+    {
+      "id": "R-25108-07802-40508-32376-19441-31217-21410-63803",
+      "file": "lang_transaction.html",
+      "publicTclEvidence": false,
+      "counts": {
+        "AGREE": 0,
+        "DISAGREE": 0,
+        "MODEL_UNSUPPORTED": 0,
+        "HARNESS_ERROR": 0
+      }
+    },
+    {
+      "id": "R-25142-32967-13152-03974-64146-30247-48913-62281",
+      "file": "datatype3.html",
+      "publicTclEvidence": false,
+      "counts": {
+        "AGREE": 0,
+        "DISAGREE": 0,
+        "MODEL_UNSUPPORTED": 0,
+        "HARNESS_ERROR": 0
+      }
+    },
+    {
+      "id": "R-25613-37547-39472-02780-29297-59051-40019-17427",
+      "file": "lang_createindex.html",
+      "publicTclEvidence": false,
+      "counts": {
+        "AGREE": 0,
+        "DISAGREE": 0,
+        "MODEL_UNSUPPORTED": 0,
+        "HARNESS_ERROR": 0
+      }
+    },
+    {
+      "id": "R-26234-58592-26686-64458-63937-04823-26518-58770",
+      "file": "datatype3.html",
+      "publicTclEvidence": false,
+      "counts": {
+        "AGREE": 0,
+        "DISAGREE": 0,
+        "MODEL_UNSUPPORTED": 0,
+        "HARNESS_ERROR": 0
+      }
+    },
+    {
+      "id": "R-26894-41325-01569-09628-52380-05795-22160-61664",
+      "file": "datatype3.html",
+      "publicTclEvidence": false,
+      "counts": {
+        "AGREE": 0,
+        "DISAGREE": 0,
+        "MODEL_UNSUPPORTED": 0,
+        "HARNESS_ERROR": 0
+      }
+    },
+    {
+      "id": "R-27233-06819-06438-56184-33294-63005-30894-40602",
+      "file": "datatype3.html",
+      "publicTclEvidence": false,
+      "counts": {
+        "AGREE": 0,
+        "DISAGREE": 0,
+        "MODEL_UNSUPPORTED": 0,
+        "HARNESS_ERROR": 0
+      }
+    },
+    {
+      "id": "R-27875-27272-27361-08539-07716-12839-63715-05434",
+      "file": "datatype3.html",
+      "publicTclEvidence": false,
+      "counts": {
+        "AGREE": 0,
+        "DISAGREE": 0,
+        "MODEL_UNSUPPORTED": 0,
+        "HARNESS_ERROR": 0
+      }
+    },
+    {
+      "id": "R-27916-61221-17546-26882-05334-30041-14192-36305",
+      "file": "datatype3.html",
+      "publicTclEvidence": false,
+      "counts": {
+        "AGREE": 0,
+        "DISAGREE": 0,
+        "MODEL_UNSUPPORTED": 0,
+        "HARNESS_ERROR": 0
+      }
+    },
+    {
+      "id": "R-29161-32953-36932-45614-26636-25376-16033-00724",
+      "file": "datatype3.html",
+      "publicTclEvidence": false,
+      "counts": {
+        "AGREE": 0,
+        "DISAGREE": 0,
+        "MODEL_UNSUPPORTED": 0,
+        "HARNESS_ERROR": 0
+      }
+    },
+    {
+      "id": "R-29702-55194-05446-48408-53607-29729-56782-07687",
+      "file": "datatype3.html",
+      "publicTclEvidence": false,
+      "counts": {
+        "AGREE": 0,
+        "DISAGREE": 0,
+        "MODEL_UNSUPPORTED": 0,
+        "HARNESS_ERROR": 0
+      }
+    },
+    {
+      "id": "R-29765-45832-49120-26582-31576-30942-45829-65039",
+      "file": "datatype3.html",
+      "publicTclEvidence": false,
+      "counts": {
+        "AGREE": 0,
+        "DISAGREE": 0,
+        "MODEL_UNSUPPORTED": 0,
+        "HARNESS_ERROR": 0
+      }
+    },
+    {
+      "id": "R-29868-13536-10966-03336-45139-07308-57583-25685",
+      "file": "lang_altertable.html",
+      "publicTclEvidence": false,
+      "counts": {
+        "AGREE": 0,
+        "DISAGREE": 0,
+        "MODEL_UNSUPPORTED": 0,
+        "HARNESS_ERROR": 0
+      }
+    },
+    {
+      "id": "R-29897-28851-11131-17538-15635-12313-50588-15022",
+      "file": "lang_transaction.html",
+      "publicTclEvidence": false,
+      "counts": {
+        "AGREE": 1,
+        "DISAGREE": 0,
+        "MODEL_UNSUPPORTED": 0,
+        "HARNESS_ERROR": 0
+      }
+    },
+    {
+      "id": "R-29924-24161-31191-57990-51475-61688-39790-55251",
+      "file": "lang_transaction.html",
+      "publicTclEvidence": false,
+      "counts": {
+        "AGREE": 0,
+        "DISAGREE": 0,
+        "MODEL_UNSUPPORTED": 0,
+        "HARNESS_ERROR": 0
+      }
+    },
+    {
+      "id": "R-29946-11104-19867-16845-18883-10746-06540-64125",
+      "file": "datatype3.html",
+      "publicTclEvidence": false,
+      "counts": {
+        "AGREE": 0,
+        "DISAGREE": 0,
+        "MODEL_UNSUPPORTED": 0,
+        "HARNESS_ERROR": 0
+      }
+    },
+    {
+      "id": "R-30470-29835-03618-00817-05721-31518-05673-45416",
+      "file": "datatype3.html",
+      "publicTclEvidence": false,
+      "counts": {
+        "AGREE": 0,
+        "DISAGREE": 0,
+        "MODEL_UNSUPPORTED": 0,
+        "HARNESS_ERROR": 0
+      }
+    },
+    {
+      "id": "R-30879-62015-53996-61326-18041-63884-46339-47880",
+      "file": "datatype3.html",
+      "publicTclEvidence": false,
+      "counts": {
+        "AGREE": 0,
+        "DISAGREE": 0,
+        "MODEL_UNSUPPORTED": 0,
+        "HARNESS_ERROR": 0
+      }
+    },
+    {
+      "id": "R-31757-07599-53600-28407-17941-01600-55959-20235",
+      "file": "datatype3.html",
+      "publicTclEvidence": false,
+      "counts": {
+        "AGREE": 0,
+        "DISAGREE": 0,
+        "MODEL_UNSUPPORTED": 0,
+        "HARNESS_ERROR": 0
+      }
+    },
+    {
+      "id": "R-32485-24703-27801-29483-21531-11705-09294-53002",
+      "file": "lang_altertable.html",
+      "publicTclEvidence": false,
+      "counts": {
+        "AGREE": 0,
+        "DISAGREE": 0,
+        "MODEL_UNSUPPORTED": 0,
+        "HARNESS_ERROR": 0
+      }
+    },
+    {
+      "id": "R-32922-61395-36624-37075-37487-29134-31632-26826",
+      "file": "datatype3.html",
+      "publicTclEvidence": false,
+      "counts": {
+        "AGREE": 0,
+        "DISAGREE": 0,
+        "MODEL_UNSUPPORTED": 0,
+        "HARNESS_ERROR": 0
+      }
+    },
+    {
+      "id": "R-32925-06786-44484-40389-19544-51015-10010-30515",
+      "file": "lang_createindex.html",
+      "publicTclEvidence": false,
+      "counts": {
+        "AGREE": 0,
+        "DISAGREE": 0,
+        "MODEL_UNSUPPORTED": 0,
+        "HARNESS_ERROR": 0
+      }
+    },
+    {
+      "id": "R-33393-31741-20908-00667-39287-64680-56276-36828",
+      "file": "datatype3.html",
+      "publicTclEvidence": false,
+      "counts": {
+        "AGREE": 0,
+        "DISAGREE": 0,
+        "MODEL_UNSUPPORTED": 0,
+        "HARNESS_ERROR": 0
+      }
+    },
+    {
+      "id": "R-35835-22506-43266-17385-20539-20628-59606-19981",
+      "file": "datatype3.html",
+      "publicTclEvidence": false,
+      "counts": {
+        "AGREE": 0,
+        "DISAGREE": 0,
+        "MODEL_UNSUPPORTED": 0,
+        "HARNESS_ERROR": 0
+      }
+    },
+    {
+      "id": "R-36476-47203-56638-47160-44339-35126-05623-44628",
+      "file": "datatype3.html",
+      "publicTclEvidence": false,
+      "counts": {
+        "AGREE": 0,
+        "DISAGREE": 0,
+        "MODEL_UNSUPPORTED": 0,
+        "HARNESS_ERROR": 0
+      }
+    },
+    {
+      "id": "R-36570-50350-22690-62620-40069-12741-59912-39682",
+      "file": "lang_transaction.html",
+      "publicTclEvidence": false,
+      "counts": {
+        "AGREE": 1,
+        "DISAGREE": 0,
+        "MODEL_UNSUPPORTED": 0,
+        "HARNESS_ERROR": 0
+      }
+    },
+    {
+      "id": "R-36602-21087-51192-25883-57410-35458-57650-49197",
+      "file": "lang_altertable.html",
+      "publicTclEvidence": false,
+      "counts": {
+        "AGREE": 0,
+        "DISAGREE": 0,
+        "MODEL_UNSUPPORTED": 0,
+        "HARNESS_ERROR": 0
+      }
+    },
+    {
+      "id": "R-36787-21388-40333-56236-13841-04160-18258-18988",
+      "file": "datatype3.html",
+      "publicTclEvidence": false,
+      "counts": {
+        "AGREE": 0,
+        "DISAGREE": 0,
+        "MODEL_UNSUPPORTED": 0,
+        "HARNESS_ERROR": 0
+      }
+    },
+    {
+      "id": "R-37287-38238-38896-00540-17030-60706-04523-55035",
+      "file": "lang_altertable.html",
+      "publicTclEvidence": false,
+      "counts": {
+        "AGREE": 0,
+        "DISAGREE": 0,
+        "MODEL_UNSUPPORTED": 0,
+        "HARNESS_ERROR": 0
+      }
+    },
+    {
+      "id": "R-38971-13593-63134-41706-45438-37598-45923-53388",
+      "file": "datatype3.html",
+      "publicTclEvidence": false,
+      "counts": {
+        "AGREE": 0,
+        "DISAGREE": 0,
+        "MODEL_UNSUPPORTED": 0,
+        "HARNESS_ERROR": 0
+      }
+    },
+    {
+      "id": "R-39020-65330-19381-32057-25425-01859-32299-49676",
+      "file": "datatype3.html",
+      "publicTclEvidence": false,
+      "counts": {
+        "AGREE": 0,
+        "DISAGREE": 0,
+        "MODEL_UNSUPPORTED": 0,
+        "HARNESS_ERROR": 0
+      }
+    },
+    {
+      "id": "R-39822-14939-20605-05288-51207-58465-58259-08970",
+      "file": "lang_transaction.html",
+      "publicTclEvidence": false,
+      "counts": {
+        "AGREE": 0,
+        "DISAGREE": 0,
+        "MODEL_UNSUPPORTED": 0,
+        "HARNESS_ERROR": 0
+      }
+    },
+    {
+      "id": "R-40025-59984-53912-08799-37788-65154-58103-39921",
+      "file": "lang_createindex.html",
+      "publicTclEvidence": false,
+      "counts": {
+        "AGREE": 0,
+        "DISAGREE": 0,
+        "MODEL_UNSUPPORTED": 0,
+        "HARNESS_ERROR": 0
+      }
+    },
+    {
+      "id": "R-40564-64233-62609-55740-51668-02472-22352-36166",
+      "file": "datatype3.html",
+      "publicTclEvidence": false,
+      "counts": {
+        "AGREE": 0,
+        "DISAGREE": 0,
+        "MODEL_UNSUPPORTED": 0,
+        "HARNESS_ERROR": 0
+      }
+    },
+    {
+      "id": "R-41025-56247-28274-26451-36451-44569-58431-11817",
+      "file": "datatype3.html",
+      "publicTclEvidence": false,
+      "counts": {
+        "AGREE": 0,
+        "DISAGREE": 0,
+        "MODEL_UNSUPPORTED": 0,
+        "HARNESS_ERROR": 0
+      }
+    },
+    {
+      "id": "R-41051-26626-32657-27004-34667-60114-13297-41837",
+      "file": "lang_transaction.html",
+      "publicTclEvidence": false,
+      "counts": {
+        "AGREE": 0,
+        "DISAGREE": 0,
+        "MODEL_UNSUPPORTED": 0,
+        "HARNESS_ERROR": 0
+      }
+    },
+    {
+      "id": "R-42316-09582-63519-16650-16131-27933-31807-16513",
+      "file": "lang_createtable.html",
+      "publicTclEvidence": true,
+      "counts": {
+        "AGREE": 1,
+        "DISAGREE": 0,
+        "MODEL_UNSUPPORTED": 0,
+        "HARNESS_ERROR": 0
+      }
+    },
+    {
+      "id": "R-42648-01192-24711-57227-24478-04310-65154-26465",
+      "file": "datatype3.html",
+      "publicTclEvidence": false,
+      "counts": {
+        "AGREE": 0,
+        "DISAGREE": 0,
+        "MODEL_UNSUPPORTED": 0,
+        "HARNESS_ERROR": 0
+      }
+    },
+    {
+      "id": "R-43412-16016-07613-58418-19222-63413-27211-48074",
+      "file": "lang_altertable.html",
+      "publicTclEvidence": true,
+      "counts": {
+        "AGREE": 0,
+        "DISAGREE": 0,
+        "MODEL_UNSUPPORTED": 0,
+        "HARNESS_ERROR": 0
+      }
+    },
+    {
+      "id": "R-43433-49136-61285-59919-49849-25550-47556-02276",
+      "file": "lang_transaction.html",
+      "publicTclEvidence": false,
+      "counts": {
+        "AGREE": 0,
+        "DISAGREE": 0,
+        "MODEL_UNSUPPORTED": 0,
+        "HARNESS_ERROR": 0
+      }
+    },
+    {
+      "id": "R-44709-33024-54980-17199-17128-51759-15220-29599",
+      "file": "lang_altertable.html",
+      "publicTclEvidence": false,
+      "counts": {
+        "AGREE": 0,
+        "DISAGREE": 0,
+        "MODEL_UNSUPPORTED": 0,
+        "HARNESS_ERROR": 0
+      }
+    },
+    {
+      "id": "R-44835-24883-49938-43446-56074-23376-41868-21974",
+      "file": "lang_transaction.html",
+      "publicTclEvidence": false,
+      "counts": {
+        "AGREE": 0,
+        "DISAGREE": 0,
+        "MODEL_UNSUPPORTED": 0,
+        "HARNESS_ERROR": 0
+      }
+    },
+    {
+      "id": "R-45200-50363-59708-20315-54778-07324-53392-01839",
+      "file": "datatype3.html",
+      "publicTclEvidence": false,
+      "counts": {
+        "AGREE": 0,
+        "DISAGREE": 0,
+        "MODEL_UNSUPPORTED": 0,
+        "HARNESS_ERROR": 0
+      }
+    },
+    {
+      "id": "R-45735-05060-45707-02597-62787-16150-27278-23647",
+      "file": "lang_altertable.html",
+      "publicTclEvidence": false,
+      "counts": {
+        "AGREE": 0,
+        "DISAGREE": 0,
+        "MODEL_UNSUPPORTED": 0,
+        "HARNESS_ERROR": 0
+      }
+    },
+    {
+      "id": "R-46475-65007-45296-37609-03818-24981-55908-33234",
+      "file": "datatype3.html",
+      "publicTclEvidence": false,
+      "counts": {
+        "AGREE": 0,
+        "DISAGREE": 0,
+        "MODEL_UNSUPPORTED": 0,
+        "HARNESS_ERROR": 0
+      }
+    },
+    {
+      "id": "R-46731-08965-36580-59849-15689-59530-23694-02071",
+      "file": "lang_altertable.html",
+      "publicTclEvidence": true,
+      "counts": {
+        "AGREE": 0,
+        "DISAGREE": 0,
+        "MODEL_UNSUPPORTED": 0,
+        "HARNESS_ERROR": 0
+      }
+    },
+    {
+      "id": "R-46931-43245-47331-55287-00929-39790-16947-25937",
+      "file": "lang_transaction.html",
+      "publicTclEvidence": false,
+      "counts": {
+        "AGREE": 0,
+        "DISAGREE": 0,
+        "MODEL_UNSUPPORTED": 0,
+        "HARNESS_ERROR": 0
+      }
+    },
+    {
+      "id": "R-47838-03249-08993-49658-07257-31799-38437-20814",
+      "file": "lang_altertable.html",
+      "publicTclEvidence": true,
+      "counts": {
+        "AGREE": 0,
+        "DISAGREE": 0,
+        "MODEL_UNSUPPORTED": 0,
+        "HARNESS_ERROR": 0
+      }
+    },
+    {
+      "id": "R-48204-18881-64880-60099-58359-33874-53073-00752",
+      "file": "datatype3.html",
+      "publicTclEvidence": false,
+      "counts": {
+        "AGREE": 0,
+        "DISAGREE": 0,
+        "MODEL_UNSUPPORTED": 0,
+        "HARNESS_ERROR": 0
+      }
+    },
+    {
+      "id": "R-48616-47814-10585-42560-43373-45165-03302-15640",
+      "file": "lang_createindex.html",
+      "publicTclEvidence": false,
+      "counts": {
+        "AGREE": 0,
+        "DISAGREE": 0,
+        "MODEL_UNSUPPORTED": 0,
+        "HARNESS_ERROR": 0
+      }
+    },
+    {
+      "id": "R-50141-17598-64848-16921-53866-52555-58777-52662",
+      "file": "lang_createindex.html",
+      "publicTclEvidence": false,
+      "counts": {
+        "AGREE": 0,
+        "DISAGREE": 0,
+        "MODEL_UNSUPPORTED": 0,
+        "HARNESS_ERROR": 0
+      }
+    },
+    {
+      "id": "R-50227-03668-59884-25860-05974-05725-11856-44463",
+      "file": "lang_createindex.html",
+      "publicTclEvidence": false,
+      "counts": {
+        "AGREE": 0,
+        "DISAGREE": 0,
+        "MODEL_UNSUPPORTED": 0,
+        "HARNESS_ERROR": 0
+      }
+    },
+    {
+      "id": "R-50442-34254-35455-58700-58965-62142-32020-28485",
+      "file": "lang_transaction.html",
+      "publicTclEvidence": false,
+      "counts": {
+        "AGREE": 0,
+        "DISAGREE": 0,
+        "MODEL_UNSUPPORTED": 0,
+        "HARNESS_ERROR": 0
+      }
+    },
+    {
+      "id": "R-51243-03259-14628-62602-22056-51212-17455-10922",
+      "file": "datatype3.html",
+      "publicTclEvidence": false,
+      "counts": {
+        "AGREE": 0,
+        "DISAGREE": 0,
+        "MODEL_UNSUPPORTED": 0,
+        "HARNESS_ERROR": 0
+      }
+    },
+    {
+      "id": "R-51848-06142-00211-08018-28076-33620-42817-53867",
+      "file": "datatype3.html",
+      "publicTclEvidence": false,
+      "counts": {
+        "AGREE": 0,
+        "DISAGREE": 0,
+        "MODEL_UNSUPPORTED": 0,
+        "HARNESS_ERROR": 0
+      }
+    },
+    {
+      "id": "R-52422-13996-14748-65406-33477-57912-42976-47996",
+      "file": "datatype3.html",
+      "publicTclEvidence": false,
+      "counts": {
+        "AGREE": 0,
+        "DISAGREE": 0,
+        "MODEL_UNSUPPORTED": 0,
+        "HARNESS_ERROR": 0
+      }
+    },
+    {
+      "id": "R-52436-31752-34647-62444-09688-32062-53340-29522",
+      "file": "lang_altertable.html",
+      "publicTclEvidence": true,
+      "counts": {
+        "AGREE": 0,
+        "DISAGREE": 0,
+        "MODEL_UNSUPPORTED": 0,
+        "HARNESS_ERROR": 0
+      }
+    },
+    {
+      "id": "R-52668-48601-43859-11032-33191-58876-15768-53065",
+      "file": "lang_transaction.html",
+      "publicTclEvidence": false,
+      "counts": {
+        "AGREE": 0,
+        "DISAGREE": 0,
+        "MODEL_UNSUPPORTED": 0,
+        "HARNESS_ERROR": 0
+      }
+    },
+    {
+      "id": "R-53354-47195-06587-01867-57045-45178-06835-07822",
+      "file": "datatype3.html",
+      "publicTclEvidence": false,
+      "counts": {
+        "AGREE": 0,
+        "DISAGREE": 0,
+        "MODEL_UNSUPPORTED": 0,
+        "HARNESS_ERROR": 0
+      }
+    },
+    {
+      "id": "R-53367-44371-39189-42145-26716-53190-00022-58526",
+      "file": "datatype3.html",
+      "publicTclEvidence": false,
+      "counts": {
+        "AGREE": 0,
+        "DISAGREE": 0,
+        "MODEL_UNSUPPORTED": 0,
+        "HARNESS_ERROR": 0
+      }
+    },
+    {
+      "id": "R-53528-47027-65277-23622-06185-25684-15860-07330",
+      "file": "datatype3.html",
+      "publicTclEvidence": false,
+      "counts": {
+        "AGREE": 0,
+        "DISAGREE": 0,
+        "MODEL_UNSUPPORTED": 0,
+        "HARNESS_ERROR": 0
+      }
+    },
+    {
+      "id": "R-54056-32692-17641-45055-32204-64266-46866-10760",
+      "file": "datatype3.html",
+      "publicTclEvidence": false,
+      "counts": {
+        "AGREE": 0,
+        "DISAGREE": 0,
+        "MODEL_UNSUPPORTED": 0,
+        "HARNESS_ERROR": 0
+      }
+    },
+    {
+      "id": "R-54378-38553-30727-53168-14484-58684-10446-07107",
+      "file": "datatype3.html",
+      "publicTclEvidence": false,
+      "counts": {
+        "AGREE": 0,
+        "DISAGREE": 0,
+        "MODEL_UNSUPPORTED": 0,
+        "HARNESS_ERROR": 0
+      }
+    },
+    {
+      "id": "R-54614-40903-43648-00840-19083-45681-47455-60151",
+      "file": "datatype3.html",
+      "publicTclEvidence": false,
+      "counts": {
+        "AGREE": 0,
+        "DISAGREE": 0,
+        "MODEL_UNSUPPORTED": 0,
+        "HARNESS_ERROR": 0
+      }
+    },
+    {
+      "id": "R-54958-52840-02592-08757-44641-49324-05794-46061",
+      "file": "datatype3.html",
+      "publicTclEvidence": false,
+      "counts": {
+        "AGREE": 0,
+        "DISAGREE": 0,
+        "MODEL_UNSUPPORTED": 0,
+        "HARNESS_ERROR": 0
+      }
+    },
+    {
+      "id": "R-55137-26834-36059-41974-16460-01927-24032-61978",
+      "file": "lang_createindex.html",
+      "publicTclEvidence": false,
+      "counts": {
+        "AGREE": 1,
+        "DISAGREE": 0,
+        "MODEL_UNSUPPORTED": 0,
+        "HARNESS_ERROR": 0
+      }
+    },
+    {
+      "id": "R-55258-32329-20179-17327-29048-20222-48155-64370",
+      "file": "lang_transaction.html",
+      "publicTclEvidence": false,
+      "counts": {
+        "AGREE": 0,
+        "DISAGREE": 0,
+        "MODEL_UNSUPPORTED": 0,
+        "HARNESS_ERROR": 0
+      }
+    },
+    {
+      "id": "R-55640-01652-03650-49788-46468-05074-56971-00383",
+      "file": "lang_altertable.html",
+      "publicTclEvidence": true,
+      "counts": {
+        "AGREE": 0,
+        "DISAGREE": 0,
+        "MODEL_UNSUPPORTED": 0,
+        "HARNESS_ERROR": 0
+      }
+    },
+    {
+      "id": "R-55708-49653-17675-07799-20555-47879-27152-48993",
+      "file": "lang_transaction.html",
+      "publicTclEvidence": false,
+      "counts": {
+        "AGREE": 0,
+        "DISAGREE": 0,
+        "MODEL_UNSUPPORTED": 0,
+        "HARNESS_ERROR": 0
+      }
+    },
+    {
+      "id": "R-56101-50212-09292-39432-28945-47695-30385-48702",
+      "file": "datatype3.html",
+      "publicTclEvidence": false,
+      "counts": {
+        "AGREE": 0,
+        "DISAGREE": 0,
+        "MODEL_UNSUPPORTED": 0,
+        "HARNESS_ERROR": 0
+      }
+    },
+    {
+      "id": "R-56743-17266-53373-09142-21068-04228-42328-23175",
+      "file": "datatype3.html",
+      "publicTclEvidence": false,
+      "counts": {
+        "AGREE": 0,
+        "DISAGREE": 0,
+        "MODEL_UNSUPPORTED": 0,
+        "HARNESS_ERROR": 0
+      }
+    },
+    {
+      "id": "R-57025-62168-38373-42436-38968-34840-50734-33391",
+      "file": "lang_createindex.html",
+      "publicTclEvidence": false,
+      "counts": {
+        "AGREE": 0,
+        "DISAGREE": 0,
+        "MODEL_UNSUPPORTED": 0,
+        "HARNESS_ERROR": 0
+      }
+    },
+    {
+      "id": "R-57255-33789-60728-42833-30002-01027-59947-48122",
+      "file": "lang_transaction.html",
+      "publicTclEvidence": false,
+      "counts": {
+        "AGREE": 0,
+        "DISAGREE": 0,
+        "MODEL_UNSUPPORTED": 0,
+        "HARNESS_ERROR": 0
+      }
+    },
+    {
+      "id": "R-57876-22123-39728-45816-26959-17516-32294-11302",
+      "file": "lang_createindex.html",
+      "publicTclEvidence": false,
+      "counts": {
+        "AGREE": 0,
+        "DISAGREE": 0,
+        "MODEL_UNSUPPORTED": 0,
+        "HARNESS_ERROR": 0
+      }
+    },
+    {
+      "id": "R-57928-57565-35172-43517-28321-39002-52243-13899",
+      "file": "datatype3.html",
+      "publicTclEvidence": false,
+      "counts": {
+        "AGREE": 0,
+        "DISAGREE": 0,
+        "MODEL_UNSUPPORTED": 0,
+        "HARNESS_ERROR": 0
+      }
+    },
+    {
+      "id": "R-58138-64688-58268-07471-47988-19628-38893-25379",
+      "file": "datatype3.html",
+      "publicTclEvidence": false,
+      "counts": {
+        "AGREE": 0,
+        "DISAGREE": 0,
+        "MODEL_UNSUPPORTED": 0,
+        "HARNESS_ERROR": 0
+      }
+    },
+    {
+      "id": "R-58318-35349-04006-21440-04924-16231-32271-20333",
+      "file": "lang_altertable.html",
+      "publicTclEvidence": true,
+      "counts": {
+        "AGREE": 0,
+        "DISAGREE": 0,
+        "MODEL_UNSUPPORTED": 0,
+        "HARNESS_ERROR": 0
+      }
+    },
+    {
+      "id": "R-58433-37187-52219-35155-40508-43189-02693-26384",
+      "file": "lang_transaction.html",
+      "publicTclEvidence": false,
+      "counts": {
+        "AGREE": 0,
+        "DISAGREE": 0,
+        "MODEL_UNSUPPORTED": 0,
+        "HARNESS_ERROR": 0
+      }
+    },
+    {
+      "id": "R-58640-02877-59661-28558-18785-36384-52815-36823",
+      "file": "datatype3.html",
+      "publicTclEvidence": false,
+      "counts": {
+        "AGREE": 0,
+        "DISAGREE": 0,
+        "MODEL_UNSUPPORTED": 0,
+        "HARNESS_ERROR": 0
+      }
+    },
+    {
+      "id": "R-59153-45869-47799-39794-18343-43894-28184-56568",
+      "file": "datatype3.html",
+      "publicTclEvidence": false,
+      "counts": {
+        "AGREE": 0,
+        "DISAGREE": 0,
+        "MODEL_UNSUPPORTED": 0,
+        "HARNESS_ERROR": 0
+      }
+    },
+    {
+      "id": "R-60116-58305-35895-50546-31025-26877-37972-30944",
+      "file": "datatype3.html",
+      "publicTclEvidence": false,
+      "counts": {
+        "AGREE": 0,
+        "DISAGREE": 0,
+        "MODEL_UNSUPPORTED": 0,
+        "HARNESS_ERROR": 0
+      }
+    },
+    {
+      "id": "R-62157-11346-38405-02312-46550-08471-09631-26487",
+      "file": "lang_transaction.html",
+      "publicTclEvidence": false,
+      "counts": {
+        "AGREE": 0,
+        "DISAGREE": 0,
+        "MODEL_UNSUPPORTED": 0,
+        "HARNESS_ERROR": 0
+      }
+    },
+    {
+      "id": "R-62804-28221-24652-30727-46370-42129-23035-01106",
+      "file": "lang_createindex.html",
+      "publicTclEvidence": false,
+      "counts": {
+        "AGREE": 0,
+        "DISAGREE": 0,
+        "MODEL_UNSUPPORTED": 0,
+        "HARNESS_ERROR": 0
+      }
+    },
+    {
+      "id": "R-63063-00748-16445-34795-46686-39617-28312-04661",
+      "file": "datatype3.html",
+      "publicTclEvidence": false,
+      "counts": {
+        "AGREE": 0,
+        "DISAGREE": 0,
+        "MODEL_UNSUPPORTED": 0,
+        "HARNESS_ERROR": 0
+      }
+    },
+    {
+      "id": "R-63244-23082-15887-51901-20973-26143-20960-26958",
+      "file": "datatype3.html",
+      "publicTclEvidence": false,
+      "counts": {
+        "AGREE": 0,
+        "DISAGREE": 0,
+        "MODEL_UNSUPPORTED": 0,
+        "HARNESS_ERROR": 0
+      }
+    },
+    {
+      "id": "R-63516-50117-63411-46910-42078-47460-16575-25841",
+      "file": "datatype3.html",
+      "publicTclEvidence": false,
+      "counts": {
+        "AGREE": 0,
+        "DISAGREE": 0,
+        "MODEL_UNSUPPORTED": 0,
+        "HARNESS_ERROR": 0
+      }
+    },
+    {
+      "id": "R-64016-22984-52243-31154-04159-15253-33575-11293",
+      "file": "datatype3.html",
+      "publicTclEvidence": false,
+      "counts": {
+        "AGREE": 0,
+        "DISAGREE": 0,
+        "MODEL_UNSUPPORTED": 0,
+        "HARNESS_ERROR": 0
+      }
+    },
+    {
+      "id": "R-64049-08691-55124-50671-44406-19697-22475-30547",
+      "file": "datatype3.html",
+      "publicTclEvidence": false,
+      "counts": {
+        "AGREE": 0,
+        "DISAGREE": 0,
+        "MODEL_UNSUPPORTED": 0,
+        "HARNESS_ERROR": 0
+      }
+    },
+    {
+      "id": "R-64324-28127-56247-07957-53732-02733-48072-24920",
+      "file": "datatype3.html",
+      "publicTclEvidence": false,
+      "counts": {
+        "AGREE": 0,
+        "DISAGREE": 0,
+        "MODEL_UNSUPPORTED": 0,
+        "HARNESS_ERROR": 0
+      }
+    },
+    {
+      "id": "R-64839-61120-28231-56530-41272-62247-43805-43738",
+      "file": "datatype3.html",
+      "publicTclEvidence": false,
+      "counts": {
+        "AGREE": 0,
+        "DISAGREE": 0,
+        "MODEL_UNSUPPORTED": 0,
+        "HARNESS_ERROR": 0
+      }
+    },
+    {
+      "id": "R-64962-17428-03573-42931-48456-26794-13581-20203",
+      "file": "datatype3.html",
+      "publicTclEvidence": false,
+      "counts": {
+        "AGREE": 0,
+        "DISAGREE": 0,
+        "MODEL_UNSUPPORTED": 0,
+        "HARNESS_ERROR": 0
+      }
+    },
+    {
+      "id": "R-65300-64550-00463-55023-40104-43666-12951-02448",
+      "file": "datatype3.html",
+      "publicTclEvidence": false,
+      "counts": {
+        "AGREE": 0,
+        "DISAGREE": 0,
+        "MODEL_UNSUPPORTED": 0,
+        "HARNESS_ERROR": 0
+      }
+    },
+    {
+      "id": "R-65304-57881-32228-09146-30017-59454-39464-18055",
+      "file": "datatype3.html",
+      "publicTclEvidence": false,
+      "counts": {
+        "AGREE": 0,
+        "DISAGREE": 0,
+        "MODEL_UNSUPPORTED": 0,
+        "HARNESS_ERROR": 0
+      }
+    }
+  ],
+  "limitation": "Scenario counts do not prove entire requirements. Untagged upstream cases are not credited with file-level R-ID references.",
+  "counts": {
+    "MODEL_UNSUPPORTED": 175,
+    "AGREE": 8
+  },
+  "byArea": {
+    "alter.test": {
+      "MODEL_UNSUPPORTED": 12
+    },
+    "alter3.test": {
+      "MODEL_UNSUPPORTED": 7
+    },
+    "alter4.test": {
+      "MODEL_UNSUPPORTED": 4
+    },
+    "altercol.test": {
+      "AGREE": 2,
+      "MODEL_UNSUPPORTED": 18
+    },
+    "alterdropcol.test": {
+      "MODEL_UNSUPPORTED": 20
+    },
+    "alterdropcol2.test": {
+      "MODEL_UNSUPPORTED": 20
+    },
+    "alterlegacy.test": {
+      "MODEL_UNSUPPORTED": 14
+    },
+    "altertab.test": {
+      "MODEL_UNSUPPORTED": 20
+    },
+    "altertab2.test": {
+      "MODEL_UNSUPPORTED": 20
+    },
+    "altertab3.test": {
+      "MODEL_UNSUPPORTED": 20
+    },
+    "altertrig.test": {
+      "MODEL_UNSUPPORTED": 20
+    },
+    "authored": {
+      "AGREE": 6
+    }
+  },
+  "byRequirement": {
+    "R-03366-15091": {
+      "AGREE": 1
+    },
+    "R-06718-34797": {
+      "AGREE": 1
+    },
+    "R-10948-48115": {
+      "AGREE": 1
+    },
+    "R-11576-11990": {
+      "AGREE": 1
+    },
+    "R-17379-32951": {
+      "AGREE": 1
+    },
+    "R-29897-28851": {
+      "AGREE": 1
+    },
+    "R-36570-50350": {
+      "AGREE": 1
+    },
+    "R-42316-09582": {
+      "AGREE": 1
+    },
+    "R-55137-26834": {
+      "AGREE": 1
+    },
+    "UNTAGGED": {
+      "MODEL_UNSUPPORTED": 175,
+      "AGREE": 2
+    }
+  },
+  "cases": [
+    {
+      "name": "alter:alter-18.1:107",
+      "verdict": "MODEL_UNSUPPORTED",
+      "error": "Use an explicit INTEGER, REAL, TEXT, BLOB, or NUMERIC type"
+    },
+    {
+      "name": "alter:alter-19.1:108",
+      "verdict": "MODEL_UNSUPPORTED",
+      "error": "Use an explicit INTEGER, REAL, TEXT, BLOB, or NUMERIC type"
+    },
+    {
+      "name": "alter:alter-19.2:109",
+      "verdict": "MODEL_UNSUPPORTED",
+      "error": "Starting schema requires supported tables and indexes"
+    },
+    {
+      "name": "alter:alter-19.3:110",
+      "verdict": "MODEL_UNSUPPORTED",
+      "error": "Starting schema requires supported tables and indexes"
+    },
+    {
+      "name": "alter:alter-20.1:111",
+      "verdict": "MODEL_UNSUPPORTED",
+      "error": "Unsupported SQL feature: table_option_set"
+    },
+    {
+      "name": "alter:alter-20.2:112",
+      "verdict": "MODEL_UNSUPPORTED",
+      "error": "Unsupported SQL feature: table_option_set"
+    },
+    {
+      "name": "alter:alter-20.2:113",
+      "verdict": "MODEL_UNSUPPORTED",
+      "error": "Unsupported SQL feature: table_option_set"
+    },
+    {
+      "name": "alter:alter-20.3:114",
+      "verdict": "MODEL_UNSUPPORTED",
+      "error": "Unsupported SQL feature: table_option_set"
+    },
+    {
+      "name": "alter:alter-21.1:115",
+      "verdict": "MODEL_UNSUPPORTED",
+      "error": "Use an explicit INTEGER, REAL, TEXT, BLOB, or NUMERIC type"
+    },
+    {
+      "name": "alter:alter-21.2:116",
+      "verdict": "MODEL_UNSUPPORTED",
+      "error": "Starting schema requires supported tables and indexes"
+    },
+    {
+      "name": "alter:alter-21.3:117",
+      "verdict": "MODEL_UNSUPPORTED",
+      "error": "Starting schema requires supported tables and indexes"
+    },
+    {
+      "name": "alter:alter-21.4:118",
+      "verdict": "MODEL_UNSUPPORTED",
+      "error": "Starting schema requires supported tables and indexes"
+    },
+    {
+      "name": "alter3:alter3-9.1:47",
+      "verdict": "MODEL_UNSUPPORTED",
+      "error": "Use an explicit INTEGER, REAL, TEXT, BLOB, or NUMERIC type"
+    },
+    {
+      "name": "alter3:alter3-9.2:48",
+      "verdict": "MODEL_UNSUPPORTED",
+      "error": "Unsupported SQL feature: carglist"
+    },
+    {
+      "name": "alter3:alter3-9.3:49",
+      "verdict": "MODEL_UNSUPPORTED",
+      "error": "Unsupported SQL feature: carglist"
+    },
+    {
+      "name": "alter3:alter3-9.4:50",
+      "verdict": "MODEL_UNSUPPORTED",
+      "error": "Unsupported SQL feature: carglist"
+    },
+    {
+      "name": "alter3:alter3-9.5:51",
+      "verdict": "MODEL_UNSUPPORTED",
+      "error": "Unsupported baseline column constraint"
+    },
+    {
+      "name": "alter3:alter3-9.6:52",
+      "verdict": "MODEL_UNSUPPORTED",
+      "error": "Unsupported baseline column constraint"
+    },
+    {
+      "name": "alter3:alter3-9.7:53",
+      "verdict": "MODEL_UNSUPPORTED",
+      "error": "Unsupported baseline column constraint"
+    },
+    {
+      "name": "alter4:alter4-11.0:48",
+      "verdict": "MODEL_UNSUPPORTED",
+      "error": "Use an explicit INTEGER, REAL, TEXT, BLOB, or NUMERIC type"
+    },
+    {
+      "name": "alter4:alter4-11.1:49",
+      "verdict": "MODEL_UNSUPPORTED",
+      "error": "INTEGER PRIMARY KEY rowid aliases are not modeled"
+    },
+    {
+      "name": "alter4:alter4-11.2:50",
+      "verdict": "MODEL_UNSUPPORTED",
+      "error": "Unsupported baseline column constraint"
+    },
+    {
+      "name": "alter4:alter4-11.3:51",
+      "verdict": "MODEL_UNSUPPORTED",
+      "error": "Unsupported baseline column constraint"
+    },
+    {
+      "name": "altercol:altercol-1.1.0:0",
+      "position": null,
+      "verdict": "AGREE"
+    },
+    {
+      "name": "altercol:altercol-1.1.1:1",
+      "verdict": "MODEL_UNSUPPORTED",
+      "error": "SQL form is outside the supported literal-write subset"
+    },
+    {
+      "name": "altercol:altercol-1.1.2:2",
+      "verdict": "MODEL_UNSUPPORTED",
+      "error": "Only ALTER TABLE ADD COLUMN is supported"
+    },
+    {
+      "name": "altercol:altercol-1.1.3:3",
+      "verdict": "MODEL_UNSUPPORTED",
+      "error": "Statement semantics are not implemented"
+    },
+    {
+      "name": "altercol:altercol-1.1.4:4",
+      "verdict": "MODEL_UNSUPPORTED",
+      "error": "Statement semantics are not implemented"
+    },
+    {
+      "name": "altercol:altercol-1.2.0:5",
+      "position": null,
+      "verdict": "AGREE"
+    },
+    {
+      "name": "altercol:altercol-1.2.1:6",
+      "verdict": "MODEL_UNSUPPORTED",
+      "error": "SQL form is outside the supported literal-write subset"
+    },
+    {
+      "name": "altercol:altercol-1.2.2:7",
+      "verdict": "MODEL_UNSUPPORTED",
+      "error": "Only ALTER TABLE ADD COLUMN is supported"
+    },
+    {
+      "name": "altercol:altercol-1.2.3:8",
+      "verdict": "MODEL_UNSUPPORTED",
+      "error": "Statement semantics are not implemented"
+    },
+    {
+      "name": "altercol:altercol-1.2.4:9",
+      "verdict": "MODEL_UNSUPPORTED",
+      "error": "Statement semantics are not implemented"
+    },
+    {
+      "name": "altercol:altercol-1.3.0:10",
+      "verdict": "MODEL_UNSUPPORTED",
+      "error": "Unsupported SQL feature: conslist_opt"
+    },
+    {
+      "name": "altercol:altercol-1.3.1:11",
+      "verdict": "MODEL_UNSUPPORTED",
+      "error": "Only unnamed UNIQUE table constraints are modeled"
+    },
+    {
+      "name": "altercol:altercol-1.3.2:12",
+      "verdict": "MODEL_UNSUPPORTED",
+      "error": "Only unnamed UNIQUE table constraints are modeled"
+    },
+    {
+      "name": "altercol:altercol-1.3.3:13",
+      "verdict": "MODEL_UNSUPPORTED",
+      "error": "Only unnamed UNIQUE table constraints are modeled"
+    },
+    {
+      "name": "altercol:altercol-1.3.4:14",
+      "verdict": "MODEL_UNSUPPORTED",
+      "error": "Only unnamed UNIQUE table constraints are modeled"
+    },
+    {
+      "name": "altercol:altercol-1.4.0:15",
+      "verdict": "MODEL_UNSUPPORTED",
+      "error": "Unsupported SQL feature: conslist_opt"
+    },
+    {
+      "name": "altercol:altercol-1.4.1:16",
+      "verdict": "MODEL_UNSUPPORTED",
+      "error": "Only unnamed UNIQUE table constraints are modeled"
+    },
+    {
+      "name": "altercol:altercol-1.4.2:17",
+      "verdict": "MODEL_UNSUPPORTED",
+      "error": "Only unnamed UNIQUE table constraints are modeled"
+    },
+    {
+      "name": "altercol:altercol-1.4.3:18",
+      "verdict": "MODEL_UNSUPPORTED",
+      "error": "Only unnamed UNIQUE table constraints are modeled"
+    },
+    {
+      "name": "altercol:altercol-1.4.4:19",
+      "verdict": "MODEL_UNSUPPORTED",
+      "error": "Only unnamed UNIQUE table constraints are modeled"
+    },
+    {
+      "name": "alterdropcol:alterdropcol-1.0:0",
+      "verdict": "MODEL_UNSUPPORTED",
+      "error": "Use an explicit INTEGER, REAL, TEXT, BLOB, or NUMERIC type"
+    },
+    {
+      "name": "alterdropcol:alterdropcol-1.1:1",
+      "verdict": "MODEL_UNSUPPORTED",
+      "error": "Unsupported baseline column constraint"
+    },
+    {
+      "name": "alterdropcol:alterdropcol-1.2:2",
+      "verdict": "MODEL_UNSUPPORTED",
+      "error": "Unsupported baseline column constraint"
+    },
+    {
+      "name": "alterdropcol:alterdropcol-1.4:3",
+      "verdict": "MODEL_UNSUPPORTED",
+      "error": "Unsupported baseline column constraint"
+    },
+    {
+      "name": "alterdropcol:alterdropcol-1.5:4",
+      "verdict": "MODEL_UNSUPPORTED",
+      "error": "Unsupported baseline column constraint"
+    },
+    {
+      "name": "alterdropcol:alterdropcol-1.6.1:5",
+      "verdict": "MODEL_UNSUPPORTED",
+      "error": "Unsupported baseline column constraint"
+    },
+    {
+      "name": "alterdropcol:alterdropcol-1.6.2:6",
+      "verdict": "MODEL_UNSUPPORTED",
+      "error": "Unsupported baseline column constraint"
+    },
+    {
+      "name": "alterdropcol:alterdropcol-1.7.1:7",
+      "verdict": "MODEL_UNSUPPORTED",
+      "error": "Unsupported baseline column constraint"
+    },
+    {
+      "name": "alterdropcol:alterdropcol-1.7.2:8",
+      "verdict": "MODEL_UNSUPPORTED",
+      "error": "Unsupported baseline column constraint"
+    },
+    {
+      "name": "alterdropcol:alterdropcol-1.7.3:9",
+      "verdict": "MODEL_UNSUPPORTED",
+      "error": "Unsupported baseline column constraint"
+    },
+    {
+      "name": "alterdropcol:alterdropcol-1.8:10",
+      "verdict": "MODEL_UNSUPPORTED",
+      "error": "Unsupported baseline column constraint"
+    },
+    {
+      "name": "alterdropcol:alterdropcol-1.9:11",
+      "verdict": "MODEL_UNSUPPORTED",
+      "error": "Unsupported baseline column constraint"
+    },
+    {
+      "name": "alterdropcol:alterdropcol-1.10:12",
+      "verdict": "MODEL_UNSUPPORTED",
+      "error": "Unsupported baseline column constraint"
+    },
+    {
+      "name": "alterdropcol:alterdropcol-1.11:13",
+      "verdict": "MODEL_UNSUPPORTED",
+      "error": "Unsupported baseline column constraint"
+    },
+    {
+      "name": "alterdropcol:alterdropcol-2.1.0:14",
+      "verdict": "MODEL_UNSUPPORTED",
+      "error": "Use an explicit INTEGER, REAL, TEXT, BLOB, or NUMERIC type"
+    },
+    {
+      "name": "alterdropcol:alterdropcol-2.1.1:15",
+      "verdict": "MODEL_UNSUPPORTED",
+      "error": "INTEGER PRIMARY KEY rowid aliases are not modeled"
+    },
+    {
+      "name": "alterdropcol:alterdropcol-2.1.2:16",
+      "verdict": "MODEL_UNSUPPORTED",
+      "error": "INTEGER PRIMARY KEY rowid aliases are not modeled"
+    },
+    {
+      "name": "alterdropcol:alterdropcol-2.2.0:17",
+      "verdict": "MODEL_UNSUPPORTED",
+      "error": "Unsupported SQL feature: table_option_set"
+    },
+    {
+      "name": "alterdropcol:alterdropcol-2.2.1:18",
+      "verdict": "MODEL_UNSUPPORTED",
+      "error": "Unsupported SQL feature: table_option_set"
+    },
+    {
+      "name": "alterdropcol:alterdropcol-2.2.2:19",
+      "verdict": "MODEL_UNSUPPORTED",
+      "error": "Unsupported SQL feature: table_option_set"
+    },
+    {
+      "name": "alterdropcol2:alterdropcol2-1.0:0",
+      "verdict": "MODEL_UNSUPPORTED",
+      "error": "Unsupported SQL feature: conslist_opt"
+    },
+    {
+      "name": "alterdropcol2:alterdropcol2-1.1:1",
+      "verdict": "MODEL_UNSUPPORTED",
+      "error": "Unsupported SQL feature: table_option_set"
+    },
+    {
+      "name": "alterdropcol2:alterdropcol2-1.2.1:2",
+      "verdict": "MODEL_UNSUPPORTED",
+      "error": "Unsupported SQL feature: table_option_set"
+    },
+    {
+      "name": "alterdropcol2:alterdropcol2-1.2.2:3",
+      "verdict": "MODEL_UNSUPPORTED",
+      "error": "Unsupported SQL feature: table_option_set"
+    },
+    {
+      "name": "alterdropcol2:alterdropcol2-2.1.1:4",
+      "verdict": "MODEL_UNSUPPORTED",
+      "error": "Only ALTER TABLE ADD COLUMN is supported"
+    },
+    {
+      "name": "alterdropcol2:alterdropcol2-2.1.2:5",
+      "verdict": "MODEL_UNSUPPORTED",
+      "error": "Only unnamed UNIQUE table constraints are modeled"
+    },
+    {
+      "name": "alterdropcol2:alterdropcol2-2.2.1:6",
+      "verdict": "MODEL_UNSUPPORTED",
+      "error": "Unsupported baseline column constraint"
+    },
+    {
+      "name": "alterdropcol2:alterdropcol2-2.2.2:7",
+      "verdict": "MODEL_UNSUPPORTED",
+      "error": "Only ALTER TABLE ADD COLUMN is supported"
+    },
+    {
+      "name": "alterdropcol2:alterdropcol2-2.3.1:8",
+      "verdict": "MODEL_UNSUPPORTED",
+      "error": "Keys require plain column references"
+    },
+    {
+      "name": "alterdropcol2:alterdropcol2-2.3.2:9",
+      "verdict": "MODEL_UNSUPPORTED",
+      "error": "Only ALTER TABLE ADD COLUMN is supported"
+    },
+    {
+      "name": "alterdropcol2:alterdropcol2-2.4.1:10",
+      "verdict": "MODEL_UNSUPPORTED",
+      "error": "Unsupported SQL feature: table_option_set"
+    },
+    {
+      "name": "alterdropcol2:alterdropcol2-2.5.1:11",
+      "verdict": "MODEL_UNSUPPORTED",
+      "error": "Unsupported SQL feature: table_option_set"
+    },
+    {
+      "name": "alterdropcol2:alterdropcol2-2.6.1:12",
+      "verdict": "MODEL_UNSUPPORTED",
+      "error": "Only unnamed UNIQUE table constraints are modeled"
+    },
+    {
+      "name": "alterdropcol2:alterdropcol2-2.7.1:13",
+      "verdict": "MODEL_UNSUPPORTED",
+      "error": "Unsupported baseline column constraint"
+    },
+    {
+      "name": "alterdropcol2:alterdropcol2-2.7.2:14",
+      "verdict": "MODEL_UNSUPPORTED",
+      "error": "Unsupported baseline column constraint"
+    },
+    {
+      "name": "alterdropcol2:alterdropcol2-2.8.1:15",
+      "verdict": "MODEL_UNSUPPORTED",
+      "error": "Starting schema requires supported tables and indexes"
+    },
+    {
+      "name": "alterdropcol2:alterdropcol2-2.8.2:16",
+      "verdict": "MODEL_UNSUPPORTED",
+      "error": "Starting schema requires supported tables and indexes"
+    },
+    {
+      "name": "alterdropcol2:alterdropcol2-2.8.3:17",
+      "verdict": "MODEL_UNSUPPORTED",
+      "error": "Starting schema requires supported tables and indexes"
+    },
+    {
+      "name": "alterdropcol2:alterdropcol2-3.0:18",
+      "verdict": "MODEL_UNSUPPORTED",
+      "error": "Starting schema requires supported tables and indexes"
+    },
+    {
+      "name": "alterdropcol2:alterdropcol2-3.1.1:19",
+      "verdict": "MODEL_UNSUPPORTED",
+      "error": "Unsupported baseline column constraint"
+    },
+    {
+      "name": "alterlegacy:alterlegacy-1.0:0",
+      "verdict": "MODEL_UNSUPPORTED",
+      "error": "Statement semantics are not implemented"
+    },
+    {
+      "name": "alterlegacy:alterlegacy-1.1:1",
+      "verdict": "MODEL_UNSUPPORTED",
+      "error": "Only unnamed UNIQUE table constraints are modeled"
+    },
+    {
+      "name": "alterlegacy:alterlegacy-1.2:2",
+      "verdict": "MODEL_UNSUPPORTED",
+      "error": "Only unnamed UNIQUE table constraints are modeled"
+    },
+    {
+      "name": "alterlegacy:alterlegacy-1.3:3",
+      "verdict": "MODEL_UNSUPPORTED",
+      "error": "Only unnamed UNIQUE table constraints are modeled"
+    },
+    {
+      "name": "alterlegacy:alterlegacy-1.4:4",
+      "verdict": "MODEL_UNSUPPORTED",
+      "error": "Only unnamed UNIQUE table constraints are modeled"
+    },
+    {
+      "name": "alterlegacy:alterlegacy-1.3:5",
+      "verdict": "MODEL_UNSUPPORTED",
+      "error": "Only unnamed UNIQUE table constraints are modeled"
+    },
+    {
+      "name": "alterlegacy:alterlegacy-1.4:6",
+      "verdict": "MODEL_UNSUPPORTED",
+      "error": "Only unnamed UNIQUE table constraints are modeled"
+    },
+    {
+      "name": "alterlegacy:alterlegacy-4.0:19",
+      "verdict": "MODEL_UNSUPPORTED",
+      "error": "Statement semantics are not implemented"
+    },
+    {
+      "name": "alterlegacy:alterlegacy-4.1:20",
+      "verdict": "MODEL_UNSUPPORTED",
+      "error": "Starting schema requires supported tables and indexes"
+    },
+    {
+      "name": "alterlegacy:alterlegacy-4.1a:21",
+      "verdict": "MODEL_UNSUPPORTED",
+      "error": "Starting schema requires supported tables and indexes"
+    },
+    {
+      "name": "alterlegacy:alterlegacy-4.1b:22",
+      "verdict": "MODEL_UNSUPPORTED",
+      "error": "Starting schema requires supported tables and indexes"
+    },
+    {
+      "name": "alterlegacy:alterlegacy-4.1c:23",
+      "verdict": "MODEL_UNSUPPORTED",
+      "error": "Starting schema requires supported tables and indexes"
+    },
+    {
+      "name": "alterlegacy:alterlegacy-9.3:43",
+      "verdict": "MODEL_UNSUPPORTED",
+      "error": "Starting schema requires supported tables and indexes"
+    },
+    {
+      "name": "alterlegacy:alterlegacy-14.5:58",
+      "verdict": "MODEL_UNSUPPORTED",
+      "error": "Statement semantics are not implemented"
+    },
+    {
+      "name": "altertab:altertab-1.0:0",
+      "verdict": "MODEL_UNSUPPORTED",
+      "error": "Unsupported SQL feature: conslist_opt"
+    },
+    {
+      "name": "altertab:altertab-1.1:1",
+      "verdict": "MODEL_UNSUPPORTED",
+      "error": "Only unnamed UNIQUE table constraints are modeled"
+    },
+    {
+      "name": "altertab:altertab-1.2:2",
+      "verdict": "MODEL_UNSUPPORTED",
+      "error": "Only unnamed UNIQUE table constraints are modeled"
+    },
+    {
+      "name": "altertab:altertab-1.3:3",
+      "verdict": "MODEL_UNSUPPORTED",
+      "error": "Only unnamed UNIQUE table constraints are modeled"
+    },
+    {
+      "name": "altertab:altertab-1.4:4",
+      "verdict": "MODEL_UNSUPPORTED",
+      "error": "Only unnamed UNIQUE table constraints are modeled"
+    },
+    {
+      "name": "altertab:altertab-1.3:5",
+      "verdict": "MODEL_UNSUPPORTED",
+      "error": "Only unnamed UNIQUE table constraints are modeled"
+    },
+    {
+      "name": "altertab:altertab-1.4:6",
+      "verdict": "MODEL_UNSUPPORTED",
+      "error": "Only unnamed UNIQUE table constraints are modeled"
+    },
+    {
+      "name": "altertab:altertab-4.0:18",
+      "verdict": "MODEL_UNSUPPORTED",
+      "error": "Use an explicit INTEGER, REAL, TEXT, BLOB, or NUMERIC type"
+    },
+    {
+      "name": "altertab:altertab-4.1:19",
+      "verdict": "MODEL_UNSUPPORTED",
+      "error": "Starting schema requires supported tables and indexes"
+    },
+    {
+      "name": "altertab:altertab-9.3:38",
+      "verdict": "MODEL_UNSUPPORTED",
+      "error": "Starting schema requires supported tables and indexes"
+    },
+    {
+      "name": "altertab:altertab-13.0:53",
+      "verdict": "MODEL_UNSUPPORTED",
+      "error": "Use an explicit INTEGER, REAL, TEXT, BLOB, or NUMERIC type"
+    },
+    {
+      "name": "altertab:altertab-13.1:54",
+      "verdict": "MODEL_UNSUPPORTED",
+      "error": "Starting schema requires supported tables and indexes"
+    },
+    {
+      "name": "altertab:altertab-13.2:55",
+      "verdict": "MODEL_UNSUPPORTED",
+      "error": "Starting schema requires supported tables and indexes"
+    },
+    {
+      "name": "altertab:altertab-14.5:56",
+      "verdict": "MODEL_UNSUPPORTED",
+      "error": "Use an explicit INTEGER, REAL, TEXT, BLOB, or NUMERIC type"
+    },
+    {
+      "name": "altertab:altertab-14.6:57",
+      "verdict": "MODEL_UNSUPPORTED",
+      "error": "Starting schema requires supported tables and indexes"
+    },
+    {
+      "name": "altertab:altertab-15.0:58",
+      "verdict": "MODEL_UNSUPPORTED",
+      "error": "Unsupported SQL feature: carglist"
+    },
+    {
+      "name": "altertab:altertab-15.1:59",
+      "verdict": "MODEL_UNSUPPORTED",
+      "error": "INTEGER PRIMARY KEY rowid aliases are not modeled"
+    },
+    {
+      "name": "altertab:altertab-15.2:60",
+      "verdict": "MODEL_UNSUPPORTED",
+      "error": "INTEGER PRIMARY KEY rowid aliases are not modeled"
+    },
+    {
+      "name": "altertab:altertab-15.3:61",
+      "verdict": "MODEL_UNSUPPORTED",
+      "error": "INTEGER PRIMARY KEY rowid aliases are not modeled"
+    },
+    {
+      "name": "altertab:altertab-15.4:62",
+      "verdict": "MODEL_UNSUPPORTED",
+      "error": "INTEGER PRIMARY KEY rowid aliases are not modeled"
+    },
+    {
+      "name": "altertab2:altertab2-2.0:0",
+      "verdict": "MODEL_UNSUPPORTED",
+      "error": "Use an explicit INTEGER, REAL, TEXT, BLOB, or NUMERIC type"
+    },
+    {
+      "name": "altertab2:altertab2-2.1:1",
+      "verdict": "MODEL_UNSUPPORTED",
+      "error": "Unsupported baseline column constraint"
+    },
+    {
+      "name": "altertab2:altertab2-2.2:2",
+      "verdict": "MODEL_UNSUPPORTED",
+      "error": "Unsupported baseline column constraint"
+    },
+    {
+      "name": "altertab2:altertab2-2.3:3",
+      "verdict": "MODEL_UNSUPPORTED",
+      "error": "Unsupported baseline column constraint"
+    },
+    {
+      "name": "altertab2:altertab2-3.1.1:4",
+      "verdict": "MODEL_UNSUPPORTED",
+      "error": "Use an explicit INTEGER, REAL, TEXT, BLOB, or NUMERIC type"
+    },
+    {
+      "name": "altertab2:altertab2-3.1.2:5",
+      "verdict": "MODEL_UNSUPPORTED",
+      "error": "Only ALTER TABLE ADD COLUMN is supported"
+    },
+    {
+      "name": "altertab2:altertab2-3.1.3:6",
+      "verdict": "MODEL_UNSUPPORTED",
+      "error": "Use an explicit INTEGER, REAL, TEXT, BLOB, or NUMERIC type"
+    },
+    {
+      "name": "altertab2:altertab2-3.1.4:7",
+      "verdict": "MODEL_UNSUPPORTED",
+      "error": "Only ALTER TABLE ADD COLUMN is supported"
+    },
+    {
+      "name": "altertab2:altertab2-3.2.1:8",
+      "verdict": "MODEL_UNSUPPORTED",
+      "error": "Use an explicit INTEGER, REAL, TEXT, BLOB, or NUMERIC type"
+    },
+    {
+      "name": "altertab2:altertab2-3.2.2:9",
+      "verdict": "MODEL_UNSUPPORTED",
+      "error": "Starting schema requires supported tables and indexes"
+    },
+    {
+      "name": "altertab2:altertab2-3.2.3:10",
+      "verdict": "MODEL_UNSUPPORTED",
+      "error": "Use an explicit INTEGER, REAL, TEXT, BLOB, or NUMERIC type"
+    },
+    {
+      "name": "altertab2:altertab2-3.2.4:11",
+      "verdict": "MODEL_UNSUPPORTED",
+      "error": "Starting schema requires supported tables and indexes"
+    },
+    {
+      "name": "altertab2:altertab2-3.3.1:12",
+      "verdict": "MODEL_UNSUPPORTED",
+      "error": "Use an explicit INTEGER, REAL, TEXT, BLOB, or NUMERIC type"
+    },
+    {
+      "name": "altertab2:altertab2-3.3.2:13",
+      "verdict": "MODEL_UNSUPPORTED",
+      "error": "Starting schema requires supported tables and indexes"
+    },
+    {
+      "name": "altertab2:altertab2-3.3.3:14",
+      "verdict": "MODEL_UNSUPPORTED",
+      "error": "Use an explicit INTEGER, REAL, TEXT, BLOB, or NUMERIC type"
+    },
+    {
+      "name": "altertab2:altertab2-3.3.4:15",
+      "verdict": "MODEL_UNSUPPORTED",
+      "error": "Starting schema requires supported tables and indexes"
+    },
+    {
+      "name": "altertab2:altertab2-3.4.1:16",
+      "verdict": "MODEL_UNSUPPORTED",
+      "error": "Use an explicit INTEGER, REAL, TEXT, BLOB, or NUMERIC type"
+    },
+    {
+      "name": "altertab2:altertab2-3.4.2:17",
+      "verdict": "MODEL_UNSUPPORTED",
+      "error": "Starting schema requires supported tables and indexes"
+    },
+    {
+      "name": "altertab2:altertab2-3.4.3:18",
+      "verdict": "MODEL_UNSUPPORTED",
+      "error": "Use an explicit INTEGER, REAL, TEXT, BLOB, or NUMERIC type"
+    },
+    {
+      "name": "altertab2:altertab2-3.4.4:19",
+      "verdict": "MODEL_UNSUPPORTED",
+      "error": "Starting schema requires supported tables and indexes"
+    },
+    {
+      "name": "altertab3:altertab3-1.0:0",
+      "verdict": "MODEL_UNSUPPORTED",
+      "error": "Use an explicit INTEGER, REAL, TEXT, BLOB, or NUMERIC type"
+    },
+    {
+      "name": "altertab3:altertab3-1.1:1",
+      "verdict": "MODEL_UNSUPPORTED",
+      "error": "Starting schema requires supported tables and indexes"
+    },
+    {
+      "name": "altertab3:altertab3-1.2:2",
+      "verdict": "MODEL_UNSUPPORTED",
+      "error": "Starting schema requires supported tables and indexes"
+    },
+    {
+      "name": "altertab3:altertab3-1.3:3",
+      "verdict": "MODEL_UNSUPPORTED",
+      "error": "Starting schema requires supported tables and indexes"
+    },
+    {
+      "name": "altertab3:altertab3-2.0:4",
+      "verdict": "MODEL_UNSUPPORTED",
+      "error": "Use an explicit INTEGER, REAL, TEXT, BLOB, or NUMERIC type"
+    },
+    {
+      "name": "altertab3:altertab3-2.1:5",
+      "verdict": "MODEL_UNSUPPORTED",
+      "error": "Starting schema requires supported tables and indexes"
+    },
+    {
+      "name": "altertab3:altertab3-3.0:6",
+      "verdict": "MODEL_UNSUPPORTED",
+      "error": "Use an explicit INTEGER, REAL, TEXT, BLOB, or NUMERIC type"
+    },
+    {
+      "name": "altertab3:altertab3-3.1:7",
+      "verdict": "MODEL_UNSUPPORTED",
+      "error": "Starting schema requires supported tables and indexes"
+    },
+    {
+      "name": "altertab3:altertab3-3.2:8",
+      "verdict": "MODEL_UNSUPPORTED",
+      "error": "Starting schema requires supported tables and indexes"
+    },
+    {
+      "name": "altertab3:altertab3-4.0:9",
+      "verdict": "MODEL_UNSUPPORTED",
+      "error": "Use an explicit INTEGER, REAL, TEXT, BLOB, or NUMERIC type"
+    },
+    {
+      "name": "altertab3:altertab3-4.1.2:10",
+      "verdict": "MODEL_UNSUPPORTED",
+      "error": "Starting schema requires supported tables and indexes"
+    },
+    {
+      "name": "altertab3:altertab3-4.1.3:12",
+      "verdict": "MODEL_UNSUPPORTED",
+      "error": "Starting schema requires supported tables and indexes"
+    },
+    {
+      "name": "altertab3:altertab3-4.2.1:13",
+      "verdict": "MODEL_UNSUPPORTED",
+      "error": "Starting schema requires supported tables and indexes"
+    },
+    {
+      "name": "altertab3:altertab3-4.2.3:15",
+      "verdict": "MODEL_UNSUPPORTED",
+      "error": "Starting schema requires supported tables and indexes"
+    },
+    {
+      "name": "altertab3:altertab3-5.0:16",
+      "verdict": "MODEL_UNSUPPORTED",
+      "error": "Unsupported SQL feature: conslist_opt"
+    },
+    {
+      "name": "altertab3:altertab3-5.1:17",
+      "verdict": "MODEL_UNSUPPORTED",
+      "error": "Only unnamed UNIQUE table constraints are modeled"
+    },
+    {
+      "name": "altertab3:altertab3-7.1.0:20",
+      "verdict": "MODEL_UNSUPPORTED",
+      "error": "Use an explicit INTEGER, REAL, TEXT, BLOB, or NUMERIC type"
+    },
+    {
+      "name": "altertab3:altertab3-7.1.2:21",
+      "verdict": "MODEL_UNSUPPORTED",
+      "error": "Starting schema requires supported tables and indexes"
+    },
+    {
+      "name": "altertab3:altertab3-7.2.1:22",
+      "verdict": "MODEL_UNSUPPORTED",
+      "error": "Starting schema requires supported tables and indexes"
+    },
+    {
+      "name": "altertab3:altertab3-7.2.2:23",
+      "verdict": "MODEL_UNSUPPORTED",
+      "error": "Starting schema requires supported tables and indexes"
+    },
+    {
+      "name": "altertrig:altertrig-1.0:0",
+      "verdict": "MODEL_UNSUPPORTED",
+      "error": "Use an explicit INTEGER, REAL, TEXT, BLOB, or NUMERIC type"
+    },
+    {
+      "name": "altertrig:altertrig-1.2:2",
+      "verdict": "MODEL_UNSUPPORTED",
+      "error": "Starting schema requires supported tables and indexes"
+    },
+    {
+      "name": "altertrig:altertrig-2.1.1:4",
+      "verdict": "MODEL_UNSUPPORTED",
+      "error": "Use an explicit INTEGER, REAL, TEXT, BLOB, or NUMERIC type"
+    },
+    {
+      "name": "altertrig:altertrig-2.1.2:5",
+      "verdict": "MODEL_UNSUPPORTED",
+      "error": "Statement semantics are not implemented"
+    },
+    {
+      "name": "altertrig:altertrig-2.1.3:6",
+      "verdict": "MODEL_UNSUPPORTED",
+      "error": "Starting schema requires supported tables and indexes"
+    },
+    {
+      "name": "altertrig:altertrig-2.2.1:8",
+      "verdict": "MODEL_UNSUPPORTED",
+      "error": "Use an explicit INTEGER, REAL, TEXT, BLOB, or NUMERIC type"
+    },
+    {
+      "name": "altertrig:altertrig-2.2.2:9",
+      "verdict": "MODEL_UNSUPPORTED",
+      "error": "Statement semantics are not implemented"
+    },
+    {
+      "name": "altertrig:altertrig-2.2.3:10",
+      "verdict": "MODEL_UNSUPPORTED",
+      "error": "Starting schema requires supported tables and indexes"
+    },
+    {
+      "name": "altertrig:altertrig-2.3.1:12",
+      "verdict": "MODEL_UNSUPPORTED",
+      "error": "Use an explicit INTEGER, REAL, TEXT, BLOB, or NUMERIC type"
+    },
+    {
+      "name": "altertrig:altertrig-2.3.2:13",
+      "verdict": "MODEL_UNSUPPORTED",
+      "error": "Statement semantics are not implemented"
+    },
+    {
+      "name": "altertrig:altertrig-2.3.3:14",
+      "verdict": "MODEL_UNSUPPORTED",
+      "error": "Starting schema requires supported tables and indexes"
+    },
+    {
+      "name": "altertrig:altertrig-2.4.1:16",
+      "verdict": "MODEL_UNSUPPORTED",
+      "error": "Use an explicit INTEGER, REAL, TEXT, BLOB, or NUMERIC type"
+    },
+    {
+      "name": "altertrig:altertrig-2.4.2:17",
+      "verdict": "MODEL_UNSUPPORTED",
+      "error": "Statement semantics are not implemented"
+    },
+    {
+      "name": "altertrig:altertrig-2.4.3:18",
+      "verdict": "MODEL_UNSUPPORTED",
+      "error": "Starting schema requires supported tables and indexes"
+    },
+    {
+      "name": "altertrig:altertrig-2.5.1:20",
+      "verdict": "MODEL_UNSUPPORTED",
+      "error": "Use an explicit INTEGER, REAL, TEXT, BLOB, or NUMERIC type"
+    },
+    {
+      "name": "altertrig:altertrig-2.5.2:21",
+      "verdict": "MODEL_UNSUPPORTED",
+      "error": "Statement semantics are not implemented"
+    },
+    {
+      "name": "altertrig:altertrig-2.5.3:22",
+      "verdict": "MODEL_UNSUPPORTED",
+      "error": "Starting schema requires supported tables and indexes"
+    },
+    {
+      "name": "altertrig:altertrig-2.6.1:24",
+      "verdict": "MODEL_UNSUPPORTED",
+      "error": "Use an explicit INTEGER, REAL, TEXT, BLOB, or NUMERIC type"
+    },
+    {
+      "name": "altertrig:altertrig-2.6.2:25",
+      "verdict": "MODEL_UNSUPPORTED",
+      "error": "Statement semantics are not implemented"
+    },
+    {
+      "name": "altertrig:altertrig-2.6.3:26",
+      "verdict": "MODEL_UNSUPPORTED",
+      "error": "Starting schema requires supported tables and indexes"
+    },
+    {
+      "name": "blob-affinity",
+      "position": null,
+      "verdict": "AGREE"
+    },
+    {
+      "name": "explicit-rollback",
+      "position": null,
+      "verdict": "AGREE"
+    },
+    {
+      "name": "nested-begin",
+      "position": null,
+      "verdict": "AGREE"
+    },
+    {
+      "name": "index-duplicate",
+      "position": null,
+      "verdict": "AGREE"
+    },
+    {
+      "name": "index-null",
+      "position": null,
+      "verdict": "AGREE"
+    },
+    {
+      "name": "add-null-populated",
+      "position": null,
+      "verdict": "AGREE"
+    }
+  ]
+}

@@ -1,0 +1,14 @@
+{
+  "seed": 4004,
+  "maxExamplesPerMode": 20,
+  "maxSteps": 8,
+  "modes": {
+    "well-scoped": {
+      "AGREE": 40
+    },
+    "error-seeking": {
+      "AGREE": 40
+    }
+  },
+  "casesSha256": "e09e7a8da9394b3b9e84c46eaa47edf8dfc42d2b043f2ae79cf81e730fa8826d"
+}

@@ -1,0 +1,7 @@
+{
+  "classification": "harness bug",
+  "resolution": "Fault injection: structural INSERT payload changed to 99, while native executed 0. Hypothesis shrank to one INSERT; restoring the original payload agrees and kernel-checks. No production mismatch found.",
+  "injected": true,
+  "caseSha256": "247b1e13d59ec456814028bd17fcf26b27e957db896c456a7bb2e8bca1eef58d",
+  "status": "resolved"
+}
