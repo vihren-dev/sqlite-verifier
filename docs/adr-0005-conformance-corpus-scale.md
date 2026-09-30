@@ -1,234 +1,252 @@
-# ADR 0005: Scale the conformance corpus by roadmap relevance
+# ADR 0005: Build the conformance corpus for a reference workload
 
-- Status: Proposed
+- Status: Proposed (revised 2026-09-30; replaces the first draft, which selected
+  tests by roadmap area and deferred query and expression tests)
 - Date: 2026-09-30
 - Implementation examined: `adr4` workspace at `d9a49d95`
-- Decision owners: product owner for corpus scope and storage; formal methods
-  lead for extraction fidelity and the progress metric
+- Decision owners: product owner for corpus scope, profiles and storage; formal
+  methods lead for extraction fidelity, the case format and the progress metric
 - Related: [ADR 0004](adr-0004-model-conformance-validation.md),
   [progress and coverage](conformance-progress.md),
-  [upstream extraction](upstream-pilot.md)
-- This proposal changes test infrastructure only. It does not change supported
-  SQL, statuses, the execution profile, or the trust policy.
+  [upstream extraction](upstream-pilot.md),
+  [case format v1](conformance-format-v1.md),
+  [execution profile](execution-profile.md)
+- This proposal changes test infrastructure and adds execution profiles for
+  testing. It does not change the SQL the verifier supports or the trust policy.
 
 ## Decision in brief
 
-ADR 0004 delivered the pipeline and a frozen sample corpus. The owner decided
-to prepare the test suite before further model work and to measure that work
-against it. This ADR asks for approval to:
+The owner decided that the test suite is completed before the model is
+extended, and that the target is a reference workload: one real SQL-first
+application whose statements and migrations the model must cover. This ADR asks
+for approval to:
 
-1. Select upstream files by roadmap area, and extract the selected areas without
-   a per-file cap.
-2. Recover the roadmap-relevant tests the current extraction rules exclude,
-   before adding volume.
-3. Bound individual case size and store the corpus in the repository as
-   per-file shards within a fixed budget.
-4. Replay a fixed sample in `just test` and the whole corpus on demand.
+1. Extend the case format and the native recorder to **statement outputs and
+   parameters**, not only stored state.
+2. Record and replay every case under an **explicit execution profile**, and
+   add the profile the reference workload runs under.
+3. Freeze a corpus that contains the workload's **actual statements and
+   migrations**, plus boundary and interaction cases and the upstream tests for
+   the SQL features it uses.
+4. Narrow the extraction rules that exclude relevant upstream tests, bound case
+   size, store the corpus as per-file shards within a fixed budget, and replay
+   a sample in `just test`.
 
-Expression-heavy tests (`e_expr.test` and similar) are sampled, not extracted in
-full, until the model evaluates expressions.
+The model work is then measured against this corpus: cases move from
+unsupported to agreeing, with no disagreements.
 
 ## 1. Observed problem
 
-Corpus v3 has 370 cases: 341 extracted from 45 upstream files (`alter*.test`,
-`e_*.test`) and 29 authored. The extraction saw 21,546 runtime assertions. The
-[extraction record](../conformance/corpus-v3/extraction.json.gz) shows three
-separate reasons the corpus is small, and they need different remedies.
+### 1.1 The format cannot check what a query returns
 
-**The cap hides mostly expression tests.** The cap of 20 cases per file dropped
-14,601 candidates; 12,408 of them are in `e_expr.test`, whose loops generate
-`SELECT` expression checks. The model has no queries or expression evaluation,
-so those cases cannot become agreements before Step 3. Outside `e_expr.test` the
-45 files hold 4,928 assertions.
+[Case format v1](conformance-format-v1.md) observes, after each statement, the
+stored tables, the transaction status and the primary error code. It does not
+record the rows a `SELECT` returns, the rows a write returns through
+`RETURNING`, or the affected-row count, and it has no parameters. A model could
+agree with every v1 case while computing wrong query results. The translator-
+independent native records from ADR 0004 already keep result rows, but
+`classifyCase` does not compare them.
 
-**The files that matter most for the roadmap yield little or nothing.**
+### 1.2 There is one execution profile
 
-| File | Runtime assertions | Recorded | Main exclusion |
-| --- | ---: | ---: | --- |
-| `e_createtable.test` | 536 | 0 | 404 "connection or SQL callback context"; 78 prefix results differ from Tcl |
-| `e_update.test` | 131 | 0 | 119 attached database or nondeterministic function |
-| `e_droptrigger.test` | 66 | 0 | 66 connection or SQL callback context |
-| `alter.test` | 119 | 12 | 49 attached database; 41 multiple connections |
-| `alter3.test` | 59 | 7 | 43 `LEGACY_FILE_FORMAT` outside the profile |
-| `e_insert.test` | 203 | 20 | 172 per-file cap |
-| `e_fkey.test` | 940 | 20 | 912 per-file cap |
+[The supported profile](execution-profile.md) is a pinned default build with
+default connection settings, deferred transactions and no foreign-key
+enforcement. A real application differs on each of these. The reference
+workload:
 
-An exclusion currently stays in force until the next `reset_db`, so one
-`ATTACH`, one second connection, or one `db onecolumn` call removes every later
-test in that stretch of the file. Across all files, 552 candidates were dropped
-for "connection or SQL callback context" alone and 446 for attached databases or
-nondeterministic functions.
+- bundles SQLite through Go drivers whose version and compile options are not
+  the pinned 3.51.0 build;
+- sets `foreign_keys=ON`, which changes statement behavior (cascading deletes),
+  along with settings that do not (`journal_mode`, `synchronous`, cache sizes);
+- uses `BEGIN IMMEDIATE` and groups statements in application-level
+  transactions;
+- reads the clock through `'now'`, an input from outside the database;
+- shares the database with its migration tool's bookkeeping table.
 
-**Relevant files were never scanned.** The pinned source has 1,255 test files.
-The patterns cover 45. Files that exercise the current subset and Step 2 are
-outside them: `trans*.test`, `savepoint*.test`, `conflict*.test`, `unique*.test`,
-`notnull*.test`, `index*.test`, `insert*.test`, `update*.test`, `delete*.test`,
-`table.test`, `default.test`, `check.test`, `rowid.test`, `autoinc.test`,
-`types*.test`, `affinity*.test`, `without_rowid*.test`, `upsert*.test`,
-`fkey*.test`.
+Without a stated profile shared by recording and replay, "the model covers the
+workload" has no fixed meaning.
 
-Two further facts constrain scaling:
+### 1.3 The workload needs SQL the corpus does not target
 
+| Area | What the workload uses |
+| --- | --- |
+| Schema | Triggers, foreign keys with `ON DELETE CASCADE`, `CHECK` constraints, defaults, `TEXT PRIMARY KEY`, indexes, added columns |
+| Statements | `SELECT` with `ORDER BY`, `LIMIT`, `GROUP BY`; `COUNT`, `SUM`, `AVG`, `MAX`; `COALESCE`, `CAST`; `RETURNING`; `JOIN`; `ON CONFLICT` |
+| Functions | Current time, date formatting, `json_extract`, `json_each` |
+| Values | `REAL` arithmetic |
+
+The first draft of this ADR treated query and expression tests as a later tier
+to be sampled. They are now required.
+
+### 1.4 The extraction is small for reasons other than the cap
+
+Corpus v3 has 370 cases from 45 upstream files and 21,546 runtime assertions.
+The [extraction record](../conformance/corpus-v3/extraction.json.gz) shows:
+
+- **The cap hides mostly expression tests.** Of 14,601 candidates dropped by the
+  cap of 20 per file, 12,408 are in `e_expr.test`.
+- **Exclusions are too broad.** An exclusion stays in force until the next
+  `reset_db`. `e_createtable.test` yields 0 of 536 (404 for "connection or SQL
+  callback context"), `e_update.test` 0 of 131 (119 after an `ATTACH` or a
+  nondeterministic function), `alter.test` 12 of 119.
+- **Relevant files were never scanned.** Only 45 of 1,255 upstream files match
+  the patterns; `trigger*`, `fkey*`, `select*`, `aggregate`-related, `date*`,
+  `json*`, `cast`, `returning*`, `upsert*`, `trans*`, `insert*`, `update*` and
+  `delete*` files are outside them.
 - **Case size is unbounded.** The 370 cases are 308 MB uncompressed because one
-  case (`e_blobbytes-1.0`) is 302 MB. The median case is 10 KB and the 90th
-  percentile 33 KB. Every per-statement snapshot stores the full state.
-- **123 candidates were dropped because the fresh native prefix did not
-  reproduce the Tcl results**, 78 of them in `e_createtable.test`. They are
-  excluded safely, but nobody has established why.
-
-The resulting baseline is 11 AGREE and 359 MODEL_UNSUPPORTED, with 60 of 182
-requirement rows having any case. That is too thin and too skewed to measure
-model work against.
+  case is 302 MB; the median is 10 KB.
+- **123 candidates were dropped because a fresh native prefix did not reproduce
+  the Tcl results**, with no established cause.
 
 ## 2. Goals
 
-Give model work a corpus whose unsupported cases are concentrated in the areas
-the roadmap enters next, so that extending the model visibly converts cases to
-agreements. Keep every excluded candidate accounted for. Keep ordinary
-development fast and the repository a reasonable size.
+Give the model work a frozen corpus that checks statement outputs under the
+workload's real execution conditions, whose unsupported cases are the SQL the
+workload needs. Keep every excluded candidate accounted for, ordinary
+development fast, and the repository a reasonable size.
 
-Non-goals: mining the whole upstream suite; extracting multi-connection, fault
-injection, corruption, or file-level tests; modelling queries (a separate
-roadmap question, see §6).
+Non-goals: mining the whole upstream suite; multi-connection, fault-injection,
+corruption or file-level tests; extending the model (that follows, measured by
+this corpus).
 
 ## 3. Proposed decisions
 
-### 3.1 Select files by roadmap tier
+### 3.1 Case format v2: outputs and parameters
 
-| Tier | Purpose | Files | Policy |
-| --- | --- | --- | --- |
-| A | Current subset and Step 2: DDL, literal DML, transactions, constraints, indexes | `alter*`, `e_createtable`, `e_insert`, `e_update`, `e_delete`, `e_droptrigger`, `e_dropview`, `e_reindex`, `e_fkey`, plus `trans*`, `savepoint*`, `conflict*`, `unique*`, `notnull*`, `index*` (not `indexexpr*`, `indexedby`), `insert*`, `update*`, `delete*`, `table`, `default`, `check`, `rowid`, `autoinc`, `without_rowid*`, `upsert*`, `fkey*` | Extract every eligible assertion; no per-file cap |
-| B | Step 3: expressions, conversions, queries | `e_expr`, `e_select*`, `types*`, `affinity*`, `null*`, `indexexpr*` | Stratified sample: a fixed number per distinct test-name prefix, recorded in the manifest |
-| Out | Not comparable to the model | `*fault*`, `*malloc*`, `*corrupt*`, `*auth*`, WAL, URI, blob-handle and FTS files | Excluded by file, with the reason recorded |
+Each executed statement records, in addition to v1's observations:
 
-The file list is part of the corpus manifest. Moving a file between tiers
-creates a new corpus version.
+- **bound parameters**, as typed values;
+- **result rows**, typed, in the order SQLite returned them, with a flag saying
+  whether the statement fixes that order (`ORDER BY` covering a unique key) or
+  the rows compare as an unordered collection;
+- **`RETURNING` rows** for writes;
+- **the affected-row count** (`sqlite3_changes`).
 
-### 3.2 Narrow exclusions before adding volume
+`classifyCase` compares these as well as state. A case whose outputs the model
+cannot produce is `MODEL_UNSUPPORTED`, never an agreement. v1 cases remain
+readable and keep their verdicts.
 
-Exclusions become as local as the evidence allows. Each change needs a test that
-the narrowed rule still rejects the cases it exists for.
+### 3.2 Execution profiles
 
-- **Row-returning helper calls.** `db onecolumn`, `db exists`, and `db eval`
-  with a row script only read results differently. The SQL is recorded as an
-  ordinary statement. A row script that itself runs SQL or Tcl with side effects
-  remains an exclusion.
-- **Attached databases.** An `ATTACH` excludes tests until the matching `DETACH`
-  or the next reset, not to the end of the stretch. Tests that reference the
-  attached schema stay excluded.
-- **Second connections.** A second connection excludes tests while it is open
-  and restores eligibility after it closes, provided it executed no write.
-- **Nondeterministic functions.** Only tests whose own SQL or prefix uses them
-  are excluded; the recorder already requires exact repeat replay.
-- **Profile settings.** `LEGACY_FILE_FORMAT` and other settings outside the
-  profile stay excluded; the count is reported per setting.
+A profile is a named, versioned record stored with each corpus:
 
-Acceptance is a before/after yield table for the files in §1, with every
-remaining exclusion reason counted.
+| Dimension | Content |
+| --- | --- |
+| Engine | SQLite version, source ID and compile options |
+| Connection settings | Those that change statement behavior, such as `foreign_keys` and `recursive_triggers`; settings that do not are listed as ignored, with the reason |
+| Transactions | The transaction mode, and which statement sequences a case runs as one unit |
+| External inputs | The clock value each statement sees. The recorder fixes or records it, so replay is deterministic |
+| Other writers | Objects outside the contract, such as a migration tool's bookkeeping table, and what is assumed about them |
 
-### 3.3 Bound case size
+The recorder refuses to run under a profile it cannot establish and verify on
+the connection, as it already does for the current one. Recording and replay
+use the same profile; a case recorded under one profile is never replayed under
+another.
 
-A case whose uncompressed record exceeds 1 MB is excluded with the reason
-"case size limit" and its measured size. Snapshots within one case are stored
-once per distinct content and referenced by digest, since most statements leave
-most tables unchanged. The record format version increases; versions 1 and 2
-remain readable.
+The workload's engine is measured first: the SQLite version and compile options
+of each driver it ships are read from the running drivers. If they differ from
+a pinned build in a way that affects the workload's SQL, a pinned build for
+that version is added, as was done for 3.46.0. Until that measurement exists,
+the corpus states that it was recorded on the pinned build and that the gap to
+the workload's engines is unmeasured.
 
-### 3.4 Storage
+### 3.3 Corpus content
 
-The corpus stays in the repository, as one compressed shard per upstream file
-plus one for authored cases, under `conformance/corpus-vN/`. The budget is
-25 MB compressed for the current version and 60 MB across retained versions.
-The manifest binds each shard's digest.
+| Part | Content | Policy |
+| --- | --- | --- |
+| Workload | Every statement and migration of the reference workload, with typed parameter values and recorded outputs | All of them; this part defines "covers the workload" |
+| Boundary and interaction | Triggers firing on writes, cascading deletes, constraint failures, statements grouped in one transaction, NULL and empty values, numeric edge values, empty and single-row tables | Authored, one or more per statement and per interaction |
+| Upstream, by feature | Upstream tests for the features in §1.3 | Extracted without a per-file cap after §3.4; loop-generated expression tests sampled by test-name prefix |
+| Out | `*fault*`, `*malloc*`, `*corrupt*`, `*auth*`, WAL, URI, blob-handle and FTS files | Excluded by file, with the reason recorded |
 
-At v3's ratio of roughly 1.7 KB compressed per case, tier A is expected to fit
-well inside that budget; this is an estimate until §3.2 yields are measured. If
-a version would exceed the budget, the excess tier B shards move to a release
-asset fetched by Nix with a fixed hash, and the manifest records the split.
-Superseded versions older than the two most recent are removed from the working
-tree; their digests stay in the manifest history.
+The feature table sets coverage categories. The denominator is the frozen
+corpus itself. The file list and sampling rule are part of the manifest;
+changing them creates a new corpus version.
 
-### 3.5 Replay tiers
+### 3.4 Narrow exclusions before adding volume
 
-- `just test` replays a fixed stratified sample: every authored case and a
-  bounded number per tier A shard, within 60 seconds.
-- `just conformance-progress` replays the whole current version and writes the
-  progress report. It runs on demand and before each model change is merged.
-- The progress report states counts per tier and per shard, so tier B's
-  unsupported cases do not dilute tier A's progress.
+Each change needs a test that the narrowed rule still rejects what it exists
+for.
 
-### 3.6 Fidelity triage
+- **Row-returning helper calls** (`db onecolumn`, `db exists`, `db eval` with a
+  row script) are recorded as ordinary statements. A row script with side
+  effects remains an exclusion.
+- **Attached databases** exclude tests until the matching `DETACH` or reset.
+- **Second connections** exclude tests while open, and restore eligibility
+  after closing if they wrote nothing.
+- **Nondeterministic functions** exclude only tests whose own SQL or prefix uses
+  them. Clock reads are handled by the profile instead.
+- **Settings outside every supported profile** stay excluded, counted per
+  setting.
 
-Every candidate dropped for differing prefix or assertion results is assigned a
-cause: a formatting limitation of the Tcl comparison (REAL, BLOB, encoding),
-state the prefix cannot reproduce (temporary objects, connection state), or a
-real nondeterminism. Causes in the first group are fixed where the fix is
-mechanical; the rest stay excluded with the named cause. No native record is
-edited to match Tcl output.
+### 3.5 Case size, storage and replay
 
-### 3.7 Authored cases and mutants
+- A case over 1 MB uncompressed is excluded as "case size limit". Snapshots
+  within a case are stored once per distinct content and referenced by digest.
+- The corpus stays in the repository as one compressed shard per source, within
+  25 MB for the current version and 60 MB across retained versions. Overflow
+  moves to a release asset fetched by Nix with a fixed hash.
+- `just test` replays every workload and authored case and a bounded sample of
+  the rest, within 60 seconds. `just conformance-progress` replays everything
+  and reports per part, per feature and per shard.
 
-Authored cases target requirement rows that still have no case after tier A
-extraction, starting with `lang_transaction`, `lang_createindex`, and the
-`datatype3` rows the current subset can express. The mutation set grows with
-each model change: at least the NOT NULL check, the column limit, the
-duplicate-table check, and the two transaction-state errors are added now.
+### 3.6 Fidelity triage, authored cases and mutants
+
+Every candidate dropped for differing results gets a named cause; mechanical
+causes are fixed, and no native record is edited to match Tcl output. Authored
+cases also cover requirement rows with no case. The mutation set grows with the
+model and gains output mutants (a wrong result row, a wrong count).
 
 ## 4. Assumptions and limits
 
-- Extraction is not reproducible byte for byte, because upstream tests generate
-  data at run time. A corpus version is a frozen artifact bound by digests, not
-  something rebuilt from source hashes.
-- Yield after §3.2 is unknown. Narrowed rules could admit cases whose native
-  replay still fails; those remain exclusions with their reasons.
-- Replay time for a larger corpus is unmeasured. The 60-second sample budget is
-  a requirement; the full replay time is reported, not bounded by this ADR.
-- A larger corpus raises MODEL_UNSUPPORTED counts. That is the intended
-  baseline, not a regression.
+- Passing the corpus shows agreement on those cases under that profile, not
+  equality with SQLite.
+- The workload's own statements carry no independent expectation: their
+  outputs are whatever the pinned engine produced for the chosen parameters.
+  The boundary and upstream parts supply variety.
+- Extraction is not reproducible byte for byte; a corpus version is a frozen
+  artifact bound by digests.
+- Yield after §3.4, replay time, and corpus size are unmeasured.
+- A larger corpus raises `MODEL_UNSUPPORTED` counts. That is the intended
+  baseline.
 
 ## 5. Alternatives considered
 
-**Raise the cap only.** Rejected: 85% of what the cap hides is `e_expr.test`,
-and the files that matter are limited by exclusions and patterns instead.
+**Keep comparing stored state only.** Rejected: the model could agree on every
+case and still return wrong query results.
 
-**Extract every upstream file.** Rejected: most files test the pager, WAL, VFS,
-fault injection, or the C API, which the model does not describe.
+**One profile for all cases.** Rejected: foreign-key enforcement alone changes
+what the workload's deletes do.
 
-**Host the corpus outside the repository from the start.** Deferred: it adds a
-fetch step and an availability dependency for a corpus that is expected to fit
-in the budget. §3.4 keeps it as the overflow path.
+**Record under the workload's own drivers.** Deferred: it would tie the corpus
+to a Go toolchain and two engine builds. §3.2 measures the gap first.
 
-**Regenerate the corpus in CI instead of freezing it.** Rejected: extraction is
-not deterministic, and a moving denominator cannot measure progress.
+**Raise the cap only, or extract every upstream file.** Rejected, as in the
+first draft: the cap mostly hides one file, and most upstream files test
+behavior the model does not describe.
 
-## 6. Open question for the owner: read-only queries
+**Regenerate the corpus in CI.** Rejected: extraction is not deterministic, and
+a moving denominator cannot measure progress.
 
-Many upstream tests check their result with a trailing `SELECT`. The progress
-diagnostic already separates those queries from the migration, and in v3 no case
-is blocked only by its trailing query. After tier A extraction that count may
-grow. If it does, modelling a minimal read-only query (plain column selection
-from one table in rowid order) would let the model confirm the upstream
-assertion itself, not only the state snapshot. This ADR does not propose it; the
-tier A report will show how many cases it would unlock.
-
-## 7. Work packages
+## 6. Work packages
 
 | Package | Depends on | Completion evidence |
 | --- | --- | --- |
-| C1: exclusion narrowing | None | Before/after yield table for the §1 files; each narrowed rule has a rejecting test; every remaining exclusion counted |
-| C2: case size bound and snapshot sharing | None | New record version; the 302 MB case excluded with its size; v1–v3 still replay; median and maximum case size reported |
-| C3: fidelity triage | C1 | Every differing-result candidate has a named cause; mechanical causes fixed |
-| C4: tier A extraction and corpus v4 | C1, C2, C3 | Per-file shards, manifest with tier list and digests, exclusion record, native replay of every case, size within budget |
-| C5: replay tiers | C4 | `just test` sample within 60 seconds; full replay time reported; progress report per tier and shard |
-| C6: tier B sample | C4 | Stratified `e_expr`/`e_select*`/`types*` sample with the selection rule in the manifest |
-| C7: authored cases and mutants | C4 | Requirement rows with cases reported before and after; added mutants all killed at the fixed seed |
+| C0: format v2 and recorder outputs | None | Parameters, result rows, `RETURNING` rows and change counts recorded and compared; an output mutant is caught; v1 cases keep their verdicts |
+| C1: execution profiles | None | Profile record in the manifest; the workload profile established and verified on the connection; a case refuses replay under another profile; clock fixed or recorded; engine versions of the workload's drivers measured |
+| C2: exclusion narrowing | None | Before/after yield table for the §1.4 files; each narrowed rule has a rejecting test |
+| C3: case size bound and snapshot sharing | C0 | The 302 MB case excluded with its size; earlier versions still replay |
+| C4: fidelity triage | C2 | Every differing-result candidate has a named cause |
+| C5: corpus v4 | C0–C4 | Workload, boundary and upstream parts frozen under the profile; every workload statement and migration present with outputs; size within budget; native replay passes |
+| C6: replay tiers and baseline report | C5 | `just test` sample within 60 seconds; progress report per part and feature; the baseline for the model work |
+| C7: authored requirement cases and mutants | C5 | Requirement rows with cases before and after; added mutants killed |
 
-Each package follows the repository task/status file process. C1 and C2 can
-proceed in parallel.
+C0, C1 and C2 can proceed in parallel. Each package follows the repository
+task/status file process.
 
-## 8. Rollout and rollback
+## 7. Rollout and rollback
 
-Corpus v3 stays the frozen baseline until v4 replays natively and its progress
-report is committed. Model changes are measured against one corpus version at a
-time. Rollback keeps the previous version as current; extraction rule changes
-are ordinary commits and can be reverted without touching frozen records.
+Corpus v3 stays the frozen baseline until v4 replays natively and its report is
+committed. The existing profile and v1 format remain supported. Rollback keeps
+the previous corpus version as current; format and extraction changes are
+ordinary commits and can be reverted without touching frozen records.
