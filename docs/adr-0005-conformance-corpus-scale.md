@@ -135,26 +135,54 @@ Each executed statement records, in addition to v1's observations:
   returned, so an empty result still has a checkable shape.
 - **Result rows**, typed, in the order SQLite returned them, with the ordering
   information below.
-- **`RETURNING` rows** for writes, with the same shape and ordering rules.
+- **`RETURNING` rows** for writes, with the same shape rule. They compare as an
+  unordered multiset: SQLite does not guarantee the order of `RETURNING`
+  output.
 - **The direct change count of this statement**: `sqlite3_changes` read
   immediately after an `INSERT`, `UPDATE` or `DELETE`. It is not recorded for
   other statements, because the counter keeps the previous value across
   `SELECT` and DDL. It excludes rows changed by triggers and foreign-key
   actions; those changes are observed through the state snapshot.
 
-**Ordering.** Treating a result as unordered whenever its `ORDER BY` does not
-cover a unique key would accept a model that returns distinct groups in the
-wrong order. The rule is:
+**Ordering of query results.** Treating a result as unordered whenever its
+`ORDER BY` does not cover a unique key would accept a model that returns
+distinct groups in the wrong order. The rule is:
 
-- The recorder stores each row's sort-key values as well as its columns.
-- Rows with unequal sort keys must appear in the recorded relative order.
-- Rows with equal sort keys may appear in any order among themselves.
-- A statement with no `ORDER BY` compares as an unordered collection.
-- When `LIMIT` or `OFFSET` cuts through a group of equal keys, or applies with
-  no `ORDER BY`, SQLite's choice among the tied rows is not specified. The
-  recorder also records the complete tie group by running the statement without
-  the cut. Rows outside the cut group must match as above; from the cut group
-  the model must return the right number of rows, all drawn from that group.
+- A statement with no `ORDER BY` compares as an unordered multiset.
+- With `ORDER BY`, the recorder stores the result's **tie groups**: maximal runs
+  of rows that SQLite's own sort comparison treats as equal. Groups must appear
+  in the recorded order; rows within one group may appear in any order.
+- Comparison is by multiset throughout: each recorded row occurrence can be
+  matched once. A result that repeats one row in place of another is rejected.
+
+**What counts as a tie** is decided by SQLite's sort semantics, not by equality
+of typed values: integer `1` and real `1.0` tie, as do `'a'` and `'A'` under
+`NOCASE`, and the direction and NULL placement of each term apply. The recorder
+obtains tie groups from the engine, or records the resolved comparison policy
+for each term (collation, direction, numeric comparison) so the checker can
+recompute them. It must do this without changing the statement's result: adding
+hidden sort-key columns to a `SELECT DISTINCT`, a grouped query or a compound
+select changes what the statement returns. Where tie structure cannot be
+obtained faithfully, the case is excluded with the reason "tie structure not
+observable"; it is never compared as fully ordered or fully unordered instead.
+
+**Cuts through a tie group.** When `LIMIT` or `OFFSET` cuts a tie group, or
+applies with no `ORDER BY`, SQLite's choice among the tied rows is not
+specified.
+
+- The recorder captures each complete boundary group with a supplementary
+  probe. `OFFSET` and `LIMIT` can cut two different groups; both are captured.
+  When one group is cut at both ends, it is captured once.
+- Rows of groups lying wholly inside the window must match as above. From each
+  boundary group the model must return the right number of rows, forming a
+  **submultiset** of that group.
+- **Supplementary probes are read-only.** A probe is a `SELECT` run against the
+  same database state, with the same parameters and the same clock value, and
+  it must leave the state unchanged. A write is never executed again: for
+  `INSERT INTO t SELECT x FROM source LIMIT 1 RETURNING x`, re-running "without
+  the cut" would insert again. When a cut through a tie group occurs inside a
+  write, the rows the write affects are themselves unspecified, so the case is
+  excluded with the reason "unspecified choice inside a write".
 
 `classifyCase` compares all of these as well as state. A case whose outputs the
 model cannot produce is `MODEL_UNSUPPORTED`, never an agreement, so the
@@ -164,7 +192,12 @@ remain readable and keep their verdicts.
 Boundary tests for this contract: an empty result with a known shape; a change
 count read after a `SELECT` following DML; a write whose trigger or cascade
 changes more rows than the statement itself; an update matching no row;
-unequal and equal sort keys; a `LIMIT` that cuts a tie group.
+unequal and equal sort keys; ties between integer and real values and under
+`NOCASE`; an ordered `SELECT DISTINCT`; a `LIMIT` that cuts a tie group; an
+`OFFSET` and `LIMIT` that cut two different groups; a duplicated row offered in
+place of another tied row, which must be rejected; `RETURNING` rows in a
+different order, which must be accepted; a probe that would write, which must
+be refused.
 
 ### 3.2 Execution profiles
 
@@ -247,8 +280,12 @@ for.
   context alone is not enough.
 - **Exclusion reasons are kept.** Reaching a cap or sample limit is recorded in
   addition to a candidate's other reasons, never in place of them.
-- **Second connections** exclude tests while open, and restore eligibility
-  after closing if they wrote nothing.
+- **Second connections** exclude tests while open. Writing nothing is not
+  enough to restore eligibility afterwards: a second connection reads committed
+  state, so its reads can differ from the same reads replayed on the primary
+  connection while the primary has uncommitted writes. Eligibility returns only
+  under the same condition as for attached databases: a faithfully replayable
+  prefix, or a reconstructed state verified against the traced run.
 - **Nondeterministic functions** exclude only tests whose own SQL or prefix uses
   them. Clock reads are handled by the profile instead.
 - **Settings outside every supported profile** stay excluded, counted per
@@ -314,7 +351,7 @@ a moving denominator cannot measure progress.
 
 | Package | Depends on | Completion evidence |
 | --- | --- | --- |
-| C0: format v2, recorder outputs and comparison | None | Parameters, result shape, rows with sort keys, `RETURNING` rows and direct change counts recorded and compared; the §3.1 boundary tests pass; unsupported query behavior stays `MODEL_UNSUPPORTED`; v1 cases keep their verdicts |
+| C0: format v2, recorder outputs and comparison | None | Parameters, result shape, rows with tie groups, `RETURNING` rows and direct change counts recorded and compared; the §3.1 boundary tests pass; comparator tests reject a corrupted shape, row, group order, duplicated row and count; probes are read-only; unsupported query behavior stays `MODEL_UNSUPPORTED`; v1 cases keep their verdicts |
 | C1: execution profiles | None | Profile record in the manifest; a profile with foreign keys on and immediate transactions established and verified on the connection; a case refuses replay under another profile; a clock-dependent case replays identically at a different wall time; the method for measuring a workload's engine builds documented |
 | C2: exclusion narrowing | None | Before/after yield table for the §1.4 files; each narrowed rule has a rejecting test; helper semantics applied in the Tcl check; cap labels no longer overwrite other reasons |
 | C3: case size bound and snapshot sharing | C0 | The 302 MB case excluded with its size; earlier versions still replay |
@@ -322,12 +359,12 @@ a moving denominator cannot measure progress.
 | C5: authored cases | C0, C1 | Boundary and interaction cases against neutral schemas, and requirement cases; requirement rows with cases reported before and after |
 | C6: corpus v4 freeze and external workloads | C0–C5 | Generic parts frozen in this repository with their final membership; the synthetic workload recorded and replayed from an external-style directory; a manifest mismatch in format or profile is refused; size within budget; native replay passes |
 | C7: replay tiers and generic baseline | C6 | `just test` sample within 60 seconds; progress report per part, feature and shard over the frozen generic corpus |
-| C8: mutants | C6 | Added output and ordering mutants killed; no change to corpus membership |
+| C8: mutants | C6, and the model semantics concerned | Output and ordering mutants of the production model killed, once the model produces those outputs; an unsupported query cannot kill a mutant. No change to corpus membership |
 
 C0, C1 and C2 can proceed in parallel. Each package follows the repository
 task/status file process.
 
-C0–C7 are the **core tooling complete** gate. The **workload suite complete**
+C0–C7 are the **core tooling complete** gate; C8 follows the model work. The **workload suite complete**
 gate is met outside this repository, using these tools on the real workload, as
 defined under "Readiness" above. Its evidence is the workload inventory, the
 verified profile, the shard digest and the combined baseline.
