@@ -27,3 +27,10 @@ C0: [outputs and parameters](20260930-adr5-c0-outputs.task.md),
   outcome/verification requirements before implementation.
   Markdown link checks passed (2 tests); resource checks passed. ADR status now
   records the owner's authorization. No corpus artifact was modified.
+
+- 2026-09-30: Added the pure Lean output comparator using the shared typed value
+  domain. It checks empty-result shape, direct counts, occurrence-consuming bags,
+  ordered groups and partial boundary groups, and rejects malformed evidence.
+  Added kernel-checked positive and negative examples to the existing trace suite.
+  Pinned Nix conformance build passed; trace/output and document tests: 4 passed.
+  C0 remains open: recording, versioned decoding and classifier integration follow.

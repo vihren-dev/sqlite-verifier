@@ -26,7 +26,7 @@ root = "BundleChecker"
 
 [[lean_lib]]
 name = "VerifierConformance"
-roots = ["VerifierConformance.Trace", "VerifierConformance.Case", "VerifierConformance.Json", "VerifierConformance.Laws"]
+roots = ["VerifierConformance.Trace", "VerifierConformance.Outputs", "VerifierConformance.Case", "VerifierConformance.Json", "VerifierConformance.Laws"]
 
 [[lean_exe]]
 name = "conformance-runner"

@@ -16,3 +16,10 @@ has no output observations. C1 owns deterministic clocks and profile setup.
 - 2026-09-30: Read native connection/recording, corpus replay, structural codecs,
   test harness and Nix boundaries. Recorded full package outcomes and its
   behavioral verification before editing source.
+
+- 2026-09-30: Added the pure Lean output comparator using the shared typed value
+  domain. It checks empty-result shape, direct counts, occurrence-consuming bags,
+  ordered groups and partial boundary groups, and rejects malformed evidence.
+  Added kernel-checked positive and negative examples to the existing trace suite.
+  Pinned Nix conformance build passed; trace/output and document tests: 4 passed.
+  C0 remains open: recording, versioned decoding and classifier integration follow.
