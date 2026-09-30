@@ -50,7 +50,7 @@ def run(native: str, parser: str, selected: int | None = None, *, final_only: bo
         cases = cases[:selected + 1]
     commands = [item["shell"] for item in imported["connection_setup"]]
     # The shell enables defensive mode; the upstream Tcl connection uses C-API defaults.
-    commands.extend([".dbconfig trusted_schema on", ".dbconfig defensive off", ".limit column 2000"])
+    commands.extend([".dbconfig trusted_schema on", ".dbconfig defensive off", ".dbconfig dqs_dml on", ".dbconfig dqs_ddl on", ".limit column 2000"])
     commands.extend(item["sql"] for item in setup)
     with TemporaryDirectory() as directory:
         folder = Path(directory)
@@ -85,7 +85,9 @@ def run(native: str, parser: str, selected: int | None = None, *, final_only: bo
     if engine[0] != [{"version": "3.51.0", "source": SOURCE_ID}]:
         raise ValueError("Native engine version/source does not match the pinned profile")
     options = [row["compile_options"] for row in engine[1]]
-    if "MAX_COLUMN=2000" not in options or "DQS=0" not in options:
+    configuration = [line.split() for line in sections["CONFIGURATION"]]
+    if ("MAX_COLUMN=2000" not in options or ["dqs_dml", "on"] not in configuration
+            or ["dqs_ddl", "on"] not in configuration):
         raise ValueError("Native engine compile settings do not match the declared profile")
     comparisons: list[dict[str, object]] = []
     for index, case in enumerate(cases):

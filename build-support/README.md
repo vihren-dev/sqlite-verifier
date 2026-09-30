@@ -49,6 +49,24 @@ and CLI each add their test file and the complete runtime (including Python
 implementation and examples). Changes to those runtime inputs invalidate both.
 Changes to shared pytest support invalidate all four. Nix owns all result reuse.
 
+`conformanceRuntime` builds the separate `VerifierConformance` Lean library and
+test-only `conformance-runner` from `sources.conformanceLean`;
+`conformance` assembles its compiler, library and parser links. `tests.model` uses
+this runtime, including native acquisition and the model-mutation checks. The
+ordinary `runtime` excludes both the new executable and conformance modules.
+Changes inside `VerifierConformance/` or to `ConformanceRunner.lean` invalidate
+only the conformance source identity, not the production Lean library.
+Use `just conformance-build`, then `python3 -m pytest tests/conformance_model_test.py
+--runtime-root build/conformance`, to force a focused local run. `just conformance
+--repeat 3 --prove` writes the prototype's JSON cases, proofs and timing report.
+The native engine uses its default build configuration. The runner checks version,
+source ID and MAX_COLUMN, then verifies library-default DQS_DML/DQS_DDL on every
+connection. The shell fixture runner enables both to match the library profile.
+
+Flake equivalence tests stage a temporary Git source boundary so the real Nix 2.18
+subdirectory-flake command also works from a dedicated Jujutsu workspace without
+a colocated `.git`. The project itself continues to use Jujutsu.
+
 Run all four checks through the flake:
 
 ```sh
@@ -80,3 +98,9 @@ and `nix copy`. The installer verifies imports, creates a GC root and links the
 installation to the imported immutable runtime. It needs no extra signing key,
 loader scan, copied Lean subset or ELF relocation. Installed acceptance still
 executes freshly against the resulting content-addressed runtime.
+
+ADR 0004's optional `conformanceNative.fixture`, `conformanceNative.coverage`,
+`conformanceCoverage`, and `conformanceDocs` derivations rebuild upstream mining,
+source instrumentation, and release requirement evidence separately. They do not
+alter the product engine or library. See [progress and coverage](../docs/conformance-progress.md).
+Hypothesis is an input only to `tests.model` and the development shell.

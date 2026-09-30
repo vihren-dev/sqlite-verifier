@@ -1,0 +1,89 @@
+{
+  "status": "DONE",
+  "date": "2026-09-29",
+  "workspace": "/Users/tzankomatev/work/sqlite-verifier-adr4",
+  "implementationCommit": "780a71ec",
+  "mergedToMain": false,
+  "mergeRequiresOwnerApproval": true,
+  "task": "plans/20260929-adr4-evidence-review.task.md",
+  "validation": {
+    "fullSuite": {
+      "command": "nix develop path:./nix --command just test",
+      "passed": true,
+      "nixTests": {
+        "atuin": 12,
+        "cli": 13,
+        "kernel": 19,
+        "model": 56
+      },
+      "hostTests": 264,
+      "hostSubtests": 28
+    },
+    "finalModel": {
+      "passed": 56,
+      "seconds": 136.12,
+      "output": "/nix/store/2lf1pzvzbwjlcnwb2whcj8vvp404rd2j-sqlite-verifier-test-model-1"
+    },
+    "sourceAndDependencyTests": 54,
+    "documentationTests": 2,
+    "nativeReplay": "All v3 additions passed in the final model target; parent v1/v2 replay also passed.",
+    "sourceIdentities": "Current mutation, coverage, corpus replay and extraction source digests verified."
+  },
+  "evidence": {
+    "generator": {
+      "boundedAgreements": 88,
+      "boundedUnsupported": 44,
+      "longAgreements": 2088,
+      "longUnsupported": 1044,
+      "disagreements": 0,
+      "mutantsKilled": 4,
+      "mutantsTotal": 4,
+      "reports": [
+        "20260929-adr4-generator-review.json",
+        "20260929-adr4-generator-review-long.json",
+        "20260929-adr4-generator-mutations.json"
+      ]
+    },
+    "corpus": {
+      "version": 3,
+      "cases": 370,
+      "agreements": 11,
+      "unsupported": 359,
+      "disagreements": 0,
+      "harnessErrors": 0,
+      "queryOnlyCases": 42,
+      "nonemptyPrefixesBlockedOnlyByQueries": 0,
+      "unsupportedPrefixesWithTrailingQueries": 50,
+      "requirementsWithCases": 60,
+      "matrixRows": 182,
+      "sha256": "fe50427ba3cf7b06b29eb2aa2af8e2eaf5c501e9f0d95680f2f4069f73654afb",
+      "report": "20260929-adr4-corpus-v3-progress.json"
+    },
+    "coverage": {
+      "cases": 104,
+      "modelArms": [
+        36,
+        41
+      ],
+      "nativeMigrationBranchArcs": [
+        4707,
+        14023
+      ],
+      "scope": "Migration prepare/step/finalize only; setup, observations and connection cleanup excluded.",
+      "report": "20260929-adr4-migration-coverage.json"
+    },
+    "documentationArchive": {
+      "suppliedBy": "User, via ~/Downloads/sqlite-docsrc.tar",
+      "retainedFor": "Offline release requirement regeneration",
+      "originalSha256": "f3a39333897823546bca5924899bafaf7f593571863666221e5a38246f065423"
+    }
+  },
+  "limits": [
+    "Agreement totals count executed instances, not distinct programs or complete requirement satisfaction.",
+    "All currently query-blocked agreeing prefixes are empty; no DDL progress is credited to them.",
+    "Same-file reopen is fixed, but TEMP/ATTACH, callbacks, nondefault open/configuration contexts and nondeterministic functions remain excluded.",
+    "Runtime-generated Tcl data may vary between extractions; frozen captured SQL and native observations are replayed exactly.",
+    "Corpus growth and migration-only coverage denominators are not comparable to the earlier headline totals.",
+    "Live coverage was measured on aarch64-darwin; Linux coverage remains for CI."
+  ]
+}

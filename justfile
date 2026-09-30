@@ -30,6 +30,16 @@ parser: resources
 test-cases *args:
     python3 -m pytest --runtime-root "${SQLITE_VERIFIER_RUNTIME_ROOT:-$PWD}" "$@"
 
+# Build the test-only compiled model without adding commands to the shipped runtime.
+conformance-build:
+    mkdir -p build
+    timeout 900 nix-build build-support/default.nix -A conformance --out-link build/conformance --extra-experimental-features 'nix-command flakes'
+
+# Record live prototype evidence; W3 remains an owner decision after reviewing it.
+[positional-arguments]
+conformance *args: conformance-build
+    timeout 420 python3 -m conformance.pipeline --runtime-root build/conformance --output build/conformance-evidence "$@"
+
 # List selected scenarios without building or executing fixtures.
 [positional-arguments]
 test-list *args:
@@ -43,7 +53,7 @@ smoke:
 # The same derivations are the flake's checks; nix-build also keeps result links.
 test: build
     timeout 900 nix-build build-support/default.nix -A tests --out-link build/nix-tests --option sandbox true --option sandbox-fallback false --extra-experimental-features 'nix-command flakes'
-    timeout --foreground 600 python3 -u -m pytest -v tests -m "not requires_nix" --ignore=tests/runtime_package_test.py --ignore=tests/kernel_gate_test.py --ignore=tests/conformance_model_test.py --ignore=tests/atuin_cli_test.py --ignore=tests/cli_test.py --runtime-root "${SQLITE_VERIFIER_RUNTIME_ROOT:-$PWD}" --junitxml build/test-results/source.xml
+    timeout --foreground 600 python3 -u -m pytest -v tests -m "not requires_nix" --ignore=tests/runtime_package_test.py --ignore=tests/kernel_gate_test.py --ignore=tests/conformance_model_test.py --ignore=tests/conformance_trace_test.py --ignore=tests/conformance_pipeline_test.py --ignore=tests/conformance_mutation_test.py --ignore=tests/conformance_laws_test.py --ignore=tests/conformance_record_test.py --ignore=tests/conformance_dqs_test.py --ignore=tests/conformance_upstream_test.py --ignore=tests/conformance_generation_test.py --ignore=tests/conformance_coverage_test.py --ignore=tests/atuin_cli_test.py --ignore=tests/cli_test.py --runtime-root "${SQLITE_VERIFIER_RUNTIME_ROOT:-$PWD}" --junitxml build/test-results/source.xml
 
 # Check Nix source identities, test-target invalidation, environment snapshots and the installer cache.
 test-nix:
@@ -63,3 +73,36 @@ runtime-package: build
 package: test test-nix runtime-package
     mkdir -p dist
     tar --exclude='./.jj' --exclude='./.git' --exclude='./.lake' --exclude='./.direnv' --exclude='./dist' --exclude='./build' --exclude='__pycache__' --exclude='./result*' -czf dist/sqlite-verifier-source.tar.gz .
+
+# Refresh into build/, then review and assign a new corpus version before freezing.
+conformance-upstream: conformance-build
+    timeout 900 nix-build build-support/default.nix -A conformanceNative.fixture --out-link build/testfixture --extra-experimental-features 'nix-command flakes'
+    timeout 900 nix-build build-support/default.nix -A conformanceNative.upstream --out-link build/upstream-sqlite --extra-experimental-features 'nix-command flakes'
+    timeout 900 python3 -m conformance.upstream_pilot --fixture build/testfixture/bin/testfixture --upstream build/upstream-sqlite --output build/upstream-pilot --pattern 'alter*.test' --pattern 'e_*.test'
+
+conformance-corpus: conformance-build
+    timeout 420 python3 -m conformance.corpus conformance/corpus-v3 --native-check --output build/corpus-progress.json
+
+# The transaction/DML profiling gate is recorded in the W3/W4 status and reports.
+conformance-generate: conformance-build
+    timeout 120 python3 -m conformance.generate
+
+conformance-mutations: conformance-generate
+    timeout 180 python3 -m conformance.mutation_check build/generated/cases.jsonl --output build/generated/mutations.json
+
+conformance-long: conformance-build
+    timeout 600 python3 -m conformance.generate --examples 500 --steps 25 --output build/generated-long
+
+# Versioned requirement extraction uses the vendored, release-tagged docsrc archive.
+conformance-requirements:
+    timeout 900 nix-build build-support/default.nix -A conformanceDocs --out-link build/conformance-docs --extra-experimental-features 'nix-command flakes'
+    python3 -m conformance.requirement_inventory build/conformance-docs/docinfo.db build/requirements-3.51.0.json
+
+conformance-progress: conformance-build
+    timeout 120 python3 -m conformance.progress --output build/corpus-v3-progress.json
+
+# Supply llvm-cov's executable path and a fresh output directory for each measurement.
+conformance-coverage llvm_cov output: conformance-generate
+    timeout 900 nix-build build-support/default.nix -A conformanceCoverage --out-link build/model-coverage --extra-experimental-features 'nix-command flakes'
+    timeout 900 nix-build build-support/default.nix -A conformanceNative.coverage --out-link build/native-coverage --extra-experimental-features 'nix-command flakes'
+    timeout 300 python3 -m conformance.measure_coverage --llvm-cov {{quote(llvm_cov)}} --output {{quote(output)}}

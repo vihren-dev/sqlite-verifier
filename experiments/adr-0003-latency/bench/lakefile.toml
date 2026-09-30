@@ -1,0 +1,11 @@
+name = "bench"
+defaultTargets = ["bench"]
+
+# The run script clones lean4export v4.33.0 next to this package in its work directory.
+[[require]]
+name = "lean4export"
+path = "../lean4export"
+
+[[lean_exe]]
+name = "bench"
+root = "Main"

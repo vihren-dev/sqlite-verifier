@@ -6,6 +6,17 @@ No toolchain build, exported SQLite proof, or performance benchmark was run in
 this research environment. The component choices below are concrete; their
 qualification remains an implementation gate, not an established result.
 
+> Update (2026-09-29): [ADR 0003](adr-0003-agent-proof-preparation.md) was
+> refactored to put latency first under trusted execution; where this page
+> conflicts with it, the ADR decides. Superseded here: requiring Nanoda at
+> acceptance and Python process isolation (both moved to the
+> [deferred trust design](adr-0003-trust-extension.md)); the 4.34.1 pin (the
+> latency milestone stays on 4.33.0, where lean4export and comparator have
+> `v4.33.0` tags and lean4export was built and measured); "no toolchain build or
+> exported proof was run" (see the
+> [latency experiments](../experiments/adr-0003-latency/README.md)). The
+> checker must replay into the imported trusted library, not an empty environment.
+
 ## Recommended stack
 
 Use Lean/Lake and lean4export for agent-controlled preparation. Build a small

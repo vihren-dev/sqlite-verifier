@@ -10,6 +10,14 @@ let
     else if type == "regular" then path + "/${name}" else fs.unions []) (builtins.readDir path));
   filtered = predicate: path: fs.intersection (clean path) (fs.fileFilter predicate path);
   extensions = names: filtered (file: builtins.any file.hasExt names);
+  leanFiles = fs.unions [
+    (fs.unions (map (name: root + "/${name}")
+      (builtins.filter (name: lib.hasSuffix ".lean" name && name != "ConformanceRunner.lean"
+        && (builtins.readDir root).${name} == "regular")
+        (builtins.attrNames (builtins.readDir root)))))
+    (extensions [ "lean" ] (root + /SqliteVerifier))
+    (root + /lakefile.toml) (root + /lake-manifest.json) (root + /lean-toolchain)
+  ];
 in {
   runtime = source (fs.unions [
     (extensions [ "py" ] (root + /migration_check))
@@ -17,13 +25,8 @@ in {
     (root + /LICENSE) (root + /docs/install.md)
     (root + /packaging/install.py) (root + /packaging/install.sh)
   ]);
+  lean = source leanFiles;
+  conformanceLean = source (fs.unions [ leanFiles
+    (root + /ConformanceRunner.lean) (extensions [ "lean" ] (root + /VerifierConformance)) ]);
   parsers = source (extensions [ "py" "c" "h" "y" "json" ] (root + /parser));
-  lean = source (fs.unions [
-    (fs.unions (map (name: root + "/${name}")
-      (builtins.filter (name: lib.hasSuffix ".lean" name
-        && (builtins.readDir root).${name} == "regular")
-        (builtins.attrNames (builtins.readDir root)))))
-    (extensions [ "lean" ] (root + /SqliteVerifier))
-    (root + /lakefile.toml) (root + /lake-manifest.json) (root + /lean-toolchain)
-  ]);
 }

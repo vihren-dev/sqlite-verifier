@@ -1,0 +1,360 @@
+{
+  "version": 1,
+  "schemaSql": "CREATE TABLE t(id INTEGER NOT NULL,v BLOB,UNIQUE(id));",
+  "migrationSql": "INSERT INTO t(id,v) VALUES(2,0);",
+  "schema": [
+    {
+      "name": "t",
+      "columns": [
+        {
+          "name": "id",
+          "affinity": "integer",
+          "declaredType": "canonical",
+          "notNull": true,
+          "defaultValue": null
+        },
+        {
+          "name": "v",
+          "affinity": "blob",
+          "declaredType": "canonical",
+          "notNull": false,
+          "defaultValue": null
+        }
+      ],
+      "properties": {
+        "primaryKey": [],
+        "uniqueKeys": [
+          [
+            "id"
+          ]
+        ],
+        "indexes": []
+      }
+    }
+  ],
+  "initial": [
+    [
+      "t",
+      {
+        "columns": [
+          {
+            "name": "id",
+            "affinity": "integer",
+            "declaredType": "canonical",
+            "notNull": true,
+            "defaultValue": null
+          },
+          {
+            "name": "v",
+            "affinity": "blob",
+            "declaredType": "canonical",
+            "notNull": false,
+            "defaultValue": null
+          }
+        ],
+        "properties": {
+          "primaryKey": [],
+          "uniqueKeys": [
+            [
+              "id"
+            ]
+          ],
+          "indexes": []
+        },
+        "rows": [
+          {
+            "rowid": 1,
+            "values": [
+              {
+                "integer": {
+                  "value": 1
+                }
+              },
+              {
+                "blob": {
+                  "bytes": []
+                }
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  ],
+  "script": [
+    {
+      "insert": {
+        "table": "t",
+        "columns": [
+          "id",
+          "v"
+        ],
+        "values": [
+          {
+            "integer": {
+              "value": 2
+            }
+          },
+          {
+            "integer": {
+              "value": 0
+            }
+          }
+        ]
+      }
+    }
+  ],
+  "nativeTrace": [
+    {
+      "visible": [
+        [
+          "t",
+          {
+            "columns": [
+              {
+                "name": "id",
+                "affinity": "integer",
+                "declaredType": "canonical",
+                "notNull": true,
+                "defaultValue": null
+              },
+              {
+                "name": "v",
+                "affinity": "blob",
+                "declaredType": "canonical",
+                "notNull": false,
+                "defaultValue": null
+              }
+            ],
+            "properties": {
+              "primaryKey": [],
+              "uniqueKeys": [
+                [
+                  "id"
+                ]
+              ],
+              "indexes": []
+            },
+            "rows": [
+              {
+                "rowid": 1,
+                "values": [
+                  {
+                    "integer": {
+                      "value": 1
+                    }
+                  },
+                  {
+                    "blob": {
+                      "bytes": []
+                    }
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      ],
+      "persisted": [
+        [
+          "t",
+          {
+            "columns": [
+              {
+                "name": "id",
+                "affinity": "integer",
+                "declaredType": "canonical",
+                "notNull": true,
+                "defaultValue": null
+              },
+              {
+                "name": "v",
+                "affinity": "blob",
+                "declaredType": "canonical",
+                "notNull": false,
+                "defaultValue": null
+              }
+            ],
+            "properties": {
+              "primaryKey": [],
+              "uniqueKeys": [
+                [
+                  "id"
+                ]
+              ],
+              "indexes": []
+            },
+            "rows": [
+              {
+                "rowid": 1,
+                "values": [
+                  {
+                    "integer": {
+                      "value": 1
+                    }
+                  },
+                  {
+                    "blob": {
+                      "bytes": []
+                    }
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      ],
+      "transactionOpen": false,
+      "primaryCode": 0,
+      "extendedCode": 0
+    },
+    {
+      "visible": [
+        [
+          "t",
+          {
+            "columns": [
+              {
+                "name": "id",
+                "affinity": "integer",
+                "declaredType": "canonical",
+                "notNull": true,
+                "defaultValue": null
+              },
+              {
+                "name": "v",
+                "affinity": "blob",
+                "declaredType": "canonical",
+                "notNull": false,
+                "defaultValue": null
+              }
+            ],
+            "properties": {
+              "primaryKey": [],
+              "uniqueKeys": [
+                [
+                  "id"
+                ]
+              ],
+              "indexes": []
+            },
+            "rows": [
+              {
+                "rowid": 1,
+                "values": [
+                  {
+                    "integer": {
+                      "value": 1
+                    }
+                  },
+                  {
+                    "blob": {
+                      "bytes": []
+                    }
+                  }
+                ]
+              },
+              {
+                "rowid": 2,
+                "values": [
+                  {
+                    "integer": {
+                      "value": 2
+                    }
+                  },
+                  {
+                    "integer": {
+                      "value": 0
+                    }
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      ],
+      "persisted": [
+        [
+          "t",
+          {
+            "columns": [
+              {
+                "name": "id",
+                "affinity": "integer",
+                "declaredType": "canonical",
+                "notNull": true,
+                "defaultValue": null
+              },
+              {
+                "name": "v",
+                "affinity": "blob",
+                "declaredType": "canonical",
+                "notNull": false,
+                "defaultValue": null
+              }
+            ],
+            "properties": {
+              "primaryKey": [],
+              "uniqueKeys": [
+                [
+                  "id"
+                ]
+              ],
+              "indexes": []
+            },
+            "rows": [
+              {
+                "rowid": 1,
+                "values": [
+                  {
+                    "integer": {
+                      "value": 1
+                    }
+                  },
+                  {
+                    "blob": {
+                      "bytes": []
+                    }
+                  }
+                ]
+              },
+              {
+                "rowid": 2,
+                "values": [
+                  {
+                    "integer": {
+                      "value": 2
+                    }
+                  },
+                  {
+                    "integer": {
+                      "value": 0
+                    }
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      ],
+      "transactionOpen": false,
+      "primaryCode": 0,
+      "extendedCode": 0
+    }
+  ],
+  "requirements": [],
+  "provenance": [
+    [
+      "fixture",
+      "hypothesis"
+    ],
+    [
+      "sourceId",
+      "2025-11-04 19:38:17 fb2c931ae597f8d00a37574ff67aeed3eced4e5547f9120744ae4bfa8e74527b"
+    ],
+    [
+      "nativeError",
+      ""
+    ]
+  ]
+}

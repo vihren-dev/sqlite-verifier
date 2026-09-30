@@ -8,3 +8,11 @@ name = "SqliteVerifier"
 [[lean_exe]]
 name = "migration-proof-checker"
 root = "ProofChecker"
+
+[[lean_lib]]
+name = "VerifierConformance"
+roots = ["VerifierConformance.Trace", "VerifierConformance.Case", "VerifierConformance.Json", "VerifierConformance.Laws"]
+
+[[lean_exe]]
+name = "conformance-runner"
+root = "ConformanceRunner"

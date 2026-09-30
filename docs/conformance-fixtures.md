@@ -49,8 +49,9 @@ mode and disables trusted-schema mode. The runner explicitly sets defensive OFF
 and trusted-schema ON to reproduce the Tcl test connection. Without the former,
 SQLite silently ignores the source's schema-version assignment; the final-state
 regression detects that difference. Startup rc files are disabled. Column limit
-is explicitly set to 2000. Engine version, source ID, MAX_COLUMN=2000, and DQS=0
-are checked against the pinned build.
+is explicitly set to 2000. Engine version, source ID and MAX_COLUMN=2000 are checked against the pinned
+build. The shell enables DQS_DML/DQS_DDL and checks their readbacks to match
+the library-default execution profile.
 
 The report distinguishes `MATCHES_UPSTREAM`, `PARSED`,
 `NOT_YET_TRANSLATED`, and `NOT_YET_MODEL_CHECKED`. It records final rowids/cells,

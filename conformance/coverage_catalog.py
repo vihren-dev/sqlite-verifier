@@ -32,7 +32,7 @@ EXCLUSIONS: tuple[str, ...] = (
     "No proof of native SQLite C refinement or parser equivalence",
     "No instrumented grammar-production execution coverage",
     "No denominator for all documented SQLite behavior or the full upstream corpus",
-    "No runtime-expanded Tcl case count; retained alter3 view remains unsupported by the model",
+    "Runtime corpus and scoped execution coverage are separate source-bound reports; no whole-SQLite denominator",
     "No native storage-layout, schema-cookie, coercion, or arbitrary-query proof",
     "No real-pilot acceptance or owner approval inferred from engineering evidence",
 )
