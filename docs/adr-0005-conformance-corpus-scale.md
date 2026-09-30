@@ -36,6 +36,18 @@ for approval to:
 The model work is then measured against this corpus: cases move from
 unsupported to agreeing, with no disagreements.
 
+### Readiness: two separate gates
+
+Finishing the tooling in this repository does not finish the workload suite.
+
+| Gate | Where | Requires |
+| --- | --- | --- |
+| **Core tooling complete** | This repository | Packages C0–C7 in §6, demonstrated on the generic corpus and the synthetic workload |
+| **Workload suite complete** | Where the workload data lives | For the real reference workload: an inventory showing every one of its statements and migrations is present with recorded outputs; its execution profile established and verified on the engine; the workload shard frozen and bound by digest to the format and profile versions; a combined baseline report over the generic corpus and the workload shard |
+
+Model development starts only after the second gate. The first gate can be met
+with no real workload present, so it is never reported as suite completion.
+
 ## 1. Observed problem
 
 ### 1.1 The format cannot check what a query returns
@@ -84,8 +96,10 @@ to be sampled. They are now required.
 Corpus v3 has 370 cases from 45 upstream files and 21,546 runtime assertions.
 The [extraction record](../conformance/corpus-v3/extraction.json.gz) shows:
 
-- **The cap hides mostly expression tests.** Of 14,601 candidates dropped by the
-  cap of 20 per file, 12,408 are in `e_expr.test`.
+- **The cap hides mostly expression tests.** 14,601 assertions are labelled
+  "bounded pilot selection limit", 12,408 of them in `e_expr.test`. The
+  extractor overwrites any other exclusion reason once a file reaches its cap,
+  so these are cap-labelled assertions, not 14,601 recoverable cases.
 - **Exclusions are too broad.** An exclusion stays in force until the next
   `reset_db`. `e_createtable.test` yields 0 of 536 (404 for "connection or SQL
   callback context"), `e_update.test` 0 of 131 (119 after an `ATTACH` or a
@@ -116,16 +130,41 @@ this corpus).
 
 Each executed statement records, in addition to v1's observations:
 
-- **bound parameters**, as typed values;
-- **result rows**, typed, in the order SQLite returned them, with a flag saying
-  whether the statement fixes that order (`ORDER BY` covering a unique key) or
-  the rows compare as an unordered collection;
-- **`RETURNING` rows** for writes;
-- **the affected-row count** (`sqlite3_changes`).
+- **Bound parameters**, as typed values.
+- **Result shape**: the column count and column names, also when no row is
+  returned, so an empty result still has a checkable shape.
+- **Result rows**, typed, in the order SQLite returned them, with the ordering
+  information below.
+- **`RETURNING` rows** for writes, with the same shape and ordering rules.
+- **The direct change count of this statement**: `sqlite3_changes` read
+  immediately after an `INSERT`, `UPDATE` or `DELETE`. It is not recorded for
+  other statements, because the counter keeps the previous value across
+  `SELECT` and DDL. It excludes rows changed by triggers and foreign-key
+  actions; those changes are observed through the state snapshot.
 
-`classifyCase` compares these as well as state. A case whose outputs the model
-cannot produce is `MODEL_UNSUPPORTED`, never an agreement. v1 cases remain
-readable and keep their verdicts.
+**Ordering.** Treating a result as unordered whenever its `ORDER BY` does not
+cover a unique key would accept a model that returns distinct groups in the
+wrong order. The rule is:
+
+- The recorder stores each row's sort-key values as well as its columns.
+- Rows with unequal sort keys must appear in the recorded relative order.
+- Rows with equal sort keys may appear in any order among themselves.
+- A statement with no `ORDER BY` compares as an unordered collection.
+- When `LIMIT` or `OFFSET` cuts through a group of equal keys, or applies with
+  no `ORDER BY`, SQLite's choice among the tied rows is not specified. The
+  recorder also records the complete tie group by running the statement without
+  the cut. Rows outside the cut group must match as above; from the cut group
+  the model must return the right number of rows, all drawn from that group.
+
+`classifyCase` compares all of these as well as state. A case whose outputs the
+model cannot produce is `MODEL_UNSUPPORTED`, never an agreement, so the
+recording and comparison can land before any query semantics exist. v1 cases
+remain readable and keep their verdicts.
+
+Boundary tests for this contract: an empty result with a known shape; a change
+count read after a `SELECT` following DML; a write whose trigger or cascade
+changes more rows than the statement itself; an update matching no row;
+unequal and equal sort keys; a `LIMIT` that cuts a tie group.
 
 ### 3.2 Execution profiles
 
@@ -136,8 +175,15 @@ A profile is a named, versioned record stored with each corpus:
 | Engine | SQLite version, source ID and compile options |
 | Connection settings | Those that change statement behavior, such as `foreign_keys` and `recursive_triggers`; settings that do not are listed as ignored, with the reason |
 | Transactions | The transaction mode, and which statement sequences a case runs as one unit |
-| External inputs | The clock value each statement sees. The recorder fixes or records it, so replay is deterministic |
+| External inputs | The clock value each statement sees. The recorder supplies it to the engine and stores it; native replay supplies the same value |
 | Other writers | Objects outside the contract, such as a migration tool's bookkeeping table, and what is assumed about them |
+
+Storing a timestamp does not make replay deterministic: SQLite reads `'now'`
+from its VFS, including inside trigger bodies and column defaults. The recorder
+therefore controls the engine's time source, and native replay supplies the
+recorded values through the same mechanism. The evidence is a clock-dependent
+case, including a trigger and a default that read the clock, recorded at one
+wall time and replayed natively at another with identical observations.
 
 The recorder refuses to run under a profile it cannot establish and verify on
 the connection, as it already does for the current one. Recording and replay
@@ -189,8 +235,18 @@ for.
 
 - **Row-returning helper calls** (`db onecolumn`, `db exists`, `db eval` with a
   row script) are recorded as ordinary statements. A row script with side
-  effects remains an exclusion.
+  effects remains an exclusion. The check against the Tcl result applies the
+  helper's own semantics: `db exists {SELECT 42}` returns `1` where ordinary
+  execution returns `42`, and `db onecolumn` returns the first column of the
+  first row. A helper whose semantics the check does not reproduce stays
+  excluded.
 - **Attached databases** exclude tests until the matching `DETACH` or reset.
+  Eligibility returns after `DETACH` only if the case's prefix can be replayed
+  faithfully on a fresh database, or the main database's state at that point
+  can be reconstructed and is verified against the traced run. Closing the
+  context alone is not enough.
+- **Exclusion reasons are kept.** Reaching a cap or sample limit is recorded in
+  addition to a candidate's other reasons, never in place of them.
 - **Second connections** exclude tests while open, and restore eligibility
   after closing if they wrote nothing.
 - **Nondeterministic functions** exclude only tests whose own SQL or prefix uses
@@ -214,8 +270,11 @@ for.
 
 Every candidate dropped for differing results gets a named cause; mechanical
 causes are fixed, and no native record is edited to match Tcl output. Authored
-cases also cover requirement rows with no case. The mutation set grows with the
-model and gains output mutants (a wrong result row, a wrong count).
+cases also cover requirement rows with no case; they are finished before the
+corpus is frozen, so the baseline's denominator is final. The mutation set
+grows with the model and gains output mutants (a wrong result row, a wrong
+order between unequal keys, a wrong count). Mutation checks do not change
+corpus membership and can continue after the freeze.
 
 ## 4. Assumptions and limits
 
@@ -255,17 +314,23 @@ a moving denominator cannot measure progress.
 
 | Package | Depends on | Completion evidence |
 | --- | --- | --- |
-| C0: format v2 and recorder outputs | None | Parameters, result rows, `RETURNING` rows and change counts recorded and compared; an output mutant is caught; v1 cases keep their verdicts |
-| C1: execution profiles | None | Profile record in the manifest; the workload profile established and verified on the connection; a case refuses replay under another profile; clock fixed or recorded; engine versions of the workload's drivers measured |
-| C2: exclusion narrowing | None | Before/after yield table for the §1.4 files; each narrowed rule has a rejecting test |
+| C0: format v2, recorder outputs and comparison | None | Parameters, result shape, rows with sort keys, `RETURNING` rows and direct change counts recorded and compared; the §3.1 boundary tests pass; unsupported query behavior stays `MODEL_UNSUPPORTED`; v1 cases keep their verdicts |
+| C1: execution profiles | None | Profile record in the manifest; a profile with foreign keys on and immediate transactions established and verified on the connection; a case refuses replay under another profile; a clock-dependent case replays identically at a different wall time; the method for measuring a workload's engine builds documented |
+| C2: exclusion narrowing | None | Before/after yield table for the §1.4 files; each narrowed rule has a rejecting test; helper semantics applied in the Tcl check; cap labels no longer overwrite other reasons |
 | C3: case size bound and snapshot sharing | C0 | The 302 MB case excluded with its size; earlier versions still replay |
 | C4: fidelity triage | C2 | Every differing-result candidate has a named cause |
-| C5: corpus v4 and external workloads | C0–C4 | Boundary and upstream parts frozen in this repository; the synthetic workload recorded and replayed from an external-style directory; a manifest mismatch in format or profile is refused; size within budget; native replay passes |
-| C6: replay tiers and baseline report | C5 | `just test` sample within 60 seconds; progress report per part and feature; the baseline for the model work |
-| C7: authored requirement cases and mutants | C5 | Requirement rows with cases before and after; added mutants killed |
+| C5: authored cases | C0, C1 | Boundary and interaction cases against neutral schemas, and requirement cases; requirement rows with cases reported before and after |
+| C6: corpus v4 freeze and external workloads | C0–C5 | Generic parts frozen in this repository with their final membership; the synthetic workload recorded and replayed from an external-style directory; a manifest mismatch in format or profile is refused; size within budget; native replay passes |
+| C7: replay tiers and generic baseline | C6 | `just test` sample within 60 seconds; progress report per part, feature and shard over the frozen generic corpus |
+| C8: mutants | C6 | Added output and ordering mutants killed; no change to corpus membership |
 
 C0, C1 and C2 can proceed in parallel. Each package follows the repository
 task/status file process.
+
+C0–C7 are the **core tooling complete** gate. The **workload suite complete**
+gate is met outside this repository, using these tools on the real workload, as
+defined under "Readiness" above. Its evidence is the workload inventory, the
+verified profile, the shard digest and the combined baseline.
 
 ## 7. Rollout and rollback
 
