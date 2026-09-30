@@ -13,6 +13,9 @@ name = "SqliteVerifier"
 [[lean_lib]]
 name = "GateCore"
 
+[[lean_lib]]
+name = "StructuralCodec"
+
 [[lean_exe]]
 name = "migration-proof-checker"
 root = "ProofChecker"

@@ -62,10 +62,14 @@ def run_stage(*, stage: str, order: tuple[str, ...], sources: Path, destination:
     return diagnostics, key
 
 
-def compile_trusted(*, contract: Contract, approved_sources: Path, schema_inputs: str, sql_inputs: str,
+def compile_trusted(*, contract: Contract, approved_sources: Path, schema_inputs: str, sql_inputs: str | None,
                     trusted: Path, sysroot: Path, library: Path, workspace: Path,
                     store: StageStore | None) -> list[str]:
-    """Compile schema, approved and SQL stages into `trusted`, reusing only eligible stages."""
+    """Compile schema, approved and SQL stages into `trusted`, reusing only eligible stages.
+
+    With `sql_inputs=None` the SQL stage is skipped: the bundle checker constructs those
+    declarations itself from the frontend's structural record.
+    """
     sql_sources = workspace / "sql-sources"
     schema_output, sql_output = workspace / "schema-output", workspace / "sql-output"
     for directory in (sql_sources, schema_output, sql_output):
@@ -83,10 +87,11 @@ def compile_trusted(*, contract: Contract, approved_sources: Path, schema_inputs
                                    eligible=store is not None and approved_reuse_allowed(approved_digest, store),
                                    **common)
     diagnostics += more
-    (sql_sources / "SqlInputs.lean").write_text(sql_inputs, encoding="utf-8")
-    more, _ = run_stage(stage="SqlInputs", order=("SqlInputs",), sources=sql_sources, destination=sql_output,
-                        previous=(schema_output,), previous_keys=(schema_key,), eligible=True, **common)
-    diagnostics += more
+    if sql_inputs is not None:
+        (sql_sources / "SqlInputs.lean").write_text(sql_inputs, encoding="utf-8")
+        more, _ = run_stage(stage="SqlInputs", order=("SqlInputs",), sources=sql_sources, destination=sql_output,
+                            previous=(schema_output,), previous_keys=(schema_key,), eligible=True, **common)
+        diagnostics += more
     for directory in (schema_output, sql_output):
         for artifact in directory.rglob("*"):
             if artifact.is_file():
@@ -109,8 +114,13 @@ class CompiledContract:
 
 def compile_contract(*, sysroot: Path, library: Path, requirements: Path, interpretation: Path,
                      schema_inputs: str, sql_inputs: str, workspace: Path, store: StageStore | None,
-                     approved_baseline: Path | None = None, schema_hash: str | None = None) -> CompiledContract:
-    """Check optional approval, then compile the trusted stages without any candidate source."""
+                     approved_baseline: Path | None = None, schema_hash: str | None = None,
+                     compile_sql: bool = True) -> CompiledContract:
+    """Check optional approval, then compile the trusted stages without any candidate source.
+
+    `compile_sql=False` leaves `SqlInputs` uncompiled for the bundle checker to construct;
+    its source hash is still reported.
+    """
     selected = {"Requirements": requirements.resolve(strict=True),
                 "Interpretation": interpretation.resolve(strict=True)}
     if any(path.stem.casefold() == "schemainputs" for path in selected.values()):
@@ -129,6 +139,6 @@ def compile_contract(*, sysroot: Path, library: Path, requirements: Path, interp
     if approved_baseline is not None:
         check_baseline(approved_baseline, {**hashes, **({"schema.sql": schema_hash} if schema_hash else {})})
     compile_trusted(contract=contract, approved_sources=approved_sources, schema_inputs=schema_inputs,
-                    sql_inputs=sql_inputs, trusted=trusted, sysroot=sysroot, library=library,
+                    sql_inputs=sql_inputs if compile_sql else None, trusted=trusted, sysroot=sysroot, library=library,
                     workspace=workspace, store=store)
     return CompiledContract(trusted, hashes, contract.external, frozenset(contract.sources))

@@ -54,7 +54,7 @@ def source_tree(tmp_path: Path) -> Path:
     ('tests/kernel_gate_test.py', {'kernel'}),
     ('tests/kernel_gate/Proofs.lean', {'kernel'}),
     ('conformance/model_cases.py', {'model'}),
-    ('conformance/cases/add_then_create.json', {'model'}),
+    ('conformance/cases/add_then_create.json', {'model', 'bundle'}),
     ('conformance/native_trace.py', {'model'}),
     ('conformance/case_format.py', {'model'}),
     ('VerifierConformance/Trace.lean', {'model'}),
@@ -64,6 +64,7 @@ def source_tree(tmp_path: Path) -> Path:
     ('tests/atuin_cli_test.py', {'atuin'}),
     ('tests/cli_test.py', {'cli'}),
     ('tests/bundle_test.py', {'bundle'}),
+    ('tests/generated_inputs_test.py', {'bundle'}),
     ('examples/atuin/Proofs.lean', {'atuin', 'cli', 'bundle'}),
     ('tests/test_translation.py', set()),
 ])

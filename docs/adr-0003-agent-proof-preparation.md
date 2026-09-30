@@ -184,11 +184,12 @@ supported interface.
 - **Approved contract.** The verifier compiles the approved sources and generated
   schema inputs itself, as today. It may reuse a previous compilation only under
   the rules below.
-- **Generated SQL inputs.** First keep compiling them with the pinned Lean (a
-  trusted input, about 0.5 s each). Replacing that compile with direct
-  construction from a versioned structural encoding of frontend results is a
-  follow-up. ADR 0004 plans to reuse the same encoding for model-conformance
-  cases.
+- **Generated SQL inputs.** `verify-bundle` does not compile `SqlInputs.lean`. The
+  frontend passes its result as a versioned structural record, and the checker
+  constructs `Generated.nextSchema`, `script` and `profile` from it as
+  kernel-checked declarations (P3). The encoding and its Lean codec are shared
+  with ADR 0004's conformance cases. `SchemaInputs` is still compiled, because the
+  approved contract compiles against it; it is eligible for stage reuse.
 - **The checker** is a repository-owned Lean executable built from lean4export's
   parser and the relevant comparator code (comparison and axiom traversal) at
   their `v4.33.0` tags. It does not use comparator's command line, which builds
@@ -248,7 +249,7 @@ this step.
 | A3 | Normalized complete-record comparison is the right protection for repeated declarations | 0 mismatches over about 5,100 repeated declarations per example after normalization | Specify the exact comparison in P1 before implementation |
 | A4 | Both acceptance and agent edit-to-result time improve enough over tuning to meet the decision rule | P1: acceptance faster everywhere; edit-to-result 45–59% faster for Atuin proof edits, but slower or marginal for SQL edits ([results](../experiments/adr-0003-latency/p1-results.md)) | Not met as written; owner decision above. P2 re-measures SQL edits after dependency-aware preparation |
 | A6 | Useful approved closures (starting with Atuin) can be qualified as deterministic for reuse | Not reviewed | Compare options with fresh contracts; reuse benefits both options equally |
-| A5 | Direct construction of generated inputs matches today's emitter | Not yet tested | Keep compiling generated inputs with Lean |
+| A5 | Direct construction of generated inputs matches today's emitter | P3: 13 parity cases (shipped examples, ADR 0004 cases, every statement constructor and value kind) have the emitter's types and definitionally equal values; parity testing found and fixed an index-ordering difference | Keep compiling generated inputs with Lean |
 
 ## Alternatives
 
@@ -273,7 +274,7 @@ when latency gains are small is an owner decision under the rule below.
 | P0: baseline | Done: [latency experiments](../experiments/adr-0003-latency/README.md) | Stage and data-path costs recorded |
 | P1: comparative experiment (done 2026-09-29; [results](../experiments/adr-0003-latency/p1-results.md)) | Prototypes of both options. Tuning: narrowed gate imports and eligible generated-stage reuse. Data path: checker with target reconstruction and axiom policy, library-omitted export (upstream or pinned patch), and a scripted `prepare` using incremental Lake builds. Measure both on macOS and Linux | Correctness: all existing positive, refutation, allowed-failure and Atuin cases give today's statuses through both prototypes; protected-declaration substitution, `sorry`, forbidden axioms and a wrong target fail. Measurements: see below |
 | P2: data path interface (implemented 2026-09-29; [results](../experiments/adr-0003-latency/p2-results.md)) | Make `prepare` and `verify-bundle` supported commands (no longer experimental), installed and tested on both platforms. Make `prepare`'s incremental build follow each module's actual imports, so an edit recompiles only the modules that depend on it (the P1 prototype recompiled every module after the first changed one). Keep tuning's narrowed gate imports and opt-in stage reuse, and the eligibility registry. Decide whether to upstream the library-omitting export option to lean4export or keep the pinned patch. Re-run the P1 matrix | Installed runtime runs both commands on macOS and Linux; `verify` results unchanged; bundle correctness cases pass in the installed runtime. SQL-edit cells re-measured on both platforms and reported against tuning, with any remaining gap explained. Data path no slower than today's `verify` in any cell, beyond measurement noise |
-| P3: generated inputs | Versioned structural encoding and direct construction, shared with ADR 0004 | Matches today's emitter for every supported constructor, literal and result schema |
+| P3: generated inputs (done 2026-09-30) | Versioned structural encoding and direct construction, shared with ADR 0004 | Matches today's emitter for every supported constructor, literal and result schema. Measured: `verify-bundle` 2.62 s → 2.15 s (small) and 6.69 s → 6.29 s (Atuin) on macOS, one Lean process fewer |
 | P4: documentation and CI (done 2026-09-29; [data path guide](data-path.md)) | Trust-boundary, source-staging, install and CI docs; case mapping | Each property tested at one layer, as in the current test policy |
 
 P3 applies because the data path was adopted. P4 documents and tests the data

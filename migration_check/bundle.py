@@ -1,12 +1,15 @@
 """`verify-bundle`: check an exported proof bundle without compiling candidate source (ADR 0003).
 
-The verifier still parses the actual SQL and compiles (or reuses) the trusted
-contract and generated inputs itself; only the candidate's declarations arrive as
-data. Statuses and exit codes match `verify`.
+The verifier still parses the actual SQL itself. It compiles (or reuses) the starting
+schema and approved contract, and passes the frontend's structural record to the
+checker, which constructs the generated SQL declarations without a Lean compile (ADR
+0003 P3). Only the candidate's declarations arrive as data. Statuses and exit codes
+match `verify`.
 """
 
 import argparse
 import hashlib
+import json
 from pathlib import Path
 from tempfile import TemporaryDirectory
 
@@ -33,15 +36,18 @@ def verify_bundle(options: argparse.Namespace) -> dict[str, object]:
                 sysroot=runtime.sysroot, library=runtime.library, requirements=options.requirements,
                 interpretation=options.interpretation, schema_inputs=inputs.schema_source,
                 sql_inputs=inputs.sql_source, workspace=workspace, store=StageStore.configured(),
-                approved_baseline=options.approved_baseline, schema_hash=inputs.schema_hash)
+                approved_baseline=options.approved_baseline, schema_hash=inputs.schema_hash,
+                compile_sql=False)
         except CompileError as error:
             raise Rejection("UNVERIFIED", str(error)) from error
-        snapshot = workspace / "bundle.ndjson"
+        snapshot, generated = workspace / "bundle.ndjson", workspace / "generated.json"
         snapshot.write_bytes(bundle_bytes)
+        generated.write_text(json.dumps(inputs.structural), encoding="utf-8")
         output = workspace / "gate-output"
         output.mkdir()
         checked = run_process(
-            [str(runtime.bundle_checker), str(runtime.library), str(contract.trusted), str(snapshot)],
+            [str(runtime.bundle_checker), str(runtime.library), str(contract.trusted), str(snapshot),
+             str(generated)],
             write_root=output, environment={"LEAN_SYSROOT": str(runtime.sysroot)}, timeout=30)
     if checked.returncode == 2:
         raise Rejection("VIOLATED", "A kernel-checked argument refutes the supplied verification contract")

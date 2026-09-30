@@ -28,8 +28,9 @@ is always safe, and `verify-bundle` never reads it. `prepare` is a convenience: 
 agent may produce the bundle with its own tools instead.
 
 **`verify-bundle`** parses the actual schema and migration SQL itself, compiles (or
-reuses from the opt-in stage store) the approved contract and generated inputs,
-and runs `migration-bundle-checker`. The checker never compiles candidate source.
+reuses from the opt-in stage store) the starting schema and approved contract,
+and runs `migration-bundle-checker` with the frontend's
+[generated-inputs record](#generated-inputs-record). The checker never compiles candidate source.
 It imports the pinned library and trusted modules only from the verifier
 installation, rejects any exported declaration that differs from a trusted one,
 replays the rest in the Lean kernel, reconstructs the verification target itself
@@ -67,6 +68,31 @@ Other versions are rejected. The format is for trusted execution; hardened
 decoding of hostile bundles is part of the
 [deferred trust design](adr-0003-trust-extension.md).
 
+## Generated-inputs record
+
+`verify-bundle` does not compile `SqlInputs.lean`. It writes the frontend's result
+as one JSON object and passes it to the checker:
+
+```json
+{"version": 1, "profile": "sqlite351", "schema": [...], "nextSchema": [...], "script": [...]}
+```
+
+`schema`, `nextSchema` and `script` use the structural encoding of
+[conformance format v1](conformance-format-v1.md), with indexes in declaration
+order. The checker (`BundleChecker.generatedDeclarations`):
+
+1. requires `schema` to equal the compiled `Generated.startSchema`;
+2. builds `Generated.nextSchema`, `Generated.script` and `Generated.profile` as
+   closed definitions and has the kernel check them;
+3. accepts a bundle's own copies of those three declarations only when they are
+   definitionally equal to the constructed ones. Replay always uses the
+   constructed declarations.
+
+Other versions and malformed records are rejected. SQL admission and validation
+still run in the Python frontend before the record is written, and the reported
+`generated/SqlInputs.lean` hash is unchanged. `verify` and `prepare` still compile
+`SqlInputs.lean`; `tests/generated_inputs_test.py` checks that both forms agree.
+
 ## Pinned exporter and its patch
 
 The runtime ships lean4export at tag `v4.33.0`
@@ -88,7 +114,8 @@ is upgraded:
 
 ## Tests
 
-Each property is checked at one layer. "Unit" tests need no Lean; "end to end" runs
+Each property is checked at one layer. "Unit" tests need no Lean; "checker" runs
+`migration-bundle-checker` directly on compiled inputs; "end to end" runs
 the public launcher from the source runtime (Nix target `tests.bundle`);
 "installed" runs the offline-installed archive (`just runtime-package`).
 
@@ -104,6 +131,7 @@ the public launcher from the source runtime (Nix target `tests.bundle`);
 | Stage store: verified restore, damaged or malformed entries miss, unwritable store tolerated, identity follows the runtime | Unit | `tests/test_stage_store.py` |
 | `verify` with a stage store: same results, fresh fallback, approved closures excluded unless eligible | End to end | `tests/stage_reuse_test.py` |
 | The installed commands give `VERIFIED`, `VIOLATED` and a wrong-SQL rejection | Installed | `tests/runtime_package_test.py::test_installed_data_path` |
+| Constructed generated declarations match the Lean emitter; tampered records are rejected | Checker | `tests/generated_inputs_test.py` |
 | Narrowed gate imports keep every existing gate rejection | End to end | `tests/kernel_gate_test.py` (Nix target `tests.kernel`) |
 
 ## Measurements
