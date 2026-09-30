@@ -56,6 +56,11 @@ test targets, and runs the remaining cheap source tests through pytest.
 `just test-atuin` selects only the cached Atuin target. `just test-nix` checks the
 Nix build and installer infrastructure; `just package` runs it.
 
+Agents can also prepare proofs separately and submit an exported bundle:
+`migration-check prepare` builds and exports, and `migration-check verify-bundle`
+checks the bundle without compiling candidate source. See the
+[data path guide](docs/data-path.md).
+
 Lean source executes with your permissions. The verifier assumes trusted execution
 and does not sandbox tactics; see the [trust boundary](docs/trust-boundary.md).
 Commands run under explicit timeouts and are also the entry points for CI.

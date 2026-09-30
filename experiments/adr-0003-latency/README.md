@@ -97,3 +97,41 @@ reports that replay into an empty environment can reject proofs that reduce
 string literals. The trusted-library strategy replays into an environment where
 `Init` is already loaded; the Atuin export, which reduces strings, replayed
 successfully that way.
+
+## P1 comparative experiment
+
+[ADR 0003](../../docs/adr-0003-agent-proof-preparation.md) P1 compares today's
+`verify`, tuning and the data path. The prototypes are:
+
+- **Tuning:** the kernel gate imports only the trusted modules its user modules
+  import (`GateCore.trustedImports`), and `verify` reuses eligible stages from an
+  opt-in store (`MIGRATION_CHECK_STAGE_STORE=DIR`). Generated schema and SQL
+  stages are eligible; approved closures are eligible only when listed in
+  `migration_check/cache_eligibility.py` (empty) or, for these measurements only,
+  with `MIGRATION_CHECK_MEASUREMENT_APPROVED_REUSE=1`.
+- **Data path:** `prepare` and `verify-bundle` on the same launcher (supported since P2;
+  see [the data path guide](../../docs/data-path.md)).
+
+  ```sh
+  bin/migration-check prepare --profile 3.51.0 --schema S --requirements R --interpretation I \
+    --migration M --next-interpretation N --proofs P --workspace AGENT_DIR --output proof.bundle
+  bin/migration-check verify-bundle --profile 3.51.0 --schema S --requirements R \
+    --interpretation I --migration M --bundle proof.bundle
+  ```
+
+  `prepare` keeps an agent workspace, compiles incrementally and exports with the
+  pinned, patched lean4export. `verify-bundle` compiles (or reuses) the contract
+  and generated inputs itself and runs `migration-bundle-checker`, which never
+  compiles candidate source.
+
+Run the matrix with a checkout of the pre-P1 revision as "today":
+
+```sh
+python3 experiments/adr-0003-latency/p1_measure.py --baseline-root BASELINE_CHECKOUT \
+  --output build/adr-0003-p1/$(uname -s)-$(uname -m).jsonl
+python3 experiments/adr-0003-latency/p1_report.py build/adr-0003-p1/*.jsonl
+```
+
+Linux results come from the manual `ADR 0003 P1 measurement` workflow
+(`.github/workflows/adr3-p1.yml`), which uploads its JSON lines and report.
+Recorded results and the decision-rule outcome are in `p1-results.md`.

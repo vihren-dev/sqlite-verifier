@@ -1,6 +1,7 @@
 # ADR 0005: Build the conformance corpus for a reference workload
 
-- Status: Proposed (revised 2026-09-30; replaces the first draft, which selected
+- Status: Accepted for implementation 2026-09-30 by owner instruction after review
+  (revised 2026-09-30; replaces the first draft, which selected
   tests by roadmap area and deferred query and expression tests)
 - Date: 2026-09-30
 - Implementation examined: `adr4` workspace at `d9a49d95`

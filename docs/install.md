@@ -38,6 +38,22 @@ project outputs need no additional trusted signing key. Signature checking is
 never disabled. As before, verify the downloaded release archive's checksum:
 content addressing establishes byte identity, not publisher identity.
 
+To prepare a proof separately and check it without compiling candidate source,
+use the [data path](data-path.md) commands from the same installation:
+
+```sh
+V="$HOME/.local/opt/sqlite-verifier"
+E="$V/examples"
+"$V/bin/migration-check" prepare --profile 3.51.0 --schema "$E/approved/schema.sql" \
+  --requirements "$E/approved/Requirements.lean" --interpretation "$E/approved/Interpretation.lean" \
+  --migration "$E/add_column_then_table/migration.sql" \
+  --next-interpretation "$E/add_column_then_table/NextInterpretation.lean" \
+  --proofs "$E/add_column_then_table/Proofs.lean" --workspace agent-build --output proof.bundle
+"$V/bin/migration-check" verify-bundle --profile 3.51.0 --schema "$E/approved/schema.sql" \
+  --requirements "$E/approved/Requirements.lean" --interpretation "$E/approved/Interpretation.lean" \
+  --migration "$E/add_column_then_table/migration.sql" --bundle proof.bundle --format json
+```
+
 The examples include synthetic engineering cases and the source-backed Atuin
 case study; its [acceptance review](atuin-pilot-review.md) records owner approval.
 `VERIFIED` applies to the supplied contract and documented restricted SQL model.

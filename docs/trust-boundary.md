@@ -14,9 +14,11 @@ proofs, exhausted resources, and unfinished proofs are `UNVERIFIED`.
 The trusted implementation includes the installed Python driver, pinned SQLite
 tokenizer/grammar adapter, CST admission and SQL-to-Lean emitter, source staging,
 Lean runtime/kernel and serialized-module loader, protected proof library,
-and native/model correspondence assumptions. The caller must
-protect that installation, its runtime paths/environment, approved source files,
-and any approval baseline. Lean source can execute arbitrary code during compilation. The current CLI assumes
+the kernel gate and bundle checker, and native/model correspondence assumptions.
+The caller must protect that installation, its runtime paths/environment, approved
+source files, any approval baseline, and any configured stage store
+(`MIGRATION_CHECK_STAGE_STORE`). Stored stages are hash-checked for integrity, but
+a reused stage is trusted like one compiled fresh. Lean source can execute arbitrary code during compilation. The current CLI assumes
 trusted execution: callers must trust that code and protect approved inputs, the
 verifier process and its result channel. It provides no OS sandbox, network
 restriction or filesystem containment. Kernel replay rejects invalid proofs but
@@ -28,10 +30,19 @@ are logical compilation boundaries, not OS access controls. Processes use explic
 environments, separate scratch directories, deadlines and bounded output. The
 launcher uses Python's isolated import mode; that is not a security sandbox.
 
-Hostile-input containment is deferred to a future integration layer after the
-preparation/checking separation proposed in ADR-003. A single outer container can
+The [data path](data-path.md) adopted in
+[ADR 0003](adr-0003-agent-proof-preparation.md) separates preparation from
+acceptance. `migration-check prepare` compiles candidate Lean on the agent's side,
+so it runs that code with the caller's permissions, like `verify`.
+`migration-check verify-bundle` compiles only the approved contract and generated
+inputs; it never compiles or runs candidate source, and rechecks every exported
+candidate declaration in the kernel. That removes intentional candidate execution
+from acceptance, but it is not yet a boundary for hostile agents: bundle decoding
+is not hardened, contract selection is not authenticated, and there is no second
+kernel. Those, and hostile-input containment generally, are the
+[deferred trust design](adr-0003-trust-extension.md). A single outer container can
 protect the host without protecting approved inputs from other processes inside
-it; the integration must establish the latter boundary too.
+it; any future integration must establish the latter boundary too.
 
 [The kernel gate](kernel-gate.md) compares protected declaration contents,
 replays actual bodies, reconstructs the expected proposition independently of the
