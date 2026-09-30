@@ -27,7 +27,8 @@ for approval to:
    add the profile the reference workload runs under.
 3. Freeze a corpus that contains the workload's **actual statements and
    migrations**, plus boundary and interaction cases and the upstream tests for
-   the SQL features it uses.
+   the SQL features it uses. The workload's own data is kept **outside this
+   repository** and supplied to the tooling.
 4. Narrow the extraction rules that exclude relevant upstream tests, bound case
    size, store the corpus as per-file shards within a fixed budget, and replay
    a sample in `just test`.
@@ -154,13 +155,31 @@ the workload's engines is unmeasured.
 
 | Part | Content | Policy |
 | --- | --- | --- |
-| Workload | Every statement and migration of the reference workload, with typed parameter values and recorded outputs | All of them; this part defines "covers the workload" |
+| Workload | Every statement and migration of the reference workload, with typed parameter values and recorded outputs | All of them; this part defines "covers the workload". Stored outside this repository (§3.3.1) |
 | Boundary and interaction | Triggers firing on writes, cascading deletes, constraint failures, statements grouped in one transaction, NULL and empty values, numeric edge values, empty and single-row tables | Authored, one or more per statement and per interaction |
 | Upstream, by feature | Upstream tests for the features in §1.3 | Extracted without a per-file cap after §3.4; loop-generated expression tests sampled by test-name prefix |
 | Out | `*fault*`, `*malloc*`, `*corrupt*`, `*auth*`, WAL, URI, blob-handle and FTS files | Excluded by file, with the reason recorded |
 
+#### 3.3.1 Workload data stays outside this repository
+
+A reference workload is a use case, not part of the core. This repository
+contains the tooling, the formats, the profiles' definitions, and the generic
+corpus parts (boundary cases written against neutral schemas, and upstream
+tests). It does not contain a workload's SQL, its name, its recorded cases or
+its results.
+
+- The recorder, replay and progress commands take the workload's location as an
+  argument: a directory with the schema and query files, a profile record, and
+  the workload corpus shard with its manifest.
+- A workload manifest binds its shard by digest and names the corpus format
+  version and profile it was recorded under, so the core can refuse a mismatch.
+- `just test` and CI in this repository run without any workload. Workload
+  replay is a separate command, run where the workload data is available.
+- A small synthetic workload lives in this repository to test the mechanism: a
+  few tables, statements with parameters, a trigger and a foreign key.
+
 The feature table sets coverage categories. The denominator is the frozen
-corpus itself. The file list and sampling rule are part of the manifest;
+corpus itself: the generic parts in this repository plus the workload shard. The file list and sampling rule are part of the manifest;
 changing them creates a new corpus version.
 
 ### 3.4 Narrow exclusions before adding volume
@@ -186,8 +205,9 @@ for.
 - The corpus stays in the repository as one compressed shard per source, within
   25 MB for the current version and 60 MB across retained versions. Overflow
   moves to a release asset fetched by Nix with a fixed hash.
-- `just test` replays every workload and authored case and a bounded sample of
-  the rest, within 60 seconds. `just conformance-progress` replays everything
+- `just test` replays the synthetic workload, every authored case and a bounded
+  sample of the rest, within 60 seconds. The reference workload is replayed by
+  its own command. `just conformance-progress` replays everything
   and reports per part, per feature and per shard.
 
 ### 3.6 Fidelity triage, authored cases and mutants
@@ -218,6 +238,9 @@ case and still return wrong query results.
 **One profile for all cases.** Rejected: foreign-key enforcement alone changes
 what the workload's deletes do.
 
+**Keep the reference workload's data in this repository.** Rejected by the
+owner: a workload is a use case, and the core stays free of it.
+
 **Record under the workload's own drivers.** Deferred: it would tie the corpus
 to a Go toolchain and two engine builds. §3.2 measures the gap first.
 
@@ -237,7 +260,7 @@ a moving denominator cannot measure progress.
 | C2: exclusion narrowing | None | Before/after yield table for the §1.4 files; each narrowed rule has a rejecting test |
 | C3: case size bound and snapshot sharing | C0 | The 302 MB case excluded with its size; earlier versions still replay |
 | C4: fidelity triage | C2 | Every differing-result candidate has a named cause |
-| C5: corpus v4 | C0–C4 | Workload, boundary and upstream parts frozen under the profile; every workload statement and migration present with outputs; size within budget; native replay passes |
+| C5: corpus v4 and external workloads | C0–C4 | Boundary and upstream parts frozen in this repository; the synthetic workload recorded and replayed from an external-style directory; a manifest mismatch in format or profile is refused; size within budget; native replay passes |
 | C6: replay tiers and baseline report | C5 | `just test` sample within 60 seconds; progress report per part and feature; the baseline for the model work |
 | C7: authored requirement cases and mutants | C5 | Requirement rows with cases before and after; added mutants killed |
 
