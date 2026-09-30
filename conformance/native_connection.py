@@ -7,12 +7,22 @@ import struct
 import sys
 import time
 from typing import TypeAlias
+from dataclasses import dataclass
+
+from conformance.native_library import SOURCE_ID, load_library
 
 Cell: TypeAlias = tuple[int, int | bytes | None]
 Row: TypeAlias = tuple[Cell, ...]
 # SQL semantic errors; environmental/connection failures must never become model evidence.
 SQL_ERRORS = (1, 18, 19, 20)  # ERROR, TOOBIG, CONSTRAINT, MISMATCH
-SOURCE_ID = "2025-11-04 19:38:17 fb2c931ae597f8d00a37574ff67aeed3eced4e5547f9120744ae4bfa8e74527b"
+
+
+@dataclass(frozen=True)
+class NativeResult:
+    """Column names are available even when stepping returns no rows."""
+
+    columns: tuple[str, ...]
+    rows: list[Row]
 
 
 class NativeError(RuntimeError):
@@ -33,48 +43,6 @@ def library_path(executable_name: str = "sqlite3") -> Path:
     return path.resolve(strict=True)
 
 
-def load_library(path: Path, version: str = "3.51.0") -> c.CDLL:
-    """Declare C argument widths once; pointer defaults would truncate addresses."""
-    library = c.CDLL(str(path))
-    signatures = {
-        "open": ([c.c_char_p, c.POINTER(c.c_void_p)], c.c_int),
-        "close": ([c.c_void_p], c.c_int),
-        "libversion": ([], c.c_char_p), "sourceid": ([], c.c_char_p),
-        "compileoption_used": ([c.c_char_p], c.c_int),
-        "get_autocommit": ([c.c_void_p], c.c_int),
-        "set_authorizer": ([c.c_void_p, c.c_void_p, c.c_void_p], c.c_int),
-        "busy_timeout": ([c.c_void_p, c.c_int], c.c_int),
-        "db_config": ([c.c_void_p, c.c_int], c.c_int),
-        "limit": ([c.c_void_p, c.c_int, c.c_int], c.c_int),
-        "extended_errcode": ([c.c_void_p], c.c_int),
-        "errmsg": ([c.c_void_p], c.c_char_p),
-        "exec": ([c.c_void_p, c.c_char_p, c.c_void_p, c.c_void_p, c.c_void_p], c.c_int),
-        "prepare_v2": ([c.c_void_p, c.c_char_p, c.c_int, c.POINTER(c.c_void_p),
-                        c.POINTER(c.c_char_p)], c.c_int),
-        "bind_null": ([c.c_void_p, c.c_int], c.c_int),
-        "bind_int64": ([c.c_void_p, c.c_int, c.c_int64], c.c_int),
-        "bind_double": ([c.c_void_p, c.c_int, c.c_double], c.c_int),
-        "bind_text": ([c.c_void_p, c.c_int, c.c_char_p, c.c_int, c.c_void_p], c.c_int),
-        "bind_blob": ([c.c_void_p, c.c_int, c.c_char_p, c.c_int, c.c_void_p], c.c_int),
-        "step": ([c.c_void_p], c.c_int), "finalize": ([c.c_void_p], c.c_int),
-        "column_count": ([c.c_void_p], c.c_int),
-        "column_type": ([c.c_void_p, c.c_int], c.c_int),
-        "column_int64": ([c.c_void_p, c.c_int], c.c_int64),
-        "column_double": ([c.c_void_p, c.c_int], c.c_double),
-        "column_text": ([c.c_void_p, c.c_int], c.c_void_p),
-        "column_blob": ([c.c_void_p, c.c_int], c.c_void_p),
-        "column_bytes": ([c.c_void_p, c.c_int], c.c_int),
-        "progress_handler": ([c.c_void_p, c.c_int, c.c_void_p, c.c_void_p], None),
-    }
-    for name, (arguments, result) in signatures.items():
-        function = getattr(library, "sqlite3_" + name)
-        function.argtypes, function.restype = arguments, result
-    source = {"3.51.0": SOURCE_ID, "3.46.0": "2024-05-23 13:25:27 96c92aba00c8375bc32fafcdf12429c58bd8aabfcadab6683e35bbb9cdebf19e"}[version]
-    if library.sqlite3_libversion().decode() != version or library.sqlite3_sourceid().decode() != source:
-        raise RuntimeError("SQLite library version/source ID does not match the pin")
-    if not library.sqlite3_compileoption_used(b"MAX_COLUMN=2000"):
-        raise RuntimeError("SQLite compile options do not match the profile")
-    return library
 
 
 class Connection:
@@ -155,7 +123,12 @@ class Connection:
         self.check(code)
 
     def query(self, sql: str, parameters: tuple[Cell, ...] = ()) -> list[Row]:
-        """Prepare exactly one statement and finalize it even after an execution failure."""
+        """Keep the existing row-only observation API over the shape-aware executor."""
+        return self.query_result(sql, parameters).rows
+
+    def query_result(self, sql: str, parameters: tuple[Cell, ...] = (), *,
+                     readonly: bool = False) -> NativeResult:
+        """Require complete binding and refuse writing probes before the first step."""
         self.deadline = time.monotonic() + 5
         statement, tail = c.c_void_p(), c.c_char_p()
         encoded = sql.encode()
@@ -164,6 +137,12 @@ class Connection:
         try:
             if not statement.value or (tail.value or b"").strip():
                 raise ValueError("Expected one complete SQL statement")
+            if self.library.sqlite3_bind_parameter_count(statement) != len(parameters):
+                raise ValueError("Expected one typed value per SQLite parameter slot")
+            if readonly and not self.library.sqlite3_stmt_readonly(statement):
+                raise ValueError("Supplementary probe must be read-only")
+            columns = tuple(self.library.sqlite3_column_name(statement, index).decode()
+                            for index in range(self.library.sqlite3_column_count(statement)))
             for index, cell in enumerate(parameters, 1):
                 self.bind(statement, index, cell)
             rows: list[Row] = []
@@ -171,7 +150,7 @@ class Connection:
                 code = self.library.sqlite3_step(statement)
                 self.check(code)
                 if code == 101:
-                    return rows
+                    return NativeResult(columns, rows)
                 rows.append(tuple(self.cell(statement, index)
                                   for index in range(self.library.sqlite3_column_count(statement))))
         finally:

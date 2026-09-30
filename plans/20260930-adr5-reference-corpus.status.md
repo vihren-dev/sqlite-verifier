@@ -34,3 +34,12 @@ C0: [outputs and parameters](20260930-adr5-c0-outputs.task.md),
   Added kernel-checked positive and negative examples to the existing trace suite.
   Pinned Nix conformance build passed; trace/output and document tests: 4 passed.
   C0 remains open: recording, versioned decoding and classifier integration follow.
+
+- 2026-09-30: Native connections now expose empty-result column shape, validate
+  complete positional/named parameter-slot binding, and reject statements SQLite
+  marks as writing before stepping a requested read-only probe. The existing
+  row-only API delegates to this executor. C signatures moved into a small
+  source-pinned library module to keep the connection below 200 lines; Nix inputs
+  include it and the output comparator. Native record/DQS, kernel trace/output,
+  and Nix target checks passed: 32 tests in 49.70 seconds. Script recording and
+  SELECT-only supplementary probing still need integration into version-two cases.

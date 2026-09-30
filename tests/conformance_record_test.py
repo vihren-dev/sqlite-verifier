@@ -115,3 +115,28 @@ def test_native_syntax_errors_remain_frontend_exclusions(runtime_root: Path) -> 
     assert result["verdict"] == "MODEL_UNSUPPORTED" and result["frontendStatus"] == "INPUT_ERROR"
     record["trace"][-1]["primaryCode"] = 0
     assert prepare(record, runtime_root / "build/sqlite-parser")[1]["verdict"] == "HARNESS_ERROR"
+
+
+def test_native_output_shape_bindings_and_probe_guard(tmp_path: Path) -> None:
+    """Empty queries keep shape, binding preserves typed bytes, and probes cannot write."""
+    from conformance.native_connection import Connection, library_path, load_library
+    connection = Connection(load_library(library_path()), tmp_path / "outputs.db")
+    try:
+        empty = connection.query_result('SELECT 1 AS "value" WHERE 0;', readonly=True)
+        assert empty.columns == ("value",) and empty.rows == []
+        cells = ((1, -(2**63)), (2, 0x3FF0000000000000), (3, b"a\0b"), (4, b"\0\xff"), (5, None))
+        result = connection.query_result("SELECT ?, ?, :text, :blob, :null;", cells, readonly=True)
+        assert result.rows == [cells] and len(result.columns) == 5
+        repeated = connection.query_result("SELECT :same, :same;", ((1, 42),))
+        assert repeated.rows == [((1, 42), (1, 42))]
+        for parameters in ((), ((1, 1), (1, 2))):
+            with pytest.raises(ValueError, match="parameter slot"):
+                connection.query_result("SELECT ?;", parameters)
+        connection.query("CREATE TABLE t(x);")
+        with pytest.raises(ValueError, match="read-only"):
+            connection.query_result("INSERT INTO t VALUES(1) RETURNING x;", readonly=True)
+        assert connection.query("SELECT * FROM t;") == []
+        returning = connection.query_result("INSERT INTO t VALUES(1) RETURNING x;")
+        assert returning.columns == ("x",) and returning.rows == [((1, 1),)]
+    finally:
+        connection.close()
