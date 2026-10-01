@@ -1,0 +1,13 @@
+# Preserve a large state through several reads: sharing must not bypass the logical cap.
+set testdir [file join $env(CONFORMANCE_UPSTREAM) test]
+source [file join $testdir tester.tcl]
+reset_db
+db eval {CREATE TABLE t(v); INSERT INTO t VALUES(zeroblob(60000))}
+do_test storage-oversized {
+  db eval {SELECT 1; SELECT 2; SELECT 3; SELECT 4}
+} {1 2 3 4}
+reset_db
+do_test storage-small {
+  db eval {SELECT 7}
+} {7}
+finish_test

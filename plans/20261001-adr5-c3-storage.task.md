@@ -1,6 +1,6 @@
 # ADR 0005 C3: bounded cases and shared snapshots
 
-Created 2026-10-01. Status: IN PROGRESS.
+Created 2026-10-01. Status: DONE.
 Status: [progress](20261001-adr5-c3-storage.status.md).
 Spec: [ADR 0005 §3.5](../docs/adr-0005-conformance-corpus-scale.md#35-case-size-storage-and-replay).
 

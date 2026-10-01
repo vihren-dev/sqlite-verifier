@@ -9,7 +9,7 @@ Spec: [ADR 0005](../docs/adr-0005-conformance-corpus-scale.md).
 Owner authorized implementation on 2026-09-30 after the document reviews.
 Dedicated `adr5` workspace combines merged ADR 0004 (`main` at `3aae9b50`)
 with ADR 0003's implemented shared structural codec (`96609b4c`). No conflicts;
-resource checks pass. C0–C2 are done; C3 is active. C4–C7 and the private workload gate are open.
+resource checks pass. C0–C3 are done; C4–C7 and the private workload gate are open.
 C8 follows the model semantics concerned, as the ADR specifies.
 
 ## Sources and package records
@@ -224,3 +224,13 @@ C3: [bounded storage](20261001-adr5-c3-storage.task.md),
 - 2026-10-01: Started C3 task/status records. Streaming measurement binds the
   giant e_blobbytes:e_blobbytes-1.0:0 record to frozen v3's digest and measures
   302,050,086 bytes. The new selection cap and shared storage remain to be added.
+
+- 2026-10-01: Closed C3 after final storage audit. New records have a 1,000,000-byte
+  cap before sharing, complete snapshots are stored by content digest, and load
+  verifies/expands them before replay. Refresh preserves observations and profiles
+  across repeated shared parents. Implemented size selection excludes the giant
+  v3 record at 302,050,086 bytes without changing frozen evidence. Hermetic model:
+  101 passed in 135.29 seconds; real Tcl upstream: 6 passed in 0.38 seconds;
+  docs: 2 passed. C4–C7 and the private workload gate remain open. C4's parallel
+  research has identified causes for all 143 historical fidelity mismatches;
+  mechanical fixes and retained triage evidence follow.

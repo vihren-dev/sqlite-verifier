@@ -12,6 +12,7 @@ from conformance.model_check import compiled_many
 from conformance.native_record import record_sql
 from conformance.native_replay import decode_rows, prepare, without_trailing_queries
 from conformance.execution_profile import ExecutionProfile, recorded_profile, validate_manifest_profiles
+from conformance.native_storage import expanded_record
 
 
 def load(directory: Path) -> tuple[dict[str, Json], list[dict[str, Json]]]:
@@ -20,7 +21,7 @@ def load(directory: Path) -> tuple[dict[str, Json], list[dict[str, Json]]]:
     payload = gzip.decompress((directory / "cases.jsonl.gz").read_bytes())
     if hashlib.sha256(payload).hexdigest() != manifest["casesSha256"]:
         raise ValueError("Corpus digest mismatch")
-    records = [json.loads(line) for line in payload.splitlines()]
+    records = [expanded_record(json.loads(line)) for line in payload.splitlines()]
     if len(records) != manifest["recordedCases"] or type(manifest["corpusVersion"]) is not int or manifest["corpusVersion"] < 1:
         raise ValueError("Corpus version/count mismatch")
     validate_manifest_profiles(manifest, records)

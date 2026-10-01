@@ -97,6 +97,18 @@ and testfixture identities are checked, including SQLite's own manifest hashes.
 Nearest EVIDENCE-OF blocks are attributed using runtime source frames, not every
 requirement found anywhere in a file. Ambiguous blocks remain uncredited.
 
+New acquisition excludes a final expanded record above 1,000,000 UTF-8 JSON bytes
+as `case size limit`, retaining `caseByteCount` in its selection report. This
+measurement includes minimization evidence and provenance, before snapshot sharing;
+sharing cannot admit an oversized logical case. The stored record is also bounded.
+Retained cases share identical complete snapshots by verified content digest;
+[storage decoding](conformance-format-v2.md) preserves all native observations.
+The [frozen v3 size selection](../reports/20261001-adr5-c3-size-selection.json)
+excludes the 302,050,086-byte `e_blobbytes:e_blobbytes-1.0:0` record under this
+policy. Existing frozen artifacts remain unchanged. Append refresh preserves
+inherited observations, including legacy oversized records, and applies the cap
+to additions; ADR 0005's final freeze selects membership separately.
+
 Refresh under `build/`, then create a new version without overwriting evidence:
 
 ```sh

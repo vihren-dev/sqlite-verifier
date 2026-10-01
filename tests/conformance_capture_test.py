@@ -1,5 +1,7 @@
 """Real pinned Tcl capture establishes profiles before cross-engine fidelity checks."""
 
+import gzip
+import json
 import os
 from pathlib import Path
 import shutil
@@ -73,4 +75,28 @@ def test_real_helpers_and_context_recovery(tmp_path: Path, source: str, accepted
         assert all(item["exclusions"] == ["native acquisition: Excluded connection context: nondeterministic function: random"]
                    for item in instances[:2])
     _, records = load(output)
+    native_replay(records)
+
+
+def test_size_exclusion_preserves_quota_and_native_evidence(tmp_path: Path) -> None:
+    """An oversized logical case is named with bytes; the next case uses the quota."""
+    fixture = shutil.which("testfixture")
+    if fixture is None or "CONFORMANCE_UPSTREAM" not in os.environ:
+        pytest.skip("Run the pinned Nix upstream target for Tcl capture")
+    upstream = tmp_path / "upstream"
+    (upstream / "test").mkdir(parents=True)
+    shutil.copyfile(Path(__file__).with_name("upstream_storage_calls.test"), upstream / "test/storage.test")
+    output = tmp_path / "capture"
+    report = pilot(Path(fixture), upstream, output, 1, ("storage.test",))
+    assert report["files"][0]["runtimeExit"] == 0
+    oversized, small = report["files"][0]["instances"]
+    assert oversized["id"] == "storage-oversized"
+    assert oversized["exclusions"] == ["case size limit"]
+    assert oversized["caseByteCount"] > 1_000_000
+    assert small["result"] == "recorded"
+    stored = json.loads(gzip.decompress((output / "cases.jsonl.gz").read_bytes()))
+    assert stored["snapshotStorageVersion"] == 1
+    assert len(stored["snapshots"]) == 1
+    _, records = load(output)
+    assert records[0]["name"] == "storage:storage-small:1"
     native_replay(records)

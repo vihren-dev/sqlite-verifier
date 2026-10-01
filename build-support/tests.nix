@@ -41,6 +41,7 @@ in {
       (root + /tests/upstream_context_calls.test)
       (root + /tests/upstream_attachment_calls.test)
       (root + /tests/upstream_nondeterminism_calls.test)
+      (root + /tests/upstream_storage_calls.test)
     ];
     runtime = conformance;
     tools = [ native.sqlite conformanceNative.fixture ];
@@ -73,7 +74,7 @@ in {
   };
   model = suite "model" {
     file = "tests/conformance_model_test.py";
-    extraFiles = [ "tests/conformance_trace_test.py" "tests/conformance_ordering_test.py" "tests/conformance_clock_test.py" "tests/conformance_profile_test.py" "tests/conformance_context_test.py" "tests/conformance_pipeline_test.py"
+    extraFiles = [ "tests/conformance_storage_test.py" "tests/conformance_trace_test.py" "tests/conformance_ordering_test.py" "tests/conformance_clock_test.py" "tests/conformance_profile_test.py" "tests/conformance_context_test.py" "tests/conformance_pipeline_test.py"
       "tests/conformance_mutation_test.py" "tests/conformance_laws_test.py" "tests/conformance_record_test.py" "tests/conformance_dqs_test.py" "tests/conformance_upstream_test.py" "tests/conformance_generation_test.py" "tests/conformance_coverage_test.py" ];
     inputs = [
       (fs.fileFilter (file: file.hasExt "py") (root + /migration_check))
@@ -92,6 +93,8 @@ in {
     ] ++ map (name: root + "/conformance/${name}.py") [
       "model_assertions" "model_cases" "model_check"
       "execution_profile"
+      "native_storage"
+      "refresh_corpus" "requirement_cases"
       "upstream_selection"
       "upstream_assertions"
       "upstream_helpers"

@@ -20,6 +20,7 @@ from conformance.upstream_assertions import assertions
 from conformance.upstream_helpers import readonly_spans, join_commands
 from conformance.execution_profile import ExecutionProfile, profile_from_wire
 from conformance.corpus import native_replay
+from conformance.native_storage import CaseSizeLimit, shared_record, serialized
 
 
 def evidence(source: str, line: int) -> list[dict[str, Json]]:
@@ -77,6 +78,7 @@ def pilot(fixture: Path, upstream: Path, output: Path, limit: int, patterns: tup
             selected = 0
             instances: list[Json] = []
             for occurrence, candidate in enumerate(candidates):
+                size_evidence: dict[str, Json] = {}
                 exclusions = candidate_reasons(candidate, selected=selected, limit=limit)
                 reason = "; ".join(exclusions)
                 if not reason:
@@ -96,23 +98,25 @@ def pilot(fixture: Path, upstream: Path, output: Path, limit: int, patterns: tup
                         record["upstream"]["evidenceContext"] = references
                         record["upstream"]["sourceLine"] = candidate["line"]
                         record["requirements"] = [item["id"] for item in references] if len(references) == 1 else []
-                        corpus.append(record)
+                        corpus.append(shared_record(record))
                         selected += 1
                     except (ValueError, RuntimeError) as error:
-                        reason = f"native acquisition: {error}"
+                        reason = "case size limit" if isinstance(error, CaseSizeLimit) else f"native acquisition: {error}"
                         exclusions.append(reason)
+                        if isinstance(error, CaseSizeLimit):
+                            size_evidence["caseByteCount"] = error.byte_count
                 reasons[reason or "recorded"] += 1
                 instances.append({"id": candidate["id"], "occurrence": occurrence,
-                                  "result": reason or "recorded", "exclusions": exclusions})
+                                  "result": reason or "recorded", "exclusions": exclusions, **size_evidence})
             report.append({**base, "runtimeExit": result.returncode, "runtimeAssertions": len(candidates),
                 "recorded": selected, "reasons": dict(reasons), "instances": instances,
                 "runtimeDiagnostics": (result.stdout + result.stderr)[-1500:] if result.returncode else ""})
-    payload = "".join(json.dumps(case, separators=(",", ":")) + "\n" for case in corpus).encode()
+    payload = b"".join(serialized(case) + b"\n" for case in corpus)
     (output / "cases.jsonl.gz").write_bytes(gzip.compress(payload, mtime=0))
     result: dict[str, Json] = {"corpusVersion": 1, "sourceRelease": "3.51.0", "perFileLimit": limit, "patterns": list(patterns),
         "sourceId": SOURCE_ID, "sourceArchiveSha256": "5330719b8b80bf563991ff7a373052943f5357aae76cd1f3367eab845d3a75b7",
         "extractorSha256": {name: hashlib.sha256(Path(__file__).with_name(name).read_bytes()).hexdigest()
-                            for name in ("upstream_pilot.py", "upstream_assertions.py", "upstream_helpers.py", "upstream_proxy.tcl", "upstream_fidelity.py", "upstream_selection.py", "native_record.py")},
+                            for name in ("upstream_pilot.py", "upstream_assertions.py", "upstream_helpers.py", "upstream_proxy.tcl", "upstream_fidelity.py", "upstream_selection.py", "native_record.py", "native_storage.py")},
         "files": report, "recordedCases": len(corpus), "casesSha256": hashlib.sha256(payload).hexdigest(),
         **({"executionProfiles": [profile.to_wire()]} if profile is not None else {})}
     (output / "manifest.json").write_text(json.dumps(result, indent=2) + "\n")

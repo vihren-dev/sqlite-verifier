@@ -69,3 +69,13 @@ Manifests declare `executionProfiles`, an array of these complete profile record
 Every v4 record must match a declaration exactly; duplicate name/version identities
 and missing or conflicting declarations are refused. Legacy corpora retain their
 implicit profile. External workload commands remain work in progress.
+
+Native corpus storage has its own `snapshotStorageVersion: 1`, independent of
+`nativeVersion`. A record's `snapshots` object maps SHA-256 digests to complete
+`{schema, tables}` snapshots. Each initial/trace `visible` and `persisted` field
+contains `{"snapshot": "DIGEST"}`. Digests use canonical UTF-8 JSON with sorted
+keys, compact separators and unescaped non-ASCII characters. Corpus loading checks
+the manifest's stored-byte digest, verifies every snapshot and reference, and
+restores independent observations before replay or model translation. Unknown
+storage versions, missing references, altered digests and unused pool entries
+are refused. Legacy unshared records retain their original meaning and size policy.
