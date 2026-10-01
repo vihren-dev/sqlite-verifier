@@ -19,7 +19,7 @@ structure NativeObservation where
   extendedCode : Nat
   deriving Repr, DecidableEq
 
-/-- Version-one case data keeps initialization separate from the migration. -/
+/-- Versioned cases keep initialization separate; v2 adds reached statement outputs. -/
 structure Case where
   version : Nat
   schemaSql : String
@@ -30,6 +30,8 @@ structure Case where
   nativeTrace : List NativeObservation
   requirements : List String := []
   provenance : List (String × String) := []
+  parameters : List (List Value) := []
+  outputs : List NativeOutput := []
   deriving Repr
 
 /-- Unsupported cases cannot be mistaken for either agreement or a model bug. -/
@@ -86,15 +88,34 @@ def invalidObservation (observation : Observation) : Bool :=
   | some (_, .invalidDefinition) => true
   | _ => false
 
+/-- Missing capability stays unsupported; every available output must match native evidence. -/
+def compareOutputs (position : Nat) : List (Option StatementOutput) → List NativeOutput → Verdict
+  | [], [] => .agree
+  | none :: _, _ => .modelUnsupported
+  | some actual :: rest, expected :: expectations =>
+    if matchesOutput expected.result actual expected.groups then
+      compareOutputs (position + 1) rest expectations
+    else .disagree (some position)
+  | _, _ => .disagree (some position)
+
 /-- Initial state is checked first, admission second, then the complete execution trace. -/
 def classifyCase (c : Case) : Verdict :=
   let names := c.names
   let observed := trace names c.script (databaseOf c.initial)
+  let outputs := if c.version == 2 then
+    outputTraceFrom 0 c.script { database := databaseOf c.initial } else []
   match observed, c.nativeTrace with
   | first :: rest, expected :: expectations =>
     if !matchesObservation names first expected then .disagree none
-    else if !admitted c || observed.any invalidObservation then .modelUnsupported
-    else compareSteps names 0 rest expectations
+    else if !admitted c || observed.any invalidObservation ||
+        c.parameters.any (fun values => !values.isEmpty) || outputs.any Option.isNone then
+      .modelUnsupported
+    else
+      match compareSteps names 0 rest expectations with
+      | .agree =>
+        if c.version == 1 then .agree
+        else compareOutputs 0 outputs c.outputs
+      | verdict => verdict
   | _, _ => .disagree none
 
 /-- Both compiled testing and concrete kernel proofs use the same classification. -/

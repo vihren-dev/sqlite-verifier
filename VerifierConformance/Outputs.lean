@@ -20,6 +20,12 @@ structure OutputGroup where
   count : Nat
   deriving Repr, DecidableEq
 
+/-- Ordered expectations carry full eligible groups, including cut boundaries. -/
+structure NativeOutput where
+  result : StatementOutput
+  groups : Option (List OutputGroup) := none
+  deriving Repr, DecidableEq
+
 /-- Consume each eligible occurrence once, including duplicate rows.
 ponytail: quadratic within a bounded case; use counted maps if measured costly. -/
 def submultiset : List ResultRow → List ResultRow → Bool
@@ -50,5 +56,38 @@ def matchesOutput (expected actual : StatementOutput)
   | some ordered =>
     ordered.all (fun group => group.rows.all (fun row => row.length == expected.columns.length)) &&
     matchesGroups ordered expected.rows && matchesGroups ordered actual.rows
+
+/-- Observe the existing literal-DML domain; unsupported output capability is explicit.
+Transitions and failure status come from production advance, never a second evaluator. -/
+def statementOutput (statement : Statement) (before : SqlState)
+    (transition : SqlTransition) : Option StatementOutput :=
+  let successful := match transition with | .next _ => true | _ => false
+  let constraintFailure := match transition with
+    | .halt (.failure _ .constraintViolation _) => true
+    | .halt (.pending _ _ (some (_, .constraintViolation))) => true
+    | _ => false
+  match statement with
+  | .insert .. =>
+    if successful then some ⟨[], [], some 1⟩
+    else if constraintFailure then some ⟨[], [], some 0⟩ else none
+  | .update name _ _ key equals =>
+    if successful then do
+      let table ← before.database name
+      return ⟨[], [], some (table.rows.filter (fun row =>
+        LiteralData.matchesKey table row key equals)).length⟩
+    else if constraintFailure then some ⟨[], [], some 0⟩ else none
+  | _ => some ⟨[], [], none⟩
+
+/-- Follow reached production transitions and stop at their first failure. -/
+def outputTraceFrom (position : Nat) (script : List Statement) (state : SqlState) :
+    List (Option StatementOutput) :=
+  match script with
+  | [] => []
+  | statement :: rest =>
+    let transition := advance position statement state
+    statementOutput statement state transition ::
+      match transition with
+      | .next next => outputTraceFrom (position + 1) rest next
+      | .halt _ => []
 
 end SqliteVerifier.Conformance

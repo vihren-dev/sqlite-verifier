@@ -55,3 +55,16 @@ C0: [outputs and parameters](20260930-adr5-c0-outputs.task.md),
   the sandbox (1 test). Final record/document checks: 12 passed. Version 3 remains
   refused by the model adapter until case-format-v2 integration; ordered-group
   recording, classifier integration and execution profiles are still open.
+
+- 2026-10-01: Integrated case-format-v2 outputs into the shared classifier. Native
+  acquisition v3 validates shape/typed parameters before frontend admission and
+  maps admitted literal writes into v2 cases. Output instrumentation follows
+  production advance; UPDATE counts matched unchanged rows, and supported ABORT
+  failures count zero. Missing output/parameter capability remains unsupported.
+  V1 decoding explicitly supplies absent new fields and preserves old serialized
+  records/verdicts. Both mutation copy paths include the output module and copy
+  its typed data. Added compiled round-trip and positive/negative kernel checks,
+  and documented the partial v2 interface. Pinned hermetic model suite: 60 passed
+  in 156.89 seconds, including all frozen-corpus replays. Document checks: 2 passed.
+  C0 remains open for faithful ordered-query/tie-window acquisition and SELECT-only
+  probing; C1 profiles and all subsequent gates remain open.

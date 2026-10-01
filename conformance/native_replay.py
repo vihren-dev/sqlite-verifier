@@ -46,10 +46,27 @@ def schema_sql(observation: dict[str, Json]) -> str:
     return "\n".join(text(row[3]) + ";" for row in rows if row[3][0] != 5)
 
 
+def output_wire(event: dict[str, Json]) -> dict[str, Json]:
+    """Check acquisition shape and typed payloads before frontend admission can hide corruption."""
+    columns = event["columns"]
+    if (not isinstance(columns, list) or any(not isinstance(name, str) for name in columns)
+            or type(event["columnCount"]) is not int or event["columnCount"] != len(columns)):
+        raise ValueError("Invalid native output shape")
+    rows = decode_rows(event["rows"])
+    decode_rows([event["parameters"]])
+    if any(len(row) != len(columns) for row in rows):
+        raise ValueError("Invalid native output row width")
+    changes = event["changes"]
+    if changes is not None and (type(changes) is not int or changes < 0):
+        raise ValueError("Invalid native direct change count")
+    return {"result": {"columns": columns, "rows": event["rows"], "changes": changes}, "groups": None}
+
+
 def model_case(record: dict[str, Json], parser: Path) -> dict[str, Json]:
     """Re-translate on every replay, preserving frozen native truth as the model grows."""
-    if record.get("nativeVersion") not in (1, 2) or record.get("sourceId") != SOURCE_ID:
+    if record.get("nativeVersion") not in (1, 2, 3) or record.get("sourceId") != SOURCE_ID:
         raise ValueError("Unsupported native record version or engine identity")
+    outputs = [output_wire(event) for event in record["trace"]] if record["nativeVersion"] == 3 else None
     initial_sql = schema_sql(record["initial"]["visible"])
     schema = starting_schema(parse(parser, initial_sql.encode(), "corpus-schema.sql"))
     script = statements(parse(parser, record["migrationSql"].encode(), "corpus-migration.sql"))
@@ -99,10 +116,11 @@ def model_case(record: dict[str, Json], parser: Path) -> dict[str, Json]:
         observations.append({"visible": tables(event["visible"]), "persisted": tables(event["persisted"]),
             "transactionOpen": event["transactionOpen"], "primaryCode": event.get("primaryCode", 0),
             "extendedCode": event.get("extendedCode", 0)})
-    return {"version": 1, "schemaSql": initial_sql, "migrationSql": record["migrationSql"],
+    return {"version": 2 if outputs is not None else 1, "schemaSql": initial_sql, "migrationSql": record["migrationSql"],
             "schema": [schema_wire(table) for table in schema], "initial": tables(record["initial"]["visible"]),
             "script": [statement_wire(statement) for statement in script], "nativeTrace": observations,
-            "requirements": record["requirements"], "provenance": [["fixture", record["name"]], ["sourceId", SOURCE_ID]]}
+            "requirements": record["requirements"], "provenance": [["fixture", record["name"]], ["sourceId", SOURCE_ID]],
+            **({"outputs": outputs, "parameters": [event["parameters"] for event in trace]} if outputs is not None else {})}
 
 
 def prepare(record: dict[str, Json], parser: Path) -> tuple[dict[str, Json] | None, dict[str, Json]]:

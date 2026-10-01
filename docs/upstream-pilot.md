@@ -27,8 +27,9 @@ column names/count (including empty results), rows, and the direct DML change
 count. Supply one parameter tuple per statement; repeated named parameters share
 SQLite's slot. SELECT, DDL and EXPLAIN have no change count. Native replay checks
 these fields against a fresh execution. This acquisition version is distinct
-from the Lean case format: tie-group recording and version-two model comparison
-are still being integrated, so the existing model adapter refuses version 3.
+from the Lean case format: admitted literal-write records map to case version two
+and compare direct counts. Query and parameter semantics remain unsupported;
+faithful tie-group recording is still being integrated.
 Default extraction continues to produce versions 1/2 unchanged.
 
 Removing the close exclusion does not by itself widen the supported execution
