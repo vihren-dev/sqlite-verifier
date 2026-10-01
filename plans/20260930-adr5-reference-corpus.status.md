@@ -9,7 +9,7 @@ Spec: [ADR 0005](../docs/adr-0005-conformance-corpus-scale.md).
 Owner authorized implementation on 2026-09-30 after the document reviews.
 Dedicated `adr5` workspace combines merged ADR 0004 (`main` at `3aae9b50`)
 with ADR 0003's implemented shared structural codec (`96609b4c`). No conflicts;
-resource checks pass. C0–C3 are done; C4–C7 and the private workload gate are open.
+resource checks pass. C0–C3 are done; C4 is active. C5–C7 and the private workload gate are open.
 C8 follows the model semantics concerned, as the ADR specifies.
 
 ## Sources and package records
@@ -25,6 +25,8 @@ C2: [exclusion narrowing](20261001-adr5-c2-exclusions.task.md),
 [status](20261001-adr5-c2-exclusions.status.md).
 C3: [bounded storage](20261001-adr5-c3-storage.task.md),
 [status](20261001-adr5-c3-storage.status.md).
+C4: [fidelity causes](20261001-adr5-c4-fidelity.task.md),
+[status](20261001-adr5-c4-fidelity.status.md).
 
 ## Progress
 
@@ -234,3 +236,7 @@ C3: [bounded storage](20261001-adr5-c3-storage.task.md),
   docs: 2 passed. C4–C7 and the private workload gate remain open. C4's parallel
   research has identified causes for all 143 historical fidelity mismatches;
   mechanical fixes and retained triage evidence follow.
+
+- 2026-10-01: Prepared C4 task/status files. The historical denominator includes
+  all 143 result/error mismatches, beyond the ADR's 123 prefix-result headline.
+  The ledger must match that complete set and preserve each actual refusal cause.
