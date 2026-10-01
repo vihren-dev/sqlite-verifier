@@ -31,6 +31,8 @@ def execute(connection: Connection, sql: str, *, outputs: bool = False,
         raise ValueError("Controlled statement clocks require output recording and values")
     if clock_values is not None and type(clock_values) not in (int, list):
         raise ValueError("Statement clocks must be a fixed Unix-millisecond value or a list")
+    if clock is not None and type(clock_values) is int:
+        clock.set_time(clock_values)
     clock_index = 0
     bindings = iter(parameters or [])
     remaining = sql.encode()

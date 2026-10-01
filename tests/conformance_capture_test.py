@@ -35,7 +35,9 @@ def test_real_profile_capture_and_clock_change_refusal(tmp_path: Path) -> None:
     assert report["recordedCases"] == 1, report["files"]
     instances = report["files"][0]["instances"]
     assert instances[0]["result"] == "recorded"
-    assert "test changed the controlled clock" in instances[1]["exclusions"]
+    assert instances[1]["exclusions"][0].endswith("unsupported setting: foreign_keys")
+    assert instances[2]["exclusions"][0].endswith("unsupported setting: ignore_check_constraints")
+    assert "test changed the controlled clock" in instances[3]["exclusions"]
     _, records = load(output)
     assert records[0]["nativeVersion"] == 4
     assert all(event["clockUnixMilliseconds"] == 1700000000000 for event in records[0]["trace"])

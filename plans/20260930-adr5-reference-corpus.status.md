@@ -199,3 +199,8 @@ C2: [exclusion narrowing](20261001-adr5-c2-exclusions.task.md),
   fresh native replay: 1 passed. Focused regressions: 27 passed; docs: 2 passed.
   Unsupported-setting accounting and measured extraction yields remain open.
   Full pinned hermetic model suite: 87 passed in 150.38 seconds.
+
+- 2026-10-01: C2 reports profile-setting exclusions by canonical PRAGMA name.
+  Real Tcl capture verifies separate foreign_keys and ignore_check_constraints
+  refusals. Empty-script fixed clock inputs are validated. Pinned upstream check:
+  1 passed; profile/context/document checks: 11 passed. C2 yields remain open.

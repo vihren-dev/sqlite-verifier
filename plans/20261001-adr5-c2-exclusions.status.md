@@ -13,8 +13,8 @@ preserves preceding reasons.
 Detached in-memory prefixes recover after faithful native replay. File attachment
 prefixes remain excluded. Yield improvement has not yet been measured.
 Explicit-profile Tcl capture establishes behavioral settings and a verified fixed
-clock, then records native v4 evidence. Unsupported settings and measured yields
-still need their package audit.
+clock, then records native v4 evidence. Setting refusals include canonical PRAGMA
+names. Measured yields and the final package audit remain open.
 
 ## Progress
 
@@ -110,3 +110,11 @@ still need their package audit.
   context/document checks: 27 passed in 5.43 seconds; final docs: 2 passed.
   Full pinned hermetic model suite: 87 passed in 150.38 seconds. C2 remains
   active for per-setting accounting and measured extraction yields.
+
+- 2026-10-01: Native profile-setting refusals now include the canonical PRAGMA
+  name. Uppercase names use the same allowlist and accounting as lowercase ones.
+  Real Tcl capture rejects foreign_keys changes and ignore_check_constraints
+  separately, retaining each name in its acquisition report. Fixed clock inputs
+  are also validated for an empty script. Pinned upstream target: 1 passed in
+  0.16 seconds; profile/context/document checks: 11 passed in 0.65 seconds.
+  Extraction yield measurements and the final C2 audit remain open.

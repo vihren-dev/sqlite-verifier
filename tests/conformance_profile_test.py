@@ -165,3 +165,6 @@ def test_fixed_clock_records_native_statement_boundaries(tmp_path: Path) -> None
     with pytest.raises(ValueError, match="fixed Unix-millisecond"):
         record_sql("", "SELECT 1;", name="invalid-clock", outputs=True, profile=profile,
             setup_clock=1700000000000, clock_values=True)
+    with pytest.raises(ValueError, match="SQLite's date range"):
+        record_sql("", "", name="invalid-empty-clock", outputs=True, profile=profile,
+            setup_clock=1700000000000, clock_values=2**63)

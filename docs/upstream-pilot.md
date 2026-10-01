@@ -77,6 +77,9 @@ check compares actual Tcl outcomes with native results. This does not measure
 the gap to a workload's driver builds. Run `nix-build build-support/default.nix
 -A tests.upstream --no-out-link` for the real profile capture check, including
 defaults, triggers, cascading deletes and a rejected clock change.
+Profile-setting refusals include the canonical PRAGMA name, so acquisition
+reports count `foreign_keys` separately from `ignore_check_constraints` and other
+settings. The pinned capture check exercises both names.
 
 Removing the close exclusion does not by itself widen the supported execution
 profile. `alter.test` still yields 12/119 and `alter3.test` 7/59: TEMP/ATTACH,

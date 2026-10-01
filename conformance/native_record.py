@@ -107,12 +107,14 @@ def record_sql(setup: str | list[str | dict[str, Json]], migration: str, *, name
                 if controlled:
                     nondeterministic = {b"random", b"randomblob"}
                 if (profile is not None or auxiliary_replay) and action == 19:
+                    setting_name = (_a or b"").lower()
                     metadata = {b"table_info", b"table_xinfo", b"table_list", b"index_list", b"index_info",
                         b"index_xinfo", b"foreign_key_list", b"foreign_key_check", b"compile_options", b"database_list"}
                     settings = {b"foreign_keys", b"recursive_triggers", b"trusted_schema", b"writable_schema"}
                     ignored = {setting.encode() for setting, _reason in profile.ignored_settings} if profile else set()
-                    if _a not in metadata and (_a not in settings or function is not None) and _a not in ignored:
-                        connection.recording_exclusion = "SQL changes an established execution profile or uses an unsupported setting"
+                    if setting_name not in metadata and (setting_name not in settings or function is not None) and setting_name not in ignored:
+                        connection.recording_exclusion = ("SQL changes an established execution profile or uses an unsupported setting: "
+                            + setting_name.decode())
                         return 1
                 if (action == 24 and (not connection.recording_setup or _a != b":memory:")
                         or action == 31 and function in nondeterministic):
