@@ -24,7 +24,7 @@ def command_ranges(commands: list[str], separator: str = "\n;\n") -> list[tuple[
 
 def readonly_spans(commands: list[str], helpers: list[str]) -> list[tuple[int, int]]:
     """Protect every statement belonging to a Tcl row helper before preparation."""
-    return [span for span, helper in zip(command_ranges(commands), helpers, strict=True) if helper != "eval"]
+    return [span for span, helper in zip(command_ranges(commands), helpers, strict=True) if helper in {"onecolumn", "exists"}]
 
 
 def command_events(record: dict[str, Json], commands: list[str]) -> list[list[dict[str, Json]]]:

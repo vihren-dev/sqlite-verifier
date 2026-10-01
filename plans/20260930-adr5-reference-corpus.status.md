@@ -165,3 +165,9 @@ C2: [exclusion narrowing](20261001-adr5-c2-exclusions.task.md),
   newline-only joining merged semicolon-free calls. The mixed-helper harness
   test now records one case and passes fresh native replay. Focused regressions:
   27 passed. Row scripts, context recovery and before/after yields remain open.
+
+- 2026-10-01: C2 supports verified pure Tcl row bodies with empty-result helper
+  semantics, retaining ordinary native rows and RETURNING. The real pinned
+  harness records three cases and excludes explicit mutation/read-trace side
+  effects; fresh native replay passes. Focused regressions: 28 passed. Context
+  recovery, profile-aware extraction and measured yields remain open.

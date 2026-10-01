@@ -142,3 +142,17 @@ def test_mixed_helpers_keep_call_boundaries() -> None:
     combined = record_sql([], "SELECT\n42;", name="cross-call")
     with pytest.raises(ValueError, match="crosses Tcl SQL call"):
         command_events(combined, ["SELECT", "42;"])
+
+
+def test_pure_row_script_semantics_keep_returning_rows() -> None:
+    """Pure Tcl bodies return empty output while native write/RETURNING evidence survives."""
+    events = [("reset",), ("sql", "db", "CREATE TABLE t(x);", "0", "eval"),
+              ("result", "db", "0"), ("begin", "pure", ""),
+              ("sql", "db", "INSERT INTO t VALUES(3) RETURNING x;", "0", "eval-script"),
+              ("result", "db", "0"), ("end", "pure")]
+    encoded = "\n".join("\t".join(value.encode().hex() for value in event) for event in events)
+    candidate = assertions(encoded)[0]
+    assert not candidate["exclusions"]
+    record = record_sql(candidate["prefix"], candidate["commands"][0], name="pure")
+    check_results(record, candidate)
+    assert record["trace"][0]["rows"] == [[{"integer": {"value": 3}}]]

@@ -6,11 +6,36 @@ proc capture_event {args} {
   puts $::capture [join $fields \t]
   flush $::capture
 }
+proc capture_pure_row_body {command} {
+  # ponytail: only empty/basic braced expr bodies; widen verified forms when yield warrants it.
+  if {[llength $command] ni {4 5}} { return 0 }
+  set body [string trim [lindex $command end]]
+  if {$body ne ""} {
+    if {![regexp {^expr\s+\{([^{}\\\[\]]*)\}\s*;?\s*$} $body -> expression]} { return 0 }
+    if {[regexp {[[:alpha:]_][[:alnum:]_:]*\s*\(} $expression]} { return 0 }
+    if {[string first :: $expression] >= 0} { return 0 }
+    if {[llength [info procs ::expr]] || [interp alias {} expr] ne ""} { return 0 }
+  }
+  # Variable read traces can turn an otherwise pure expression into a state change.
+  foreach variable [uplevel 2 {info vars}] {
+    if {[llength [uplevel 2 [list trace info variable $variable]]]} { return 0 }
+  }
+  foreach variable [info globals] {
+    if {[llength [uplevel #0 [list trace info variable ::$variable]]]} { return 0 }
+  }
+  return 1
+}
 proc capture_connection {name command args} {
   set operation [lindex $command 1]
   if {$operation in {eval onecolumn exists}} {
     if {[lindex $args end] eq "enter"} {
-      capture_event sql $name [lindex $command 2] [expr {[llength $command] > 3}] $operation
+      set callback [expr {[llength $command] > 3}]
+      set helper $operation
+      if {$operation eq "eval" && $callback && [capture_pure_row_body $command]} {
+        set helper eval-script
+        set callback 0
+      }
+      capture_event sql $name [lindex $command 2] $callback $helper
     } else {
       if {[lindex $args 0] == 0 && $operation eq "eval"} {
         capture_event result $name 0 {*}[lindex $args 1]

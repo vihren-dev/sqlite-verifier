@@ -144,7 +144,7 @@ def record_sql(setup: str | list[str | dict[str, Json]], migration: str, *, name
                         raise ValueError("Unknown native setup operation")
                     events = []
                 else:
-                    events = list(execute(writer, command, select_only=setup_helpers is not None and setup_helpers[index] != "eval"))
+                    events = list(execute(writer, command, select_only=setup_helpers is not None and setup_helpers[index] in {"onecolumn", "exists"}))
                 setup_outcomes.append(events[-1]["primaryCode"] if events else 0)
                 setup_results.append([row for event in events for row in event["rows"]])
                 setup_errors.append(events[-1]["error"] if events else "")

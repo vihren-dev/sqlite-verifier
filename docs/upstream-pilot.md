@@ -29,8 +29,19 @@ SQLite's slot. SELECT, DDL and EXPLAIN have no change count. Native replay check
 these fields against a fresh execution. This acquisition version is distinct
 from the Lean case format: admitted literal-write records map to case version two
 and compare direct counts. Query and parameter semantics remain unsupported;
-faithful tie-group recording is still being integrated.
+native acquisition records faithful tie groups and cutoff boundaries. Explicit
+profile/clock evidence uses native version 4; see [profiles](execution-profile.md).
 Default extraction continues to produce versions 1/2 unchanged.
+
+ADR 0005 extraction preserves Tcl SQL call boundaries, including calls without
+final semicolons. `onecolumn` and `exists` use SELECT-only native acquisition and
+their own result semantics during the Tcl check; native rows stay unchanged.
+Mixed helper calls compare independently. Pure eval row scripts return an empty
+Tcl result while retaining ordinary native rows, including RETURNING. Accepted
+bodies are empty or basic braced `expr` bodies without functions, command
+substitution, namespace references or variable traces. Other bodies retain the
+callback-context exclusion. The pinned harness check is
+[upstream_helper_calls.test](../tests/upstream_helper_calls.test).
 
 Removing the close exclusion does not by itself widen the supported execution
 profile. `alter.test` still yields 12/119 and `alter3.test` 7/59: TEMP/ATTACH,

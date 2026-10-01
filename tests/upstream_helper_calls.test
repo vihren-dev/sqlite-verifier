@@ -9,4 +9,28 @@ do_test helper-mixed-1 {
   set rows [db eval {SELECT x FROM t ORDER BY x}]
   list $first $found $rows
 } {42 1 {7 42}}
+reset_db
+do_test helper-pure-row-script {
+  db eval {SELECT 1 AS x UNION ALL SELECT 2} {expr {$x + 1}}
+} {}
+reset_db
+db eval {CREATE TABLE t(x)}
+do_test helper-pure-returning-script {
+  db eval {INSERT INTO t VALUES(3) RETURNING x} {expr {$x + 1}}
+} {}
+reset_db
+do_test helper-side-effect-row-script {
+  set changes 0
+  db eval {SELECT 1 AS x} {incr changes}
+  set changes
+} 1
+reset_db
+set trace_changes 0
+proc helper_read_trace {args} {incr ::trace_changes}
+trace add variable x read helper_read_trace
+do_test helper-read-trace-side-effect {
+  db eval {SELECT 1 AS x} {expr {$x + 1}}
+  set trace_changes
+} 1
+trace remove variable x read helper_read_trace
 finish_test

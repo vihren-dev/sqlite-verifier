@@ -8,6 +8,8 @@ from conformance.upstream_helpers import command_events
 
 def tcl_values(rows: list[Json], helper: str = "eval") -> list[str]:
     """Compare untyped Tcl values only where byte-to-text conversion is unambiguous."""
+    if helper == "eval-script":
+        return []  # Tcl eval with a pure row body returns the empty result.
     if helper == "exists":
         return ["1" if rows else "0"]
     if helper == "onecolumn":

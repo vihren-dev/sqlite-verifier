@@ -8,7 +8,8 @@ Spec: [ADR 0005](../docs/adr-0005-conformance-corpus-scale.md).
 
 Runtime extraction still accumulates exclusions until reset. Ordinary eval and
 read-only onecolumn/exists calls are supported, including mixed helper sequences.
-Row scripts remain excluded. Selection preserves preceding reasons.
+Verified pure row scripts are supported; other bodies remain excluded. Selection
+preserves preceding reasons.
 No narrowed extraction rule or yield improvement is claimed yet.
 
 ## Progress
@@ -50,3 +51,13 @@ No narrowed extraction rule or yield improvement is claimed yet.
   tests/upstream_helper_calls.test now yields one recorded case through the real
   proxy/harness, and its fresh native replay passes. Upstream/record/profile/docs:
   27 passed in 5.06 seconds. Row scripts, context recovery and yields remain open.
+
+- 2026-10-01: The real Tcl proxy recognizes empty/basic braced expr row bodies,
+  rejecting command substitution, function calls, namespace references and
+  variable traces. Side-effecting/unrecognized bodies keep their exclusion.
+  Pure scripts use Tcl's empty-result semantics while ordinary native rows and
+  RETURNING evidence remain unchanged. The pinned harness now has five checks:
+  mixed helpers and pure SELECT/RETURNING scripts record three cases; explicit
+  mutation and a variable-read trace remain excluded. All recorded cases pass
+  fresh native replay. Upstream/record/profile/docs: 28 passed in 5.09 seconds.
+  Context lifetime recovery, profile-aware extraction and yields remain open.

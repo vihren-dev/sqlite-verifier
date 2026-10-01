@@ -61,7 +61,7 @@ def assertions(events: str) -> list[dict[str, Json]]:
                       "prefixCodes": list(codes), "prefixResults": list(expected), "prefixHelpers": list(helpers),
                       "commands": [], "codes": [], "results": [], "helpers": [], "failed": False}
         elif kind == "sql":
-            if args[0] != "db" or args[2] != "0" or args[3] not in {"eval", "onecolumn", "exists"}:
+            if args[0] != "db" or args[2] != "0" or args[3] not in {"eval", "eval-script", "onecolumn", "exists"}:
                 excluded.add("connection or SQL callback context")
             prefix.append(args[1])
             helpers.append(args[3])
@@ -81,4 +81,3 @@ def assertions(events: str) -> list[dict[str, Json]]:
             rows.append(active)
             active = None
     return rows
-
