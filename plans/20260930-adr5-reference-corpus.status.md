@@ -191,3 +191,11 @@ C2: [exclusion narrowing](20261001-adr5-c2-exclusions.task.md),
   regression cases remove redundant setup with identical initial state and trace.
   Upstream/frozen replay/document checks: 17 passed. Tcl profile integration and
   C2 yield measurements remain open.
+
+- 2026-10-01: C2 explicit-profile Tcl capture now establishes settings and a
+  fixed native clock, retains profile/output evidence in the manifest and refuses
+  clock changes. The new hermetic upstream target checks defaults, triggers,
+  cascading deletes and immediate transactions through real Tcl capture and
+  fresh native replay: 1 passed. Focused regressions: 27 passed; docs: 2 passed.
+  Unsupported-setting accounting and measured extraction yields remain open.
+  Full pinned hermetic model suite: 87 passed in 150.38 seconds.

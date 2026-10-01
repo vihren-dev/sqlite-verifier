@@ -1,6 +1,10 @@
 # Trace the real upstream harness; Tcl itself expands loops, ifcapable and substitutions.
 set capture [open $env(CONFORMANCE_EVENTS) w]
 set capture_metadata 0
+if {[info exists env(CONFORMANCE_CLOCK_SECONDS)]} {
+  if {![info exists sqlite_current_time]} { error "Testfixture has no native clock control" }
+  set sqlite_current_time $env(CONFORMANCE_CLOCK_SECONDS)
+}
 proc capture_event {args} {
   set fields {}
   foreach item $args { lappend fields [binary encode hex [encoding convertto utf-8 $item]] }
@@ -31,6 +35,10 @@ proc capture_connection {name command args} {
   set operation [lindex $command 1]
   if {$operation in {eval onecolumn exists}} {
     if {[lindex $args end] eq "enter"} {
+      if {[info exists ::env(CONFORMANCE_CLOCK_SECONDS)] &&
+          $::sqlite_current_time != $::env(CONFORMANCE_CLOCK_SECONDS)} {
+        capture_event exclude "test changed the controlled clock"
+      }
       set callback [expr {[llength $command] > 3}]
       set helper $operation
       if {$operation eq "eval" && $callback && [capture_pure_row_body $command]} {
@@ -59,6 +67,18 @@ proc capture_factory {command code result operation} {
   set name [lindex $command 1]
   if {$code == 0 && ![string match -* $name] && [llength [info commands ::$name]]} {
     set filename [lindex $command 2]
+    if {[info exists ::env(CONFORMANCE_FOREIGN_KEYS)]} {
+      foreach {setting variable} {foreign_keys CONFORMANCE_FOREIGN_KEYS recursive_triggers CONFORMANCE_RECURSIVE_TRIGGERS} {
+        $name eval "PRAGMA $setting=$::env($variable)"
+        if {[$name onecolumn "PRAGMA $setting"] != $::env($variable)} {
+          error "Testfixture profile setting readback differs: $setting"
+        }
+      }
+      if {[info exists ::env(CONFORMANCE_CLOCK_SECONDS)] &&
+          [$name onecolumn {SELECT unixepoch()}] != $::env(CONFORMANCE_CLOCK_SECONDS)} {
+        error "Testfixture controlled clock readback differs"
+      }
+    }
     set ::capture_file($name) [expr {$filename in {"" ":memory:"} ? ":memory:" : [file normalize $filename]}]
     if {[llength $command] > 3} { capture_event exclude "connection open options" }
     capture_event open $name $::capture_file($name)

@@ -63,6 +63,21 @@ external-file attachment remain refused. A live attachment, failed DETACH or
 unreplayable file prefix cannot recover. The pinned test is
 [upstream_attachment_calls.test](../tests/upstream_attachment_calls.test).
 
+Explicit-profile capture accepts `--profile PROFILE.json` and, for a controlled
+clock profile, `--clock-unix-milliseconds VALUE`. The Tcl engine establishes and
+reads back foreign-key and recursive-trigger settings. Its native clock hook
+supports nonzero whole seconds through 2147483647; other values are refused.
+Capture uses UTC and excludes tests that change the controlled clock. Native
+recording retains outputs and the clock input for each reached statement, and
+the manifest declares the profile. Fresh replay preserves that evidence.
+
+The profile identifies the native recording engine. The Tcl testfixture has
+additional test compile options; its source ID is checked, and the fidelity
+check compares actual Tcl outcomes with native results. This does not measure
+the gap to a workload's driver builds. Run `nix-build build-support/default.nix
+-A tests.upstream --no-out-link` for the real profile capture check, including
+defaults, triggers, cascading deletes and a rejected clock change.
+
 Removing the close exclusion does not by itself widen the supported execution
 profile. `alter.test` still yields 12/119 and `alter3.test` 7/59: TEMP/ATTACH,
 multiple connections and LEGACY_FILE_FORMAT=1 account for remaining exclusions.

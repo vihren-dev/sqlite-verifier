@@ -64,11 +64,11 @@ def record_sql(setup: str | list[str | dict[str, Json]], migration: str, *, name
                library: Path | None = None, outputs: bool = False,
                parameters: list[tuple[Cell, ...]] | None = None,
                profile: ExecutionProfile | None = None, setup_clock: int | None = None,
-               clock_values: list[int] | None = None,
+               clock_values: list[int] | int | None = None,
                setup_helpers: list[str] | None = None, migration_readonly: bool = False,
                migration_readonly_spans: list[tuple[int, int]] | None = None,
                auxiliary_replay: bool = False) -> dict[str, Json]:
-    """Keep native evidence even when today's frontend cannot represent the SQL."""
+    """Keep native evidence; clocks can be fixed across SQL or supplied per statement."""
     if parameters is not None and not outputs:
         raise ValueError("Bound parameters require output recording")
     controlled = profile is not None and profile.clock == "unix-milliseconds-v1"

@@ -1,0 +1,16 @@
+# Native clock reads in defaults and triggers share the capture profile.
+set testdir [file join $env(CONFORMANCE_UPSTREAM) test]
+source [file join $testdir tester.tcl]
+reset_db
+db eval {CREATE TABLE p(id PRIMARY KEY);
+  CREATE TABLE child(id REFERENCES p(id) ON DELETE CASCADE);
+  CREATE TABLE t(stamp DEFAULT(unixepoch())); CREATE TABLE audit(stamp);
+  CREATE TRIGGER log AFTER INSERT ON t BEGIN INSERT INTO audit VALUES(unixepoch()); END;
+  INSERT INTO p VALUES(1); INSERT INTO child VALUES(1)}
+do_test profile-clock {
+  db eval {BEGIN IMMEDIATE; INSERT INTO t DEFAULT VALUES RETURNING stamp;
+    SELECT stamp,unixepoch() FROM audit; DELETE FROM p; SELECT count(*) FROM child; COMMIT}
+} {1700000000 1700000000 1700000000 0}
+set sqlite_current_time 1700000002
+do_test profile-changed-clock {db eval {SELECT unixepoch()}} 1700000002
+finish_test

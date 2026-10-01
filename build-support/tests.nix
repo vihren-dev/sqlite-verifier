@@ -1,6 +1,7 @@
 # Independent pytest targets: Nix owns isolation, dependency identity and reuse.
 { pkgs, leanToolchain, leanRuntime, parsers, runtime, conformance ? runtime, root ? ../.
 , native ? import ../nix/sqlite.nix { inherit pkgs; }
+, conformanceNative ? import ./conformance-native.nix { inherit pkgs; }
 }:
 let
   fs = pkgs.lib.fileset;
@@ -14,8 +15,8 @@ let
     ln -s ${leanToolchain} "$out/lean"
     ln -s ${leanRuntime}/.lake "$out/.lake"
   '';
-  suite = name: { file, inputs, runtime, tools ? [], extraFiles ? [] }:
-    pkgs.stdenvNoCC.mkDerivation {
+  suite = name: { file, inputs, runtime, tools ? [], extraFiles ? [], environment ? {} }:
+    pkgs.stdenvNoCC.mkDerivation ({
       pname = "sqlite-verifier-test-${name}";
       version = "1";
       src = fs.toSource { inherit root; fileset = fs.unions (common ++ [ (root + "/${file}") ] ++ (map (name: root + "/${name}") extraFiles) ++ inputs); };
@@ -28,8 +29,19 @@ let
         timeout 420 python3 -m pytest ${file} ${pkgs.lib.concatStringsSep " " extraFiles} --runtime-root ${runtime} \
           -p no:cacheprovider --junitxml "$out/junit.xml" -v --durations=10
       '';
-    };
+    } // environment);
 in {
+  upstream = suite "upstream" {
+    file = "tests/conformance_capture_test.py";
+    inputs = [
+      (fs.fileFilter (file: file.hasExt "py" || file.hasExt "tcl") (root + /conformance))
+      (fs.fileFilter (file: file.hasExt "py") (root + /migration_check))
+      (root + /tests/upstream_profile_calls.test)
+    ];
+    runtime = conformance;
+    tools = [ native.sqlite conformanceNative.fixture ];
+    environment.CONFORMANCE_UPSTREAM = conformanceNative.upstream;
+  };
   atuin = suite "atuin" {
     file = "tests/atuin_cli_test.py";
     inputs = [];

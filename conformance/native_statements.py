@@ -18,7 +18,7 @@ def wire_rows(rows: list[Row]) -> list[Json]:
 def execute(connection: Connection, sql: str, *, outputs: bool = False,
             parameters: list[tuple[Cell, ...]] | None = None,
             clock: NativeClock | None = None,
-            clock_values: list[int] | None = None,
+            clock_values: list[int] | int | None = None,
             transaction_mode: str | None = None, select_only: bool = False,
             readonly_spans: list[tuple[int, int]] | None = None,
             committed_reads: bool = False) -> Iterator[dict[str, Json]]:
@@ -29,14 +29,18 @@ def execute(connection: Connection, sql: str, *, outputs: bool = False,
         raise ValueError("Output recording requires the native acquisition authorizer")
     if (clock is None) != (clock_values is None) or clock is not None and not outputs:
         raise ValueError("Controlled statement clocks require output recording and values")
+    if clock_values is not None and type(clock_values) not in (int, list):
+        raise ValueError("Statement clocks must be a fixed Unix-millisecond value or a list")
     clock_index = 0
     bindings = iter(parameters or [])
     remaining = sql.encode()
     while remaining.strip():
         statement, tail = c.c_void_p(), c.c_char_p()
         connection.deadline = time.monotonic() + 5
-        if clock is not None and clock_index < len(clock_values):
-            clock.set_time(clock_values[clock_index])
+        current_clock = (clock_values if type(clock_values) is int else
+            clock_values[clock_index] if clock_values is not None and clock_index < len(clock_values) else None)
+        if clock is not None and current_clock is not None:
+            clock.set_time(current_clock)
         if outputs:
             connection.statement_actions.clear()
         from conformance.native_probe import select_probe
@@ -76,7 +80,7 @@ def execute(connection: Connection, sql: str, *, outputs: bool = False,
                         mode = words[1] if len(words) > 1 and words[1] in {"DEFERRED", "IMMEDIATE", "EXCLUSIVE"} else "DEFERRED"
                         if mode.lower() != transaction_mode:
                             raise ValueError("SQL transaction mode differs from execution profile")
-                if clock is not None and clock_index >= len(clock_values):
+                if clock is not None and current_clock is None:
                     raise ValueError("Expected one clock value per reached statement")
                 if outputs:
                     if connection.library.sqlite3_bind_parameter_count(statement) != len(bound):
@@ -111,7 +115,7 @@ def execute(connection: Connection, sql: str, *, outputs: bool = False,
                     changes = connection.library.sqlite3_changes(connection.handle)
             connection.library.sqlite3_finalize(statement)
         if statement.value or code:
-            if clock is not None and clock_index >= len(clock_values):
+            if clock is not None and current_clock is None:
                 raise ValueError("Expected one clock value per reached statement")
             event: dict[str, Json] = {"sql": consumed.decode(), "rows": wire_rows(rows),
                 "primaryCode": code & 255, "extendedCode": code, "error": message}
@@ -121,7 +125,7 @@ def execute(connection: Connection, sql: str, *, outputs: bool = False,
                 event.update({"groups": groups, "columns": columns, "columnCount": len(columns),
                               "parameters": [cell_wire(cell) for cell in bound], "changes": changes})
             if clock is not None:
-                event["clockUnixMilliseconds"] = clock_values[clock_index]
+                event["clockUnixMilliseconds"] = current_clock
                 clock_index += 1
             yield event
         if code:
@@ -132,5 +136,5 @@ def execute(connection: Connection, sql: str, *, outputs: bool = False,
 
     if outputs and next(bindings, None) is not None:
         raise ValueError("Parameters supplied for an unexecuted statement")
-    if clock_values is not None and clock_index != len(clock_values):
+    if isinstance(clock_values, list) and clock_index != len(clock_values):
         raise ValueError("Clock values supplied for an unexecuted statement")

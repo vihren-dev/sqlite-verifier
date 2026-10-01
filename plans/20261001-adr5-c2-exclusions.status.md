@@ -12,6 +12,9 @@ Verified pure row scripts are supported; other bodies remain excluded. Selection
 preserves preceding reasons.
 Detached in-memory prefixes recover after faithful native replay. File attachment
 prefixes remain excluded. Yield improvement has not yet been measured.
+Explicit-profile Tcl capture establishes behavioral settings and a verified fixed
+clock, then records native v4 evidence. Unsupported settings and measured yields
+still need their package audit.
 
 ## Progress
 
@@ -93,3 +96,17 @@ prefixes remain excluded. Yield improvement has not yet been measured.
   and controlled-clock records retain exact initial state and trace while setup
   shrinks. Upstream/frozen replay/document checks: 17 passed in 5.80 seconds.
   Tcl profile integration and measured yields remain open.
+
+- 2026-10-01: Explicit-profile pilot capture now sets/readbacks foreign-key and
+  recursive-trigger settings, uses UTC, and verifies the pinned Tcl native clock
+  hook. Capture refuses unsupported clock values and excludes tests that change
+  the clock. The native executor accepts a fixed clock while retaining each
+  reached statement's input; per-statement clock lists remain supported. Captured
+  v4 records and manifests retain the profile through minimization and fresh
+  replay. The profile identifies the native recording build; Tcl test compile
+  options and the unmeasured driver gap are documented separately. The new pinned
+  Nix upstream target verifies defaults, triggers, cascading deletes, immediate
+  transactions and clock-change refusal: 1 passed. Focused native/profile/upstream/
+  context/document checks: 27 passed in 5.43 seconds; final docs: 2 passed.
+  Full pinned hermetic model suite: 87 passed in 150.38 seconds. C2 remains
+  active for per-setting accounting and measured extraction yields.

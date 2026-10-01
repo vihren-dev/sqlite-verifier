@@ -141,3 +141,27 @@ def test_profile_selects_its_pinned_engine(tmp_path: Path, runtime_root: Path) -
     assert record["sourceId"] == profile.source_id
     native_replay([record], profile=profile)
     assert prepare(record, runtime_root / "build/sqlite-parser")[1]["verdict"] == "MODEL_UNSUPPORTED"
+
+
+def test_fixed_clock_records_native_statement_boundaries(tmp_path: Path) -> None:
+    """One clock input covers unknown statement counts while replay retains each reached input."""
+    from conformance.corpus import native_replay
+    from conformance.native_record import record_sql
+    connection = Connection(load_library(library_path()), tmp_path / "measure.db")
+    try:
+        profile = measured_profile(connection, name="fixed-clock", clock="unix-milliseconds-v1")
+    finally:
+        connection.close()
+    setup = ("CREATE TABLE t(stamp DEFAULT(unixepoch())); CREATE TABLE audit(stamp);"
+        "CREATE TRIGGER log AFTER INSERT ON t BEGIN INSERT INTO audit VALUES(unixepoch()); END;")
+    record = record_sql(setup, "; INSERT INTO t DEFAULT VALUES RETURNING stamp;"
+        "SELECT stamp,unixepoch() FROM audit; -- trailing comment", name="fixed-clock",
+        outputs=True, profile=profile, setup_clock=1700000000000, clock_values=1700000001000)
+    assert len(record["trace"]) == 2
+    assert all(event["clockUnixMilliseconds"] == 1700000001000 for event in record["trace"])
+    assert record["trace"][1]["rows"] == [[{"integer": {"value": 1700000001}},
+                                          {"integer": {"value": 1700000001}}]]
+    native_replay([record])
+    with pytest.raises(ValueError, match="fixed Unix-millisecond"):
+        record_sql("", "SELECT 1;", name="invalid-clock", outputs=True, profile=profile,
+            setup_clock=1700000000000, clock_values=True)
