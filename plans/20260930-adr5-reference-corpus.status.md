@@ -27,6 +27,8 @@ C3: [bounded storage](20261001-adr5-c3-storage.task.md),
 [status](20261001-adr5-c3-storage.status.md).
 C4: [fidelity causes](20261001-adr5-c4-fidelity.task.md),
 [status](20261001-adr5-c4-fidelity.status.md).
+C5: [neutral authored cases](20261001-adr5-c5-authored.task.md),
+[status](20261001-adr5-c5-authored.status.md).
 
 ## Progress
 
@@ -252,3 +254,9 @@ C4: [fidelity causes](20261001-adr5-c4-fidelity.task.md),
   private workload gate remain open. Initial C5 research found 29 legacy authored
   cases without output/profile evidence; the broader boundary cases and stable
   requirement-coverage reporting remain to be added.
+
+- 2026-10-01: Prepared C5 task/status files. Research identifies neutral feature
+  and interaction cases and 29 legacy scenarios to record with outputs/profiles.
+  Before/after requirement counts will retain the full 3,500-row inventory,
+  including zero rows. Document checks: 2 passed. Authored implementation and
+  verification remain open.
