@@ -44,6 +44,9 @@ def execute(connection: Connection, sql: str, *, outputs: bool = False,
                         raise ValueError("Expected one typed value per SQLite parameter slot")
                     columns = [connection.library.sqlite3_column_name(statement, index).decode()
                                for index in range(connection.library.sqlite3_column_count(statement))]
+                    if not connection.library.sqlite3_stmt_readonly(statement):
+                        from conformance.native_ordering import check_write_window
+                        check_write_window(connection, consumed.decode(), bound)
                     for index, cell in enumerate(bound, 1):
                         connection.bind(statement, index, cell)
                 while True:
@@ -72,7 +75,9 @@ def execute(connection: Connection, sql: str, *, outputs: bool = False,
             event: dict[str, Json] = {"sql": consumed.decode(), "rows": wire_rows(rows),
                 "primaryCode": code & 255, "extendedCode": code, "error": message}
             if outputs:
-                event.update({"columns": columns, "columnCount": len(columns),
+                from conformance.native_ordering import query_groups
+                groups = query_groups(connection, consumed.decode(), bound, columns, rows) if not code and changes is None else None
+                event.update({"groups": groups, "columns": columns, "columnCount": len(columns),
                               "parameters": [cell_wire(cell) for cell in bound], "changes": changes})
             yield event
         if code:

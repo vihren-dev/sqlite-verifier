@@ -59,7 +59,26 @@ def output_wire(event: dict[str, Json]) -> dict[str, Json]:
     changes = event["changes"]
     if changes is not None and (type(changes) is not int or changes < 0):
         raise ValueError("Invalid native direct change count")
-    return {"result": {"columns": columns, "rows": event["rows"], "changes": changes}, "groups": None}
+    groups = event.get("groups")
+    if groups is not None:
+        if not isinstance(groups, list):
+            raise ValueError("Invalid native tie groups")
+        position = 0
+        for group in groups:
+            eligible = decode_rows(group["rows"])
+            count = group["count"]
+            if (type(count) is not int or not 0 < count <= len(eligible)
+                    or any(len(row) != len(columns) for row in eligible)
+                    or len(rows[position:position + count]) != count):
+                raise ValueError("Invalid native tie group shape/count")
+            for row in rows[position:position + count]:
+                if row not in eligible:
+                    raise ValueError("Native result does not fit its tie groups")
+                eligible.remove(row)
+            position += count
+        if position != len(rows):
+            raise ValueError("Native tie group window size differs")
+    return {"result": {"columns": columns, "rows": event["rows"], "changes": changes}, "groups": groups}
 
 
 def model_case(record: dict[str, Json], parser: Path) -> dict[str, Json]:

@@ -85,3 +85,19 @@ C0: [outputs and parameters](20260930-adr5-c0-outputs.task.md),
   multiplicity; unresolved collations are refused. Native ordering/record checks:
   11 passed; ordering/document checks: 3 passed. SQL ordering resolution and uncut
   query acquisition remain to be integrated before C0 is complete.
+
+- 2026-10-01: Integrated ordered-query/window evidence into native output recording.
+  A small lexical boundary reader preserves parameter slots and quoted/commented
+  SQL; SQLite remains the syntax/evaluation authority. Projected aliases, ordinals
+  and unchanged qualified columns resolve to an outer native dense_rank probe.
+  DISTINCT/GROUP BY/compound semantics stay inside the original uncut SELECT;
+  inherited collations, numeric ties, direction and NULL placement stay native.
+  Probes must reproduce original shape and rows, with complete window boundaries.
+  Limited INSERT sources are checked before writing: partial groups are excluded,
+  unique-key cuts run the write once. Hidden/ambiguous keys and unresolved limited
+  write contexts retain named exclusions. Acquisition validates group membership
+  before frontend admission, so unsupported queries cannot hide malformed groups.
+  Identifier handling uses SQLite ASCII folding and exact quote unescaping.
+  Pinned hermetic model suite: 64 passed in 168.02 seconds; focused ordering/doc
+  checks: 6 passed. C0 remains active pending the final contract audit; C1's engine
+  profiles and controlled clock are the next major package. No frozen corpus changed.

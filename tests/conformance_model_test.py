@@ -87,5 +87,10 @@ def test_version_two_outputs(runtime_root: Path, tmp_path: Path) -> None:
         unsupported = record_sql("CREATE TABLE t(id INTEGER,v BLOB);", sql,
                                  name="unsupported-output", outputs=True, parameters=parameters)
         assert prepare(unsupported, runtime_root / "build/sqlite-parser")[1]["verdict"] == "MODEL_UNSUPPORTED"
+    ordered = record_sql("CREATE TABLE t(k); INSERT INTO t VALUES(1),(1),(2);",
+                         "SELECT k FROM t ORDER BY k LIMIT 1;", name="ordered", outputs=True)
+    assert prepare(ordered, runtime_root / "build/sqlite-parser")[1]["verdict"] == "MODEL_UNSUPPORTED"
+    ordered["trace"][0]["groups"][0]["count"] = 3
+    assert prepare(ordered, runtime_root / "build/sqlite-parser")[1]["verdict"] == "HARNESS_ERROR"
     native["trace"][0]["columnCount"] = 1
     assert prepare(native, runtime_root / "build/sqlite-parser")[1]["verdict"] == "HARNESS_ERROR"
