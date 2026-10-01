@@ -9,6 +9,8 @@ from conformance.case_format import Json
 from conformance.native_statements import execute, wire_rows
 from conformance.native_connection import Cell, Connection, SOURCE_ID, library_path, load_library
 from conformance.native_metadata import integer, quoted, text
+from conformance.execution_profile import ExecutionProfile
+from conformance.native_clock import NativeClock
 
 
 
@@ -60,16 +62,30 @@ def observe(connection: Connection) -> dict[str, Json]:
 
 def record_sql(setup: str | list[str | dict[str, Json]], migration: str, *, name: str, requirements: list[str] | None = None,
                library: Path | None = None, outputs: bool = False,
-               parameters: list[tuple[Cell, ...]] | None = None) -> dict[str, Json]:
+               parameters: list[tuple[Cell, ...]] | None = None,
+               profile: ExecutionProfile | None = None, setup_clock: int | None = None,
+               clock_values: list[int] | None = None) -> dict[str, Json]:
     """Keep native evidence even when today's frontend cannot represent the SQL."""
     if parameters is not None and not outputs:
         raise ValueError("Bound parameters require output recording")
+    controlled = profile is not None and profile.clock == "unix-milliseconds-v1"
+    if profile is not None and not outputs:
+        raise ValueError("Explicit profiles require output recording")
+    if controlled != (setup_clock is not None and clock_values is not None):
+        raise ValueError("Controlled profile requires setup and statement clock inputs")
+    if not controlled and (setup_clock is not None or clock_values is not None):
+        raise ValueError("Clock inputs require a controlled profile")
     with TemporaryDirectory(prefix="native-corpus-") as directory, ExitStack() as stack:
         engine = load_library(library or library_path())
+        clock = NativeClock(engine, setup_clock) if controlled else None
+        if clock is not None:
+            stack.callback(clock.close)
         def open_writer() -> Connection:
             """Reject external databases before ATTACH/VACUUM can create files outside the fixture."""
-            connection = Connection(engine, Path(directory) / "case.db")
+            connection = Connection(engine, Path(directory) / "case.db", vfs=clock.name if clock else None)
             stack.callback(connection.close)
+            if profile is not None:
+                profile.establish(connection)
             connection.statement_actions: list[int] = []
             def authorize(_context: int, action: int, _a: bytes, function: bytes,
                           _database: bytes, _trigger: bytes) -> int:
@@ -78,6 +94,12 @@ def record_sql(setup: str | list[str | dict[str, Json]], migration: str, *, name
                     connection.statement_actions.append(action)
                 nondeterministic = {b"random", b"randomblob", b"current_timestamp", b"current_date", b"current_time",
                     b"date", b"time", b"datetime", b"julianday", b"unixepoch", b"strftime", b"timediff"}
+                if controlled:
+                    nondeterministic = {b"random", b"randomblob"}
+                if profile is not None and action == 19 and function is not None and _a in {
+                        b"foreign_keys", b"recursive_triggers", b"trusted_schema", b"writable_schema"}:
+                    connection.recording_exclusion = "SQL changes an established execution profile setting"
+                    return 1
                 if action == 24 or action == 31 and function in nondeterministic:
                     connection.recording_exclusion = "Excluded connection context: external database or nondeterministic function"
                     return 1
@@ -115,8 +137,10 @@ def record_sql(setup: str | list[str | dict[str, Json]], migration: str, *, name
                 setup_errors.append(events[-1]["error"] if events else "")
         if writer.transaction_open:
             raise ValueError("Corpus setup must end outside a transaction")
-        reader = Connection(engine, Path(directory) / "case.db")
+        reader = Connection(engine, Path(directory) / "case.db", vfs=clock.name if clock else None)
         stack.callback(reader.close)
+        if profile is not None:
+            profile.establish(reader)
 
         def snapshot() -> dict[str, Json]:
             """Preserve committed observations independently while a transaction is open."""
@@ -125,8 +149,11 @@ def record_sql(setup: str | list[str | dict[str, Json]], migration: str, *, name
                     "transactionOpen": writer.transaction_open}
 
         initial = snapshot()
-        trace = [{**event, **snapshot()} for event in execute(writer, migration, outputs=outputs, parameters=parameters)]
-    return {"nativeVersion": 3 if outputs else 2 if isinstance(setup, list) and any(isinstance(item, dict) for item in setup) else 1, "name": name, "setupSql": setup if isinstance(setup, str) else "\n".join(item for item in setup if isinstance(item, str)),
+        trace = [{**event, **snapshot()} for event in execute(writer, migration, outputs=outputs,
+            parameters=parameters, clock=clock, clock_values=clock_values,
+            transaction_mode=profile.transaction_mode if profile else None)]
+    return {"nativeVersion": 4 if profile is not None else 3 if outputs else 2 if isinstance(setup, list) and any(isinstance(item, dict) for item in setup) else 1, "name": name, "setupSql": setup if isinstance(setup, str) else "\n".join(item for item in setup if isinstance(item, str)),
             "setupCommands": [setup] if isinstance(setup, str) else setup, "setupOutcomes": setup_outcomes,
             "setupResults": setup_results, "setupErrors": setup_errors, "migrationSql": migration,
-            "sourceId": SOURCE_ID, "requirements": requirements or [], "initial": initial, "trace": trace}
+            "sourceId": SOURCE_ID, "requirements": requirements or [], "initial": initial, "trace": trace,
+            **({"profile": profile.to_wire(), "setupClockUnixMilliseconds": setup_clock} if profile else {})}

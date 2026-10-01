@@ -7,10 +7,10 @@ Spec: [ADR 0005](../docs/adr-0005-conformance-corpus-scale.md).
 ## Current state
 
 The default source-pinned native connection verifies DQS and column limits.
-Evidence does not yet carry a complete versioned profile. Clock functions are
-excluded by the acquisition authorizer; the new native clock primitive is not
-yet integrated into recording/replay. C1 is
-open; no claim of workload suite completion is made.
+Native acquisition v4 carries a validated explicit profile and clock inputs.
+Recording and fresh replay establish the same conditions and engine clock.
+Profile manifests and the final contract audit remain open; no claim of
+workload suite completion is made.
 
 ## Progress
 
@@ -37,3 +37,16 @@ open; no claim of workload suite completion is made.
   mismatches and invalid conventions. Profile/clock/record/DQS checks: 14 passed
   in 0.79 seconds. These primitives still require wire decoding and integration
   into acquisition, replay and manifests; model admission must remain separate.
+
+- 2026-10-01: Added strict profile JSON transport and native acquisition v4.
+  Recorder/replay establish profiles on writer and reader; controlled profiles
+  require a setup clock and one clock per reached statement, retained through
+  native probes. SQL cannot change established behavioral settings or use a
+  different BEGIN mode. Fresh replay refuses another profile. Clock defaults,
+  triggers, RETURNING and an ordered probe replay identically at a later wall
+  time. Malformed profiles/clocks remain harness errors; valid explicit profiles
+  stay model-unsupported until production profile capability exists. Documented
+  measurement of each running workload driver's version/source/options. Full
+  pinned hermetic suite: 69 passed in 128.14 seconds; document checks: 2 passed.
+  Frozen v1–v3 evidence remains unchanged. Manifest binding and final C1 audit
+  remain open.

@@ -122,3 +122,12 @@ C1: [verified profiles](20261001-adr5-c1-profiles.task.md),
   tests verify cascading behavior within an immediate transaction and refuse
   incorrect source/version/compile options. Profile/clock/record/DQS checks:
   14 passed. Acquisition, replay and manifest integration remain open.
+
+- 2026-10-01: Integrated explicit profile/clock evidence into native recording
+  and replay (acquisition v4), with strict transport and refusal of profile,
+  engine, setting and transaction-mode mismatches. Default/trigger reads,
+  RETURNING and native ordered probes replay at a later wall time using stored
+  clocks. Explicit-profile model capability remains unsupported; malformed
+  evidence cannot become unsupported. Full pinned hermetic suite: 69 passed in
+  128.14 seconds; documents: 2 passed. Driver measurement method documented.
+  C1 remains open for manifest binding and final audit; later gates remain open.

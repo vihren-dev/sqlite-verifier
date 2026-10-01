@@ -55,3 +55,13 @@ Limited INSERT sources are probed before writing; a partial group is excluded as
 "unspecified choice inside a write". A unique-key cut can execute, and the write
 itself runs once. Nested windows and other unresolved limited-write contexts are
 excluded as "tie structure not observable".
+
+Explicit profiles use acquisition `nativeVersion: 4`, retaining v3 output fields
+and adding a `profile` record and `setupClockUnixMilliseconds`. Controlled-clock
+profiles add `clockUnixMilliseconds` to each reached statement. Native replay
+validates the profile and supplies those clock values through a private native
+VFS, including default/trigger reads and supplementary probes. Different profile
+identities, engine builds, transaction modes and changes to established behavioral
+settings are refused. The model has no explicit-profile capability yet; valid v4
+records remain `MODEL_UNSUPPORTED`, while malformed evidence is a harness error.
+Profile manifests and external workload commands remain work in progress.

@@ -11,6 +11,7 @@ from conformance.case_format import Json
 from conformance.model_check import compiled_many
 from conformance.native_record import record_sql
 from conformance.native_replay import decode_rows, prepare, without_trailing_queries
+from conformance.execution_profile import ExecutionProfile, recorded_profile
 
 
 def load(directory: Path) -> tuple[dict[str, Json], list[dict[str, Json]]]:
@@ -69,13 +70,18 @@ def replay(records: list[dict[str, Json]], runtime: Path) -> dict[str, Json]:
             "byRequirement": {key: dict(value) for key, value in sorted(requirements.items())}, "cases": details}
 
 
-def native_replay(records: list[dict[str, Json]]) -> None:
+def native_replay(records: list[dict[str, Json]], *, profile: ExecutionProfile | None = None) -> None:
     """Verify all frozen observations against fresh connections without rewriting evidence."""
     for record in records:
-        outputs = record["nativeVersion"] == 3
+        selected_profile = recorded_profile(record) if record["nativeVersion"] == 4 else None
+        if profile is not None and selected_profile != profile:
+            raise ValueError("Native replay execution profile differs")
+        outputs = record["nativeVersion"] in (3, 4)
         parameters = decode_rows([event["parameters"] for event in record["trace"]]) if outputs else None
+        clock_values = [event["clockUnixMilliseconds"] for event in record["trace"]] if selected_profile and selected_profile.clock == "unix-milliseconds-v1" else None
         fresh = record_sql(record["setupCommands"], record["migrationSql"], name=record["name"],
-                           outputs=outputs, parameters=parameters)
+            outputs=outputs, parameters=parameters, profile=selected_profile,
+            setup_clock=record.get("setupClockUnixMilliseconds"), clock_values=clock_values)
         if (fresh["initial"], fresh["trace"]) != (record["initial"], record["trace"]):
             raise ValueError(f"Native replay changed: {record['name']}")
 

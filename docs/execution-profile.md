@@ -69,3 +69,40 @@ Its source/archive hashes are recorded under `parser/upstream-3.46.0/` and Nix.
 The same supported SQL subset and fixed assumptions apply; differences in the
 full grammar remain checked against the separately pinned parser. Selecting
 this version does not select SQLx or impose a migration-history catalog.
+
+## Native corpus profiles (ADR 0005, in progress)
+
+Explicit native evidence carries a named, versioned profile with measured engine
+version, source ID and the complete sorted compile-option list. Behavioral
+settings currently include foreign-key enforcement and recursive triggers; they
+are established and read back before case SQL runs. The profile names the
+deferred or immediate transaction convention; SQL must use that convention.
+Ignored settings carry reasons, and assumptions about other writers are recorded.
+
+Clock input is either excluded or `unix-milliseconds-v1`. In the latter mode,
+recording requires a setup timestamp and one timestamp per reached statement.
+A private VFS delegates native filesystem operations and supplies both SQLite
+time callbacks. Defaults, trigger bodies and supplementary probes therefore see
+the same engine time. Replay supplies the recorded inputs and refuses a different
+profile. Valid explicit-profile evidence stays model-unsupported until production
+semantics can execute that profile. Existing frozen records retain their old path.
+Manifest integration remains open.
+
+### Measuring a workload's engine builds
+
+For each driver the application ships, build a small measurement command using
+that driver's exact module version, build tags and connection initialization.
+Run it on each shipped platform. On the opened driver connection, collect
+`SELECT sqlite_version(), sqlite_source_id();` and every row of
+`PRAGMA compile_options;`, sorted. Read back behavioral settings such as
+`PRAGMA foreign_keys;` and `PRAGMA recursive_triggers;` after application setup.
+Retain the driver dependency lock, command, build configuration and outputs
+beside the external workload profile. A system sqlite3 shell or package version
+does not measure the engine linked into a driver.
+
+Compare those measurements with the pinned recorder engine. Any version/source
+or compile-option difference remains an explicit gap until its effect on the
+workload SQL is checked. Add a source-pinned engine when the difference affects
+that SQL; do not relabel evidence from another build. Before measurements exist,
+state that evidence uses the pinned engine and the workload-engine gap is
+unmeasured. Workload identities and measurement artifacts stay outside the core.

@@ -2,6 +2,7 @@
 
 from dataclasses import dataclass
 
+from conformance.case_format import Json
 from conformance.native_connection import Connection
 from conformance.native_metadata import text
 
@@ -50,6 +51,37 @@ class ExecutionProfile:
             if connection.query(f"PRAGMA {setting};") != [((1, int(enabled)),)]:
                 raise ValueError(f"Execution profile setting readback differs: {setting}")
 
+    def to_wire(self) -> dict[str, Json]:
+        """Keep profile identity in a stable JSON record alongside native evidence."""
+        return {"name": self.name, "version": self.version,
+            "engineVersion": self.engine_version, "sourceId": self.source_id,
+            "compileOptions": list(self.compile_options), "foreignKeys": self.foreign_keys,
+            "recursiveTriggers": self.recursive_triggers, "transactionMode": self.transaction_mode,
+            "clock": self.clock, "ignoredSettings": [list(item) for item in self.ignored_settings],
+            "otherWriters": list(self.other_writers)}
+
+
+def profile_from_wire(value: Json) -> ExecutionProfile:
+    """Validate external profile transport before constructing native conditions."""
+    fields = {"name", "version", "engineVersion", "sourceId", "compileOptions", "foreignKeys",
+              "recursiveTriggers", "transactionMode", "clock", "ignoredSettings", "otherWriters"}
+    if not isinstance(value, dict) or set(value) != fields:
+        raise ValueError("Invalid execution profile fields")
+    strings = ("name", "engineVersion", "sourceId", "transactionMode", "clock")
+    if (any(not isinstance(value[key], str) for key in strings)
+            or type(value["version"]) is not int
+            or any(type(value[key]) is not bool for key in ("foreignKeys", "recursiveTriggers"))
+            or any(not isinstance(value[key], list) or any(not isinstance(item, str) for item in value[key])
+                   for key in ("compileOptions", "otherWriters"))
+            or not isinstance(value["ignoredSettings"], list)
+            or any(not isinstance(item, list) or len(item) != 2
+                   or any(not isinstance(part, str) for part in item) for item in value["ignoredSettings"])):
+        raise ValueError("Invalid execution profile values")
+    return ExecutionProfile(value["name"], value["version"], value["engineVersion"], value["sourceId"],
+        tuple(value["compileOptions"]), value["foreignKeys"], value["recursiveTriggers"],
+        value["transactionMode"], value["clock"],
+        tuple((item[0], item[1]) for item in value["ignoredSettings"]), tuple(value["otherWriters"]))
+
 
 def measured_profile(connection: Connection, *, name: str, version: int = 1,
                      foreign_keys: bool = False, recursive_triggers: bool = False,
@@ -60,3 +92,18 @@ def measured_profile(connection: Connection, *, name: str, version: int = 1,
         engine.sqlite3_sourceid().decode(),
         tuple(sorted(text(row[0]) for row in connection.query("PRAGMA compile_options;"))),
         foreign_keys, recursive_triggers, transaction_mode, clock)
+
+
+def recorded_profile(record: dict[str, Json]) -> ExecutionProfile:
+    """Validate profile and clock evidence before replay or unsupported admission."""
+    profile = profile_from_wire(record["profile"])
+    if profile.source_id != record["sourceId"]:
+        raise ValueError("Execution profile source identity differs from record")
+    clocks = [record.get("setupClockUnixMilliseconds")]
+    if profile.clock == "unix-milliseconds-v1":
+        clocks.extend(event.get("clockUnixMilliseconds") for event in record["trace"])
+        if any(type(value) is not int or not -210866760000000 <= value < 253402300800000 for value in clocks):
+            raise ValueError("Invalid recorded execution profile clock")
+    elif clocks != [None] or any("clockUnixMilliseconds" in event for event in record["trace"]):
+        raise ValueError("Excluded clock profile carries clock inputs")
+    return profile

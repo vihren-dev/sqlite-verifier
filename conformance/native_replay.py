@@ -6,6 +6,7 @@ import subprocess
 from conformance.case_format import Json, schema_wire, statement_wire, table_wire
 from conformance.native_connection import Cell, Row, SOURCE_ID
 from conformance.native_metadata import check_inventory, identifier, integer, text
+from conformance.execution_profile import recorded_profile
 from migration_check.diagnostics import Rejection
 from migration_check.sql_model import Table, sql_inputs
 from migration_check.sql_tree import parse
@@ -85,9 +86,12 @@ def output_wire(event: dict[str, Json]) -> dict[str, Json]:
 
 def model_case(record: dict[str, Json], parser: Path) -> dict[str, Json]:
     """Re-translate on every replay, preserving frozen native truth as the model grows."""
-    if record.get("nativeVersion") not in (1, 2, 3) or record.get("sourceId") != SOURCE_ID:
+    if record.get("nativeVersion") not in (1, 2, 3, 4) or record.get("sourceId") != SOURCE_ID:
         raise ValueError("Unsupported native record version or engine identity")
-    outputs = [output_wire(event) for event in record["trace"]] if record["nativeVersion"] == 3 else None
+    outputs = [output_wire(event) for event in record["trace"]] if record["nativeVersion"] in (3, 4) else None
+    if record["nativeVersion"] == 4:
+        recorded_profile(record)
+        raise Rejection("UNSUPPORTED", "Model execution profile capability is not implemented")
     initial_sql = schema_sql(record["initial"]["visible"])
     schema = starting_schema(parse(parser, initial_sql.encode(), "corpus-schema.sql"))
     script = statements(parse(parser, record["migrationSql"].encode(), "corpus-migration.sql"))

@@ -6,6 +6,7 @@ import time
 
 from conformance.case_format import Json, cell_wire
 from conformance.native_connection import Cell, Row, Connection, NativeError, SQL_ERRORS
+from conformance.native_clock import NativeClock
 
 
 def wire_rows(rows: list[Row]) -> list[Json]:
@@ -14,17 +15,25 @@ def wire_rows(rows: list[Row]) -> list[Json]:
 
 
 def execute(connection: Connection, sql: str, *, outputs: bool = False,
-            parameters: list[tuple[Cell, ...]] | None = None) -> Iterator[dict[str, Json]]:
+            parameters: list[tuple[Cell, ...]] | None = None,
+            clock: NativeClock | None = None,
+            clock_values: list[int] | None = None,
+            transaction_mode: str | None = None) -> Iterator[dict[str, Json]]:
     """Use SQLite's prepared-statement tail to split SQL, including trigger bodies."""
     if parameters is not None and not outputs:
         raise ValueError("Bound parameters require output recording")
     if outputs and not hasattr(connection, "statement_actions"):
         raise ValueError("Output recording requires the native acquisition authorizer")
+    if (clock is None) != (clock_values is None) or clock is not None and not outputs:
+        raise ValueError("Controlled statement clocks require output recording and values")
+    clock_index = 0
     bindings = iter(parameters or [])
     remaining = sql.encode()
     while remaining.strip():
         statement, tail = c.c_void_p(), c.c_char_p()
         connection.deadline = time.monotonic() + 5
+        if clock is not None and clock_index < len(clock_values):
+            clock.set_time(clock_values[clock_index])
         if outputs:
             connection.statement_actions.clear()
         code = connection.library.sqlite3_prepare_v2(connection.handle, remaining, len(remaining),
@@ -39,6 +48,15 @@ def execute(connection: Connection, sql: str, *, outputs: bool = False,
         try:
             connection.check(code)
             if statement.value:
+                if transaction_mode is not None:
+                    from conformance.query_window import ASCII_UPPER, tokens
+                    words = [token.text.translate(ASCII_UPPER) for token in tokens(consumed.decode())]
+                    if words and words[0] == "BEGIN":
+                        mode = words[1] if len(words) > 1 and words[1] in {"DEFERRED", "IMMEDIATE", "EXCLUSIVE"} else "DEFERRED"
+                        if mode.lower() != transaction_mode:
+                            raise ValueError("SQL transaction mode differs from execution profile")
+                if clock is not None and clock_index >= len(clock_values):
+                    raise ValueError("Expected one clock value per reached statement")
                 if outputs:
                     if connection.library.sqlite3_bind_parameter_count(statement) != len(bound):
                         raise ValueError("Expected one typed value per SQLite parameter slot")
@@ -72,6 +90,8 @@ def execute(connection: Connection, sql: str, *, outputs: bool = False,
                     changes = connection.library.sqlite3_changes(connection.handle)
             connection.library.sqlite3_finalize(statement)
         if statement.value or code:
+            if clock is not None and clock_index >= len(clock_values):
+                raise ValueError("Expected one clock value per reached statement")
             event: dict[str, Json] = {"sql": consumed.decode(), "rows": wire_rows(rows),
                 "primaryCode": code & 255, "extendedCode": code, "error": message}
             if outputs:
@@ -79,6 +99,9 @@ def execute(connection: Connection, sql: str, *, outputs: bool = False,
                 groups = query_groups(connection, consumed.decode(), bound, columns, rows) if not code and changes is None else None
                 event.update({"groups": groups, "columns": columns, "columnCount": len(columns),
                               "parameters": [cell_wire(cell) for cell in bound], "changes": changes})
+            if clock is not None:
+                event["clockUnixMilliseconds"] = clock_values[clock_index]
+                clock_index += 1
             yield event
         if code:
             return
@@ -88,3 +111,5 @@ def execute(connection: Connection, sql: str, *, outputs: bool = False,
 
     if outputs and next(bindings, None) is not None:
         raise ValueError("Parameters supplied for an unexecuted statement")
+    if clock_values is not None and clock_index != len(clock_values):
+        raise ValueError("Clock values supplied for an unexecuted statement")
