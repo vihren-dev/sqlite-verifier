@@ -50,6 +50,10 @@ and no requirement tags because the inventory contains no relevant requirement.
 
 Four profiles measure the running pinned 3.51.0 engine: deferred, immediate,
 foreign keys with immediate transactions, and a controlled-clock variant.
+The native build uses pinned Clang on both CI platforms. The
+[Linux portability check](20261001-adr5-c5-portability.json) verifies identical
+complete compile options, fresh recording and native replay for all 43 records
+on x86_64-linux. The macOS authored/profile/DQS checks pass: 18 tests.
 The workload-driver gap remains unmeasured here. Each record is below 1 MB;
 the largest expanded record is 71,053 bytes. Shared snapshots reduce the retained
 43-record payload to 227,680 bytes, compressed to 14,735 bytes.

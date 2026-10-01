@@ -270,3 +270,10 @@ C5: [neutral authored cases](20261001-adr5-c5-authored.task.md),
   All 43 profile cases remain MODEL_UNSUPPORTED; SQL support is unchanged.
   Focused checks: 22 passed; full hermetic model: 132 passed in 201.98 seconds;
   final documents: 2 passed. C6–C7 and the private workload gate remain open.
+
+- 2026-10-01: Pinned Clang for native SQLite on both CI platforms to preserve
+  complete recorded profile identity. All 43 C5 cases replay and freshly record
+  identically on x86_64-linux; Mac authored/profile/DQS checks: 18 passed.
+  No profile field was removed or normalized. C6 research identifies per-source
+  shards, uncapped acquisition with explicit prefix sampling, and external
+  workload manifests as the next missing mechanisms.

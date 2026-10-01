@@ -1,7 +1,8 @@
 # Native engines shared by the development shell and test checks.
 { pkgs }:
 let
-  sqliteRelease = version: year: number: sha256: pkgs.stdenv.mkDerivation {
+  # Profiles include SQLite's compiler identity; both CI platforms use this pin.
+  sqliteRelease = version: year: number: sha256: pkgs.clangStdenv.mkDerivation {
     pname = "sqlite-verifier-native";
     inherit version;
     src = pkgs.fetchurl {

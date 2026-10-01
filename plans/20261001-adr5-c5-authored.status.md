@@ -52,3 +52,11 @@ Behavior checks: `tests/conformance_authored{,_queries}_test.py` and
   `/nix/store/vz2jkz0ncywwn7bfx7pn667dnql7xd6f-sqlite-verifier-test-model-1/junit.xml`.
   Final documents: 2 passed in 0.59 seconds. Independent contract audit found
   no actionable findings. C5 is DONE; C6–C7 and the private workload gate are open.
+
+- 2026-10-01: Fixed native-build portability before the v4 freeze. Linux's default
+  GCC compiler differs from the recorded macOS compiler identity, so native
+  engines now use the pinned Clang environment on both CI platforms. All 43
+  records replay and freshly record identically on x86_64-linux, including exact
+  compile options; [retained proof](../reports/20261001-adr5-c5-portability.json).
+  Mac authored/profile/DQS checks: 18 passed in 8.61 seconds. Profile matching
+  stays exact; no native observation or stored profile was normalized.
