@@ -9,7 +9,7 @@ Spec: [ADR 0005](../docs/adr-0005-conformance-corpus-scale.md).
 Owner authorized implementation on 2026-09-30 after the document reviews.
 Dedicated `adr5` workspace combines merged ADR 0004 (`main` at `3aae9b50`)
 with ADR 0003's implemented shared structural codec (`96609b4c`). No conflicts;
-resource checks pass. C0–C4 are done. C5–C7 and the private workload gate are open.
+resource checks pass. C0–C5 are done. C6–C7 and the private workload gate are open.
 C8 follows the model semantics concerned, as the ADR specifies.
 
 ## Sources and package records
@@ -260,3 +260,13 @@ C5: [neutral authored cases](20261001-adr5-c5-authored.task.md),
   Before/after requirement counts will retain the full 3,500-row inventory,
   including zero rows. Document checks: 2 passed. Authored implementation and
   verification remain open.
+
+- 2026-10-01: Closed C5 with 43 authored output/profile records: 29 unchanged
+  legacy scenarios recorded again and 14 new neutral boundary/interaction cases.
+  Fresh native replay passes; shared evidence is 227,680 bytes uncompressed.
+  Fixed inventory reporting retains all 3,500 rows, counts alias tags once per
+  case, and measures 60 to 98 rows with cases (+38, none lost). After membership
+  for this measurement is 384; C6 still determines the final upstream membership.
+  All 43 profile cases remain MODEL_UNSUPPORTED; SQL support is unchanged.
+  Focused checks: 22 passed; full hermetic model: 132 passed in 201.98 seconds;
+  final documents: 2 passed. C6–C7 and the private workload gate remain open.

@@ -25,17 +25,33 @@ and inconsistent statement boundaries are harness errors.
 
 ## Requirement evidence
 
-The working matrix now has **60 of 182 rows with cases**, up from 9 of 164 in v2.
-The denominator includes the four selected documentation areas and any additional
-requirements referenced by the expanded corpus. Zero-case rows remain visible.
-Nearest, unambiguous upstream `EVIDENCE-OF` comment blocks carry source lines and
-file digests; ambiguous or obsolete references remain provenance without credit.
-These are scenario counts, not proof of entire requirements.
+The current matrix keeps **all 3,500 release requirement rows**, including rows
+with zero cases. Each case counts once per row even if it carries both a short
+and a full requirement ID. Nearest, unambiguous upstream `EVIDENCE-OF` comment
+blocks carry source lines and file digests; ambiguous or obsolete references
+remain provenance without credit. These are scenario counts, not proof of entire
+requirements.
+
+The [C5 authored report](../reports/20261001-adr5-c5-authored.md) records **60 to
+98 rows with cases**, with 38 newly represented rows and no lost rows. It replaces
+the evidence for 29 legacy authored scenarios and adds 14 neutral scenarios.
+All 43 records have typed outputs and explicit profiles and pass fresh native
+replay. Their current model verdict is `MODEL_UNSUPPORTED`; this is evidence
+growth, not added SQL support. C6 determines the final corpus membership.
+
+The historical v3 report had **60 of 182 rows with cases**, up from 9 of 164 in
+v2. Its denominator included four selected documentation areas and additional
+requirements referenced by the expanded corpus. That growing denominator is
+replaced by the complete release inventory in new reports.
 
 Authored additions cover numeric/text/REAL conversions, declared-type precedence,
 transaction commit/rollback and savepoints, CREATE INDEX, uniqueness failures,
 IF NOT EXISTS, DROP INDEX, collation, descending indexes and prohibited subqueries.
 Unsupported cases intentionally remain useful future-model evidence.
+The new neutral cases also cover triggers, cascades, constraint rollback,
+UPSERT/RETURNING, aggregates, joins, casts, REAL arithmetic, query windows,
+controlled time and JSON. JSON has feature metadata because this requirement
+inventory has no `json_extract` or `json_each` row.
 
 `just conformance-requirements` uses SQLite's own `wrap.tcl`, `matrix.tcl` and
 public evidence scanner. The [inventory](../conformance/requirements-3.51.0.json)

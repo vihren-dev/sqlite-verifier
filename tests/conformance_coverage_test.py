@@ -46,7 +46,9 @@ def test_frozen_progress_and_replay(runtime_root: Path, tmp_path: Path) -> None:
     assert report["counts"].get("AGREE", 0) >= 8
     assert report["counts"].get("HARNESS_ERROR", 0) == report["counts"].get("DISAGREE", 0) == 0
     assert sum(report["counts"].values()) == manifest["recordedCases"]
-    assert report["requirementMatrixRows"] == 164
+    inventory = json.loads((ROOT / "conformance/requirements-3.51.0.json").read_text())
+    assert report["requirementMatrixRows"] == inventory["count"] == 3500
+    assert [row["id"] for row in report["requirementMatrix"]] == [row["id"] for row in inventory["requirements"]]
     assert any(sum(row["counts"].values()) == 0 for row in report["requirementMatrix"])
 
 

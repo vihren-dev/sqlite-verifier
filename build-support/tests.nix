@@ -75,7 +75,7 @@ in {
   };
   model = suite "model" {
     file = "tests/conformance_model_test.py";
-    extraFiles = [ "tests/conformance_fidelity_test.py" "tests/conformance_storage_test.py" "tests/conformance_trace_test.py" "tests/conformance_ordering_test.py" "tests/conformance_clock_test.py" "tests/conformance_profile_test.py" "tests/conformance_context_test.py" "tests/conformance_pipeline_test.py"
+    extraFiles = [ "tests/conformance_authored_test.py" "tests/conformance_authored_queries_test.py" "tests/conformance_requirement_coverage_test.py" "tests/conformance_fidelity_test.py" "tests/conformance_storage_test.py" "tests/conformance_trace_test.py" "tests/conformance_ordering_test.py" "tests/conformance_clock_test.py" "tests/conformance_profile_test.py" "tests/conformance_context_test.py" "tests/conformance_pipeline_test.py"
       "tests/conformance_mutation_test.py" "tests/conformance_laws_test.py" "tests/conformance_record_test.py" "tests/conformance_dqs_test.py" "tests/conformance_upstream_test.py" "tests/conformance_generation_test.py" "tests/conformance_coverage_test.py" ];
     inputs = [
       (fs.fileFilter (file: file.hasExt "py") (root + /migration_check))
@@ -93,6 +93,8 @@ in {
       (root + /reports/20261001-adr5-c4-traces.json.gz)
       (root + /reports/20261001-adr5-c4-mechanical.json.gz)
       (root + /reports/20261001-adr5-c4-bindings.json.gz)
+      (root + /reports/20261001-adr5-c5-authored.json)
+      (root + /reports/20261001-adr5-c5-authored-records.jsonl.gz)
       (root + /conformance/corpus-v3)
       (root + /conformance/corpus-v2) (root + /conformance/requirements-3.51.0.json)
       (root + /conformance/regressions)
@@ -100,7 +102,8 @@ in {
       "model_assertions" "model_cases" "model_check"
       "execution_profile"
       "native_storage"
-      "refresh_corpus" "requirement_cases"
+      "refresh_corpus" "requirement_cases" "requirement_coverage"
+      "authored_cases" "authored_cases_queries" "authored_report"
       "upstream_selection"
       "upstream_assertions"
       "upstream_helpers"

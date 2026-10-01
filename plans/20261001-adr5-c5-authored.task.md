@@ -1,6 +1,6 @@
 # ADR 0005 C5: neutral authored cases
 
-Created 2026-10-01. Status: IN PROGRESS.
+Created 2026-10-01. Status: DONE.
 Status: [progress](20261001-adr5-c5-authored.status.md).
 Spec: [ADR 0005](../docs/adr-0005-conformance-corpus-scale.md), sections 1.3,
 3.1, 3.3 and 3.6.
@@ -56,3 +56,12 @@ error ends acquisition, so independent failures require separate cases.
 `BEGIN` mode must match the selected profile. Limited writes with unspecified
 selection remain exclusions. No real workload SQL, names or results enter the
 core, and C5 does not extend production SQL semantics.
+
+## Completion evidence
+
+The [retained report](../reports/20261001-adr5-c5-authored.md) binds all 43
+authored records and the fixed inventory. All native replays pass. Requirement
+rows with a case increase from 60 to 98 of 3,500, with no lost rows. Focused
+checks: 22 passed. Full pinned hermetic model suite: 132 passed in 201.98 seconds.
+Final document checks: 2 passed. Independent contract audit found no remaining
+actionable findings. Frozen corpus membership remains unchanged until C6.
