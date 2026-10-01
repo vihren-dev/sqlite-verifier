@@ -117,9 +117,11 @@ def record_sql(setup: str | list[str | dict[str, Json]], migration: str, *, name
                         connection.recording_exclusion = ("SQL changes an established execution profile or uses an unsupported setting: "
                             + setting_name.decode())
                         return 1
-                if (action == 24 and (not connection.recording_setup or _a != b":memory:")
-                        or action == 31 and function in nondeterministic):
-                    connection.recording_exclusion = "Excluded connection context: external database or nondeterministic function"
+                if action == 24 and (not connection.recording_setup or _a != b":memory:"):
+                    connection.recording_exclusion = "Excluded connection context: external database"
+                    return 1
+                if action == 31 and function in nondeterministic:
+                    connection.recording_exclusion = "Excluded connection context: nondeterministic function: " + function.decode()
                     return 1
                 return 0
             connection.authorizer = c.CFUNCTYPE(c.c_int, c.c_void_p, c.c_int,

@@ -40,6 +40,7 @@ in {
       (root + /tests/upstream_helper_calls.test)
       (root + /tests/upstream_context_calls.test)
       (root + /tests/upstream_attachment_calls.test)
+      (root + /tests/upstream_nondeterminism_calls.test)
     ];
     runtime = conformance;
     tools = [ native.sqlite conformanceNative.fixture ];

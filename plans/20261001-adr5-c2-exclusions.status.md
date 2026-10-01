@@ -1,6 +1,6 @@
 # ADR 0005 C2 status
 
-Created 2026-10-01. Status: IN PROGRESS.
+Created 2026-10-01. Status: DONE on 2026-10-01.
 Task: [exclusion narrowing](20261001-adr5-c2-exclusions.task.md).
 Spec: [ADR 0005](../docs/adr-0005-conformance-corpus-scale.md).
 
@@ -11,10 +11,12 @@ read-only onecolumn/exists calls are supported, including mixed helper sequences
 Verified pure row scripts are supported; other bodies remain excluded. Selection
 preserves preceding reasons.
 Detached in-memory prefixes recover after faithful native replay. File attachment
-prefixes remain excluded. Yield improvement has not yet been measured.
+prefixes remain excluded.
 Explicit-profile Tcl capture establishes behavioral settings and a verified fixed
 clock, then records native v4 evidence. Setting refusals include canonical PRAGMA
-names. Measured yields and the final package audit remain open.
+names. The [four-file measurement](../reports/20261001-adr5-c2-yield.md) retains
+32 cases before and after under cap 20; no yield increase is claimed. C4 remains
+responsible for the differing-result candidates, and C6 for uncapped acquisition.
 
 ## Progress
 
@@ -129,3 +131,15 @@ names. Measured yields and the final package audit remain open.
   unsafe contexts; all fresh native replays pass. Pinned upstream target:
   4 passed in 0.31 seconds. Profile/context/document checks: 11 passed in
   0.65 seconds. Final yield measurements and the C2 audit remain open.
+
+- 2026-10-01: Completed C2's contract audit. The pinned Tcl tests verify candidate
+  and retained-prefix nondeterminism, with eligibility after reset. Function
+  refusals retain their names. Clock changes across reopen remain exclusions
+  rather than aborting capture; restoring the clock after reset recovers a case.
+  Both final four-file runs finish all 17,404 assertions and retain 32 cases,
+  matching the frozen baseline under cap 20. Retained measurement artifacts bind
+  source identities, full per-instance exclusions, profile and case digests.
+  Every selected case passes native replay. Pinned upstream checks: 5 passed in
+  0.34 seconds; native/profile/context/document checks: 21 passed in 1.17 seconds.
+  No corpus membership changed. C2 is DONE; C4 fidelity triage, C3 size bounds and
+  subsequent corpus gates remain open.

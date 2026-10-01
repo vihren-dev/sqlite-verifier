@@ -9,7 +9,7 @@ Spec: [ADR 0005](../docs/adr-0005-conformance-corpus-scale.md).
 Owner authorized implementation on 2026-09-30 after the document reviews.
 Dedicated `adr5` workspace combines merged ADR 0004 (`main` at `3aae9b50`)
 with ADR 0003's implemented shared structural codec (`96609b4c`). No conflicts;
-resource checks pass. C0/C1 are done; C2 is active. C3–C7 and the private workload gate are open.
+resource checks pass. C0–C2 are done. C3–C7 and the private workload gate are open.
 C8 follows the model semantics concerned, as the ADR specifies.
 
 ## Sources and package records
@@ -210,3 +210,11 @@ C2: [exclusion narrowing](20261001-adr5-c2-exclusions.task.md),
   connection/attachment recovery checks: 4 passed. Native profile/context/docs:
   11 passed. The first four-file extraction retained 32 cases; final before/after
   measurements and the C2 audit remain open.
+
+- 2026-10-01: Closed C2 after contract audit and the four-file measurement:
+  17,404 assertions, 32 cases before/after under cap 20, with no yield increase
+  claimed. Both profiles finish all files; full exclusions and experimental
+  records are retained in reports. Real Tcl tests verify scoped nondeterminism
+  and recovery after clock reset; changed clocks across reopen stay excluded.
+  Pinned upstream target: 5 passed; native/profile/context/docs: 21 passed.
+  C3–C7 and the private workload gate remain open.

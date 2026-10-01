@@ -1,6 +1,6 @@
 # ADR 0005 C2: narrow upstream extraction exclusions
 
-Created 2026-10-01. Status: IN PROGRESS.
+Created 2026-10-01. Status: DONE on 2026-10-01.
 Status: [progress](20261001-adr5-c2-exclusions.status.md).
 Spec: [ADR 0005 §3.4](../docs/adr-0005-conformance-corpus-scale.md#34-narrow-exclusions-before-adding-volume).
 
@@ -39,8 +39,8 @@ configuration; tests and subprocesses have explicit timeouts.
 ## Tricky points and sources
 
 `upstream_proxy.tcl` captures real runtime events; Tcl expands loops and branches.
-`upstream_pilot.assertions` currently accumulates reset-scoped exclusions and
-captures SQL prefixes; pilot selection overwrites earlier reasons.
+The initial `upstream_pilot.assertions` accumulated reset-scoped exclusions and
+captured SQL prefixes; initial pilot selection overwrote earlier reasons.
 `upstream_fidelity.py` compares Tcl result shapes and minimizes verified prefixes.
 `native_record.py` remains the independent observation authority. Trace primary
 and auxiliary connection observations separately; closing a handle does not

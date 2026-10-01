@@ -1,0 +1,199 @@
+{
+  "date": "2026-10-01",
+  "perFileLimit": 20,
+  "baseline": {
+    "path": "conformance/corpus-v3/extraction.json.gz",
+    "sha256": "25827acaa7ca7e9bd72335160188a36478c5a02568923927fe44c8649afe8748"
+  },
+  "runs": {
+    "default": {
+      "manifest": "20261001-adr5-c2-default-extraction.json.gz",
+      "manifestSha256": "e987d34d0c830e6a23755001da32baa085310b4f75b800ff18e2ab05a0a1f59f",
+      "cases": "20261001-adr5-c2-default-cases.jsonl.gz",
+      "files": [
+        {
+          "file": "alter.test",
+          "runtimeAssertions": 119,
+          "beforeRecorded": 12,
+          "afterRecorded": 12,
+          "afterReasons": {
+            "native acquisition: Excluded connection context: temporary schema": 10,
+            "attached databases": 54,
+            "attached databases; multiple connections": 1,
+            "attached databases; no SQL observation": 2,
+            "native acquisition: Excluded connection context: external database": 36,
+            "no SQL observation": 4,
+            "recorded": 12
+          }
+        },
+        {
+          "file": "e_createtable.test",
+          "runtimeAssertions": 536,
+          "beforeRecorded": 0,
+          "afterRecorded": 0,
+          "afterReasons": {
+            "native acquisition: prefix results differ from Tcl execution": 78,
+            "native acquisition: Excluded connection context: temporary schema": 9,
+            "attached databases": 17,
+            "attached databases; connection or SQL callback context": 404,
+            "attached databases; connection or SQL callback context; no SQL observation": 28
+          }
+        },
+        {
+          "file": "e_expr.test",
+          "runtimeAssertions": 16618,
+          "beforeRecorded": 20,
+          "afterRecorded": 20,
+          "afterReasons": {
+            "recorded": 20,
+            "bounded pilot selection limit": 11932,
+            "bounded pilot selection limit; no SQL observation": 4170,
+            "application callback: function; attached databases; bounded pilot selection limit": 244,
+            "application callback: function; attached databases; bounded pilot selection limit; no SQL observation": 2,
+            "application callback: function; bounded pilot selection limit": 87,
+            "application callback: function; bounded pilot selection limit; no SQL observation": 13,
+            "application callback: function; bounded pilot selection limit; connection command renamed; database file changed without reset_db": 3,
+            "application callback: function; bounded pilot selection limit; connection command renamed; database file changed without reset_db; memory database reopened without reset_db": 70,
+            "application callback: function; bounded pilot selection limit; connection command renamed; connection or SQL callback context; database file changed without reset_db; memory database reopened without reset_db": 14,
+            "application callback: function; auxiliary database differs from primary; bounded pilot selection limit; connection command renamed; connection or SQL callback context; database file changed without reset_db; memory database reopened without reset_db; multiple connections; no SQL observation": 5,
+            "application callback: function; auxiliary database differs from primary; bounded pilot selection limit; connection command renamed; connection or SQL callback context; database file changed without reset_db; memory database reopened without reset_db": 58
+          }
+        },
+        {
+          "file": "e_update.test",
+          "runtimeAssertions": 131,
+          "beforeRecorded": 0,
+          "afterRecorded": 0,
+          "afterReasons": {
+            "attached databases": 119,
+            "attached databases; no SQL observation": 12
+          }
+        }
+      ]
+    },
+    "profile": {
+      "manifest": "20261001-adr5-c2-profile-extraction.json.gz",
+      "manifestSha256": "82330433defee32afdbd33d8db84af894ce8588e7067f94dc74e4e52776e7124",
+      "cases": "20261001-adr5-c2-profile-cases.jsonl.gz",
+      "clockUnixMilliseconds": 1700000000000,
+      "executionProfiles": [
+        {
+          "name": "upstream-default-clock",
+          "version": 1,
+          "engineVersion": "3.51.0",
+          "sourceId": "2025-11-04 19:38:17 fb2c931ae597f8d00a37574ff67aeed3eced4e5547f9120744ae4bfa8e74527b",
+          "compileOptions": [
+            "ATOMIC_INTRINSICS=1",
+            "COMPILER=clang-21.1.8",
+            "DEFAULT_AUTOVACUUM",
+            "DEFAULT_CACHE_SIZE=-2000",
+            "DEFAULT_FILE_FORMAT=4",
+            "DEFAULT_JOURNAL_SIZE_LIMIT=-1",
+            "DEFAULT_MMAP_SIZE=0",
+            "DEFAULT_PAGE_SIZE=4096",
+            "DEFAULT_PCACHE_INITSZ=20",
+            "DEFAULT_RECURSIVE_TRIGGERS",
+            "DEFAULT_SECTOR_SIZE=4096",
+            "DEFAULT_SYNCHRONOUS=2",
+            "DEFAULT_WAL_AUTOCHECKPOINT=1000",
+            "DEFAULT_WAL_SYNCHRONOUS=2",
+            "DEFAULT_WORKER_THREADS=0",
+            "DIRECT_OVERFLOW_READ",
+            "ENABLE_MATH_FUNCTIONS",
+            "ENABLE_PERCENTILE",
+            "MALLOC_SOFT_LIMIT=1024",
+            "MAX_ATTACHED=10",
+            "MAX_COLUMN=2000",
+            "MAX_COMPOUND_SELECT=500",
+            "MAX_DEFAULT_PAGE_SIZE=8192",
+            "MAX_EXPR_DEPTH=1000",
+            "MAX_FUNCTION_ARG=1000",
+            "MAX_LENGTH=1000000000",
+            "MAX_LIKE_PATTERN_LENGTH=50000",
+            "MAX_MMAP_SIZE=0x7fff0000",
+            "MAX_PAGE_COUNT=0xfffffffe",
+            "MAX_PAGE_SIZE=65536",
+            "MAX_SQL_LENGTH=1000000000",
+            "MAX_TRIGGER_DEPTH=1000",
+            "MAX_VARIABLE_NUMBER=32766",
+            "MAX_VDBE_OP=250000000",
+            "MAX_WORKER_THREADS=8",
+            "MUTEX_PTHREADS",
+            "SYSTEM_MALLOC",
+            "TEMP_STORE=1",
+            "THREADSAFE=1"
+          ],
+          "foreignKeys": false,
+          "recursiveTriggers": false,
+          "transactionMode": "deferred",
+          "clock": "unix-milliseconds-v1",
+          "ignoredSettings": [],
+          "otherWriters": [],
+          "timezone": "UTC"
+        }
+      ],
+      "files": [
+        {
+          "file": "alter.test",
+          "runtimeAssertions": 119,
+          "beforeRecorded": 12,
+          "afterRecorded": 12,
+          "afterReasons": {
+            "native acquisition: Excluded connection context: temporary schema": 10,
+            "attached databases": 54,
+            "attached databases; multiple connections": 1,
+            "attached databases; no SQL observation": 2,
+            "native acquisition: Excluded connection context: external database": 36,
+            "no SQL observation": 4,
+            "recorded": 12
+          }
+        },
+        {
+          "file": "e_createtable.test",
+          "runtimeAssertions": 536,
+          "beforeRecorded": 0,
+          "afterRecorded": 0,
+          "afterReasons": {
+            "native acquisition: SQL changes an established execution profile or uses an unsupported setting: foreign_keys": 87,
+            "attached databases": 17,
+            "attached databases; connection or SQL callback context": 93,
+            "attached databases; connection or SQL callback context; no SQL observation": 9,
+            "attached databases; connection or SQL callback context; test changed the controlled clock": 311,
+            "attached databases; connection or SQL callback context; no SQL observation; test changed the controlled clock": 19
+          }
+        },
+        {
+          "file": "e_expr.test",
+          "runtimeAssertions": 16618,
+          "beforeRecorded": 20,
+          "afterRecorded": 20,
+          "afterReasons": {
+            "recorded": 20,
+            "bounded pilot selection limit": 11924,
+            "bounded pilot selection limit; no SQL observation": 4170,
+            "bounded pilot selection limit; test changed the controlled clock": 8,
+            "application callback: function; attached databases; bounded pilot selection limit; test changed the controlled clock": 244,
+            "application callback: function; attached databases; bounded pilot selection limit; no SQL observation; test changed the controlled clock": 2,
+            "application callback: function; bounded pilot selection limit; test changed the controlled clock": 87,
+            "application callback: function; bounded pilot selection limit; no SQL observation; test changed the controlled clock": 13,
+            "application callback: function; bounded pilot selection limit; connection command renamed; database file changed without reset_db; test changed the controlled clock": 3,
+            "application callback: function; bounded pilot selection limit; connection command renamed; database file changed without reset_db; memory database reopened without reset_db; test changed the controlled clock": 70,
+            "application callback: function; bounded pilot selection limit; connection command renamed; connection or SQL callback context; database file changed without reset_db; memory database reopened without reset_db; test changed the controlled clock": 14,
+            "application callback: function; auxiliary database differs from primary; bounded pilot selection limit; connection command renamed; connection or SQL callback context; database file changed without reset_db; memory database reopened without reset_db; multiple connections; no SQL observation; test changed the controlled clock": 5,
+            "application callback: function; auxiliary database differs from primary; bounded pilot selection limit; connection command renamed; connection or SQL callback context; database file changed without reset_db; memory database reopened without reset_db; test changed the controlled clock": 58
+          }
+        },
+        {
+          "file": "e_update.test",
+          "runtimeAssertions": 131,
+          "beforeRecorded": 0,
+          "afterRecorded": 0,
+          "afterReasons": {
+            "attached databases": 119,
+            "attached databases; no SQL observation": 12
+          }
+        }
+      ]
+    }
+  }
+}

@@ -18,4 +18,10 @@ do_test profile-unsupported-setting {db eval {PRAGMA IGNORE_CHECK_CONSTRAINTS=ON
 reset_db
 set sqlite_current_time 1700000002
 do_test profile-changed-clock {db eval {SELECT unixepoch()}} 1700000002
+db close
+sqlite3 db test.db
+do_test profile-reopened-changed-clock {db eval {SELECT unixepoch()}} 1700000002
+reset_db
+set sqlite_current_time 1700000000
+do_test profile-clock-reset {db eval {SELECT unixepoch()}} 1700000000
 finish_test

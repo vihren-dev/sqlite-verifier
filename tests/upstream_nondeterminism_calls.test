@@ -1,0 +1,9 @@
+# Nondeterminism belongs to the candidate or its retained prefix, not a global ban.
+set testdir [file join $env(CONFORMANCE_UPSTREAM) test]
+source [file join $testdir tester.tcl]
+reset_db
+do_test nondeterminism-own {db eval {SELECT typeof(random())}} integer
+do_test nondeterminism-prefix {db eval {SELECT 1}} 1
+reset_db
+do_test nondeterminism-reset {db eval {SELECT 1}} 1
+finish_test

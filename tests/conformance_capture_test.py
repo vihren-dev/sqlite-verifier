@@ -32,12 +32,15 @@ def test_real_profile_capture_and_clock_change_refusal(tmp_path: Path) -> None:
     output = tmp_path / "capture"
     report = pilot(Path(fixture), upstream, output, 10, ("profile.test",),
         profile=profile, clock=1700000000000)
-    assert report["recordedCases"] == 1, report["files"]
+    assert report["recordedCases"] == 2, report["files"]
+    assert report["files"][0]["runtimeExit"] == 0
     instances = report["files"][0]["instances"]
     assert instances[0]["result"] == "recorded"
     assert instances[1]["exclusions"][0].endswith("unsupported setting: foreign_keys")
     assert instances[2]["exclusions"][0].endswith("unsupported setting: ignore_check_constraints")
     assert "test changed the controlled clock" in instances[3]["exclusions"]
+    assert "test changed the controlled clock" in instances[4]["exclusions"]
+    assert instances[5]["result"] == "recorded"
     _, records = load(output)
     assert records[0]["nativeVersion"] == 4
     assert all(event["clockUnixMilliseconds"] == 1700000000000 for event in records[0]["trace"])
@@ -51,6 +54,7 @@ def test_real_profile_capture_and_clock_change_refusal(tmp_path: Path) -> None:
     ("upstream_helper_calls.test", {"helper-mixed-1", "helper-pure-row-script", "helper-pure-returning-script"}),
     ("upstream_context_calls.test", {"context-recovered"}),
     ("upstream_attachment_calls.test", {"attachment-recovered", "attachment-boundary"}),
+    ("upstream_nondeterminism_calls.test", {"nondeterminism-reset"}),
 ])
 def test_real_helpers_and_context_recovery(tmp_path: Path, source: str, accepted: set[str]) -> None:
     """Real Tcl recovery records only verified cases and retains every refusal."""
@@ -65,5 +69,8 @@ def test_real_helpers_and_context_recovery(tmp_path: Path, source: str, accepted
     instances = report["files"][0]["instances"]
     assert {item["id"] for item in instances if item["result"] == "recorded"} == accepted, instances
     assert all(item["exclusions"] for item in instances if item["id"] not in accepted)
+    if source == "upstream_nondeterminism_calls.test":
+        assert all(item["exclusions"] == ["native acquisition: Excluded connection context: nondeterministic function: random"]
+                   for item in instances[:2])
     _, records = load(output)
     native_replay(records)

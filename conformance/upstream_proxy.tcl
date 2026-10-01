@@ -74,9 +74,12 @@ proc capture_factory {command code result operation} {
           error "Testfixture profile setting readback differs: $setting"
         }
       }
-      if {[info exists ::env(CONFORMANCE_CLOCK_SECONDS)] &&
-          [$name onecolumn {SELECT unixepoch()}] != $::env(CONFORMANCE_CLOCK_SECONDS)} {
-        error "Testfixture controlled clock readback differs"
+      if {[info exists ::env(CONFORMANCE_CLOCK_SECONDS)]} {
+        if {$::sqlite_current_time != $::env(CONFORMANCE_CLOCK_SECONDS)} {
+          capture_event exclude "test changed the controlled clock"
+        } elseif {[$name onecolumn {SELECT unixepoch()}] != $::env(CONFORMANCE_CLOCK_SECONDS)} {
+          error "Testfixture controlled clock readback differs"
+        }
       }
     }
     set ::capture_file($name) [expr {$filename in {"" ":memory:"} ? ":memory:" : [file normalize $filename]}]
