@@ -15,6 +15,7 @@ def assertions(events: str) -> list[dict[str, Json]]:
     persistent_contexts: set[str] = set()
     generation = 0
     auxiliary_databases: dict[str, tuple[str, int]] = {}
+    attached = False
     rows: list[dict[str, Json]] = []
     active: dict[str, Json] | None = None
     for line in events.splitlines():
@@ -22,6 +23,7 @@ def assertions(events: str) -> list[dict[str, Json]]:
         kind, *args = fields
         if kind == "reset":
             generation += 1
+            attached = False
             prefix, codes, excluded, expected = [], [], set(), []
             excluded.update(persistent_contexts)
             if auxiliary_connections:
@@ -33,6 +35,8 @@ def assertions(events: str) -> list[dict[str, Json]]:
         elif kind == "close":
             if args[0] == "db":
                 closed = True
+                attached = False
+                excluded.discard("attached databases")
             else:
                 auxiliary_connections.discard(args[0])
                 if not auxiliary_connections:
@@ -76,6 +80,16 @@ def assertions(events: str) -> list[dict[str, Json]]:
             excluded.add(args[0])
             if args[0] == "connection command renamed":
                 persistent_contexts.add(args[0])  # reset_db need not close a renamed handle.
+        elif kind == "databases" and args[0] == "db":
+            previous = attached
+            attached = bool(set(args[2::3]) - {"main", "temp"})
+            if attached:
+                excluded.add("attached databases")
+            else:
+                excluded.discard("attached databases")
+                if previous and active is not None:
+                    active.update(prefix=list(prefix), prefixCodes=list(codes), prefixResults=list(expected),
+                        prefixHelpers=list(helpers), commands=[], codes=[], results=[], helpers=[])
         elif kind == "begin":
             active = {"id": args[0], "line": int(args[2]) if len(args) > 2 else 0, "expectedTcl": args[1], "prefix": list(prefix),
                       "prefixCodes": list(codes), "prefixResults": list(expected), "prefixHelpers": list(helpers),

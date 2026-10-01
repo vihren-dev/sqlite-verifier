@@ -178,3 +178,10 @@ C2: [exclusion narrowing](20261001-adr5-c2-exclusions.task.md),
   recover one case and refuse live handles, uncommitted reads and writes; native
   replay passes. Focused checks: 32 passed. Attached contexts, profile-aware
   extraction and yield measurements remain open.
+
+- 2026-10-01: C2 recovers detached in-memory attachment prefixes by replaying
+  their complete SQL and checking Tcl outcomes. Native inventories distinguish
+  successful from failed DETACH; live attachments and external file prefixes
+  remain excluded. Two real Tcl recovery cases pass fresh native replay.
+  Full hermetic suite: 84 passed; final context/document checks: 7 passed.
+  Profile-aware extraction and yield measurements remain open.

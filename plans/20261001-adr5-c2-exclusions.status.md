@@ -10,7 +10,8 @@ Runtime extraction retains unsupported contexts and tracks auxiliary lifetimes. 
 read-only onecolumn/exists calls are supported, including mixed helper sequences.
 Verified pure row scripts are supported; other bodies remain excluded. Selection
 preserves preceding reasons.
-No narrowed extraction rule or yield improvement is claimed yet.
+Detached in-memory prefixes recover after faithful native replay. File attachment
+prefixes remain excluded. Yield improvement has not yet been measured.
 
 ## Progress
 
@@ -74,3 +75,12 @@ No narrowed extraction rule or yield improvement is claimed yet.
   live/reset-live handles, uncommitted reads and auxiliary writes; fresh native
   replay passes. Context/upstream/record/profile/docs: 32 passed in 5.54 seconds.
   Attached-database recovery, profile-aware extraction and yields remain open.
+
+- 2026-10-01: Attachment lifetimes now use the native database inventory after
+  each Tcl call. Successful DETACH can promote the complete preceding SQL into
+  setup; fresh native replay checks its results before recording a candidate.
+  Only literal in-memory attachments are allowed during setup. Live attachments,
+  failed DETACH and external files remain refused. The real pinned Tcl harness
+  records two recovery cases, and both pass fresh native replay. Full hermetic
+  model suite: 84 passed in 142.48 seconds. Final context/document checks:
+  7 passed in 0.58 seconds. Profile-aware extraction and measured yields remain open.

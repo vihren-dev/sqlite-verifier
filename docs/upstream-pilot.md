@@ -55,6 +55,14 @@ commands retain an exclusion across resets because a renamed handle can survive.
 The pinned harness check is
 [upstream_context_calls.test](../tests/upstream_context_calls.test).
 
+Attachment lifetimes come from SQLite's database inventory after each Tcl call.
+After successful DETACH, the preceding SQL becomes a setup prefix and eligibility
+returns only after fresh native replay verifies it. Setup may attach `:memory:`
+databases and replay all their SQL before detaching; migration recording and
+external-file attachment remain refused. A live attachment, failed DETACH or
+unreplayable file prefix cannot recover. The pinned test is
+[upstream_attachment_calls.test](../tests/upstream_attachment_calls.test).
+
 Removing the close exclusion does not by itself widen the supported execution
 profile. `alter.test` still yields 12/119 and `alter3.test` 7/59: TEMP/ATTACH,
 multiple connections and LEGACY_FILE_FORMAT=1 account for remaining exclusions.

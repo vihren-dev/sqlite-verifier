@@ -1,0 +1,26 @@
+# Detached memory prefixes replay fully; external files need independent evidence.
+set testdir [file join $env(CONFORMANCE_UPSTREAM) test]
+source [file join $testdir tester.tcl]
+reset_db
+db eval {CREATE TABLE t(v); ATTACH ':memory:' AS aux;
+  CREATE TABLE aux.source(v); INSERT INTO aux.source VALUES(7);
+  INSERT INTO main.t SELECT v FROM aux.source}
+do_test attachment-live {db eval {SELECT v FROM t}} 7
+db eval {DETACH aux}
+do_test attachment-recovered {db eval {SELECT v FROM t}} 7
+reset_db
+db eval {CREATE TABLE t(v); ATTACH 'other.db' AS aux;
+  CREATE TABLE aux.source(v); INSERT INTO aux.source VALUES(5);
+  INSERT INTO main.t SELECT v FROM aux.source; DETACH aux}
+do_test attachment-external {db eval {SELECT v FROM t}} 5
+reset_db
+db eval {ATTACH ':memory:' AS aux; CREATE TABLE aux.t(v)}
+do_test attachment-boundary {
+  db eval {DETACH aux}
+  db eval {SELECT 42}
+} 42
+reset_db
+db eval {ATTACH ':memory:' AS aux; CREATE TABLE aux.t(v); BEGIN; INSERT INTO aux.t VALUES(1)}
+do_test attachment-failed-detach {catch {db eval {DETACH aux}}} 1
+db eval {ROLLBACK; DETACH aux}
+finish_test

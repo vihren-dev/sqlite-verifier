@@ -1,5 +1,6 @@
 # Trace the real upstream harness; Tcl itself expands loops, ifcapable and substitutions.
 set capture [open $env(CONFORMANCE_EVENTS) w]
+set capture_metadata 0
 proc capture_event {args} {
   set fields {}
   foreach item $args { lappend fields [binary encode hex [encoding convertto utf-8 $item]] }
@@ -26,6 +27,7 @@ proc capture_pure_row_body {command} {
   return 1
 }
 proc capture_connection {name command args} {
+  if {$::capture_metadata} { return }
   set operation [lindex $command 1]
   if {$operation in {eval onecolumn exists}} {
     if {[lindex $args end] eq "enter"} {
@@ -40,6 +42,12 @@ proc capture_connection {name command args} {
       if {[lindex $args 0] == 0 && $operation eq "eval"} {
         capture_event result $name 0 {*}[lindex $args 1]
       } else { capture_event result $name [lindex $args 0] [lindex $args 1] }
+      set ::capture_metadata 1
+      try {
+        capture_event databases $name {*}[$name eval {PRAGMA database_list}]
+      } on error {message options} {
+        capture_event exclude "attachment context unobservable"
+      } finally { set ::capture_metadata 0 }
     }
   } elseif {$operation eq "close"} {
     if {[lindex $args end] eq "leave" && [lindex $args 0] == 0} { capture_event close $name }

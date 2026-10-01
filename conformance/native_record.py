@@ -96,6 +96,7 @@ def record_sql(setup: str | list[str | dict[str, Json]], migration: str, *, name
             if profile is not None:
                 profile.establish(connection)
             connection.statement_actions: list[int] = []
+            connection.recording_setup = True
             def authorize(_context: int, action: int, _a: bytes, function: bytes,
                           _database: bytes, _trigger: bytes) -> int:
                 """Deny unrecordable contexts without turning our denial into SQLite evidence."""
@@ -113,7 +114,8 @@ def record_sql(setup: str | list[str | dict[str, Json]], migration: str, *, name
                     if _a not in metadata and (_a not in settings or function is not None) and _a not in ignored:
                         connection.recording_exclusion = "SQL changes an established execution profile or uses an unsupported setting"
                         return 1
-                if action == 24 or action == 31 and function in nondeterministic:
+                if (action == 24 and (not connection.recording_setup or _a != b":memory:")
+                        or action == 31 and function in nondeterministic):
                     connection.recording_exclusion = "Excluded connection context: external database or nondeterministic function"
                     return 1
                 return 0
@@ -155,6 +157,7 @@ def record_sql(setup: str | list[str | dict[str, Json]], migration: str, *, name
                 setup_errors.append(events[-1]["error"] if events else "")
         if writer.transaction_open:
             raise ValueError("Corpus setup must end outside a transaction")
+        writer.recording_setup = False
         reader = Connection(engine, Path(directory) / "case.db", vfs=clock.name if clock else None)
         stack.callback(reader.close)
         if profile is not None:
