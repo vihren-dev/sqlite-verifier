@@ -152,3 +152,9 @@ C2: [exclusion narrowing](20261001-adr5-c2-exclusions.task.md),
   labels, instead of replacing context/fidelity exclusions. Per-instance reports
   carry the full reason array. Upstream/frozen replay/docs checks: 7 passed.
   C2 remains open for helpers, context lifetimes and before/after yields.
+
+- 2026-10-01: C2 now retains helper kinds and applies native SELECT-only
+  acquisition plus Tcl onecolumn/exists result semantics. Native rows stay
+  unmodified; writing helpers are refused. Upstream/record/profile/docs:
+  26 passed. Pinned Tcl fixture built and actual helper semantics checked.
+  Mixed helper sequences, row scripts, context lifetimes and yields remain open.

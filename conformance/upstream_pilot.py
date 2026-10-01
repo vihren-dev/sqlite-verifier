@@ -16,80 +16,7 @@ from conformance.native_record import record_sql
 from conformance.native_connection import SOURCE_ID
 from conformance.upstream_fidelity import check_results, minimize_prefix
 from conformance.upstream_selection import candidate_reasons
-
-
-def assertions(events: str) -> list[dict[str, Json]]:
-    """Consume runtime events, retaining expanded test instances and reset-scoped prefixes."""
-    prefix: list[str | dict[str, Json]] = []
-    database, closed = "", False
-    codes: list[int] = []
-    expected: list[list[str]] = []
-    excluded: set[str] = set()
-    rows: list[dict[str, Json]] = []
-    active: dict[str, Json] | None = None
-    for line in events.splitlines():
-        fields = [bytes.fromhex(field).decode() for field in line.split("\t")]
-        kind, *args = fields
-        if kind == "reset":
-            prefix, codes, excluded, expected = [], [], set(), []
-            database, closed = args[0] if args else "", False
-            if active is not None:
-                active.update(prefix=[], prefixCodes=[], prefixResults=[], commands=[], codes=[], results=[])
-        elif kind == "close" and args[0] == "db":
-            closed = True
-        elif kind in {"open", "config"}:
-            control = None
-            if args[0] != "db":
-                excluded.add("multiple connections")
-            elif kind == "open":
-                if closed and database == args[1] and not args[1].endswith(":memory:"):
-                    control = {"reopen": True}
-                elif database and database != args[1]:
-                    excluded.add("database file changed without reset_db")
-                elif closed:
-                    excluded.add("memory database reopened without reset_db")
-                database, closed = args[1], False
-            else:
-                allowed = {"DEFENSIVE": (1010, "0"), "DQS_DML": (1013, "1"),
-                           "DQS_DDL": (1014, "1"), "TRUSTED_SCHEMA": (1017, "1")}
-                setting = allowed.get(args[1].removeprefix("SQLITE_DBCONFIG_"))
-                if setting and len(args) == 3 and args[2] == setting[1]:
-                    control = {"dbConfig": [setting[0], int(args[2])]}
-                else:
-                    excluded.add("configuration outside profile: " + " ".join(args[1:]))
-            if control is not None:
-                prefix.append(control)
-                codes.append(0)
-                expected.append([])
-                # A connection operation is a capture boundary, never model SQL.
-                if active is not None:
-                    active.update(prefix=list(prefix), prefixCodes=list(codes), prefixResults=list(expected),
-                                  commands=[], codes=[], results=[])
-
-        elif kind == "exclude":
-            excluded.add(args[0])
-        elif kind == "begin":
-            active = {"id": args[0], "line": int(args[2]) if len(args) > 2 else 0, "expectedTcl": args[1], "prefix": list(prefix),
-                      "prefixCodes": list(codes), "prefixResults": list(expected), "commands": [], "codes": [], "results": [], "failed": False}
-        elif kind == "sql":
-            if args[0] != "db" or args[2] != "0" or args[3] != "eval":
-                excluded.add("connection or SQL callback context")
-            prefix.append(args[1])
-            if active is not None:
-                active["commands"].append(args[1])
-        elif kind == "result":
-            codes.append(int(args[1]))
-            expected.append(args[2:])
-            if active is not None:
-                active["codes"].append(int(args[1]))
-                active["results"].append(args[2:])
-        elif kind == "failed" and active is not None:
-            active["failed"] = True
-        elif kind == "end" and active is not None:
-            active["exclusions"] = sorted(excluded)
-            rows.append(active)
-            active = None
-    return rows
+from conformance.upstream_assertions import assertions
 
 
 def evidence(source: str, line: int) -> list[dict[str, Json]]:
@@ -139,8 +66,11 @@ def pilot(fixture: Path, upstream: Path, output: Path, limit: int, patterns: tup
                 reason = "; ".join(exclusions)
                 if not reason:
                     try:
+                        if any(helper != "eval" for helper in candidate["helpers"]) and len(candidate["commands"]) != 1:
+                            raise ValueError("Tcl helper semantics not reproduced for mixed command sequences")
                         record = record_sql(candidate["prefix"], "\n".join(candidate["commands"]),
-                            name=f"{file.stem}:{candidate['id']}:{occurrence}")
+                            name=f"{file.stem}:{candidate['id']}:{occurrence}", setup_helpers=candidate["prefixHelpers"],
+                            migration_readonly=candidate["helpers"] != ["eval"] and len(candidate["helpers"]) == 1)
                         check_results(record, candidate)
                         record = minimize_prefix(record)
                         repeated = record_sql(record["setupCommands"], record["migrationSql"], name=record["name"])
@@ -169,7 +99,7 @@ def pilot(fixture: Path, upstream: Path, output: Path, limit: int, patterns: tup
     result: dict[str, Json] = {"corpusVersion": 1, "sourceRelease": "3.51.0", "perFileLimit": limit, "patterns": list(patterns),
         "sourceId": SOURCE_ID, "sourceArchiveSha256": "5330719b8b80bf563991ff7a373052943f5357aae76cd1f3367eab845d3a75b7",
         "extractorSha256": {name: hashlib.sha256(Path(__file__).with_name(name).read_bytes()).hexdigest()
-                            for name in ("upstream_pilot.py", "upstream_proxy.tcl", "upstream_fidelity.py", "upstream_selection.py", "native_record.py")},
+                            for name in ("upstream_pilot.py", "upstream_assertions.py", "upstream_proxy.tcl", "upstream_fidelity.py", "upstream_selection.py", "native_record.py")},
         "files": report, "recordedCases": len(corpus), "casesSha256": hashlib.sha256(payload).hexdigest()}
     (output / "manifest.json").write_text(json.dumps(result, indent=2) + "\n")
     return result

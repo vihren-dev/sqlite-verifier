@@ -5,8 +5,16 @@ from conformance.native_record import record_sql
 from conformance.native_replay import decode_cell
 
 
-def tcl_values(rows: list[Json]) -> list[str]:
+def tcl_values(rows: list[Json], helper: str = "eval") -> list[str]:
     """Compare untyped Tcl values only where byte-to-text conversion is unambiguous."""
+    if helper == "exists":
+        return ["1" if rows else "0"]
+    if helper == "onecolumn":
+        rows = [[rows[0][0]]] if rows and rows[0] else []
+        if not rows:
+            return [""]
+    elif helper != "eval":
+        raise ValueError("Tcl helper semantics not reproduced")
     result: list[str] = []
     for row in rows:
         for cell in row:
@@ -26,10 +34,11 @@ def check_results(record: dict[str, Json], candidate: dict[str, Json]) -> None:
     """Require fresh SQLite execution to reproduce the successful Tcl eval results."""
     if [bool(code) for code in record["setupOutcomes"]] != [bool(code) for code in candidate["prefixCodes"]]:
         raise ValueError("prefix error outcomes differ from Tcl execution")
-    for code, rows, expected, error in zip(candidate["prefixCodes"], record["setupResults"], candidate["prefixResults"], record["setupErrors"], strict=True):
+    helpers = candidate.get("prefixHelpers", ["eval"] * len(candidate["prefixCodes"]))
+    for code, rows, expected, error, helper in zip(candidate["prefixCodes"], record["setupResults"], candidate["prefixResults"], record["setupErrors"], helpers, strict=True):
         if code and [error] != expected:
             raise ValueError("prefix error text differs from Tcl execution")
-        if not code and tcl_values(rows) != expected:
+        if not code and tcl_values(rows, helper) != expected:
             raise ValueError("prefix results differ from Tcl execution")
     native_error = bool(record["trace"] and record["trace"][-1]["primaryCode"])
     if native_error != any(candidate["codes"]):
@@ -37,7 +46,10 @@ def check_results(record: dict[str, Json], candidate: dict[str, Json]) -> None:
     if native_error and [record["trace"][-1]["error"]] != candidate["results"][-1]:
         raise ValueError("assertion error text differs from Tcl execution")
     if not native_error:
-        actual = tcl_values([row for event in record["trace"] for row in event["rows"]])
+        helpers = candidate.get("helpers", ["eval"] * len(candidate["commands"]))
+        if any(helper != "eval" for helper in helpers) and len(helpers) != 1:
+            raise ValueError("Tcl helper semantics not reproduced for mixed command sequences")
+        actual = tcl_values([row for event in record["trace"] for row in event["rows"]], helpers[0] if len(helpers) == 1 else "eval")
         expected = [value for result in candidate["results"] for value in result]
         if actual != expected:
             raise ValueError("assertion results differ from Tcl execution")

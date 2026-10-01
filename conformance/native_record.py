@@ -64,7 +64,8 @@ def record_sql(setup: str | list[str | dict[str, Json]], migration: str, *, name
                library: Path | None = None, outputs: bool = False,
                parameters: list[tuple[Cell, ...]] | None = None,
                profile: ExecutionProfile | None = None, setup_clock: int | None = None,
-               clock_values: list[int] | None = None) -> dict[str, Json]:
+               clock_values: list[int] | None = None,
+               setup_helpers: list[str] | None = None, migration_readonly: bool = False) -> dict[str, Json]:
     """Keep native evidence even when today's frontend cannot represent the SQL."""
     if parameters is not None and not outputs:
         raise ValueError("Bound parameters require output recording")
@@ -125,7 +126,9 @@ def record_sql(setup: str | list[str | dict[str, Json]], migration: str, *, name
         if isinstance(setup, str):
             writer.execute_script(setup)
         else:
-            for command in setup:
+            if setup_helpers is not None and len(setup_helpers) != len(setup):
+                raise ValueError("Expected one Tcl helper per setup command")
+            for index, command in enumerate(setup):
                 if isinstance(command, dict):
                     if command == {"reopen": True}:
                         writer.close()
@@ -140,7 +143,7 @@ def record_sql(setup: str | list[str | dict[str, Json]], migration: str, *, name
                         raise ValueError("Unknown native setup operation")
                     events = []
                 else:
-                    events = list(execute(writer, command))
+                    events = list(execute(writer, command, select_only=setup_helpers is not None and setup_helpers[index] != "eval"))
                 setup_outcomes.append(events[-1]["primaryCode"] if events else 0)
                 setup_results.append([row for event in events for row in event["rows"]])
                 setup_errors.append(events[-1]["error"] if events else "")
@@ -160,7 +163,7 @@ def record_sql(setup: str | list[str | dict[str, Json]], migration: str, *, name
         initial = snapshot()
         trace = [{**event, **snapshot()} for event in execute(writer, migration, outputs=outputs,
             parameters=parameters, clock=clock, clock_values=clock_values,
-            transaction_mode=profile.transaction_mode if profile else None)]
+            transaction_mode=profile.transaction_mode if profile else None, select_only=migration_readonly)]
     return {"nativeVersion": 4 if profile is not None else 3 if outputs else 2 if isinstance(setup, list) and any(isinstance(item, dict) for item in setup) else 1, "name": name, "setupSql": setup if isinstance(setup, str) else "\n".join(item for item in setup if isinstance(item, str)),
             "setupCommands": [setup] if isinstance(setup, str) else setup, "setupOutcomes": setup_outcomes,
             "setupResults": setup_results, "setupErrors": setup_errors, "migrationSql": migration,

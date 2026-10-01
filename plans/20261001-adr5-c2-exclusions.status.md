@@ -6,8 +6,9 @@ Spec: [ADR 0005](../docs/adr-0005-conformance-corpus-scale.md).
 
 ## Current state
 
-Runtime extraction still accumulates exclusions until reset and only accepts
-ordinary eval calls without row scripts. Selection now preserves preceding reasons.
+Runtime extraction still accumulates exclusions until reset. Ordinary eval and
+single read-only onecolumn/exists calls are supported; row scripts and mixed
+helper sequences remain excluded. Selection preserves preceding reasons.
 No narrowed extraction rule or yield improvement is claimed yet.
 
 ## Progress
@@ -24,3 +25,16 @@ No narrowed extraction rule or yield improvement is claimed yet.
   extractor source identity includes the policy module. Upstream/frozen replay
   and document checks: 7 passed in 4.65 seconds. Helper semantics, context
   lifetime narrowing and measured yields remain open.
+
+- 2026-10-01: Runtime candidates retain helper kinds in prefixes and assertions.
+  Native acquisition uses the SELECT-only preparation guard and native readonly
+  flags for row helpers; writes and setting PRAGMAs are refused. Tcl fidelity
+  applies exists/onecolumn semantics to ordinary native rows without changing
+  evidence. Tests cover first-column, existence, NULL and empty results, prefix
+  helper reads, wrong expectations and writing helpers. Mixed helper sequences
+  and row scripts remain named exclusions pending their own faithful checks.
+  Split the assertion event consumer out of the 196-line pilot module to keep
+  files below 200 lines, preserving its public import. Upstream/record/profile/
+  document checks: 26 passed in 5.03 seconds. Built the pinned Tcl testfixture and
+  verified actual helper behavior against src/tclsqlite.c and the standalone
+  tests/upstream_helpers.tcl check (HELPER_SEMANTICS_OK). C2 remains open.

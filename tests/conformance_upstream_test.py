@@ -82,3 +82,35 @@ def test_selection_cap_preserves_context_and_fidelity_reasons() -> None:
     assert set(candidate_reasons(candidate, selected=1, limit=1)) == expected | {"bounded pilot selection limit"}
     candidate = {"exclusions": [], "failed": False, "commands": ["SELECT 1;"], "codes": [0]}
     assert candidate_reasons(candidate, selected=0, limit=1) == []
+
+
+@pytest.mark.parametrize("helper,sql,expected", [("exists", "SELECT 42;", "1"),
+    ("exists", "SELECT 42 WHERE 0;", "0"), ("onecolumn", "SELECT 42,99 UNION ALL SELECT 7,8;", "42"),
+    ("onecolumn", "SELECT NULL;", ""), ("onecolumn", "SELECT 42 WHERE 0;", "")])
+def test_helper_results_keep_ordinary_native_rows(helper: str, sql: str, expected: str) -> None:
+    """Tcl helper expectations differ from native rows; evidence stays unmodified."""
+    events = [("reset",), ("sql", "db", "SELECT 12,13;", "0", "onecolumn"),
+              ("result", "db", "0", "12"), ("begin", "helper", expected),
+              ("sql", "db", sql, "0", helper), ("result", "db", "0", expected), ("end", "helper")]
+    encoded = "\n".join("\t".join(value.encode().hex() for value in event) for event in events)
+    candidate = assertions(encoded)[0]
+    assert not candidate["exclusions"]
+    record = record_sql(candidate["prefix"], sql, name="helper",
+                        setup_helpers=candidate["prefixHelpers"], migration_readonly=True)
+    check_results(record, candidate)
+    if sql == "SELECT 42;":
+        assert record["trace"][0]["rows"] == [[{"integer": {"value": 42}}]]
+    candidate["results"] = [["wrong"]]
+    with pytest.raises(ValueError, match="assertion results differ"):
+        check_results(record, candidate)
+
+
+def test_row_helpers_refuse_writes_and_row_scripts() -> None:
+    """No helper shortcut can execute writes or silently accept Tcl script side effects."""
+    for sql in ("INSERT INTO t VALUES(1) RETURNING x;", "PRAGMA user_version=1;"):
+        with pytest.raises(ValueError, match="read-only SELECT"):
+            record_sql("CREATE TABLE t(x);", sql, name="writing-helper", migration_readonly=True)
+    events = [("reset",), ("begin", "script", ""),
+              ("sql", "db", "SELECT 1;", "1", "eval"), ("result", "db", "0", ""), ("end", "script")]
+    encoded = "\n".join("\t".join(value.encode().hex() for value in event) for event in events)
+    assert "connection or SQL callback context" in assertions(encoded)[0]["exclusions"]
