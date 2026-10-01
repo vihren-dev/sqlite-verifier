@@ -15,6 +15,7 @@ from conformance.case_format import Json
 from conformance.native_record import record_sql
 from conformance.native_connection import SOURCE_ID
 from conformance.upstream_fidelity import check_results, minimize_prefix
+from conformance.upstream_selection import candidate_reasons
 
 
 def assertions(events: str) -> list[dict[str, Json]]:
@@ -134,15 +135,8 @@ def pilot(fixture: Path, upstream: Path, output: Path, limit: int, patterns: tup
             selected = 0
             instances: list[Json] = []
             for occurrence, candidate in enumerate(candidates):
-                reason = "; ".join(candidate["exclusions"])
-                if candidate["failed"]:
-                    reason = "upstream Tcl expectation failed"
-                elif not candidate["commands"]:
-                    reason = "no SQL observation"
-                elif any(candidate["codes"][:-1]):
-                    reason = "assertion continues after a SQL error"
-                elif selected >= limit:
-                    reason = "bounded pilot selection limit"
+                exclusions = candidate_reasons(candidate, selected=selected, limit=limit)
+                reason = "; ".join(exclusions)
                 if not reason:
                     try:
                         record = record_sql(candidate["prefix"], "\n".join(candidate["commands"]),
@@ -163,8 +157,10 @@ def pilot(fixture: Path, upstream: Path, output: Path, limit: int, patterns: tup
                         selected += 1
                     except (ValueError, RuntimeError) as error:
                         reason = f"native acquisition: {error}"
+                        exclusions.append(reason)
                 reasons[reason or "recorded"] += 1
-                instances.append({"id": candidate["id"], "occurrence": occurrence, "result": reason or "recorded"})
+                instances.append({"id": candidate["id"], "occurrence": occurrence,
+                                  "result": reason or "recorded", "exclusions": exclusions})
             report.append({**base, "runtimeExit": result.returncode, "runtimeAssertions": len(candidates),
                 "recorded": selected, "reasons": dict(reasons), "instances": instances,
                 "runtimeDiagnostics": (result.stdout + result.stderr)[-1500:] if result.returncode else ""})
@@ -173,7 +169,7 @@ def pilot(fixture: Path, upstream: Path, output: Path, limit: int, patterns: tup
     result: dict[str, Json] = {"corpusVersion": 1, "sourceRelease": "3.51.0", "perFileLimit": limit, "patterns": list(patterns),
         "sourceId": SOURCE_ID, "sourceArchiveSha256": "5330719b8b80bf563991ff7a373052943f5357aae76cd1f3367eab845d3a75b7",
         "extractorSha256": {name: hashlib.sha256(Path(__file__).with_name(name).read_bytes()).hexdigest()
-                            for name in ("upstream_pilot.py", "upstream_proxy.tcl", "upstream_fidelity.py", "native_record.py")},
+                            for name in ("upstream_pilot.py", "upstream_proxy.tcl", "upstream_fidelity.py", "upstream_selection.py", "native_record.py")},
         "files": report, "recordedCases": len(corpus), "casesSha256": hashlib.sha256(payload).hexdigest()}
     (output / "manifest.json").write_text(json.dumps(result, indent=2) + "\n")
     return result

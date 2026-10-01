@@ -147,3 +147,8 @@ C2: [exclusion narrowing](20261001-adr5-c2-exclusions.task.md),
   completion evidence. C2 task/status now describe narrower extraction rules
   and rejecting tests before coding. C2–C7 and the private workload gate remain
   open; no frozen corpus membership changed and no owner feedback is needed.
+
+- 2026-10-01: C2 selection now retains all applicable reasons, including cap
+  labels, instead of replacing context/fidelity exclusions. Per-instance reports
+  carry the full reason array. Upstream/frozen replay/docs checks: 7 passed.
+  C2 remains open for helpers, context lifetimes and before/after yields.

@@ -68,3 +68,17 @@ def test_nearest_requirement_context() -> None:
     from conformance.upstream_pilot import evidence
     source = "# EVIDENCE-OF: R-00001-00002 old\ndo_test old {} {}\n# EVIDENCE-OF: R-00003-00004 current\n# continued\ndo_test new {} {}\n"
     assert evidence(source, 5) == [{"id": "R-00003-00004", "line": 3}]
+
+
+def test_selection_cap_preserves_context_and_fidelity_reasons() -> None:
+    """A capped candidate still exposes all the reasons it cannot be recovered."""
+    from conformance.upstream_selection import candidate_reasons
+    candidate = {"exclusions": ["multiple connections", "configuration outside profile: X"],
+                 "failed": True, "commands": [], "codes": [1, 0]}
+    expected = {"multiple connections", "configuration outside profile: X",
+                "upstream Tcl expectation failed", "no SQL observation",
+                "assertion continues after a SQL error"}
+    assert set(candidate_reasons(candidate, selected=0, limit=1)) == expected
+    assert set(candidate_reasons(candidate, selected=1, limit=1)) == expected | {"bounded pilot selection limit"}
+    candidate = {"exclusions": [], "failed": False, "commands": ["SELECT 1;"], "codes": [0]}
+    assert candidate_reasons(candidate, selected=0, limit=1) == []
