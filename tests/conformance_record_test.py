@@ -135,9 +135,28 @@ def test_native_output_shape_bindings_and_probe_guard(tmp_path: Path) -> None:
         connection.query("CREATE TABLE t(x);")
         with pytest.raises(ValueError, match="read-only"):
             connection.query_result("INSERT INTO t VALUES(1) RETURNING x;", readonly=True)
+        for forbidden in ("PRAGMA foreign_keys=ON;", "BEGIN;", "CREATE TABLE rejected(x);",
+                          "EXPLAIN INSERT INTO t VALUES(9);", "EXPLAIN SELECT 1;", "SELECT random();"):
+            with pytest.raises(ValueError, match="read-only"):
+                connection.query_result(forbidden, readonly=True)
+        recursive = connection.query_result("WITH RECURSIVE n(x) AS (VALUES(1) UNION ALL "
+            "SELECT x+1 FROM n WHERE x<3) SELECT sum(x) FROM n;", readonly=True)
+        assert recursive.rows == [((1, 6),)]
+        assert not connection.transaction_open
+        assert connection.query("PRAGMA foreign_keys;") == [((1, 0),)]
         assert connection.query("SELECT * FROM t;") == []
         returning = connection.query_result("INSERT INTO t VALUES(1) RETURNING x;")
         assert returning.columns == ("x",) and returning.rows == [((1, 1),)]
+        import ctypes as c
+        from conformance.native_connection import NativeError
+        # The probe must delegate to and restore the acquisition authorizer.
+        connection.authorizer = c.CFUNCTYPE(c.c_int, c.c_void_p, c.c_int,
+            c.c_char_p, c.c_char_p, c.c_char_p, c.c_char_p)(
+                lambda _ctx, action, _a, function, _db, _tr: int(action == 31 and function == b"abs"))
+        connection.check(connection.library.sqlite3_set_authorizer(connection.handle, connection.authorizer, None))
+        for readonly in (True, False):
+            with pytest.raises(NativeError, match="authorized"):
+                connection.query_result("SELECT abs(1);", readonly=readonly)
     finally:
         connection.close()
 

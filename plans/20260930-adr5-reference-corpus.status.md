@@ -68,3 +68,12 @@ C0: [outputs and parameters](20260930-adr5-c0-outputs.task.md),
   in 156.89 seconds, including all frozen-corpus replays. Document checks: 2 passed.
   C0 remains open for faithful ordered-query/tie-window acquisition and SELECT-only
   probing; C1 profiles and all subsequent gates remain open.
+
+- 2026-10-01: Supplementary probes now enforce SELECT-only authorization before
+  SQLite preparation, since sqlite3_stmt_readonly alone permits some setting
+  PRAGMAs. The guard preserves and delegates to the acquisition authorizer, and
+  restores it on failures. Native read-only/EXPLAIN checks remain a second gate.
+  Tests reject setting PRAGMAs, transactions, DDL, DML, EXPLAIN and random reads
+  without changing rows/settings; recursive SELECT succeeds; previous authorizer
+  rejection survives probing. Native/model checks: 17 passed; final native and
+  document checks: 12 passed. C0's ordered-query/tie-window acquisition remains open.

@@ -8,6 +8,7 @@ import sys
 import time
 from typing import TypeAlias
 from dataclasses import dataclass
+from contextlib import nullcontext
 
 from conformance.native_library import SOURCE_ID, load_library
 
@@ -128,7 +129,14 @@ class Connection:
 
     def query_result(self, sql: str, parameters: tuple[Cell, ...] = (), *,
                      readonly: bool = False) -> NativeResult:
-        """Require complete binding and refuse writing probes before the first step."""
+        """Restrict supplementary probes before preparation can itself change settings."""
+        from conformance.native_probe import select_probe
+        with select_probe(self) if readonly else nullcontext():
+            return self._query_result(sql, parameters, readonly=readonly)
+
+    def _query_result(self, sql: str, parameters: tuple[Cell, ...], *,
+                      readonly: bool) -> NativeResult:
+        """Require complete binding and finalize even after execution or validation failure."""
         self.deadline = time.monotonic() + 5
         statement, tail = c.c_void_p(), c.c_char_p()
         encoded = sql.encode()
@@ -139,8 +147,9 @@ class Connection:
                 raise ValueError("Expected one complete SQL statement")
             if self.library.sqlite3_bind_parameter_count(statement) != len(parameters):
                 raise ValueError("Expected one typed value per SQLite parameter slot")
-            if readonly and not self.library.sqlite3_stmt_readonly(statement):
-                raise ValueError("Supplementary probe must be read-only")
+            if readonly and (not self.library.sqlite3_stmt_readonly(statement) or
+                             self.library.sqlite3_stmt_isexplain(statement)):
+                raise ValueError("Supplementary probe must be a read-only SELECT")
             columns = tuple(self.library.sqlite3_column_name(statement, index).decode()
                             for index in range(self.library.sqlite3_column_count(statement)))
             for index, cell in enumerate(parameters, 1):

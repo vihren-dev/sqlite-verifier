@@ -76,7 +76,7 @@ in {
     ] ++ map (name: root + "/conformance/${name}.py") [
       "model_assertions" "model_cases" "model_check"
       "native_fixture" "import_fixture" "schema"
-      "case_format" "native_connection" "native_library" "native_metadata" "native_record" "native_statements" "native_replay" "upstream_pilot" "upstream_fidelity" "corpus" "generated_program" "mutation_check" "state_machine" "regressions" "progress" "measure_coverage" "native_trace" "pipeline"
+      "case_format" "native_connection" "native_library" "native_probe" "native_metadata" "native_record" "native_statements" "native_replay" "upstream_pilot" "upstream_fidelity" "corpus" "generated_program" "mutation_check" "state_machine" "regressions" "progress" "measure_coverage" "native_trace" "pipeline"
     ];
     runtime = conformance;
     tools = [ native.sqlite native.sqlite346 ];

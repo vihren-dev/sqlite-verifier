@@ -35,3 +35,8 @@ checks outputs and state. The adapter validates acquisition fields before
 frontend admission and maps admitted records to case version two. Ordered query
 records cannot yet reach model comparison because query semantics are absent;
 faithful tie-group acquisition is required before those cases can be frozen.
+
+Supplementary probes use a native SELECT-only authorizer before preparation,
+plus SQLite's read-only and EXPLAIN flags before stepping. They reject PRAGMAs,
+transaction control, DDL, DML and nondeterministic random functions. The guard
+delegates to the acquisition authorizer and restores it after success or failure.
