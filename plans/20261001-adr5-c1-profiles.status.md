@@ -27,3 +27,13 @@ open; no claim of workload suite completion is made.
   trigger bodies and SELECT-only probes see two supplied times, and registration
   cleans up. Clock/record/DQS checks: 13 passed in 0.81 seconds. Profile identity,
   per-statement recording, replay and manifest binding remain open.
+
+- 2026-10-01: Added an immutable execution-profile record measured from the
+  running engine's version, source ID and complete sorted compile options.
+  Establishment refuses an engine mismatch or active transaction, sets foreign
+  keys/recursive triggers and verifies native readback. Profile conditions name
+  transaction and clock conventions; only implemented convention values are
+  accepted. Native tests verify FK cascades inside BEGIN IMMEDIATE, identity
+  mismatches and invalid conventions. Profile/clock/record/DQS checks: 14 passed
+  in 0.79 seconds. These primitives still require wire decoding and integration
+  into acquisition, replay and manifests; model admission must remain separate.

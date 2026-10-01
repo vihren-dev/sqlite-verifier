@@ -116,3 +116,9 @@ C1: [verified profiles](20261001-adr5-c1-profiles.task.md),
   supplied clock while the engine's default filesystem VFS remains unchanged.
   Clock/native recording/DQS regressions: 13 passed in 0.81 seconds. Integration
   into versioned profiles, recording/replay and manifests remains required.
+
+- 2026-10-01: C1 profile primitive now measures complete native engine identity
+  and establishes/readbacks foreign-key and recursive-trigger settings. Native
+  tests verify cascading behavior within an immediate transaction and refuse
+  incorrect source/version/compile options. Profile/clock/record/DQS checks:
+  14 passed. Acquisition, replay and manifest integration remain open.
