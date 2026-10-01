@@ -109,7 +109,8 @@ def record_sql(setup: str | list[str | dict[str, Json]], migration: str, *, name
                 if (profile is not None or auxiliary_replay) and action == 19:
                     setting_name = (_a or b"").lower()
                     metadata = {b"table_info", b"table_xinfo", b"table_list", b"index_list", b"index_info",
-                        b"index_xinfo", b"foreign_key_list", b"foreign_key_check", b"compile_options", b"database_list"}
+                        b"index_xinfo", b"foreign_key_list", b"foreign_key_check", b"compile_options", b"database_list",
+                        b"integrity_check", b"quick_check"}
                     settings = {b"foreign_keys", b"recursive_triggers", b"trusted_schema", b"writable_schema"}
                     ignored = {setting.encode() for setting, _reason in profile.ignored_settings} if profile else set()
                     if setting_name not in metadata and (setting_name not in settings or function is not None) and setting_name not in ignored:

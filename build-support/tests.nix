@@ -37,6 +37,9 @@ in {
       (fs.fileFilter (file: file.hasExt "py" || file.hasExt "tcl") (root + /conformance))
       (fs.fileFilter (file: file.hasExt "py") (root + /migration_check))
       (root + /tests/upstream_profile_calls.test)
+      (root + /tests/upstream_helper_calls.test)
+      (root + /tests/upstream_context_calls.test)
+      (root + /tests/upstream_attachment_calls.test)
     ];
     runtime = conformance;
     tools = [ native.sqlite conformanceNative.fixture ];

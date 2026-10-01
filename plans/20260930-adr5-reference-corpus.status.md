@@ -204,3 +204,9 @@ C2: [exclusion narrowing](20261001-adr5-c2-exclusions.task.md),
   Real Tcl capture verifies separate foreign_keys and ignore_check_constraints
   refusals. Empty-script fixed clock inputs are validated. Pinned upstream check:
   1 passed; profile/context/document checks: 11 passed. C2 yields remain open.
+
+- 2026-10-01: C2 acquisition treats integrity_check/quick_check as metadata reads.
+  The hermetic upstream target now includes the existing real Tcl helper and
+  connection/attachment recovery checks: 4 passed. Native profile/context/docs:
+  11 passed. The first four-file extraction retained 32 cases; final before/after
+  measurements and the C2 audit remain open.

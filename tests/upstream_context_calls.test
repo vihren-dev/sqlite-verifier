@@ -7,7 +7,7 @@ sqlite3 db2 test.db
 do_test context-live {db eval {SELECT v FROM t}} 5
 db2 eval {SELECT v FROM t}
 db2 close
-do_test context-recovered {db eval {SELECT v FROM t}} 5
+do_test context-recovered {db eval {PRAGMA integrity_check; SELECT v FROM t}} {ok 5}
 reset_db
 db eval {CREATE TABLE t(v); INSERT INTO t VALUES(1); BEGIN; INSERT INTO t VALUES(2)}
 sqlite3 db2 test.db

@@ -118,3 +118,14 @@ names. Measured yields and the final package audit remain open.
   are also validated for an empty script. Pinned upstream target: 1 passed in
   0.16 seconds; profile/context/document checks: 11 passed in 0.65 seconds.
   Extraction yield measurements and the final C2 audit remain open.
+
+- 2026-10-01: The first four-file yield run retained 32 cases, with no increase
+  for e_createtable/e_update. Investigation found that integrity_check had been
+  misclassified as a setting after auxiliary-prefix recovery. Native acquisition
+  now permits integrity_check and quick_check as metadata reads; actual settings
+  retain their refusal. The hermetic upstream target now runs all existing helper,
+  auxiliary and attachment Tcl checks, rather than leaving them as manual checks.
+  It records exactly the six expected default-profile cases and refuses the
+  unsafe contexts; all fresh native replays pass. Pinned upstream target:
+  4 passed in 0.31 seconds. Profile/context/document checks: 11 passed in
+  0.65 seconds. Final yield measurements and the C2 audit remain open.

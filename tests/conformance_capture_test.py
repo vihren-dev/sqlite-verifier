@@ -45,3 +45,25 @@ def test_real_profile_capture_and_clock_change_refusal(tmp_path: Path) -> None:
     for invalid in (0, 1700000000001, 2147483648000):
         with pytest.raises(ValueError, match="Tcl capture clock"):
             pilot(Path(fixture), upstream, output, 10, profile=profile, clock=invalid)
+
+
+@pytest.mark.parametrize("source,accepted", [
+    ("upstream_helper_calls.test", {"helper-mixed-1", "helper-pure-row-script", "helper-pure-returning-script"}),
+    ("upstream_context_calls.test", {"context-recovered"}),
+    ("upstream_attachment_calls.test", {"attachment-recovered", "attachment-boundary"}),
+])
+def test_real_helpers_and_context_recovery(tmp_path: Path, source: str, accepted: set[str]) -> None:
+    """Real Tcl recovery records only verified cases and retains every refusal."""
+    fixture = shutil.which("testfixture")
+    if fixture is None or "CONFORMANCE_UPSTREAM" not in os.environ:
+        pytest.skip("Run the pinned Nix upstream target for Tcl capture")
+    upstream = tmp_path / "upstream"
+    (upstream / "test").mkdir(parents=True)
+    shutil.copyfile(Path(__file__).with_name(source), upstream / "test/context.test")
+    output = tmp_path / "capture"
+    report = pilot(Path(fixture), upstream, output, 10, ("context.test",))
+    instances = report["files"][0]["instances"]
+    assert {item["id"] for item in instances if item["result"] == "recorded"} == accepted, instances
+    assert all(item["exclusions"] for item in instances if item["id"] not in accepted)
+    _, records = load(output)
+    native_replay(records)

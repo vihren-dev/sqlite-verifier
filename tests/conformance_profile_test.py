@@ -155,12 +155,13 @@ def test_fixed_clock_records_native_statement_boundaries(tmp_path: Path) -> None
     setup = ("CREATE TABLE t(stamp DEFAULT(unixepoch())); CREATE TABLE audit(stamp);"
         "CREATE TRIGGER log AFTER INSERT ON t BEGIN INSERT INTO audit VALUES(unixepoch()); END;")
     record = record_sql(setup, "; INSERT INTO t DEFAULT VALUES RETURNING stamp;"
-        "SELECT stamp,unixepoch() FROM audit; -- trailing comment", name="fixed-clock",
+        "SELECT stamp,unixepoch() FROM audit; PRAGMA integrity_check; PRAGMA QUICK_CHECK; -- trailing comment", name="fixed-clock",
         outputs=True, profile=profile, setup_clock=1700000000000, clock_values=1700000001000)
-    assert len(record["trace"]) == 2
+    assert len(record["trace"]) == 4
     assert all(event["clockUnixMilliseconds"] == 1700000001000 for event in record["trace"])
     assert record["trace"][1]["rows"] == [[{"integer": {"value": 1700000001}},
                                           {"integer": {"value": 1700000001}}]]
+    assert all(event["rows"] == [[{"text": {"bytes": [111, 107]}}]] for event in record["trace"][2:])
     native_replay([record])
     with pytest.raises(ValueError, match="fixed Unix-millisecond"):
         record_sql("", "SELECT 1;", name="invalid-clock", outputs=True, profile=profile,
