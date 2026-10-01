@@ -1,16 +1,22 @@
 # ADR 0003: Separate agent proof preparation from verification
 
-- Status: Accepted 2026-09-29: the data path, by owner decision after P1 (see
-  below). P2 is next.
+- Status: Implemented and closed 2026-10-01. Accepted 2026-09-29 for the data
+  path, by owner decision after P1 (see below); P0–P4 are done. The trust
+  milestone stays deferred to a future decision; its design is kept in
+  [the trust extension](adr-0003-trust-extension.md). The measurement workflow
+  (`.github/workflows/adr3-p1.yml`), the measurement-only override
+  `MIGRATION_CHECK_MEASUREMENT_APPROVED_REUSE` and the branches `adr3/p1-measure`
+  and `adr3/p2-measure`, which hold the commits the P1/P2 Linux runs measured,
+  are kept as measurement tools and records.
 - Date: 2026-09-28; refactored 2026-09-29 around measured latency, then revised
   after review (contract reuse, end-to-end criteria, comparative experiment);
-  amended 2026-09-29 with the owner decision
+  amended 2026-09-29 with the owner decision; closed 2026-10-01
 - Implementation examined: `19e015a11406f6dc26351e673cf355d072273034`
 - Decision owners: product owner for guarantees and workflow; formal methods lead
   for proof acceptance
 - Related: [ADR 0001](adr-0001-pytest-and-nix-ci.md) (accepted, partly superseded),
-  [ADR 0002](adr-0002-compile-project-cache.md) (proposed; replaced by this ADR if
-  accepted), [ADR 0004](adr-0004-model-conformance-validation.md) (depends on this
+  [ADR 0002](adr-0002-compile-project-cache.md) (superseded by this ADR; its
+  eligibility policy is adopted in "Approved contract reuse"), [ADR 0004](adr-0004-model-conformance-validation.md) (depends on this
   ADR), [latency experiments](../experiments/adr-0003-latency/README.md),
   [deferred trust design](adr-0003-trust-extension.md)
 

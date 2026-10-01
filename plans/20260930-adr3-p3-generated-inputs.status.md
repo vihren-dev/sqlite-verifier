@@ -33,3 +33,8 @@ Relevant sources: `BundleChecker.lean`, `GateCore.lean`,
   bundle 33, cli 13, model 56, kernel 19; host 284; Nix infrastructure 59.
   Measured on macOS, no stage store: `verify-bundle` 2.62 s → 2.15 s (small),
   6.69 s → 6.29 s (Atuin). Installed acceptance is left to PR CI.
+- 2026-10-01: ADR 0003 closed (owner agreed): ADR 0003 status updated to
+  implemented and closed, ADR 0002 marked superseded. Kept, as recorded in the ADR
+  status: measurement workflow, measurement-only override and the
+  `adr3/p1-measure`/`adr3/p2-measure` branches. Trust milestone deferred. PR #11
+  rebased onto `main` after PR #12 merged.
