@@ -1,6 +1,7 @@
 # Trace the real upstream harness; Tcl itself expands loops, ifcapable and substitutions.
 set capture [open $env(CONFORMANCE_EVENTS) w]
 set capture_metadata 0
+set capture_sql_depth 0
 if {[info exists env(CONFORMANCE_CLOCK_SECONDS)]} {
   if {![info exists sqlite_current_time]} { error "Testfixture has no native clock control" }
   set sqlite_current_time $env(CONFORMANCE_CLOCK_SECONDS)
@@ -10,6 +11,21 @@ proc capture_event {args} {
   foreach item $args { lappend fields [binary encode hex [encoding convertto utf-8 $item]] }
   puts $::capture [join $fields \t]
   flush $::capture
+}
+proc capture_method {operation} {
+  # Match the pinned tclsqlite.c DB_strs: exact names win over unique prefixes.
+  set methods {authorizer backup bind_fallback busy cache changes close collate
+    collation_needed commit_hook complete config copy deserialize enable_load_extension
+    errorcode erroroffset eval exists function incrblob interrupt last_insert_rowid
+    nullvalue onecolumn preupdate profile progress rekey restore rollback_hook serialize
+    status timeout total_changes trace trace_v2 transaction unlock_notify update_hook version wal_hook}
+  if {$operation in $methods} { return $operation }
+  set matches {}
+  foreach method $methods {
+    if {[string first $operation $method] == 0} { lappend matches $method }
+  }
+  if {[llength $matches] == 1} { return [lindex $matches 0] }
+  return ""
 }
 proc capture_pure_row_body {command} {
   # ponytail: only empty/basic braced expr bodies; widen verified forms when yield warrants it.
@@ -32,9 +48,13 @@ proc capture_pure_row_body {command} {
 }
 proc capture_connection {name command args} {
   if {$::capture_metadata} { return }
-  set operation [lindex $command 1]
+  set operation [capture_method [lindex $command 1]]
   if {$operation in {eval onecolumn exists}} {
     if {[lindex $args end] eq "enter"} {
+      if {[incr ::capture_sql_depth] > 1} {
+        capture_event exclude "nested SQL execution"
+        return
+      }
       if {[info exists ::env(CONFORMANCE_CLOCK_SECONDS)] &&
           $::sqlite_current_time != $::env(CONFORMANCE_CLOCK_SECONDS)} {
         capture_event exclude "test changed the controlled clock"
@@ -47,6 +67,8 @@ proc capture_connection {name command args} {
       }
       capture_event sql $name [lindex $command 2] $callback $helper
     } else {
+      # Inner SQL/results must not be paired with the enclosing call's result.
+      if {[incr ::capture_sql_depth -1] > 0} { return }
       if {[lindex $args 0] == 0 && $operation eq "eval"} {
         capture_event result $name 0 {*}[lindex $args 1]
       } else { capture_event result $name [lindex $args 0] [lindex $args 1] }
@@ -59,8 +81,11 @@ proc capture_connection {name command args} {
     }
   } elseif {$operation eq "close"} {
     if {[lindex $args end] eq "leave" && [lindex $args 0] == 0} { capture_event close $name }
-  } elseif {$operation in {function collation authorizer progress trace update_hook rollback_hook commit_hook}} {
+  } elseif {$operation in {function collate collation_needed authorizer bind_fallback busy
+      preupdate profile progress trace trace_v2 unlock_notify update_hook rollback_hook commit_hook wal_hook}} {
     capture_event exclude "application callback: $operation"
+  } elseif {$operation eq "incrblob"} {
+    capture_event exclude "incremental BLOB operation: incrblob"
   }
 }
 proc capture_factory {command code result operation} {
@@ -116,6 +141,8 @@ proc capture_failure {command operation} { capture_event failed [lindex $command
 proc capture_external {command operation} {
   if {[lindex $command 0] eq "sqlite3_db_config"} {
     capture_event config {*}[lrange $command 1 end]
+  } elseif {[string match sqlite3_blob_* [lindex $command 0]]} {
+    capture_event exclude "incremental BLOB operation: [lindex $command 0]"
   } elseif {[info exists ::capture_active] && $::capture_active} {
     capture_event exclude "external/configuration operation: [lindex $command 0]"
   }
@@ -126,7 +153,8 @@ proc capture_source {command code result operation} {
     trace add execution do_test {enter leave} capture_test
     trace add execution reset_db leave capture_reset
     trace add execution fail_test enter capture_failure
-    foreach command {open sqlite3_db_config sqlite3_limit sqlite3_test_control} {
+    foreach command [concat {open sqlite3_db_config sqlite3_limit sqlite3_test_control} \
+                            [info commands sqlite3_blob_*]] {
       if {[llength [info commands $command]]} { trace add execution $command enter capture_external }
     }
     capture_reset {}

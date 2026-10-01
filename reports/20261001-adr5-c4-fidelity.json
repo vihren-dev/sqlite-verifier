@@ -1,0 +1,38 @@
+{
+  "date": "2026-10-01",
+  "historicalExtraction": "conformance/corpus-v3/extraction.json.gz",
+  "historicalExtractionSha256": "59fdfd4b86ba65bef44551c365d8a861ee83e6d73e28283cd73fa4e16229e41b",
+  "sourceId": "2025-11-04 19:38:17 fb2c931ae597f8d00a37574ff67aeed3eced4e5547f9120744ae4bfa8e74527b",
+  "sourceArchiveSha256": "5330719b8b80bf563991ff7a373052943f5357aae76cd1f3367eab845d3a75b7",
+  "historicalResultReasons": {
+    "native acquisition: assertion error outcome differs from Tcl execution": 5,
+    "native acquisition: prefix error outcomes differ from Tcl execution": 10,
+    "native acquisition: assertion results differ from Tcl execution": 4,
+    "native acquisition: prefix results differ from Tcl execution": 123,
+    "native acquisition: assertion error text differs from Tcl execution": 1
+  },
+  "differingCandidates": 143,
+  "causes": {
+    "Tcl function abbreviation bypasses callback capture: func": 9,
+    "testfixture-only virtual-table module: echo": 6,
+    "testfixture-only lock metadata: PRAGMA lock_status": 12,
+    "untraced incremental BLOB-handle mutation": 4,
+    "implicit Tcl SQL parameter binding not captured: $dots": 14,
+    "filesystem path observation: PRAGMA database_list": 95,
+    "historical newline-only join merged separate Tcl SQL calls": 1,
+    "historical primary close/reopen lost schema-cache boundary": 2
+  },
+  "unmappedCandidates": 0,
+  "ledgerSha256": "d46192aa1a4aa8daa91e51fc68bd6e094458731fc07388385d5326129e069c38",
+  "tracesSha256": "af831aedb1ee5ae20ee65ad56e83083f1534d7cb5f8e8429980b5310dc6ea1e7",
+  "mechanicalProofSha256": "7274f2465ba475308f42905b1a9a8eb1ea1d461974abd9e294cafed77a1bab3e",
+  "traceProxySha256": "caa47a92a62dd392250f8a99355afe12b9ac35c9ed3510750370298d5a742607",
+  "researchMethod": "Execute pinned upstream Tcl files with the C2 capture proxy; reproduce each raw expanded SQL call with the historical unbound native behavior; retain the first historical refusal cause and actual outputs/errors. Reproduce old/new joins and reopen boundaries separately. Diagnose missing implicit Tcl bindings with a separate typed native API experiment, without SQL substitution or editing recorded truth.",
+  "nativeRecordsEdited": false,
+  "frozenEvidenceChanged": false,
+  "additionalCauses": {
+    "testfixture-only lock metadata: PRAGMA lock_status": 5,
+    "untraced incremental BLOB-handle mutation": 14
+  },
+  "bindingProofSha256": "bc16032b4123091433d20c65dd7d6568aecfcbc1dbc394f0f4860f6a9c86dc79"
+}

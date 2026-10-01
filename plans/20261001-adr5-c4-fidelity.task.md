@@ -1,6 +1,6 @@
 # ADR 0005 C4: upstream fidelity causes
 
-Created 2026-10-01. Status: IN PROGRESS.
+Created 2026-10-01. Status: DONE.
 Status: [progress](20261001-adr5-c4-fidelity.status.md).
 Spec: [ADR 0005 §3.6](../docs/adr-0005-conformance-corpus-scale.md#36-fidelity-triage-authored-cases-and-mutants).
 
@@ -15,6 +15,8 @@ result/error differences. Historical evidence and native records remain unchange
 Mechanical capture errors are fixed at their shared source. SQLite's unique
 Tcl method abbreviations have the same capture semantics as their full names;
 helpers keep their own result semantics and callback registrations remain excluded.
+Implicit Tcl SQL bindings without captured values/types have a named exclusion;
+the explicit typed native parameter primitive remains available.
 Untraced BLOB operations, testfixture-only features and database-path observations
 have named causes and cannot be mistaken for a disagreement in SQL semantics.
 Reopen and SQL-call boundaries preserve the native behavior they represent.

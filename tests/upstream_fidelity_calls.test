@@ -1,0 +1,77 @@
+# Exercise the actual pinned Tcl method resolution and excluded native contexts.
+set testdir [file join $env(CONFORMANCE_UPSTREAM) test]
+source [file join $testdir tester.tcl]
+# Exact names win even when another method extends them; native lookup is case-sensitive.
+foreach {method expected} {trace trace trace_ trace_v2 e {} EV {} collat {} collate collate} {
+  if {[capture_method $method] ne $expected} {error "Method lookup differs: $method"}
+}
+reset_db
+do_test fidelity-helper-abbreviations {
+  db ev {CREATE TABLE t(v); INSERT INTO t VALUES(7),(42)}
+  set first [db one {SELECT v,99 FROM t ORDER BY v DESC}]
+  set found [db ex {SELECT 42}]
+  list $first $found [db ev {SELECT v FROM t ORDER BY v}]
+} {42 1 {7 42}}
+reset_db
+do_test fidelity-method-resolution {
+  set ambiguous [catch {db e {SELECT 1}}]
+  set unknown [catch {db missing {SELECT 1}}]
+  set uppercase [catch {db EV {SELECT 1}}]
+  list $ambiguous $unknown $uppercase [db o {SELECT 9}]
+} {1 1 1 9}
+reset_db
+proc fidelity_value {} {return 7}
+db func custom_value fidelity_value
+do_test fidelity-function-alias {db ev {SELECT custom_value()}} 7
+reset_db
+db function custom_value fidelity_value
+do_test fidelity-function-full {db eval {SELECT custom_value()}} 7
+reset_db
+proc fidelity_compare {a b} {string compare $a $b}
+db collate custom_order fidelity_compare
+do_test fidelity-collate {db eval {SELECT 'a' COLLATE custom_order}} a
+reset_db
+proc fidelity_nested_value {} {db one {SELECT 7}}
+db f nested_value fidelity_nested_value
+do_test fidelity-nested {db ev {SELECT nested_value()}} 7
+reset_db
+do_test fidelity-reset-clean {db one {SELECT 8}} 8
+reset_db
+db eval {CREATE TABLE t(v); INSERT INTO t VALUES('.....')}
+sqlite3_blob_open db main t v 1 1 B
+sqlite3_blob_write $B 0 xy 2
+sqlite3_blob_close $B
+do_test fidelity-blob-api {db eval {SELECT v FROM t}} {xy...}
+reset_db
+db eval {CREATE TABLE t(v); INSERT INTO t VALUES('.....')}
+set channel [db incr t v 1]
+puts -nonewline $channel xy
+close $channel
+do_test fidelity-blob-method {db eval {SELECT v FROM t}} {xy...}
+reset_db
+db eval {CREATE TABLE t(v); INSERT INTO t VALUES(5)}
+db cl
+sqlite3 db test.db
+do_test fidelity-close-alias {db one {SELECT v FROM t}} 5
+reset_db
+db eval {CREATE TABLE t(v); INSERT INTO t VALUES(6)}
+sqlite3 db2 test.db
+db2 ev {SELECT v FROM t}
+db2 cl
+do_test fidelity-auxiliary-alias {db ex {SELECT v FROM t}} 1
+reset_db
+set bind_value 11
+db eval {CREATE TABLE t(v); INSERT INTO t VALUES($bind_value)}
+do_test fidelity-untraced-prefix-bind {db one {SELECT v FROM t}} 11
+reset_db
+set bind_value 12
+do_test fidelity-untraced-sql-bind {db one {SELECT $bind_value}} 12
+reset_db
+do_test fidelity-quoted-binding-text {db one {SELECT '$bind_value'}} {$bind_value}
+reset_db
+rename db other_db
+do_test fidelity-renamed-command {other_db one {SELECT 1}} 1
+reset_db
+do_test fidelity-reset-renamed-live {db one {SELECT 2}} 2
+other_db cl
+finish_test

@@ -78,6 +78,34 @@ def test_real_helpers_and_context_recovery(tmp_path: Path, source: str, accepted
     native_replay(records)
 
 
+def test_real_method_aliases_and_untraced_context_refusals(tmp_path: Path) -> None:
+    """Canonical Tcl methods preserve helpers while callbacks and BLOB contexts stay excluded."""
+    fixture = shutil.which("testfixture")
+    if fixture is None or "CONFORMANCE_UPSTREAM" not in os.environ:
+        pytest.skip("Run the pinned Nix upstream target for Tcl capture")
+    upstream = tmp_path / "upstream"
+    (upstream / "test").mkdir(parents=True)
+    shutil.copyfile(Path(__file__).with_name("upstream_fidelity_calls.test"), upstream / "test/fidelity.test")
+    output = tmp_path / "capture"
+    report = pilot(Path(fixture), upstream, output, 20, ("fidelity.test",))
+    assert report["files"][0]["runtimeExit"] == 0, report["files"]
+    instances = {item["id"]: item for item in report["files"][0]["instances"]}
+    accepted = {"fidelity-helper-abbreviations", "fidelity-method-resolution", "fidelity-reset-clean",
+                "fidelity-close-alias", "fidelity-auxiliary-alias", "fidelity-quoted-binding-text"}
+    assert {key for key, item in instances.items() if item["result"] == "recorded"} == accepted
+    for name in ("fidelity-function-alias", "fidelity-function-full", "fidelity-nested"):
+        assert "application callback: function" in instances[name]["exclusions"]
+    assert "nested SQL execution" in instances["fidelity-nested"]["exclusions"]
+    assert "application callback: collate" in instances["fidelity-collate"]["exclusions"]
+    assert "incremental BLOB operation: sqlite3_blob_write" in instances["fidelity-blob-api"]["exclusions"]
+    assert "incremental BLOB operation: incrblob" in instances["fidelity-blob-method"]["exclusions"]
+    for name in ("fidelity-untraced-prefix-bind", "fidelity-untraced-sql-bind"):
+        assert instances[name]["exclusions"] == ["implicit Tcl parameter binding: $bind_value"]
+    assert "connection command renamed" in instances["fidelity-reset-renamed-live"]["exclusions"]
+    _, records = load(output)
+    native_replay(records)
+
+
 def test_size_exclusion_preserves_quota_and_native_evidence(tmp_path: Path) -> None:
     """An oversized logical case is named with bytes; the next case uses the quota."""
     fixture = shutil.which("testfixture")

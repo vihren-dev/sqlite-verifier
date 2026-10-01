@@ -81,6 +81,16 @@ Profile-setting refusals include the canonical PRAGMA name, so acquisition
 reports count `foreign_keys` separately from `ignore_check_constraints` and other
 settings. The pinned capture check exercises both names.
 
+The [C4 triage](../reports/20261001-adr5-c4-fidelity.md) names causes for all 143
+historical result/error mismatches. Connection methods follow SQLite's exact-name
+and unique-prefix lookup, including helpers and callback registration. Nested
+SQL and incremental BLOB operations remain excluded; global BLOB calls affect
+later eligibility even when they occur outside an assertion. Named SQL variables
+implicitly bound by Tcl remain excluded when their values/types were not traced;
+the explicit typed native parameter API remains available. Proven path-only
+database_list differences, test-only lock metadata and missing echo modules have
+specific fidelity diagnostics. Native rows are never normalized to match Tcl.
+
 Removing the close exclusion does not by itself widen the supported execution
 profile. `alter.test` still yields 12/119 and `alter3.test` 7/59: TEMP/ATTACH,
 multiple connections and LEGACY_FILE_FORMAT=1 account for remaining exclusions.

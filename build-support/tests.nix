@@ -42,6 +42,7 @@ in {
       (root + /tests/upstream_attachment_calls.test)
       (root + /tests/upstream_nondeterminism_calls.test)
       (root + /tests/upstream_storage_calls.test)
+      (root + /tests/upstream_fidelity_calls.test)
     ];
     runtime = conformance;
     tools = [ native.sqlite conformanceNative.fixture ];
@@ -74,7 +75,7 @@ in {
   };
   model = suite "model" {
     file = "tests/conformance_model_test.py";
-    extraFiles = [ "tests/conformance_storage_test.py" "tests/conformance_trace_test.py" "tests/conformance_ordering_test.py" "tests/conformance_clock_test.py" "tests/conformance_profile_test.py" "tests/conformance_context_test.py" "tests/conformance_pipeline_test.py"
+    extraFiles = [ "tests/conformance_fidelity_test.py" "tests/conformance_storage_test.py" "tests/conformance_trace_test.py" "tests/conformance_ordering_test.py" "tests/conformance_clock_test.py" "tests/conformance_profile_test.py" "tests/conformance_context_test.py" "tests/conformance_pipeline_test.py"
       "tests/conformance_mutation_test.py" "tests/conformance_laws_test.py" "tests/conformance_record_test.py" "tests/conformance_dqs_test.py" "tests/conformance_upstream_test.py" "tests/conformance_generation_test.py" "tests/conformance_coverage_test.py" ];
     inputs = [
       (fs.fileFilter (file: file.hasExt "py") (root + /migration_check))
@@ -87,6 +88,11 @@ in {
       (root + /VerifierConformance/Laws.lean)
       (root + /conformance/corpus-v1)
       (root + /reports/20260929-adr4-corpus-v2-progress.json)
+      (root + /reports/20261001-adr5-c4-fidelity.json)
+      (root + /reports/20261001-adr5-c4-causes.json.gz)
+      (root + /reports/20261001-adr5-c4-traces.json.gz)
+      (root + /reports/20261001-adr5-c4-mechanical.json.gz)
+      (root + /reports/20261001-adr5-c4-bindings.json.gz)
       (root + /conformance/corpus-v3)
       (root + /conformance/corpus-v2) (root + /conformance/requirements-3.51.0.json)
       (root + /conformance/regressions)

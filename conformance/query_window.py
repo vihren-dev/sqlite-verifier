@@ -16,8 +16,11 @@ class Token:
 ASCII_UPPER = str.maketrans("abcdefghijklmnopqrstuvwxyz", "ABCDEFGHIJKLMNOPQRSTUVWXYZ")
 
 
-TOKEN = re.compile(r"--[^\n]*|/\*.*?\*/|'(?:''|[^'])*'|\"(?:\"\"|[^\"])*\"|"
-                   r"`(?:``|[^`])*`|\[[^]]*\]|\?[0-9]*|[:@$][\w]+|[\w]+|[^\s]", re.S)
+# Keep SQLite's EOF comments and complete Tcl-style named parameter tokens intact.
+TOKEN = re.compile(r"--[^\n]*|/\*.*?(?:\*/|$)|'(?:''|[^'])*'|\"(?:\"\"|[^\"])*\"|"
+                   r"`(?:``|[^`])*`|\[[^]]*\]|\?[0-9]*|"
+                   r"[:@$](?:(?:::)*[\w$\x80-\U0010ffff])+(?:::)*(?:\([^\x09-\x0d\x20)]*\))?|"
+                   r"::|[\w]+|[^\s]", re.S)
 
 
 def tokens(sql: str) -> list[Token]:
