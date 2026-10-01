@@ -110,3 +110,9 @@ C1: [verified profiles](20261001-adr5-c1-profiles.task.md),
   149.38 seconds, including frozen replays and mutation checks. C1 task/status
   files now specify verified profiles and engine clock control before coding.
   C1–C7 and the actual workload gate remain open; no owner feedback is needed.
+
+- 2026-10-01: C1 now has a native VFS clock primitive and optional explicit VFS
+  selection on connections. Defaults, triggers and read-only probes read the
+  supplied clock while the engine's default filesystem VFS remains unchanged.
+  Clock/native recording/DQS regressions: 13 passed in 0.81 seconds. Integration
+  into versioned profiles, recording/replay and manifests remains required.

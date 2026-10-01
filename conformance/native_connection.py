@@ -49,12 +49,12 @@ def library_path(executable_name: str = "sqlite3") -> Path:
 class Connection:
     """One explicit autocommit connection with bounded statements and byte-exact reads."""
 
-    def __init__(self, library: c.CDLL, path: Path) -> None:
+    def __init__(self, library: c.CDLL, path: Path, *, vfs: bytes | None = None) -> None:
         self.library = library
         self.handle = c.c_void_p()
         self.deadline = time.monotonic() + 5
         self.progress = c.CFUNCTYPE(c.c_int, c.c_void_p)(lambda _: int(time.monotonic() > self.deadline))
-        opened = library.sqlite3_open(str(path).encode(), c.byref(self.handle))
+        opened = library.sqlite3_open_v2(str(path).encode(), c.byref(self.handle), 6, vfs)
         if opened:
             message = library.sqlite3_errmsg(self.handle).decode(errors="replace")
             library.sqlite3_close(self.handle)

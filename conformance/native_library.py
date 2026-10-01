@@ -11,6 +11,7 @@ def load_library(path: Path, version: str = "3.51.0") -> c.CDLL:
     library = c.CDLL(str(path))
     signatures = {
         "open": ([c.c_char_p, c.POINTER(c.c_void_p)], c.c_int),
+        "open_v2": ([c.c_char_p, c.POINTER(c.c_void_p), c.c_int, c.c_char_p], c.c_int),
         "close": ([c.c_void_p], c.c_int),
         "libversion": ([], c.c_char_p), "sourceid": ([], c.c_char_p),
         "compileoption_used": ([c.c_char_p], c.c_int),
@@ -53,4 +54,3 @@ def load_library(path: Path, version: str = "3.51.0") -> c.CDLL:
     if not library.sqlite3_compileoption_used(b"MAX_COLUMN=2000"):
         raise RuntimeError("SQLite compile options do not match the profile")
     return library
-
