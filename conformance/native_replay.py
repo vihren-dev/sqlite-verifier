@@ -64,9 +64,11 @@ def output_wire(event: dict[str, Json]) -> dict[str, Json]:
         if not isinstance(groups, list):
             raise ValueError("Invalid native tie groups")
         position = 0
-        for group in groups:
+        for index, group in enumerate(groups):
             eligible = decode_rows(group["rows"])
             count = group["count"]
+            if 0 < index < len(groups) - 1 and count != len(eligible):
+                raise ValueError("Only boundary tie groups may be partial")
             if (type(count) is not int or not 0 < count <= len(eligible)
                     or any(len(row) != len(columns) for row in eligible)
                     or len(rows[position:position + count]) != count):

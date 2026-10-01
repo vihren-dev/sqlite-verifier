@@ -19,6 +19,8 @@ C8 follows the model semantics concerned, as the ADR specifies.
 `build-support/tests.nix`, and the frozen v3 manifest are the initial sources.
 C0: [outputs and parameters](20260930-adr5-c0-outputs.task.md),
 [status](20260930-adr5-c0-outputs.status.md).
+C1: [verified profiles](20261001-adr5-c1-profiles.task.md),
+[status](20261001-adr5-c1-profiles.status.md).
 
 ## Progress
 
@@ -101,3 +103,10 @@ C0: [outputs and parameters](20260930-adr5-c0-outputs.task.md),
   Pinned hermetic model suite: 64 passed in 168.02 seconds; focused ordering/doc
   checks: 6 passed. C0 remains active pending the final contract audit; C1's engine
   profiles and controlled clock are the next major package. No frozen corpus changed.
+
+- 2026-10-01: Final C0 audit tightened malformed group rejection in Lean and
+  native decoding and excluded unresolved nested windows explicitly. Compiled
+  and kernel output checks pass. Full pinned hermetic suite: 66 passed in
+  149.38 seconds, including frozen replays and mutation checks. C1 task/status
+  files now specify verified profiles and engine clock control before coding.
+  C1–C7 and the actual workload gate remain open; no owner feedback is needed.

@@ -37,7 +37,7 @@ def submultiset : List ResultRow → List ResultRow → Bool
 def matchesGroups : List OutputGroup → List ResultRow → Bool
   | [], rows => rows.isEmpty
   | group :: groups, rows =>
-    group.count ≤ group.rows.length && group.count ≤ rows.length &&
+    0 < group.count && group.count ≤ group.rows.length && group.count ≤ rows.length &&
     submultiset (rows.take group.count) group.rows &&
     matchesGroups groups (rows.drop group.count)
 
@@ -54,6 +54,7 @@ def matchesOutput (expected actual : StatementOutput)
   match groups with
   | none => expected.rows.length == actual.rows.length && submultiset actual.rows expected.rows
   | some ordered =>
+    ((ordered.drop 1).dropLast.all (fun group => group.count == group.rows.length)) &&
     ordered.all (fun group => group.rows.all (fun row => row.length == expected.columns.length)) &&
     matchesGroups ordered expected.rows && matchesGroups ordered actual.rows
 

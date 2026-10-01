@@ -6,10 +6,10 @@ Spec: [ADR 0005](../docs/adr-0005-conformance-corpus-scale.md).
 
 ## Current state
 
-C0 is open. Existing native evidence already records typed result rows, but not
-parameter bindings, empty-result shape, direct counts or ordering evidence.
-The structural adapter emits only v1 state observations; the Lean comparator
-has no output observations. C1 owns deterministic clocks and profile setup.
+C0 records typed parameters, empty-result shape, direct counts and native tie
+groups, and compares outputs alongside state for the existing model subset.
+The final audit fixes pass the full hermetic suite. C1 owns deterministic
+clocks and profile setup; the complete ADR and workload gates remain open.
 
 ## Progress
 
@@ -90,3 +90,12 @@ has no output observations. C1 owns deterministic clocks and profile setup.
   Pinned hermetic model suite: 64 passed in 168.02 seconds; focused ordering/doc
   checks: 6 passed. C0 remains active pending the final contract audit; C1's engine
   profiles and controlled clock are the next major package. No frozen corpus changed.
+
+- 2026-10-01: Final audit rejects zero-sized groups and partial interior groups
+  in the shared Lean comparator and native adapter. Compiled and kernel checks
+  exercise the same positive/negative output contract. Nested LIMIT contexts
+  are explicitly excluded rather than freezing arbitrary inner selection as a
+  determined outer result. Native tests cover both reads and writes. Pinned
+  hermetic model suite: 66 passed in 149.38 seconds, including legacy frozen
+  replay and mutation checks; focused output/model/ordering/docs: 17 passed.
+  Prepared the C1 task/status contract for verified profiles and native clocks.

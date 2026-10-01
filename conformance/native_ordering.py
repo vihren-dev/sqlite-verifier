@@ -55,6 +55,8 @@ def query_groups(connection: Connection, sql: str, parameters: tuple[Cell, ...],
     from conformance.query_window import ASCII_UPPER, projected_order, tokens, window
     if not tokens(sql) or tokens(sql)[0].text.translate(ASCII_UPPER) not in {"SELECT", "WITH"}:
         return None
+    if any(token.depth > 0 and token.text.translate(ASCII_UPPER) == "LIMIT" for token in tokens(sql)):
+        raise ValueError("tie structure not observable: nested window")
     uncut, ordering, limit, offset = window(sql)
     has_limit = any(token.depth == 0 and token.text.translate(ASCII_UPPER) == "LIMIT" for token in tokens(sql))
     if not ordering and not has_limit:

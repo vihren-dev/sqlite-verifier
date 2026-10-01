@@ -73,7 +73,7 @@ def test_query_window_parameters_and_deterministic_write() -> None:
     setup = "CREATE TABLE t(k INTEGER,v); INSERT INTO t VALUES(1,'a'),(2,'b'),(3,'c');"
     for sql, parameters in [
         ("SELECT k,v FROM t WHERE k>:min ORDER BY 1 DESC NULLS LAST LIMIT :n; -- LIMIT ?", ((1, 0), (1, 2))),
-        ("WITH chosen AS (SELECT * FROM t LIMIT 3) SELECT k,v FROM chosen ORDER BY k LIMIT ?,?;", ((1, 1), (1, 1))),
+        ("WITH chosen AS (SELECT * FROM t) SELECT k,v FROM chosen ORDER BY k LIMIT ?,?;", ((1, 1), (1, 1))),
         ("SELECT k,v FROM t LIMIT ? OFFSET ?;", ((1, 1), (1, 1))),
         ("SELECT k AS x FROM t UNION SELECT 4 ORDER BY x;", ()),
         ("SELECT a.* FROM t AS a ORDER BY a.k DESC;", ()),
@@ -97,3 +97,25 @@ def test_sqlite_identifier_spelling() -> None:
     with pytest.raises(ValueError, match="tie structure not observable"):
         record_sql('CREATE TABLE t("ß" INTEGER); INSERT INTO t VALUES(2),(1);',
                    'SELECT "ß" FROM t ORDER BY "ss";', name="unicode-key", outputs=True)
+
+
+def test_only_boundary_groups_may_be_partial() -> None:
+    """Corrupted interior eligibility cannot widen the accepted query window."""
+    from conformance.native_record import record_sql
+    from conformance.native_replay import output_wire
+    record = record_sql("CREATE TABLE t(k); INSERT INTO t VALUES(1),(2),(3);",
+                        "SELECT k FROM t ORDER BY k;", name="interior", outputs=True)
+    event = record["trace"][0]
+    event["groups"][1]["rows"].append(event["groups"][0]["rows"][0])
+    with pytest.raises(ValueError, match="Only boundary"):
+        output_wire(event)
+
+
+def test_nested_windows_are_not_silently_ordered() -> None:
+    """A nested arbitrary selection cannot be frozen as a fully determined outer result."""
+    from conformance.native_record import record_sql
+    setup = "CREATE TABLE t(k); INSERT INTO t VALUES(1),(2),(3);"
+    for sql in ("SELECT * FROM (SELECT k FROM t LIMIT 1) ORDER BY k;",
+                "INSERT INTO t SELECT k FROM (SELECT k FROM t LIMIT 1);"):
+        with pytest.raises(ValueError, match="tie structure not observable"):
+            record_sql(setup, sql, name="nested-window", outputs=True)

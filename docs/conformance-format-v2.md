@@ -20,6 +20,7 @@ groups: each has `rows` (the complete eligible multiset) and `count` (the number
 selected by the window). Each row occurrence is consumed once; groups keep their
 order. A boundary group may select fewer rows than it contains. The decoder
 checks row widths, counts, and that native rows satisfy their own group evidence.
+Stored groups select at least one row; only the first and last may be partial.
 Both arrays have one fewer entry than `nativeTrace`, which includes initialization.
 
 `classifyCase` compares stored state through the existing production trace, then
@@ -52,4 +53,5 @@ both ends. Probes preserve parameter slots and must reproduce the original rows
 and shape. Hidden or ambiguous keys are excluded as "tie structure not observable".
 Limited INSERT sources are probed before writing; a partial group is excluded as
 "unspecified choice inside a write". A unique-key cut can execute, and the write
-itself runs once. Other unresolved limited-write contexts stay excluded.
+itself runs once. Nested windows and other unresolved limited-write contexts are
+excluded as "tie structure not observable".
