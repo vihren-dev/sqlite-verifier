@@ -29,6 +29,8 @@ C4: [fidelity causes](20261001-adr5-c4-fidelity.task.md),
 [status](20261001-adr5-c4-fidelity.status.md).
 C5: [neutral authored cases](20261001-adr5-c5-authored.task.md),
 [status](20261001-adr5-c5-authored.status.md).
+C6: [frozen shards and external workloads](20261001-adr5-c6-freeze.task.md),
+[status](20261001-adr5-c6-freeze.status.md).
 
 ## Progress
 
@@ -277,3 +279,9 @@ C5: [neutral authored cases](20261001-adr5-c5-authored.task.md),
   No profile field was removed or normalized. C6 research identifies per-source
   shards, uncapped acquisition with explicit prefix sampling, and external
   workload manifests as the next missing mechanisms.
+
+- 2026-10-01: Prepared C6 task/status records after the open GitHub issue review.
+  The freeze includes relevant native boundaries from #14/#18; workload profile
+  measurement includes effective limits from #17. Full semantic and contract
+  refactors remain subsequent work. Document checks: 2 passed in 0.52 seconds.
+  Final generic membership is not frozen yet.
