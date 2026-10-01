@@ -33,6 +33,25 @@ def file_identity(path: Path) -> tuple[int, int]:
     return metadata.st_dev, metadata.st_ino
 
 
+def role_sources(selected: dict[str, Path]) -> dict[str, Source]:
+    """Snapshot each role's file once; a later role naming the same physical file imports the first.
+
+    One file may supply several roles (for example both current and next
+    interpretations). Compiling it twice would declare its contents twice, so only
+    the first role in `selected` order gets the bytes.
+    """
+    snapshots: dict[tuple[int, int], bytes] = {}
+    first_name: dict[tuple[int, int], str] = {}
+    initial: dict[str, Source] = {}
+    for name, path in selected.items():
+        identity = file_identity(path)
+        if identity not in snapshots:
+            snapshots[identity] = path.read_bytes()
+        original = first_name.setdefault(identity, name)
+        initial[name] = Source(path, snapshots[identity] if original == name else f"import {original}\n".encode())
+    return initial
+
+
 def module_path(name: str) -> Path:
     """Decode Lean's printed module name; escaped dots remain filename characters."""
     components: list[str] = []
@@ -97,8 +116,16 @@ def imports(source: Path, sysroot: Path, library: Path, workspace: Path) -> tupl
 def discover_sources(*, initial: dict[str, Source], roots: Sequence[Path],
                      excluded: set[Path], forbidden: set[str], available: set[str],
                      directory: Path, sysroot: Path, library: Path,
-                     workspace: Path) -> tuple[dict[str, Source], tuple[str, ...]]:
-    """Snapshot only reachable local sources and reject ambiguous or cyclic dependencies."""
+                     workspace: Path, external: set[str] | None = None,
+                     imports_out: dict[str, tuple[str, ...]] | None = None) -> tuple[dict[str, Source], tuple[str, ...]]:
+    """Snapshot only reachable local sources and reject ambiguous or cyclic dependencies.
+
+    When given, `external` collects imports resolved from the pinned sysroot or
+    verifier library; exported bundles name these trusted modules instead of
+    repeating their declarations. When given, `imports_out` receives each
+    discovered module's complete import list, including contract and library
+    modules, for dependency-aware rebuilds.
+    """
     sources = dict(initial)
     excluded_ids = {file_identity(path) for path in excluded}
     forbidden_folded = {name.casefold() for name in forbidden}
@@ -116,6 +143,8 @@ def discover_sources(*, initial: dict[str, Source], roots: Sequence[Path],
         snapshot.parent.mkdir(parents=True, exist_ok=True)
         snapshot.write_bytes(sources[name].contents)
         dependencies = imports(snapshot, sysroot, library, workspace)
+        if imports_out is not None:
+            imports_out[name] = dependencies
         graph[name] = set()
         for dependency in dependencies:
             dep_path = module_path(dependency)
@@ -125,6 +154,8 @@ def discover_sources(*, initial: dict[str, Source], roots: Sequence[Path],
                 raise ValueError(f"Protected source {name} imports reserved module {dependency}")
             if any((base / dep_path).with_suffix(
                     dep_path.suffix + ".olean").is_file() for base in (sysroot / "lib/lean", library)):
+                if external is not None:
+                    external.add(dependency)
                 continue
             if dependency not in sources:
                 choices: dict[tuple[int, int], Path] = {}

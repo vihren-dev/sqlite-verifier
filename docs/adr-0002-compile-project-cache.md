@@ -1,10 +1,13 @@
 # ADR 0002: Optional local caching inside compile_project()
 
-- Status: Proposed; cache disabled by default throughout initial rollout
+- Status: Superseded 2026-10-01 by [ADR 0003](adr-0003-agent-proof-preparation.md).
+  ADR 0003 implements opt-in stage reuse with this ADR's eligibility policy
+  (§5.2, §6.1) and moves candidate compilation out of acceptance; see
+  [source staging](source-staging.md). The text below is the original proposal.
 - Date: 2026-09-26
 - Repository examined: `54ea013ab12d16fdc35d9b08bd26078c24c547aa`
 - Decision owner: formal methods / technical lead
-- Related: [ADR 0001](adr-0001-pytest-and-nix-ci.md)
+- Related: [ADR 0001](adr-0001-pytest-and-nix-ci.md), [ADR 0003](adr-0003-agent-proof-preparation.md)
 
 ## 1. Observed pain
 

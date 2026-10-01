@@ -6,7 +6,10 @@ from pathlib import Path
 from tempfile import TemporaryDirectory
 
 from .baseline import check_baseline
-from .source_closure import CompileError, Source, discover_sources, lean_process, module_path, file_identity
+from .contract import compile_trusted, discover_contract, source_hashes
+from .source_closure import (CompileError, Source, discover_sources, file_identity, lean_process, module_path,
+                             role_sources)
+from .stage_store import StageStore
 
 EXPECTED_SOURCE = """import Requirements
 import Interpretation
@@ -78,8 +81,12 @@ def compile_modules(*, order: tuple[str, ...], sources: Path, destination: Path,
 def compile_project(*, sysroot: Path, library: Path, requirements: Path,
                     interpretation: Path, next_interpretation: Path, proofs: Path,
                     schema_inputs: str, sql_inputs: str, workspace: Path,
-                    approved_baseline: Path | None = None, schema_hash: str | None = None) -> CompiledProject:
-    """Check optional approval against sealed closures before trusted source compilation."""
+                    approved_baseline: Path | None = None, schema_hash: str | None = None,
+                    store: StageStore | None = None) -> CompiledProject:
+    """Check optional approval against sealed closures before trusted source compilation.
+
+    `store` enables reuse of eligible trusted stages; candidate modules always compile.
+    """
     sysroot, library, workspace = (path.resolve(strict=True) for path in (sysroot, library, workspace))
     if not all(path.is_dir() for path in (sysroot, library, workspace)):
         raise ValueError("Toolchain, library and workspace must be directories")
@@ -95,30 +102,17 @@ def compile_project(*, sysroot: Path, library: Path, requirements: Path,
         raise ValueError("Lean inputs must be regular source files")
     trusted, candidate = workspace / "trusted", workspace / "candidate"
     approved_sources, candidate_sources = workspace / "approved-sources", workspace / "candidate-sources"
-    sql_sources = workspace / "sql-sources"
-    for directory in (trusted, candidate, approved_sources, candidate_sources, sql_sources):
+    for directory in (trusted, candidate, approved_sources, candidate_sources):
         directory.mkdir()
-    snapshots: dict[tuple[int, int], bytes] = {}
-    for path in selected.values():
-        identity = file_identity(path)
-        if identity not in snapshots:
-            snapshots[identity] = path.read_bytes()
-    first_name: dict[tuple[int, int], str] = {}
-    initial: dict[str, Source] = {}
-    for name, path in selected.items():
-        identity = file_identity(path)
-        original = first_name.setdefault(identity, name)
-        initial[name] = Source(path, snapshots[identity] if original == name else
-                               f"import {original}\n".encode())
-    approved, approved_order = discover_sources(
+    initial = role_sources(selected)
+    contract = discover_contract(
         initial={name: initial[name] for name in ("Requirements", "Interpretation")},
         roots=tuple(dict.fromkeys(selected[name].parent for name in ("Requirements", "Interpretation"))),
         excluded={selected[name] for name in ("NextInterpretation", "Proofs")
                   if file_identity(selected[name]) not in {file_identity(selected["Requirements"]),
                                                          file_identity(selected["Interpretation"])}},
-        forbidden={"NextInterpretation", "Generated", "Proofs", "SqlInputs", "SchemaInputs"},
-        available={"SchemaInputs"},
         directory=approved_sources, sysroot=sysroot, library=library, workspace=workspace)
+    approved = contract.sources
     # Snapshot candidates before any elaboration, but do not expose them to approved processes.
     proposed, proposed_order = discover_sources(
         initial={**{name: initial[name] for name in ("NextInterpretation", "Proofs")},
@@ -126,31 +120,15 @@ def compile_project(*, sysroot: Path, library: Path, requirements: Path,
         roots=tuple(dict.fromkeys(path.parent for path in selected.values())), excluded=set(),
         forbidden={"SchemaInputs", "SqlInputs"}, available=set(approved) | {"SchemaInputs", "SqlInputs"}, directory=candidate_sources,
         sysroot=sysroot, library=library, workspace=workspace)
-    hashes = {f"{stage}/{module_path(name)}.lean": hashlib.sha256(source.contents).hexdigest()
-              for stage, collection in (("approved", approved), ("candidate", proposed))
-              for name, source in collection.items()}
+    hashes = {**source_hashes("approved", approved), **source_hashes("candidate", proposed)}
     hashes["generated/SchemaInputs.lean"] = hashlib.sha256(schema_inputs.encode()).hexdigest()
     hashes["generated/SqlInputs.lean"] = hashlib.sha256(sql_inputs.encode()).hexdigest()
     if approved_baseline is not None:
         protected_hashes = {**hashes, **({"schema.sql": schema_hash} if schema_hash is not None else {})}
         check_baseline(approved_baseline, protected_hashes)
-    # Starting schema has no access to approved or candidate sources/artifacts.
-    (sql_sources / "SchemaInputs.lean").write_text(schema_inputs, encoding="utf-8")
-    schema_output = workspace / "schema-output"
-    schema_output.mkdir()
-    diagnostics = compile_modules(order=("SchemaInputs",), sources=sql_sources,
-        destination=schema_output, previous=(), sysroot=sysroot, library=library, workspace=workspace)
-    diagnostics += compile_modules(order=approved_order, sources=approved_sources,
-        destination=trusted, previous=(schema_output,), sysroot=sysroot, library=library, workspace=workspace)
-    (sql_sources / "SqlInputs.lean").write_text(sql_inputs, encoding="utf-8")
-    sql_output = workspace / "sql-output"
-    sql_output.mkdir()
-    diagnostics += compile_modules(order=("SqlInputs",), sources=sql_sources,
-        destination=sql_output, previous=(schema_output,), sysroot=sysroot, library=library, workspace=workspace)
-    for directory in (schema_output, sql_output):
-        for artifact in directory.iterdir():
-            (trusted / artifact.name).write_bytes(artifact.read_bytes())
-            (trusted / artifact.name).chmod(0o444)
+    diagnostics = compile_trusted(contract=contract, approved_sources=approved_sources,
+        schema_inputs=schema_inputs, sql_inputs=sql_inputs, trusted=trusted, sysroot=sysroot,
+        library=library, workspace=workspace, store=store)
     diagnostics += compile_modules(order=proposed_order, sources=candidate_sources,
         destination=candidate, previous=(trusted,), sysroot=sysroot, library=library, workspace=workspace)
     return CompiledProject(trusted, candidate, hashes, tuple(text for text in diagnostics if text))

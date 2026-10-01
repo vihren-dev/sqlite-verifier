@@ -41,6 +41,20 @@ source dependencies and the fixed target alias. The caller controls sysroot,
 library, generated SQL data, and workspace ownership; it must subsequently invoke
 the independent kernel gate. Successful compilation alone is not verification.
 
+The three trusted stages (`SchemaInputs`, the approved closure and `SqlInputs`)
+are compiled by `migration_check.contract`, which `verify`, `verify-bundle` and
+`prepare` share. When a caller configures `MIGRATION_CHECK_STAGE_STORE`, an
+eligible stage can be restored instead of compiled. Its key covers the stage's
+exact sources, preceding stages and the resolved toolchain/library identity, and
+every restored file is hash-checked. Generated stages are eligible; an approved
+closure only after a recorded determinism review (`cache_eligibility.py`). Any
+miss or damaged entry falls back to compilation. The shared helper `role_sources`
+applies the same-file rule above to every command.
+
+`prepare` compiles candidate modules in an agent workspace. It rebuilds a module
+only when its source or something it imports changed (`migration_check.module_keys`).
+Its outputs are never trusted: `verify-bundle` rechecks the exported declarations.
+
 `just test-cases tests/compilation_test.py` exercises real Lean compilation and
 the kernel gate, source closure discovery and hashes, binary exclusion, module
 search-path separation, and rejected artifact aliases. No OS isolation is provided;

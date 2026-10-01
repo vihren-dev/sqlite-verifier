@@ -18,6 +18,16 @@ class Runtime:
     parser: Path
     checker: Path
 
+    @property
+    def bundle_checker(self) -> Path:
+        """ADR 0003 data-path checker; it never compiles candidate source."""
+        return self.root / ".lake/build/bin/migration-bundle-checker"
+
+    @property
+    def exporter(self) -> Path:
+        """Pinned lean4export used by `prepare`; an agent-side convenience, not acceptance."""
+        return self.root / ".lake/build/bin/lean4export"
+
     @classmethod
     def locate(cls, sqlite_version: str = "3.51.0") -> "Runtime":
         """Resolve a development/install runtime, never a candidate Lake configuration."""

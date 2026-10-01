@@ -1,18 +1,51 @@
 # ADR 0003: Separate agent proof preparation from verification
 
-- Status: Proposed
+- Status: Implemented and closed 2026-10-01. Accepted 2026-09-29 for the data
+  path, by owner decision after P1 (see below); P0–P4 are done. The trust
+  milestone stays deferred to a future decision; its design is kept in
+  [the trust extension](adr-0003-trust-extension.md). The measurement workflow
+  (`.github/workflows/adr3-p1.yml`), the measurement-only override
+  `MIGRATION_CHECK_MEASUREMENT_APPROVED_REUSE` and the branches `adr3/p1-measure`
+  and `adr3/p2-measure`, which hold the commits the P1/P2 Linux runs measured,
+  are kept as measurement tools and records.
 - Date: 2026-09-28; refactored 2026-09-29 around measured latency, then revised
-  after review (contract reuse, end-to-end criteria, comparative experiment)
+  after review (contract reuse, end-to-end criteria, comparative experiment);
+  amended 2026-09-29 with the owner decision; closed 2026-10-01
 - Implementation examined: `19e015a11406f6dc26351e673cf355d072273034`
 - Decision owners: product owner for guarantees and workflow; formal methods lead
   for proof acceptance
 - Related: [ADR 0001](adr-0001-pytest-and-nix-ci.md) (accepted, partly superseded),
-  [ADR 0002](adr-0002-compile-project-cache.md) (proposed; replaced by this ADR if
-  accepted), [ADR 0004](adr-0004-model-conformance-validation.md) (depends on this
+  [ADR 0002](adr-0002-compile-project-cache.md) (superseded by this ADR; its
+  eligibility policy is adopted in "Approved contract reuse"), [ADR 0004](adr-0004-model-conformance-validation.md) (depends on this
   ADR), [latency experiments](../experiments/adr-0003-latency/README.md),
   [deferred trust design](adr-0003-trust-extension.md)
 
-## Decision requested
+## Owner decision (2026-09-29)
+
+**Continue with the data path.** P1 ran on macOS and Linux with correct statuses in
+all 468 runs ([results](../experiments/adr-0003-latency/p1-results.md)). Applied
+literally, the pre-registered decision rule below gives **ship tuning**: the data
+path was slower than tuning in some required comparisons (refutation SQL edits on
+both platforms by 25–46%, and the small proof edit on macOS by 3%). The owner
+overrides that outcome for these reasons:
+
+- The rule weighted every example equally. The small and refutation examples are
+  synthetic fixtures that take a few seconds with either option; Atuin is the only
+  realistic case, and real agent proofs are expected to resemble it.
+- Proof retries dominate agent iteration. For Atuin proof edits the data path's
+  edit-to-result time is 45–59% below tuning's on both platforms (macOS 9.3 s
+  against 18.1 s with a fresh contract; Linux 7.7 s against 13.9 s).
+- Acceptance alone is faster than tuning in every measured cell: 0.95–2.6 s against
+  2.3–4.6 s for the small examples, and 3.2–7.7 s against 11.2–18.1 s for Atuin.
+- The data path is the basis for the deferred trust milestone.
+
+Known weaknesses carried into P2: SQL edits (Atuin only 2–5% better than tuning;
+refutation 25–46% worse), approved-contract edits (slower than tuning: by 1.3–1.7 s for
+the small examples, 0.5–1.1 s for Atuin), and the added maintenance cost listed in
+Alternatives. Tuning's gate narrowing and stage reuse are kept; the data path uses
+both.
+
+## Decision requested before P1
 
 Approve a bounded comparative experiment (P1 below) between two ways of reducing
 verification latency:
@@ -129,10 +162,10 @@ end-to-end measurements, and P1 must replace them.
 | Agent | Migration SQL, next and failure interpretations, proofs, how they are built and cached, and the exported bundle | Approved definitions, checker code, or the result |
 | Verifier | Translating the actual SQL, building the expected target, checking the bundle, and the status | Business approval or applying the migration |
 
-### Data path, if adopted (trusted execution)
+### Data path (adopted; trusted execution)
 
-This section specifies the data path that P1 prototypes and that ships only if P1
-meets the decision rule.
+This section specifies the data path. P1 prototyped it; P2 turns it into the
+supported interface.
 
 - **`prepare`** (agent side, a convenience the agent may replace): builds the
   candidate modules against the approved contract with ordinary incremental Lake
@@ -157,11 +190,12 @@ meets the decision rule.
 - **Approved contract.** The verifier compiles the approved sources and generated
   schema inputs itself, as today. It may reuse a previous compilation only under
   the rules below.
-- **Generated SQL inputs.** First keep compiling them with the pinned Lean (a
-  trusted input, about 0.5 s each). Replacing that compile with direct
-  construction from a versioned structural encoding of frontend results is a
-  follow-up. ADR 0004 plans to reuse the same encoding for model-conformance
-  cases.
+- **Generated SQL inputs.** `verify-bundle` does not compile `SqlInputs.lean`. The
+  frontend passes its result as a versioned structural record, and the checker
+  constructs `Generated.nextSchema`, `script` and `profile` from it as
+  kernel-checked declarations (P3). The encoding and its Lean codec are shared
+  with ADR 0004's conformance cases. `SchemaInputs` is still compiled, because the
+  approved contract compiles against it; it is eligible for stage reuse.
 - **The checker** is a repository-owned Lean executable built from lean4export's
   parser and the relevant comparator code (comparison and axiom traversal) at
   their `v4.33.0` tags. It does not use comparator's command line, which builds
@@ -219,9 +253,9 @@ this step.
 | A1 | Supported proofs export completely and replay without candidate execution | Small, refutation and Atuin exported and replayed on 4.33.0 | Fix the exporter or checker; do not drop the case |
 | A2 | Library-omitted exports are sound when every omitted name resolves to the trusted library | Patch prototype; replay succeeded for all three examples | Keep full exports and accept the 0.9 s parse cost |
 | A3 | Normalized complete-record comparison is the right protection for repeated declarations | 0 mismatches over about 5,100 repeated declarations per example after normalization | Specify the exact comparison in P1 before implementation |
-| A4 | Both acceptance and agent edit-to-result time improve enough over tuning to meet the decision rule | Estimates from measured stages only; incremental builds, SQL changes and Linux not measured | Ship tuning; keep the data path only if the owner values future trust enough (Alternatives) |
+| A4 | Both acceptance and agent edit-to-result time improve enough over tuning to meet the decision rule | P1: acceptance faster everywhere; edit-to-result 45–59% faster for Atuin proof edits, but slower or marginal for SQL edits ([results](../experiments/adr-0003-latency/p1-results.md)) | Not met as written; owner decision above. P2 re-measures SQL edits after dependency-aware preparation |
 | A6 | Useful approved closures (starting with Atuin) can be qualified as deterministic for reuse | Not reviewed | Compare options with fresh contracts; reuse benefits both options equally |
-| A5 | Direct construction of generated inputs matches today's emitter | Not yet tested | Keep compiling generated inputs with Lean |
+| A5 | Direct construction of generated inputs matches today's emitter | P3: 13 parity cases (shipped examples, ADR 0004 cases, every statement constructor and value kind) have the emitter's types and definitionally equal values; parity testing found and fixed an index-ordering difference | Keep compiling generated inputs with Lean |
 
 ## Alternatives
 
@@ -244,13 +278,13 @@ when latency gains are small is an owner decision under the rule below.
 | Package | Scope | Exit criteria |
 | --- | --- | --- |
 | P0: baseline | Done: [latency experiments](../experiments/adr-0003-latency/README.md) | Stage and data-path costs recorded |
-| P1: comparative experiment | Prototypes of both options. Tuning: narrowed gate imports and eligible generated-stage reuse. Data path: checker with target reconstruction and axiom policy, library-omitted export (upstream or pinned patch), and a scripted `prepare` using incremental Lake builds. Measure both on macOS and Linux | Correctness: all existing positive, refutation, allowed-failure and Atuin cases give today's statuses through both prototypes; protected-declaration substitution, `sorry`, forbidden axioms and a wrong target fail. Measurements: see below |
-| P2: interface | For the chosen option: `prepare` and `verify-bundle` (data path) or the tuned `verify`; eligibility registry; packaging for both platforms | Installed runtime runs the new behavior; source `verify` results unchanged |
-| P3: generated inputs | Versioned structural encoding and direct construction, shared with ADR 0004 | Matches today's emitter for every supported constructor, literal and result schema |
-| P4: documentation and CI | Trust-boundary, source-staging, install and CI docs; case mapping | Each property tested at one layer, as in the current test policy |
+| P1: comparative experiment (done 2026-09-29; [results](../experiments/adr-0003-latency/p1-results.md)) | Prototypes of both options. Tuning: narrowed gate imports and eligible generated-stage reuse. Data path: checker with target reconstruction and axiom policy, library-omitted export (upstream or pinned patch), and a scripted `prepare` using incremental Lake builds. Measure both on macOS and Linux | Correctness: all existing positive, refutation, allowed-failure and Atuin cases give today's statuses through both prototypes; protected-declaration substitution, `sorry`, forbidden axioms and a wrong target fail. Measurements: see below |
+| P2: data path interface (implemented 2026-09-29; [results](../experiments/adr-0003-latency/p2-results.md)) | Make `prepare` and `verify-bundle` supported commands (no longer experimental), installed and tested on both platforms. Make `prepare`'s incremental build follow each module's actual imports, so an edit recompiles only the modules that depend on it (the P1 prototype recompiled every module after the first changed one). Keep tuning's narrowed gate imports and opt-in stage reuse, and the eligibility registry. Decide whether to upstream the library-omitting export option to lean4export or keep the pinned patch. Re-run the P1 matrix | Installed runtime runs both commands on macOS and Linux; `verify` results unchanged; bundle correctness cases pass in the installed runtime. SQL-edit cells re-measured on both platforms and reported against tuning, with any remaining gap explained. Data path no slower than today's `verify` in any cell, beyond measurement noise |
+| P3: generated inputs (done 2026-09-30) | Versioned structural encoding and direct construction, shared with ADR 0004 | Matches today's emitter for every supported constructor, literal and result schema. Measured: `verify-bundle` 2.62 s → 2.15 s (small) and 6.69 s → 6.29 s (Atuin) on macOS, one Lean process fewer |
+| P4: documentation and CI (done 2026-09-29; [data path guide](data-path.md)) | Trust-boundary, source-staging, install and CI docs; case mapping | Each property tested at one layer, as in the current test policy |
 
-P3 applies only if the data path is adopted. P4 documents and tests whichever
-option ships.
+P3 applies because the data path was adopted. P4 documents and tests the data
+path together with the kept tuning changes.
 
 ### P1 measurements and decision rule
 

@@ -40,14 +40,22 @@ and verified by downloading both actual native archives on 2026-09-28. Darwin
 native graph/build/loader checks passed locally; Linux execution remains a native
 CI requirement. Evaluating its derivations on Darwin is not Linux validation.
 
-`tests.kernel`, `tests.model`, `tests.atuin` and `tests.cli` are independent pytest derivations declared in
+`tests.kernel`, `tests.model`, `tests.atuin`, `tests.cli` and `tests.bundle` are independent pytest derivations declared in
 `tests.nix`. Kernel inputs are the test/Lean fixtures, shared pytest support,
 pinned Python/pytest and Lean toolchain/library/checker. Model inputs add its
 explicit conformance helpers, Python translator sources, parsers and pinned
-SQLite. Kernel/model targets exclude unrelated tests, examples and documentation. Atuin
-and CLI each add their test file and the complete runtime (including Python
-implementation and examples). Changes to those runtime inputs invalidate both.
-Changes to shared pytest support invalidate all four. Nix owns all result reuse.
+SQLite. Kernel/model targets exclude unrelated tests, examples and documentation. Atuin,
+CLI and bundle each add their test files and the complete runtime (including Python
+implementation and examples); bundle also adds the Python sources its stage-reuse
+cases import. Changes to those runtime inputs invalidate all three. Changes to
+shared pytest support invalidate all five. Nix owns all result reuse.
+
+`lean4export.nix` fetches lean4export at tag `v4.33.0` as a fixed-output source and
+applies `lean4export-skip-trusted.patch`. The Lean runtime copies that source to
+`build/lean4export` inside its derivation, where `lakefile.toml` expects the path
+dependency, to build `migration-bundle-checker`. The separately built `exporter`
+provides the `lean4export` executable that the runtime ships for `prepare`. See the
+[data path guide](../docs/data-path.md) for the upgrade procedure.
 
 `conformanceRuntime` builds the separate `VerifierConformance` Lean library and
 test-only `conformance-runner` from `sources.conformanceLean`;
@@ -67,7 +75,7 @@ Flake equivalence tests stage a temporary Git source boundary so the real Nix 2.
 subdirectory-flake command also works from a dedicated Jujutsu workspace without
 a colocated `.git`. The project itself continues to use Jujutsu.
 
-Run all four checks through the flake:
+Run all five checks through the flake:
 
 ```sh
 nix flake check ./nix -L \

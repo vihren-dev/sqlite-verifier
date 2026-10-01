@@ -14,6 +14,13 @@ and approved stage before compiling candidate files. The gate ignores `LEAN_PATH
 It searches the pinned Lean standard library, packaged `SqliteVerifier` library,
 approved stage, then candidate stage, in that order.
 
+The trusted base environment is `SqliteVerifier` plus exactly the trusted modules
+that the request's own modules import, read from their `.olean` headers
+(`GateCore.trustedImports`). A proof that never imports `Lean` does not pay to load
+it. Trusted modules resolve only from the sysroot and library. A module missing
+from the base is not unsound: its declarations are treated as additions and
+replayed like any other.
+
 The trusted stage contains approved `Requirements` and `Interpretation` modules
 and their approved dependencies. Generated `SchemaInputs.lean` imports only the
 pinned library and defines `Generated.startSchema`. Approved interpretations may
@@ -61,9 +68,13 @@ checked model-contract refutation, 0 for the positive proof, and 1 for rejection
 A rejected, missing, or unfinished proof cannot produce `VIOLATED`. A negative
 argument is not reported as a native counterexample.
 
-Run `python3 tests/kernel_gate_test.py` after building the formal library and
-checker. `KERNEL_GATE_LIBRARY` can select an immutable library build for component
-testing. Fixture compilers have 30-second limits; test checker processes have
+The shared checks (declaration comparison, axiom audit, target reconstruction and
+target check) live in `GateCore.lean`. `migration-bundle-checker`
+(`BundleChecker.lean`) applies the same checks to exported proof data instead of
+candidate `.olean` files; see the [data path](data-path.md).
+
+Run `just test-cases tests/kernel_gate_test.py`, or the cached Nix target
+`nix-build build-support/default.nix -A tests.kernel`. Fixture compilers have 30-second limits; test checker processes have
 60 seconds for hosted replay of adversarial declarations. Production CLI checker
 limits are unchanged. Tests include an
 actual empty-script model proof, wrong and unfinished proofs, transitive axioms,
