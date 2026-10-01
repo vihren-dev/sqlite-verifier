@@ -30,6 +30,30 @@ def test_runtime_instances_and_extraction_fidelity() -> None:
         check_results(record, candidate)
 
 
+@pytest.mark.parametrize("controlled", [False, True])
+def test_minimization_preserves_output_and_profile_evidence(tmp_path: Path, controlled: bool) -> None:
+    """Deleting redundant setup retains parameter bindings, output format and controlled time."""
+    from conformance.execution_profile import measured_profile
+    from conformance.native_connection import Connection, load_library, library_path
+    connection = Connection(load_library(library_path()), tmp_path / "measure.db")
+    try:
+        profile = measured_profile(connection, name="minimization-clock", clock="unix-milliseconds-v1") if controlled else None
+    finally:
+        connection.close()
+    record = record_sql(["CREATE TABLE t(v);", "SELECT 99;"],
+        "SELECT ?1" + (",unixepoch()" if controlled else "") + ";", name="minimize-outputs",
+        outputs=True, parameters=[((1, 7),)], profile=profile,
+        setup_clock=1700000000000 if controlled else None,
+        clock_values=[1700000001000] if controlled else None)
+    minimized = minimize_prefix(record)
+    assert minimized["setupCommands"] == ["CREATE TABLE t(v);"]
+    assert minimized["nativeVersion"] == record["nativeVersion"]
+    assert (minimized["initial"], minimized["trace"]) == (record["initial"], record["trace"])
+    if controlled:
+        assert minimized["profile"] == record["profile"]
+        assert minimized["setupClockUnixMilliseconds"] == record["setupClockUnixMilliseconds"]
+
+
 def test_frozen_corpus_replays(runtime_root: Path) -> None:
     """The frozen denominator replays natively and never loses admitted agreements."""
     from conformance.corpus import load, native_replay, replay

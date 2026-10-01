@@ -84,3 +84,12 @@ prefixes remain excluded. Yield improvement has not yet been measured.
   records two recovery cases, and both pass fresh native replay. Full hermetic
   model suite: 84 passed in 142.48 seconds. Final context/document checks:
   7 passed in 0.58 seconds. Profile-aware extraction and measured yields remain open.
+
+- 2026-10-01: Fixed a prerequisite for profile-aware extraction: prefix
+  minimization now preserves the native output version, typed parameter bindings,
+  requirements and profile/clock inputs when it re-records a trial. Previously it
+  used legacy acquisition, so output cases could not lose redundant setup and
+  profile evidence could not survive minimization. Tests verify both output-only
+  and controlled-clock records retain exact initial state and trace while setup
+  shrinks. Upstream/frozen replay/document checks: 17 passed in 5.80 seconds.
+  Tcl profile integration and measured yields remain open.

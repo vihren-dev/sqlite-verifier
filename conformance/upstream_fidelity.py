@@ -2,7 +2,8 @@
 
 from conformance.case_format import Json
 from conformance.native_record import record_sql
-from conformance.native_replay import decode_cell
+from conformance.native_replay import decode_cell, decode_rows
+from conformance.execution_profile import recorded_profile
 from conformance.upstream_helpers import command_events
 
 
@@ -70,7 +71,14 @@ def minimize_prefix(record: dict[str, Json]) -> dict[str, Json]:
         attempts += 1
         trial = commands[:position] + commands[position + 1:]
         try:
-            fresh = record_sql(trial, record["migrationSql"], name=record["name"])
+            outputs = record["nativeVersion"] in (3, 4)
+            profile = recorded_profile(record) if record["nativeVersion"] == 4 else None
+            fresh = record_sql(trial, record["migrationSql"], name=record["name"],
+                requirements=record["requirements"], outputs=outputs,
+                parameters=decode_rows([event["parameters"] for event in record["trace"]]) if outputs else None,
+                profile=profile, setup_clock=record.get("setupClockUnixMilliseconds"),
+                clock_values=[event["clockUnixMilliseconds"] for event in record["trace"]]
+                    if profile is not None and profile.clock == "unix-milliseconds-v1" else None)
         except (ValueError, RuntimeError):
             continue
         if (fresh["initial"], fresh["trace"]) == (record["initial"], record["trace"]):

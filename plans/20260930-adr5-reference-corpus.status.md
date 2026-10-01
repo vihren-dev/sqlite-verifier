@@ -185,3 +185,9 @@ C2: [exclusion narrowing](20261001-adr5-c2-exclusions.task.md),
   remain excluded. Two real Tcl recovery cases pass fresh native replay.
   Full hermetic suite: 84 passed; final context/document checks: 7 passed.
   Profile-aware extraction and yield measurements remain open.
+
+- 2026-10-01: Prefix minimization preserves typed parameters, outputs and
+  profile/clock evidence during trial acquisition. Output-only and clock-profile
+  regression cases remove redundant setup with identical initial state and trace.
+  Upstream/frozen replay/document checks: 17 passed. Tcl profile integration and
+  C2 yield measurements remain open.
