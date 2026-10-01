@@ -107,3 +107,17 @@ def recorded_profile(record: dict[str, Json]) -> ExecutionProfile:
     elif clocks != [None] or any("clockUnixMilliseconds" in event for event in record["trace"]):
         raise ValueError("Excluded clock profile carries clock inputs")
     return profile
+
+
+def validate_manifest_profiles(manifest: dict[str, Json], records: list[dict[str, Json]]) -> None:
+    """Bind every explicit-profile case to one unambiguous manifest declaration."""
+    declarations = manifest.get("executionProfiles", [])
+    if not isinstance(declarations, list):
+        raise ValueError("Invalid manifest execution profiles")
+    profiles = [profile_from_wire(value) for value in declarations]
+    identities = [(profile.name, profile.version) for profile in profiles]
+    if len(set(identities)) != len(identities):
+        raise ValueError("Duplicate manifest execution profile identity")
+    for record in records:
+        if record.get("nativeVersion") == 4 and recorded_profile(record) not in profiles:
+            raise ValueError("Native record execution profile differs from manifest")

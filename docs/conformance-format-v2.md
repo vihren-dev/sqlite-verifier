@@ -64,4 +64,7 @@ VFS, including default/trigger reads and supplementary probes. Different profile
 identities, engine builds, transaction modes and changes to established behavioral
 settings are refused. The model has no explicit-profile capability yet; valid v4
 records remain `MODEL_UNSUPPORTED`, while malformed evidence is a harness error.
-Profile manifests and external workload commands remain work in progress.
+Manifests declare `executionProfiles`, an array of these complete profile records.
+Every v4 record must match a declaration exactly; duplicate name/version identities
+and missing or conflicting declarations are refused. Legacy corpora retain their
+implicit profile. External workload commands remain work in progress.

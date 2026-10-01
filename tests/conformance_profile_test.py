@@ -3,6 +3,9 @@
 from dataclasses import replace
 from pathlib import Path
 import time
+import gzip
+import hashlib
+import json
 
 import pytest
 
@@ -48,7 +51,7 @@ def test_profile_engine_settings_and_foreign_keys(tmp_path: Path) -> None:
 
 def test_recorded_profile_clock_and_fresh_replay(tmp_path: Path, runtime_root: Path) -> None:
     """Replay later wall time using stored clocks, preserving defaults/triggers and probes."""
-    from conformance.corpus import native_replay
+    from conformance.corpus import load, native_replay
     from conformance.native_record import record_sql
     from conformance.native_replay import prepare
     connection = Connection(load_library(library_path()), tmp_path / "measure.db")
@@ -74,6 +77,18 @@ def test_recorded_profile_clock_and_fresh_replay(tmp_path: Path, runtime_root: P
     time.sleep(0.01)
     assert time.time_ns() > wall_before
     native_replay([record], profile=profile)
+    payload = (json.dumps(record) + "\n").encode()
+    manifest = {"corpusVersion": 4, "recordedCases": 1,
+                "casesSha256": hashlib.sha256(payload).hexdigest(),
+                "executionProfiles": [profile.to_wire()]}
+    (tmp_path / "cases.jsonl.gz").write_bytes(gzip.compress(payload))
+    (tmp_path / "manifest.json").write_text(json.dumps(manifest))
+    assert load(tmp_path) == (manifest, [record])
+    for declarations in ([], [replace(profile, foreign_keys=False).to_wire()],
+                         [profile.to_wire(), profile.to_wire()]):
+        (tmp_path / "manifest.json").write_text(json.dumps({**manifest, "executionProfiles": declarations}))
+        with pytest.raises(ValueError, match="profile"):
+            load(tmp_path)
     assert prepare(record, runtime_root / "build/sqlite-parser")[1]["verdict"] == "MODEL_UNSUPPORTED"
     malformed = {**record, "setupClockUnixMilliseconds": True}
     assert prepare(malformed, runtime_root / "build/sqlite-parser")[1]["verdict"] == "HARNESS_ERROR"

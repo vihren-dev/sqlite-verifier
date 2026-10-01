@@ -131,3 +131,9 @@ C1: [verified profiles](20261001-adr5-c1-profiles.task.md),
   evidence cannot become unsupported. Full pinned hermetic suite: 69 passed in
   128.14 seconds; documents: 2 passed. Driver measurement method documented.
   C1 remains open for manifest binding and final audit; later gates remain open.
+
+- 2026-10-01: Manifests now declare complete execution profiles and corpus
+  loading requires exact matching for every native v4 case. Tests refuse
+  missing/conflicting declarations and duplicate identities; legacy frozen
+  upstream replay passes. Profile/upstream/docs: 8 passed; final docs: 2 passed.
+  Final C1 audit and all subsequent gates remain open.

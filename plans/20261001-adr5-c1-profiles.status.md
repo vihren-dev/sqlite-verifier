@@ -9,7 +9,8 @@ Spec: [ADR 0005](../docs/adr-0005-conformance-corpus-scale.md).
 The default source-pinned native connection verifies DQS and column limits.
 Native acquisition v4 carries a validated explicit profile and clock inputs.
 Recording and fresh replay establish the same conditions and engine clock.
-Profile manifests and the final contract audit remain open; no claim of
+Profile manifests bind v4 cases to exact declarations. The final contract audit
+remains open; no claim of
 workload suite completion is made.
 
 ## Progress
@@ -50,3 +51,11 @@ workload suite completion is made.
   pinned hermetic suite: 69 passed in 128.14 seconds; document checks: 2 passed.
   Frozen v1–v3 evidence remains unchanged. Manifest binding and final C1 audit
   remain open.
+
+- 2026-10-01: Corpus loading validates full executionProfiles manifest records.
+  Each v4 case must match exactly; missing/conflicting declarations and duplicate
+  name/version identities are refused. Digest binding still covers all native
+  case contents, including profiles and clocks. Temp-directory native corpus
+  tests exercise success and refusals; legacy frozen upstream replay is retained.
+  Profile/upstream/docs checks: 8 passed in 4.95 seconds; final docs: 2 passed.
+  C1 remains open for the final contract audit.

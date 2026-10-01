@@ -11,7 +11,7 @@ from conformance.case_format import Json
 from conformance.model_check import compiled_many
 from conformance.native_record import record_sql
 from conformance.native_replay import decode_rows, prepare, without_trailing_queries
-from conformance.execution_profile import ExecutionProfile, recorded_profile
+from conformance.execution_profile import ExecutionProfile, recorded_profile, validate_manifest_profiles
 
 
 def load(directory: Path) -> tuple[dict[str, Json], list[dict[str, Json]]]:
@@ -23,6 +23,7 @@ def load(directory: Path) -> tuple[dict[str, Json], list[dict[str, Json]]]:
     records = [json.loads(line) for line in payload.splitlines()]
     if len(records) != manifest["recordedCases"] or type(manifest["corpusVersion"]) is not int or manifest["corpusVersion"] < 1:
         raise ValueError("Corpus version/count mismatch")
+    validate_manifest_profiles(manifest, records)
     return manifest, records
 
 
