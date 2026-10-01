@@ -6,7 +6,7 @@ Spec: [ADR 0005](../docs/adr-0005-conformance-corpus-scale.md).
 
 ## Current state
 
-Runtime extraction still accumulates exclusions until reset. Ordinary eval and
+Runtime extraction retains unsupported contexts and tracks auxiliary lifetimes. Ordinary eval and
 read-only onecolumn/exists calls are supported, including mixed helper sequences.
 Verified pure row scripts are supported; other bodies remain excluded. Selection
 preserves preceding reasons.
@@ -61,3 +61,16 @@ No narrowed extraction rule or yield improvement is claimed yet.
   mutation and a variable-read trace remain excluded. All recorded cases pass
   fresh native replay. Upstream/record/profile/docs: 28 passed in 5.09 seconds.
   Context lifetime recovery, profile-aware extraction and yields remain open.
+
+- 2026-10-01: Auxiliary connection lifetimes now end on actual Tcl command
+  deletion (close can delete the command before its execution-leave trace).
+  After closure, recovery requires read-only SQL on the same main database
+  generation, unchanged settings, no auxiliary read inside a primary transaction
+  and exact fresh-prefix Tcl outcomes/results. These conditions prevent untyped
+  Tcl values from hiding storage-class differences under another snapshot.
+  Auxiliary writes/different files stay excluded; reset does not close live
+  auxiliary handles. Renamed commands retain an unsupported context across
+  resets. The pinned Tcl context test records one valid recovery and refuses
+  live/reset-live handles, uncommitted reads and auxiliary writes; fresh native
+  replay passes. Context/upstream/record/profile/docs: 32 passed in 5.54 seconds.
+  Attached-database recovery, profile-aware extraction and yields remain open.

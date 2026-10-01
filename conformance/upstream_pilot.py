@@ -69,7 +69,8 @@ def pilot(fixture: Path, upstream: Path, output: Path, limit: int, patterns: tup
                     try:
                         record = record_sql(candidate["prefix"], join_commands(candidate["commands"]),
                             name=f"{file.stem}:{candidate['id']}:{occurrence}", setup_helpers=candidate["prefixHelpers"],
-                            migration_readonly_spans=readonly_spans(candidate["commands"], candidate["helpers"]))
+                            migration_readonly_spans=readonly_spans(candidate["commands"], candidate["helpers"]),
+                            auxiliary_replay=any(helper.startswith("aux:") for helper in candidate["helpers"]))
                         check_results(record, candidate)
                         record = minimize_prefix(record)
                         repeated = record_sql(record["setupCommands"], record["migrationSql"], name=record["name"])

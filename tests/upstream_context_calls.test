@@ -1,0 +1,28 @@
+# Exercise connection lifetime recovery through the actual pinned Tcl harness.
+set testdir [file join $env(CONFORMANCE_UPSTREAM) test]
+source [file join $testdir tester.tcl]
+reset_db
+db eval {CREATE TABLE t(v); INSERT INTO t VALUES(5)}
+sqlite3 db2 test.db
+do_test context-live {db eval {SELECT v FROM t}} 5
+db2 eval {SELECT v FROM t}
+db2 close
+do_test context-recovered {db eval {SELECT v FROM t}} 5
+reset_db
+db eval {CREATE TABLE t(v); INSERT INTO t VALUES(1); BEGIN; INSERT INTO t VALUES(2)}
+sqlite3 db2 test.db
+db2 eval {SELECT v FROM t ORDER BY v}
+db eval {ROLLBACK}
+db2 close
+do_test context-uncommitted {db eval {SELECT v FROM t}} 1
+reset_db
+db eval {CREATE TABLE t(v); INSERT INTO t VALUES(1)}
+sqlite3 db2 test.db
+db2 eval {INSERT INTO t VALUES(2)}
+db2 close
+do_test context-write {db eval {SELECT v FROM t ORDER BY v}} {1 2}
+sqlite3 db2 test.db
+reset_db
+do_test context-reset-live {db eval {SELECT 1}} 1
+db2 close
+finish_test

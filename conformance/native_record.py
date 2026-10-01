@@ -66,11 +66,13 @@ def record_sql(setup: str | list[str | dict[str, Json]], migration: str, *, name
                profile: ExecutionProfile | None = None, setup_clock: int | None = None,
                clock_values: list[int] | None = None,
                setup_helpers: list[str] | None = None, migration_readonly: bool = False,
-               migration_readonly_spans: list[tuple[int, int]] | None = None) -> dict[str, Json]:
+               migration_readonly_spans: list[tuple[int, int]] | None = None,
+               auxiliary_replay: bool = False) -> dict[str, Json]:
     """Keep native evidence even when today's frontend cannot represent the SQL."""
     if parameters is not None and not outputs:
         raise ValueError("Bound parameters require output recording")
     controlled = profile is not None and profile.clock == "unix-milliseconds-v1"
+    auxiliary_replay = auxiliary_replay or any(helper.startswith("aux:") for helper in setup_helpers or [])
     if profile is not None and not outputs:
         raise ValueError("Explicit profiles require output recording")
     if controlled != (setup_clock is not None and clock_values is not None):
@@ -103,11 +105,11 @@ def record_sql(setup: str | list[str | dict[str, Json]], migration: str, *, name
                     b"date", b"time", b"datetime", b"julianday", b"unixepoch", b"strftime", b"timediff"}
                 if controlled:
                     nondeterministic = {b"random", b"randomblob"}
-                if profile is not None and action == 19:
+                if (profile is not None or auxiliary_replay) and action == 19:
                     metadata = {b"table_info", b"table_xinfo", b"table_list", b"index_list", b"index_info",
                         b"index_xinfo", b"foreign_key_list", b"foreign_key_check", b"compile_options", b"database_list"}
                     settings = {b"foreign_keys", b"recursive_triggers", b"trusted_schema", b"writable_schema"}
-                    ignored = {setting.encode() for setting, _reason in profile.ignored_settings}
+                    ignored = {setting.encode() for setting, _reason in profile.ignored_settings} if profile else set()
                     if _a not in metadata and (_a not in settings or function is not None) and _a not in ignored:
                         connection.recording_exclusion = "SQL changes an established execution profile or uses an unsupported setting"
                         return 1
@@ -144,7 +146,10 @@ def record_sql(setup: str | list[str | dict[str, Json]], migration: str, *, name
                         raise ValueError("Unknown native setup operation")
                     events = []
                 else:
-                    events = list(execute(writer, command, select_only=setup_helpers is not None and setup_helpers[index] in {"onecolumn", "exists"}))
+                    helper = setup_helpers[index] if setup_helpers is not None else "eval"
+                    if helper.startswith("aux:") and writer.transaction_open:
+                        raise ValueError("Auxiliary read cannot be replayed inside a primary transaction")
+                    events = list(execute(writer, command, select_only=helper.startswith("aux:") or helper in {"onecolumn", "exists"}))
                 setup_outcomes.append(events[-1]["primaryCode"] if events else 0)
                 setup_results.append([row for event in events for row in event["rows"]])
                 setup_errors.append(events[-1]["error"] if events else "")
@@ -165,7 +170,7 @@ def record_sql(setup: str | list[str | dict[str, Json]], migration: str, *, name
         trace = [{**event, **snapshot()} for event in execute(writer, migration, outputs=outputs,
             parameters=parameters, clock=clock, clock_values=clock_values,
             transaction_mode=profile.transaction_mode if profile else None, select_only=migration_readonly,
-            readonly_spans=migration_readonly_spans)]
+            readonly_spans=migration_readonly_spans, committed_reads=auxiliary_replay)]
     return {"nativeVersion": 4 if profile is not None else 3 if outputs else 2 if isinstance(setup, list) and any(isinstance(item, dict) for item in setup) else 1, "name": name, "setupSql": setup if isinstance(setup, str) else "\n".join(item for item in setup if isinstance(item, str)),
             "setupCommands": [setup] if isinstance(setup, str) else setup, "setupOutcomes": setup_outcomes,
             "setupResults": setup_results, "setupErrors": setup_errors, "migrationSql": migration,

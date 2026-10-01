@@ -43,6 +43,18 @@ substitution, namespace references or variable traces. Other bodies retain the
 callback-context exclusion. The pinned harness check is
 [upstream_helper_calls.test](../tests/upstream_helper_calls.test).
 
+Second connections exclude assertions while open. After closure, a read-only
+prefix may recover when it uses the same main database generation, keeps the
+profile's settings unchanged, has no auxiliary read inside a primary transaction,
+and reproduces every captured Tcl outcome/result on a fresh database. Auxiliary
+writes, different databases and uncommitted reads remain excluded. Tcl string
+equality alone cannot establish storage-class equivalence, so recovery requires
+these conditions. Resetting the primary does not close auxiliary handles.
+Connection command deletion traces capture real closure; renamed connection
+commands retain an exclusion across resets because a renamed handle can survive.
+The pinned harness check is
+[upstream_context_calls.test](../tests/upstream_context_calls.test).
+
 Removing the close exclusion does not by itself widen the supported execution
 profile. `alter.test` still yields 12/119 and `alter3.test` 7/59: TEMP/ATTACH,
 multiple connections and LEGACY_FILE_FORMAT=1 account for remaining exclusions.

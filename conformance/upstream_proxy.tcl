@@ -55,7 +55,14 @@ proc capture_factory {command code result operation} {
     if {[llength $command] > 3} { capture_event exclude "connection open options" }
     capture_event open $name $::capture_file($name)
     trace add execution ::$name {enter leave} [list capture_connection $name]
+    trace add command ::$name {rename delete} [list capture_deleted $name]
   }
+}
+proc capture_deleted {name old new operation} {
+  # close deletes the Tcl command, so its execution-leave trace may never run.
+  if {$operation eq "rename"} {
+    capture_event exclude "connection command renamed"
+  } else { capture_event close $name }
 }
 proc capture_test {command args} {
   if {[lindex $args end] eq "enter"} {

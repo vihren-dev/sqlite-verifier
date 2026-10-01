@@ -171,3 +171,10 @@ C2: [exclusion narrowing](20261001-adr5-c2-exclusions.task.md),
   harness records three cases and excludes explicit mutation/read-trace side
   effects; fresh native replay passes. Focused regressions: 28 passed. Context
   recovery, profile-aware extraction and measured yields remain open.
+
+- 2026-10-01: C2 supports verified recovery after read-only auxiliary connections
+  close. Deletion traces capture actual close; same-file/generation, unchanged
+  settings and committed-read conditions protect typed fidelity. Real Tcl tests
+  recover one case and refuse live handles, uncommitted reads and writes; native
+  replay passes. Focused checks: 32 passed. Attached contexts, profile-aware
+  extraction and yield measurements remain open.

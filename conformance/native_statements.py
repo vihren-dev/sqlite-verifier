@@ -20,7 +20,8 @@ def execute(connection: Connection, sql: str, *, outputs: bool = False,
             clock: NativeClock | None = None,
             clock_values: list[int] | None = None,
             transaction_mode: str | None = None, select_only: bool = False,
-            readonly_spans: list[tuple[int, int]] | None = None) -> Iterator[dict[str, Json]]:
+            readonly_spans: list[tuple[int, int]] | None = None,
+            committed_reads: bool = False) -> Iterator[dict[str, Json]]:
     """Use SQLite's prepared-statement tail to split SQL, including trigger bodies."""
     if parameters is not None and not outputs:
         raise ValueError("Bound parameters require output recording")
@@ -48,6 +49,8 @@ def execute(connection: Connection, sql: str, *, outputs: bool = False,
                 lexical = lexical[1:]
             offset = len(sql.encode()) - len(remaining) + (len(source[:lexical[0].start].encode()) if lexical else 0)
             guarded = guarded or any(start <= offset < end for start, end in readonly_spans)
+        if guarded and committed_reads and connection.transaction_open:
+            raise ValueError("Auxiliary read cannot be replayed inside a primary transaction")
         with select_probe(connection) if guarded else nullcontext():
             code = connection.library.sqlite3_prepare_v2(connection.handle, remaining, len(remaining),
                                                           c.byref(statement), c.byref(tail))
