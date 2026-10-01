@@ -1,6 +1,6 @@
 # ADR 0005 C1 status
 
-Created 2026-10-01. Status: IN PROGRESS.
+Created 2026-10-01. Status: DONE 2026-10-01.
 Task: [verified profiles](20261001-adr5-c1-profiles.task.md).
 Spec: [ADR 0005](../docs/adr-0005-conformance-corpus-scale.md).
 
@@ -10,8 +10,7 @@ The default source-pinned native connection verifies DQS and column limits.
 Native acquisition v4 carries a validated explicit profile and clock inputs.
 Recording and fresh replay establish the same conditions and engine clock.
 Profile manifests bind v4 cases to exact declarations. The final contract audit
-remains open; no claim of
-workload suite completion is made.
+passes; C1 is done. Later core packages and the workload suite remain incomplete.
 
 ## Progress
 
@@ -59,3 +58,21 @@ workload suite completion is made.
   tests exercise success and refusals; legacy frozen upstream replay is retained.
   Profile/upstream/docs checks: 8 passed in 4.95 seconds; final docs: 2 passed.
   C1 remains open for the final contract audit.
+
+- 2026-10-01: Final audit added explicit UTC timezone control/restoration for
+  native localtime conversion, refused unsupported behavioral setting PRAGMAs,
+  and selected the profile's engine from either existing native pin. Tests
+  replay under different caller timezones and verify source identity/replay on
+  SQLite 3.46.0. Full pinned hermetic suite: 70 passed in 129.13 seconds;
+  focused profile/record/docs: 15 passed; document checks: 2 passed. C1 DONE.
+
+## Completion evidence
+
+- Profile/manifest identity and mismatch refusal: execution_profile.py,
+  corpus.load/native_replay and conformance_profile_test.py.
+- FK-on and immediate transactions: native setting readback and cascade test,
+  plus profiled recording/replay with enforced BEGIN convention.
+- Different-wall-time clock replay, defaults/triggers/probes and timezone:
+  conformance_clock_test.py and conformance_profile_test.py.
+- Driver measurement method: docs/execution-profile.md.
+- Legacy format/profile compatibility: full hermetic frozen replay regressions.

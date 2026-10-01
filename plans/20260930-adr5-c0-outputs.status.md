@@ -1,6 +1,6 @@
 # ADR 0005 C0 status
 
-Created 2026-09-30. Status: IN PROGRESS.
+Created 2026-09-30. Status: DONE 2026-10-01.
 Task: [outputs and parameters](20260930-adr5-c0-outputs.task.md).
 Spec: [ADR 0005](../docs/adr-0005-conformance-corpus-scale.md).
 
@@ -8,8 +8,8 @@ Spec: [ADR 0005](../docs/adr-0005-conformance-corpus-scale.md).
 
 C0 records typed parameters, empty-result shape, direct counts and native tie
 groups, and compares outputs alongside state for the existing model subset.
-The final audit fixes pass the full hermetic suite. C1 owns deterministic
-clocks and profile setup; the complete ADR and workload gates remain open.
+The final audit fixes pass the full hermetic suite. C1 supplies deterministic
+clocks and profile setup; C0 is done. The complete ADR and workload gates remain open.
 
 ## Progress
 
@@ -99,3 +99,12 @@ clocks and profile setup; the complete ADR and workload gates remain open.
   hermetic model suite: 66 passed in 149.38 seconds, including legacy frozen
   replay and mutation checks; focused output/model/ordering/docs: 17 passed.
   Prepared the C1 task/status contract for verified profiles and native clocks.
+
+- 2026-10-01: Completed cross-package audit after C1 integration. Native probes
+  now preserve stored clock/timezone inputs as well as parameters/state.
+  Native shape/parameter/RETURNING/direct-count boundaries are covered by
+  conformance_record_test.py; SQLite sort ties and one/two window boundaries
+  by conformance_ordering_test.py; compiled/kernel corruption rejection by
+  conformance_trace_test.py and conformance_model_test.py. Missing query and
+  parameter capabilities remain unsupported. Full hermetic regressions preserve
+  v1 verdicts and frozen replays: 70 passed in 129.13 seconds. C0 DONE.

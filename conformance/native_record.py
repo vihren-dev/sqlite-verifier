@@ -10,7 +10,7 @@ from conformance.native_statements import execute, wire_rows
 from conformance.native_connection import Cell, Connection, SOURCE_ID, library_path, load_library
 from conformance.native_metadata import integer, quoted, text
 from conformance.execution_profile import ExecutionProfile
-from conformance.native_clock import NativeClock
+from conformance.native_clock import NativeClock, utc_timezone
 
 
 
@@ -76,7 +76,12 @@ def record_sql(setup: str | list[str | dict[str, Json]], migration: str, *, name
     if not controlled and (setup_clock is not None or clock_values is not None):
         raise ValueError("Clock inputs require a controlled profile")
     with TemporaryDirectory(prefix="native-corpus-") as directory, ExitStack() as stack:
-        engine = load_library(library or library_path())
+        if controlled:
+            stack.enter_context(utc_timezone())
+        version = profile.engine_version if profile else "3.51.0"
+        if version not in {"3.51.0", "3.46.0"}:
+            raise ValueError("Execution profile engine has no pinned native build")
+        engine = load_library(library or library_path("sqlite3" + ("-3.46.0" if version == "3.46.0" else "")), version)
         clock = NativeClock(engine, setup_clock) if controlled else None
         if clock is not None:
             stack.callback(clock.close)
@@ -96,10 +101,14 @@ def record_sql(setup: str | list[str | dict[str, Json]], migration: str, *, name
                     b"date", b"time", b"datetime", b"julianday", b"unixepoch", b"strftime", b"timediff"}
                 if controlled:
                     nondeterministic = {b"random", b"randomblob"}
-                if profile is not None and action == 19 and function is not None and _a in {
-                        b"foreign_keys", b"recursive_triggers", b"trusted_schema", b"writable_schema"}:
-                    connection.recording_exclusion = "SQL changes an established execution profile setting"
-                    return 1
+                if profile is not None and action == 19:
+                    metadata = {b"table_info", b"table_xinfo", b"table_list", b"index_list", b"index_info",
+                        b"index_xinfo", b"foreign_key_list", b"foreign_key_check", b"compile_options", b"database_list"}
+                    settings = {b"foreign_keys", b"recursive_triggers", b"trusted_schema", b"writable_schema"}
+                    ignored = {setting.encode() for setting, _reason in profile.ignored_settings}
+                    if _a not in metadata and (_a not in settings or function is not None) and _a not in ignored:
+                        connection.recording_exclusion = "SQL changes an established execution profile or uses an unsupported setting"
+                        return 1
                 if action == 24 or action == 31 and function in nondeterministic:
                     connection.recording_exclusion = "Excluded connection context: external database or nondeterministic function"
                     return 1
@@ -155,5 +164,5 @@ def record_sql(setup: str | list[str | dict[str, Json]], migration: str, *, name
     return {"nativeVersion": 4 if profile is not None else 3 if outputs else 2 if isinstance(setup, list) and any(isinstance(item, dict) for item in setup) else 1, "name": name, "setupSql": setup if isinstance(setup, str) else "\n".join(item for item in setup if isinstance(item, str)),
             "setupCommands": [setup] if isinstance(setup, str) else setup, "setupOutcomes": setup_outcomes,
             "setupResults": setup_results, "setupErrors": setup_errors, "migrationSql": migration,
-            "sourceId": SOURCE_ID, "requirements": requirements or [], "initial": initial, "trace": trace,
+            "sourceId": engine.sqlite3_sourceid().decode(), "requirements": requirements or [], "initial": initial, "trace": trace,
             **({"profile": profile.to_wire(), "setupClockUnixMilliseconds": setup_clock} if profile else {})}

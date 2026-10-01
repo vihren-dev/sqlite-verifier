@@ -86,6 +86,13 @@ time callbacks. Defaults, trigger bodies and supplementary probes therefore see
 the same engine time. Replay supplies the recorded inputs and refuses a different
 profile. Valid explicit-profile evidence stays model-unsupported until production
 semantics can execute that profile. Existing frozen records retain their old path.
+Controlled profiles also record `timezone: UTC`: recording/replay temporarily
+establish UTC for native `localtime` conversion and restore the caller's timezone.
+Recording is serialized while this process-global setting is active; parallel
+recording should use worker processes. Other timezone profiles are refused.
+Setting PRAGMAs outside the profile are refused. Ignored settings may name
+`journal_mode`, `synchronous`, `cache_size`, `temp_store`, `mmap_size` and
+`busy_timeout`, each with a reason; behavioral settings cannot be labelled ignored.
 Corpus manifests declare full records in `executionProfiles`; every v4 case
 must match one declaration exactly. Missing/conflicting records and duplicate
 name/version identities are refused. Legacy manifests retain implicit profiles.

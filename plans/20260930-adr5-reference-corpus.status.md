@@ -9,7 +9,7 @@ Spec: [ADR 0005](../docs/adr-0005-conformance-corpus-scale.md).
 Owner authorized implementation on 2026-09-30 after the document reviews.
 Dedicated `adr5` workspace combines merged ADR 0004 (`main` at `3aae9b50`)
 with ADR 0003's implemented shared structural codec (`96609b4c`). No conflicts;
-resource checks pass. C0 is active; C1–C7 and the private workload gate are open.
+resource checks pass. C0/C1 are done; C2 is active. C3–C7 and the private workload gate are open.
 C8 follows the model semantics concerned, as the ADR specifies.
 
 ## Sources and package records
@@ -21,6 +21,8 @@ C0: [outputs and parameters](20260930-adr5-c0-outputs.task.md),
 [status](20260930-adr5-c0-outputs.status.md).
 C1: [verified profiles](20261001-adr5-c1-profiles.task.md),
 [status](20261001-adr5-c1-profiles.status.md).
+C2: [exclusion narrowing](20261001-adr5-c2-exclusions.task.md),
+[status](20261001-adr5-c2-exclusions.status.md).
 
 ## Progress
 
@@ -137,3 +139,11 @@ C1: [verified profiles](20261001-adr5-c1-profiles.task.md),
   missing/conflicting declarations and duplicate identities; legacy frozen
   upstream replay passes. Profile/upstream/docs: 8 passed; final docs: 2 passed.
   Final C1 audit and all subsequent gates remain open.
+
+- 2026-10-01: Closed C0/C1 after contract audit and the full hermetic run:
+  70 passed in 129.13 seconds. Audit fixes control/restore UTC for localtime,
+  reject unsupported setting PRAGMAs and select either existing pinned engine
+  without relabelling its source identity. Package task/status files record
+  completion evidence. C2 task/status now describe narrower extraction rules
+  and rejecting tests before coding. C2–C7 and the private workload gate remain
+  open; no frozen corpus membership changed and no owner feedback is needed.

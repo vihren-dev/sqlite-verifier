@@ -1,7 +1,34 @@
 """Control SQLite's engine clock without rewriting SQL, defaults or triggers."""
 
 import ctypes as c
+from collections.abc import Iterator
+from contextlib import contextmanager
+import os
+from threading import RLock
+import time
 from uuid import uuid4
+
+# ponytail: process-global TZ needs serialized recording; use worker processes for parallel throughput.
+TIMEZONE_LOCK = RLock()
+
+
+@contextmanager
+def utc_timezone() -> Iterator[None]:
+    """Establish native local-time conversion and restore the caller's process zone."""
+    with TIMEZONE_LOCK:
+        previous = os.environ.get("TZ")
+        try:
+            os.environ["TZ"] = "UTC0"
+            time.tzset()
+            if time.timezone != 0 or time.daylight != 0:
+                raise RuntimeError("Could not establish UTC execution timezone")
+            yield
+        finally:
+            if previous is None:
+                os.environ.pop("TZ", None)
+            else:
+                os.environ["TZ"] = previous
+            time.tzset()
 
 
 class Vfs(c.Structure):

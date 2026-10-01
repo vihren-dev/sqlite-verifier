@@ -6,6 +6,7 @@ import time
 import gzip
 import hashlib
 import json
+import os
 
 import pytest
 
@@ -49,7 +50,8 @@ def test_profile_engine_settings_and_foreign_keys(tmp_path: Path) -> None:
         connection.close()
 
 
-def test_recorded_profile_clock_and_fresh_replay(tmp_path: Path, runtime_root: Path) -> None:
+def test_recorded_profile_clock_and_fresh_replay(tmp_path: Path, runtime_root: Path,
+                                              monkeypatch: pytest.MonkeyPatch) -> None:
     """Replay later wall time using stored clocks, preserving defaults/triggers and probes."""
     from conformance.corpus import load, native_replay
     from conformance.native_record import record_sql
@@ -98,7 +100,44 @@ def test_recorded_profile_clock_and_fresh_replay(tmp_path: Path, runtime_root: P
         record_sql(setup, sql, name="missing-clock", outputs=True, profile=profile,
                    setup_clock=1699999999000, clock_values=[])
     for sql, reason in (("BEGIN;", "transaction mode differs"),
-                        ("PRAGMA foreign_keys=OFF;", "established execution profile")):
+                        ("PRAGMA foreign_keys=OFF;", "established execution profile"),
+                        ("PRAGMA ignore_check_constraints=ON;", "unsupported setting")):
         with pytest.raises(ValueError, match=reason):
             record_sql(setup, sql, name="changed-profile", outputs=True, profile=profile,
                        setup_clock=1699999999000, clock_values=[1700000000000])
+    original_zone = os.environ.get("TZ")
+    try:
+        monkeypatch.setenv("TZ", "UTC-3")
+        time.tzset()
+        local = record_sql("", "SELECT datetime('now','localtime');", name="local-clock",
+            outputs=True, profile=profile, setup_clock=0, clock_values=[0])
+        assert local["trace"][0]["rows"] == [[{"text": {"bytes": list(b"1970-01-01 00:00:00")}}]]
+        assert os.environ["TZ"] == "UTC-3"
+        monkeypatch.setenv("TZ", "UTC+5")
+        time.tzset()
+        native_replay([local], profile=profile)
+        assert os.environ["TZ"] == "UTC+5"
+    finally:
+        if original_zone is None:
+            monkeypatch.delenv("TZ", raising=False)
+        else:
+            monkeypatch.setenv("TZ", original_zone)
+        time.tzset()
+
+
+@pytest.mark.requires_native("sqlite3-3.46.0")
+def test_profile_selects_its_pinned_engine(tmp_path: Path, runtime_root: Path) -> None:
+    """An explicit profile can select the older pin without relabelling its evidence."""
+    from conformance.corpus import native_replay
+    from conformance.native_record import record_sql
+    from conformance.native_replay import prepare
+    engine = load_library(library_path("sqlite3-3.46.0"), "3.46.0")
+    connection = Connection(engine, tmp_path / "older.db")
+    try:
+        profile = measured_profile(connection, name="older-native")
+    finally:
+        connection.close()
+    record = record_sql("", "SELECT 1;", name="older-pin", outputs=True, profile=profile)
+    assert record["sourceId"] == profile.source_id
+    native_replay([record], profile=profile)
+    assert prepare(record, runtime_root / "build/sqlite-parser")[1]["verdict"] == "MODEL_UNSUPPORTED"

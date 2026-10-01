@@ -86,7 +86,7 @@ def output_wire(event: dict[str, Json]) -> dict[str, Json]:
 
 def model_case(record: dict[str, Json], parser: Path) -> dict[str, Json]:
     """Re-translate on every replay, preserving frozen native truth as the model grows."""
-    if record.get("nativeVersion") not in (1, 2, 3, 4) or record.get("sourceId") != SOURCE_ID:
+    if record.get("nativeVersion") not in (1, 2, 3, 4) or record["nativeVersion"] != 4 and record.get("sourceId") != SOURCE_ID:
         raise ValueError("Unsupported native record version or engine identity")
     outputs = [output_wire(event) for event in record["trace"]] if record["nativeVersion"] in (3, 4) else None
     if record["nativeVersion"] == 4:

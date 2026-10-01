@@ -1,9 +1,10 @@
-# Conformance case format v2 (implementation in progress)
+# Conformance case format v2
 
 ADR 0005 extends [v1](conformance-format-v1.md) with statement outputs and typed
 parameters. The existing v1 serialization and verdicts are preserved. This is
-currently the comparison interface for the existing literal-write subset;
-ordered-query acquisition and execution profiles remain work in progress.
+the comparison interface for the existing literal-write subset. Native acquisition
+supports ordered queries and explicit profiles; missing model capabilities remain
+unsupported.
 
 A v2 case has all v1 fields, `version: 2`, and two additional arrays:
 

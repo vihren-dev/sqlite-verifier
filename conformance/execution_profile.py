@@ -6,6 +6,7 @@ from conformance.case_format import Json
 from conformance.native_connection import Connection
 from conformance.native_metadata import text
 
+IGNORED_SETTINGS = {"journal_mode", "synchronous", "cache_size", "temp_store", "mmap_size", "busy_timeout"}
 
 @dataclass(frozen=True)
 class ExecutionProfile:
@@ -22,6 +23,7 @@ class ExecutionProfile:
     clock: str = "excluded"
     ignored_settings: tuple[tuple[str, str], ...] = ()
     other_writers: tuple[str, ...] = ()
+    timezone: str = "UTC"
 
     def __post_init__(self) -> None:
         """Refuse malformed or unimplemented conditions rather than approximate them."""
@@ -32,7 +34,8 @@ class ExecutionProfile:
                 or type(self.foreign_keys) is not bool or type(self.recursive_triggers) is not bool
                 or self.transaction_mode not in {"deferred", "immediate"}
                 or self.clock not in {"excluded", "unix-milliseconds-v1"}
-                or any(not setting or not reason for setting, reason in self.ignored_settings)):
+                or self.timezone != "UTC"
+                or any(setting not in IGNORED_SETTINGS or not reason for setting, reason in self.ignored_settings)):
             raise ValueError("Invalid or unsupported execution profile")
 
     def establish(self, connection: Connection) -> None:
@@ -58,16 +61,16 @@ class ExecutionProfile:
             "compileOptions": list(self.compile_options), "foreignKeys": self.foreign_keys,
             "recursiveTriggers": self.recursive_triggers, "transactionMode": self.transaction_mode,
             "clock": self.clock, "ignoredSettings": [list(item) for item in self.ignored_settings],
-            "otherWriters": list(self.other_writers)}
+            "otherWriters": list(self.other_writers), "timezone": self.timezone}
 
 
 def profile_from_wire(value: Json) -> ExecutionProfile:
     """Validate external profile transport before constructing native conditions."""
     fields = {"name", "version", "engineVersion", "sourceId", "compileOptions", "foreignKeys",
-              "recursiveTriggers", "transactionMode", "clock", "ignoredSettings", "otherWriters"}
+              "recursiveTriggers", "transactionMode", "clock", "ignoredSettings", "otherWriters", "timezone"}
     if not isinstance(value, dict) or set(value) != fields:
         raise ValueError("Invalid execution profile fields")
-    strings = ("name", "engineVersion", "sourceId", "transactionMode", "clock")
+    strings = ("name", "engineVersion", "sourceId", "transactionMode", "clock", "timezone")
     if (any(not isinstance(value[key], str) for key in strings)
             or type(value["version"]) is not int
             or any(type(value[key]) is not bool for key in ("foreignKeys", "recursiveTriggers"))
@@ -80,7 +83,7 @@ def profile_from_wire(value: Json) -> ExecutionProfile:
     return ExecutionProfile(value["name"], value["version"], value["engineVersion"], value["sourceId"],
         tuple(value["compileOptions"]), value["foreignKeys"], value["recursiveTriggers"],
         value["transactionMode"], value["clock"],
-        tuple((item[0], item[1]) for item in value["ignoredSettings"]), tuple(value["otherWriters"]))
+        tuple((item[0], item[1]) for item in value["ignoredSettings"]), tuple(value["otherWriters"]), value["timezone"])
 
 
 def measured_profile(connection: Connection, *, name: str, version: int = 1,

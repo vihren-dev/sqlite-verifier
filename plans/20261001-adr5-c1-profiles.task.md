@@ -1,6 +1,6 @@
 # ADR 0005 C1: verified execution profiles
 
-Created 2026-10-01. Status: IN PROGRESS.
+Created 2026-10-01. Status: DONE 2026-10-01.
 Status: [progress](20261001-adr5-c1-profiles.status.md).
 Spec: [ADR 0005 §3.2](../docs/adr-0005-conformance-corpus-scale.md#32-execution-profiles).
 
@@ -37,7 +37,7 @@ Tests and native statements have bounded timeouts.
 
 `native_library.py` pins the engine and declares C signatures;
 `native_connection.py` opens/configures connections; `native_record.py` creates
-writer and committed-state reader connections and currently denies clock SQL.
+writer and committed-state reader connections; legacy profiles deny clock SQL.
 `native_statements.py` owns statement boundaries and supplementary probes.
 `corpus.py` and `native_replay.py` route fresh native replay and model admission.
 SQLite reads 'now' from VFS callbacks: SQL rewriting or storing timestamps alone

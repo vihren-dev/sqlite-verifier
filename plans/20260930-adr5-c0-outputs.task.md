@@ -1,6 +1,6 @@
 # ADR 0005 C0: statement outputs, parameters and comparison
 
-Created 2026-09-30. Status: IN PROGRESS.
+Created 2026-09-30. Status: DONE 2026-10-01.
 Status: [progress](20260930-adr5-c0-outputs.status.md).
 Spec: [ADR 0005 §3.1](../docs/adr-0005-conformance-corpus-scale.md#31-case-format-v2-outputs-and-parameters).
 Overall: [reference corpus](20260930-adr5-reference-corpus.task.md).
