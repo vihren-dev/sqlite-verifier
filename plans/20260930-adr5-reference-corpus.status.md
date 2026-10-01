@@ -9,7 +9,7 @@ Spec: [ADR 0005](../docs/adr-0005-conformance-corpus-scale.md).
 Owner authorized implementation on 2026-09-30 after the document reviews.
 Dedicated `adr5` workspace combines merged ADR 0004 (`main` at `3aae9b50`)
 with ADR 0003's implemented shared structural codec (`96609b4c`). No conflicts;
-resource checks pass. C0–C2 are done. C3–C7 and the private workload gate are open.
+resource checks pass. C0–C2 are done; C3 is active. C4–C7 and the private workload gate are open.
 C8 follows the model semantics concerned, as the ADR specifies.
 
 ## Sources and package records
@@ -23,6 +23,8 @@ C1: [verified profiles](20261001-adr5-c1-profiles.task.md),
 [status](20261001-adr5-c1-profiles.status.md).
 C2: [exclusion narrowing](20261001-adr5-c2-exclusions.task.md),
 [status](20261001-adr5-c2-exclusions.status.md).
+C3: [bounded storage](20261001-adr5-c3-storage.task.md),
+[status](20261001-adr5-c3-storage.status.md).
 
 ## Progress
 
@@ -218,3 +220,7 @@ C2: [exclusion narrowing](20261001-adr5-c2-exclusions.task.md),
   and recovery after clock reset; changed clocks across reopen stay excluded.
   Pinned upstream target: 5 passed; native/profile/context/docs: 21 passed.
   C3–C7 and the private workload gate remain open.
+
+- 2026-10-01: Started C3 task/status records. Streaming measurement binds the
+  giant e_blobbytes:e_blobbytes-1.0:0 record to frozen v3's digest and measures
+  302,050,086 bytes. The new selection cap and shared storage remain to be added.

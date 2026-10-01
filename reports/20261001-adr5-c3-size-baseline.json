@@ -1,0 +1,15 @@
+{
+  "date": "2026-10-01",
+  "source": "conformance/corpus-v3/cases.jsonl.gz",
+  "uncompressedSha256": "fe50427ba3cf7b06b29eb2aa2af8e2eaf5c501e9f0d95680f2f4069f73654afb",
+  "cases": 370,
+  "proposedCaseByteLimit": 1000000,
+  "largest": {
+    "bytes": 302050086,
+    "name": "e_blobbytes:e_blobbytes-1.0:0",
+    "line": 184
+  },
+  "oversized": true,
+  "selectionLimitImplemented": false,
+  "method": "Stream 65536-byte gzip blocks; count UTF-8 JSON bytes per record without retaining complete records."
+}
