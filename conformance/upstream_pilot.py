@@ -17,6 +17,7 @@ from conformance.native_connection import SOURCE_ID
 from conformance.upstream_fidelity import check_results, minimize_prefix
 from conformance.upstream_selection import candidate_reasons
 from conformance.upstream_assertions import assertions
+from conformance.upstream_helpers import readonly_spans, join_commands
 
 
 def evidence(source: str, line: int) -> list[dict[str, Json]]:
@@ -66,11 +67,9 @@ def pilot(fixture: Path, upstream: Path, output: Path, limit: int, patterns: tup
                 reason = "; ".join(exclusions)
                 if not reason:
                     try:
-                        if any(helper != "eval" for helper in candidate["helpers"]) and len(candidate["commands"]) != 1:
-                            raise ValueError("Tcl helper semantics not reproduced for mixed command sequences")
-                        record = record_sql(candidate["prefix"], "\n".join(candidate["commands"]),
+                        record = record_sql(candidate["prefix"], join_commands(candidate["commands"]),
                             name=f"{file.stem}:{candidate['id']}:{occurrence}", setup_helpers=candidate["prefixHelpers"],
-                            migration_readonly=candidate["helpers"] != ["eval"] and len(candidate["helpers"]) == 1)
+                            migration_readonly_spans=readonly_spans(candidate["commands"], candidate["helpers"]))
                         check_results(record, candidate)
                         record = minimize_prefix(record)
                         repeated = record_sql(record["setupCommands"], record["migrationSql"], name=record["name"])
@@ -99,7 +98,7 @@ def pilot(fixture: Path, upstream: Path, output: Path, limit: int, patterns: tup
     result: dict[str, Json] = {"corpusVersion": 1, "sourceRelease": "3.51.0", "perFileLimit": limit, "patterns": list(patterns),
         "sourceId": SOURCE_ID, "sourceArchiveSha256": "5330719b8b80bf563991ff7a373052943f5357aae76cd1f3367eab845d3a75b7",
         "extractorSha256": {name: hashlib.sha256(Path(__file__).with_name(name).read_bytes()).hexdigest()
-                            for name in ("upstream_pilot.py", "upstream_assertions.py", "upstream_proxy.tcl", "upstream_fidelity.py", "upstream_selection.py", "native_record.py")},
+                            for name in ("upstream_pilot.py", "upstream_assertions.py", "upstream_helpers.py", "upstream_proxy.tcl", "upstream_fidelity.py", "upstream_selection.py", "native_record.py")},
         "files": report, "recordedCases": len(corpus), "casesSha256": hashlib.sha256(payload).hexdigest()}
     (output / "manifest.json").write_text(json.dumps(result, indent=2) + "\n")
     return result

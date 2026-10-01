@@ -19,7 +19,8 @@ def execute(connection: Connection, sql: str, *, outputs: bool = False,
             parameters: list[tuple[Cell, ...]] | None = None,
             clock: NativeClock | None = None,
             clock_values: list[int] | None = None,
-            transaction_mode: str | None = None, select_only: bool = False) -> Iterator[dict[str, Json]]:
+            transaction_mode: str | None = None, select_only: bool = False,
+            readonly_spans: list[tuple[int, int]] | None = None) -> Iterator[dict[str, Json]]:
     """Use SQLite's prepared-statement tail to split SQL, including trigger bodies."""
     if parameters is not None and not outputs:
         raise ValueError("Bound parameters require output recording")
@@ -38,10 +39,19 @@ def execute(connection: Connection, sql: str, *, outputs: bool = False,
         if outputs:
             connection.statement_actions.clear()
         from conformance.native_probe import select_probe
-        with select_probe(connection) if select_only else nullcontext():
+        guarded = select_only
+        if readonly_spans:
+            from conformance.query_window import tokens
+            source = remaining.decode()
+            lexical = tokens(source)
+            while lexical and lexical[0].text == ";":
+                lexical = lexical[1:]
+            offset = len(sql.encode()) - len(remaining) + (len(source[:lexical[0].start].encode()) if lexical else 0)
+            guarded = guarded or any(start <= offset < end for start, end in readonly_spans)
+        with select_probe(connection) if guarded else nullcontext():
             code = connection.library.sqlite3_prepare_v2(connection.handle, remaining, len(remaining),
                                                           c.byref(statement), c.byref(tail))
-            if select_only and code & 255 == 23:  # AUTH: let the guard explain its refusal.
+            if guarded and code & 255 == 23:  # AUTH: let the guard explain its refusal.
                 connection.check(code)
         suffix = tail.value or b""
         consumed = remaining[:len(remaining) - len(suffix)]
@@ -53,7 +63,7 @@ def execute(connection: Connection, sql: str, *, outputs: bool = False,
         try:
             connection.check(code)
             if statement.value:
-                if select_only and (not connection.library.sqlite3_stmt_readonly(statement)
+                if guarded and (not connection.library.sqlite3_stmt_readonly(statement)
                                     or connection.library.sqlite3_stmt_isexplain(statement)):
                     raise ValueError("Tcl row helper requires a read-only SELECT")
                 if transaction_mode is not None:

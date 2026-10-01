@@ -158,3 +158,10 @@ C2: [exclusion narrowing](20261001-adr5-c2-exclusions.task.md),
   unmodified; writing helpers are refused. Upstream/record/profile/docs:
   26 passed. Pinned Tcl fixture built and actual helper semantics checked.
   Mixed helper sequences, row scripts, context lifetimes and yields remain open.
+
+- 2026-10-01: C2 mixed helper calls preserve original call boundaries and apply
+  each Tcl helper's semantics independently. Read-only spans refuse writing
+  helpers. Real pinned Tcl extraction found/fixed a mechanical fidelity cause:
+  newline-only joining merged semicolon-free calls. The mixed-helper harness
+  test now records one case and passes fresh native replay. Focused regressions:
+  27 passed. Row scripts, context recovery and before/after yields remain open.

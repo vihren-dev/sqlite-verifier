@@ -114,3 +114,31 @@ def test_row_helpers_refuse_writes_and_row_scripts() -> None:
               ("sql", "db", "SELECT 1;", "1", "eval"), ("result", "db", "0", ""), ("end", "script")]
     encoded = "\n".join("\t".join(value.encode().hex() for value in event) for event in events)
     assert "connection or SQL callback context" in assertions(encoded)[0]["exclusions"]
+
+
+def test_mixed_helpers_keep_call_boundaries() -> None:
+    """Writes, multi-statement eval and different row helpers compare per Tcl call."""
+    from conformance.upstream_helpers import readonly_spans, command_events, join_commands
+    commands = ["-- é\nCREATE TABLE t(x); INSERT INTO t VALUES(42),(7); -- trailing",
+                "SELECT x,99 FROM t ORDER BY x DESC", "SELECT 42", "SELECT x FROM t ORDER BY x"]
+    helpers = ["eval", "onecolumn", "exists", "eval"]
+    results = [[], ["42"], ["1"], ["7", "42"]]
+    events = [("reset",), ("begin", "mixed", "")]
+    for command, helper, expected in zip(commands, helpers, results, strict=True):
+        events += [("sql", "db", command, "0", helper), ("result", "db", "0", *expected)]
+    events += [("end", "mixed")]
+    encoded = "\n".join("\t".join(value.encode().hex() for value in event) for event in events)
+    candidate = assertions(encoded)[0]
+    record = record_sql([], join_commands(commands), name="mixed", migration_readonly_spans=readonly_spans(commands, helpers))
+    check_results(record, candidate)
+    assert [len(group) for group in command_events(record, commands)] == [2, 1, 1, 1]
+    assert record["trace"][3]["rows"] == [[{"integer": {"value": 42}}]]
+    candidate["results"][1] = ["7"]
+    with pytest.raises(ValueError, match="assertion results differ"):
+        check_results(record, candidate)
+    bad = ["CREATE TABLE t(x);", "INSERT INTO t VALUES(1) RETURNING x;"]
+    with pytest.raises(ValueError, match="read-only SELECT"):
+        record_sql([], join_commands(bad), name="mixed-write", migration_readonly_spans=readonly_spans(bad, ["eval", "onecolumn"]))
+    combined = record_sql([], "SELECT\n42;", name="cross-call")
+    with pytest.raises(ValueError, match="crosses Tcl SQL call"):
+        command_events(combined, ["SELECT", "42;"])

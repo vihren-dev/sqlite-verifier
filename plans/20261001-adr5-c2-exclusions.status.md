@@ -7,8 +7,8 @@ Spec: [ADR 0005](../docs/adr-0005-conformance-corpus-scale.md).
 ## Current state
 
 Runtime extraction still accumulates exclusions until reset. Ordinary eval and
-single read-only onecolumn/exists calls are supported; row scripts and mixed
-helper sequences remain excluded. Selection preserves preceding reasons.
+read-only onecolumn/exists calls are supported, including mixed helper sequences.
+Row scripts remain excluded. Selection preserves preceding reasons.
 No narrowed extraction rule or yield improvement is claimed yet.
 
 ## Progress
@@ -38,3 +38,15 @@ No narrowed extraction rule or yield improvement is claimed yet.
   document checks: 26 passed in 5.03 seconds. Built the pinned Tcl testfixture and
   verified actual helper behavior against src/tclsqlite.c and the standalone
   tests/upstream_helpers.tcl check (HELPER_SEMANTICS_OK). C2 remains open.
+
+- 2026-10-01: Mixed eval/onecolumn/exists calls now compare per original Tcl
+  call, using UTF-8 source spans and native statement boundaries. Helper spans
+  enforce SELECT-only preparation even beside ordinary writes; statements that
+  cross calls are refused. Tests cover multi-statement eval, Unicode/trailing
+  comments, semicolon-free calls, wrong results and a writing helper. Real pinned
+  Tcl extraction exposed newline-only joining as a mechanical fidelity failure:
+  separate calls without semicolons merged into invalid SQL. Joining with a
+  newline-delimited semicolon fixes it without changing original call SQL.
+  tests/upstream_helper_calls.test now yields one recorded case through the real
+  proxy/harness, and its fresh native replay passes. Upstream/record/profile/docs:
+  27 passed in 5.06 seconds. Row scripts, context recovery and yields remain open.

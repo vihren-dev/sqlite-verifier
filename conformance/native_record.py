@@ -65,7 +65,8 @@ def record_sql(setup: str | list[str | dict[str, Json]], migration: str, *, name
                parameters: list[tuple[Cell, ...]] | None = None,
                profile: ExecutionProfile | None = None, setup_clock: int | None = None,
                clock_values: list[int] | None = None,
-               setup_helpers: list[str] | None = None, migration_readonly: bool = False) -> dict[str, Json]:
+               setup_helpers: list[str] | None = None, migration_readonly: bool = False,
+               migration_readonly_spans: list[tuple[int, int]] | None = None) -> dict[str, Json]:
     """Keep native evidence even when today's frontend cannot represent the SQL."""
     if parameters is not None and not outputs:
         raise ValueError("Bound parameters require output recording")
@@ -163,7 +164,8 @@ def record_sql(setup: str | list[str | dict[str, Json]], migration: str, *, name
         initial = snapshot()
         trace = [{**event, **snapshot()} for event in execute(writer, migration, outputs=outputs,
             parameters=parameters, clock=clock, clock_values=clock_values,
-            transaction_mode=profile.transaction_mode if profile else None, select_only=migration_readonly)]
+            transaction_mode=profile.transaction_mode if profile else None, select_only=migration_readonly,
+            readonly_spans=migration_readonly_spans)]
     return {"nativeVersion": 4 if profile is not None else 3 if outputs else 2 if isinstance(setup, list) and any(isinstance(item, dict) for item in setup) else 1, "name": name, "setupSql": setup if isinstance(setup, str) else "\n".join(item for item in setup if isinstance(item, str)),
             "setupCommands": [setup] if isinstance(setup, str) else setup, "setupOutcomes": setup_outcomes,
             "setupResults": setup_results, "setupErrors": setup_errors, "migrationSql": migration,

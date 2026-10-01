@@ -78,6 +78,7 @@ in {
       "execution_profile"
       "upstream_selection"
       "upstream_assertions"
+      "upstream_helpers"
       "native_fixture" "import_fixture" "schema"
       "case_format" "native_connection" "native_library" "native_clock" "native_probe" "native_ordering" "query_window" "native_metadata" "native_record" "native_statements" "native_replay" "upstream_pilot" "upstream_fidelity" "corpus" "generated_program" "mutation_check" "state_machine" "regressions" "progress" "measure_coverage" "native_trace" "pipeline"
     ];

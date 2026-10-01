@@ -1,0 +1,12 @@
+# Use the real pinned tester.tcl; supplied paths keep this test independent of a checkout.
+set testdir [file join $env(CONFORMANCE_UPSTREAM) test]
+source [file join $testdir tester.tcl]
+reset_db
+do_test helper-mixed-1 {
+  db eval {CREATE TABLE t(x); INSERT INTO t VALUES(42),(7)}
+  set first [db onecolumn {SELECT x,99 FROM t ORDER BY x DESC}]
+  set found [db exists {SELECT 42}]
+  set rows [db eval {SELECT x FROM t ORDER BY x}]
+  list $first $found $rows
+} {42 1 {7 42}}
+finish_test

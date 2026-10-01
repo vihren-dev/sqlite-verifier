@@ -3,6 +3,7 @@
 from conformance.case_format import Json
 from conformance.native_record import record_sql
 from conformance.native_replay import decode_cell
+from conformance.upstream_helpers import command_events
 
 
 def tcl_values(rows: list[Json], helper: str = "eval") -> list[str]:
@@ -45,13 +46,12 @@ def check_results(record: dict[str, Json], candidate: dict[str, Json]) -> None:
         raise ValueError("assertion error outcome differs from Tcl execution")
     if native_error and [record["trace"][-1]["error"]] != candidate["results"][-1]:
         raise ValueError("assertion error text differs from Tcl execution")
-    if not native_error:
-        helpers = candidate.get("helpers", ["eval"] * len(candidate["commands"]))
-        if any(helper != "eval" for helper in helpers) and len(helpers) != 1:
-            raise ValueError("Tcl helper semantics not reproduced for mixed command sequences")
-        actual = tcl_values([row for event in record["trace"] for row in event["rows"]], helpers[0] if len(helpers) == 1 else "eval")
-        expected = [value for result in candidate["results"] for value in result]
-        if actual != expected:
+    helpers = candidate.get("helpers", ["eval"] * len(candidate["commands"]))
+    for events, helper, expected, code in zip(command_events(record, candidate["commands"]), helpers,
+                                             candidate["results"], candidate["codes"], strict=True):
+        if bool(events and events[-1]["primaryCode"]) != bool(code):
+            raise ValueError("assertion error outcome differs from Tcl execution")
+        if not code and tcl_values([row for event in events for row in event["rows"]], helper) != expected:
             raise ValueError("assertion results differ from Tcl execution")
 
 
