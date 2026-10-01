@@ -66,3 +66,11 @@ has no output observations. C1 owns deterministic clocks and profile setup.
   without changing rows/settings; recursive SELECT succeeds; previous authorizer
   rejection survives probing. Native/model checks: 17 passed; final native and
   document checks: 12 passed. C0's ordered-query/tie-window acquisition remains open.
+
+- 2026-10-01: Added native grouping of engine-ordered rows using SQLite's own
+  parameter-bound equality under resolved built-in collations. Tests cover
+  INTEGER/REAL ties, NOCASE with DISTINCT, NULL, both window boundaries, one group
+  spanning a cut window, and unordered selection. Complete boundary groups retain
+  multiplicity; unresolved collations are refused. Native ordering/record checks:
+  11 passed; ordering/document checks: 3 passed. SQL ordering resolution and uncut
+  query acquisition remain to be integrated before C0 is complete.

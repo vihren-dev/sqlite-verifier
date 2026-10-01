@@ -40,3 +40,10 @@ Supplementary probes use a native SELECT-only authorizer before preparation,
 plus SQLite's read-only and EXPLAIN flags before stepping. They reject PRAGMAs,
 transaction control, DDL, DML and nondeterministic random functions. The guard
 delegates to the acquisition authorizer and restores it after success or failure.
+
+[Native tie grouping](../conformance/native_ordering.py) accepts engine-ordered
+full rows and resolved projected keys with built-in collations. SQLite compares
+adjacent keys through guarded parameter-bound SELECTs, including numeric and
+NOCASE equality. Window intersection retains complete groups at both boundaries,
+including a single group cut at both ends. SQL ordering resolution and obtaining
+the uncut rows are still to be integrated into recording.

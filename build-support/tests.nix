@@ -57,7 +57,7 @@ in {
   };
   model = suite "model" {
     file = "tests/conformance_model_test.py";
-    extraFiles = [ "tests/conformance_trace_test.py" "tests/conformance_pipeline_test.py"
+    extraFiles = [ "tests/conformance_trace_test.py" "tests/conformance_ordering_test.py" "tests/conformance_pipeline_test.py"
       "tests/conformance_mutation_test.py" "tests/conformance_laws_test.py" "tests/conformance_record_test.py" "tests/conformance_dqs_test.py" "tests/conformance_upstream_test.py" "tests/conformance_generation_test.py" "tests/conformance_coverage_test.py" ];
     inputs = [
       (fs.fileFilter (file: file.hasExt "py") (root + /migration_check))
@@ -76,7 +76,7 @@ in {
     ] ++ map (name: root + "/conformance/${name}.py") [
       "model_assertions" "model_cases" "model_check"
       "native_fixture" "import_fixture" "schema"
-      "case_format" "native_connection" "native_library" "native_probe" "native_metadata" "native_record" "native_statements" "native_replay" "upstream_pilot" "upstream_fidelity" "corpus" "generated_program" "mutation_check" "state_machine" "regressions" "progress" "measure_coverage" "native_trace" "pipeline"
+      "case_format" "native_connection" "native_library" "native_probe" "native_ordering" "native_metadata" "native_record" "native_statements" "native_replay" "upstream_pilot" "upstream_fidelity" "corpus" "generated_program" "mutation_check" "state_machine" "regressions" "progress" "measure_coverage" "native_trace" "pipeline"
     ];
     runtime = conformance;
     tools = [ native.sqlite native.sqlite346 ];
