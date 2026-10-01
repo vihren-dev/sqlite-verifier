@@ -33,6 +33,7 @@ let
 in {
   upstream = suite "upstream" {
     file = "tests/conformance_capture_test.py";
+    extraFiles = [ "tests/conformance_sampling_test.py" "tests/conformance_streaming_test.py" ];
     inputs = [
       (fs.fileFilter (file: file.hasExt "py" || file.hasExt "tcl") (root + /conformance))
       (fs.fileFilter (file: file.hasExt "py") (root + /migration_check))
@@ -43,6 +44,7 @@ in {
       (root + /tests/upstream_nondeterminism_calls.test)
       (root + /tests/upstream_storage_calls.test)
       (root + /tests/upstream_fidelity_calls.test)
+      (root + /tests/upstream_sampling_calls.test)
     ];
     runtime = conformance;
     tools = [ native.sqlite conformanceNative.fixture ];
@@ -75,7 +77,7 @@ in {
   };
   model = suite "model" {
     file = "tests/conformance_model_test.py";
-    extraFiles = [ "tests/conformance_authored_test.py" "tests/conformance_authored_queries_test.py" "tests/conformance_requirement_coverage_test.py" "tests/conformance_fidelity_test.py" "tests/conformance_storage_test.py" "tests/conformance_trace_test.py" "tests/conformance_ordering_test.py" "tests/conformance_clock_test.py" "tests/conformance_profile_test.py" "tests/conformance_context_test.py" "tests/conformance_pipeline_test.py"
+    extraFiles = [ "tests/conformance_authored_test.py" "tests/conformance_authored_queries_test.py" "tests/conformance_authored_boundaries_test.py" "tests/conformance_shards_test.py" "tests/conformance_workload_test.py" "tests/conformance_workload_clock_test.py" "tests/conformance_requirement_coverage_test.py" "tests/conformance_fidelity_test.py" "tests/conformance_storage_test.py" "tests/conformance_trace_test.py" "tests/conformance_ordering_test.py" "tests/conformance_clock_test.py" "tests/conformance_profile_test.py" "tests/conformance_context_test.py" "tests/conformance_pipeline_test.py"
       "tests/conformance_mutation_test.py" "tests/conformance_laws_test.py" "tests/conformance_record_test.py" "tests/conformance_dqs_test.py" "tests/conformance_upstream_test.py" "tests/conformance_generation_test.py" "tests/conformance_coverage_test.py" ];
     inputs = [
       (fs.fileFilter (file: file.hasExt "py") (root + /migration_check))
@@ -98,13 +100,15 @@ in {
       (root + /conformance/corpus-v3)
       (root + /conformance/corpus-v2) (root + /conformance/requirements-3.51.0.json)
       (root + /conformance/regressions)
+      (root + /conformance/synthetic-workload)
     ] ++ map (name: root + "/conformance/${name}.py") [
       "model_assertions" "model_cases" "model_check"
       "execution_profile"
       "native_storage"
       "refresh_corpus" "requirement_cases" "requirement_coverage"
-      "authored_cases" "authored_cases_queries" "authored_report"
-      "upstream_selection"
+      "authored_cases" "authored_cases_queries" "authored_boundaries" "authored_report"
+      "upstream_selection" "upstream_catalog" "upstream_sampling"
+      "corpus_shards" "workload" "workload_inputs"
       "upstream_assertions"
       "upstream_helpers"
       "native_fixture" "import_fixture" "schema"

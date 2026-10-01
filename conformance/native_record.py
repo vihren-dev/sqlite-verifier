@@ -113,7 +113,8 @@ def record_sql(setup: str | list[str | dict[str, Json]], migration: str, *, name
                         b"integrity_check", b"quick_check"}
                     settings = {b"foreign_keys", b"recursive_triggers", b"trusted_schema", b"writable_schema"}
                     ignored = {setting.encode() for setting, _reason in profile.ignored_settings} if profile else set()
-                    if setting_name not in metadata and (setting_name not in settings or function is not None) and setting_name not in ignored:
+                    permitted = profile.permits_setting(setting_name.decode(), function) if profile else setting_name in settings and function is None
+                    if setting_name not in metadata and not permitted and setting_name not in ignored:
                         connection.recording_exclusion = ("SQL changes an established execution profile or uses an unsupported setting: "
                             + setting_name.decode())
                         return 1
@@ -170,6 +171,8 @@ def record_sql(setup: str | list[str | dict[str, Json]], migration: str, *, name
 
         def snapshot() -> dict[str, Json]:
             """Preserve committed observations independently while a transaction is open."""
+            if profile is not None:
+                profile.verify_settings(writer)
             visible = observe(writer)
             return {"visible": visible, "persisted": observe(reader) if writer.transaction_open else visible,
                     "transactionOpen": writer.transaction_open}

@@ -285,3 +285,12 @@ C6: [frozen shards and external workloads](20261001-adr5-c6-freeze.task.md),
   measurement includes effective limits from #17. Full semantic and contract
   refactors remain subsequent work. Document checks: 2 passed in 0.52 seconds.
   Final generic membership is not frozen yet.
+
+- 2026-10-02: Added C6 shard, inventory and sampling mechanisms plus 23 native
+  boundaries from #14/#18. The synthetic external-directory commands record,
+  replay and combine complete sequences under exact profiles. Audit fixes prevent
+  alternate executable setup and NUL-truncated SQL from hiding inventory gaps.
+  Uncapped extraction streams prefix evidence and retains fixed sampling and
+  timeout identities. Hermetic model: 186 passed; real Tcl: 17 passed; documents:
+  2 passed. Full 55-source acquisition is live. Final generic freeze, C7 and the
+  actual workload gate remain open; production SQL support is unchanged.

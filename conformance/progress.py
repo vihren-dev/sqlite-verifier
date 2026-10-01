@@ -32,7 +32,7 @@ def progress(corpus: Path, requirements: Path, runtime: Path) -> dict[str, Json]
             "frontendSha256": {str(path): hashlib.sha256(path.read_bytes()).hexdigest()
                 for path in sorted(Path("migration_check").glob("*.py"))},
             "harnessSha256": {name: hashlib.sha256(Path(__file__).with_name(name).read_bytes()).hexdigest()
-                for name in ("corpus.py", "native_replay.py", "progress.py", "requirement_coverage.py")},
+                for name in ("corpus.py", "corpus_shards.py", "native_replay.py", "progress.py", "requirement_coverage.py")},
             "denominator": len(records), "requirementInventoryCount": inventory["count"],
             "requirementMatrixRows": len(matrix), "requirementMatrix": matrix,
             "limitation": "Scenario counts do not prove entire requirements. Untagged upstream cases are not credited with file-level R-ID references.",

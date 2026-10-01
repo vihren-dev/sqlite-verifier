@@ -6,7 +6,7 @@ import ctypes as c
 import time
 
 from conformance.case_format import Json, cell_wire
-from conformance.native_connection import Cell, Row, Connection, NativeError, SQL_ERRORS
+from conformance.native_connection import Cell, Row, Connection, NativeError, SQL_ERRORS, encoded_sql
 from conformance.native_clock import NativeClock
 
 
@@ -35,7 +35,7 @@ def execute(connection: Connection, sql: str, *, outputs: bool = False,
         clock.set_time(clock_values)
     clock_index = 0
     bindings = iter(parameters or [])
-    remaining = sql.encode()
+    remaining = encoded_sql(sql)
     while remaining.strip():
         statement, tail = c.c_void_p(), c.c_char_p()
         connection.deadline = time.monotonic() + 5

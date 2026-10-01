@@ -54,6 +54,21 @@ class ExecutionProfile:
             if connection.query(f"PRAGMA {setting};") != [((1, int(enabled)),)]:
                 raise ValueError(f"Execution profile setting readback differs: {setting}")
 
+    def permits_setting(self, setting: str, value: bytes | None) -> bool:
+        """Allow a query or an explicit boolean value already required by this profile."""
+        expected = {"foreign_keys": self.foreign_keys, "recursive_triggers": self.recursive_triggers,
+                    "trusted_schema": True, "writable_schema": False}
+        booleans = {b"0": False, b"off": False, b"false": False, b"no": False,
+                    b"1": True, b"on": True, b"true": True, b"yes": True}
+        return setting in expected and (value is None or booleans.get(value.lower()) == expected[setting])
+
+    def verify_settings(self, connection: Connection) -> None:
+        """Read back behavioral conditions after SQL, without resetting a changed connection."""
+        for setting, enabled in (("foreign_keys", self.foreign_keys), ("recursive_triggers", self.recursive_triggers),
+                                 ("trusted_schema", True), ("writable_schema", False)):
+            if connection.query(f"PRAGMA {setting};") != [((1, int(enabled)),)]:
+                raise ValueError(f"Execution profile setting readback differs: {setting}")
+
     def to_wire(self) -> dict[str, Json]:
         """Keep profile identity in a stable JSON record alongside native evidence."""
         return {"name": self.name, "version": self.version,

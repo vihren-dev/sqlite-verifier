@@ -90,7 +90,9 @@ Controlled profiles also record `timezone: UTC`: recording/replay temporarily
 establish UTC for native `localtime` conversion and restore the caller's timezone.
 Recording is serialized while this process-global setting is active; parallel
 recording should use worker processes. Other timezone profiles are refused.
-Setting PRAGMAs outside the profile are refused. Ignored settings may name
+Setting PRAGMAs outside the profile are refused. Explicit boolean writes that
+already match the profile are accepted and their settings are read back after
+SQL execution. Ignored settings may name
 `journal_mode`, `synchronous`, `cache_size`, `temp_store`, `mmap_size` and
 `busy_timeout`, each with a reason; behavioral settings cannot be labelled ignored.
 Corpus manifests declare full records in `executionProfiles`; every v4 case
@@ -105,6 +107,12 @@ Run it on each shipped platform. On the opened driver connection, collect
 `SELECT sqlite_version(), sqlite_source_id();` and every row of
 `PRAGMA compile_options;`, sorted. Read back behavioral settings such as
 `PRAGMA foreign_keys;` and `PRAGMA recursive_triggers;` after application setup.
+Read the effective column limit on that same connection through the driver's
+limit API or `sqlite3_limit(db, SQLITE_LIMIT_COLUMN, -1)`. Query it without
+changing it. `MAX_COLUMN` in the compile options gives the ceiling; it does not
+show whether the application lowered the connection's limit. The current
+recorder establishes and verifies 2000. A workload with another effective limit
+needs a supported profile before its suite can be completed.
 Retain the driver dependency lock, command, build configuration and outputs
 beside the external workload profile. A system sqlite3 shell or package version
 does not measure the engine linked into a driver.

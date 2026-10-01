@@ -34,7 +34,7 @@ def test_real_profile_capture_and_clock_change_refusal(tmp_path: Path) -> None:
     output = tmp_path / "capture"
     report = pilot(Path(fixture), upstream, output, 10, ("profile.test",),
         profile=profile, clock=1700000000000)
-    assert report["recordedCases"] == 2, report["files"]
+    assert report["recordedCases"] == 3, report["files"]
     assert report["files"][0]["runtimeExit"] == 0
     instances = report["files"][0]["instances"]
     assert instances[0]["result"] == "recorded"
@@ -43,6 +43,7 @@ def test_real_profile_capture_and_clock_change_refusal(tmp_path: Path) -> None:
     assert "test changed the controlled clock" in instances[3]["exclusions"]
     assert "test changed the controlled clock" in instances[4]["exclusions"]
     assert instances[5]["result"] == "recorded"
+    assert instances[6]["result"] == "recorded"
     _, records = load(output)
     assert records[0]["nativeVersion"] == 4
     assert all(event["clockUnixMilliseconds"] == 1700000000000 for event in records[0]["trace"])

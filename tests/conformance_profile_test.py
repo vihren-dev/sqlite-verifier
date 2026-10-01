@@ -169,3 +169,26 @@ def test_fixed_clock_records_native_statement_boundaries(tmp_path: Path) -> None
     with pytest.raises(ValueError, match="SQLite's date range"):
         record_sql("", "", name="invalid-empty-clock", outputs=True, profile=profile,
             setup_clock=1700000000000, clock_values=2**63)
+
+
+def test_profile_equal_setting_writes_preserve_readback(tmp_path: Path) -> None:
+    """Equal booleans can remain in SQL prefixes; changes and unrecognized values are refused."""
+    from conformance.authored_cases import profiles
+    from conformance.corpus import native_replay
+    from conformance.native_record import record_sql
+    profile = profiles()["foreign-keys"]
+    sql = "PRAGMA foreign_keys=ON; PRAGMA recursive_triggers=OFF; PRAGMA trusted_schema=1; PRAGMA writable_schema=NO; SELECT 1;"
+    record = record_sql("PRAGMA recursive_triggers=false;", sql, name="same-settings", outputs=True, profile=profile)
+    assert len(record["trace"]) == 5 and record["trace"][-1]["rows"] == [[{"integer": {"value": 1}}]]
+    native_replay([record])
+    for setting in ("foreign_keys=OFF", "recursive_triggers=ON", "trusted_schema=OFF", "writable_schema=ON", "foreign_keys=2"):
+        with pytest.raises(ValueError, match="unsupported setting"):
+            record_sql("", "PRAGMA " + setting + ";", name="changed-settings", outputs=True, profile=profile)
+    connection = Connection(load_library(library_path()), tmp_path / "readback.db")
+    try:
+        profile.establish(connection)
+        connection.execute_script("PRAGMA foreign_keys=OFF;")
+        with pytest.raises(ValueError, match="readback differs"):
+            profile.verify_settings(connection)
+    finally:
+        connection.close()

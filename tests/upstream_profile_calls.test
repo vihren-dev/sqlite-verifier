@@ -24,4 +24,8 @@ do_test profile-reopened-changed-clock {db eval {SELECT unixepoch()}} 1700000002
 reset_db
 set sqlite_current_time 1700000000
 do_test profile-clock-reset {db eval {SELECT unixepoch()}} 1700000000
+do_test profile-equal-settings {db eval {
+  PRAGMA foreign_keys=ON; PRAGMA recursive_triggers=OFF;
+  PRAGMA trusted_schema=ON; PRAGMA writable_schema=OFF; SELECT 1;
+}} 1
 finish_test

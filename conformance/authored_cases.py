@@ -109,11 +109,11 @@ def profiles() -> dict[str, ExecutionProfile]:
             connection.close()
 
 
-def records() -> list[dict[str, Json]]:
-    """Acquire fresh typed outputs and profiles without changing legacy corpus recording."""
+def records(cases: list[AuthoredCase] | None = None) -> list[dict[str, Json]]:
+    """Acquire explicit inputs, retaining the original 43-case catalog by default."""
     measured = profiles()
     result: list[dict[str, Json]] = []
-    for case in definitions():
+    for case in definitions() if cases is None else cases:
         record = record_sql(case.setup, case.sql, name=case.name,
             requirements=list(case.requirements), outputs=True,
             parameters=list(case.parameters) if case.parameters is not None else None,

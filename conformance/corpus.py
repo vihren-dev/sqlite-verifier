@@ -18,6 +18,9 @@ from conformance.native_storage import expanded_record
 def load(directory: Path) -> tuple[dict[str, Json], list[dict[str, Json]]]:
     """Bind the case denominator to a version and exact uncompressed content digest."""
     manifest = json.loads((directory / "manifest.json").read_text())
+    if isinstance(manifest, dict) and ("shards" in manifest or "shardStorageVersion" in manifest):
+        from conformance.corpus_shards import load as load_shards
+        return manifest, load_shards(directory, manifest)
     payload = gzip.decompress((directory / "cases.jsonl.gz").read_bytes())
     if hashlib.sha256(payload).hexdigest() != manifest["casesSha256"]:
         raise ValueError("Corpus digest mismatch")

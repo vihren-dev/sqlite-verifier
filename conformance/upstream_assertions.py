@@ -1,10 +1,14 @@
 """Consume traced Tcl assertions without interpreting SQL semantics."""
 
+from collections.abc import Iterator
+from io import StringIO
+
 from conformance.case_format import Json
+from conformance.upstream_selection import implicit_binding_reasons
 
 
-def assertions(events: str) -> list[dict[str, Json]]:
-    """Consume runtime events, retaining expanded test instances and reset-scoped prefixes."""
+def iter_assertions(events: str) -> Iterator[dict[str, Json]]:
+    """Yield expanded runtime instances without retaining every growing SQL prefix."""
     prefix: list[str | dict[str, Json]] = []
     database, closed = "", False
     codes: list[int] = []
@@ -16,10 +20,10 @@ def assertions(events: str) -> list[dict[str, Json]]:
     generation = 0
     auxiliary_databases: dict[str, tuple[str, int]] = {}
     attached = False
-    rows: list[dict[str, Json]] = []
+    implicit_bindings: set[str] = set()
     active: dict[str, Json] | None = None
-    for line in events.splitlines():
-        fields = [bytes.fromhex(field).decode() for field in line.split("\t")]
+    for line in StringIO(events):
+        fields = [bytes.fromhex(field).decode() for field in line.rstrip("\r\n").split("\t")]
         kind, *args = fields
         if kind == "reset":
             generation += 1
@@ -29,9 +33,11 @@ def assertions(events: str) -> list[dict[str, Json]]:
             if auxiliary_connections:
                 excluded.add("multiple connections")
             helpers = []
+            implicit_bindings.clear()
             database, closed = args[0] if args else "", False
             if active is not None:
-                active.update(prefix=[], prefixCodes=[], prefixResults=[], prefixHelpers=[], commands=[], codes=[], results=[], helpers=[])
+                active.update(prefix=[], prefixCodes=[], prefixResults=[], prefixHelpers=[], commands=[], codes=[], results=[], helpers=[],
+                              implicitBindingReasons=[])
         elif kind == "close":
             if args[0] == "db":
                 closed = True
@@ -74,7 +80,7 @@ def assertions(events: str) -> list[dict[str, Json]]:
                 # A connection operation is a capture boundary, never model SQL.
                 if active is not None:
                     active.update(prefix=list(prefix), prefixCodes=list(codes), prefixResults=list(expected), prefixHelpers=list(helpers),
-                                  commands=[], codes=[], results=[], helpers=[])
+                                  commands=[], codes=[], results=[], helpers=[], implicitBindingReasons=sorted(implicit_bindings))
 
         elif kind == "exclude":
             excluded.add(args[0])
@@ -89,11 +95,13 @@ def assertions(events: str) -> list[dict[str, Json]]:
                 excluded.discard("attached databases")
                 if previous and active is not None:
                     active.update(prefix=list(prefix), prefixCodes=list(codes), prefixResults=list(expected),
-                        prefixHelpers=list(helpers), commands=[], codes=[], results=[], helpers=[])
+                        prefixHelpers=list(helpers), commands=[], codes=[], results=[], helpers=[],
+                        implicitBindingReasons=sorted(implicit_bindings))
         elif kind == "begin":
             active = {"id": args[0], "line": int(args[2]) if len(args) > 2 else 0, "expectedTcl": args[1], "prefix": list(prefix),
                       "prefixCodes": list(codes), "prefixResults": list(expected), "prefixHelpers": list(helpers),
-                      "commands": [], "codes": [], "results": [], "helpers": [], "failed": False}
+                      "commands": [], "codes": [], "results": [], "helpers": [], "failed": False,
+                      "implicitBindingReasons": sorted(implicit_bindings)}
         elif kind == "sql":
             if args[2] != "0" or args[3] not in {"eval", "eval-script", "onecolumn", "exists"}:
                 excluded.add("connection or SQL callback context")
@@ -105,9 +113,11 @@ def assertions(events: str) -> list[dict[str, Json]]:
                 excluded.add("auxiliary database differs from primary")
             prefix.append(args[1])
             helpers.append(helper)
+            implicit_bindings.update(implicit_binding_reasons(args[1]))
             if active is not None:
                 active["commands"].append(args[1])
                 active["helpers"].append(helper)
+                active["implicitBindingReasons"] = sorted(implicit_bindings)
         elif kind == "result":
             codes.append(int(args[1]))
             expected.append(args[2:])
@@ -118,6 +128,10 @@ def assertions(events: str) -> list[dict[str, Json]]:
             active["failed"] = True
         elif kind == "end" and active is not None:
             active["exclusions"] = sorted(excluded)
-            rows.append(active)
+            yield active
             active = None
-    return rows
+
+
+def assertions(events: str) -> list[dict[str, Json]]:
+    """Preserve the list API for callers that need all traced assertions together."""
+    return list(iter_assertions(events))

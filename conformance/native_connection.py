@@ -18,6 +18,13 @@ Row: TypeAlias = tuple[Cell, ...]
 SQL_ERRORS = (1, 18, 19, 20)  # ERROR, TOOBIG, CONSTRAINT, MISMATCH
 
 
+def encoded_sql(sql: str) -> bytes:
+    """Refuse NUL-truncated SQL at every C API boundary; bound values retain arbitrary bytes."""
+    if "\x00" in sql:
+        raise ValueError("SQL source contains NUL")
+    return sql.encode()
+
+
 @dataclass(frozen=True)
 class NativeResult:
     """Column names are available even when stepping returns no rows."""
@@ -89,7 +96,7 @@ class Connection:
     def execute_script(self, sql: str) -> None:
         """Initialize fixtures/configuration; migrations use single-statement query instead."""
         self.deadline = time.monotonic() + 5
-        self.check(self.library.sqlite3_exec(self.handle, sql.encode(), None, None, None))
+        self.check(self.library.sqlite3_exec(self.handle, encoded_sql(sql), None, None, None))
 
     def cell(self, statement: c.c_void_p, index: int) -> Cell:
         """Read storage class before extraction; TEXT and BLOB retain all bytes, including NUL."""
@@ -139,7 +146,7 @@ class Connection:
         """Require complete binding and finalize even after execution or validation failure."""
         self.deadline = time.monotonic() + 5
         statement, tail = c.c_void_p(), c.c_char_p()
-        encoded = sql.encode()
+        encoded = encoded_sql(sql)
         self.check(self.library.sqlite3_prepare_v2(self.handle, encoded, len(encoded),
                                                  c.byref(statement), c.byref(tail)))
         try:
