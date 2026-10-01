@@ -4,17 +4,12 @@ from contextlib import ExitStack
 import ctypes as c
 from pathlib import Path
 from tempfile import TemporaryDirectory
-import time
-from collections.abc import Iterator
 
-from conformance.case_format import Json, cell_wire
-from conformance.native_connection import Cell, Row, Connection, NativeError, SQL_ERRORS, SOURCE_ID, library_path, load_library
+from conformance.case_format import Json
+from conformance.native_statements import execute, wire_rows
+from conformance.native_connection import Cell, Connection, SOURCE_ID, library_path, load_library
 from conformance.native_metadata import integer, quoted, text
 
-
-def wire_rows(rows: list[Row]) -> list[Json]:
-    """Preserve native storage classes in metadata as well as application values."""
-    return [[cell_wire(cell) for cell in row] for row in rows]
 
 
 def observe(connection: Connection) -> dict[str, Json]:
@@ -62,58 +57,25 @@ def observe(connection: Connection) -> dict[str, Json]:
     return {"schema": wire_rows(schema), "tables": tables}
 
 
-def execute(connection: Connection, sql: str) -> Iterator[dict[str, Json]]:
-    """Use SQLite's prepared-statement tail to split SQL, including trigger bodies."""
-    remaining = sql.encode()
-    while remaining.strip():
-        statement, tail = c.c_void_p(), c.c_char_p()
-        connection.deadline = time.monotonic() + 5
-        code = connection.library.sqlite3_prepare_v2(connection.handle, remaining, len(remaining),
-                                                      c.byref(statement), c.byref(tail))
-        suffix = tail.value or b""
-        consumed = remaining[:len(remaining) - len(suffix)]
-        rows: list[Row] = []
-        message = ""
-        try:
-            connection.check(code)
-            if statement.value:
-                while True:
-                    result = connection.library.sqlite3_step(statement)
-                    connection.check(result)
-                    if result == 101:
-                        break
-                    rows.append(tuple(connection.cell(statement, index) for index in range(
-                        connection.library.sqlite3_column_count(statement))))
-        except NativeError as error:
-            if getattr(connection, "recording_exclusion", None):
-                raise ValueError(connection.recording_exclusion) from error
-            code, message = error.code, str(error)
-            if code & 255 not in SQL_ERRORS:
-                raise
-        finally:
-            connection.library.sqlite3_finalize(statement)
-        if statement.value or code:
-            yield {"sql": consumed.decode(), "rows": wire_rows(rows),
-                   "primaryCode": code & 255, "extendedCode": code, "error": message}
-        if code:
-            return
-        if remaining == suffix:
-            raise ValueError("SQLite made no progress parsing SQL")
-        remaining = suffix
-
 
 def record_sql(setup: str | list[str | dict[str, Json]], migration: str, *, name: str, requirements: list[str] | None = None,
-               library: Path | None = None) -> dict[str, Json]:
+               library: Path | None = None, outputs: bool = False,
+               parameters: list[tuple[Cell, ...]] | None = None) -> dict[str, Json]:
     """Keep native evidence even when today's frontend cannot represent the SQL."""
+    if parameters is not None and not outputs:
+        raise ValueError("Bound parameters require output recording")
     with TemporaryDirectory(prefix="native-corpus-") as directory, ExitStack() as stack:
         engine = load_library(library or library_path())
         def open_writer() -> Connection:
             """Reject external databases before ATTACH/VACUUM can create files outside the fixture."""
             connection = Connection(engine, Path(directory) / "case.db")
             stack.callback(connection.close)
+            connection.statement_actions: list[int] = []
             def authorize(_context: int, action: int, _a: bytes, function: bytes,
                           _database: bytes, _trigger: bytes) -> int:
                 """Deny unrecordable contexts without turning our denial into SQLite evidence."""
+                if outputs and _trigger is None:
+                    connection.statement_actions.append(action)
                 nondeterministic = {b"random", b"randomblob", b"current_timestamp", b"current_date", b"current_time",
                     b"date", b"time", b"datetime", b"julianday", b"unixepoch", b"strftime", b"timediff"}
                 if action == 24 or action == 31 and function in nondeterministic:
@@ -163,8 +125,8 @@ def record_sql(setup: str | list[str | dict[str, Json]], migration: str, *, name
                     "transactionOpen": writer.transaction_open}
 
         initial = snapshot()
-        trace = [{**event, **snapshot()} for event in execute(writer, migration)]
-    return {"nativeVersion": 2 if isinstance(setup, list) and any(isinstance(item, dict) for item in setup) else 1, "name": name, "setupSql": setup if isinstance(setup, str) else "\n".join(item for item in setup if isinstance(item, str)),
+        trace = [{**event, **snapshot()} for event in execute(writer, migration, outputs=outputs, parameters=parameters)]
+    return {"nativeVersion": 3 if outputs else 2 if isinstance(setup, list) and any(isinstance(item, dict) for item in setup) else 1, "name": name, "setupSql": setup if isinstance(setup, str) else "\n".join(item for item in setup if isinstance(item, str)),
             "setupCommands": [setup] if isinstance(setup, str) else setup, "setupOutcomes": setup_outcomes,
             "setupResults": setup_results, "setupErrors": setup_errors, "migrationSql": migration,
             "sourceId": SOURCE_ID, "requirements": requirements or [], "initial": initial, "trace": trace}

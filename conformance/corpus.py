@@ -10,7 +10,7 @@ from pathlib import Path
 from conformance.case_format import Json
 from conformance.model_check import compiled_many
 from conformance.native_record import record_sql
-from conformance.native_replay import prepare, without_trailing_queries
+from conformance.native_replay import decode_rows, prepare, without_trailing_queries
 
 
 def load(directory: Path) -> tuple[dict[str, Json], list[dict[str, Json]]]:
@@ -72,7 +72,10 @@ def replay(records: list[dict[str, Json]], runtime: Path) -> dict[str, Json]:
 def native_replay(records: list[dict[str, Json]]) -> None:
     """Verify all frozen observations against fresh connections without rewriting evidence."""
     for record in records:
-        fresh = record_sql(record["setupCommands"], record["migrationSql"], name=record["name"])
+        outputs = record["nativeVersion"] == 3
+        parameters = decode_rows([event["parameters"] for event in record["trace"]]) if outputs else None
+        fresh = record_sql(record["setupCommands"], record["migrationSql"], name=record["name"],
+                           outputs=outputs, parameters=parameters)
         if (fresh["initial"], fresh["trace"]) != (record["initial"], record["trace"]):
             raise ValueError(f"Native replay changed: {record['name']}")
 

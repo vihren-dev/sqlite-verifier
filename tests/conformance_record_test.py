@@ -140,3 +140,39 @@ def test_native_output_shape_bindings_and_probe_guard(tmp_path: Path) -> None:
         assert returning.columns == ("x",) and returning.rows == [((1, 1),)]
     finally:
         connection.close()
+
+
+def test_record_outputs_and_direct_changes() -> None:
+    """DML counts exclude triggers/cascades and never carry over into SELECT or DDL."""
+    record = record_sql(
+        "PRAGMA foreign_keys=ON; CREATE TABLE parent(id INTEGER PRIMARY KEY);"
+        "CREATE TABLE child(id INTEGER REFERENCES parent ON DELETE CASCADE);"
+        "CREATE TABLE audit(x); CREATE TRIGGER logged AFTER INSERT ON parent "
+        "BEGIN INSERT INTO audit VALUES(new.id); INSERT INTO audit VALUES(new.id); END;"
+        "INSERT INTO parent VALUES(1); INSERT INTO child VALUES(1);",
+        "INSERT INTO parent VALUES(?) RETURNING id; SELECT id AS value FROM parent WHERE 0;"
+        "WITH input(x) AS (VALUES(3)) INSERT INTO parent SELECT x FROM input;"
+        "UPDATE parent SET id=id WHERE id=99; DELETE FROM parent WHERE id=1;"
+        "CREATE TABLE copied AS SELECT * FROM parent; EXPLAIN INSERT INTO parent VALUES(4);",
+        name="outputs", outputs=True, parameters=[((1, 2),), (), (), (), (), (), ()])
+    assert record["nativeVersion"] == 3
+    trace = record["trace"]
+    assert [event["changes"] for event in trace] == [1, None, 1, 0, 1, None, None]
+    assert trace[0]["columns"] == ["id"] and trace[0]["columnCount"] == 1
+    assert trace[0]["rows"] == [[{"integer": {"value": 2}}]]
+    assert trace[0]["parameters"] == [{"integer": {"value": 2}}]
+    assert trace[1]["columns"] == ["value"] and trace[1]["rows"] == []
+    tables = {table["name"]: table for table in trace[4]["visible"]["tables"]}
+    assert tables["child"]["rows"] == []
+    assert len(tables["audit"]["rows"]) == 6
+    from conformance.corpus import native_replay
+    native_replay([record])
+    record["trace"][0]["changes"] = 2
+    with pytest.raises(ValueError, match="Native replay changed"):
+        native_replay([record])
+    with pytest.raises(ValueError, match="parameter slot"):
+        record_sql("", "SELECT ?;", name="missing-bind", outputs=True)
+    with pytest.raises(ValueError, match="unexecuted statement"):
+        record_sql("", "SELECT 1;", name="extra-bind", outputs=True, parameters=[(), ()])
+    with pytest.raises(ValueError, match="require output recording"):
+        record_sql("", "SELECT ?;", name="dropped-bind", parameters=[((1, 1),)])

@@ -34,6 +34,8 @@ def load_library(path: Path, version: str = "3.51.0") -> c.CDLL:
         "column_name": ([c.c_void_p, c.c_int], c.c_char_p),
         "bind_parameter_count": ([c.c_void_p], c.c_int),
         "stmt_readonly": ([c.c_void_p], c.c_int),
+        "stmt_isexplain": ([c.c_void_p], c.c_int),
+        "changes": ([c.c_void_p], c.c_int),
         "column_type": ([c.c_void_p, c.c_int], c.c_int),
         "column_int64": ([c.c_void_p, c.c_int], c.c_int64),
         "column_double": ([c.c_void_p, c.c_int], c.c_double),

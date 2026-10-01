@@ -32,3 +32,15 @@ has no output observations. C1 owns deterministic clocks and profile setup.
   include it and the output comparator. Native record/DQS, kernel trace/output,
   and Nix target checks passed: 32 tests in 49.70 seconds. Script recording and
   SELECT-only supplementary probing still need integration into version-two cases.
+
+- 2026-10-01: Opt-in native acquisition version 3 records each statement's typed
+  parameter slots, column names/count, rows and direct DML change count. Native
+  authorizer events distinguish DML from DDL (including CTAS) and EXPLAIN; the
+  counter is captured before snapshots and excludes trigger/cascade side effects.
+  Tail splitting moved to native_statements.py; old acquisition remains unchanged.
+  Fresh native replay binds recorded values and rejects corrupted output counts.
+  Native/model/upstream regression tests passed; combined run: 38 passed and one
+  infrastructure check failed on sandbox DNS. That check passed when rerun outside
+  the sandbox (1 test). Final record/document checks: 12 passed. Version 3 remains
+  refused by the model adapter until case-format-v2 integration; ordered-group
+  recording, classifier integration and execution profiles are still open.

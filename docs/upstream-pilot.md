@@ -21,6 +21,16 @@ Native record version 2 represents these setup operations as `{"reopen":true}`
 or `{"dbConfig":[option,value]}` among SQL strings; version 1 remains readable.
 The SQL after the last connection boundary becomes the candidate migration.
 
+ADR 0005's output acquisition is opt-in through `record_sql(..., outputs=True,
+parameters=[...])`. Native record version 3 retains typed parameter slots,
+column names/count (including empty results), rows, and the direct DML change
+count. Supply one parameter tuple per statement; repeated named parameters share
+SQLite's slot. SELECT, DDL and EXPLAIN have no change count. Native replay checks
+these fields against a fresh execution. This acquisition version is distinct
+from the Lean case format: tie-group recording and version-two model comparison
+are still being integrated, so the existing model adapter refuses version 3.
+Default extraction continues to produce versions 1/2 unchanged.
+
 Removing the close exclusion does not by itself widen the supported execution
 profile. `alter.test` still yields 12/119 and `alter3.test` 7/59: TEMP/ATTACH,
 multiple connections and LEGACY_FILE_FORMAT=1 account for remaining exclusions.
