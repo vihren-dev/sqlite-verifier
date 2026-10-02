@@ -36,6 +36,8 @@ C6: [frozen shards and external workloads](20261001-adr5-c6-freeze.task.md),
 [status](20261001-adr5-c6-freeze.status.md).
 C7: [replay tiers and final baseline](20261002-adr5-c7-replay.task.md),
 [status](20261002-adr5-c7-replay.status.md).
+Measured driver gaps: [native profile infrastructure](20261002-adr5-driver-profiles.task.md),
+[status](20261002-adr5-driver-profiles.status.md).
 
 ## Progress
 
@@ -312,3 +314,9 @@ C7: [replay tiers and final baseline](20261002-adr5-c7-replay.task.md),
   commands passed. No data was deleted by the agent. The actual workload gate
   remains open; its measured driver conditions require further generic native
   profile infrastructure. Production model semantics are unchanged.
+
+- 2026-10-02: Prepared and reviewed the additional native-engine/profile task
+  after C7 completion. It covers source-pinned 3.53.4, verified trusted-schema,
+  DQS and actual read-only access, with frozen compatibility and generic
+  end-to-end checks. Application identities, SQL and measurements remain private.
+  No implementation or additional native-build equivalence is claimed yet.
