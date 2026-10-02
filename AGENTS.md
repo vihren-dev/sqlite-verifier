@@ -45,3 +45,8 @@ reader checks that the formula and the intent agree.
 - The structure of the text follows the formula: one item for each conjunct or
   case.
 - A change to a formula changes its plain-words statement in the same commit.
+- Proofs need no restatement: the kernel checks them, and trust does not
+  depend on them. Exception: a library theorem that other proofs use, or a
+  proof longer than about 20 lines, has a short proof sketch (1-5 sentences)
+  in its docstring. The sketch describes the strategy and the key idea, not
+  each step.
