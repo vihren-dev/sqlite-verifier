@@ -46,3 +46,11 @@ neutral capability requirements. Internal agent review is not owner approval.
   verifies all 171 sources; `delete_db.test` has an explicit file-level exclusion.
   Existing cascade and clock cases are substantive; the actual authored gaps
   are deferred-FK commit outcomes and non-NULL CAST-to-REAL.
+
+- 2026-10-02: Added three neutral authored boundaries for deferred foreign-key
+  repair/commit, failed deferred COMMIT with its open transaction and persisted
+  state, and numeric-prefix CAST-to-REAL plus arithmetic. Fresh native capture,
+  shard loading/replay and a corrupted REAL-bit refusal pass (3 tests in 0.57
+  seconds). Existing 43-case and 23-case catalogs and v1–v4 artifacts are
+  unchanged. The repaired freeze will include 69 authored cases; no new model
+  admission is claimed.
