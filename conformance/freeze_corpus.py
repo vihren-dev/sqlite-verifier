@@ -15,7 +15,7 @@ from conformance.corpus import load, native_replay
 from conformance.corpus_shards import natural, source_path, write
 from conformance.freeze_validation import acquisition, digest, triage
 from conformance.native_storage import check_size, serialized
-from conformance.requirement_coverage import resolved_ids
+from conformance.requirement_coverage import credited_upstream, resolved_ids
 from conformance.upstream_catalog import catalog_patterns
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -84,10 +84,10 @@ def freeze(directory: Path, output: Path, *, upstream: Path, fidelity_ledger: Pa
                       fidelity_ledger.parent if fidelity_ledger is not None else directory)
     if "fidelity-ledger.json.gz" in evidence:
         raise ValueError("Fidelity evidence overrides retained ledger")
-    shards = membership(captured)
-    cases = [case for _source, _part, selected in shards for case in selected]
     inventory_path = ROOT / "conformance/requirements-3.51.0.json"
     inventory = json.loads(inventory_path.read_bytes())
+    shards = membership(credited_upstream(captured, inventory))
+    cases = [case for _source, _part, selected in shards for case in selected]
     resolved_ids(cases, inventory)
     if any(type(case.get("nativeVersion")) is not int or case["nativeVersion"] != 4 for case in cases):
         raise ValueError("Final membership requires native v4 outputs and profiles")

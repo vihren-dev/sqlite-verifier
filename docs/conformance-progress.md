@@ -1,5 +1,15 @@
 # Frozen progress and measured coverage (W7)
 
+The [v4 artifact](../conformance/corpus-v4/manifest.json) freezes 1,264 generic
+cases in 27 source/part shards. All observations pass fresh native replay. Its
+[full report](../reports/20261002-adr5-c6-v4-progress.json) keeps all 3,500
+requirement rows, with 110 represented, and reports 1,264 MODEL_UNSUPPORTED.
+The model cannot yet consume the expanded profiles. C7 will add the fast
+development tier and route the progress command to v4; the commands below
+still use v3 until that integration is complete.
+
+The following v3 measurements retain ADR 0004's historical baseline.
+
 `just conformance-progress` replays **corpus v3: 370 cases** through the current
 frontend and compiled classifier. The [review report](../reports/20260929-adr4-corpus-v3-progress.json)
 records 11 AGREE, 359 MODEL_UNSUPPORTED, no disagreements and no harness errors.
@@ -7,9 +17,8 @@ V3 preserves v2's 183 records exactly and adds 164 upstream and 23 authored case
 These added agreements are corpus growth, not model progress. V1 and v2 remain
 immutable; compare model revisions using the same corpus version and digest.
 
-ADR 0005's C6 tools record new profiled outputs and validate a v4 freeze. V3
-remains current until the final v4 artifacts pass native replay and their report
-is committed. The [synthetic workload](conformance-workload.md) exercises the
+ADR 0005's C6 tools record profiled outputs and validate the v4 freeze.
+The [synthetic workload](conformance-workload.md) exercises the
 external-directory commands; it does not complete the actual workload gate.
 
 The raw verdict remains unchanged when a case contains queries. A separate

@@ -7,7 +7,7 @@ import pytest
 
 from conformance.case_format import Json
 from conformance.progress import progress
-from conformance.requirement_coverage import comparison, resolved_ids
+from conformance.requirement_coverage import comparison, credited_upstream, resolved_ids
 
 pytestmark = [pytest.mark.unit, pytest.mark.conformance]
 FIRST = "R-00001-00002-00003"
@@ -62,6 +62,26 @@ def test_inconsistent_inventory_is_refused(inventory: dict[str, Json], damage: s
         inventory["count"] = True if damage == "boolean-count" else 4
     with pytest.raises(ValueError, match="Requirement inventory"):
         resolved_ids([], inventory)
+
+
+def test_obsolete_citations_retain_provenance_without_credit(inventory: dict[str, Json]) -> None:
+    """A corpus freeze preserves native observations while current coverage excludes stale citations."""
+    source = {**record("native", FIRST, "R-unknown", "R-00001"),
+              "upstream": {"file": "a.test", "sourceSha256": "source-bound"},
+              "trace": [{"sql": "SELECT 7", "rows": [[7]]}]}
+    credited = credited_upstream([source], inventory)[0]
+    assert credited["trace"] == source["trace"] and source["requirements"] == [FIRST, "R-unknown", "R-00001"]
+    assert credited["upstream"] == {**source["upstream"], "uncreditedRequirements": ["R-unknown", "R-00001"]}
+    assert resolved_ids([credited], inventory) == [{FIRST}]
+    report = comparison([], [credited], inventory)
+    assert report["afterRowsWithCases"] == 1 and report["inventoryCount"] == 3
+
+
+@pytest.mark.parametrize("tag", [False, [], ""])
+def test_malformed_reference_cannot_be_retained_as_a_citation(inventory: dict[str, Json], tag: Json) -> None:
+    """Malformed inputs fail the trust boundary instead of becoming obsolete reference metadata."""
+    with pytest.raises(ValueError, match="Unknown or ambiguous requirement tag"):
+        credited_upstream([{"requirements": [tag], "upstream": {}}], inventory)
 
 
 def test_progress_uses_per_case_verdicts(inventory: dict[str, Json], tmp_path: Path,

@@ -17,6 +17,28 @@ def inventory_rows(inventory: dict[str, Json]) -> list[dict[str, Json]]:
     return rows
 
 
+def reference_matches(tag: Json, identities: list[str]) -> list[str]:
+    """Resolve citations against this release while refusing malformed reference values."""
+    if not isinstance(tag, str) or not tag:
+        raise ValueError(f"Unknown or ambiguous requirement tag: {tag}")
+    return [identity for identity in identities if identity.startswith(tag)]
+
+
+def credited_upstream(records: list[dict[str, Json]], inventory: dict[str, Json]) -> list[dict[str, Json]]:
+    """Keep obsolete upstream citations as provenance without crediting a current requirement."""
+    identities = [cast(str, row["id"]) for row in inventory_rows(inventory)]
+    result: list[dict[str, Json]] = []
+    for record in records:
+        credited: list[Json] = []
+        uncredited: list[Json] = []
+        for tag in record["requirements"]:
+            (credited if len(reference_matches(tag, identities)) == 1 else uncredited).append(tag)
+        result.append({**record, "requirements": credited,
+            **({"upstream": {**record["upstream"], "uncreditedRequirements": uncredited}}
+               if uncredited else {})})
+    return result
+
+
 def resolved_ids(records: list[dict[str, Json]], inventory: dict[str, Json]) -> list[set[str]]:
     """Resolve short or full IDs once per case, so aliases cannot inflate scenario counts."""
     identities = [cast(str, row["id"]) for row in inventory_rows(inventory)]
@@ -28,7 +50,7 @@ def resolved_ids(records: list[dict[str, Json]], inventory: dict[str, Json]) -> 
             if not isinstance(tag, str) or not tag:
                 raise ValueError(f"Unknown or ambiguous requirement tag: {tag}")
             if tag not in resolutions:
-                matches = [identity for identity in identities if identity.startswith(tag)]
+                matches = reference_matches(tag, identities)
                 if len(matches) != 1:
                     raise ValueError(f"Unknown or ambiguous requirement tag: {tag}")
                 resolutions[tag] = matches[0]

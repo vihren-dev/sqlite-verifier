@@ -7,10 +7,11 @@ Spec: [ADR 0005](../docs/adr-0005-conformance-corpus-scale.md).
 ## Current state
 
 Owner authorized implementation on 2026-09-30 after the document reviews.
-C0–C5 are done. C6 has strict shards, workload recording/replay, retained
-synthetic evidence, issue-boundary cases and a validated freeze command. Its
-corrected full upstream capture is running; final v4 membership remains open.
-C7 and the private workload gate are open. Model semantics are unchanged.
+C0–C6 are done. Corpus v4 freezes 1,264 generic cases; all pass native replay,
+and the current model reports all as unsupported under their expanded profiles.
+The artifact, source/triage evidence, synthetic workload and full report are
+retained within budget. C7 and the private workload gate are open. Model
+semantics are unchanged.
 C8 follows the model semantics concerned, as the ADR specifies.
 
 ## Sources and package records
