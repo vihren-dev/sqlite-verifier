@@ -54,3 +54,27 @@ neutral capability requirements. Internal agent review is not owner approval.
   seconds). Existing 43-case and 23-case catalogs and v1–v4 artifacts are
   unchanged. The repaired freeze will include 69 authored cases; no new model
   admission is claimed.
+
+- 2026-10-02: Expanded the exact pinned catalog from 55 to 171 sources,
+  accounting for all 21 declared families and 28 explicit file exclusions.
+  Catalog acquisition routes through measured FK/clock profiles and declared
+  round-trip Tcl precision. Unused registrations no longer block unrelated SQL;
+  direct, operator, view, trigger and partial-DDL callback dependencies remain
+  refusals. REAL comparison verifies exact native bits and BLOB comparison
+  preserves all bytes. The unchanged CAST source records 100/134 assertions,
+  including 27 cases with REAL cells and five with BLOB cells; fresh replay
+  passes. Date precision changes and foreign-key setting changes remain named
+  limitations, without changing source expectations.
+
+  New v5 freezing includes the 69 authored definitions, scoped label counts,
+  all retained v1–v4 byte accounting and complete harness bindings. The same
+  stateless retained-policy boundary protects ordinary v5 loading: every case
+  must match its accepted source identity, hash, labels, profile, clock and
+  observed precision. Fully rebound semantic corruptions are refused; future
+  current-policy changes do not invalidate historical evidence. Bounded combined
+  freeze/evidence/acquisition checks pass (84 in 6.44 seconds), the isolated
+  upstream target passes (54 in 2.16 seconds), and full historical model checks
+  pass (285 plus one upstream-owned Tcl skip in 210.17 seconds). The retained
+  boundary's subsequent focused checks pass (31 in 1.07 seconds). The complete
+  uncapped extraction, fidelity ledger, actual v5 freeze, both-platform replay
+  and refreshed private baselines remain open. No semantic-model code changed.

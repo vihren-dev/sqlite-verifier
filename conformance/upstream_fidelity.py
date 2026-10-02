@@ -2,10 +2,11 @@
 
 from conformance.case_format import Json
 from conformance.native_record import record_sql
-from conformance.native_replay import decode_cell, decode_rows
+from conformance.native_replay import decode_rows
 from conformance.execution_profile import recorded_profile
 from conformance.upstream_helpers import command_events
 from conformance.query_window import ASCII_UPPER, identifier_name, tokens
+from conformance.upstream_result_values import helper_cells, value_text, values_agree
 
 
 def fidelity_difference(reason: str, *, sql: str = "", native_error: str = "",
@@ -28,32 +29,9 @@ def fidelity_difference(reason: str, *, sql: str = "", native_error: str = "",
     return ValueError(reason + (": " + cause if cause else ""))
 
 
-def tcl_values(rows: list[Json], helper: str = "eval") -> list[str]:
-    """Compare untyped Tcl values only where byte-to-text conversion is unambiguous."""
-    helper = helper.removeprefix("aux:")
-    if helper == "eval-script":
-        return []  # Tcl eval with a pure row body returns the empty result.
-    if helper == "exists":
-        return ["1" if rows else "0"]
-    if helper == "onecolumn":
-        rows = [[rows[0][0]]] if rows and rows[0] else []
-        if not rows:
-            return [""]
-    elif helper != "eval":
-        raise ValueError("Tcl helper semantics not reproduced")
-    result: list[str] = []
-    for row in rows:
-        for cell in row:
-            kind, value = decode_cell(cell)
-            if kind == 5:
-                result.append("")
-            elif kind == 1:
-                result.append(str(value))
-            elif kind == 3:
-                result.append(value.decode("utf-8"))
-            else:
-                raise ValueError("Tcl extraction check excludes REAL/BLOB result formatting")
-    return result
+def tcl_values(rows: list[Json], helper: str = "eval", *, precision: int | None = None) -> list[str]:
+    """Keep independent value diagnostics separate from exact round-trip REAL comparison."""
+    return [value_text(cell, precision) for cell in helper_cells(rows, helper)]
 
 
 def check_results(record: dict[str, Json], candidate: dict[str, Json]) -> None:
@@ -65,12 +43,13 @@ def check_results(record: dict[str, Json], candidate: dict[str, Json]) -> None:
             raise fidelity_difference("prefix error outcomes differ from Tcl execution",
                                       native_error=record["setupErrors"][index])
     helpers = candidate.get("prefixHelpers", ["eval"] * len(candidate["prefixCodes"]))
+    precisions = candidate.get("prefixPrecisions", [None] * len(candidate["prefixCodes"]))
     for index, (code, rows, expected, error, helper) in enumerate(zip(candidate["prefixCodes"], record["setupResults"], candidate["prefixResults"], record["setupErrors"], helpers, strict=True)):
         if code and [error] != expected:
             raise ValueError("prefix error text differs from Tcl execution")
         if not code:
-            actual = tcl_values(rows, helper)
-            if actual != expected:
+            actual = tcl_values(rows, helper, precision=precisions[index])
+            if not values_agree(rows, expected, helper, precisions[index]):
                 command = record["setupCommands"][index]
                 raise fidelity_difference("prefix results differ from Tcl execution",
                     sql=command if isinstance(command, str) else "", actual=actual, expected=expected)
@@ -81,13 +60,15 @@ def check_results(record: dict[str, Json], candidate: dict[str, Json]) -> None:
     if native_error and [record["trace"][-1]["error"]] != candidate["results"][-1]:
         raise ValueError("assertion error text differs from Tcl execution")
     helpers = candidate.get("helpers", ["eval"] * len(candidate["commands"]))
-    for events, helper, expected, code in zip(command_events(record, candidate["commands"]), helpers,
-                                             candidate["results"], candidate["codes"], strict=True):
+    precisions = candidate.get("precisions", [None] * len(candidate["commands"]))
+    for index, (events, helper, expected, code) in enumerate(zip(command_events(record, candidate["commands"]), helpers,
+                                             candidate["results"], candidate["codes"], strict=True)):
         if bool(events and events[-1]["primaryCode"]) != bool(code):
             raise ValueError("assertion error outcome differs from Tcl execution")
         if not code:
-            actual = tcl_values([row for event in events for row in event["rows"]], helper)
-            if actual != expected:
+            rows = [row for event in events for row in event["rows"]]
+            actual = tcl_values(rows, helper, precision=precisions[index])
+            if not values_agree(rows, expected, helper, precisions[index]):
                 raise fidelity_difference("assertion results differ from Tcl execution",
                     sql="".join(event["sql"] for event in events), actual=actual, expected=expected)
 

@@ -7,6 +7,7 @@ from pathlib import Path
 
 from conformance.case_format import Json
 from conformance.corpus_shards import natural, source_path
+from conformance.corpus_acquisition import verify as verify_acquisition
 from conformance.freeze_validation import digest, mismatch, triage
 
 FEATURE_LABEL_VIEWS = ("byCaseFeatureLabel", "bySourceFileLabel", "byUnscopedFeatureLabel")
@@ -105,8 +106,12 @@ def verify(directory: Path, manifest: dict[str, Json], records: list[dict[str, J
         raise ValueError("Corpus extraction case count differs")
     fields = ("sourceRelease", "sourceId", "sourceArchiveSha256", "sourceCatalogVersion", "sourceCatalog",
               "fileExclusionPolicy", "expressionSamplingPolicy")
+    if natural(manifest.get("corpusVersion"), positive=True) >= 5:
+        fields += ("sourceFamilyPolicy", "sourceExecutionProfilePolicy", "tclDisplayPrecisionPolicy")
     if any(field not in report or manifest.get(field) != report[field] for field in fields):
         raise ValueError("Corpus extraction policy binding differs")
+    if natural(manifest.get("corpusVersion"), positive=True) >= 5:
+        verify_acquisition(report, [record for record in records if record.get("part") == "upstream"])
     expected = refusals(report)
     if manifest.get("sourceFiles") != {file["file"]: file.get("sha256") for file in report["files"]}:
         raise ValueError("Corpus extraction source hashes differ")

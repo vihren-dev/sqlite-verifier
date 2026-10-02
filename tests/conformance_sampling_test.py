@@ -21,10 +21,10 @@ pytestmark = [pytest.mark.integration, pytest.mark.conformance, pytest.mark.requ
 
 
 def test_fixed_catalog_and_explicit_file_exclusions() -> None:
-    """Exactly 55 reviewed sources include 18 exclusions without excluding ordinary BLOB SQL."""
+    """All 171 pinned family sources include 28 explicit file exclusions."""
     catalog = source_catalog()
-    assert len(catalog) == len(set(catalog_patterns())) == 55
-    assert sum(bool(source["fileExclusions"]) for source in catalog) == 18
+    assert len(catalog) == len(set(catalog_patterns())) == 171
+    assert sum(bool(source["fileExclusions"]) for source in catalog) == 28
     assert {source["file"] for source in catalog if "json_extract" in source["features"]} == {"json101.test"}
     for file, reason in (("alterfault.test", "fault injection"), ("altermalloc.test", "allocation fault injection"),
         ("altercorrupt.test", "database corruption"), ("alterauth.test", "authorizer context"),
@@ -63,7 +63,7 @@ def test_identity_sampling_ignores_native_acceptance() -> None:
 
 
 def test_real_uncapped_capture_and_prefix_sampling(tmp_path: Path) -> None:
-    """More than 20 cases record; sampled callback cases keep refusals and never refill a cohort."""
+    """Unrelated registrations remain eligible; fixed cohorts do not change with acquisition yield."""
     fixture = shutil.which("testfixture")
     if fixture is None or "CONFORMANCE_UPSTREAM" not in os.environ:
         pytest.skip("Run the pinned Nix upstream target for Tcl capture")
@@ -80,7 +80,7 @@ def test_real_uncapped_capture_and_prefix_sampling(tmp_path: Path) -> None:
     cohorts = (("loops.test", "generated-", 4), ("loops.test", "blocked-", 4))
     first = pilot(Path(fixture), upstream, tmp_path / "first", None, ("*.test",), profile=profile, sampling=cohorts)
     repeated = pilot(Path(fixture), upstream, tmp_path / "repeated", None, ("*.test",), profile=profile, sampling=cohorts)
-    assert first["perFileLimit"] is None and first["recordedCases"] == 29
+    assert first["perFileLimit"] is None and first["recordedCases"] == 33
     assert first["expressionSamplingPolicy"] == sampling_policy(cohorts)
     source = next(file for file in first["files"] if file["file"] == "loops.test")
     again = next(file for file in repeated["files"] if file["file"] == "loops.test")
@@ -94,12 +94,15 @@ def test_real_uncapped_capture_and_prefix_sampling(tmp_path: Path) -> None:
                for cohort in source["expressionSampling"]}
     for instance in source["instances"]:
         if instance["id"].startswith("blocked-"):
-            expected = {"application callback: function"}
+            expected: set[str] = set()
             if instance["occurrence"] not in choices["blocked-"]:
                 expected.add("expression prefix sampling: blocked-")
             assert set(instance["exclusions"]) == expected
     _, records = load(tmp_path / "first")
-    assert len(records) == 29 and all(record["nativeVersion"] == 4 for record in records)
+    assert len(records) == 33 and all(record["nativeVersion"] == 4 for record in records)
+    retained = {f"uncapped-{index}" for index in range(24)} | {"recovered"}
+    retained.update(item["id"] for cohort in source["expressionSampling"] for item in cohort["selected"])
+    assert {record["upstream"]["id"] for record in records} == retained
     native_replay(records, profile=profile)
     uncapped = pilot(Path(fixture), upstream, tmp_path / "uncapped", None, ("loops.test",), profile=profile)
-    assert uncapped["recordedCases"] == 37
+    assert uncapped["recordedCases"] == 49

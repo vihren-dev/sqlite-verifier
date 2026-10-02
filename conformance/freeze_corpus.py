@@ -1,4 +1,4 @@
-"""Freeze the complete C6 generic membership only after evidence, replay and budget checks."""
+"""Freeze repaired generic v5 membership only after evidence, replay and budget checks."""
 
 import argparse
 from collections import Counter
@@ -10,8 +10,10 @@ from tempfile import TemporaryDirectory
 
 from conformance.authored_boundaries import definitions as boundary_definitions
 from conformance.authored_cases import records as authored_records
+from conformance.authored_review import definitions as review_definitions
 from conformance.case_format import Json
 from conformance.corpus import load, native_replay
+from conformance.corpus_evidence import feature_counts
 from conformance.corpus_shards import natural, source_path, write
 from conformance.freeze_validation import acquisition, digest, triage
 from conformance.native_storage import check_size, serialized
@@ -38,14 +40,14 @@ def retained_bytes(directories: tuple[Path, ...]) -> list[dict[str, Json]]:
         manifest_path = source_path(directory, "manifest.json")
         manifest = json.loads(manifest_path.read_bytes())
         version = natural(manifest.get("corpusVersion"), positive=True)
-        if version not in {1, 2, 3} or version in seen:
+        if version not in {1, 2, 3, 4} or version in seen:
             raise ValueError("Invalid or duplicate retained corpus version")
         seen.add(version)
         size = sum(path.stat().st_size for path in directory.rglob("*") if path.is_file())
         result.append({"corpusVersion": version, "directory": directory.name, "bytes": size,
                        "manifestSha256": digest(manifest_path.read_bytes())})
-    if seen != {1, 2, 3}:
-        raise ValueError("Retained corpus versions 1, 2 and 3 must all be accounted for")
+    if seen != {1, 2, 3, 4}:
+        raise ValueError("Retained corpus versions 1, 2, 3 and 4 must all be accounted for")
     return result
 
 
@@ -63,6 +65,9 @@ def membership(upstream: list[dict[str, Json]]) -> list[tuple[str, str, list[dic
         raise ValueError("Unknown authored membership part")
     if boundaries:
         shards.append(("issue-boundaries", "issue-boundary", boundaries))
+    review = authored_records(review_definitions())
+    if review:
+        shards.append(("review-boundaries", "boundary-interaction", review))
     for filename in catalog_patterns():
         selected = [record for record in upstream if record["upstream"]["file"] == filename]
         if selected:
@@ -72,7 +77,7 @@ def membership(upstream: list[dict[str, Json]]) -> list[tuple[str, str, list[dic
 
 def freeze(directory: Path, output: Path, *, upstream: Path, fidelity_ledger: Path | None = None,
            retained: tuple[Path, ...] | None = None) -> dict[str, Json]:
-    """Publish a new v4 directory only after all selection and native evidence gates pass."""
+    """Publish a new v5 directory only after all selection and native evidence gates pass."""
     if output.exists() or output.is_symlink():
         raise ValueError("Corpus output already exists")
     extraction = source_path(directory, "manifest.json").read_bytes()
@@ -95,13 +100,16 @@ def freeze(directory: Path, output: Path, *, upstream: Path, fidelity_ledger: Pa
         check_size(len(serialized(case)))
     native_replay(cases)
     previous = retained_bytes(retained if retained is not None else
-                              tuple(ROOT / f"conformance/corpus-v{version}" for version in (1, 2, 3)))
+                              tuple(ROOT / f"conformance/corpus-v{version}" for version in (1, 2, 3, 4)))
     extraction_gzip = gzip.compress(extraction, mtime=0)
     ledger_gzip = gzip.compress(ledger_bytes, mtime=0) if ledger_bytes is not None else None
     metadata: dict[str, Json] = {
         "sourceRelease": report["sourceRelease"], "sourceId": report["sourceId"],
         "sourceArchiveSha256": report["sourceArchiveSha256"],
         "sourceCatalogVersion": report["sourceCatalogVersion"], "sourceCatalog": report["sourceCatalog"],
+        "sourceFamilyPolicy": report["sourceFamilyPolicy"],
+        "sourceExecutionProfilePolicy": report["sourceExecutionProfilePolicy"],
+        "tclDisplayPrecisionPolicy": report["tclDisplayPrecisionPolicy"],
         "sourceFiles": {file["file"]: file["sha256"] for file in report["files"]},
         "fileExclusionPolicy": report["fileExclusionPolicy"],
         "expressionSamplingPolicy": report["expressionSamplingPolicy"],
@@ -110,7 +118,7 @@ def freeze(directory: Path, output: Path, *, upstream: Path, fidelity_ledger: Pa
         "sourceHashes": code_hashes(), "requirementsSha256": digest(inventory_path.read_bytes()),
         "nativeReplayPassed": True, "retainedCorpora": previous,
         "byPart": dict(Counter(case["part"] for case in cases)),
-        "byFeature": dict(sorted(Counter(feature for case in cases for feature in case["features"]).items())),
+        **feature_counts(cases),
     }
     if ledger_gzip is not None:
         metadata["fidelityLedger"] = {"path": "fidelity/fidelity-ledger.json.gz", "sha256": digest(ledger_gzip),
@@ -119,7 +127,7 @@ def freeze(directory: Path, output: Path, *, upstream: Path, fidelity_ledger: Pa
     output.parent.mkdir(parents=True, exist_ok=True)
     with TemporaryDirectory(prefix="freeze-corpus-", dir=output.parent) as temporary:
         stage = Path(temporary) / "corpus"
-        manifest = write(stage, shards, metadata=metadata)
+        manifest = write(stage, shards, metadata=metadata, corpus_version=5)
         (stage / "extraction.json.gz").write_bytes(extraction_gzip)
         if ledger_gzip is not None:
             (stage / "fidelity").mkdir()

@@ -1,0 +1,48 @@
+# Named registrations only exclude dependent SQL or retained schema/prefix context.
+set testdir [file join $env(CONFORMANCE_UPSTREAM) test]
+source [file join $testdir tester.tcl]
+proc registered_value {args} {return 7}
+reset_db
+db func custom_value registered_value
+do_test registered-unused {
+  db eval {CREATE TABLE t(custom_value); INSERT INTO t VALUES(7);
+    SELECT custom_value,'custom_value()' FROM t; -- custom_value()
+  }
+} {7 custom_value()}
+do_test registered-direct {db eval {SELECT "CUSTOM_VALUE"()}} 7
+do_test registered-prefix-tainted {db eval {SELECT 8}} 8
+reset_db
+catch {db func absent -unsupported registered_value}
+do_test registered-failed {db eval {SELECT 8}} 8
+reset_db
+db eval {SELECT abs(-7)}
+db func abs registered_value
+do_test registered-earlier-builtin {db eval {SELECT 9}} 9
+reset_db
+db eval {CREATE TABLE IF NOT EXISTS main.abs(a); INSERT INTO abs(a) VALUES(9)}
+db func abs registered_value
+do_test registered-table-name {db eval {SELECT a FROM abs}} 9
+reset_db
+db eval {SELECT 1; CREATE TABLE t(v);
+  CREATE TRIGGER tr BEFORE INSERT ON t BEGIN SELECT custom_value(); END;}
+db func custom_value registered_value
+do_test registered-trigger {db eval {INSERT INTO t VALUES(1); SELECT v FROM t}} 1
+reset_db
+db eval {CREATE VIEW v AS SELECT custom_value() AS n}
+db func custom_value registered_value
+do_test registered-view {db eval {SELECT n FROM v}} 7
+reset_db
+catch {db eval {CREATE VIEW v AS SELECT abs(-7) AS n; SELECT no_such();}}
+db func abs registered_value
+do_test registered-partial-prefix {db eval {SELECT n FROM v}} 7
+reset_db
+db eval {CREATE TABLE t(v)}
+db eval {ALTER TABLE t ADD COLUMN n DEFAULT(abs(-7))}
+db func abs registered_value
+do_test registered-alter-default {db eval {INSERT INTO t(v) VALUES(1); SELECT n FROM t}} 7
+reset_db
+db func like registered_value
+do_test registered-operator {db eval {SELECT 'a' LIKE 'b'}} 7
+reset_db
+do_test registered-reset-clean {db eval {SELECT 10}} 10
+finish_test

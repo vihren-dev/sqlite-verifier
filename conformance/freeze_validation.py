@@ -1,26 +1,31 @@
 """Refuse incomplete acquisition and unbound Tcl/native triage before a C6 freeze."""
 
-from collections import Counter
 import hashlib
 from pathlib import Path
 import re
 
 from conformance.case_format import Json
 from conformance.corpus_shards import natural, source_path
+from conformance.corpus_acquisition import verify
+from conformance.upstream_profiles import source_profile_policy, tcl_precision_policy
 from conformance.native_connection import SOURCE_ID
 from conformance.native_storage import serialized
-from conformance.upstream_catalog import catalog_patterns, exclusion_policy, source_catalog
+from conformance.upstream_catalog import CATALOG_VERSION, catalog_patterns, exclusion_policy, family_policy, source_catalog
 from conformance.upstream_sampling import EXPRESSION_COHORTS, sampling_policy, select_candidates
 
 ARCHIVE_SHA256 = "5330719b8b80bf563991ff7a373052943f5357aae76cd1f3367eab845d3a75b7"
-EXTRACTOR_FILES = {"upstream_pilot.py", "upstream_assertions.py", "upstream_helpers.py", "upstream_proxy.tcl",
-                   "upstream_fidelity.py", "upstream_selection.py", "upstream_catalog.py", "upstream_sampling.py",
-                   "native_record.py", "native_storage.py"}
+EXTRACTOR_FILES = frozenset(path.name for pattern in ("*.py", "upstream*.tcl")
+                            for path in Path(__file__).parent.glob(pattern))
 
 
 def digest(payload: bytes) -> str:
     """Use the same SHA-256 identity for source files, retained evidence and transport."""
     return hashlib.sha256(payload).hexdigest()
+
+
+def extractor_hashes(directory: Path) -> dict[str, str]:
+    """Bind the complete harness and Tcl helper bytes used during acquisition."""
+    return {name: digest(source_path(directory, name).read_bytes()) for name in sorted(EXTRACTOR_FILES)}
 
 
 def mismatch(reason: str) -> bool:
@@ -33,8 +38,11 @@ def acquisition(report: dict[str, Json], records: list[dict[str, Json]], upstrea
     """Bind exact sources, fixed sampling, completed candidates and the accepted membership."""
     if (type(report.get("corpusVersion")) is not int or report["corpusVersion"] != 1
             or natural(report.get("recordedCases")) != len(records)
-            or type(report.get("sourceCatalogVersion")) is not int or report["sourceCatalogVersion"] != 1
+            or type(report.get("sourceCatalogVersion")) is not int or report["sourceCatalogVersion"] != CATALOG_VERSION
             or report.get("sourceCatalog") != source_catalog()
+            or serialized(report.get("sourceFamilyPolicy")) != serialized(family_policy())
+            or serialized(report.get("sourceExecutionProfilePolicy")) != serialized(source_profile_policy())
+            or serialized(report.get("tclDisplayPrecisionPolicy")) != serialized(tcl_precision_policy())
             or report.get("fileExclusionPolicy") != exclusion_policy()
             or report.get("expressionSamplingPolicy") != sampling_policy(EXPRESSION_COHORTS)
             or report.get("patterns") != list(catalog_patterns())
@@ -53,7 +61,7 @@ def acquisition(report: dict[str, Json], records: list[dict[str, Json]], upstrea
             or any(not isinstance(file, dict) for file in files)
             or [file.get("file") for file in files] != list(catalog_patterns())):
         raise ValueError("Acquisition source files are incomplete or duplicated")
-    accepted: dict[tuple[str, str, int], dict[str, Json]] = {}
+    verify(report, records)
     refusals: set[tuple[str, str, int]] = set()
     for file, declaration in zip(files, source_catalog(), strict=True):
         filename = file["file"]
@@ -61,55 +69,17 @@ def acquisition(report: dict[str, Json], records: list[dict[str, Json]], upstrea
                 or file.get("fileExclusions") != declaration["fileExclusions"]
                 or digest(source_path(upstream / "test", filename).read_bytes()) != file.get("sha256")):
             raise ValueError("Acquisition source hash or labels differ")
-        if file.get("timedOut") or file.get("incomplete") or file.get("runtimeComplete") is False:
-            raise ValueError("Acquisition runtime is incomplete or timed out")
         if declaration["fileExclusions"]:
-            if (file.get("excludedFile") != "; ".join(declaration["fileExclusions"])
-                    or {"instances", "runtimeAssertions", "runtimeExit", "runtimeComplete", "recorded"} & file.keys()):
-                raise ValueError("Acquisition file exclusion differs")
             continue
-        if ("excludedFile" in file or type(file.get("runtimeExit")) is not int
-                or file.get("runtimeComplete") is not True):
-            raise ValueError("Acquisition runtime is incomplete")
-        instances = file.get("instances")
-        if not isinstance(instances, list) or natural(file.get("runtimeAssertions")) != len(instances):
-            raise ValueError("Acquisition runtime count differs")
-        for occurrence, instance in enumerate(instances):
-            if (not isinstance(instance, dict) or not isinstance(instance.get("id"), str)
-                    or not instance["id"] or natural(instance.get("occurrence")) != occurrence
-                    or not isinstance(instance.get("exclusions"), list)
-                    or any(not isinstance(reason, str) or not reason for reason in instance["exclusions"])
-                    or len(set(instance["exclusions"])) != len(instance["exclusions"])
-                    or instance.get("result") != ("; ".join(instance["exclusions"]) or "recorded")):
-                raise ValueError("Acquisition candidate accounting differs")
-            identity = (filename, instance["id"], occurrence)
-            if instance["result"] == "recorded":
-                accepted[identity] = file
+        instances = file["instances"]
+        for instance in instances:
             if any(mismatch(reason) for reason in instance["exclusions"]):
-                refusals.add(identity)
+                refusals.add((filename, instance["id"], instance["occurrence"]))
         sampled, choices = select_candidates(filename, instances, EXPRESSION_COHORTS)
         if (file.get("expressionSampling") != choices
-                or file.get("reasons") != dict(Counter(instance["result"] for instance in instances))
-                or natural(file.get("recorded")) != sum(instance["result"] == "recorded" for instance in instances)
                 or any((sampled.get(index) in instance["exclusions"]) != (index in sampled)
                        for index, instance in enumerate(instances))):
             raise ValueError("Acquisition sampling or result accounting differs")
-    observed: set[tuple[str, str, int]] = set()
-    for record in records:
-        provenance = record.get("upstream")
-        if (not isinstance(provenance, dict) or any(
-                not isinstance(provenance.get(key), str) or not provenance[key] for key in ("file", "id"))):
-            raise ValueError("Missing upstream case provenance")
-        identity = (provenance.get("file"), provenance.get("id"), natural(provenance.get("occurrence")))
-        file = accepted.get(identity)
-        if (file is None or identity in observed or type(record.get("nativeVersion")) is not int
-                or record["nativeVersion"] != 4 or record.get("part") != "upstream"
-                or record.get("features") != file["features"] or record.get("featureMetadataScope") != "source-file"
-                or provenance.get("sourceSha256") != file["sha256"]):
-            raise ValueError("Acquisition accepted membership or profile format differs")
-        observed.add(identity)
-    if observed != set(accepted):
-        raise ValueError("Acquisition accepted membership differs")
     return refusals
 
 

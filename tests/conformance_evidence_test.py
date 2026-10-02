@@ -25,7 +25,8 @@ def frozen(capture: tuple[Path, Path, dict[str, Json], dict[str, Json]],
     file = next(file for file in report["files"] if file["file"] == "check.test")
     reason = "native acquisition: prefix results differ from Tcl execution: filesystem path observation"
     file.update(runtimeAssertions=1, reasons={reason: 1}, instances=[
-        {"id": "mismatch", "occurrence": 0, "result": reason, "exclusions": [reason]}])
+        {"id": "mismatch", "occurrence": 0, "result": reason, "exclusions": [reason],
+         "tclResultPrecision": {"values": [0], "successfulCalls": 1}}])
     save(directory, report, shared_record(record))
     proof = tmp_path / "proof.txt"
     proof.write_text("Independent native and Tcl path observations.\n")
@@ -42,7 +43,7 @@ def test_optional_evidence_survives_actual_load(frozen: tuple[Path, dict[str, Js
     """A complete finalizer output loads with acquisition, named causes and retained proofs intact."""
     directory, manifest = frozen
     actual, records = load(directory)
-    assert actual == manifest and len(records) == 4
+    assert actual == manifest and len(records) == 5
     assert actual["fidelityLedger"]["mismatches"] == 1
 
 

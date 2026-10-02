@@ -27,6 +27,11 @@ proc capture_method {operation} {
   if {[llength $matches] == 1} { return [lindex $matches 0] }
   return ""
 }
+# Read display conditions without invoking Tcl variable callbacks.
+proc capture_precision {} {
+  if {![llength [trace info variable ::tcl_precision]] && [info exists ::tcl_precision]} { return $::tcl_precision }
+  return ""
+}
 proc capture_pure_row_body {command} {
   # ponytail: only empty/basic braced expr bodies; widen verified forms when yield warrants it.
   if {[llength $command] ni {4 5}} { return 0 }
@@ -59,6 +64,13 @@ proc capture_connection {name command args} {
           $::sqlite_current_time != $::env(CONFORMANCE_CLOCK_SECONDS)} {
         capture_event exclude "test changed the controlled clock"
       }
+      if {[info exists ::env(CONFORMANCE_TCL_PRECISION)]} {
+        set precision [capture_precision]
+        if {$precision eq ""} { capture_event exclude "Tcl display precision unobservable"
+        } elseif {$precision != $::env(CONFORMANCE_TCL_PRECISION)} {
+          capture_event exclude "test changed the declared Tcl display precision"
+        }
+      }
       set callback [expr {[llength $command] > 3}]
       set helper $operation
       if {$operation eq "eval" && $callback && [capture_pure_row_body $command]} {
@@ -73,6 +85,7 @@ proc capture_connection {name command args} {
         capture_event result $name 0 {*}[lindex $args 1]
       } else { capture_event result $name [lindex $args 0] [lindex $args 1] }
       if {[lindex $args 0] != 0} { return } ;# Metadata SQL would clear the failed call's errorcode.
+      capture_event result-precision $name [capture_precision]
       set ::capture_metadata 1
       try {
         capture_event databases $name {*}[$name eval {PRAGMA database_list}]
@@ -82,7 +95,9 @@ proc capture_connection {name command args} {
     }
   } elseif {$operation eq "close"} {
     if {[lindex $args end] eq "leave" && [lindex $args 0] == 0} { capture_event close $name }
-  } elseif {$operation in {function collate collation_needed authorizer bind_fallback busy
+  } elseif {$operation eq "function"} {
+    if {[lindex $args end] eq "leave" && [lindex $args 0] == 0} { capture_event function $name [lindex $command 2] }
+  } elseif {$operation in {collate collation_needed authorizer bind_fallback busy
       preupdate profile progress trace trace_v2 unlock_notify update_hook rollback_hook commit_hook wal_hook}} {
     capture_event exclude "application callback: $operation"
   } elseif {$operation eq "incrblob"} {
@@ -160,6 +175,11 @@ proc capture_external {command operation} {
 proc capture_source {command code result operation} {
   if {[file tail [lindex $command end]] eq "tester.tcl" && ![info exists ::capture_installed]} {
     set ::capture_installed 1
+    if {[info exists ::env(CONFORMANCE_TCL_PRECISION)]} {
+      set original [capture_precision]
+      if {$original ne ""} { set ::tcl_precision $::env(CONFORMANCE_TCL_PRECISION) }
+      capture_event precision-policy $original [capture_precision] $::env(CONFORMANCE_TCL_PRECISION)
+    }
     trace add execution do_test {enter leave} capture_test
     trace add execution reset_db leave capture_reset
     trace add execution fail_test enter capture_failure

@@ -41,12 +41,12 @@ in {
       (root + /conformance/corpus-v4)
       (root + /conformance/synthetic-workload)
     ] ++ map (name: root + "/conformance/${name}.py") [
-      "replay_tiers" "corpus" "corpus_shards" "corpus_evidence" "case_format"
+      "replay_tiers" "corpus" "corpus_shards" "corpus_evidence" "corpus_acquisition" "case_format"
       "workload" "workload_inputs" "execution_profile" "native_replay" "model_check"
       "native_record" "native_acquisition" "native_connection" "native_library" "native_clock" "native_storage"
       "native_probe" "native_ordering" "query_window" "native_metadata" "native_statements"
       "upstream_helpers" "model_assertions" "native_trace" "freeze_validation"
-      "upstream_catalog" "upstream_sampling"
+      "upstream_catalog" "upstream_sampling" "upstream_profiles" "freeze_profiles"
     ];
     runtime = conformance;
     tools = [ native.sqlite ];
@@ -65,6 +65,8 @@ in {
       (root + /tests/upstream_sampling_calls.test)
       (root + /tests/upstream_external_calls.test)
       (root + /tests/upstream_source_calls.test)
+      (root + /tests/upstream_registered_calls.test)
+      (root + /tests/upstream_value_calls.test)
     ];
     runtime = conformance;
     tools = [ native.sqlite conformanceNative.fixture ];
@@ -123,9 +125,9 @@ in {
       "execution_profile" "native_acquisition"
       "native_storage"
       "refresh_corpus" "requirement_cases" "requirement_coverage"
-      "authored_cases" "authored_cases_queries" "authored_boundaries" "authored_report"
-      "upstream_selection" "upstream_catalog" "upstream_sampling"
-      "corpus_shards" "corpus_evidence" "freeze_corpus" "freeze_validation" "workload" "workload_inputs"
+      "authored_cases" "authored_cases_queries" "authored_boundaries" "authored_review" "authored_report"
+      "upstream_selection" "upstream_catalog" "upstream_sampling" "upstream_profiles" "upstream_functions" "upstream_result_values"
+      "corpus_shards" "corpus_evidence" "corpus_acquisition" "freeze_corpus" "freeze_validation" "freeze_profiles" "workload" "workload_inputs"
       "upstream_assertions"
       "upstream_helpers"
       "native_fixture" "import_fixture" "schema"
