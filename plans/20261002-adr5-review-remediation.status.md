@@ -123,3 +123,12 @@ requirements. Internal agent review is not owner approval.
   The capture remains bound to the exact `6ae554cc` extractor. Default replay
   activation, the separately reproduced out-of-catalog hardlink alias guard,
   final both-platform measurements and private v5 baselines remain open.
+
+- 2026-10-02: Closed the separately reproduced hardlink alias gap after freezing
+  the acquired scope. Creating a link from the primary database is now refused
+  before a writable alias can change its unrecorded state. One shared guard and
+  a real Tcl alias/write regression cover the failure. The acquired 171 sources
+  and their Tcl helpers contain no link operation; exact original v5 capture
+  provenance and all frozen bytes remain unchanged. The isolated upstream target
+  passes all 58 checks in 1.98 seconds. Replay-default activation and final
+  platform/workload baselines remain open.

@@ -52,7 +52,7 @@ proc capture_file_operation {method command operation} {
   } elseif {$method eq "link"} {
     if {[llength $paths] && [string match -* [lindex $paths 0]]} { set paths [lrange $paths 1 end] }
     if {[llength $paths] != 2} { return }
-    set paths [lrange $paths 0 0]
+    # Linking from the primary creates a writable alias to its same stored state.
   }
   foreach path $paths {
     if {[capture_database_path $path [expr {$method in {delete rename}}]]} {

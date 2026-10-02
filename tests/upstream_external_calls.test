@@ -56,6 +56,7 @@ foreach {id operation} {
   copy {file copy -force empty-copy.db test.db}
   rename {file rename -force test.db moved.db}
   open {close [open test.db w]}
+  link-source {file link -hard alias.db test.db; close [open alias.db w]}
 } {
   reset_db
   file copy -force test.db empty-copy.db

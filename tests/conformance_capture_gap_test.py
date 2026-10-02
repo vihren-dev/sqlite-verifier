@@ -47,6 +47,7 @@ def test_real_errors_and_external_control_lifetimes(tmp_path: Path) -> None:
         "gap-file-delete-alias": "file delete", "gap-file-delete-native": "file delete",
         "gap-file-copy": "file copy", "gap-file-rename": "file rename",
         "gap-file-open": "open for writing", "gap-file-touch": "file mtime",
+        "gap-file-link-source": "file link",
     }.items():
         assert instances[name]["exclusions"] == ["database file operation: " + method], instances[name]
     _, records = load(output)
