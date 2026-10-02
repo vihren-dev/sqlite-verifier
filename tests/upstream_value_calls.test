@@ -26,4 +26,27 @@ trace add variable ::tcl_precision read precision_trace
 do_test values-traced {db eval {SELECT 1.25;}} {1.25}
 trace remove variable ::tcl_precision read precision_trace
 rename precision_trace {}
+foreach marker {NULL null N} {
+  reset_db
+  db null $marker
+  do_test values-null-$marker {db eval {SELECT NULL,'NULL';}} [list $marker NULL]
+}
+reset_db
+db null NULL
+db eval {SELECT NULL;}
+db null N
+do_test values-null-prefix {db eval {SELECT NULL;}} N
+do_test values-null-helpers {
+  list [db onecolumn {SELECT NULL;}] [db onecolumn {SELECT NULL WHERE 0;}] \
+       [db exists {SELECT NULL;}] [db eval {SELECT NULL;} {}]
+} {N {} 1 {}}
+proc hide_null_marker {command operation} {
+  if {[lindex $command 1] eq "nullvalue"} {error "marker unavailable"}
+}
+trace add execution db enter hide_null_marker
+do_test values-null-unobserved {db eval {SELECT NULL;}} N
+trace remove execution db enter hide_null_marker
+rename hide_null_marker {}
+reset_db
+do_test values-null-reset {db eval {SELECT NULL;}} {{}}
 finish_test

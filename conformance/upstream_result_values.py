@@ -16,7 +16,7 @@ def helper_cells(rows: list[Json], helper: str) -> list[Json]:
     if helper == "exists":
         return [{"integer": {"value": int(bool(rows))}}]
     if helper == "onecolumn":
-        return [rows[0][0]] if rows and rows[0] else ["null"]
+        return [rows[0][0]] if rows and rows[0] else [{"text": {"bytes": []}}]
     if helper != "eval":
         raise ValueError("Tcl helper semantics not reproduced")
     return [cell for row in rows for cell in row]
@@ -28,11 +28,13 @@ def verified_real_precision(precision: int | None) -> None:
         raise ValueError("Tcl REAL comparison requires captured tcl_precision=0")
 
 
-def value_text(cell: Json, precision: int | None) -> str:
+def value_text(cell: Json, precision: int | None, null_value: str | None = None) -> str:
     """Render diagnostic text; REAL equality below uses bits rather than Python formatting."""
     kind, value = decode_cell(cell)
     if kind == 5:
-        return ""
+        if not isinstance(null_value, str):
+            raise ValueError("Tcl NULL comparison requires captured nullvalue")
+        return null_value
     if kind == 1:
         return str(value)
     if kind in (3, 4):
@@ -47,7 +49,8 @@ def value_text(cell: Json, precision: int | None) -> str:
     return repr(number)
 
 
-def values_agree(rows: list[Json], expected: list[str], helper: str, precision: int | None) -> bool:
+def values_agree(rows: list[Json], expected: list[str], helper: str, precision: int | None,
+                 null_value: str | None = None) -> bool:
     """Require exact REAL bits from round-trip Tcl output, and exact text/BLOB byte values."""
     cells = helper_cells(rows, helper)
     if len(cells) != len(expected):
@@ -55,7 +58,7 @@ def values_agree(rows: list[Json], expected: list[str], helper: str, precision: 
     for cell, text in zip(cells, expected, strict=True):
         kind, value = decode_cell(cell)
         if kind != 2:
-            if value_text(cell, precision) != text:
+            if value_text(cell, precision, null_value) != text:
                 return False
             continue
         verified_real_precision(precision)

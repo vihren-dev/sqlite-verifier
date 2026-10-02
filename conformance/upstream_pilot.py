@@ -16,7 +16,7 @@ from conformance.native_record import record_sql
 from conformance.native_connection import SOURCE_ID
 from conformance.upstream_fidelity import check_results, minimize_prefix
 from conformance.upstream_selection import candidate_reasons
-from conformance.upstream_assertions import assertions, iter_assertions, result_precision_evidence
+from conformance.upstream_assertions import assertions, iter_assertions, result_precision_evidence, result_nullvalue_evidence
 from conformance.upstream_helpers import readonly_spans, join_commands
 from conformance.execution_profile import ExecutionProfile, profile_from_wire
 from conformance.corpus import native_replay
@@ -107,6 +107,7 @@ def pilot(fixture: Path, upstream: Path, output: Path, limit: int | None, patter
                 size_evidence: dict[str, Json] = {}
                 if precision is not None:
                     size_evidence["tclResultPrecision"] = result_precision_evidence(candidate)
+                    size_evidence["tclNullvalueEvidence"] = result_nullvalue_evidence(candidate)
                 exclusions = candidate_reasons(candidate, selected=selected, limit=limit,
                                                sampling_reason=sampled_out.get(occurrence))
                 if timeout_reason:

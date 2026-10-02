@@ -29,9 +29,10 @@ def fidelity_difference(reason: str, *, sql: str = "", native_error: str = "",
     return ValueError(reason + (": " + cause if cause else ""))
 
 
-def tcl_values(rows: list[Json], helper: str = "eval", *, precision: int | None = None) -> list[str]:
+def tcl_values(rows: list[Json], helper: str = "eval", *, precision: int | None = None,
+               null_value: str | None = None) -> list[str]:
     """Keep independent value diagnostics separate from exact round-trip REAL comparison."""
-    return [value_text(cell, precision) for cell in helper_cells(rows, helper)]
+    return [value_text(cell, precision, null_value) for cell in helper_cells(rows, helper)]
 
 
 def check_results(record: dict[str, Json], candidate: dict[str, Json]) -> None:
@@ -44,12 +45,13 @@ def check_results(record: dict[str, Json], candidate: dict[str, Json]) -> None:
                                       native_error=record["setupErrors"][index])
     helpers = candidate.get("prefixHelpers", ["eval"] * len(candidate["prefixCodes"]))
     precisions = candidate.get("prefixPrecisions", [None] * len(candidate["prefixCodes"]))
+    null_values = candidate.get("prefixNullValues", [None] * len(candidate["prefixCodes"]))
     for index, (code, rows, expected, error, helper) in enumerate(zip(candidate["prefixCodes"], record["setupResults"], candidate["prefixResults"], record["setupErrors"], helpers, strict=True)):
         if code and [error] != expected:
             raise ValueError("prefix error text differs from Tcl execution")
         if not code:
-            actual = tcl_values(rows, helper, precision=precisions[index])
-            if not values_agree(rows, expected, helper, precisions[index]):
+            actual = tcl_values(rows, helper, precision=precisions[index], null_value=null_values[index])
+            if not values_agree(rows, expected, helper, precisions[index], null_values[index]):
                 command = record["setupCommands"][index]
                 raise fidelity_difference("prefix results differ from Tcl execution",
                     sql=command if isinstance(command, str) else "", actual=actual, expected=expected)
@@ -61,14 +63,15 @@ def check_results(record: dict[str, Json], candidate: dict[str, Json]) -> None:
         raise ValueError("assertion error text differs from Tcl execution")
     helpers = candidate.get("helpers", ["eval"] * len(candidate["commands"]))
     precisions = candidate.get("precisions", [None] * len(candidate["commands"]))
+    null_values = candidate.get("nullValues", [None] * len(candidate["commands"]))
     for index, (events, helper, expected, code) in enumerate(zip(command_events(record, candidate["commands"]), helpers,
                                              candidate["results"], candidate["codes"], strict=True)):
         if bool(events and events[-1]["primaryCode"]) != bool(code):
             raise ValueError("assertion error outcome differs from Tcl execution")
         if not code:
             rows = [row for event in events for row in event["rows"]]
-            actual = tcl_values(rows, helper, precision=precisions[index])
-            if not values_agree(rows, expected, helper, precisions[index]):
+            actual = tcl_values(rows, helper, precision=precisions[index], null_value=null_values[index])
+            if not values_agree(rows, expected, helper, precisions[index], null_values[index]):
                 raise fidelity_difference("assertion results differ from Tcl execution",
                     sql="".join(event["sql"] for event in events), actual=actual, expected=expected)
 

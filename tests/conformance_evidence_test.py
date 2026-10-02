@@ -26,7 +26,8 @@ def frozen(capture: tuple[Path, Path, dict[str, Json], dict[str, Json]],
     reason = "native acquisition: prefix results differ from Tcl execution: filesystem path observation"
     file.update(runtimeAssertions=1, reasons={reason: 1}, instances=[
         {"id": "mismatch", "occurrence": 0, "result": reason, "exclusions": [reason],
-         "tclResultPrecision": {"values": [0], "successfulCalls": 1}}])
+         "tclResultPrecision": {"values": [0], "successfulCalls": 1},
+         "tclNullvalueEvidence": {"values": [""], "successfulCalls": 1}}])
     save(directory, report, shared_record(record))
     proof = tmp_path / "proof.txt"
     proof.write_text("Independent native and Tcl path observations.\n")

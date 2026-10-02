@@ -32,7 +32,7 @@ def test_real_unrelated_function_and_dependent_prefix(tmp_path: Path) -> None:
     source = report["files"][0]
     assert source["runtimeExit"] == 0, source
     accepted = {"registered-unused", "registered-failed", "registered-earlier-builtin", "registered-reset-clean",
-                "registered-table-name"}
+                "registered-table-name", "registered-json-unused", "registered-json-text-unused"}
     assert {item["id"] for item in source["instances"] if item["result"] == "recorded"} == accepted, source
     assert all("application callback: function" in item["exclusions"]
                for item in source["instances"] if item["id"] not in accepted)

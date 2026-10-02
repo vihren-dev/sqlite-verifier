@@ -88,6 +88,9 @@ proc capture_connection {name command args} {
       capture_event result-precision $name [capture_precision]
       set ::capture_metadata 1
       try {
+        if {[catch {$name nullvalue} marker]} {
+          capture_event exclude "Tcl NULL display marker unobservable"
+        } else { capture_event result-nullvalue $name $marker }
         capture_event databases $name {*}[$name eval {PRAGMA database_list}]
       } on error {message options} {
         capture_event exclude "attachment context unobservable"
@@ -156,22 +159,7 @@ proc capture_reset {command args} {
 proc capture_failure {command operation} { capture_event failed [lindex $command 1] }
 # Flush source completion before finish_test exits, including assertion failures.
 proc capture_complete {command operation} { capture_event complete }
-proc capture_external {command operation} {
-  if {[lindex $command 0] eq "sqlite3_db_config"} {
-    capture_event config {*}[lrange $command 1 end]
-  } elseif {[string match sqlite3_blob_* [lindex $command 0]]} {
-    capture_event exclude "incremental BLOB operation: [lindex $command 0]"
-  } elseif {[lindex $command 0] eq "sqlite3_limit"} {
-    capture_event exclude "external/configuration operation: sqlite3_limit"
-  } elseif {[lindex $command 0] eq "sqlite3_test_control"} {
-    set scope exclude
-    if {[lindex $command 1] ni {SQLITE_TESTCTRL_INTERNAL_FUNCTIONS SQLITE_TESTCTRL_FK_NO_ACTION
-        SQLITE_TESTCTRL_SORTER_MMAP SQLITE_TESTCTRL_IMPOSTER}} { set scope persistent-exclude }
-    capture_event $scope "external/configuration operation: sqlite3_test_control [lindex $command 1]"
-  } elseif {[info exists ::capture_active] && $::capture_active} {
-    capture_event exclude "external/configuration operation: [lindex $command 0]"
-  }
-}
+source [file join [file dirname [info script]] upstream_external.tcl]
 proc capture_source {command code result operation} {
   if {[file tail [lindex $command end]] eq "tester.tcl" && ![info exists ::capture_installed]} {
     set ::capture_installed 1
@@ -188,6 +176,7 @@ proc capture_source {command code result operation} {
                             [info commands sqlite3_blob_*]] {
       if {[llength [info commands $command]]} { trace add execution $command enter capture_external }
     }
+    capture_install_filesystem_traces
     capture_reset {}
   }
 }

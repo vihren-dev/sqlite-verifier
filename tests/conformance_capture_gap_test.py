@@ -31,7 +31,8 @@ def test_real_errors_and_external_control_lifetimes(tmp_path: Path) -> None:
     file = report["files"][0]
     assert file["runtimeExit"] == 0 and file["runtimeComplete"] is True, file
     instances = {row["id"]: row for row in file["instances"]}
-    accepted = {"gap-syntax-error-code", "gap-control-reset", "gap-limit-reset"}
+    accepted = {"gap-syntax-error-code", "gap-control-reset", "gap-limit-reset",
+                "gap-file-reset", "gap-ordinary-reopen", "gap-unrelated-files", "gap-file-final-reset"}
     assert {name for name, row in instances.items() if row["result"] == "recorded"} == accepted
     assert not any("upstream Tcl expectation failed" in row["exclusions"] for row in instances.values())
     assert instances["gap-internal-functions"]["exclusions"] == [
@@ -41,6 +42,13 @@ def test_real_errors_and_external_control_lifetimes(tmp_path: Path) -> None:
     expected = ["external/configuration operation: sqlite3_test_control SQLITE_TESTCTRL_LOCALTIME_FAULT"]
     assert instances["gap-global-control"]["exclusions"] == expected
     assert instances["gap-global-control-reset"]["exclusions"] == expected
+    for name, method in {
+        "gap-file-delete": "file delete", "gap-file-delete-lifetime": "file delete",
+        "gap-file-delete-alias": "file delete", "gap-file-delete-native": "file delete",
+        "gap-file-copy": "file copy", "gap-file-rename": "file rename",
+        "gap-file-open": "open for writing", "gap-file-touch": "file mtime",
+    }.items():
+        assert instances[name]["exclusions"] == ["database file operation: " + method], instances[name]
     _, records = load(output)
     native_replay(records)
 

@@ -44,5 +44,14 @@ reset_db
 db func like registered_value
 do_test registered-operator {db eval {SELECT 'a' LIKE 'b'}} 7
 reset_db
+db func -> registered_value
+do_test registered-json-unused {db eval {SELECT '->',9; -- ->
+}} {-> 9}
+do_test registered-json-arrow {db eval {SELECT '{"x":7}' -> '$.x'}} 7
+reset_db
+db func ->> registered_value
+do_test registered-json-text-unused {db eval {SELECT '->>',10; /* ->> */}} {->> 10}
+do_test registered-json-arrow-text {db eval {SELECT '{"x":7}' ->> '$.x'}} 7
+reset_db
 do_test registered-reset-clean {db eval {SELECT 10}} 10
 finish_test

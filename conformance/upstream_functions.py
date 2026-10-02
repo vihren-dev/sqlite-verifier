@@ -22,6 +22,10 @@ def function_references(sql: str) -> set[str]:
              and not token.text.startswith(("'", ":", "@", "$", "?"))}
     calls.update(token.text for token in source
                  if token.text.translate(ASCII_UPPER) in {"LIKE", "GLOB", "MATCH", "REGEXP"})
+    for index, (token, following) in enumerate(zip(source, source[1:])):
+        if token.text == "-" and following.text == ">" and token.end == following.start:
+            double_arrow = index + 2 < len(source) and source[index + 2].text == ">" and following.end == source[index + 2].start
+            calls.add("->>" if double_arrow else "->")
     return {name.translate(ASCII_UPPER) for name in calls}
 
 

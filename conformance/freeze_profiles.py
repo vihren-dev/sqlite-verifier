@@ -35,12 +35,28 @@ def result_precision(value: Json, *, accepted: bool) -> None:
         raise ValueError("Acquisition result precision evidence differs")
 
 
-def record_conditions(record: dict[str, Json], profile: ExecutionProfile, precision: Json, clock: int | None) -> None:
-    """Every accepted case retains exactly its source profile, fixed clock and round-trip condition."""
+def result_nullvalue(value: Json, precision: Json, *, accepted: bool) -> None:
+    """Keep observed Tcl NULL display markers separate from unchanged native typed cells."""
+    if (not isinstance(value, dict) or set(value) != {"values", "successfulCalls"}
+            or type(value["successfulCalls"]) is not int or value["successfulCalls"] < 0
+            or not isinstance(precision, dict) or value["successfulCalls"] != precision["successfulCalls"]
+            or not isinstance(value["values"], list)
+            or any(item is not None and not isinstance(item, str) for item in value["values"])
+            or value["values"] != sorted(set(value["values"]), key=lambda item: (item is not None, item or ""))
+            or bool(value["successfulCalls"]) != bool(value["values"])
+            or len(value["values"]) > value["successfulCalls"]
+            or accepted and None in value["values"]):
+        raise ValueError("Acquisition NULL display evidence differs")
+
+
+def record_conditions(record: dict[str, Json], profile: ExecutionProfile, precision: Json, clock: int | None,
+                      nullvalue: Json) -> None:
+    """Every accepted case retains its source profile, clock and observed Tcl display conditions."""
     if (recorded_profile(record) != profile
             or clock is not None and (record.get("setupClockUnixMilliseconds") != clock
                 or any(event.get("clockUnixMilliseconds") != clock for event in record["trace"]))
             or type(record["upstream"].get("tclDisplayPrecision")) is not int
             or record["upstream"]["tclDisplayPrecision"] != 0
-            or serialized(record["upstream"].get("tclResultPrecision")) != serialized(precision)):
-        raise ValueError("Acquisition record profile, clock or Tcl precision differs")
+            or serialized(record["upstream"].get("tclResultPrecision")) != serialized(precision)
+            or serialized(record["upstream"].get("tclNullvalueEvidence")) != serialized(nullvalue)):
+        raise ValueError("Acquisition record profile, clock or Tcl display evidence differs")

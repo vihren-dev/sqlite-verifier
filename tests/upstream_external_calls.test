@@ -20,6 +20,57 @@ sqlite3_limit db SQLITE_LIMIT_LENGTH 100000
 do_test gap-connection-limit {db eval {SELECT 1}} 1
 reset_db
 do_test gap-limit-reset {db eval {SELECT 1}} 1
+# A file replacement can otherwise replay successfully with a stale extra table.
+reset_db
+db eval {CREATE TABLE stale_before_delete(x)}
+db close
+forcedelete test.db
+sqlite3 db test.db
+db eval {CREATE TABLE unique_after_delete(x); INSERT INTO unique_after_delete VALUES(7)}
+do_test gap-file-delete {db eval {SELECT x FROM unique_after_delete}} 7
+do_test gap-file-delete-lifetime {
+  db eval {SELECT count(*) FROM sqlite_schema WHERE name='stale_before_delete'}
+} 0
+reset_db
+do_test gap-file-reset {
+  db eval {CREATE TABLE unique_after_reset(x); SELECT name FROM sqlite_schema WHERE type='table'}
+} unique_after_reset
+reset_db
+db eval {CREATE TABLE kept(x); INSERT INTO kept VALUES(9); BEGIN; INSERT INTO kept VALUES(10)}
+db close
+sqlite3 db test.db
+do_test gap-ordinary-reopen {db eval {SELECT x FROM kept}} 9
+set unrelated [open unrelated.txt w]
+puts $unrelated unrelated
+close $unrelated
+file copy unrelated.txt unrelated-copy.txt
+file mtime unrelated-copy.txt 1000000000
+file rename unrelated-copy.txt unrelated-renamed.txt
+file delete unrelated.txt unrelated-renamed.txt
+do_test gap-unrelated-files {db eval {SELECT 11}} 11
+interp alias {} file_alias {} file
+interp alias {} delete_alias {} ::tcl::file::delete
+foreach {id operation} {
+  delete-alias {file_alias dele -force test.db}
+  delete-native {delete_alias -force test.db}
+  copy {file copy -force empty-copy.db test.db}
+  rename {file rename -force test.db moved.db}
+  open {close [open test.db w]}
+} {
+  reset_db
+  file copy -force test.db empty-copy.db
+  db eval {CREATE TABLE stale_before_replacement(x)}
+  db close
+  eval $operation
+  sqlite3 db test.db
+  db eval {CREATE TABLE unique_after_replacement(x)}
+  do_test gap-file-$id {db eval {SELECT name FROM sqlite_schema WHERE type='table'}} unique_after_replacement
+}
+reset_db
+file mtime test.db 1000000000
+do_test gap-file-touch {db eval {SELECT 12}} 12
+reset_db
+do_test gap-file-final-reset {db eval {SELECT 13}} 13
 sqlite3_test_control SQLITE_TESTCTRL_LOCALTIME_FAULT 0
 do_test gap-global-control {db eval {SELECT 1}} 1
 reset_db

@@ -27,7 +27,7 @@ RETAINED_BYTE_LIMIT = 60_000_000
 
 def code_hashes() -> dict[str, Json]:
     """Bind the complete current conformance implementation and pinned native build inputs."""
-    paths = [*sorted((ROOT / "conformance").glob("*.py")), ROOT / "conformance/upstream_proxy.tcl",
+    paths = [*sorted((ROOT / "conformance").glob("*.py")), *sorted((ROOT / "conformance").glob("upstream*.tcl")),
              ROOT / "nix/sqlite.nix", ROOT / "nix/flake.lock", ROOT / "build-support/conformance-native.nix"]
     return {str(path.relative_to(ROOT)): digest(path.read_bytes()) for path in paths}
 

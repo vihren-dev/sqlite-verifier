@@ -54,14 +54,14 @@ def capture(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> tuple[Path, Path
             file.update(executionProfile={"name": source_profile.name, "version": 1},
                 clockUnixMilliseconds=source_clock, tclDisplayPrecision={"original": 15, "established": 0, "requested": 0})
             instances = [{"id": "probe", "occurrence": 0, "result": "recorded", "exclusions": [],
-                          "tclResultPrecision": {"values": [0], "successfulCalls": 1}}]
+                          "tclResultPrecision": {"values": [0], "successfulCalls": 1}, "tclNullvalueEvidence": {"values": [""], "successfulCalls": 1}}]
             instances = instances if declaration["file"] == "expr.test" else []
             file.update(runtimeExit=0, runtimeComplete=True, runtimeAssertions=len(instances), recorded=len(instances),
                 reasons={"recorded": 1} if instances else {}, instances=instances,
                 expressionSampling=select_candidates(declaration["file"], instances, EXPRESSION_COHORTS)[1])
         files.append(file)
     record["upstream"] = {"file": "expr.test", "id": "probe", "occurrence": 0,
-                          "tclResultPrecision": {"values": [0], "successfulCalls": 1},
+                          "tclResultPrecision": {"values": [0], "successfulCalls": 1}, "tclNullvalueEvidence": {"values": [""], "successfulCalls": 1},
                           "tclDisplayPrecision": 0, "sourceSha256": next(file["sha256"] for file in files if file["file"] == "expr.test")}
     report: dict[str, Json] = {"corpusVersion": 1, "recordedCases": 1, "sourceId": SOURCE_ID,
         "sourceRelease": "3.51.0", "sourceArchiveSha256": ARCHIVE_SHA256, "perFileLimit": None,
@@ -160,7 +160,7 @@ def test_mismatches_need_complete_bound_evidence(capture: tuple[Path, Path, dict
     reason = "native acquisition: prefix results differ from Tcl execution"
     file.update(runtimeAssertions=1, reasons={reason: 1}, instances=[
         {"id": "mismatch", "occurrence": 0, "result": reason, "exclusions": [reason],
-         "tclResultPrecision": {"values": [0], "successfulCalls": 1}}])
+         "tclResultPrecision": {"values": [0], "successfulCalls": 1}, "tclNullvalueEvidence": {"values": [""], "successfulCalls": 1}}])
     save(directory, report, shared_record(record))
     proof = tmp_path / "proof.txt"
     proof.write_text("Measured independent Tcl and native path observations.\n")

@@ -117,6 +117,7 @@ in {
       (root + /conformance/regressions)
       (root + /conformance/synthetic-workload)
       (root + /conformance/upstream_proxy.tcl)
+      (root + /conformance/upstream_external.tcl)
       (root + /nix/sqlite.nix)
       (root + /nix/flake.lock)
       (root + /build-support/conformance-native.nix)

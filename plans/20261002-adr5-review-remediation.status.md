@@ -15,8 +15,8 @@ The workload-suite gate is open; semantic-model development has not started.
 Independent review confirms that the accepted ADR already authorizes generic
 profile recording capabilities. The additional native pin is optional
 comparison infrastructure, not a production profile decision. The public task's
-anonymous driver-setting summary is unnecessary and will be replaced with
-neutral capability requirements. Internal agent review is not owner approval.
+anonymous driver-setting summary has been replaced with neutral capability
+requirements. Internal agent review is not owner approval.
 
 ## Progress
 
@@ -78,3 +78,27 @@ neutral capability requirements. Internal agent review is not owner approval.
   boundary's subsequent focused checks pass (31 in 1.07 seconds). The complete
   uncapped extraction, fidelity ledger, actual v5 freeze, both-platform replay
   and refreshed private baselines remain open. No semantic-model code changed.
+
+- 2026-10-02: The complete diagnostic scan finished 171 sources, including 143
+  runnable sources and 28 explicit file exclusions: 153,764 runtime assertions
+  and 4,257 upstream cases, with no timeout or incomplete source. Independent
+  native reconstruction reproduced all 325 fidelity refusals and established
+  their causes. This capture is superseded and will not be frozen: it exposed
+  an untracked database deletion/reopen boundary and missed registered JSON
+  operator dependencies. The suspect original deletion case was already refused
+  by the size gate; the admission audit found no accepted primary-file deletion
+  association. A real small regression now checks the boundary directly.
+
+  Native Tcl file-operation traces refuse mutations of the primary database,
+  its sidecars and ancestor directories, including aliases, copying, renaming,
+  writable channels and explicit timestamps. Unrelated cleanup and ordinary
+  close/reopen remain eligible; a valid reset clears the refusal. Registered
+  `->` and `->>` overrides are excluded even when their visible result matches
+  the builtin. Actual per-call NULL display markers now recover custom Tcl
+  rendering without changing native typed cells; missing markers, wrong values
+  and empty-result/helper boundaries are checked. Accepted marker summaries are
+  bound to source instances and successful-call precision counts. All Tcl helper
+  bytes are included in freeze identities. Bounded provenance checks pass (88
+  in 5.70 seconds), and the isolated actual upstream target passes (58 in 2.11
+  seconds). A fresh complete capture, freeze and both-platform final baselines
+  remain required. Historical corpora and model semantics are unchanged.

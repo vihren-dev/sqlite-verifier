@@ -7,7 +7,7 @@ import re
 from conformance.case_format import Json
 from conformance.corpus_shards import natural
 from conformance.execution_profile import ExecutionProfile, profile_from_wire
-from conformance.freeze_profiles import file_conditions, record_conditions, result_precision
+from conformance.freeze_profiles import file_conditions, record_conditions, result_precision, result_nullvalue
 
 
 def strings(value: Json) -> list[str]:
@@ -68,7 +68,7 @@ def retained_profiles(report: dict[str, Json]) -> tuple[dict[str, Json], dict[tu
 
 
 def verify(report: dict[str, Json], records: list[dict[str, Json]]) -> None:
-    """Bind every upstream case to exactly one accepted source instance, profile, clock and precision."""
+    """Bind every upstream case to one accepted source instance and its actual capture conditions."""
     if type(report.get("corpusVersion")) is not int or report["corpusVersion"] != 1:
         raise ValueError("Unsupported retained acquisition version")
     policy, profiles = retained_profiles(report)
@@ -78,7 +78,7 @@ def verify(report: dict[str, Json], records: list[dict[str, Json]]) -> None:
             or [item.get("file") for item in catalog] != [item.get("file") for item in files]):
         raise ValueError("Retained source catalog differs")
     names = strings([file.get("file") for file in files])
-    accepted: dict[tuple[str, str, int], tuple[dict[str, Json], ExecutionProfile, int | None, Json]] = {}
+    accepted: dict[tuple[str, str, int], tuple[dict[str, Json], ExecutionProfile, int | None, Json, Json]] = {}
     for filename, file, declaration in zip(names, files, catalog, strict=True):
         labels, exclusions = strings(declaration.get("features")), strings(declaration.get("fileExclusions"))
         if (file.get("features") != labels or file.get("fileExclusions") != exclusions
@@ -109,8 +109,10 @@ def verify(report: dict[str, Json], records: list[dict[str, Json]]) -> None:
             if instance.get("result") != ("; ".join(reasons) or "recorded"):
                 raise ValueError("Retained acquisition result differs")
             result_precision(instance.get("tclResultPrecision"), accepted=not reasons)
+            result_nullvalue(instance.get("tclNullvalueEvidence"), instance["tclResultPrecision"], accepted=not reasons)
             if not reasons:
-                accepted[filename, instance["id"], occurrence] = (file, profile, clock, instance["tclResultPrecision"])
+                accepted[filename, instance["id"], occurrence] = (file, profile, clock,
+                    instance["tclResultPrecision"], instance["tclNullvalueEvidence"])
                 count += 1
         reasons = file.get("reasons")
         if (natural(file.get("recorded")) != count or not isinstance(reasons, dict)
@@ -129,13 +131,13 @@ def verify(report: dict[str, Json], records: list[dict[str, Json]]) -> None:
         evidence = accepted.get(identity)
         if evidence is None or identity in observed:
             raise ValueError("Retained accepted membership differs")
-        file, profile, clock, precision = evidence
+        file, profile, clock, precision, nullvalue = evidence
         if (type(record.get("nativeVersion")) is not int or record["nativeVersion"] != 4
                 or record.get("part") != "upstream" or record.get("features") != file["features"]
                 or record.get("featureMetadataScope") != "source-file"
                 or provenance.get("sourceSha256") != file["sha256"]):
             raise ValueError("Retained case source evidence differs")
-        record_conditions(record, profile, precision, clock)
+        record_conditions(record, profile, precision, clock, nullvalue)
         observed.add(identity)
     if observed != set(accepted):
         raise ValueError("Retained accepted membership differs")

@@ -33,6 +33,7 @@ def acquisition() -> tuple[dict[str, Json], list[dict[str, Json]]]:
     files: list[dict[str, Json]] = []
     records: list[dict[str, Json]] = []
     precision: dict[str, Json] = {"values": [0], "successfulCalls": 1}
+    nullvalue: dict[str, Json] = {"values": [""], "successfulCalls": 1}
     for filename, foreign_keys, controlled in (("ordinary.test", False, False), ("foreign-time.test", True, True)):
         profile = next(profile for profile in profiles if profile.foreign_keys == foreign_keys
                        and (profile.clock != "excluded") == controlled)
@@ -41,7 +42,8 @@ def acquisition() -> tuple[dict[str, Json], list[dict[str, Json]]]:
         sha = digest(filename.encode())
         record.update(part="upstream", features=["real-arithmetic"], featureMetadataScope="source-file",
             upstream={"file": filename, "id": "probe", "occurrence": 0, "sourceSha256": sha,
-                      "tclDisplayPrecision": 0, "tclResultPrecision": deepcopy(precision)})
+                      "tclDisplayPrecision": 0, "tclResultPrecision": deepcopy(precision),
+                      "tclNullvalueEvidence": deepcopy(nullvalue)})
         records.append(record)
         files.append({"file": filename, "features": ["real-arithmetic"], "fileExclusions": [], "sha256": sha,
             "executionProfile": {"name": profile.name, "version": profile.version},
@@ -49,7 +51,8 @@ def acquisition() -> tuple[dict[str, Json], list[dict[str, Json]]]:
             "tclDisplayPrecision": {"original": 15, "established": 0, "requested": 0},
             "runtimeExit": 1, "runtimeComplete": True, "runtimeAssertions": 1, "recorded": 1,
             "reasons": {"recorded": 1}, "instances": [{"id": "probe", "occurrence": 0,
-                "result": "recorded", "exclusions": [], "tclResultPrecision": deepcopy(precision)}]})
+                "result": "recorded", "exclusions": [], "tclResultPrecision": deepcopy(precision),
+                "tclNullvalueEvidence": deepcopy(nullvalue)}]})
     files.append({"file": "excluded.test", "features": [], "fileExclusions": ["file-level environment"],
                   "sha256": digest(b"excluded.test"), "excludedFile": "file-level environment"})
     report: dict[str, Json] = {"corpusVersion": 1, "recordedCases": len(records),
@@ -100,7 +103,8 @@ def test_retained_routes_survive_future_policy_changes(acquisition: tuple[dict[s
     "file-clock", "precision", "precision-count", "record-precision", "file-precision", "completion", "occurrence",
     "accepted-instance", "duplicate-instance", "excluded-instance", "route", "route-version", "policy-version",
     "precision-version", "engine", "catalog", "count", "precision-link", "accepted-refusal", "missing-record",
-    "acquisition-version", "reason-count"])
+    "acquisition-version", "reason-count", "nullvalue-missing", "nullvalue-unobserved", "nullvalue-count",
+    "nullvalue-link"])
 def test_load_rejects_unbound_accepted_evidence(acquisition: tuple[dict[str, Json], list[dict[str, Json]]],
                                               tmp_path: Path, damage: str) -> None:
     """Rehashed cases remain invalid when their retained source, profile or accepted instance disagrees."""
@@ -132,6 +136,10 @@ def test_load_rejects_unbound_accepted_evidence(acquisition: tuple[dict[str, Jso
     elif damage == "catalog": report["sourceCatalog"][1]["features"] = ["different-source-label"]
     elif damage == "count": file["recorded"] = True
     elif damage == "precision-link": instance["tclResultPrecision"]["successfulCalls"] = 2
+    elif damage == "nullvalue-missing": instance.pop("tclNullvalueEvidence")
+    elif damage == "nullvalue-unobserved": instance["tclNullvalueEvidence"]["values"] = [None]
+    elif damage == "nullvalue-count": instance["tclNullvalueEvidence"]["successfulCalls"] = True
+    elif damage == "nullvalue-link": record["upstream"]["tclNullvalueEvidence"]["values"] = ["NULL"]
     elif damage == "accepted-refusal":
         instance.update(result="unsupported prefix", exclusions=["unsupported prefix"])
         file.update(recorded=0, reasons={"unsupported prefix": 1})
@@ -151,6 +159,7 @@ def test_v4_retains_historical_loader_contract(acquisition: tuple[dict[str, Json
     for record in records:
         record["upstream"].pop("tclDisplayPrecision")
         record["upstream"].pop("tclResultPrecision")
+        record["upstream"].pop("tclNullvalueEvidence")
     store(directory, report, records, version=4)
     _manifest, loaded = load(directory)
     assert loaded == records

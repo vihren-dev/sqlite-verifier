@@ -115,7 +115,8 @@ def test_helper_results_keep_ordinary_native_rows(helper: str, sql: str, expecte
     """Tcl helper expectations differ from native rows; evidence stays unmodified."""
     events = [("reset",), ("sql", "db", "SELECT 12,13;", "0", "onecolumn"),
               ("result", "db", "0", "12"), ("begin", "helper", expected),
-              ("sql", "db", sql, "0", helper), ("result", "db", "0", expected), ("end", "helper")]
+              ("sql", "db", sql, "0", helper), ("result", "db", "0", expected),
+              ("result-nullvalue", "db", ""), ("end", "helper")]
     encoded = "\n".join("\t".join(value.encode().hex() for value in event) for event in events)
     candidate = assertions(encoded)[0]
     assert not candidate["exclusions"]

@@ -38,6 +38,9 @@ assertion that fails under the declared condition, later precision change or
 unobserved precision is explicitly refused. The acquisition condition and
 observed precision are bound to the source/profile policy and frozen artifact;
 rounded legacy Tcl strings cannot prove exact REAL correspondence.
+Each successful call's observed Tcl NULL display marker is retained and bound.
+Custom markers affect only the display comparison for independently typed
+native NULL cells; empty query results and literal text keep their own meanings.
 
 Registered functions affect eligibility only when a case's SQL or its retained
 prefix depends on them. Any restored connection/attachment context must meet

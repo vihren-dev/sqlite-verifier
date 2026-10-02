@@ -63,6 +63,23 @@ def test_blob_bytes_and_helper_boundaries() -> None:
     assert values_agree([], [""], "onecolumn", None)
 
 
+@pytest.mark.unit
+@pytest.mark.parametrize("marker", ["", "NULL", "null", "N"])
+def test_observed_null_marker_preserves_typed_values_and_helpers(marker: str) -> None:
+    """Display only actual SQL NULL; empty onecolumn, exists and callback results stay distinct."""
+    rows: list[Json] = [["null", {"text": {"bytes": list(b"NULL")}}]]
+    original = deepcopy(rows)
+    assert values_agree(rows, [marker, "NULL"], "eval", 0, marker)
+    assert not values_agree(rows, [marker, "changed"], "eval", 0, marker)
+    assert values_agree(rows, [marker], "onecolumn", 0, marker)
+    assert values_agree([], [""], "onecolumn", 0, marker)
+    assert values_agree(rows, ["1"], "exists", 0, None)
+    assert values_agree(rows, [], "eval-script", 0, None)
+    with pytest.raises(ValueError, match="requires captured nullvalue"):
+        values_agree(rows, [marker, "NULL"], "eval", 0, None)
+    assert rows == original
+
+
 @pytest.mark.integration
 @pytest.mark.requires_native("sqlite3")
 def test_pinned_tcl_real_blob_acquisition_and_negative_results(tmp_path: Path) -> None:
@@ -78,17 +95,31 @@ def test_pinned_tcl_real_blob_acquisition_and_negative_results(tmp_path: Path) -
     assert report["tclDisplayPrecisionPolicy"]["requested"] == 0
     assert report["files"][0]["tclDisplayPrecision"] == {"original": 15, "established": 0, "requested": 0}
     instances = {row["id"]: row for row in report["files"][0]["instances"]}
-    accepted = {"values-cast", "values-prefix", "values-real-edges", "values-blob", "values-onecolumn"}
+    accepted = {"values-cast", "values-prefix", "values-real-edges", "values-blob", "values-onecolumn",
+                "values-null-NULL", "values-null-null", "values-null-N", "values-null-prefix",
+                "values-null-helpers", "values-null-reset"}
     assert {name for name, row in instances.items() if row["result"] == "recorded"} == accepted, instances
     assert "upstream Tcl expectation failed" in instances["values-original-expectation"]["result"]
     for name in ("values-rounded", "values-traced"):
         assert "precision" in instances[name]["result"], instances[name]
+    assert "Tcl NULL display marker unobservable" in instances["values-null-unobserved"]["result"]
     assert report["files"][0]["runtimeComplete"] is True
     _, records = load(output)
     native_replay(records)
     for record in records:
         expected = record["upstream"]["id"]
         assert expected in accepted
+        observed = record["upstream"]["tclNullvalueEvidence"]
+        assert observed == instances[expected]["tclNullvalueEvidence"]
+        assert observed["successfulCalls"] == record["upstream"]["tclResultPrecision"]["successfulCalls"]
+        assert None not in observed["values"]
+        if expected.startswith("values-null-"):
+            assert any(cell == "null" for event in record["trace"] for row in event["rows"] for cell in row)
+            if expected == "values-null-prefix":
+                assert observed == {"values": ["N", "NULL"], "successfulCalls": 2}
+            elif expected == "values-null-reset":
+                assert observed == {"values": [""], "successfulCalls": 1}
+            continue
         precision = {"values": [0], "successfulCalls": 2 if expected == "values-prefix" else 1}
         assert record["upstream"]["tclResultPrecision"] == precision
         assert instances[expected]["tclResultPrecision"] == precision
