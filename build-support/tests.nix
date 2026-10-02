@@ -15,8 +15,12 @@ let
     ln -s ${leanToolchain} "$out/lean"
     ln -s ${leanRuntime}/.lake "$out/.lake"
   '';
-  suite = name: { file, inputs, runtime, tools ? [], extraFiles ? [], environment ? {} }:
-    pkgs.stdenvNoCC.mkDerivation ({
+  suite = name: { inputs, runtime, tools ? [], environment ? {} }:
+    let
+      files = (builtins.fromJSON (builtins.readFile (root + /tests/nix_suites.json))).${name};
+      file = builtins.head files;
+      extraFiles = builtins.tail files;
+    in pkgs.stdenvNoCC.mkDerivation ({
       pname = "sqlite-verifier-test-${name}";
       version = "1";
       src = fs.toSource { inherit root; fileset = fs.unions (common ++ [ (root + "/${file}") ] ++ (map (name: root + "/${name}") extraFiles) ++ inputs); };
@@ -31,10 +35,23 @@ let
       '';
     } // environment);
 in {
+  sample = suite "sample" {
+    inputs = [
+      (fs.fileFilter (file: file.hasExt "py") (root + /migration_check))
+      (root + /conformance/corpus-v4)
+      (root + /conformance/synthetic-workload)
+    ] ++ map (name: root + "/conformance/${name}.py") [
+      "replay_tiers" "corpus" "corpus_shards" "corpus_evidence" "case_format"
+      "workload" "workload_inputs" "execution_profile" "native_replay" "model_check"
+      "native_record" "native_connection" "native_library" "native_clock" "native_storage"
+      "native_probe" "native_ordering" "query_window" "native_metadata" "native_statements"
+      "upstream_helpers" "model_assertions" "native_trace" "freeze_validation"
+      "upstream_catalog" "upstream_sampling"
+    ];
+    runtime = conformance;
+    tools = [ native.sqlite ];
+  };
   upstream = suite "upstream" {
-    file = "tests/conformance_capture_test.py";
-    extraFiles = [ "tests/conformance_sampling_test.py" "tests/conformance_streaming_test.py"
-      "tests/conformance_capture_gap_test.py" "tests/conformance_command_sources_test.py" ];
     inputs = [
       (fs.fileFilter (file: file.hasExt "py" || file.hasExt "tcl") (root + /conformance))
       (fs.fileFilter (file: file.hasExt "py") (root + /migration_check))
@@ -54,13 +71,10 @@ in {
     environment.CONFORMANCE_UPSTREAM = conformanceNative.upstream;
   };
   atuin = suite "atuin" {
-    file = "tests/atuin_cli_test.py";
     inputs = [];
     inherit runtime;
   };
   bundle = suite "bundle" {
-    file = "tests/bundle_test.py";
-    extraFiles = [ "tests/stage_reuse_test.py" "tests/generated_inputs_test.py" ];
     inputs = [
       (fs.fileFilter (file: file.hasExt "py") (root + /migration_check))
       (fs.fileFilter (file: file.hasExt "json") (root + /conformance/cases))
@@ -69,19 +83,14 @@ in {
     inherit runtime;
   };
   cli = suite "cli" {
-    file = "tests/cli_test.py";
     inputs = [];
     inherit runtime;
   };
   kernel = suite "kernel" {
-    file = "tests/kernel_gate_test.py";
     inputs = [ (fs.fileFilter (file: file.hasExt "lean") (root + /tests/kernel_gate)) ];
     runtime = leanRoot;
   };
   model = suite "model" {
-    file = "tests/conformance_model_test.py";
-    extraFiles = [ "tests/conformance_authored_test.py" "tests/conformance_authored_queries_test.py" "tests/conformance_authored_boundaries_test.py" "tests/conformance_shards_test.py" "tests/conformance_freeze_test.py" "tests/conformance_evidence_test.py" "tests/conformance_command_sources_test.py" "tests/conformance_workload_test.py" "tests/conformance_workload_clock_test.py" "tests/conformance_requirement_coverage_test.py" "tests/conformance_fidelity_test.py" "tests/conformance_storage_test.py" "tests/conformance_trace_test.py" "tests/conformance_ordering_test.py" "tests/conformance_clock_test.py" "tests/conformance_profile_test.py" "tests/conformance_context_test.py" "tests/conformance_pipeline_test.py"
-      "tests/conformance_mutation_test.py" "tests/conformance_laws_test.py" "tests/conformance_record_test.py" "tests/conformance_dqs_test.py" "tests/conformance_upstream_test.py" "tests/conformance_generation_test.py" "tests/conformance_coverage_test.py" ];
     inputs = [
       (fs.fileFilter (file: file.hasExt "py") (root + /migration_check))
       (fs.fileFilter (file: file.hasExt "json") (root + /conformance/cases))
@@ -100,6 +109,7 @@ in {
       (root + /reports/20261001-adr5-c4-bindings.json.gz)
       (root + /reports/20261001-adr5-c5-authored.json)
       (root + /reports/20261001-adr5-c5-authored-records.jsonl.gz)
+      (root + /conformance/corpus-v4)
       (root + /conformance/corpus-v3)
       (root + /conformance/corpus-v2) (root + /conformance/requirements-3.51.0.json)
       (root + /conformance/regressions)
@@ -109,7 +119,7 @@ in {
       (root + /nix/flake.lock)
       (root + /build-support/conformance-native.nix)
     ] ++ map (name: root + "/conformance/${name}.py") [
-      "model_assertions" "model_cases" "model_check"
+      "model_assertions" "model_cases" "model_check" "replay_tiers"
       "execution_profile"
       "native_storage"
       "refresh_corpus" "requirement_cases" "requirement_coverage"

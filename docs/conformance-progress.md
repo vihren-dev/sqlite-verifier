@@ -4,13 +4,29 @@ The [v4 artifact](../conformance/corpus-v4/manifest.json) freezes 1,264 generic
 cases in 27 source/part shards. All observations pass fresh native replay. Its
 [full report](../reports/20261002-adr5-c6-v4-progress.json) keeps all 3,500
 requirement rows, with 110 represented, and reports 1,264 MODEL_UNSUPPORTED.
-The model cannot yet consume the expanded profiles. C7 will add the fast
-development tier and route the progress command to v4; the commands below
-still use v3 until that integration is complete.
+The model cannot yet consume the expanded profiles.
+
+`just conformance-progress` now uses all v4 cases. Its
+[C7 baseline](../reports/20261002-adr5-c7-v4-progress.json) adds verdicts and
+denominators for four parts, 80 overlapping features and 27 ordered shards,
+while retaining every requirement row and per-case result. Feature metadata
+keeps its scenario or source-file scope. Manifest, profiles, evidence, shard
+bytes, frontend/harness and both compiled runtime files are bound by identity.
+
+Development `just test` uses a deterministic 100-case tier: all 66 authored
+cases, both synthetic cases, and one lowest identity hash per nonempty upstream
+source shard plus eight additional lowest hashes. Selection ignores native
+acceptance and model verdicts. The [Darwin measurement](../reports/20261002-adr5-c7-sample-darwin.json)
+records fresh loading, native replay and model classification in 6.27 seconds;
+the [Linux measurement](../reports/20261002-adr5-c7-sample-linux.json) records
+19.70 seconds with identical profiles and selected input identities.
+All 100 cases remain unsupported. The phase has a 60-second deadline.
+`just test-full`, CI and packaging retain the full model suite. Historical
+corpora and reports remain readable without changing their membership.
 
 The following v3 measurements retain ADR 0004's historical baseline.
 
-`just conformance-progress` replays **corpus v3: 370 cases** through the current
+The historical progress command replayed **corpus v3: 370 cases** through its
 frontend and compiled classifier. The [review report](../reports/20260929-adr4-corpus-v3-progress.json)
 records 11 AGREE, 359 MODEL_UNSUPPORTED, no disagreements and no harness errors.
 V3 preserves v2's 183 records exactly and adds 164 upstream and 23 authored cases.

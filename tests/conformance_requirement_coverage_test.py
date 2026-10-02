@@ -109,6 +109,11 @@ def test_progress_uses_per_case_verdicts(inventory: dict[str, Json], tmp_path: P
     monkeypatch.setattr("conformance.progress.replay", replayed)
     requirements = tmp_path / "requirements.json"
     requirements.write_text(json.dumps(inventory))
+    for relative in ("build/sqlite-parser", ".lake/build/bin/conformance-runner",
+                     "manifest.json", "cases.jsonl.gz"):
+        path = tmp_path / relative
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_bytes(b"aggregation fixture")
     report = progress(tmp_path, requirements, tmp_path)
     assert report["byRequirement"] == raw
     assert report["requirementMatrixRows"] == report["requirementInventoryCount"] == 3

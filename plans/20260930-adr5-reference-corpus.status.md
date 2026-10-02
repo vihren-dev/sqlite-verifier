@@ -7,10 +7,11 @@ Spec: [ADR 0005](../docs/adr-0005-conformance-corpus-scale.md).
 ## Current state
 
 Owner authorized implementation on 2026-09-30 after the document reviews.
-C0–C6 are done. Corpus v4 freezes 1,264 generic cases; all pass native replay,
+C0–C7 are done. Corpus v4 freezes 1,264 generic cases; all pass native replay,
 and the current model reports all as unsupported under their expanded profiles.
 The artifact, source/triage evidence, synthetic workload and full report are
-retained within budget. C7 and the private workload gate are open. Model
+retained within budget. The fast replay tier is verified on both native platforms; the complete v4
+baseline views are retained. The private workload gate is open; model
 semantics are unchanged.
 C8 follows the model semantics concerned, as the ADR specifies.
 
@@ -33,6 +34,8 @@ C5: [neutral authored cases](20261001-adr5-c5-authored.task.md),
 [status](20261001-adr5-c5-authored.status.md).
 C6: [frozen shards and external workloads](20261001-adr5-c6-freeze.task.md),
 [status](20261001-adr5-c6-freeze.status.md).
+C7: [replay tiers and final baseline](20261002-adr5-c7-replay.task.md),
+[status](20261002-adr5-c7-replay.status.md).
 
 ## Progress
 
@@ -296,3 +299,16 @@ C6: [frozen shards and external workloads](20261001-adr5-c6-freeze.task.md),
   timeout identities. Hermetic model: 186 passed; real Tcl: 17 passed; documents:
   2 passed. Full 55-source acquisition is live. Final generic freeze, C7 and the
   actual workload gate remain open; production SQL support is unchanged.
+
+- 2026-10-02: Closed C7 with a deterministic 100-case development tier, complete
+  v4 part/feature/shard views, exact runtime/source bindings, and preserved full
+  CI/package checks. Fresh replay: macOS 6.27 seconds, Linux 19.70 seconds;
+  all native comparisons pass and all 100 model results remain unsupported.
+  Ordinary development command: 286 host cases and every selected Nix target
+  pass; full model: 250 passed with one optional Tcl skip, upstream: 28 passed.
+  Dependency/routing checks: 34 passed. Actual progress command exactly
+  reproduces the 1,264-case baseline over all 3,500 requirement rows.
+  Disk guard briefly stopped final verification; owner freed space and all final
+  commands passed. No data was deleted by the agent. The actual workload gate
+  remains open; its measured driver conditions require further generic native
+  profile infrastructure. Production model semantics are unchanged.

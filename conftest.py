@@ -1,6 +1,7 @@
 """Repository pytest options and execution-only runtime fixtures."""
 
 from collections.abc import Callable, Mapping, Sequence
+import json
 import os
 from pathlib import Path
 
@@ -17,6 +18,17 @@ def pytest_addoption(parser: pytest.Parser) -> None:
     group.addoption("--runtime-root", type=Path, help="Built executable and examples root")
     group.addoption("--runtime-archive", type=Path, help="Archive to install once for installed cases")
     group.addoption("--runtime-variant", choices=("source", "installed"), default="source")
+    group.addoption("--source-checks", action="store_true", help="Exclude suites delegated to Nix")
+
+
+def pytest_ignore_collect(collection_path: Path, config: pytest.Config) -> bool | None:
+    """Keep host checks fresh without repeating the exact suites owned by Nix."""
+    if config.getoption("source_checks") and collection_path.is_file():
+        suites = json.loads((config.rootpath / "tests/nix_suites.json").read_text())
+        delegated = {name for files in suites.values() for name in files}
+        relative = collection_path.relative_to(config.rootpath).as_posix()
+        return relative in delegated or relative == "tests/runtime_package_test.py"
+    return None
 
 
 def pytest_configure(config: pytest.Config) -> None:

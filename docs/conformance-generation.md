@@ -1,6 +1,6 @@
 # Bounded generation and proven regressions (W3/W4)
 
-`just test` runs two Hypothesis RuleBasedStateMachine modes at seed 4004,
+`just test-full` runs two Hypothesis RuleBasedStateMachine modes at seed 4004,
 20 examples and at most eight actions per example. Each example checks a DDL
 program and a keyed DML program: the production frontend conservatively excludes
 CREATE mixed with a baseline containing keys. Every rendered program must decode

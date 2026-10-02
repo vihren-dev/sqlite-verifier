@@ -8,14 +8,64 @@ from pathlib import Path
 
 from conformance.case_format import Json
 from conformance.corpus import load, replay
+from conformance.corpus_shards import source_path
 from conformance.requirement_coverage import inventory_rows, resolved_ids
 
 VERDICTS = ("AGREE", "DISAGREE", "MODEL_UNSUPPORTED", "HARNESS_ERROR")
+ROOT = Path(__file__).resolve().parents[1]
+RUNTIME_FILES = ("build/sqlite-parser", ".lake/build/bin/conformance-runner")
+
+
+def digest(path: Path) -> str:
+    """Bind a report to actual bytes; absent inputs cannot produce an identity."""
+    return hashlib.sha256(path.read_bytes()).hexdigest()
+
+
+def totals(counts: Counter[str]) -> dict[str, Json]:
+    """Every view names its scenario denominator and keeps zero verdicts visible."""
+    return {"denominator": sum(counts.values()),
+            "counts": {verdict: counts[verdict] for verdict in VERDICTS}}
+
+
+def views(manifest: dict[str, Json], records: list[dict[str, Json]],
+          answers: list[dict[str, Json]], corpus: Path) -> dict[str, Json]:
+    """Parts and ordered shards partition cases; feature labels overlap by recorded scope."""
+    parts: dict[str, Counter[str]] = defaultdict(Counter)
+    features: dict[str, Counter[str]] = defaultdict(Counter)
+    scopes: dict[str, dict[str, Counter[str]]] = defaultdict(lambda: defaultdict(Counter))
+    for record, answer in zip(records, answers, strict=True):
+        if record["name"] != answer["name"] or answer["verdict"] not in VERDICTS:
+            raise ValueError("Progress case identities or verdicts differ")
+        verdict = answer["verdict"]
+        parts[record.get("part", "legacy")][verdict] += 1
+        scope = record.get("featureMetadataScope", "unspecified" if "upstream" in record else "case")
+        for feature in set(record.get("features", [])):
+            features[feature][verdict] += 1
+            scopes[feature][scope][verdict] += 1
+    declarations = manifest.get("shards", [{"path": "cases.jsonl.gz", "source": "legacy",
+        "part": "legacy", "recordedCases": len(records), "casesSha256": manifest["casesSha256"]}])
+    shards: list[Json] = []
+    offset = 0
+    for index, shard in enumerate(declarations):
+        end = offset + shard["recordedCases"]
+        selected = answers[offset:end]
+        if len(selected) != shard["recordedCases"]:
+            raise ValueError("Progress shard denominator differs")
+        shards.append({**shard, "index": index, "sha256": digest(source_path(corpus, shard["path"])),
+                       **totals(Counter(answer["verdict"] for answer in selected))})
+        offset = end
+    if offset != len(records):
+        raise ValueError("Progress shards do not partition corpus")
+    return {"byPart": {key: totals(value) for key, value in sorted(parts.items())},
+            "byFeature": {key: {**totals(value), "byMetadataScope": {
+                scope: totals(counts) for scope, counts in sorted(scopes[key].items())}}
+                for key, value in sorted(features.items())}, "byShard": shards}
 
 
 def progress(corpus: Path, requirements: Path, runtime: Path) -> dict[str, Json]:
     """Every requirement row keeps zero counts; one case can illustrate multiple requirements."""
     manifest, records = load(corpus)
+    runtime_hashes = {relative: digest(runtime / relative) for relative in RUNTIME_FILES}
     inventory = json.loads(requirements.read_text())
     identities = resolved_ids(records, inventory)
     result = replay(records, runtime)
@@ -27,22 +77,26 @@ def progress(corpus: Path, requirements: Path, runtime: Path) -> dict[str, Json]
                "counts": {verdict: mapping.get(row["id"], {}).get(verdict, 0) for verdict in VERDICTS}}
               for row in inventory_rows(inventory)]
     return {"corpusVersion": manifest["corpusVersion"], "casesSha256": manifest["casesSha256"],
+            "corpusManifestSha256": digest(corpus / "manifest.json"),
+            "executionProfiles": manifest.get("executionProfiles", []),
+            "corpusEvidence": {key: manifest[key] for key in ("extraction", "fidelityLedger") if key in manifest},
             "runtime": str(runtime.resolve()),
-            "requirementsSha256": hashlib.sha256(requirements.read_bytes()).hexdigest(),
-            "frontendSha256": {str(path): hashlib.sha256(path.read_bytes()).hexdigest()
-                for path in sorted(Path("migration_check").glob("*.py"))},
-            "harnessSha256": {name: hashlib.sha256(Path(__file__).with_name(name).read_bytes()).hexdigest()
-                for name in ("corpus.py", "corpus_shards.py", "native_replay.py", "progress.py", "requirement_coverage.py")},
+            "runtimeSha256": runtime_hashes,
+            "requirementsSha256": digest(requirements),
+            "frontendSha256": {str(path.relative_to(ROOT)): digest(path)
+                for path in sorted((ROOT / "migration_check").glob("*.py"))},
+            "harnessSha256": {path.name: digest(path)
+                for path in sorted((ROOT / "conformance").glob("*.py"))},
             "denominator": len(records), "requirementInventoryCount": inventory["count"],
             "requirementMatrixRows": len(matrix), "requirementMatrix": matrix,
-            "limitation": "Scenario counts do not prove entire requirements. Untagged upstream cases are not credited with file-level R-ID references.",
-            **result}
+            "limitation": "Scenario counts do not prove entire requirements or model support. Feature labels overlap; source-file labels retain that scope. Untagged upstream cases receive no file-level R-ID credit.",
+            **result, **views(manifest, records, result["cases"], corpus)}
 
 
 def main() -> None:
     """Produce a version-specific progress report without modifying frozen cases."""
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--corpus", type=Path, default=Path("conformance/corpus-v3"))
+    parser.add_argument("--corpus", type=Path, default=Path("conformance/corpus-v4"))
     parser.add_argument("--requirements", type=Path, default=Path("conformance/requirements-3.51.0.json"))
     parser.add_argument("--runtime-root", type=Path, default=Path("build/conformance"))
     parser.add_argument("--output", type=Path, required=True)

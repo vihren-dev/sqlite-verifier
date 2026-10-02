@@ -17,7 +17,7 @@ nix-build build-support/default.nix -A tests.model --no-out-link \
 The first command writes JSON cases, decoded Lean regression terms, and measured
 native-plus-compiled throughput to `build/conformance-evidence/`. Kernel proof
 time is excluded from the reported throughput. The conformance executable is a
-separate test build; it adds no shipped verifier command. `just test` includes the
+separate test build; it adds no shipped verifier command. `just test-full` includes the
 same Nix model target, without executing it twice on the host.
 
 The [review validation report](../reports/20260929-adr4-review-validation.json)

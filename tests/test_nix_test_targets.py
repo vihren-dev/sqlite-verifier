@@ -54,13 +54,20 @@ def source_tree(tmp_path: Path) -> Path:
     ('tests/kernel_gate_test.py', {'kernel'}),
     ('tests/kernel_gate/Proofs.lean', {'kernel'}),
     ('conformance/model_cases.py', {'model', 'upstream'}),
+    ('conformance/replay_tiers.py', {'model', 'sample', 'upstream'}),
+    ('conformance/corpus-v4/manifest.json', {'model', 'sample'}),
+    ('conformance/corpus-v3/manifest.json', {'model'}),
+    ('conformance/synthetic-workload/workload.json', {'model', 'sample'}),
+    ('conformance/progress.py', {'model', 'upstream'}),
+    ('tests/conformance_sample_test.py', {'sample'}),
+    ('tests/conformance_tier_bindings_test.py', {'model'}),
     ('conformance/cases/add_then_create.json', {'model', 'bundle'}),
-    ('conformance/native_trace.py', {'model', 'upstream'}),
-    ('conformance/case_format.py', {'model', 'upstream'}),
+    ('conformance/native_trace.py', {'model', 'sample', 'upstream'}),
+    ('conformance/case_format.py', {'model', 'sample', 'upstream'}),
     ('VerifierConformance/Trace.lean', {'model'}),
     ('tests/conformance_pipeline_test.py', {'model'}),
-    ('migration_check/translate.py', {'model', 'upstream', 'atuin', 'cli', 'bundle'}),
-    ('conftest.py', {'kernel', 'model', 'upstream', 'atuin', 'cli', 'bundle'}),
+    ('migration_check/translate.py', {'model', 'sample', 'upstream', 'atuin', 'cli', 'bundle'}),
+    ('conftest.py', {'kernel', 'model', 'sample', 'upstream', 'atuin', 'cli', 'bundle'}),
     ('tests/atuin_cli_test.py', {'atuin'}),
     ('tests/cli_test.py', {'cli'}),
     ('tests/bundle_test.py', {'bundle'}),
@@ -118,5 +125,5 @@ def test_flake_checks_reuse_existing_targets(system: str, flake_source: Path) ->
     assert flake.returncode == 0, flake.diagnostic()
     assert legacy.returncode == 0, legacy.diagnostic()
     checks = json.loads(flake.stdout)
-    assert set(checks) == {'atuin', 'bundle', 'cli', 'kernel', 'model', 'upstream'}
+    assert set(checks) == {'atuin', 'bundle', 'cli', 'kernel', 'model', 'sample', 'upstream'}
     assert checks == json.loads(legacy.stdout)
