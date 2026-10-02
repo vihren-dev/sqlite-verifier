@@ -27,3 +27,21 @@ Rules for this repository:
   to warn about a real trap.
 - An error message tells what failed, where, and what the user can do next.
   Do not refer to internal documents, such as ADR numbers, in user-facing text.
+
+## Propositions in plain words
+
+A proof certifies only the formula as written. If the formula says less than
+intended, verification still succeeds. The plain-words statement is where a
+reader checks that the formula and the intent agree.
+
+- Each proposition in the core library and the public API has a docstring that
+  restates it in plain words: each `def` or `abbrev` of type `Prop`, each field
+  of type `Prop` in a structure, and each theorem statement. A small internal
+  helper lemma needs one sentence.
+- The words say what the formula says, not what it is meant to say. Include
+  the quantifiers, what is assumed and what follows, and each case in which
+  the formula requires nothing. If the formula is weaker than the intent, say
+  so.
+- The structure of the text follows the formula: one item for each conjunct or
+  case.
+- A change to a formula changes its plain-words statement in the same commit.
