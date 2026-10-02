@@ -31,6 +31,14 @@ The Tcl/native fidelity check reproduces Tcl's REAL and BLOB result semantics
 without changing native typed observations, SQL or expected results. Faithful
 cases such as CAST of numeric text can be acquired; materially changed values,
 side-effecting callbacks and unsupported parameter bindings are still refused.
+A declared round-trip Tcl display-precision condition may be used for new
+acquisition. The pinned tester's original precision remains part of the source
+record; source SQL and original expected strings are unchanged. Any original
+assertion that fails under the declared condition, later precision change or
+unobserved precision is explicitly refused. The acquisition condition and
+observed precision are bound to the source/profile policy and frozen artifact;
+rounded legacy Tcl strings cannot prove exact REAL correspondence.
+
 Registered functions affect eligibility only when a case's SQL or its retained
 prefix depends on them. Any restored connection/attachment context must meet
 ADR §3.4's faithful-prefix or verified-state condition. This task does not admit

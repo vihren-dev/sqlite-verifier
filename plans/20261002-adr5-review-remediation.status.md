@@ -36,3 +36,13 @@ neutral capability requirements. Internal agent review is not owner approval.
   review from owner approval. Bounded reporting/evidence/document checks pass:
   34 tests in 14.28 seconds, including complete v4 loading and all requirement
   rows. Catalogue expansion, extraction repair and v5 freeze remain open.
+
+- 2026-10-02: Pinned `tester.tcl` sets display precision 15, so its REAL strings
+  cannot establish exact bits generally. Specified an explicit round-trip
+  acquisition condition before implementation, retaining original source and
+  expected strings and refusing failed expectations or changed/unobserved
+  precision. This is capture formatting, not a new SQLite production profile.
+  Native typed observations remain unchanged. Independent inventory audit
+  verifies all 171 sources; `delete_db.test` has an explicit file-level exclusion.
+  Existing cascade and clock cases are substantive; the actual authored gaps
+  are deferred-FK commit outcomes and non-NULL CAST-to-REAL.
