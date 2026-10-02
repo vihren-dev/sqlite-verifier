@@ -102,3 +102,24 @@ requirements. Internal agent review is not owner approval.
   in 5.70 seconds), and the isolated actual upstream target passes (58 in 2.11
   seconds). A fresh complete capture, freeze and both-platform final baselines
   remain required. Historical corpora and model semantics are unchanged.
+
+- 2026-10-02: The authoritative unchanged-extractor capture completed all 143
+  runnable sources and 28 explicit exclusions from the 171-file catalog,
+  accounting for 153,764 runtime assertions and 4,307 upstream cases. Every
+  remaining fidelity refusal was independently reproduced and named: 264
+  testfixture-extension or physical EXPLAIN observations, with retained proof
+  bytes and zero unmapped causes. The source/profile before/after report keeps
+  all 57 expression cohorts visible (one active, 56 inactive) and every zero-yield
+  source explicit. Three used profile routes yield 3,322 default, 609 controlled-
+  clock and 376 FK-on cases; the fourth declared route has no selected sources.
+  These are profile/source yields, not executions of individual SQL features.
+
+  Fresh full native replay and ordinary frozen loading pass for v5: 4,376 cases
+  (4,307 upstream plus 69 authored) in 109 shards. Its directory is 8,694,264
+  bytes; retaining v1–v5 uses 12,235,391 bytes. The maximum expanded case is
+  999,167 bytes. All 40 historical artifact hashes remain unchanged.
+  Cases digest: `663e38016b574c8436c2bb0d53ff9e356fde51b458c1640a4a99553f11fe98b4`.
+  Manifest digest: `e9a965f05ec70f45af83b43f62a0ff7b19f5095f03bb53b0b7b7a64b73f3e082`.
+  The capture remains bound to the exact `6ae554cc` extractor. Default replay
+  activation, the separately reproduced out-of-catalog hardlink alias guard,
+  final both-platform measurements and private v5 baselines remain open.
