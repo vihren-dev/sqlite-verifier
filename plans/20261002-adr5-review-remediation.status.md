@@ -26,3 +26,13 @@ neutral capability requirements. Internal agent review is not owner approval.
   read-only investigations cover fidelity, profile-aware yield and reporting.
   The separately authorized Linux private evidence commands can finish;
   completion will not be claimed against the superseded generic baseline.
+
+- 2026-10-02: Replaced combined feature counts in current progress with
+  separate case, source-file and unscoped scenario-label views. New manifest
+  label declarations are validated; historical v4 metadata remains readable
+  and unchanged. The JSON labels split into 219 upstream file labels and one
+  authored case label, rather than 220 executions of each function. Public
+  profile task prose now states generic capabilities and distinguishes internal
+  review from owner approval. Bounded reporting/evidence/document checks pass:
+  34 tests in 14.28 seconds, including complete v4 loading and all requirement
+  rows. Catalogue expansion, extraction repair and v5 freeze remain open.

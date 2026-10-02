@@ -8,6 +8,7 @@ import pytest
 
 from conformance.case_format import Json
 from conformance.corpus import load
+from conformance.corpus_evidence import FEATURE_LABEL_VIEWS, feature_counts
 from conformance.freeze_corpus import freeze
 from conformance.freeze_validation import digest
 from conformance.native_storage import serialized, shared_record
@@ -43,6 +44,27 @@ def test_optional_evidence_survives_actual_load(frozen: tuple[Path, dict[str, Js
     actual, records = load(directory)
     assert actual == manifest and len(records) == 4
     assert actual["fidelityLedger"]["mismatches"] == 1
+
+
+@pytest.mark.parametrize("damage", [None, "case-credit", "duplicate", "boolean", "partial"])
+def test_scoped_label_counts_bind_actual_records(frozen: tuple[Path, dict[str, Json]], damage: str | None) -> None:
+    """File annotations cannot be rebound as measured case-feature credit through manifest edits."""
+    directory, manifest = frozen
+    _actual, records = load(directory)
+    manifest.update(feature_counts(records))
+    label = next(iter(manifest["bySourceFileLabel"]))
+    if damage == "case-credit":
+        manifest["byCaseFeatureLabel"][label] = manifest["bySourceFileLabel"].pop(label)
+    elif damage == "duplicate": manifest["bySourceFileLabel"][label] += 1
+    elif damage == "boolean": manifest["bySourceFileLabel"][label] = True
+    elif damage == "partial": del manifest["byUnscopedFeatureLabel"]
+    (directory / "manifest.json").write_bytes(serialized(manifest))
+    if damage is None:
+        loaded, _records = load(directory)
+        assert all(loaded[view] == feature_counts(records)[view] for view in FEATURE_LABEL_VIEWS)
+    else:
+        with pytest.raises(ValueError, match="feature label counts"):
+            load(directory)
 
 
 @pytest.mark.parametrize("damage", ["extraction-bytes", "extraction-uncompressed", "extraction-path", "extraction-count",

@@ -7,7 +7,10 @@ Spec: [ADR 0005](../docs/adr-0005-conformance-corpus-scale.md).
 ## Current state
 
 Owner authorized implementation on 2026-09-30 after the document reviews.
-C0–C7 are done. Corpus v4 freezes 1,264 generic cases; all pass native replay,
+The C0–C7 implementation is present. Owner review reopened generic corpus
+coverage and reporting under the separate [repair task](20261002-adr5-review-remediation.task.md).
+The workload-suite gate stays open until the repair and refreshed baselines pass.
+Corpus v4 remains a historical freeze of 1,264 generic cases; all pass native replay,
 and the current model reports all as unsupported under their expanded profiles.
 The artifact, source/triage evidence, synthetic workload and full report are
 retained within budget. The fast replay tier is verified on both native platforms; the complete v4

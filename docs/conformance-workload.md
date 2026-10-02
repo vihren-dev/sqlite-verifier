@@ -54,7 +54,10 @@ setup. Case names are unique.
 without parameters. Cells use the native format: `"null"`, signed 64-bit
 `integer.value`, IEEE-754 `real.bits` as a decimal string, or `text.bytes` and
 `blob.bytes` as byte arrays. Optional `requirements` contains requirement IDs.
-`features` supplies report categories.
+`features` supplies case scenario annotations reported under
+`byCaseFeatureLabel`. These labels are supplied metadata, not inferred SQL
+execution coverage. Upstream source-file annotations are reported separately
+under `bySourceFileLabel`.
 
 A controlled-clock profile also requires `setupClockUnixMilliseconds` in the
 inventory and `clockUnixMilliseconds` in each case. The latter has one integer

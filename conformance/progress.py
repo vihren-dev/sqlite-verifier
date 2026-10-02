@@ -8,6 +8,7 @@ from pathlib import Path
 
 from conformance.case_format import Json
 from conformance.corpus import load, replay
+from conformance.corpus_evidence import FEATURE_LABEL_VIEWS, feature_label_view
 from conformance.corpus_shards import source_path
 from conformance.requirement_coverage import inventory_rows, resolved_ids
 
@@ -29,19 +30,17 @@ def totals(counts: Counter[str]) -> dict[str, Json]:
 
 def views(manifest: dict[str, Json], records: list[dict[str, Json]],
           answers: list[dict[str, Json]], corpus: Path) -> dict[str, Json]:
-    """Parts and ordered shards partition cases; feature labels overlap by recorded scope."""
+    """Parts/shards partition cases; file, case and unscoped scenario labels stay separate."""
     parts: dict[str, Counter[str]] = defaultdict(Counter)
-    features: dict[str, Counter[str]] = defaultdict(Counter)
-    scopes: dict[str, dict[str, Counter[str]]] = defaultdict(lambda: defaultdict(Counter))
+    labels: dict[str, dict[str, Counter[str]]] = {view: defaultdict(Counter) for view in FEATURE_LABEL_VIEWS}
     for record, answer in zip(records, answers, strict=True):
         if record["name"] != answer["name"] or answer["verdict"] not in VERDICTS:
             raise ValueError("Progress case identities or verdicts differ")
         verdict = answer["verdict"]
         parts[record.get("part", "legacy")][verdict] += 1
-        scope = record.get("featureMetadataScope", "unspecified" if "upstream" in record else "case")
+        view = feature_label_view(record)
         for feature in set(record.get("features", [])):
-            features[feature][verdict] += 1
-            scopes[feature][scope][verdict] += 1
+            labels[view][feature][verdict] += 1
     declarations = manifest.get("shards", [{"path": "cases.jsonl.gz", "source": "legacy",
         "part": "legacy", "recordedCases": len(records), "casesSha256": manifest["casesSha256"]}])
     shards: list[Json] = []
@@ -57,9 +56,8 @@ def views(manifest: dict[str, Json], records: list[dict[str, Json]],
     if offset != len(records):
         raise ValueError("Progress shards do not partition corpus")
     return {"byPart": {key: totals(value) for key, value in sorted(parts.items())},
-            "byFeature": {key: {**totals(value), "byMetadataScope": {
-                scope: totals(counts) for scope, counts in sorted(scopes[key].items())}}
-                for key, value in sorted(features.items())}, "byShard": shards}
+            **{view: {label: totals(counts) for label, counts in sorted(values.items())}
+               for view, values in labels.items()}, "byShard": shards}
 
 
 def progress(corpus: Path, requirements: Path, runtime: Path) -> dict[str, Json]:
@@ -89,7 +87,7 @@ def progress(corpus: Path, requirements: Path, runtime: Path) -> dict[str, Json]
                 for path in sorted((ROOT / "conformance").glob("*.py"))},
             "denominator": len(records), "requirementInventoryCount": inventory["count"],
             "requirementMatrixRows": len(matrix), "requirementMatrix": matrix,
-            "limitation": "Scenario counts do not prove entire requirements or model support. Feature labels overlap; source-file labels retain that scope. Untagged upstream cases receive no file-level R-ID credit.",
+            "limitation": "Counts describe overlapping scenario labels, not measured SQL execution coverage or model support. Source-file labels count file membership; case labels are scenario annotations; historical labels without scope remain unscoped. Untagged upstream cases receive no file-level R-ID credit.",
             **result, **views(manifest, records, result["cases"], corpus)}
 
 

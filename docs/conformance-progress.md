@@ -8,10 +8,20 @@ The model cannot yet consume the expanded profiles.
 
 `just conformance-progress` now uses all v4 cases. Its
 [C7 baseline](../reports/20261002-adr5-c7-v4-progress.json) adds verdicts and
-denominators for four parts, 80 overlapping features and 27 ordered shards,
-while retaining every requirement row and per-case result. Feature metadata
-keeps its scenario or source-file scope. Manifest, profiles, evidence, shard
+denominators for four parts, 80 overlapping labels and 27 ordered shards,
+while retaining every requirement row and per-case result. This historical
+report's combined `byFeature` counts include source-file membership, not
+executions of each named feature. Manifest, profiles, evidence, shard
 bytes, frontend/harness and both compiled runtime files are bound by identity.
+
+New reports separate `byCaseFeatureLabel` (authored or workload scenario
+annotations), `bySourceFileLabel` (membership in a labelled upstream file),
+and `byUnscopedFeatureLabel` (historical annotations whose scope is unknown).
+Labels count once per case within their scope and may overlap. A case from
+`json101.test` labelled `json_each` contributes only to source-file membership;
+it does not establish that its SQL executes `json_each`. No label view measures
+SQL execution coverage. Historical manifests and reports retain their original
+`byFeature` bytes; replaying them today produces the separated label views.
 
 Development `just test` uses a deterministic 100-case tier: all 66 authored
 cases, both synthetic cases, and one lowest identity hash per nonempty upstream
@@ -61,6 +71,10 @@ and a full requirement ID. Nearest, unambiguous upstream `EVIDENCE-OF` comment
 blocks carry source lines and file digests; ambiguous or obsolete references
 remain provenance without credit. These are scenario counts, not proof of entire
 requirements.
+
+Requirement rows count explicitly attributed scenarios. They and authored
+feature annotations describe the cases, rather than proving every behavior of
+a requirement or measuring executions of SQL syntax or functions.
 
 The [C5 authored report](../reports/20261001-adr5-c5-authored.md) records **60 to
 98 rows with cases**, with 38 newly represented rows and no lost rows. It replaces

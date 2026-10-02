@@ -2,11 +2,48 @@
 
 import gzip
 import json
+from collections import Counter
 from pathlib import Path
 
 from conformance.case_format import Json
 from conformance.corpus_shards import natural, source_path
 from conformance.freeze_validation import digest, mismatch, triage
+
+FEATURE_LABEL_VIEWS = ("byCaseFeatureLabel", "bySourceFileLabel", "byUnscopedFeatureLabel")
+
+
+def feature_label_view(record: dict[str, Json]) -> str:
+    """Keep file provenance distinct from case annotations and unknown historical scope."""
+    scope = record.get("featureMetadataScope")
+    if scope == "source-file":
+        return "bySourceFileLabel"
+    if scope == "case" or scope is None and "upstream" not in record:
+        return "byCaseFeatureLabel"
+    return "byUnscopedFeatureLabel"
+
+
+def feature_counts(records: list[dict[str, Json]]) -> dict[str, Json]:
+    """Count scenario labels once per case; no label count infers SQL execution coverage."""
+    counts: dict[str, Counter[str]] = {view: Counter() for view in FEATURE_LABEL_VIEWS}
+    for record in records:
+        labels = record.get("features", [])
+        if not isinstance(labels, list) or any(not isinstance(label, str) or not label for label in labels):
+            raise ValueError("Invalid corpus feature labels")
+        counts[feature_label_view(record)].update(set(labels))
+    return {view: dict(sorted(values.items())) for view, values in counts.items()}
+
+
+def verify_feature_counts(manifest: dict[str, Json], records: list[dict[str, Json]]) -> None:
+    """Validate new scoped label counts while leaving historical byFeature metadata readable."""
+    if not any(view in manifest for view in FEATURE_LABEL_VIEWS):
+        return
+    expected = feature_counts(records)
+    for view in FEATURE_LABEL_VIEWS:
+        declared = manifest.get(view)
+        if (not isinstance(declared, dict) or any(not isinstance(label, str) or not label
+                or type(count) is not int or count < 1 for label, count in declared.items())
+                or declared != expected[view]):
+            raise ValueError("Corpus feature label counts differ from recorded scope")
 
 
 def document(directory: Path, binding: dict[str, Json]) -> tuple[dict[str, Json], bytes, Path]:
@@ -54,6 +91,7 @@ def refusals(report: dict[str, Json]) -> set[tuple[str, str, int]]:
 
 def verify(directory: Path, manifest: dict[str, Json], records: list[dict[str, Json]]) -> None:
     """Manifests without C6 proof fields retain their existing legacy or workload loader behavior."""
+    verify_feature_counts(manifest, records)
     if "extraction" not in manifest:
         if "fidelityLedger" in manifest:
             raise ValueError("Corpus fidelity ledger requires bound extraction")

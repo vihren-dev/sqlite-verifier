@@ -10,6 +10,7 @@ from pathlib import Path
 from conformance.authored_cases import records
 from conformance.case_format import Json
 from conformance.corpus import load, native_replay, replay
+from conformance.corpus_evidence import feature_counts
 from conformance.native_storage import serialized, shared_record
 from conformance.requirement_coverage import comparison
 
@@ -53,9 +54,9 @@ def acquire(before: Path, requirements: Path, runtime: Path) -> tuple[dict[str, 
         "replacementCases": len(replaced), "newCases": len(authored) - len(replaced),
         "coverage": comparison(previous, after, inventory),
         "byPart": dict(Counter(record["part"] for record in authored)),
-        "byFeature": dict(sorted(Counter(feature for record in authored for feature in record["features"]).items())),
+        **feature_counts(authored),
         "modelClassification": model,
-        "limitation": "Scenario counts do not prove entire requirements. The after membership replaces legacy authored evidence and adds neutral cases; C6 determines the final upstream membership. JSON has feature metadata without requirement credit. Model support has not been extended.",
+        "limitation": "Scenario labels do not measure SQL execution coverage or prove entire requirements. The after membership replaces legacy authored evidence and adds neutral cases; C6 determines the final upstream membership. JSON has feature metadata without requirement credit. Model support has not been extended.",
     }
     return report, payload
 

@@ -48,8 +48,9 @@ and existing native profile, storage and external directory tests.
   driver-equivalence claim or workload acquisition was performed.
 
 - 2026-10-02: Root reviewed the prepared scope against the accepted ADR and
-  measured gaps after C7 completed at `cf6657b1`. Additional source pinning is
-  an explicit implementation decision, not a claim of observed cross-version
+  infrastructure needs after C7 completed at `cf6657b1`. This internal review
+  does not constitute an owner decision about a production profile. Additional
+  source pinning is an explicit implementation decision, not a claim of observed cross-version
   inequality or exact-driver-build equivalence. Old profile compatibility,
   read-only fixture lifecycle and scoped error handling are required outcomes.
   Document checks passed (2 tests). This preparation is committed before code;

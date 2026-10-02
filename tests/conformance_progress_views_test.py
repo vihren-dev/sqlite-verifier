@@ -9,6 +9,7 @@ import sys
 import pytest
 
 from conformance.case_format import Json
+from conformance.corpus_evidence import FEATURE_LABEL_VIEWS
 from conformance.progress import RUNTIME_FILES, VERDICTS, progress
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -63,7 +64,7 @@ def inputs(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> tuple[Path, Path,
 
 
 def test_part_feature_shard_denominators(inputs: tuple[Path, Path, Path]) -> None:
-    """Only parts and shards partition cases; duplicate labels count once and scopes stay separate."""
+    """File membership never adds case-feature credit; duplicate scenario labels count once."""
     report = progress(*inputs)
     assert report["denominator"] == sum(row["denominator"] for row in report["byPart"].values()) == 4
     assert report["byPart"]["boundary-interaction"]["counts"] == dict(zip(VERDICTS, (1, 1, 0, 0), strict=True))
@@ -71,11 +72,23 @@ def test_part_feature_shard_denominators(inputs: tuple[Path, Path, Path]) -> Non
     assert [row["index"] for row in report["byShard"]] == [0, 1]
     assert sum(row["denominator"] for row in report["byShard"]) == 4
     assert report["byShard"][1]["counts"] == dict(zip(VERDICTS, (0, 0, 1, 1), strict=True))
-    assert {key: row["denominator"] for key, row in report["byFeature"].items()} == {"a": 1, "shared": 3, "upstream": 2}
-    scopes = report["byFeature"]["shared"]["byMetadataScope"]
-    assert {key: row["denominator"] for key, row in scopes.items()} == {"case": 2, "source-file": 1}
+    assert {key: row["denominator"] for key, row in report["byCaseFeatureLabel"].items()} == {"a": 1, "shared": 2}
+    assert {key: row["denominator"] for key, row in report["bySourceFileLabel"].items()} == {"shared": 1, "upstream": 2}
+    assert report["byUnscopedFeatureLabel"] == {} and "byFeature" not in report
     assert report["byRequirement"] == {"raw-alias": {"AGREE": 2}}
     assert [row["counts"]["AGREE"] for row in report["requirementMatrix"]] == [1, 0]
+
+
+def test_historical_upstream_labels_cannot_become_case_coverage(inputs: tuple[Path, Path, Path]) -> None:
+    """Missing historical scope stays unknown even when the same label annotates authored cases."""
+    module = importlib.import_module("conformance.progress")
+    _manifest, records = module.load(inputs[0])
+    del records[2]["featureMetadataScope"]
+    report = progress(*inputs)
+    assert report["byCaseFeatureLabel"]["shared"]["denominator"] == 2
+    assert report["byUnscopedFeatureLabel"]["shared"]["counts"]["MODEL_UNSUPPORTED"] == 1
+    assert "shared" not in report["bySourceFileLabel"]
+    assert report["bySourceFileLabel"]["upstream"]["counts"]["HARNESS_ERROR"] == 1
 
 
 def test_report_binds_runtime_profiles_shards_evidence(inputs: tuple[Path, Path, Path]) -> None:
@@ -131,7 +144,13 @@ def test_actual_v4_partition_requirement_inventory_and_identities(runtime_root: 
     assert report["denominator"] == manifest["recordedCases"] == 1264
     assert report["counts"] == {"MODEL_UNSUPPORTED": 1264}
     assert {key: row["denominator"] for key, row in report["byPart"].items()} == manifest["byPart"]
-    assert {key: row["denominator"] for key, row in report["byFeature"].items()} == manifest["byFeature"]
+    combined: dict[str, int] = {}
+    for view in FEATURE_LABEL_VIEWS:
+        for label, row in report[view].items():
+            combined[label] = combined.get(label, 0) + row["denominator"]
+    assert combined == manifest["byFeature"]  # Retained v4 used a combined historical label count.
+    assert report["bySourceFileLabel"]["json_each"]["denominator"] == 219
+    assert report["byCaseFeatureLabel"]["json_each"]["denominator"] == 1 and "byFeature" not in report
     assert [row["path"] for row in report["byShard"]] == [row["path"] for row in manifest["shards"]]
     assert sum(row["denominator"] for row in report["byShard"]) == 1264
     assert report["requirementMatrixRows"] == report["requirementInventoryCount"] == 3500

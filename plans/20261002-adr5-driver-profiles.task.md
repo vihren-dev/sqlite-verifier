@@ -11,17 +11,18 @@ Completion evidence and platform checks are recorded in the linked status file.
 
 ## Scope and decision
 
-A measured application driver uses SQLite 3.53.4 with trusted schema disabled,
-both DQS modes disabled, and read-only connections. The current recorder cannot
-establish those conditions. This task adds the public native infrastructure
-needed to record and compare those conditions truthfully. Workload names, SQL,
+The recorder needs generic support for the additional SQLite 3.53.4 native
+engine, explicit trusted-schema and DQS settings, and actual read-only access.
+This task adds public infrastructure to establish, record and verify those
+conditions. Workload names, SQL,
 source identities, driver measurements and workload results remain external.
 
 ADR 0005 conditionally requires another source pin when a measured engine
 difference affects workload SQL. A source-version mismatch alone does not prove
 such an effect. The additional decision here is to pin 3.53.4 for truthful
 workload comparison rather than assert unmeasured cross-version equivalence.
-An independently built native library is not automatically the exact driver
+This is native comparison infrastructure, not authorization to select a
+production profile. An independently built native library is not automatically the exact driver
 build, even when its release and source ID match.
 
 ## Observable outcomes
