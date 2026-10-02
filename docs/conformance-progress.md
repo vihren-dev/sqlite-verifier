@@ -7,6 +7,11 @@ V3 preserves v2's 183 records exactly and adds 164 upstream and 23 authored case
 These added agreements are corpus growth, not model progress. V1 and v2 remain
 immutable; compare model revisions using the same corpus version and digest.
 
+ADR 0005's C6 tools record new profiled outputs and validate a v4 freeze. V3
+remains current until the final v4 artifacts pass native replay and their report
+is committed. The [synthetic workload](conformance-workload.md) exercises the
+external-directory commands; it does not complete the actual workload gate.
+
 The raw verdict remains unchanged when a case contains queries. A separate
 `queryDiagnostic` examines successful trailing SELECTs and metadata PRAGMAs,
 requires unchanged native state, and submits the remaining prefix to Lean:
@@ -65,6 +70,33 @@ the generated inventory for offline reproducibility, not required of consumers.
 Release: `version-3.51.0`; revision
 `93f1a4577785f72b4183843a7c8d33285bc36bce6f6b5258f428a6c844a0099c`.
 Original tar SHA256: `f3a39333897823546bca5924899bafaf7f593571863666221e5a38246f065423`.
+
+## Freezing new generic evidence
+
+Run the pinned upstream recorder with `--uncapped --catalog --sample-expressions`
+and an established profile. Its report retains the exact source catalog,
+sampling identities, completed assertions and every exclusion reason.
+
+The finalizer accepts a complete capture and publishes a new directory:
+
+```sh
+python -m conformance.freeze_corpus --input /path/to/capture \
+  --upstream /path/to/pinned-upstream --output /path/to/new-corpus \
+  --fidelity-ledger /path/to/ledger.json
+```
+
+The ledger binds the capture manifest's SHA-256 digest. Its `ledgerVersion` is
+`1`; `entries` identify each differing-result refusal by `file`, `id` and
+`occurrence`, name its `cause`, and list `evidence` objects with relative `path`
+and `sha256`. Every such refusal needs an entry with retained proof bytes.
+When there are no differing-result refusals, omit `--fidelity-ledger`.
+
+Freezing adds the fresh authored catalogs, checks final membership and source
+hashes, replays all observations natively, and measures the 25 MB current and
+60 MB retained budgets. It accounts for every retained v1–v3 directory and
+refuses a partial or timed-out source. Original extraction, keyed triage and
+proof bytes are retained with digests and verified by ordinary corpus loading.
+The command never replaces an existing directory or edits native observations.
 
 ## Measured execution coverage
 

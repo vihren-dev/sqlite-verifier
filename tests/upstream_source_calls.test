@@ -1,0 +1,20 @@
+# SQL assembly must preserve text returned by EXPLAIN while separating EOF comments.
+set testdir [file join $env(CONFORMANCE_UPSTREAM) test]
+source [file join $testdir tester.tcl]
+reset_db
+db eval {CREATE TABLE t(a)}
+do_test source-explain {
+  db eval {EXPLAIN CREATE INDEX i ON t(a)}
+  db eval {SELECT 1}
+} 1
+reset_db
+do_test source-eof-comment {
+  db eval {CREATE TABLE t(a); INSERT INTO t VALUES(7) -- EOF}
+  db eval {SELECT a FROM t}
+} 7
+reset_db
+do_test source-quoted-comment {
+  db eval {SELECT '--quoted /*text*/'}
+  db eval {SELECT 2}
+} 2
+finish_test

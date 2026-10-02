@@ -7,9 +7,10 @@ Spec: [ADR 0005](../docs/adr-0005-conformance-corpus-scale.md).
 ## Current state
 
 Owner authorized implementation on 2026-09-30 after the document reviews.
-Dedicated `adr5` workspace combines merged ADR 0004 (`main` at `3aae9b50`)
-with ADR 0003's implemented shared structural codec (`96609b4c`). No conflicts;
-resource checks pass. C0–C5 are done. C6–C7 and the private workload gate are open.
+C0–C5 are done. C6 has strict shards, workload recording/replay, retained
+synthetic evidence, issue-boundary cases and a validated freeze command. Its
+corrected full upstream capture is running; final v4 membership remains open.
+C7 and the private workload gate are open. Model semantics are unchanged.
 C8 follows the model semantics concerned, as the ADR specifies.
 
 ## Sources and package records

@@ -44,7 +44,7 @@ def source_tree(tmp_path: Path) -> Path:
     """Copy only small potential test inputs; no store outputs, vendored parsers or build trees."""
     for name in ('pytest.ini', 'conftest.py', 'LICENSE'):
         shutil.copy2(ROOT / name, tmp_path / name)
-    for name in ('tests', 'migration_check', 'conformance', 'examples', 'docs', 'packaging', 'SqliteVerifier', 'VerifierConformance', 'reports'):
+    for name in ('tests', 'migration_check', 'conformance', 'examples', 'docs', 'packaging', 'SqliteVerifier', 'VerifierConformance', 'reports', 'nix', 'build-support'):
         shutil.copytree(ROOT / name, tmp_path / name,
                         ignore=shutil.ignore_patterns('__pycache__', '*.pyc', 'upstream'))
     return tmp_path
@@ -53,14 +53,14 @@ def source_tree(tmp_path: Path) -> Path:
 @pytest.mark.parametrize('relative,affected', [
     ('tests/kernel_gate_test.py', {'kernel'}),
     ('tests/kernel_gate/Proofs.lean', {'kernel'}),
-    ('conformance/model_cases.py', {'model'}),
+    ('conformance/model_cases.py', {'model', 'upstream'}),
     ('conformance/cases/add_then_create.json', {'model', 'bundle'}),
-    ('conformance/native_trace.py', {'model'}),
-    ('conformance/case_format.py', {'model'}),
+    ('conformance/native_trace.py', {'model', 'upstream'}),
+    ('conformance/case_format.py', {'model', 'upstream'}),
     ('VerifierConformance/Trace.lean', {'model'}),
     ('tests/conformance_pipeline_test.py', {'model'}),
-    ('migration_check/translate.py', {'model', 'atuin', 'cli', 'bundle'}),
-    ('conftest.py', {'kernel', 'model', 'atuin', 'cli', 'bundle'}),
+    ('migration_check/translate.py', {'model', 'upstream', 'atuin', 'cli', 'bundle'}),
+    ('conftest.py', {'kernel', 'model', 'upstream', 'atuin', 'cli', 'bundle'}),
     ('tests/atuin_cli_test.py', {'atuin'}),
     ('tests/cli_test.py', {'cli'}),
     ('tests/bundle_test.py', {'bundle'}),
@@ -118,5 +118,5 @@ def test_flake_checks_reuse_existing_targets(system: str, flake_source: Path) ->
     assert flake.returncode == 0, flake.diagnostic()
     assert legacy.returncode == 0, legacy.diagnostic()
     checks = json.loads(flake.stdout)
-    assert set(checks) == {'atuin', 'bundle', 'cli', 'kernel', 'model'}
+    assert set(checks) == {'atuin', 'bundle', 'cli', 'kernel', 'model', 'upstream'}
     assert checks == json.loads(legacy.stdout)

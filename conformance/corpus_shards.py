@@ -131,6 +131,9 @@ def load(directory: Path, manifest: dict[str, Json]) -> list[dict[str, Json]]:
     if len(records) != count or combined.hexdigest() != manifest.get("casesSha256"):
         raise ValueError("Combined corpus count or digest mismatch")
     validate_profiles(manifest, records)
+    if {"extraction", "fidelityLedger"} & manifest.keys():
+        from conformance.corpus_evidence import verify
+        verify(directory, manifest, records)
     return records
 
 

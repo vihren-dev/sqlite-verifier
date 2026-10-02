@@ -182,3 +182,12 @@ def test_nul_sql_cannot_hide_unexecuted_input(tmp_path: Path) -> None:
         assert connection.query_result("SELECT ?;", ((3, b"a\x00b"),)).rows == [((3, b"a\x00b"),)]
     finally:
         connection.close()
+
+
+def test_retained_synthetic_corpus_matches_fresh_recording(tmp_path: Path) -> None:
+    """The checked-in neutral fixture binds current input files and identical fresh observations."""
+    source = ROOT / "conformance/synthetic-workload"
+    manifest, records = bound_records(source, source / "corpus")
+    fresh_manifest = record(source, tmp_path / "fresh")
+    assert fresh_manifest == manifest
+    assert load(tmp_path / "fresh")[1] == records

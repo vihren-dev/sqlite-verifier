@@ -1,0 +1,27 @@
+# Exercise reset-scoped and process-scoped external controls through the real tester.
+set testdir [file join $env(CONFORMANCE_UPSTREAM) test]
+source [file join $testdir tester.tcl]
+reset_db
+do_test gap-syntax-error-code {
+  catch {db eval {SELECT FROM}}
+  db errorcode
+} 1
+reset_db
+do_test gap-test-error-code {
+  catch {db eval {SELECT test_error('error text',12)}}
+  db errorcode
+} 12
+reset_db
+sqlite3_test_control SQLITE_TESTCTRL_INTERNAL_FUNCTIONS db
+do_test gap-internal-functions {db eval {SELECT affinity(1)}} none
+reset_db
+do_test gap-control-reset {db eval {SELECT 1}} 1
+sqlite3_limit db SQLITE_LIMIT_LENGTH 100000
+do_test gap-connection-limit {db eval {SELECT 1}} 1
+reset_db
+do_test gap-limit-reset {db eval {SELECT 1}} 1
+sqlite3_test_control SQLITE_TESTCTRL_LOCALTIME_FAULT 0
+do_test gap-global-control {db eval {SELECT 1}} 1
+reset_db
+do_test gap-global-control-reset {db eval {SELECT 1}} 1
+finish_test

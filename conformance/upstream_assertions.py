@@ -82,10 +82,10 @@ def iter_assertions(events: str) -> Iterator[dict[str, Json]]:
                     active.update(prefix=list(prefix), prefixCodes=list(codes), prefixResults=list(expected), prefixHelpers=list(helpers),
                                   commands=[], codes=[], results=[], helpers=[], implicitBindingReasons=sorted(implicit_bindings))
 
-        elif kind == "exclude":
+        elif kind in {"exclude", "persistent-exclude"}:
             excluded.add(args[0])
-            if args[0] == "connection command renamed":
-                persistent_contexts.add(args[0])  # reset_db need not close a renamed handle.
+            if kind == "persistent-exclude" or args[0] == "connection command renamed":
+                persistent_contexts.add(args[0])  # Global controls and renamed handles can outlive reset_db.
         elif kind == "databases" and args[0] == "db":
             previous = attached
             attached = bool(set(args[2::3]) - {"main", "temp"})

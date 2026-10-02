@@ -72,6 +72,7 @@ proc capture_connection {name command args} {
       if {[lindex $args 0] == 0 && $operation eq "eval"} {
         capture_event result $name 0 {*}[lindex $args 1]
       } else { capture_event result $name [lindex $args 0] [lindex $args 1] }
+      if {[lindex $args 0] != 0} { return } ;# Metadata SQL would clear the failed call's errorcode.
       set ::capture_metadata 1
       try {
         capture_event databases $name {*}[$name eval {PRAGMA database_list}]
@@ -138,11 +139,20 @@ proc capture_reset {command args} {
   if {[info exists ::capture_file(db)]} { capture_event reset $::capture_file(db) } else { capture_event reset }
 }
 proc capture_failure {command operation} { capture_event failed [lindex $command 1] }
+# Flush source completion before finish_test exits, including assertion failures.
+proc capture_complete {command operation} { capture_event complete }
 proc capture_external {command operation} {
   if {[lindex $command 0] eq "sqlite3_db_config"} {
     capture_event config {*}[lrange $command 1 end]
   } elseif {[string match sqlite3_blob_* [lindex $command 0]]} {
     capture_event exclude "incremental BLOB operation: [lindex $command 0]"
+  } elseif {[lindex $command 0] eq "sqlite3_limit"} {
+    capture_event exclude "external/configuration operation: sqlite3_limit"
+  } elseif {[lindex $command 0] eq "sqlite3_test_control"} {
+    set scope exclude
+    if {[lindex $command 1] ni {SQLITE_TESTCTRL_INTERNAL_FUNCTIONS SQLITE_TESTCTRL_FK_NO_ACTION
+        SQLITE_TESTCTRL_SORTER_MMAP SQLITE_TESTCTRL_IMPOSTER}} { set scope persistent-exclude }
+    capture_event $scope "external/configuration operation: sqlite3_test_control [lindex $command 1]"
   } elseif {[info exists ::capture_active] && $::capture_active} {
     capture_event exclude "external/configuration operation: [lindex $command 0]"
   }
@@ -153,6 +163,7 @@ proc capture_source {command code result operation} {
     trace add execution do_test {enter leave} capture_test
     trace add execution reset_db leave capture_reset
     trace add execution fail_test enter capture_failure
+    trace add execution finish_test enter capture_complete
     foreach command [concat {open sqlite3_db_config sqlite3_limit sqlite3_test_control} \
                             [info commands sqlite3_blob_*]] {
       if {[llength [info commands $command]]} { trace add execution $command enter capture_external }

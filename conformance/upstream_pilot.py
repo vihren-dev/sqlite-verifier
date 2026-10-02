@@ -6,6 +6,7 @@ import gzip
 import hashlib
 import json
 import os
+from io import StringIO
 from pathlib import Path
 import re
 import subprocess
@@ -93,6 +94,7 @@ def pilot(fixture: Path, upstream: Path, output: Path, limit: int | None, patter
             event_text = events.read_text() if events.exists() else ""
             if timeout_reason and not event_text.endswith("\n"):
                 event_text = event_text.rsplit("\n", 1)[0] if "\n" in event_text else ""
+            runtime_complete = any(line.strip() == b"complete".hex() for line in StringIO(event_text))
             identities = [{"id": candidate["id"]} for candidate in iter_assertions(event_text)]
             sampled_out, sample_report = select_candidates(file.name, identities, sampling)
             reasons: Counter[str] = Counter()
@@ -134,6 +136,7 @@ def pilot(fixture: Path, upstream: Path, output: Path, limit: int | None, patter
                 instances.append({"id": candidate["id"], "occurrence": occurrence,
                                   "result": reason or "recorded", "exclusions": exclusions, **size_evidence})
             report.append({**base, "runtimeExit": runtime_exit, "runtimeAssertions": len(identities),
+                "runtimeComplete": runtime_complete,
                 "recorded": selected, "reasons": dict(reasons), "instances": instances,
                 "expressionSampling": sample_report,
                 "runtimeDiagnostics": diagnostics,
