@@ -37,6 +37,12 @@ Create `workload.json` with this structure:
 Recording establishes and reads back its settings. A profile the recorder
 cannot establish is refused.
 
+Format-2 profiles can request actual read-only access, trusted schema and both
+DQS settings. Read-only cases initialize fixture files using a separate writable
+connection, commit and close it, then open the case read-only with the same
+behavioral settings. A final intentional write denial records code 8; environmental
+open, permissions, recovery, I/O and locking failures still fail recording.
+
 Paths are relative to the input directory. Absolute paths, parent traversal and
 symlinks outside that directory are refused. Every referenced SQL file has a
 `.sql` extension. Every SQL file in the directory must be listed as setup or a

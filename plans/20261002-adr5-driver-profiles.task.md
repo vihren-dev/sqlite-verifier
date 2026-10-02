@@ -1,12 +1,13 @@
 # ADR 0005: measured driver profile gaps
 
-Created 2026-10-02. Status: PREPARED; implementation has not started.
+Created 2026-10-02. Status: DONE, verified 2026-10-02.
 Status: [progress](20261002-adr5-driver-profiles.status.md).
 Specs: [ADR 0005 §3.2](../docs/adr-0005-conformance-corpus-scale.md#32-execution-profiles),
 [execution profiles](../docs/execution-profile.md), and
 [external workload commands](../docs/conformance-workload.md).
 This work follows the [C7 gates](20261002-adr5-c7-replay.task.md); it does not
 replace the separate external workload completion gate.
+Completion evidence and platform checks are recorded in the linked status file.
 
 ## Scope and decision
 

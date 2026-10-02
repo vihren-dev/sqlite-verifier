@@ -85,11 +85,14 @@ native refinement, arbitrary application-query preservation, or pilot acceptance
 
 ## Native boundary and limits
 
-The C-API runner loads the library beside the Nix-pinned SQLite executable,
+For the original production-profile comparisons, the C-API runner loads the library beside the Nix-pinned SQLite executable,
 checking version 3.51.0, exact source ID and MAX_COLUMN=2000. Each connection
 verifies library-default DQS_DML=1 and DQS_DDL=1 with `sqlite3_db_config`;
 the pinned engine retains its default build configuration. Connections use native
 autocommit, defensive mode off, trusted schema on, and writable schema off.
+Explicit [native corpus profiles](execution-profile.md#native-corpus-profiles-adr-0005-in-progress)
+can record additional settings and the native-only 3.53.4 pin. Such records
+remain `MODEL_UNSUPPORTED`; they do not expand this model correspondence boundary.
 
 Native columns are cross-checked against `table_xinfo` (including type, independently
 derived affinity, nullability, default and primary-key order). `index_list` and

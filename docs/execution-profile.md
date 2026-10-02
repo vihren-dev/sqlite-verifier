@@ -1,6 +1,6 @@
 # Supported execution profiles
 
-The supported version strings are `3.51.0` and `3.46.0`. Both select SQLite
+The production verifier's supported version strings are `3.51.0` and `3.46.0`. Both select SQLite
 semantics without a migration framework. Unsupported versions reject.
 Lean is independently pinned to 4.33.0.
 
@@ -74,7 +74,7 @@ this version does not select SQLx or impose a migration-history catalog.
 
 Explicit native evidence carries a named, versioned profile with measured engine
 version, source ID and the complete sorted compile-option list. Behavioral
-settings currently include foreign-key enforcement and recursive triggers; they
+settings include foreign-key enforcement and recursive triggers; they
 are established and read back before case SQL runs. The profile names the
 deferred or immediate transaction convention; SQL must use that convention.
 Ignored settings carry reasons, and assumptions about other writers are recorded.
@@ -98,6 +98,33 @@ SQL execution. Ignored settings may name
 Corpus manifests declare full records in `executionProfiles`; every v4 case
 must match one declaration exactly. Missing/conflicting records and duplicate
 name/version identities are refused. Legacy manifests retain implicit profiles.
+
+Profiles using the original field set retain trusted schema on, DQS_DML=1,
+DQS_DDL=1 and read-write/create access. Their transport remains byte-for-byte
+unchanged. Profile transport `formatVersion: 2` adds four required fields:
+`trustedSchema`, `dqsDml`, `dqsDdl` (booleans), and `accessMode` (`read-write` or
+`read-only`). This format version is separate from the named profile's `version`,
+native record version 4 and snapshot/shard storage versions. Unknown fields,
+partial field sets and unsupported formats are refused.
+
+The recorder establishes trusted schema and both DQS modes on each connection,
+then verifies the settings and SQLite's actual database access flag. It checks
+them again after SQL, before initialization reopens and on committed-state
+observers. Read-only cases initialize and commit their fixtures on a separate
+writable connection with the same behavioral settings, then open the case
+database with `SQLITE_OPEN_READONLY`. A query guard or `query_only` setting
+cannot stand in for this access mode. Ordinary primary/extended code 8 write
+denial is evidence only under a verified read-only profile; extended READONLY
+recovery, locking and filesystem errors remain harness failures.
+
+An additional native-only engine, `sqlite3-3.53.4`, uses the official source ID
+`2026-07-24 19:02:57 bf7c7f30031888f4e796e429ab3978879485813aaca6f641c7b33e4e09459bcc`
+and source archive SHA256
+`0e9483900e92cd5de8fd48d16bf9200145a61f7fd5be542a5ac81d8a9516eb9c`.
+This independent source build retains its complete actual compile options. It
+does not add production parser/model support or establish equivalence with an
+application's driver build. Driver/native differences still need scoped external
+measurement and disposition before the workload gate can complete.
 
 ### Measuring a workload's engine builds
 

@@ -43,7 +43,7 @@ in {
     ] ++ map (name: root + "/conformance/${name}.py") [
       "replay_tiers" "corpus" "corpus_shards" "corpus_evidence" "case_format"
       "workload" "workload_inputs" "execution_profile" "native_replay" "model_check"
-      "native_record" "native_connection" "native_library" "native_clock" "native_storage"
+      "native_record" "native_acquisition" "native_connection" "native_library" "native_clock" "native_storage"
       "native_probe" "native_ordering" "query_window" "native_metadata" "native_statements"
       "upstream_helpers" "model_assertions" "native_trace" "freeze_validation"
       "upstream_catalog" "upstream_sampling"
@@ -120,7 +120,7 @@ in {
       (root + /build-support/conformance-native.nix)
     ] ++ map (name: root + "/conformance/${name}.py") [
       "model_assertions" "model_cases" "model_check" "replay_tiers"
-      "execution_profile"
+      "execution_profile" "native_acquisition"
       "native_storage"
       "refresh_corpus" "requirement_cases" "requirement_coverage"
       "authored_cases" "authored_cases_queries" "authored_boundaries" "authored_report"
@@ -132,6 +132,6 @@ in {
       "case_format" "native_connection" "native_library" "native_clock" "native_probe" "native_ordering" "query_window" "native_metadata" "native_record" "native_statements" "native_replay" "upstream_pilot" "upstream_fidelity" "corpus" "generated_program" "mutation_check" "state_machine" "regressions" "progress" "measure_coverage" "native_trace" "pipeline"
     ];
     runtime = conformance;
-    tools = [ native.sqlite native.sqlite346 ];
+    tools = [ native.sqlite native.sqlite346 native.sqlite3534 ];
   };
 }

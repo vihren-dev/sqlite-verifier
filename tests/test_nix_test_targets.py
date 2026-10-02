@@ -63,6 +63,7 @@ def source_tree(tmp_path: Path) -> Path:
     ('tests/conformance_tier_bindings_test.py', {'model'}),
     ('conformance/cases/add_then_create.json', {'model', 'bundle'}),
     ('conformance/native_trace.py', {'model', 'sample', 'upstream'}),
+    ('conformance/native_acquisition.py', {'model', 'sample', 'upstream'}),
     ('conformance/case_format.py', {'model', 'sample', 'upstream'}),
     ('VerifierConformance/Trace.lean', {'model'}),
     ('tests/conformance_pipeline_test.py', {'model'}),

@@ -20,4 +20,8 @@ in {
     "6f8e6a7b335273748816f9b3b62bbdc372a889de8782d7f048c653a447417a7d").overrideAttrs {
       postInstall = "mv $out/bin/sqlite3 $out/bin/sqlite3-3.46.0";
     };
+  sqlite3534 = (sqliteRelease "3.53.4" "2026" "3530400"
+    "0e9483900e92cd5de8fd48d16bf9200145a61f7fd5be542a5ac81d8a9516eb9c").overrideAttrs {
+      postInstall = "mv $out/bin/sqlite3 $out/bin/sqlite3-3.53.4";
+    };
 }

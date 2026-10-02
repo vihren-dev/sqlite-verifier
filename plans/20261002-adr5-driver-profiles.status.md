@@ -1,6 +1,6 @@
 # ADR 0005 measured driver profile gaps: progress
 
-Created 2026-10-02. Status: PREPARED; implementation has not started.
+Created 2026-10-02. Status: DONE, verified 2026-10-02.
 Task: [driver profile outcomes](20261002-adr5-driver-profiles.task.md).
 Specs: [ADR 0005 §3.2](../docs/adr-0005-conformance-corpus-scale.md#32-execution-profiles),
 [execution profiles](../docs/execution-profile.md), and
@@ -9,19 +9,20 @@ Dependency: [C7 replay gates](20261002-adr5-c7-replay.status.md), DONE at `cf665
 
 ## Current state
 
-Core native evidence supports source-pinned SQLite 3.51.0 and 3.46.0.
-Connections currently open read-write/create, establish trusted schema on,
-verify DQS_DML=1 and DQS_DDL=1, and establish an effective column limit of 2000.
-Explicit profiles identify engine/source/complete compile options and existing
-behavioral settings, but do not carry trusted-schema, DQS or access-mode fields.
-Native replay and external directory loading already bind exact profile identity.
+Core native evidence supports source-pinned SQLite 3.51.0, 3.46.0 and the
+additional native-only 3.53.4 build. Old pins and default identities are unchanged.
+Format-2 profiles explicitly establish trusted schema, DQS_DML, DQS_DDL and
+actual read-only/read-write access, with settings and access readback on case,
+fixture, reopened and committed-state connections. Fixture initialization is
+separate from read-only case execution. The effective column limit remains 2000.
+Old profile bytes, native versions 1–4 and frozen corpora remain compatible.
 
-An additional 3.53.4 native pin and explicit connection conditions are the
-authorized public scope. The release/source identity is published by SQLite;
-the independent recorder build remains distinct from an application's exact
-driver build. Source mismatch alone is not an ADR mandate or proof of changed
-SQL behavior. External measurement-based compile-option dispositions remain
-private and are necessary before a truthful workload comparison can complete.
+Both platform builds verify the official archive/source identity and retain all
+39 actual compile options, including the compiler identity. The independent
+recorder build remains distinct from an application's exact driver build.
+Source mismatch alone is not proof of changed SQL behavior. External
+compile-option and platform dispositions remain necessary before a truthful
+workload comparison can complete.
 
 Existing frozen records and profiles must retain their behavior and exact
 stored identities. New native evidence does not expand production semantics,
@@ -32,7 +33,7 @@ completion and external workload completion remain separate gates.
 
 `nix/sqlite.nix`, `nix/flake.nix`, `build-support/{default,tests}.nix`,
 `conformance/{native_library,native_connection,execution_profile,native_record,
-native_statements,corpus,corpus_shards,native_replay,workload,workload_inputs}.py`,
+native_acquisition,native_statements,corpus,corpus_shards,native_replay,workload,workload_inputs}.py`,
 and existing native profile, storage and external directory tests.
 
 ## Progress
@@ -53,3 +54,34 @@ and existing native profile, storage and external directory tests.
   read-only fixture lifecycle and scoped error handling are required outcomes.
   Document checks passed (2 tests). This preparation is committed before code;
   implementation and the actual workload gate remain open.
+
+- 2026-10-02: Implemented the additional independent pin and profile-only
+  transport format 2. Existing named identity versions and native/storage
+  versions remain separate. Extracted the existing acquisition opening and
+  authorizer into `native_acquisition.py`; every authored Python file stays below
+  200 lines. Fixture initialization changes only access mode, verifies settings
+  before each reopen and completion, then closes before actual read-only opening.
+  Committed observers verify the same applicable settings. Only exact READONLY
+  code 8 under a verified read-only profile becomes statement evidence; all
+  extended recovery/filesystem variants remain harness errors. Public directory
+  checks preserve typed reads, final write denial, exact manifest profile binding,
+  fresh replay and refusal of unreached SQL. Model admission is unchanged.
+
+- 2026-10-02: Verified the official archive SHA256 and published source SHA3,
+  actual engine/source ID, complete options, column limit and access behavior on
+  `aarch64-darwin` and `x86_64-linux`. Old native derivation identities are exact
+  before/after matches on both platforms. Measurements:
+  [Darwin](../reports/20261002-adr5-driver-native-darwin.json) and
+  [Linux](../reports/20261002-adr5-driver-native-linux.json).
+  Independent lifecycle/transport review found no remaining blocker.
+
+- 2026-10-02: Final verification passed. Focused profiles/context/storage:
+  44 tests on Darwin (1.47 seconds) and Linux (4.95 seconds); full hermetic model:
+  270 passed, one optional Tcl skip (242.64 seconds; the actual Tcl upstream
+  target separately passed all 28). Fast hermetic replay: 12 passed on Darwin
+  (13.26 seconds) and Linux (27.25 seconds). Actual `nix develop path:./nix
+  --command just test`: 286 host cases plus 28 subtests, and all six development
+  targets passed. Nix dependency/flake ownership/CI/document checks: 37 passed.
+  The final added manifest-tamper check passed independently and in the rebuilt
+  full model target. Resource guard passed after the owner's space cleanup.
+  This public task is DONE; the external workload suite remains open.

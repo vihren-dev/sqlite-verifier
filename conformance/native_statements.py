@@ -6,7 +6,7 @@ import ctypes as c
 import time
 
 from conformance.case_format import Json, cell_wire
-from conformance.native_connection import Cell, Row, Connection, NativeError, SQL_ERRORS, encoded_sql
+from conformance.native_connection import Cell, Row, Connection, NativeError, encoded_sql
 from conformance.native_clock import NativeClock
 
 
@@ -105,7 +105,7 @@ def execute(connection: Connection, sql: str, *, outputs: bool = False,
             if getattr(connection, "recording_exclusion", None):
                 raise ValueError(connection.recording_exclusion) from error
             code, message = error.code, str(error)
-            if code & 255 not in SQL_ERRORS:
+            if not connection.is_sql_error(code):
                 raise
         finally:
             if outputs and statement.value:

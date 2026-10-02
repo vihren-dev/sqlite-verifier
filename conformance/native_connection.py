@@ -50,18 +50,22 @@ def library_path(executable_name: str = "sqlite3") -> Path:
     path = Path(executable).resolve().parent.parent / "lib" / f"libsqlite3.{suffix}"
     return path.resolve(strict=True)
 
-
-
-
 class Connection:
     """One explicit autocommit connection with bounded statements and byte-exact reads."""
 
-    def __init__(self, library: c.CDLL, path: Path, *, vfs: bytes | None = None) -> None:
+    def __init__(self, library: c.CDLL, path: Path, *, vfs: bytes | None = None,
+                 access_mode: str = "read-write") -> None:
+        """Open the requested native access mode and verify its actual database flags."""
+        if access_mode not in {"read-write", "read-only"}:
+            raise ValueError("Invalid native database access mode")
         self.library = library
+        self.access_mode = access_mode
+        self.readonly_evidence = False
         self.handle = c.c_void_p()
         self.deadline = time.monotonic() + 5
         self.progress = c.CFUNCTYPE(c.c_int, c.c_void_p)(lambda _: int(time.monotonic() > self.deadline))
-        opened = library.sqlite3_open_v2(str(path).encode(), c.byref(self.handle), 6, vfs)
+        opened = library.sqlite3_open_v2(str(path).encode(), c.byref(self.handle),
+                                       1 if access_mode == "read-only" else 6, vfs)
         if opened:
             message = library.sqlite3_errmsg(self.handle).decode(errors="replace")
             library.sqlite3_close(self.handle)
@@ -70,6 +74,8 @@ class Connection:
         library.sqlite3_limit(self.handle, 2, 2000)
         library.sqlite3_progress_handler(self.handle, 1000, self.progress, None)
         try:
+            if library.sqlite3_db_readonly(self.handle, b"main") != int(access_mode == "read-only"):
+                raise RuntimeError("SQLite database access readback failed")
             self.configure(1010, 0)  # DEFENSIVE: preserve the reviewed native profile.
             for option in (1013, 1014):  # Verify library-default DQS_DML and DQS_DDL.
                 if self.configure(option, -1) != 1:
@@ -92,6 +98,11 @@ class Connection:
         if code not in (0, 100, 101):
             raise NativeError(self.library.sqlite3_extended_errcode(self.handle),
                               self.library.sqlite3_errmsg(self.handle).decode(errors="replace"))
+
+    def is_sql_error(self, code: int) -> bool:
+        """Admit ordinary write denial only on a verified read-only evidence connection."""
+        return code & 255 in SQL_ERRORS or (code == 8 and self.readonly_evidence
+            and self.access_mode == "read-only" and self.library.sqlite3_db_readonly(self.handle, b"main") == 1)
 
     def execute_script(self, sql: str) -> None:
         """Initialize fixtures/configuration; migrations use single-statement query instead."""

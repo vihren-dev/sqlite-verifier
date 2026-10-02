@@ -13,6 +13,10 @@ The artifact, source/triage evidence, synthetic workload and full report are
 retained within budget. The fast replay tier is verified on both native platforms; the complete v4
 baseline views are retained. The private workload gate is open; model
 semantics are unchanged.
+The additional native profile infrastructure is done: an independent 3.53.4
+build and verified trusted-schema/DQS/read-only conditions pass on both native
+platforms. External driver/build/platform dispositions and workload acquisition
+remain necessary; completion is not inferred from the public infrastructure.
 C8 follows the model semantics concerned, as the ADR specifies.
 
 ## Sources and package records
@@ -40,6 +44,15 @@ Measured driver gaps: [native profile infrastructure](20261002-adr5-driver-profi
 [status](20261002-adr5-driver-profiles.status.md).
 
 ## Progress
+
+- 2026-10-02: Completed measured native profile infrastructure with strict
+  format-2 conditions, actual read-only fixture lifecycle, scoped write-denial
+  evidence and unchanged frozen compatibility. Both native platforms passed
+  focused checks and the fast replay tier; all host/development/full model and
+  dependency gates passed. Retained native identity/options measurements and
+  marked the separate driver-profile task DONE. Production semantics remain
+  unchanged; external workload completion still awaits its own evidence and
+  an owner decision about the claimed platform scope.
 
 - 2026-09-30: Inspected current branches, reviewed ADR and product gates, created
   an isolated workspace, integrated the existing shared codec, and recorded

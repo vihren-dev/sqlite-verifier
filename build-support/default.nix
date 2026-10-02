@@ -15,6 +15,7 @@ let
   '';
 in rec {
   inherit leanToolchain sources;
+  sqlite3534 = native.sqlite3534;
   inherit (lean4export) exporter;
   conformanceNative = import ./conformance-native.nix { inherit pkgs; };
   conformanceDocs = import ./conformance-docs.nix {
