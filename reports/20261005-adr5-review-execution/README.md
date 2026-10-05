@@ -36,5 +36,14 @@ unchanged 60-second phase deadline. The completed
 and one expected Tcl-capture skip in 350.278 seconds. All 446 source/input
 bindings remain unchanged; the separate upstream target owns the skipped check.
 
+The [current isolated upstream target](upstream/verification.json) passes all
+58 checks, including the model suite's omitted Tcl capture check. The
+[final source-owned host check](source/verification.json) passes 286 tests plus
+28 subtests in 37.911 seconds with unchanged source/document/runtime bindings.
+The [first source attempt](source-first-failed/20261005-final-source-v5.verification.json)
+is retained as a failed setup attempt: the selected conformance runtime lacked
+example fixtures, and the sandbox prevented a process-group test. Selecting the
+existing full runtime and an approved execution retry resolved those restrictions.
+
 Full Linux native/progress completion and external workload baselines remain
 pending. These observations do not extend the semantic model.

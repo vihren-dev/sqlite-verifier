@@ -178,3 +178,16 @@ requirements. Internal agent review is not owner approval.
   keep v4/v3 evidence explicitly historical, and accurately retain these open
   gates. Source catalog command guidance and retained-version wording are also
   current. Bounded local Markdown destination checks pass.
+
+- 2026-10-05: Final exact-current-code verification closes the model suite's
+  expected Tcl omission: the isolated upstream target passes all 58 checks in
+  2.813 seconds, including actual source observations. Final host checks pass
+  286 tests plus 28 subtests in 37.911 seconds. Their resource guards and
+  before/after source/document/runtime bindings pass; actual logs, JUnit,
+  source snapshots and verification summaries are retained. The first host
+  attempt selected the test-only runtime without examples and encountered a
+  sandbox process-group restriction. Its failure evidence is preserved; the
+  successful retry used the existing full runtime and approved execution scope.
+  No code changed. Linux full-native replay and external baseline closure
+  remain open; the independently successful Linux progress report awaits
+  final retained evidence integration.
