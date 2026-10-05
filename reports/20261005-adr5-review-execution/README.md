@@ -45,5 +45,31 @@ is retained as a failed setup attempt: the selected conformance runtime lacked
 example fixtures, and the sandbox prevented a process-group test. Selecting the
 existing full runtime and an approved execution retry resolved those restrictions.
 
-Full Linux native/progress completion and external workload baselines remain
-pending. These observations do not extend the semantic model.
+The successful [Linux full-native receipt](linux-native-tmpfs/native-tmpfs-420.json)
+records all 4,376 cases passing in 98.13 seconds under the original 420-second
+bound. SQLite still uses ordinary file-backed databases with the same profiles,
+SQL, connection setup and native libraries; `TMPDIR` places their files on tmpfs.
+Every native temporary-directory path is audited beneath that declared root.
+This proves replay fidelity on tmpfs; the retained ext4 timeouts do not establish
+disk replay performance or crash durability, which is outside this ADR's scope.
+
+The [paired filesystem diagnostic](linux-filesystem-diagnostic/receipt.json)
+retains three deterministic case inputs and all six fresh outputs. All native
+observations match across ext4 and tmpfs and match the frozen observations.
+The longest selected trigger prefix takes 10.72 seconds on ext4 and 0.10 seconds
+on tmpfs. The [executed Linux helpers and source snapshot](linux-helpers/)
+bind the unchanged executable sources; no loader or recording optimization was
+adopted. The ordinary Linux development sample above still passes on ext4.
+
+[Linux full progress](linux-progress/progress-independent.json) completes in
+37.71 seconds: 4,376 MODEL_UNSUPPORTED, no disagreements or harness errors,
+with all 3,500 requirement rows. Its cases and coverage views match macOS.
+
+The [final Nix checks](nix/verification.json) pass all 68 configured requires_nix
+tests in 95.266 seconds, including 28 input/dependency checks. All 450 relevant
+code/input bindings and checked runtime hashes remain unchanged. Original
+command paths are retained in summaries; copied logs, JUnit and before/after
+inventories are bound by the byte inventory here.
+
+External workload baseline closure remains pending. These observations do not
+extend the semantic model.

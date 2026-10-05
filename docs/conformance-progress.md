@@ -18,11 +18,15 @@ with identical selected identities and the unchanged 60-second phase bound.
 The [full isolated model suite](../reports/20261005-adr5-review-execution/model/verification.json)
 passes 322 tests; one Tcl check belongs to the separate upstream suite.
 
-Full Linux native replay remains open: attempts timed out at 420 and 900 seconds
-without a completed success report. Linux full progress and refreshed external
-workload baseline closure remain pending, so the workload-suite gate stays open.
-V5 uses 8,694,264 bytes; retaining v1–v5 uses 12,235,391 bytes, within both budgets.
-Frozen v1–v4 bytes remain unchanged. `just test-full`, CI and packaging retain
+[Linux full native replay](../reports/20261002-adr5-review-v5-native-linux.json)
+passes all 4,376 cases in 98.13 seconds using file-backed databases on tmpfs.
+The [execution receipts](../reports/20261005-adr5-review-execution/README.md)
+retain the earlier ext4 timeouts and the measured filesystem diagnosis.
+[Linux full progress](../reports/20261002-adr5-review-v5-progress-linux.json)
+matches the macOS case results and requirement views. Refreshed external
+workload baseline closure remains pending; the workload-suite gate stays open.
+V5 uses 8,694,264 bytes; v1–v5 use 12,235,391 bytes, within both budgets.
+Frozen v1–v4 remain unchanged. `just test-full`, CI and packaging retain
 full checks; explicit historical replay remains supported.
 
 ## Historical v4 and v3 baselines

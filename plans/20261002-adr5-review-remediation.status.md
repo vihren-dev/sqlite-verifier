@@ -10,7 +10,11 @@ The owner requested fixes after a review found narrow upstream family
 selection, low yields for required features, misleading source-label counts,
 Tcl/native REAL/BLOB fidelity limits and ambiguous public driver-profile prose.
 The existing v4 artifact and measurements remain historical and unchanged.
-The workload-suite gate is open; semantic-model development has not started.
+Final v5 native replay, development samples and full progress pass on both
+platforms, and the final model, upstream, source and Nix checks pass. Retained
+receipts bind the unchanged executable sources. The workload-suite gate awaits
+the final private baseline evidence review; semantic-model development has not
+started.
 
 Independent review confirms that the accepted ADR already authorizes generic
 profile recording capabilities. The additional native pin is optional
@@ -191,3 +195,20 @@ requirements. Internal agent review is not owner approval.
   No code changed. Linux full-native replay and external baseline closure
   remain open; the independently successful Linux progress report awaits
   final retained evidence integration.
+
+- 2026-10-05: Closed the Linux replay and progress gates with retained actual
+  reports, helpers, snapshots and receipts. Full native replay passes all 4,376
+  cases in 98.132 seconds under the original 420-second deadline. Its file-backed
+  SQLite databases use a declared tmpfs temporary root, with every native path
+  audited; profiles, SQL, native libraries and observations are unchanged.
+  Three paired fresh ext4/tmpfs cases reproduce identical frozen observations;
+  the longest selected trigger prefix measures 10.72 versus 0.10 seconds.
+  The original ext4 timeouts remain retained, and the ext4 development sample
+  still passes its unchanged 60-second limit. Full Linux progress finishes in
+  37.709 seconds and matches macOS cases and requirement views: 4,376 unsupported,
+  129 represented out of 3,500 rows, no disagreement or harness error.
+  Final configured Nix checks pass all 68 tests in 95.266 seconds, including all
+  28 input/dependency checks; 450 code/input bindings and checked runtime hashes
+  stay unchanged. Logs, JUnit and resource guards are retained. Bounded Markdown
+  and private-source boundary checks pass. Final core gate assembly and private
+  baseline closure remain open; no model semantics changed.

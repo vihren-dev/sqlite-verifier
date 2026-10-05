@@ -1,0 +1,16 @@
+{
+  "sourceCommit": "fe116b8744c7825529ec8eee21c33f15684a0694",
+  "verifiedSourceFiles": 722,
+  "publicArchive": "/private/tmp/adr5-review-final-fe116b87-887xhj72/export/core.tar.gz",
+  "publicArchiveSha256": "33eb6d41c23985949c401b5f5bffcdbfdbda960dcc5101c2db0f885326b59770",
+  "filesSha256": {
+    "filesystem_diagnostic.py": "18e3e2a4e245ec1aa4467bf98bbd2c9d42b6ce8ee08605685aeaef99aa13734a",
+    "full_attempt.py": "488a1dfa0e5ab55afc3a5a5d31d7f8e4dd8b79f6e932736ad704c5423953d119",
+    "native_tmpfs_attempt.py": "012dbbb841964fd99424732b9e62d85c55e8265147ffc7a3404628bf74640876",
+    "progress_attempt.py": "82fb68e11073b9c6f4d9b05c0f88cec3c2dae718f12a892fe594c5a391a4bcdd",
+    "sample_attempt.py": "1b2afd76e891a1fdc8c2e5b0c6a8f21a581364ceb2c1bbb7ca94ea6ea124c8c0",
+    "snapshot.json": "dd64acd1a765b14a31ee8097c8109baa108e213620986fc63d56dba9c4b70ede",
+    "snapshot.py": "d84910f0d52a086f9083b7a3b3401d5de9b34e1f1ff5fdafa4e8e5bbf46565c8",
+    "validate.py": "1df562c1bd351f7797203ed39a7f4084fad26422e89b8c16c6ebce54c6c27bd7"
+  }
+}

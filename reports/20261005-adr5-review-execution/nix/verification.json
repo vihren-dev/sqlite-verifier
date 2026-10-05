@@ -1,0 +1,106 @@
+{
+  "verificationVersion": 1,
+  "stage": "nix",
+  "scope": "Existing requires_nix host suite against unchanged post-v5 executable sources; evolving docs/reports/status excluded from binding inventory",
+  "codeBaseCommit": "fe116b8744c7825529ec8eee21c33f15684a0694",
+  "command": [
+    "nix",
+    "develop",
+    "path:./nix",
+    "-c",
+    "timeout",
+    "--foreground",
+    "600",
+    "python3",
+    "-u",
+    "-m",
+    "pytest",
+    "-v",
+    "tests",
+    "-m",
+    "requires_nix",
+    "--ignore=tests/runtime_package_test.py",
+    "--runtime-root",
+    "/nix/store/n5112z9ghcv1lyys2jj5wpzymlqp2ac5-sqlite-verifier-runtime-1",
+    "--junitxml",
+    "build/test-results/nix-final-v5.xml"
+  ],
+  "seconds": 96.37939991708845,
+  "exitCode": 0,
+  "resourceGuard": {
+    "beforeExitCode": 0,
+    "afterExitCode": 0
+  },
+  "sourceBindings": {
+    "count": 450,
+    "beforeSha256": "eaf1e5166f51e6e886a1aae8a2027222de620d1f0b334a827a5fb6656d532cde",
+    "afterSha256": "eaf1e5166f51e6e886a1aae8a2027222de620d1f0b334a827a5fb6656d532cde",
+    "unchanged": true
+  },
+  "logSha256": "89837b5d510ff3ac27721f143f62632285d9b94343fec280e3d35044c20f738b",
+  "runtime": "/nix/store/n5112z9ghcv1lyys2jj5wpzymlqp2ac5-sqlite-verifier-runtime-1",
+  "runtimeSha256": {
+    "lean/bin/lean": "1b370cfcbf44e80d1b004ab1b1ab9a4c73951f9f7c242140bcff9bc577576554",
+    ".lake/build/lib/lean/SqliteVerifier.olean": "add84d81dc95e27b805eca85bc835738d683c6481186c70f54d6853901cac0e2",
+    ".lake/build/bin/migration-proof-checker": "f0bfd9b454b01a62cb332f6f075a13cc9a408b0aab16ce492b155a55f839f7bc",
+    "build/sqlite-parser": "0649a31dddcf951297d90f421a3bb60ca05b55afeee1cf355af64255176cf685",
+    "build/sqlite-parser-3.46.0": "2542739da35f4ca759b4175fa3495e40b54de74a111904f42f6698008c8be714"
+  },
+  "runtimeBindingsUnchanged": true,
+  "configuredTimeoutSeconds": {
+    "innerPytest": 600,
+    "driverEnvelope": 900
+  },
+  "counts": {
+    "tests": 68,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "passed": 68
+  },
+  "junitSuiteSeconds": 95.266,
+  "junitPath": "/Users/tzankomatev/work/sqlite-verifier-adr5/build/test-results/nix-final-v5.xml",
+  "junitSha256": "efffd69e8e8039053288d9683440016cc8b164c9b2c61d885a645ee462eee660",
+  "skipReasons": [],
+  "pytestCounts": {
+    "passed": 68,
+    "deselected": 749,
+    "failed": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "bySuiteClass": {
+    "tests.environment_snapshot_test": 2,
+    "tests.test_nix_test_targets": 28,
+    "tests.test_runtime_package": 1,
+    "tests.test_source_identity": 37
+  },
+  "executionPermission": "Normal approved require_escalated execution of selected Nix checks",
+  "evidence": [
+    {
+      "path": "/Users/tzankomatev/work/sqlite-verifier-adr5/build/20261005-final-nix-v5.log",
+      "bytes": 7384,
+      "sha256": "89837b5d510ff3ac27721f143f62632285d9b94343fec280e3d35044c20f738b"
+    },
+    {
+      "path": "/Users/tzankomatev/work/sqlite-verifier-adr5/build/20261005-final-nix-v5.before.json",
+      "bytes": 50753,
+      "sha256": "af8a4a252edb96e7552d505609203b10fa333a804bc1603027515057d82e5e8a"
+    },
+    {
+      "path": "/Users/tzankomatev/work/sqlite-verifier-adr5/build/20261005-final-nix-v5.after.json",
+      "bytes": 50775,
+      "sha256": "cb0edcb4c37d7b81822dd31245000a8673fe6e80779694250809b7d164588b5e"
+    },
+    {
+      "path": "/Users/tzankomatev/work/sqlite-verifier-adr5/build/20261005-final-nix-v5.resources.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/Users/tzankomatev/work/sqlite-verifier-adr5/build/test-results/nix-final-v5.xml",
+      "bytes": 8761,
+      "sha256": "efffd69e8e8039053288d9683440016cc8b164c9b2c61d885a645ee462eee660"
+    }
+  ]
+}

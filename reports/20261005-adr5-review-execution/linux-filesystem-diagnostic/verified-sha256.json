@@ -1,0 +1,17 @@
+{
+  "filesSha256": {
+    "receipt.json": "8929bb0c11b54111252b7719398fe446873dcbc36f7096b59ade64ff5c657ace",
+    "case-0.json": "c1e44e1e976266ed2ea3a1c4387424f281a2251e5fe0eaa91ef1cbc438a28293",
+    "case-0-ordinary.json": "2491ac5c02d478515f405875b394f20ddae284912577caeec15e446210421da8",
+    "case-0-tmpfs.json": "d575d6b1afa7234dbd0e439c27d33b4c5b6dd04b471610d1ba7a183ecc9ce337",
+    "case-1.json": "8df40c1ebe8aed38f67a4e39806d34267e94ab0ec30c95dbaf5c86d038192772",
+    "case-1-ordinary.json": "19e56f875c9d63c197f397add3e3253358d6f7a6529656b8b275ae95f2a39481",
+    "case-1-tmpfs.json": "81874a12d177b6d2899723b6b61e38a19aa0149116376dae7d38358ea54015d3",
+    "case-2.json": "ef113d37185ea87bd5841dfcd74eae01fedf7876eeea89a19ec997786025d5ba",
+    "case-2-ordinary.json": "35ac966826bfe9eda296993408a129c2bd0810fa1827c480ec480145ebe70f58",
+    "case-2-tmpfs.json": "16139d169109b7dd4d38cc58b1a7aa0dbf100d84b60c7094fb64dd5c2c26a11e"
+  },
+  "archiveSha256": "85e91b7f4061b47529bbd3b9104590c7d406f44c1dbf920f2bd60d9dad5e8301",
+  "nativeEqualityVerifiedCases": 3,
+  "sourceBindingsUnchanged": true
+}
