@@ -94,7 +94,7 @@ def progress(corpus: Path, requirements: Path, runtime: Path) -> dict[str, Json]
 def main() -> None:
     """Produce a version-specific progress report without modifying frozen cases."""
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--corpus", type=Path, default=Path("conformance/corpus-v4"))
+    parser.add_argument("--corpus", type=Path, default=Path("conformance/corpus-v5"))
     parser.add_argument("--requirements", type=Path, default=Path("conformance/requirements-3.51.0.json"))
     parser.add_argument("--runtime-root", type=Path, default=Path("build/conformance"))
     parser.add_argument("--output", type=Path, required=True)

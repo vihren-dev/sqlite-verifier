@@ -1,5 +1,6 @@
 """Progress partitions frozen cases while overlapping features keep their provenance scope."""
 
+from collections import Counter
 import hashlib
 import importlib
 import json
@@ -9,7 +10,8 @@ import sys
 import pytest
 
 from conformance.case_format import Json
-from conformance.corpus_evidence import FEATURE_LABEL_VIEWS
+from conformance.corpus import load
+from conformance.corpus_evidence import FEATURE_LABEL_VIEWS, feature_counts
 from conformance.progress import RUNTIME_FILES, VERDICTS, progress
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -117,13 +119,13 @@ def test_absent_binary_cannot_produce_progress(inputs: tuple[Path, Path, Path], 
         progress(*inputs)
 
 
-def test_cli_defaults_to_frozen_v4(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+def test_cli_defaults_to_frozen_v5(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
     """The ordinary progress command selects the final corpus without caller flags."""
     module = importlib.import_module("conformance.progress")
 
     def generated(corpus: Path, requirements: Path, runtime: Path) -> dict[str, Json]:
         """Observe CLI selection independently of report aggregation."""
-        assert corpus == Path("conformance/corpus-v4")
+        assert corpus == Path("conformance/corpus-v5")
         return {"denominator": 0, "counts": {}}
 
     monkeypatch.setattr(module, "progress", generated)
@@ -136,25 +138,37 @@ def test_cli_defaults_to_frozen_v4(tmp_path: Path, monkeypatch: pytest.MonkeyPat
 @pytest.mark.integration
 @pytest.mark.requires_lean
 @pytest.mark.requires_native("sqlite-parser")
-def test_actual_v4_partition_requirement_inventory_and_identities(runtime_root: Path) -> None:
+@pytest.mark.parametrize("version", [4, 5])
+def test_actual_frozen_partition_requirement_inventory_and_identities(runtime_root: Path, version: int) -> None:
     """All final cases appear once while the full inventory and native Unsupported boundary remain explicit."""
-    corpus = ROOT / "conformance/corpus-v4"
-    manifest = json.loads((corpus / "manifest.json").read_text())
+    corpus = ROOT / f"conformance/corpus-v{version}"
+    manifest, records = load(corpus)
     report = progress(corpus, ROOT / "conformance/requirements-3.51.0.json", runtime_root)
-    assert report["denominator"] == manifest["recordedCases"] == 1264
-    assert report["counts"] == {"MODEL_UNSUPPORTED": 1264}
+    assert report["denominator"] == manifest["recordedCases"] == len(records)
+    assert report["corpusVersion"] == version
+    assert [case["name"] for case in report["cases"]] == [record["name"] for record in records]
+    assert report["counts"] == dict(Counter(case["verdict"] for case in report["cases"]))
+    assert not {"DISAGREE", "HARNESS_ERROR"} & report["counts"].keys()
     assert {key: row["denominator"] for key, row in report["byPart"].items()} == manifest["byPart"]
     combined: dict[str, int] = {}
     for view in FEATURE_LABEL_VIEWS:
         for label, row in report[view].items():
             combined[label] = combined.get(label, 0) + row["denominator"]
-    assert combined == manifest["byFeature"]  # Retained v4 used a combined historical label count.
-    assert report["bySourceFileLabel"]["json_each"]["denominator"] == 219
-    assert report["byCaseFeatureLabel"]["json_each"]["denominator"] == 1 and "byFeature" not in report
+    if version == 4:
+        assert report["counts"] == {"MODEL_UNSUPPORTED": 1264}
+        assert len(records) == 1264 and combined == manifest["byFeature"]
+        assert report["bySourceFileLabel"]["json_each"]["denominator"] == 219
+        assert report["byCaseFeatureLabel"]["json_each"]["denominator"] == 1
+        assert sum(bool(sum(row["counts"].values())) for row in report["requirementMatrix"]) == 110
+    else:
+        expected_labels = feature_counts(records)
+        assert {view: {label: row["denominator"] for label, row in report[view].items()}
+                for view in FEATURE_LABEL_VIEWS} == expected_labels
+        assert all(manifest[view] == expected_labels[view] for view in FEATURE_LABEL_VIEWS)
+    assert "byFeature" not in report
     assert [row["path"] for row in report["byShard"]] == [row["path"] for row in manifest["shards"]]
-    assert sum(row["denominator"] for row in report["byShard"]) == 1264
+    assert sum(row["denominator"] for row in report["byShard"]) == len(records)
     assert report["requirementMatrixRows"] == report["requirementInventoryCount"] == 3500
-    assert sum(bool(sum(row["counts"].values())) for row in report["requirementMatrix"]) == 110
     assert report["executionProfiles"] == manifest["executionProfiles"]
     assert report["corpusEvidence"]["fidelityLedger"] == manifest["fidelityLedger"]
     assert len(report["runtimeSha256"]) == 2

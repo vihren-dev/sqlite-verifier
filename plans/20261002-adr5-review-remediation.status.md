@@ -132,3 +132,15 @@ requirements. Internal agent review is not owner approval.
   provenance and all frozen bytes remain unchanged. The isolated upstream target
   passes all 58 checks in 1.98 seconds. Replay-default activation and final
   platform/workload baselines remain open.
+
+- 2026-10-05: Activated v5 defaults in the progress command, development tier,
+  just recipes and isolated Nix inputs, retaining explicit v4 compatibility and
+  its original 100-case tier. Selection still uses all authored/synthetic cases
+  and the unchanged source/name identity policy: v5 selects 184 cases. Actual
+  v4/v5 partitions, all 3,500 requirement rows, runtime/source bindings and
+  historical tier replay pass (14 checks in 139.39 seconds). The isolated v5
+  sample passes 12 checks in 49.56 seconds, with its fresh CLI phase at 49.46
+  seconds under the unchanged 60-second limit. Nix input/dependency checks pass
+  (28 in 91.07 seconds). Full progress has a configured 420-second deadline.
+  Final Linux measurements, full isolated model checks and refreshed private
+  baselines remain open; model semantics and frozen observations are unchanged.

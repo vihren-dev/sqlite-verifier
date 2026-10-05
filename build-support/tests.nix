@@ -38,7 +38,7 @@ in {
   sample = suite "sample" {
     inputs = [
       (fs.fileFilter (file: file.hasExt "py") (root + /migration_check))
-      (root + /conformance/corpus-v4)
+      (root + /conformance/corpus-v5)
       (root + /conformance/synthetic-workload)
     ] ++ map (name: root + "/conformance/${name}.py") [
       "replay_tiers" "corpus" "corpus_shards" "corpus_evidence" "corpus_acquisition" "case_format"
@@ -111,6 +111,7 @@ in {
       (root + /reports/20261001-adr5-c4-bindings.json.gz)
       (root + /reports/20261001-adr5-c5-authored.json)
       (root + /reports/20261001-adr5-c5-authored-records.jsonl.gz)
+      (root + /conformance/corpus-v5)
       (root + /conformance/corpus-v4)
       (root + /conformance/corpus-v3)
       (root + /conformance/corpus-v2) (root + /conformance/requirements-3.51.0.json)

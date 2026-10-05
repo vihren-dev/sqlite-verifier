@@ -14,6 +14,7 @@ from conformance.native_storage import serialized
 from conformance.workload import bound_records
 
 AUTHORED_PARTS = {"boundary-interaction", "requirement", "issue-boundary"}
+AUTHORED_COUNTS_BY_VERSION = {4: 66, 5: 69}
 POLICY: dict[str, Json] = {"version": 1, "mandatory": "all-authored-and-synthetic",
     "upstreamIdentity": "sha256-canonical-json-[source,name]",
     "minimumPerNonemptySourceShard": 1, "additionalUpstream": 8}
@@ -109,11 +110,12 @@ def report(generic: Path, synthetic: Path, runtime: Path) -> dict[str, Json]:
     generic_manifest, records = load(generic)
     synthetic_corpus = synthetic / "corpus"
     synthetic_manifest, synthetic_records = bound_records(synthetic, synthetic_corpus)
-    if (generic_manifest["corpusVersion"] != 4 or synthetic_manifest["corpusVersion"] != 4
+    authored_count = AUTHORED_COUNTS_BY_VERSION.get(generic_manifest["corpusVersion"])
+    if (authored_count is None or synthetic_manifest["corpusVersion"] != 4
             or any(record["nativeVersion"] != 4 for record in records + synthetic_records)
-            or sum(record["part"] in AUTHORED_PARTS for record in records) != 66
+            or sum(record["part"] in AUTHORED_PARTS for record in records) != authored_count
             or len(synthetic_records) != 2):
-        raise ValueError("Tier requires final v4 membership: all 66 authored and two synthetic cases")
+        raise ValueError("Tier requires v4/v5 authored membership and two synthetic v4 cases")
     selected = select(records)
     native_replay(selected)
     native_replay(synthetic_records)
@@ -137,7 +139,7 @@ def report(generic: Path, synthetic: Path, runtime: Path) -> dict[str, Json]:
 def main() -> None:
     """Run the frozen development tier with a process timeout supplied by its test target."""
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--corpus", type=Path, default=Path("conformance/corpus-v4"))
+    parser.add_argument("--corpus", type=Path, default=Path("conformance/corpus-v5"))
     parser.add_argument("--synthetic", type=Path, default=Path("conformance/synthetic-workload"))
     parser.add_argument("--runtime-root", type=Path, default=Path("build/conformance"))
     parser.add_argument("--output", type=Path, required=True)

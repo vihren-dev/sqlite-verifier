@@ -3,6 +3,8 @@
 from pathlib import Path
 import json
 import shutil
+import subprocess
+import sys
 
 import pytest
 
@@ -53,3 +55,20 @@ def test_native_mismatch_fails_the_tier(monkeypatch: pytest.MonkeyPatch, runtime
     monkeypatch.setattr(replay_tiers, "native_replay", changed_native)
     with pytest.raises(ValueError, match="Native replay changed"):
         replay_tiers.report(GENERIC, SYNTHETIC, runtime_root)
+
+
+def test_legacy_v4_tier_still_replays_its_original_sample(tmp_path: Path, runtime_root: Path) -> None:
+    """Explicit historical input preserves its 100 selected cases without replaying all 1,264 natively."""
+    output = tmp_path / "legacy-tier.json"
+    child = subprocess.run([sys.executable, "-m", "conformance.replay_tiers", "--corpus", str(GENERIC),
+        "--synthetic", str(SYNTHETIC), "--runtime-root", str(runtime_root), "--output", str(output)],
+        cwd=ROOT, capture_output=True, text=True, timeout=60)
+    assert child.returncode == 0, child.stdout + child.stderr
+    result = json.loads(output.read_text())
+    assert result["generic"]["corpusVersion"] == 4
+    assert result["generic"]["denominator"] == 1264
+    assert result["selectedDenominator"] == 100
+    assert result["generic"]["nativeReplayPassed"] and result["synthetic"]["nativeReplayPassed"]
+    assert sum(result["counts"].values()) == 100
+    assert not {"DISAGREE", "HARNESS_ERROR"} & result["counts"].keys()
+    assert result["measurement"]["seconds"] < 60

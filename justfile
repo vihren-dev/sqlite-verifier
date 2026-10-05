@@ -87,7 +87,7 @@ conformance-upstream: conformance-build
     timeout 900 python3 -m conformance.upstream_pilot --fixture build/testfixture/bin/testfixture --upstream build/upstream-sqlite --output build/upstream-pilot --pattern 'alter*.test' --pattern 'e_*.test'
 
 conformance-corpus: conformance-build
-    timeout 420 python3 -m conformance.corpus conformance/corpus-v4 --runtime-root build/conformance --native-check --output build/corpus-progress.json
+    timeout 420 python3 -m conformance.corpus conformance/corpus-v5 --runtime-root build/conformance --native-check --output build/corpus-progress.json
 
 # The transaction/DML profiling gate is recorded in the W3/W4 status and reports.
 conformance-generate: conformance-build
@@ -105,7 +105,7 @@ conformance-requirements:
     python3 -m conformance.requirement_inventory build/conformance-docs/docinfo.db build/requirements-3.51.0.json
 
 conformance-progress: conformance-build
-    timeout 120 python3 -m conformance.progress --runtime-root build/conformance --output build/corpus-v4-progress.json
+    timeout 420 python3 -m conformance.progress --runtime-root build/conformance --output build/corpus-v5-progress.json
 
 # Supply llvm-cov's executable path and a fresh output directory for each measurement.
 conformance-coverage llvm_cov output: conformance-generate
