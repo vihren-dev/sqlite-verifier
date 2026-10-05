@@ -1,8 +1,12 @@
 # ADR 0005: reference-workload conformance corpus
 
-Created 2026-09-30. Status: IN PROGRESS.
+Created 2026-09-30. Status: DONE, verified 2026-10-05.
 Status: [progress](20260930-adr5-reference-corpus.status.md).
 Spec: [ADR 0005](../docs/adr-0005-conformance-corpus-scale.md).
+Completion: [source-bound core gates](../reports/20261005-adr5-review-gates.json).
+The separately owner-authorized [review repair](20261002-adr5-review-remediation.task.md)
+supersedes the original v4 default with v5; original v4 outcomes remain fulfilled.
+The workload-suite gate is verified complete in its owning repository.
 
 ## Observable outcomes
 

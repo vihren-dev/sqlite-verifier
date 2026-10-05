@@ -20,11 +20,12 @@ passes 322 tests; one Tcl check belongs to the separate upstream suite.
 
 [Linux full native replay](../reports/20261002-adr5-review-v5-native-linux.json)
 passes all 4,376 cases in 98.13 seconds using file-backed databases on tmpfs.
-The [execution receipts](../reports/20261005-adr5-review-execution/README.md)
-retain the earlier ext4 timeouts and the measured filesystem diagnosis.
+The [retained execution record](../reports/20261005-adr5-review-execution/README.md)
+predates workload-gate closure and preserves ext4 timeouts and diagnostics.
 [Linux full progress](../reports/20261002-adr5-review-v5-progress-linux.json)
-matches the macOS case results and requirement views. Refreshed external
-workload baseline closure remains pending; the workload-suite gate stays open.
+matches macOS case results and requirement views. The
+[core gate](../reports/20261005-adr5-review-gates.json) and the external workload
+suite in its owning repository are complete; model extension is subsequent work.
 V5 uses 8,694,264 bytes; v1–v5 use 12,235,391 bytes, within both budgets.
 Frozen v1–v4 remain unchanged. `just test-full`, CI and packaging retain
 full checks; explicit historical replay remains supported.
@@ -65,9 +66,7 @@ All 100 cases remain unsupported. The phase has a 60-second deadline.
 `just test-full`, CI and packaging retain the full model suite. Historical
 corpora and reports remain readable without changing their membership.
 
-The following v3 measurements retain ADR 0004's historical baseline.
-
-The historical progress command replayed **corpus v3: 370 cases** through its
+ADR 0004's historical progress command replayed **corpus v3: 370 cases** through its
 frontend and compiled classifier. The [review report](../reports/20260929-adr4-corpus-v3-progress.json)
 records 11 AGREE, 359 MODEL_UNSUPPORTED, no disagreements and no harness errors.
 V3 preserves v2's 183 records exactly and adds 164 upstream and 23 authored cases.

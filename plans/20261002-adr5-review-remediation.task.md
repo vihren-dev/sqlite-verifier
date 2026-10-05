@@ -1,6 +1,6 @@
 # ADR 0005: repair upstream coverage and reporting
 
-Created 2026-10-02. Status: IN PROGRESS.
+Created 2026-10-02. Status: DONE, verified 2026-10-05.
 Status: [progress](20261002-adr5-review-remediation.status.md).
 Specs: [ADR 0005](../docs/adr-0005-conformance-corpus-scale.md), especially
 §1.3–1.4, §3.2–3.6 and the two readiness gates.
@@ -86,9 +86,9 @@ compatibility, corpus size checks, bounded development tests and full model/
 upstream checks establish completion. Document links and generic/private source
 boundaries are checked. Every command and test has a configured timeout.
 
-## Tricky points and existing sources
+## Starting constraints and sources (2026-10-02)
 
-`upstream_catalog.py` currently fixes 55 files and attaches source labels to
+At task creation, `upstream_catalog.py` fixed 55 files and attached source labels to
 cases. `upstream_sampling.py` selects runtime identities before acceptance;
 selection counts do not establish coverage. `upstream_proxy.tcl`,
 `upstream_assertions.py`, `upstream_helpers.py`, `upstream_fidelity.py` and
@@ -97,7 +97,7 @@ Extraction must preserve every refusal and first-error boundary.
 
 `freeze_validation.py` binds the current catalog, extractor bytes and fidelity
 ledger. `freeze_corpus.py`, `corpus_shards.py`, `corpus_evidence.py` and progress/
-development sampling currently refer to v4. Add the new version without
+development sampling referred to v4 at task creation. Add the new version without
 rewriting retained observations or assuming that cases from two different
 profiles are interchangeable. The extra 3.53.4 native build is comparison
 infrastructure; its existence does not authorize a production profile.

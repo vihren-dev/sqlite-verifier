@@ -1,28 +1,26 @@
 # ADR 0005 review repair status
 
-Created 2026-10-02. Status: IN PROGRESS.
+Created 2026-10-02. Status: DONE, verified 2026-10-05.
 Task: [coverage and reporting repair](20261002-adr5-review-remediation.task.md).
 Spec: [ADR 0005](../docs/adr-0005-conformance-corpus-scale.md).
 
 ## Current state
 
-The owner requested fixes after a review found narrow upstream family
-selection, low yields for required features, misleading source-label counts,
-Tcl/native REAL/BLOB fidelity limits and ambiguous public driver-profile prose.
-The existing v4 artifact and measurements remain historical and unchanged.
-Final v5 native replay, development samples and full progress pass on both
-platforms, and the final model, upstream, source and Nix checks pass. Retained
-receipts bind the unchanged executable sources. The
-[core gate](../reports/20261005-adr5-review-gates.json) records C0–C7 completion.
-The workload-suite gate awaits
-the final private baseline evidence review; semantic-model development has not
-started.
+The owner-authorized ADR 0005 C0–C7 work and separate review repairs are DONE.
+The [core completion record](../reports/20261005-adr5-review-gates.json) binds
+corpus v5, actual native replay and bounded development samples on both platforms,
+full progress, final model/upstream/source/Nix checks and unchanged historical
+artifacts. V5 contains 4,376 cases in 109 shards and supersedes v4 as the default;
+v1–v4 and their evidence remain historical and unchanged.
 
-Independent review confirms that the accepted ADR already authorizes generic
-profile recording capabilities. The additional native pin is optional
-comparison infrastructure, not a production profile decision. The public task's
-anonymous driver-setting summary has been replaced with neutral capability
-requirements. Internal agent review is not owner approval.
+The external workload-suite gate is verified complete in its owning repository
+for the owner-approved platform scope, with its inventory, measured driver/native
+profiles, frozen observations and both actual combined v5 baselines. No workload
+SQL, identities or results are published here. Both readiness gates are met.
+Production semantic-model extension and C8 output mutants remain subsequent work.
+Linux full native replay uses disclosed file-backed tmpfs databases; ordinary
+ext4 development replay also passes. Earlier ext4 full-replay timeouts remain
+retained and do not establish disk performance or crash durability.
 
 ## Progress
 
@@ -224,3 +222,12 @@ requirements. Internal agent review is not owner approval.
   C0–C7 task records are DONE; private suite completion remains a separate gate.
   File-backed tmpfs replay and the ext4 timeouts retain their distinct measured
   scope. No unsupported case is claimed as model agreement or feature coverage.
+
+- 2026-10-05: Final independent evidence review found no unmet required outcome.
+  The core record verifies actual native/sample/progress results on both platforms,
+  complete source/fidelity accounting and final model/upstream/source/Nix checks.
+  The external owning repository now retains its completed, source-bound workload
+  gate and both refreshed actual v5 baselines. Historical corpus/evidence bytes
+  remain unchanged, local Markdown links and private-source boundaries pass,
+  and every readiness claim keeps its measured scope. Marked this task DONE;
+  model extension and C8 are subsequent work.
