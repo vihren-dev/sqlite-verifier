@@ -12,7 +12,9 @@ Tcl/native REAL/BLOB fidelity limits and ambiguous public driver-profile prose.
 The existing v4 artifact and measurements remain historical and unchanged.
 Final v5 native replay, development samples and full progress pass on both
 platforms, and the final model, upstream, source and Nix checks pass. Retained
-receipts bind the unchanged executable sources. The workload-suite gate awaits
+receipts bind the unchanged executable sources. The
+[core gate](../reports/20261005-adr5-review-gates.json) records C0–C7 completion.
+The workload-suite gate awaits
 the final private baseline evidence review; semantic-model development has not
 started.
 
@@ -212,3 +214,13 @@ requirements. Internal agent review is not owner approval.
   stay unchanged. Logs, JUnit and resource guards are retained. Bounded Markdown
   and private-source boundary checks pass. Final core gate assembly and private
   baseline closure remain open; no model semantics changed.
+
+- 2026-10-05: Assembled the source-bound core completion record from retained
+  actual evidence. It verifies all 109 shard payloads and their combined digest,
+  264 named fidelity causes and all ten proof assets, all 40 unchanged historical
+  files, both full native receipts, identical platform progress views and sample
+  identities, and the final model/upstream/source/Nix logs and JUnit digests.
+  The expected model Tcl omission is covered by the actual upstream target.
+  C0–C7 task records are DONE; private suite completion remains a separate gate.
+  File-backed tmpfs replay and the ext4 timeouts retain their distinct measured
+  scope. No unsupported case is claimed as model agreement or feature coverage.

@@ -1,0 +1,370 @@
+{
+  "C8ProductionOutputMutantsComplete": false,
+  "acquisition": {
+    "activeCohorts": 1,
+    "catalogSources": 171,
+    "completedSources": 143,
+    "excludedSources": 28,
+    "expressionCohorts": 57,
+    "extraction": {
+      "path": "conformance/corpus-v5/extraction.json.gz",
+      "recordedCases": 4307,
+      "sha256": "301158079d20604478eeec937bc7840b3c1f201af2272dba767b883ff11bc0b8",
+      "uncompressedSha256": "05919ff51193300ef70ac75d3c5086673b0aeca169f985723cec077f76547227"
+    },
+    "inactiveCohorts": 56,
+    "labelScope": "source-file membership and runtime candidate yield; no feature-execution inference",
+    "runtimeAssertions": 153764,
+    "sourceProfilesUsed": 3,
+    "yieldReport": {
+      "path": "reports/20261002-adr5-review-yield.json",
+      "sha256": "dcefb5ea540b47f234993f22a1806ef26a3fa4aa7e0036f78ebe7bc505bb8d15"
+    },
+    "zeroYieldRunnableSources": 38
+  },
+  "checks": {
+    "model": {
+      "counts": {
+        "errors": 0,
+        "failures": 0,
+        "passed": 322,
+        "skipped": 1,
+        "tests": 323
+      },
+      "junitSeconds": 350.278,
+      "sourceBindings": {
+        "aggregateSha256": "da8208c381b4545e6d2c8f5823419b0e754011ce451d95825c6df7b3835652c8",
+        "files": 446,
+        "unchanged": true
+      },
+      "verification": {
+        "path": "reports/20261005-adr5-review-execution/model/verification.json",
+        "sha256": "ed0a5601191a68a6177fb25507ca6581132de62d2cf6136e24816b8944c2a70e"
+      }
+    },
+    "nix": {
+      "counts": {
+        "errors": 0,
+        "failures": 0,
+        "passed": 68,
+        "skipped": 0,
+        "tests": 68
+      },
+      "junitSeconds": 95.266,
+      "sourceBindings": {
+        "afterSha256": "eaf1e5166f51e6e886a1aae8a2027222de620d1f0b334a827a5fb6656d532cde",
+        "beforeSha256": "eaf1e5166f51e6e886a1aae8a2027222de620d1f0b334a827a5fb6656d532cde",
+        "count": 450,
+        "unchanged": true
+      },
+      "verification": {
+        "path": "reports/20261005-adr5-review-execution/nix/verification.json",
+        "sha256": "9b31d98cb2eff929bbfe79c52dddd2f69e3bc622b4be129c84ce90b48336586a"
+      }
+    },
+    "source": {
+      "counts": {
+        "errors": 0,
+        "failures": 0,
+        "passed": 314,
+        "skipped": 0,
+        "tests": 314
+      },
+      "junitSeconds": 37.911,
+      "pytestCounts": {
+        "deselected": 68,
+        "errors": 0,
+        "failed": 0,
+        "passed": 286,
+        "skipped": 0,
+        "subtestsPassed": 28
+      },
+      "sourceBindings": {
+        "afterSha256": "41f3c53673332117941a945c60343f524e3a7ce0c0e4becb7da38dd175951357",
+        "beforeSha256": "41f3c53673332117941a945c60343f524e3a7ce0c0e4becb7da38dd175951357",
+        "count": 489,
+        "unchanged": true
+      },
+      "verification": {
+        "path": "reports/20261005-adr5-review-execution/source/verification.json",
+        "sha256": "eac3cc2a03db681fde4f1be16b651a2690e618e4dd631c2ee6f16a319d509a81"
+      }
+    },
+    "upstream": {
+      "counts": {
+        "errors": 0,
+        "failures": 0,
+        "passed": 58,
+        "skipped": 0,
+        "tests": 58
+      },
+      "junitSeconds": 2.813,
+      "sourceBindings": {
+        "afterSha256": "eef2534858cf9587bdba896c5318c21f0c100e78de4c060e316d9f2ecf8f7389",
+        "beforeSha256": "eef2534858cf9587bdba896c5318c21f0c100e78de4c060e316d9f2ecf8f7389",
+        "count": 485,
+        "unchanged": true
+      },
+      "verification": {
+        "path": "reports/20261005-adr5-review-execution/upstream/verification.json",
+        "sha256": "2c592e72d71fecb09b7062322ab6a4642bf54e6d4f6df743839ce607ed4b44c0"
+      }
+    }
+  },
+  "coreToolingComplete": true,
+  "corpus": {
+    "authoredCases": 69,
+    "cases": 4376,
+    "casesSha256": "663e38016b574c8436c2bb0d53ff9e356fde51b458c1640a4a99553f11fe98b4",
+    "manifest": {
+      "path": "conformance/corpus-v5/manifest.json",
+      "sha256": "e9a965f05ec70f45af83b43f62a0ff7b19f5095f03bb53b0b7b7a64b73f3e082"
+    },
+    "shards": 109,
+    "storage": {
+      "authoredCases": 69,
+      "compressedShardBytes": 6224948,
+      "currentByteLimit": 25000000,
+      "directoryBytes": 8694264,
+      "maximumExpandedCaseBytes": 999167,
+      "retainedByteLimit": 60000000,
+      "retainedBytes": 3541127,
+      "upstreamCases": 4307
+    },
+    "upstreamCases": 4307,
+    "version": 5
+  },
+  "developmentSample": {
+    "cases": 184,
+    "phaseLimitSeconds": 60,
+    "platformIdentityEquality": true,
+    "seconds": {
+      "darwin-arm64": 37.21418787539005,
+      "linux-amd64": 56.58437514901743
+    }
+  },
+  "executableSourceCommit": "fe116b8744c7825529ec8eee21c33f15684a0694",
+  "executionEvidenceCommit": "cafd4b9d",
+  "executionInventory": {
+    "path": "reports/20261005-adr5-review-execution/sha256.json",
+    "sha256": "fbbd52a4fb32c7e3ec8b8068602901c3c1d594e871ad38b0af5f9dd6496d2319"
+  },
+  "fidelity": {
+    "causeCounts": {
+      "optional testfixture-loaded totype extension absent from native recorder": 219,
+      "optional testfixture-loaded wholenumber module absent from native recorder": 6,
+      "physical EXPLAIN root-page observation: testfixture page size and pending byte": 15,
+      "testfixture-only randstr function absent from native recorder": 1,
+      "testfixture-only virtual-table module: echo": 18,
+      "testfixture-registered x_count aggregate absent from native recorder": 5
+    },
+    "evidence": {
+      "conformance/corpus-v5/fidelity/aggerror.test.proof.json.gz": "26b7f6ed32bb75134fc607b4c337923f6666212eb36e0bf39ebd54b4ababfb37",
+      "conformance/corpus-v5/fidelity/altercol.test.proof.json.gz": "5cd8e48a855110c7c58c7fce0d7d63b5d80d79d204b3aaea86c648ae1345e613",
+      "conformance/corpus-v5/fidelity/altertab.test.proof.json.gz": "77363af668bb415603909e5ec959517e927091ffa294b2d898fffefce04fc0a4",
+      "conformance/corpus-v5/fidelity/count-page-size-diagnostic.json": "160d48a7f5293828cd0cf18eae48fb7808ccb8e6757b43d5ed24e09636c9fb2a",
+      "conformance/corpus-v5/fidelity/count.test.proof.json.gz": "e21b5dde70f189a3e2a0ffa07ab32a4827cae31f854843125095d44d0d54988c",
+      "conformance/corpus-v5/fidelity/func4.test.proof.json.gz": "83cd1bb52f12eca2ec62f35c731ef4258387dc79c6df8d1f4abc14a17a1ed91b",
+      "conformance/corpus-v5/fidelity/index6.test.proof.json.gz": "b1761ef2523625ecb485a9e9a39a85067ace1ff2ddf28da7365e11fed59d2ee9",
+      "conformance/corpus-v5/fidelity/index7.test.proof.json.gz": "003a9c2190839cc10eb4c922cfe5280dd472a9be1816ef167206c20fef128012",
+      "conformance/corpus-v5/fidelity/insert3.test.proof.json.gz": "b420e33f911ffb6beb337aac788fa92cec9be3e6edbc2b37dbb0d6cc1d0dccf8",
+      "conformance/corpus-v5/fidelity/source-cause-bindings.json": "f5026025c94ffd3b24627ad882c0e000f897e7bd6c12bf55dc51ced9ae7ed380"
+    },
+    "ledger": {
+      "path": "conformance/corpus-v5/fidelity/fidelity-ledger.json.gz",
+      "sha256": "c583178eac3c522264a5855c338fbe9c08937bd9275f78f4a59e92d0549707fd"
+    },
+    "namedRefusals": 264,
+    "unmappedCauses": 0
+  },
+  "gateVersion": 1,
+  "historicalArtifacts": {
+    "inventory": {
+      "path": "reports/20261005-adr5-retained-artifact-sha256.json",
+      "sha256": "378478e7cb07513619a9491b03e76f35c73fefa38342e4751f47b2342e7855c8"
+    },
+    "unchangedFiles": 40,
+    "versions": [
+      1,
+      2,
+      3,
+      4
+    ]
+  },
+  "historicalLinuxDiskTimeouts": [
+    {
+      "path": "reports/20261005-adr5-review-execution/linux-native-420-timeout/native.json",
+      "sha256": "eb5fa737e7b222c9835b13bcffe94209fe4c44a523d174f352664e7116b88aec"
+    },
+    {
+      "path": "reports/20261005-adr5-review-execution/linux-native-900-timeout/native-900.json",
+      "sha256": "3004cb870f73ed89019b4a052db4d6c56793006ecef688cfadc3fac17ab6639a"
+    }
+  ],
+  "limits": [
+    "Linux full native replay uses ordinary file-backed SQLite databases on tmpfs; ext4 performance and crash durability are not certified.",
+    "Profiled cases remain MODEL_UNSUPPORTED; labels and requirement associations are not executed-feature coverage or model support."
+  ],
+  "linuxFilesystemDiagnostic": {
+    "path": "reports/20261005-adr5-review-execution/linux-filesystem-diagnostic/receipt.json",
+    "sha256": "8929bb0c11b54111252b7719398fe446873dcbc36f7096b59ade64ff5c657ace"
+  },
+  "linuxNativeTemporaryStorage": {
+    "TMPDIR": "/dev/shm/adr5-full-native-a_rz29on",
+    "actualTemporaryRoot": "/dev/shm/adr5-full-native-a_rz29on",
+    "allFixturesBeneathDeclaredRoot": true,
+    "databaseKind": "ordinary-file",
+    "firstFixture": "/dev/shm/adr5-full-native-a_rz29on/native-corpus-2vyt_zpr",
+    "fixtureCount": 4376,
+    "lastFixture": "/dev/shm/adr5-full-native-a_rz29on/native-corpus-3dbnows9"
+  },
+  "modelSemanticsExtended": false,
+  "packageCompletionRecords": {
+    "C0": {
+      "path": "plans/20260930-adr5-c0-outputs.status.md",
+      "sha256": "0e654908ce6e6a13558e7ec3ade4394da61c9557d18982ba0cd3e02696b97980"
+    },
+    "C1": {
+      "path": "plans/20261001-adr5-c1-profiles.status.md",
+      "sha256": "004576b32139348d7b04aac486e0ebfdd03a65aa29bb034dba1b0345b8926263"
+    },
+    "C2": {
+      "path": "plans/20261001-adr5-c2-exclusions.status.md",
+      "sha256": "b6e0fe189b904cfe9dd9abd0ab3c67e686c60187de1b6902144653710d10589f"
+    },
+    "C3": {
+      "path": "plans/20261001-adr5-c3-storage.status.md",
+      "sha256": "3a2d6ea785ee27d395185aa3bf55e14f982ba21fde7590b1a37b3a8e79e74416"
+    },
+    "C4": {
+      "path": "plans/20261001-adr5-c4-fidelity.status.md",
+      "sha256": "c5b0a5a06fef1ee50f24815a709cdad61525728601c224518ddcd0b0c3d765d1"
+    },
+    "C5": {
+      "path": "plans/20261001-adr5-c5-authored.status.md",
+      "sha256": "7baeeefdc719edd786649c68abb987ab2df98d37478273571b6f769004ec6ef8"
+    },
+    "C6": {
+      "path": "plans/20261001-adr5-c6-freeze.status.md",
+      "sha256": "7286fad2e78508b202dc3c1f85a9c544b05691fcc53fe9917682335fa9fddc12"
+    },
+    "C7": {
+      "path": "plans/20261002-adr5-c7-replay.status.md",
+      "sha256": "43fe5958f4defd6f188070ab714f5b1c6fd64c341268b18490a138eb5c04fce7"
+    }
+  },
+  "platformExecution": {
+    "darwin-arm64": {
+      "native": {
+        "commandSeconds": 128.2719357907772,
+        "receipt": {
+          "path": "reports/20261005-adr5-review-execution/darwin/native.json",
+          "sha256": "ac0f7fe3844f6112bcb3d9374e763289a04a03bbacddf0d68d8335bc6f1b7878"
+        },
+        "report": {
+          "path": "reports/20261002-adr5-review-v5-native-darwin.json",
+          "sha256": "2b4a49e01e7639c758459499e15b21d19be77e9c3cb7c8441049d5b67664a523"
+        },
+        "runtimeSha256": {
+          ".lake/build/bin/conformance-runner": "ce55903cb7fc99ab9d8ab8a456b3b84ae4f0014215a11bbf40ed0e4705ca2d3a",
+          "build/sqlite-parser": "0649a31dddcf951297d90f421a3bb60ca05b55afeee1cf355af64255176cf685"
+        },
+        "timeoutSeconds": 420
+      },
+      "progress": {
+        "commandSeconds": 72.25358137488365,
+        "receipt": {
+          "path": "reports/20261005-adr5-review-execution/darwin/progress.json",
+          "sha256": "7124123e5b57c52ed197d938b85151e29606111c624c39be1db29c891ca1fb10"
+        },
+        "report": {
+          "path": "reports/20261002-adr5-review-v5-progress-darwin.json",
+          "sha256": "450f6e5fe6e124a10d74932b6a4174b4b58a86aad9a2d95b74860e2e5e92e89d"
+        },
+        "runtimeSha256": {
+          ".lake/build/bin/conformance-runner": "ce55903cb7fc99ab9d8ab8a456b3b84ae4f0014215a11bbf40ed0e4705ca2d3a",
+          "build/sqlite-parser": "0649a31dddcf951297d90f421a3bb60ca05b55afeee1cf355af64255176cf685"
+        },
+        "timeoutSeconds": 420
+      },
+      "sample": {
+        "commandSeconds": 38.508704458829015,
+        "receipt": {
+          "path": "reports/20261005-adr5-review-execution/darwin/sample.json",
+          "sha256": "a3a4e1d1bb2082a0948a6b2884d7aef2ac05a6933e75d4bfae08942b570ecab2"
+        },
+        "report": {
+          "path": "reports/20261002-adr5-review-v5-sample-darwin.json",
+          "sha256": "928f96927343fd1dc8d4e2a899aaefe2583c2035d8b48631838eae8f7894a4b4"
+        },
+        "runtimeSha256": {
+          ".lake/build/bin/conformance-runner": "ce55903cb7fc99ab9d8ab8a456b3b84ae4f0014215a11bbf40ed0e4705ca2d3a",
+          "build/sqlite-parser": "0649a31dddcf951297d90f421a3bb60ca05b55afeee1cf355af64255176cf685"
+        },
+        "timeoutSeconds": 60
+      }
+    },
+    "linux-amd64": {
+      "native": {
+        "commandSeconds": 98.13195190500119,
+        "receipt": {
+          "path": "reports/20261005-adr5-review-execution/linux-native-tmpfs/native-tmpfs-420.json",
+          "sha256": "3f4f1bff5b7d99d37e2de8c292f8b2fa2dcec753c62d4ca934263598a4749667"
+        },
+        "report": {
+          "path": "reports/20261002-adr5-review-v5-native-linux.json",
+          "sha256": "07896635390338e167c1316d20991cac1ce9b92e2adc3a89e10c1cd237600aba"
+        },
+        "runtimeSha256": {
+          ".lake/build/bin/conformance-runner": "e09d1ae315f24a5ff4634fff077e007ccc449e78f2c8aeaf766895406691d9d8",
+          "build/sqlite-parser": "140f411164d841ed6826d63756e6ae25550309ae7a7e940eac9ed53def9f0bed"
+        },
+        "timeoutSeconds": 420
+      },
+      "progress": {
+        "commandSeconds": 37.70910682500107,
+        "receipt": {
+          "path": "reports/20261005-adr5-review-execution/linux-progress/progress-independent.json",
+          "sha256": "9547315b450e17ba384043feaeec1993b92905b5b296d0f79bd1c85650a63fb2"
+        },
+        "report": {
+          "path": "reports/20261002-adr5-review-v5-progress-linux.json",
+          "sha256": "d9af6c0ac0752f9b907d7fc1684536a6c54147b3f12a76c0eb0f2513ae9fa858"
+        },
+        "runtimeSha256": {
+          ".lake/build/bin/conformance-runner": "e09d1ae315f24a5ff4634fff077e007ccc449e78f2c8aeaf766895406691d9d8",
+          "build/sqlite-parser": "140f411164d841ed6826d63756e6ae25550309ae7a7e940eac9ed53def9f0bed"
+        },
+        "timeoutSeconds": 420
+      },
+      "sample": {
+        "commandSeconds": 57.422473667014856,
+        "receipt": {
+          "path": "reports/20261005-adr5-review-execution/linux-sample/sample-independent.json",
+          "sha256": "9ab9313acf7752a9c838d02d16e00abaae769b1ef8d8ea332ddd63b77e549ae6"
+        },
+        "report": {
+          "path": "reports/20261002-adr5-review-v5-sample-linux.json",
+          "sha256": "d968ed55a1f43c6a9f7735de7ddcb7ea4643e5a5050bfeb75d9c669b61b83aa6"
+        },
+        "runtimeSha256": {
+          ".lake/build/bin/conformance-runner": "e09d1ae315f24a5ff4634fff077e007ccc449e78f2c8aeaf766895406691d9d8",
+          "build/sqlite-parser": "140f411164d841ed6826d63756e6ae25550309ae7a7e940eac9ed53def9f0bed"
+        },
+        "timeoutSeconds": 60
+      }
+    }
+  },
+  "progress": {
+    "counts": {
+      "MODEL_UNSUPPORTED": 4376
+    },
+    "limitation": "Counts describe overlapping scenario labels, not measured SQL execution coverage or model support. Source-file labels count file membership; case labels are scenario annotations; historical labels without scope remain unscoped. Untagged upstream cases receive no file-level R-ID credit.",
+    "platformCaseAndViewEquality": true,
+    "representedRequirementRows": 129,
+    "requirementRows": 3500
+  },
+  "scope": "ADR 0005 C0\u2013C7 generic tooling and owner-authorized review repairs",
+  "verifiedDate": "2026-10-05",
+  "workloadSuiteEvidence": "Maintained outside this repository; core completion alone does not establish workload completion."
+}
