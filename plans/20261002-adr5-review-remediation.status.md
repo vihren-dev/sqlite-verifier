@@ -144,3 +144,15 @@ requirements. Internal agent review is not owner approval.
   (28 in 91.07 seconds). Full progress has a configured 420-second deadline.
   Final Linux measurements, full isolated model checks and refreshed private
   baselines remain open; model semantics and frozen observations are unchanged.
+
+- 2026-10-05: Retained actual final macOS ARM64 execution receipts, the executed
+  validator and its 722-file source snapshot, all bound to `fe116b87`. Complete
+  native replay passes all 4,376 cases in 128.27 seconds. The 184-case development
+  sample measures 37.21 seconds under its unchanged 60-second deadline. Full
+  progress records 4,376 MODEL_UNSUPPORTED, 129 represented requirement rows and
+  zero disagreements or harness errors. Before/after source, runtime, native and
+  input bindings match; all three report hashes are verified. The first Linux
+  full-native run timed out after 420.16 seconds without a completed success
+  report. Its failed receipt and unchanged post-timeout bindings are retained,
+  rather than claimed as a passing gate. Linux completion, full isolated model
+  checks and refreshed external baselines remain open.

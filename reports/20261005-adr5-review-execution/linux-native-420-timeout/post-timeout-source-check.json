@@ -1,0 +1,13 @@
+{
+  "check": "post-timeout source_binding equality",
+  "sourceCommit": "fe116b8744c7825529ec8eee21c33f15684a0694",
+  "publicRoot": "/tmp/adr5-review-final.hcG6eK/core",
+  "validatorSha256": "1df562c1bd351f7797203ed39a7f4084fad26422e89b8c16c6ebce54c6c27bd7",
+  "nativeReceiptSha256": "eb5fa737e7b222c9835b13bcffe94209fe4c44a523d174f352664e7116b88aec",
+  "exitCode": 0,
+  "stdout": "All tracked source/runtime/native bindings remain unchanged after timeout",
+  "bindingsUnchanged": true,
+  "nativeReplayCompleted": false,
+  "sampleExecuted": false,
+  "progressExecuted": false
+}
