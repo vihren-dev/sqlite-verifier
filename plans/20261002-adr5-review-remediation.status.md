@@ -156,3 +156,14 @@ requirements. Internal agent review is not owner approval.
   report. Its failed receipt and unchanged post-timeout bindings are retained,
   rather than claimed as a passing gate. Linux completion, full isolated model
   checks and refreshed external baselines remain open.
+
+- 2026-10-05: Final post-v5 isolated model verification passes 322 tests with
+  one expected Tcl-capture check delegated to the separate upstream target,
+  in 350.278 seconds under the configured 420-second suite limit. Retained
+  real JUnit, build log, derivation/output identity and 446 unchanged before/after
+  source bindings establish the run. Linux's independent development sample
+  passes in 56.58 seconds (57.42 seconds for the child command), with identical
+  macOS selection identities and 184 MODEL_UNSUPPORTED results. Its successful
+  receipt/report bytes were downloaded and verified after owner renewal of
+  transfer approval. The full Linux native attempt and progress report remain
+  uncompleted gates; external workload baseline closure is still pending.

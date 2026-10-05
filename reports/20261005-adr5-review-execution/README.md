@@ -24,5 +24,12 @@ records exit 124 after 420.16 seconds, with no completed success report.
 confirm unchanged inputs. This is an incomplete measurement, not a disagreement
 or a passing native gate. Later attempts must retain separate receipts.
 
-Both-platform completion, the full isolated model suite and external workload
-baselines remain pending. These observations do not extend the semantic model.
+The [Linux development sample](linux-sample/sample-independent.json) also passes
+with the same 184 selected identities, measuring 56.58 seconds within its
+unchanged 60-second phase deadline. The completed
+[isolated model verification](model/verification.json) records 322 passed tests
+and one expected Tcl-capture skip in 350.278 seconds. All 446 source/input
+bindings remain unchanged; the separate upstream target owns the skipped check.
+
+Full Linux native/progress completion and external workload baselines remain
+pending. These observations do not extend the semantic model.
