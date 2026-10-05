@@ -167,3 +167,14 @@ requirements. Internal agent review is not owner approval.
   receipt/report bytes were downloaded and verified after owner renewal of
   transfer approval. The full Linux native attempt and progress report remain
   uncompleted gates; external workload baseline closure is still pending.
+
+- 2026-10-05: The second Linux full-native attempt also times out at 900.17
+  seconds (exit 124), with unchanged source/runtime/native/input bindings and
+  no completed native success report. Its failed receipt is retained separately.
+  A dropped SSH transport was recovered to inspect the real result; no duplicate
+  native job or private baseline was started. Full native replay remains an open
+  gate while bounded filesystem/temporary-fixture diagnostics examine the cost.
+  Corrected the progress document to show current v5 and 184-case samples first,
+  keep v4/v3 evidence explicitly historical, and accurately retain these open
+  gates. Source catalog command guidance and retained-version wording are also
+  current. Bounded local Markdown destination checks pass.

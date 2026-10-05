@@ -24,6 +24,11 @@ records exit 124 after 420.16 seconds, with no completed success report.
 confirm unchanged inputs. This is an incomplete measurement, not a disagreement
 or a passing native gate. Later attempts must retain separate receipts.
 
+The [second Linux full-native attempt](linux-native-900-timeout/native-900.json)
+also times out: exit 124 after 900.17 seconds, with unchanged before/after
+bindings and no completed native success report. A dropped SSH connection was
+recovered to inspect this actual receipt; no duplicate replay was started.
+
 The [Linux development sample](linux-sample/sample-independent.json) also passes
 with the same 184 selected identities, measuring 56.58 seconds within its
 unchanged 60-second phase deadline. The completed

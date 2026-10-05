@@ -1,12 +1,39 @@
 # Frozen progress and measured coverage (W7)
 
+Current state, 2026-10-05: [v5](../conformance/corpus-v5/manifest.json) contains
+4,376 cases in 109 shards: 4,307 upstream cases and 69 authored cases.
+The [yield report](../reports/20261002-adr5-review-yield.json) accounts for all
+171 sources, every zero-yield source and all 57 expression cohorts.
+Labels describe scenarios or source-file membership, never feature executions.
+
+[macOS full native replay](../reports/20261002-adr5-review-v5-native-darwin.json)
+passes all cases. [Current progress](../reports/20261002-adr5-review-v5-progress-darwin.json)
+records 4,376 MODEL_UNSUPPORTED, no disagreements or harness errors, and 129
+represented rows out of all 3,500 requirements. Model semantics are unchanged.
+
+Current commands default to v5. The 184-case development sample passes on
+[macOS](../reports/20261002-adr5-review-v5-sample-darwin.json) in 37.21 seconds and
+[Linux](../reports/20261002-adr5-review-v5-sample-linux.json) in 56.58 seconds,
+with identical selected identities and the unchanged 60-second phase bound.
+The [full isolated model suite](../reports/20261005-adr5-review-execution/model/verification.json)
+passes 322 tests; one Tcl check belongs to the separate upstream suite.
+
+Full Linux native replay remains open: attempts timed out at 420 and 900 seconds
+without a completed success report. Linux full progress and refreshed external
+workload baseline closure remain pending, so the workload-suite gate stays open.
+V5 uses 8,694,264 bytes; retaining v1–v5 uses 12,235,391 bytes, within both budgets.
+Frozen v1–v4 bytes remain unchanged. `just test-full`, CI and packaging retain
+full checks; explicit historical replay remains supported.
+
+## Historical v4 and v3 baselines
+
 The [v4 artifact](../conformance/corpus-v4/manifest.json) freezes 1,264 generic
 cases in 27 source/part shards. All observations pass fresh native replay. Its
 [full report](../reports/20261002-adr5-c6-v4-progress.json) keeps all 3,500
 requirement rows, with 110 represented, and reports 1,264 MODEL_UNSUPPORTED.
 The model cannot yet consume the expanded profiles.
 
-`just conformance-progress` now uses all v4 cases. Its
+The historical progress command used all v4 cases. Its
 [C7 baseline](../reports/20261002-adr5-c7-v4-progress.json) adds verdicts and
 denominators for four parts, 80 overlapping labels and 27 ordered shards,
 while retaining every requirement row and per-case result. This historical
@@ -23,7 +50,7 @@ it does not establish that its SQL executes `json_each`. No label view measures
 SQL execution coverage. Historical manifests and reports retain their original
 `byFeature` bytes; replaying them today produces the separated label views.
 
-Development `just test` uses a deterministic 100-case tier: all 66 authored
+The historical development tier used 100 cases: all 66 authored
 cases, both synthetic cases, and one lowest identity hash per nonempty upstream
 source shard plus eight additional lowest hashes. Selection ignores native
 acceptance and model verdicts. The [Darwin measurement](../reports/20261002-adr5-c7-sample-darwin.json)
@@ -112,9 +139,10 @@ Original tar SHA256: `f3a39333897823546bca5924899bafaf7f593571863666221e5a38246f
 
 ## Freezing new generic evidence
 
-Run the pinned upstream recorder with `--uncapped --catalog --sample-expressions`
-and an established profile. Its report retains the exact source catalog,
-sampling identities, completed assertions and every exclusion reason.
+Run the pinned upstream recorder with `--uncapped --catalog --sample-expressions`.
+Catalog mode chooses source-family profiles and controlled clocks; do not combine
+it with caller-supplied profile or clock flags. Reports retain the exact source
+catalog, actual conditions, sampling identities and every exclusion reason.
 
 The finalizer accepts a complete capture and publishes a new directory:
 
@@ -132,12 +160,12 @@ When there are no differing-result refusals, omit `--fidelity-ledger`.
 
 Freezing adds the fresh authored catalogs, checks final membership and source
 hashes, replays all observations natively, and measures the 25 MB current and
-60 MB retained budgets. It accounts for every retained v1–v3 directory and
+60 MB retained budgets. It accounts for every retained v1–v4 directory and
 refuses a partial or timed-out source. Original extraction, keyed triage and
 proof bytes are retained with digests and verified by ordinary corpus loading.
 The command never replaces an existing directory or edits native observations.
 
-## Measured execution coverage
+## Historical ADR 0004 measured execution coverage
 
 Run `just conformance-coverage /path/to/llvm-cov build/fresh-coverage-directory`.
 On macOS, `xcrun --find llvm-cov` locates the tool. Separate instrumented builds
