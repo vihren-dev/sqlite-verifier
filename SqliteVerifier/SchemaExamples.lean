@@ -20,8 +20,8 @@ def timestamp : Column := {
   name := "installed_on", affinity := .numeric, declaredType := .timestamp
   notNull := true, defaultValue := some .currentTimestamp }
 /-- A primary key and named unique index on {lit}`id`, illustrating retained
-properties and the shared table/index namespace. Omit such properties when
-neither is needed; {assert}`properties.uniqueKeys = []`. -/
+properties and the shared table/index namespace. Use
+{lean}`TableProperties.mk [] [] []` when no properties are needed. -/
 def properties : TableProperties := {
   primaryKey := ["id"]
   indexes := [{ name := "key_index", columns := ["id"], unique := true }] }

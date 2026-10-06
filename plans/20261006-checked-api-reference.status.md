@@ -135,6 +135,13 @@ Relevant sources: `SqliteVerifier.lean`, `SqliteVerifier/*.lean`,
   the retained schema guards pass. They contain 76 and 70 lines. No formula
   or definition body changed.
 
+- 2026-10-06: Schema documentation review `20261006T161513Z-edbd2d57`
+  reports no must findings and one should finding. The properties example now
+  gives a checked constructor for an empty properties value, rather than an
+  unrelated assertion about the example's UNIQUE constraints. Recorded the
+  finding as fixed. The corrected example module compiles without warnings;
+  no formula, definition body or existing schema guard changed.
+
 ## Acceptance remaining
 
 Dependency closure and sandboxed reference build; complete checked public
