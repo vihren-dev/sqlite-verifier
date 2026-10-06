@@ -180,8 +180,9 @@ Specifications: [ADR 0003](../docs/adr-0003-agent-proof-preparation.md),
 ## Held checkpoint review deferrals
 
 The owner requested an incomplete checkpoint and a switch to the already-started
-T04c task. These `20261006T182144Z-324ca1e8` findings remain deferred until this
-held harness resumes; the append-only journal records each exact reason.
+T04c task. The list below records the former `20261006T182144Z-324ca1e8`
+deferrals. Continued harness validation resolves them; the append-only journal
+preserves each original reason and subsequent outcome.
 
 - #1: Campaign persistence/end-to-end tests remain incomplete; no acceptance use.
 - #2: Include pair/directory details in the held draft's machine-change error.
@@ -213,3 +214,28 @@ No new campaign, launcher, benchmark or task was started after the hold.
 - All 28 focused checks pass again in 1.54 seconds under the same 30-second
   limit. The finding is fixed. Campaign persistence checks remain the next
   unfinished harness requirement; no performance campaign has started.
+- Root cleanup `cfc24b4987a6366fa5517e56b0c64be2a8ae2c47` passed review
+  `20261006T191704Z-cfc24b49` with no findings. Preserved its exact pending
+  review row during the campaign handoff.
+- 2026-10-06: The campaign writer now records each completed path and the
+  pending flow before another invocation. An interruption retains partial raw
+  files and its condition without inventing a duration. Metadata replacement
+  uses complete temporary JSON and an atomic rename; failed replacement retains
+  the previous record and unfinished bytes. Existing evidence is not overwritten.
+- A host change or failure to observe the host after both paths invalidates the
+  actual retained pair and summary. Machine-change errors name the pair/output
+  and require a new campaign directory. Output-root refusals name the output,
+  selected input root and action. These corrections resolve the former
+  `20261006T182144Z-324ca1e8#1`, `#2` and `#3` findings.
+- The 17 new bounded writer checks use explicitly synthetic observations and
+  real retained files. They verify decisive nine-pair stopping, retention of
+  the same first nine through 25, invalid/interrupted pairs, post-pair machine
+  drift, output guards and metadata write failures. All 108 measurement
+  harness checks pass in 4.21 seconds under a 30-second command bound. JUnit:
+  `build/test-results/t06-harness.xml`. Existing real-child tests remain the
+  subprocess-boundary evidence; synthetic intervals are not performance data.
+- Files in this unit remain below 200 lines. Named-case launcher work, ordinary
+  integrated/Nix checks, final installed runtime, coordinated hosts, actual
+  performance trials and owner dispositions remain incomplete. No actual
+  performance campaign, SSH job, heavy Nix job, publication or frozen review
+  branch change occurred. T06 remains IN PROGRESS.

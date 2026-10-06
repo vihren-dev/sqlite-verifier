@@ -74,6 +74,13 @@ fixtures; they do not count as performance evidence. Stage observation calls the
 existing verification/preparation/checking entrypoints rather than replacing
 their acceptance flow.
 
+Campaign persistence tests run the actual writer with explicitly synthetic path
+observations. Completed and interrupted pairs retain their raw files, observed
+paths and invalid conditions. A host change after a complete pair invalidates
+the retained pair and campaign summary. Output refusals identify the output,
+input root and next action. Interrupted metadata replacement retains the prior
+complete JSON record. No incomplete pair acquires an invented duration.
+
 Actual performance trials wait for the final T05/documentation installed runtime
 and coordinated idle hosts. The final evidence retains all raw trials on both
 platforms and the owner's disposition where required. Until then this task is
@@ -104,8 +111,9 @@ unit has a status update, Jujutsu commit and independent review.
 ## Current checkpoint boundary
 
 The existing attack tests, confidence policy and cold-path recorder are checked
-within the scopes listed in the status file. The campaign writer is a draft
-and has not passed end-to-end campaign validation. The named-case launcher is
-not implemented. Ordinary integrated/Nix infrastructure checks and actual
-macOS/Linux performance trials remain incomplete. The owner requested a
-checkpoint of existing work and no new scope; this task is held and is not DONE.
+within the scopes listed in the status file. The campaign writer has bounded
+persistence tests with synthetic observations; separate real-child tests cover
+subprocess boundaries. The named-case launcher is not implemented. Ordinary
+integrated/Nix infrastructure checks and actual macOS/Linux performance trials
+remain incomplete. Work continues on the existing harness; performance trials
+remain held and this task is not DONE.
