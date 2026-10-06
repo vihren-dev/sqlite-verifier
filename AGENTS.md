@@ -61,13 +61,19 @@ reviews commits from Codex sessions.
 - After each commit whose checks pass, run `just review`. It reviews `@-`, the
   commit before the working copy. A commit that changes only files in `plans/`
   needs no review.
-- Exit code 0: no "must" findings. Fix "should" findings, or record each one
-  with a reason in the status file.
+- Exit code 0: no "must" findings. Fix "should" findings, or reject or defer
+  them with a reason.
 - Exit code 1: fix each "must" finding in a `refactor:` commit before the next
   feature commit, and review that commit too. After two review rounds with new
   "must" findings, stop and report to the owner.
-- If you disagree with a finding, record the finding and the reason in the
-  status file. Repeated disagreements show that the checklist needs a change.
+- Record the outcome of every finding with
+  `just review-resolve FINDING-ID fixed`, or `rejected "REASON"`, or
+  `deferred "REASON"`. `just review` prints the finding ids. Reject a finding
+  when it is wrong, and say why.
+- `just review` and `just review-resolve` add lines to `reviews/log.jsonl`.
+  Commit the log with your next commit. Do not edit or delete log lines.
+- The owner uses `just review-stats` to find conditions that never fire, are
+  mostly rejected, or that nobody acts on, and removes or rewrites them.
 - Exit code 2: the command cannot choose a reviewer or revision; follow its
   message (for example, set `REVIEWER=claude` or `REVIEWER=codex`).
 - Exit code 3: the reviewer failed or gave no recognizable result. Run the

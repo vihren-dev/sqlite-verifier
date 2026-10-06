@@ -26,6 +26,16 @@ Related: the writing and proposition rules in [`AGENTS.md`](../AGENTS.md); issue
   findings and no `No findings.` line.
 - `AGENTS.md` requires an agent to run `just review` after each commit whose
   checks pass, and to handle the findings.
+- (Added 2026-10-06, owner request.) Each review adds one line to
+  `reviews/log.jsonl`: commit, reviewer, caller, changed files, a version (text
+  hash) of each condition, exit code, and the findings with ids.
+  `just review-resolve FINDING-ID fixed|rejected|deferred [REASON]` adds the
+  outcome of a finding. `just review-stats` reports, per condition of the
+  current checklist: reviews, chances to fire (changed files in the condition's
+  "Applies to" scope), findings by severity, outcomes, and the cleanup signals
+  "never fired", "mostly rejected", "mostly deferred", "without outcome" and
+  "fires with one reviewer only". A rewritten condition gets a new version, and
+  its statistics restart; other conditions keep theirs.
 
 ## Tests
 

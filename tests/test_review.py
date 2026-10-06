@@ -9,10 +9,11 @@ import sys
 
 import pytest
 
-from tools.review import (GUARD, Review, UsageError, exit_code, missing_options, parse_review,
-                          reviewer_command, reviewer_environment, select_reviewer)
+from tools.review import Review, exit_code, parse_review
+from tools.review_select import (GUARD, UsageError, caller_tool, missing_options, reviewer_command,
+                                 reviewer_environment, select_reviewer)
 
-SCRIPT = Path(__file__).resolve().parents[1] / "tools" / "review.py"
+ROOT = Path(__file__).resolve().parents[1]
 COMMIT = "0123456789abcdef0123456789abcdef01234567"
 
 
@@ -27,6 +28,13 @@ COMMIT = "0123456789abcdef0123456789abcdef01234567"
 def test_select_reviewer(environment: dict[str, str], expected: str) -> None:
     """The other tool reviews; a person gets Codex; REVIEWER overrides detection."""
     assert select_reviewer(environment) == expected
+
+
+@pytest.mark.unit
+def test_caller_tool() -> None:
+    """The log names the tool that started the review."""
+    assert [caller_tool(environment) for environment in ({"CLAUDECODE": "1"}, {"CODEX_THREAD_ID": "t"}, {},
+            {"CLAUDECODE": "1", "CODEX_THREAD_ID": "t"})] == ["claude", "codex", "person", "both"]
 
 
 @pytest.mark.unit
@@ -103,7 +111,7 @@ def test_parse_review(output: str, review: Review, code: int) -> None:
 def stub_tools(directory: Path, review_output: str) -> Path:
     """Write `jj`, `codex` and `claude` stubs; reviewers record their call in `call.json`."""
     directory.mkdir()
-    (directory / "jj").write_text(f"#!/bin/sh\necho {COMMIT}\n")
+    (directory / "jj").write_text(f'#!/bin/sh\ncase "$1" in diff) echo tools/review.py ;; *) echo {COMMIT} ;; esac\n')
     recorder = (f"#!{sys.executable}\nimport json, os, sys\n"
                 f"json.dump({{'argv': sys.argv, 'stdin': sys.stdin.read(), 'environ': dict(os.environ)}},"
                 f" open({str(directory / 'call.json')!r}, 'w'))\nprint({review_output!r})\n")
@@ -115,12 +123,14 @@ def stub_tools(directory: Path, review_output: str) -> Path:
 
 
 def run_review(stubs: Path, extra: dict[str, str]) -> subprocess.CompletedProcess[str]:
-    """Run the real script with the stubs first on PATH and only the given session markers."""
+    """Run the real command with the stubs first on PATH, only the given session markers,
+    and a review log next to the stubs."""
     environment = {name: value for name, value in os.environ.items()
-                   if not name.startswith(("CLAUDE", "CODEX_", "AI_AGENT", "REVIEWER", GUARD))}
-    environment.update(extra, PATH=f"{stubs}{os.pathsep}{os.environ['PATH']}")
-    return subprocess.run([sys.executable, str(SCRIPT)], env=environment, capture_output=True, text=True,
-                          timeout=15, check=False)
+                   if not name.startswith(("CLAUDE", "CODEX_", "AI_AGENT", "REVIEWER", "SQLITE_VERIFIER_REVIEW"))}
+    environment.update(extra, PATH=f"{stubs}{os.pathsep}{os.environ['PATH']}",
+                       SQLITE_VERIFIER_REVIEW_LOG=str(stubs / "log.jsonl"))
+    return subprocess.run([sys.executable, "-m", "tools.review"], cwd=ROOT, env=environment, capture_output=True,
+                          text=True, timeout=15, check=False)
 
 
 @pytest.mark.integration
@@ -133,6 +143,10 @@ def test_claude_caller_gets_isolated_codex_review(tmp_path: Path) -> None:
     assert Path(call["argv"][0]).name == "codex" and call["argv"][1:4] == ["exec", "--sandbox", "read-only"]
     assert "CLAUDECODE" not in call["environ"] and "AI_AGENT" not in call["environ"]
     assert call["environ"][GUARD] == "1" and "Output format" in call["stdin"] and COMMIT in call["stdin"]
+    record = json.loads((stubs / "log.jsonl").read_text())
+    assert (record["reviewer"], record["caller"], record["files"]) == ("codex", "claude", ["tools/review.py"])
+    assert [finding["rule"] for finding in record["findings"]] == ["R2"]
+    assert f"finding {record['findings'][0]['id']} R2 must" in result.stderr
 
 
 @pytest.mark.integration
@@ -156,4 +170,4 @@ def test_review_refuses(tmp_path: Path, markers: dict[str, str], message: str) -
     stubs = stub_tools(tmp_path / "bin", "No findings.")
     result = run_review(stubs, markers)
     assert result.returncode == 2 and message in result.stderr, result.stderr
-    assert not (stubs / "call.json").exists()
+    assert not (stubs / "call.json").exists() and not (stubs / "log.jsonl").exists()

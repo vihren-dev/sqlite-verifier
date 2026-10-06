@@ -2,51 +2,28 @@
 
 A commit written in a Claude Code session is reviewed by Codex, and a commit
 written in a Codex session by Claude Code. The reviewer gets only the commit, the
-checklist and read access to the repository, not the author's reasoning. See
+checklist and read access to the repository, not the author's reasoning. Each review
+is added to the review log (`tools/review_log.py`) for later statistics. See
 `plans/20261006-review-process.task.md`.
 """
 
 import argparse
-from collections.abc import Mapping, Sequence
+from collections.abc import Sequence
 from dataclasses import dataclass
+from datetime import datetime, timezone
 import os
-from pathlib import Path
 import re
 import subprocess
 import sys
-from typing import Literal
 
-ROOT = Path(__file__).resolve().parents[1]
-CHECKLIST = ROOT / "docs" / "review-checklist.md"
-Reviewer = Literal["claude", "codex"]
+from tools.review_log import CHECKLIST, ROOT, append, log_path, parse_findings, record_findings, review_record
+from tools.review_select import (GUARD, Reviewer, UsageError, caller_tool, instructions, reviewer_command,
+                                 reviewer_environment, select_reviewer)
 
-#: The variable that marks a running review; a review started inside it stops.
-GUARD = "SQLITE_VERIFIER_REVIEW"
-#: Session markers that identify the calling tool. They are not documented
-#: interfaces of either tool, so a missing marker must never select a reviewer silently.
-CALLER_MARKERS: Mapping[Reviewer, str] = {"claude": "CLAUDECODE", "codex": "CODEX_THREAD_ID"}
-#: Session variables of either tool. A reviewer must not inherit them: they would make it
-#: look like part of the caller's session, and they would make a nested caller ambiguous.
-SESSION_MARKER_NAMES = frozenset({"CLAUDECODE", "CLAUDE_PID", "CLAUDE_EFFORT", "AI_AGENT"})
-SESSION_MARKER_PREFIXES = ("CLAUDE_CODE_", "CODEX_")
-#: Configuration that a marker prefix also matches but that a reviewer may need.
-KEPT_CONFIGURATION = frozenset({"CODEX_HOME", "CLAUDE_CONFIG_DIR"})
-#: Tools a Claude Code reviewer may use: reading files and showing commits only.
-CLAUDE_READ_ONLY_TOOLS = ("Read", "Grep", "Glob", "Bash(jj show:*)", "Bash(jj diff:*)",
-                          "Bash(jj log:*)", "Bash(git show:*)")
 #: Wall-clock limit for one review. A real review took about one minute in testing.
 REVIEW_TIMEOUT_SECONDS = 1200
-#: Wall-clock limit for resolving a revision with `jj`, a local and fast operation.
+#: Wall-clock limit for one `jj` query, a local and fast operation.
 JJ_TIMEOUT_SECONDS = 30
-
-FINDING = re.compile(r"^\s*[-*]\s*(R\d+)\s+(must|should)\s+(\S+?):(\d+)\b", re.MULTILINE)
-NO_FINDINGS = re.compile(r"^\s*No findings\.\s*$", re.MULTILINE)
-#: A complete option in help text, such as `-p` or `--allowedTools`, but not `-p` inside `--print`.
-OPTION_TOKEN = re.compile(r"(?<![\w-])--?[A-Za-z][\w-]*")
-
-
-class UsageError(Exception):
-    """A request that cannot be reviewed as given (exit code 2)."""
 
 
 @dataclass(frozen=True)
@@ -58,71 +35,11 @@ class Review:
     well_formed: bool
 
 
-def select_reviewer(environment: Mapping[str, str]) -> Reviewer:
-    """The reviewer for this caller: `REVIEWER` if set, otherwise the tool that did not call.
-
-    A person in a terminal (no markers) gets Codex. Markers of both tools mean that
-    one tool started the other, and the caller cannot be known; then `REVIEWER` is
-    required.
-    """
-    requested = environment.get("REVIEWER", "")
-    if requested:
-        if requested not in ("claude", "codex"):
-            raise UsageError(f"unknown reviewer {requested!r}; use REVIEWER=claude or REVIEWER=codex")
-        return "claude" if requested == "claude" else "codex"
-    callers = [tool for tool, marker in CALLER_MARKERS.items() if environment.get(marker)]
-    if len(callers) > 1:
-        raise UsageError("started from both Claude Code and Codex; set REVIEWER=claude or REVIEWER=codex")
-    if callers == ["codex"]:
-        return "claude"
-    return "codex"
-
-
-def is_session_marker(name: str) -> bool:
-    """Whether `name` is a session variable of either tool, which a reviewer must not inherit."""
-    if name in KEPT_CONFIGURATION:
-        return False
-    return name in SESSION_MARKER_NAMES or name.startswith(SESSION_MARKER_PREFIXES)
-
-
-def reviewer_environment(environment: Mapping[str, str]) -> dict[str, str]:
-    """The caller's environment without session markers, with the recursion guard set."""
-    clean = {name: value for name, value in environment.items() if not is_session_marker(name)}
-    clean[GUARD] = "1"
-    return clean
-
-
-def reviewer_command(reviewer: Reviewer) -> list[str]:
-    """The command line of one review; the instructions, with the commit, arrive on standard input."""
-    if reviewer == "codex":
-        # `codex review --commit` rejects custom instructions, so the review runs as a
-        # read-only `codex exec` session that is told which commit to review.
-        return ["codex", "exec", "--sandbox", "read-only", "--ephemeral", "-"]
-    return ["claude", "-p", "--allowedTools", *CLAUDE_READ_ONLY_TOOLS]
-
-
-def missing_options(command: Sequence[str], help_text: str) -> list[str]:
-    """The options of `command` that `help_text` does not mention.
-
-    Used to check that an installed CLI still has the options of the reviewer command,
-    because some CLIs ignore unknown options when `--help` is given.
-    """
-    listed = set(OPTION_TOKEN.findall(help_text))
-    return [part for part in command if part.startswith("-") and part != "-" and part not in listed]
-
-
-def instructions(checklist: str, revision: str, commit: str) -> str:
-    """The reviewer's instructions: which commit to review, then the checklist."""
-    return (f"Review the changes introduced by commit {commit} (jj revision {revision}; "
-            f"`git show {commit}` shows it). Follow the checklist below exactly, "
-            f"including its output format. Do not change any file.\n\n{checklist}")
-
-
 def parse_review(output: str) -> Review:
     """Count findings by severity; output with neither findings nor `No findings.` is malformed."""
-    severities = [match.group(2) for match in FINDING.finditer(output)]
-    return Review(must=severities.count("must"), should=severities.count("should"),
-                  well_formed=bool(severities) or bool(NO_FINDINGS.search(output)))
+    findings, well_formed = parse_findings(output)
+    severities = [finding.severity for finding in findings]
+    return Review(must=severities.count("must"), should=severities.count("should"), well_formed=well_formed)
 
 
 def exit_code(review: Review) -> int:
@@ -132,23 +49,51 @@ def exit_code(review: Review) -> int:
     return 1 if review.must else 0
 
 
+def jj(*arguments: str) -> subprocess.CompletedProcess[str]:
+    """Run one `jj` query in the repository."""
+    return subprocess.run(["jj", *arguments], cwd=ROOT, capture_output=True, text=True,
+                          timeout=JJ_TIMEOUT_SECONDS, check=False)
+
+
 def resolve_commit(revision: str) -> str:
     """The git commit hash of a jj revision.
 
     The reviewer reads the commit with `git show` or `jj show`, and the summary line
     names it. A hash stays valid if the working copy moves while the review runs.
     """
-    result = subprocess.run(["jj", "log", "-r", revision, "--no-graph", "-T", "commit_id"],
-                            cwd=ROOT, capture_output=True, text=True, timeout=JJ_TIMEOUT_SECONDS, check=False)
+    result = jj("log", "-r", revision, "--no-graph", "-T", "commit_id")
     commit = result.stdout.strip()
     if result.returncode or not re.fullmatch(r"[0-9a-f]{40}", commit):
         raise UsageError(f"cannot resolve revision {revision!r}: {result.stderr.strip()}")
     return commit
 
 
+def changed_files(commit: str) -> list[str]:
+    """The files that a commit changes; the statistics use them to see which conditions could fire."""
+    result = jj("diff", "-r", commit, "--name-only")
+    return [line for line in result.stdout.splitlines() if line.strip()] if result.returncode == 0 else []
+
+
+def run_reviewer(reviewer: Reviewer, text: str) -> tuple[str, Review]:
+    """The reviewer's output and its parsed review; a failed run is not well formed."""
+    try:
+        result = subprocess.run(reviewer_command(reviewer), cwd=ROOT,
+                                input=text, capture_output=True, text=True, timeout=REVIEW_TIMEOUT_SECONDS,
+                                env=reviewer_environment(os.environ), check=False)
+    except (OSError, subprocess.TimeoutExpired) as error:
+        print(f"review: {reviewer} did not complete: {error}. Check that `{reviewer}` is installed and "
+              f"logged in, then run the review again, or choose the other reviewer with REVIEWER=.",
+              file=sys.stderr)
+        return "", Review(0, 0, False)
+    if result.returncode:
+        print(f"review: {reviewer} exited with {result.returncode}: {result.stderr.strip()}", file=sys.stderr)
+        return result.stdout, Review(0, 0, False)
+    return result.stdout, parse_review(result.stdout)
+
+
 def main(arguments: Sequence[str]) -> int:
-    """Run one review and print it, followed by a one-line summary."""
-    parser = argparse.ArgumentParser(prog="just review", description=__doc__)
+    """Run one review, print it with the ids of its findings, and add it to the review log."""
+    parser = argparse.ArgumentParser(prog="just review", description=main.__doc__)
     parser.add_argument("revision", nargs="?", default="@-", help="jj revision to review (default: @-)")
     options = parser.parse_args(arguments)
     try:
@@ -159,23 +104,21 @@ def main(arguments: Sequence[str]) -> int:
     except UsageError as error:
         print(f"review: {error}", file=sys.stderr)
         return 2
-    text = instructions(CHECKLIST.read_text(encoding="utf-8"), options.revision, commit)
-    try:
-        result = subprocess.run(reviewer_command(reviewer), cwd=ROOT, input=text, capture_output=True,
-                                text=True, timeout=REVIEW_TIMEOUT_SECONDS, env=reviewer_environment(os.environ),
-                                check=False)
-    except (OSError, subprocess.TimeoutExpired) as error:
-        print(f"review: {reviewer} did not complete: {error}. Check that `{reviewer}` is installed and "
-              f"logged in, then run the review again, or choose the other reviewer with REVIEWER=.",
-              file=sys.stderr)
-        return 3
-    print(result.stdout, end="")
-    review = parse_review(result.stdout) if result.returncode == 0 else Review(0, 0, False)
-    if result.returncode:
-        print(f"review: {reviewer} exited with {result.returncode}: {result.stderr.strip()}", file=sys.stderr)
+    checklist = CHECKLIST.read_text(encoding="utf-8")
+    output, review = run_reviewer(reviewer, instructions(checklist, options.revision, commit))
+    print(output, end="")
+    code = exit_code(review)
+    record = review_record(commit=commit, revision=options.revision, reviewer=reviewer,
+                           caller=caller_tool(os.environ), files=changed_files(commit), checklist=checklist,
+                           exit_code=code, output=output if review.well_formed else "",
+                           when=datetime.now(timezone.utc))
+    append(record, log_path())
+    for finding in record_findings(record):
+        print(f"review: finding {finding['id']} {finding['rule']} {finding['severity']} "
+              f"{finding['path']}:{finding['line']}", file=sys.stderr)
     print(f"review: reviewer={reviewer} commit={commit} must={review.must} should={review.should} "
-          f"well_formed={review.well_formed}", file=sys.stderr)
-    return exit_code(review)
+          f"well_formed={review.well_formed} logged={record['id']}", file=sys.stderr)
+    return code
 
 
 if __name__ == "__main__":

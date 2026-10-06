@@ -18,31 +18,39 @@ sessions.
 
 ## Conditions
 
+Each condition ends with the files it applies to. `tools/review_stats.py` uses
+this line to count how often a condition had a chance to fire.
+
 **R1. Separate "what" from "how".** A policy (an allowed list, a limit, an
 exception, a reserved name) is a named definition with a docstring, not a
 literal inside a mechanism. A specification states its meaning directly; an
 executable version for computation is linked to it by a theorem or a test.
 *Example of a violation:* the allowed axioms as a list literal inside the
 traversal loop of `audit`.
+*Applies to:* all files.
 
 **R2. Propositions in plain words.** Each new or changed proposition in the core
 library or the public API (a `def` or `abbrev` of type `Prop`, a `Prop` field,
 a theorem statement) has a docstring that restates it faithfully: quantifiers,
 assumptions, and each case in which it requires nothing. A changed formula has a
 changed restatement. See "Propositions in plain words" in `AGENTS.md`.
+*Applies to:* `*.lean`.
 
 **R3. Proof sketches.** A new or changed library theorem that other proofs use,
 or a proof longer than about 20 lines, has a proof sketch of 1-5 sentences:
 the strategy and the key idea.
+*Applies to:* `*.lean`.
 
 **R4. No compatibility paths.** The project has no users. Replaced code is
 deleted and its callers are updated. No "legacy" code, no aliases kept for old
 names, no fallback to an old path.
+*Applies to:* all files.
 
 **R5. Exhaustive matches.** A `match` over `Statement`, `ExecutionError`,
 `Outcome` or another type whose cases have different meanings has one case for
 each constructor, without a catch-all `_` case. A new constructor must then cause
 a compile error where it is not handled.
+*Applies to:* `*.lean`.
 
 **R6. Model boundary.** The SQLite model is meant for uses beyond migration
 verification, so it must not depend on that application. The model
@@ -51,6 +59,7 @@ lemmas about them) does not import the verification application (`Contract`,
 `Library`, the demonstrations). A lemma that is only about the model belongs in
 the model, not in an application file. Model docstrings speak about SQLite, not
 about "approved", "candidate" or "proof" data.
+*Applies to:* `SqliteVerifier/*.lean`.
 
 **R7. SQLite rule or model restriction.** A SQLite rule is a check that SQLite
 itself makes, for example "no two columns with the same name". A model
@@ -60,6 +69,7 @@ check, a supported-subset check, or `step` says which of the two it is. A model
 restriction must never appear in `step` as a modeled failure: then the model
 would predict an error where SQLite succeeds. It belongs in the supported-subset
 check instead.
+*Applies to:* `SqliteVerifier/*.lean`, `migration_check/*.py`.
 
 **R8. Trust-relevant change.** A change to the verification target
 (`VerificationConditions` and its parts), the kernel gates (`GateCore.lean`,
@@ -67,24 +77,30 @@ check instead.
 `StructuralCodec.lean`, or the approval and baseline checks is reported as a
 **must** finding with the text "owner review required", even if it looks
 correct. This marks the change for the owner; it is not a claim of a defect.
+*Applies to:* `SqliteVerifier/Contract.lean`, `GateCore.lean`, `ProofChecker.lean`, `BundleChecker.lean`, `StructuralCodec.lean`, `migration_check/baseline.py`, `migration_check/bundle.py`, `migration_check/prepare.py`.
 
 **R9. Docstrings.** Each new class, structure, function and module has a
 docstring that gives the reason for the object. Text follows "Writing style" in
 `AGENTS.md`: what the code does and why, in short active sentences, with a
 negative statement only to warn about a real trap.
+*Applies to:* all files.
 
 **R10. Error messages.** A new or changed user-facing message says what failed,
 where, and what the user can do next. It does not refer to internal documents
 such as ADR numbers.
+*Applies to:* `*.py`, `*.lean`.
 
 **R11. Tests.** A behavior change has a test that would fail without it. Tests
 are deterministic, and each subprocess call in a test has a timeout.
+*Applies to:* all files.
 
 **R12. Size and types.** A source file stays below 200 lines. Python code has
 complete type hints and no `Any`.
+*Applies to:* `*.py`, `*.lean`.
 
 **R13. Documentation follows the code.** Documentation that describes changed
 behavior (README, `docs/`, CLI help) changes in the same commit.
+*Applies to:* all files.
 
 ## Output format
 

@@ -64,7 +64,17 @@ test-source:
 # Review a commit (default: @-) with the other agent tool against docs/review-checklist.md (REVIEWER= overrides).
 [positional-arguments]
 review *args:
-    python3 tools/review.py "$@"
+    python3 -m tools.review "$@"
+
+# Record what happened to one review finding: fixed, rejected REASON, or deferred REASON.
+[positional-arguments]
+review-resolve *args:
+    python3 -m tools.review_log "$@"
+
+# Report per checklist condition how often it fired and what happened to its findings.
+[positional-arguments]
+review-stats *args:
+    python3 -m tools.review_stats "$@"
 
 # Check Nix source identities, test-target invalidation, environment snapshots and the installer cache.
 test-nix:

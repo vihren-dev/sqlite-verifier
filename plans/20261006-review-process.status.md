@@ -1,6 +1,6 @@
 # Status: independent review of each commit
 
-Created 2026-10-06. Status: DONE.
+Created 2026-10-06. Status: in progress (statistics added).
 Task: [task](20261006-review-process.task.md).
 Relevant files: `tools/review.py`, `tests/test_review.py`, `docs/review-checklist.md`,
 `justfile`, `AGENTS.md`.
@@ -47,3 +47,7 @@ Relevant files: `tools/review.py`, `tests/test_review.py`, `docs/review-checklis
   DONE.
 - 2026-10-06 (owner feedback): the checklist must be self-contained. R6 and R7
   referred to issues; they now state the rule and its reason directly.
+- 2026-10-06 (owner request): review statistics. `tools/review.py` split into
+  `review_select.py` (pure decisions) and `review.py` (shell) to stay below 200
+  lines; new `review_log.py` (log, `review-resolve`) and `review_stats.py`
+  (report). Each checklist condition got an "Applies to" scope. 33 tests pass.
