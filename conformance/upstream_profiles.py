@@ -56,6 +56,10 @@ def profile_for_source(filename: str, profiles: dict[str, ExecutionProfile]) -> 
     return profile, CLOCK_UNIX_MILLISECONDS if profile.clock == "unix-milliseconds-v1" else None
 
 
+#: Retained acquisition readers support the historical zero-only and exact observed policies.
+RETAINED_TCL_PRECISION_POLICY_VERSIONS = (1, 2)
+
+
 def tcl_precision_policy() -> dict[str, Json]:
     """Start at precision zero, then accept observed source precision only with exact REAL bits."""
     return {"version": 2, "requested": 0, "establishAfter": "tester.tcl"}

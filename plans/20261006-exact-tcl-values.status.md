@@ -43,3 +43,8 @@ Relevant files: `conformance/upstream_result_values.py`,
   The new precision module is owned by this target. All frozen artifacts remain
   unchanged, and the retained-policy regression explicitly rejects precision
   15 when relabeled as historical policy v1.
+- 2026-10-06: Centralized the retained Tcl precision-policy versions beside the
+  acquisition policy. Both historical readers use this declaration. Resolved
+  independent review finding `20261006T125917Z-2950f417#1`. The same 94 focused
+  precision/value, acquisition and freeze checks passed in 2.94 seconds under
+  a 90-second bound, using the existing pinned Python/Tcl/native tools.

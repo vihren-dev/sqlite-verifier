@@ -8,6 +8,7 @@ from conformance.case_format import Json
 from conformance.corpus_shards import natural
 from conformance.execution_profile import ExecutionProfile, profile_from_wire
 from conformance.freeze_profiles import file_conditions, record_conditions, result_precision, result_nullvalue
+from conformance.upstream_profiles import RETAINED_TCL_PRECISION_POLICY_VERSIONS
 
 
 def strings(value: Json) -> list[str]:
@@ -33,7 +34,8 @@ def retained_profiles(report: dict[str, Json]) -> tuple[dict[str, Json], dict[tu
     strings(policy["controlledClockPatterns"])
     precision = report.get("tclDisplayPrecisionPolicy")
     if (not isinstance(precision, dict) or set(precision) != {"version", "requested", "establishAfter"}
-            or type(precision["version"]) is not int or precision["version"] not in (1, 2)
+            or type(precision["version"]) is not int
+            or precision["version"] not in RETAINED_TCL_PRECISION_POLICY_VERSIONS
             or type(precision["requested"]) is not int or precision["requested"] != 0
             or precision["establishAfter"] != "tester.tcl"):
         raise ValueError("Invalid retained Tcl precision policy")

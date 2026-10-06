@@ -3,7 +3,7 @@
 from conformance.case_format import Json
 from conformance.execution_profile import ExecutionProfile, recorded_profile
 from conformance.native_storage import serialized
-from conformance.upstream_profiles import tcl_precision_policy
+from conformance.upstream_profiles import RETAINED_TCL_PRECISION_POLICY_VERSIONS, tcl_precision_policy
 from conformance.upstream_result_values import TCL_MAX_PRECISION
 
 PRECISION_POLICY = tcl_precision_policy()
@@ -32,7 +32,7 @@ def result_precision(value: Json, *, accepted: bool, policy_version: int) -> Non
             or value["values"] != sorted(set(value["values"]), key=lambda item: -1 if item is None else item)
             or bool(value["successfulCalls"]) != bool(value["values"])
             or len(value["values"]) > value["successfulCalls"]
-            or policy_version not in (1, 2)
+            or policy_version not in RETAINED_TCL_PRECISION_POLICY_VERSIONS
             or accepted and (None in value["values"] or any(item > TCL_MAX_PRECISION for item in value["values"])
                 or policy_version == 1 and value["values"] != ([0] if value["successfulCalls"] else []))):
         raise ValueError("Acquisition result precision evidence differs")
