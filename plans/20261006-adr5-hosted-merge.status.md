@@ -27,3 +27,11 @@ independent SQLite 3.53.4 native pin in the ADR.
   follow-ups. Main remains `31848aac`; the existing branch-start commit
   `2839c93c` is empty and has no description. Publication retains its original
   identity rather than rewriting source-bound evidence.
+
+- 2026-10-06: Published `f22b6573` as `adr5/reference-corpus` and opened
+  [PR #32](https://github.com/vihren-dev/sqlite-verifier/pull/32). Its protected
+  baseline check passed; both native jobs started the complete packaging route.
+  The active main ruleset requires an up-to-date branch and all three checks.
+  Integrated main `31848aac` with a merge commit, preserving the original
+  source/evidence commits. Markdown links pass; hosted CI will validate this
+  new merge candidate. The earlier run remains visible as superseded evidence.
