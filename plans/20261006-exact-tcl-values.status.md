@@ -192,3 +192,23 @@ Relevant files: `conformance/upstream_result_values.py`,
   Ordinary source/development and Nix infrastructure checks wait for the T05
   local baseline to finish. The full model gate remains held for environment
   feedback; no full model job has started here.
+- 2026-10-06: Integration checkpoint `c1eb7de9` passed independent review
+  with no findings. Ordinary `just test` passes all six development targets,
+  328 source checks and 28 subtests. The frozen sample target passes 12 tests
+  in 52.01 seconds. All 95 retained date cases and 11 codec cases pass fresh
+  replay through the assembled recorder with explicit ordinary-file storage;
+  all 106 audited database paths were beneath the selected root and cleaned.
+- The first Nix infrastructure run passed 79 checks and found one stale
+  expectation for the moved capture fixture. Corrected the real ownership:
+  the freeze test module affects model; its flat fixture affects upstream and
+  model. Added observation/binding-type module invalidation checks. All four
+  focused ownership checks pass in 7.23 seconds, and the complete `just test-nix`
+  rerun passes 83 checks in 93.63 seconds. This changes the expected owner after
+  a real caller move; it removes no check and adds three.
+- Retained the successful source, Nix infrastructure and six development
+  JUnit receipts with compressed/uncompressed digests in
+  [the integration record](../reports/20261006-tcl-values-integration/summary.json).
+  T17 implementation, source acquisition and these scoped integration checks
+  are complete. The full model gate is still held for the root task's T13
+  environment feedback; it was not run or waived. This task remains IN PROGRESS
+  pending that coordinated gate and delivery.
