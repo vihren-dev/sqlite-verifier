@@ -153,6 +153,14 @@ state. The generated starting-schema pattern now matches the Atuin example.
   required complete model runs. Full acceptance and final owner approval remain
   pending; no new baseline, issue closure, merge or release is authorized.
 
+- 2026-10-06: Correction review `20261006T182507Z-83edc417` had no must and
+  requested the exact boundary names in the warning. Named `def step`, the last
+  `end SqliteVerifier` and `Execution.lean` explicitly and recorded that should
+  finding as fixed. The extraction body is unchanged; all four pure regressions
+  passed again in 0.49 seconds. A full Darwin model run for `83edc417` is live,
+  but no full acceptance is claimed. Final source identity must be retained for
+  both required local native gates after this documentation correction.
+
 ## Exporter checkpoints and remaining gates
 
 The T03 and T02 receipts describe a fixed model and input checkpoint. Their

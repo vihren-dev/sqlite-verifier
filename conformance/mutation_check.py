@@ -21,10 +21,10 @@ MUTANTS = {
 
 
 def schema_step_source(module: str) -> str:
-    """Extract the primitive definition through its namespace close for mutation compilation.
+    """Copy `def step` up to the last `end SqliteVerifier` from Execution.lean.
 
-    The transition must remain the namespace's final declaration; later declarations
-    would also be copied. Declaration docstrings do not determine either boundary.
+    `step` must remain this namespace's final declaration; later declarations
+    would also be copied into mutants. Docstrings do not determine either boundary.
     """
     start = module.index("\ndef step ") + 1
     end = module.rindex("\nend SqliteVerifier")
