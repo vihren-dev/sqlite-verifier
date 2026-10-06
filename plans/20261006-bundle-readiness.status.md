@@ -100,3 +100,18 @@ Specifications: [ADR 0003](../docs/adr-0003-agent-proof-preparation.md),
   production export_bundle directly and stated which definitions each owns
   or omits. Resolved `20261006T172800Z-d4441c8d#1`. Behavior and the previously
   checked omitted set are unchanged; this is a documentation correction.
+- 2026-10-06: Final fixture wording `508260f4` passed independent review
+  with no findings. Added full byte/link/mode identities for actual runtime,
+  explicit source roots, observer and pinned Python. Hashing occurs outside
+  command timing and its OS-cache warming is stated as an observation limit.
+  Cold directories must be new and remain intact when refused. Added a bounded
+  fresh-process recorder with exact raw stdout/stderr, externally measured
+  wall intervals and source/process/parent-bound same-invocation stage traces.
+  The observer journals actual runtime-created process groups for timeout
+  cleanup. Partial/malformed journals and incomplete cleanup invalidate the
+  observation, preserving its raw evidence. Deadline waiting uses pipe events
+  rather than process-exit polling. All 48 pure/child/inventory checks pass in
+  2.99 seconds (30-second suite bound), including real new-session timeout
+  cleanup, invalid UTF-8 output, changed identities and malformed stage traces.
+  These deterministic fixtures are not performance evidence. No coordinated
+  timing trial, heavy Nix check or held full-model gate started.

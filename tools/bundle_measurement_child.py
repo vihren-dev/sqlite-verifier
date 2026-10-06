@@ -8,6 +8,7 @@ import json
 import os
 from pathlib import Path
 import runpy
+import subprocess
 import sys
 from time import monotonic_ns
 from types import FrameType
@@ -46,10 +47,20 @@ class Span:
     source_sha256: str
 
 
+@dataclass(frozen=True)
+class Spawn:
+    """A same-invocation child identity permits bounded cleanup of runtime-created process groups."""
+
+    pid: int
+    process_group: int | None
+    started_ns: int
+    command: tuple[str, ...]
+
+
 class StageObserver:
     """Profile actual current callers without replacing functions, inputs or acceptance."""
 
-    def __init__(self, runtime: Path) -> None:
+    def __init__(self, runtime: Path, process_journal: Path) -> None:
         """Bind observable frames to this runtime's source modules before the launcher executes."""
         self.modules = runtime.resolve() / "migration_check"
         self.prefix = str(self.modules) + os.sep
@@ -57,6 +68,9 @@ class StageObserver:
         self.spans: list[Span] = []
         self.hashes: dict[str, str] = {}
         self.next_identifier = 0
+        self.process_journal = process_journal
+        self.process_journal.write_text("")
+        self.processes: list[Spawn] = []
 
     def label(self, frame: FrameType) -> str | None:
         """Name only stages in the installed runtime; record bounded external process roles."""
@@ -74,6 +88,20 @@ class StageObserver:
 
     def observe(self, frame: FrameType, event: str, argument: object) -> None:
         """Retain monotonic timestamps from this invocation, including stages ending in errors."""
+        if (event == "return" and frame.f_code.co_name == "__init__"
+                and frame.f_globals.get("__name__") == "subprocess"):
+            process = frame.f_locals.get("self")
+            if isinstance(process, subprocess.Popen) and type(process.pid) is int:
+                try:
+                    group = os.getpgid(process.pid)
+                except ProcessLookupError:
+                    group = None
+                command = process.args
+                parts = (command,) if isinstance(command, str) else tuple(map(str, command))
+                spawn = Spawn(process.pid, group, monotonic_ns(), parts)
+                self.processes.append(spawn)
+                with self.process_journal.open("a") as stream:
+                    stream.write(json.dumps(asdict(spawn)) + "\n")
         if event == "call":
             stage = self.label(frame)
             if stage is None:
@@ -105,7 +133,7 @@ def main() -> None:
         parser.error("Stage observation requires isolated Python; use the installed interpreter with -I")
     launcher = options.launcher.resolve(strict=True)
     arguments = options.arguments[1:] if options.arguments[:1] == ["--"] else options.arguments
-    observer = StageObserver(launcher.parents[1])
+    observer = StageObserver(launcher.parents[1], options.trace.with_suffix(".processes.jsonl"))
     before = hashlib.sha256(launcher.read_bytes()).hexdigest()
     sys.argv = [str(launcher), *arguments]
     started = monotonic_ns()
@@ -119,6 +147,7 @@ def main() -> None:
         options.trace.write_text(json.dumps({"pid": os.getpid(), "started_ns": started, "ended_ns": ended,
             "launcher": str(launcher), "launcher_sha256_before": before, "launcher_sha256_after": after,
             "observer_sha256": hashlib.sha256(Path(__file__).read_bytes()).hexdigest(),
+            "processes": [asdict(spawn) for spawn in observer.processes],
             "spans": [asdict(span) for span in sorted(observer.spans, key=lambda value: value.identifier)],
             "active_stages": len(observer.active), "isolated_python": True}) + "\n")
 
