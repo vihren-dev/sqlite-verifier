@@ -1,6 +1,6 @@
 # Foreign-key acquisition recovery status
 
-Status: IN PROGRESS. Created 2026-10-06.
+Status: DONE. Created and completed 2026-10-06.
 
 Task: [foreign-key acquisition recovery](20261006-foreign-key-acquisition.task.md).
 Source: [issue #34](https://github.com/vihren-dev/sqlite-verifier/issues/34).
@@ -73,3 +73,7 @@ Relevant files: `conformance/native_acquisition.py`,
   the actual baseline (900 seconds) and after run (1200 seconds). Report checks
   confirm all 940 dispositions, 514 paired admissions, reason totals and matching
   seeded event digests.
+- 2026-10-06: Final evidence-note commit `88478fd5` passed Claude review with
+  no findings (`20261006T100107Z-88478fd5`). All findings are resolved and the
+  task is DONE. The last append-only review entry remains in the working copy
+  for the next integration commit, as required by the review workflow.
