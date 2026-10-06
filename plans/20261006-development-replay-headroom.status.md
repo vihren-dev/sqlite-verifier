@@ -65,10 +65,37 @@ Complete: 21 focused snapshot/storage regressions and unchanged frozen paths.
 Complete: checkpoint `912b3a0e99cc0bb40977e7963e7feb9fa57facb7` passed
 independent review `20261006T182926Z-912b3a0e` with no findings. The reviewer
 checked both expansion callers and the approved owner deadline decision.
-Pending: relevant integrated checks and authorized fresh macOS/Linux
-acceptance measurements below 30 seconds. The
-approved process bound remains 120 seconds. This task is not DONE.
+Complete: one fresh phase on each platform with matching historical selected
+identities, profiles and verdicts. macOS took 23.699742582997715 seconds;
+Linux took 49.70655691897264 seconds. Linux misses the less-than-30-second
+acceptance target. The macOS phase is qualified by the ancillary retention
+defect below. The approved process bound remains 120 seconds.
+Pending: relevant integrated checks and Linux performance acceptance.
+This task is not DONE. No further optimization or rerun is authorized in this
+turn; PR48 final validation and owner review take priority.
 
 - 2026-10-06: Recorded the no-findings implementation review and preserved its
   exact raw journal line in this status checkpoint. Benchmark remains held
   pending the coordinator's idle-host release after PR48 full-model work.
+- 2026-10-06: The coordinator released each idle host for one fresh phase on
+  reviewed source `82f2d178`. macOS session 35032 completed the original phase
+  in 23.699742582997715 seconds, with all 184 identities and verdicts matched.
+  Its report was written before ancillary summary serialization failed on
+  `PosixPath` entries (command exit 1). Outer timestamps, individual fixture
+  paths and in-process before/after manifests were lost. The retained
+  after-only hashes and recovery summary do not reconstruct those fields.
+- 2026-10-06: Linux session 49695 completed with exit 0 using the exact public
+  commit archive, own pinned Nix conformance runtime and ordinary ext4 files.
+  Its phase took 49.70655691897264 seconds (outer call 50.392677217), missing
+  the target. All 184 fixture paths, source/runtime/corpus/Python hashes and
+  outer timestamps are retained. All 835 regular source checks and the
+  `CLAUDE.md` symlink passed before/after. Both host slots were released.
+- 2026-10-06: Retained both raw reports, exact helpers, logs, hash manifests
+  and the earlier instrumented diagnostic in
+  [the dated measurement record](../reports/20261006-development-replay-headroom/README.md).
+  Bounded receipt validation passed without replay or builds. An independent
+  read-only audit confirmed both policies, full denominator 4378, selected
+  denominator 184 and every historical identity/profile/verdict field.
+  Frozen v1–v5 bytes are unchanged. This commit preserves the pending raw
+  `82f2d178` independent-review journal line. No speed acceptance is claimed
+  for Linux, and the task remains IN PROGRESS.

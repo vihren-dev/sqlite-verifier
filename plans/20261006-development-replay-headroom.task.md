@@ -2,6 +2,13 @@
 
 Status: IN PROGRESS. Created 2026-10-06.
 
+The one-run measurement record is in
+[the dated receipt](../reports/20261006-development-replay-headroom/README.md).
+Linux took 49.70655691897264 seconds and misses the target below. The macOS
+phase took 23.699742582997715 seconds but lost ancillary receipt fields after
+the phase completed. These observations do not satisfy both-platform
+acceptance; the task is not DONE.
+
 ## Outcome
 
 The fresh development replay phase finishes in less than 30 seconds on
