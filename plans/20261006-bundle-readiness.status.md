@@ -248,3 +248,8 @@ No new campaign, launcher, benchmark or task was started after the hold.
 - All 110 measurement harness checks pass in 4.26 seconds under the same
   30-second bound. This includes 19 synthetic writer checks and the existing
   real-child boundary checks. No actual timing trial or acceptance cutover ran.
+- Cleanup `876628e5` passed independent Claude review with no findings. The
+  campaign-persistence unit is checked within its synthetic writer scope and
+  ready for coordinated integration. Its exact raw review row is preserved in
+  this checkpoint. The named-case launcher, integrated gates, final runtime and
+  actual owner-reviewed performance observations remain pending; T06 is not DONE.
