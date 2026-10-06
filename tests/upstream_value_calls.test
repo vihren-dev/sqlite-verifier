@@ -1,0 +1,52 @@
+# Exercise real Tcl result formatting without rewriting native SQLite observations.
+set testdir [file join $env(CONFORMANCE_UPSTREAM) test]
+source [file join $testdir tester.tcl]
+reset_db
+do_test values-cast {db eval {
+  SELECT CAST('123.5abc' AS numeric),CAST('123abc' AS integer);
+}} {123.5 123}
+reset_db
+db eval {SELECT 1.25}
+do_test values-prefix {db eval {SELECT 2.5}} {2.5}
+reset_db
+do_test values-real-edges {db eval {SELECT -0.0,1e999,1e-30,1e16;}} {-0.0 Inf 1e-30 10000000000000000.0}
+reset_db
+do_test values-blob {db eval {SELECT x'0080ff61',x'';}} [list [binary decode hex 0080ff61] {}]
+reset_db
+do_test values-onecolumn {db onecolumn {SELECT 1e16,99.0;}} {10000000000000000.0}
+reset_db
+do_test values-original-expectation {db eval {SELECT 1.000000000000001;}} {/^1[.]0$/}
+reset_db
+set ::tcl_precision 6
+do_test values-rounded {db eval {SELECT 1.0000001;}} {1.0}
+set ::tcl_precision 0
+reset_db
+proc precision_trace {args} {}
+trace add variable ::tcl_precision read precision_trace
+do_test values-traced {db eval {SELECT 1.25;}} {1.25}
+trace remove variable ::tcl_precision read precision_trace
+rename precision_trace {}
+foreach marker {NULL null N} {
+  reset_db
+  db null $marker
+  do_test values-null-$marker {db eval {SELECT NULL,'NULL';}} [list $marker NULL]
+}
+reset_db
+db null NULL
+db eval {SELECT NULL;}
+db null N
+do_test values-null-prefix {db eval {SELECT NULL;}} N
+do_test values-null-helpers {
+  list [db onecolumn {SELECT NULL;}] [db onecolumn {SELECT NULL WHERE 0;}] \
+       [db exists {SELECT NULL;}] [db eval {SELECT NULL;} {}]
+} {N {} 1 {}}
+proc hide_null_marker {command operation} {
+  if {[lindex $command 1] eq "nullvalue"} {error "marker unavailable"}
+}
+trace add execution db enter hide_null_marker
+do_test values-null-unobserved {db eval {SELECT NULL;}} N
+trace remove execution db enter hide_null_marker
+rename hide_null_marker {}
+reset_db
+do_test values-null-reset {db eval {SELECT NULL;}} {{}}
+finish_test

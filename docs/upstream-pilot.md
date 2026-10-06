@@ -21,6 +21,76 @@ Native record version 2 represents these setup operations as `{"reopen":true}`
 or `{"dbConfig":[option,value]}` among SQL strings; version 1 remains readable.
 The SQL after the last connection boundary becomes the candidate migration.
 
+ADR 0005's output acquisition is opt-in through `record_sql(..., outputs=True,
+parameters=[...])`. Native record version 3 retains typed parameter slots,
+column names/count (including empty results), rows, and the direct DML change
+count. Supply one parameter tuple per statement; repeated named parameters share
+SQLite's slot. SELECT, DDL and EXPLAIN have no change count. Native replay checks
+these fields against a fresh execution. This acquisition version is distinct
+from the Lean case format: admitted literal-write records map to case version two
+and compare direct counts. Query and parameter semantics remain unsupported;
+native acquisition records faithful tie groups and cutoff boundaries. Explicit
+profile/clock evidence uses native version 4; see [profiles](execution-profile.md).
+Default extraction continues to produce versions 1/2 unchanged.
+
+ADR 0005 extraction preserves Tcl SQL call boundaries, including calls without
+final semicolons. `onecolumn` and `exists` use SELECT-only native acquisition and
+their own result semantics during the Tcl check; native rows stay unchanged.
+Mixed helper calls compare independently. Pure eval row scripts return an empty
+Tcl result while retaining ordinary native rows, including RETURNING. Accepted
+bodies are empty or basic braced `expr` bodies without functions, command
+substitution, namespace references or variable traces. Other bodies retain the
+callback-context exclusion. The pinned harness check is
+[upstream_helper_calls.test](../tests/upstream_helper_calls.test).
+
+Second connections exclude assertions while open. After closure, a read-only
+prefix may recover when it uses the same main database generation, keeps the
+profile's settings unchanged, has no auxiliary read inside a primary transaction,
+and reproduces every captured Tcl outcome/result on a fresh database. Auxiliary
+writes, different databases and uncommitted reads remain excluded. Tcl string
+equality alone cannot establish storage-class equivalence, so recovery requires
+these conditions. Resetting the primary does not close auxiliary handles.
+Connection command deletion traces capture real closure; renamed connection
+commands retain an exclusion across resets because a renamed handle can survive.
+The pinned harness check is
+[upstream_context_calls.test](../tests/upstream_context_calls.test).
+
+Attachment lifetimes come from SQLite's database inventory after each Tcl call.
+After successful DETACH, the preceding SQL becomes a setup prefix and eligibility
+returns only after fresh native replay verifies it. Setup may attach `:memory:`
+databases and replay all their SQL before detaching; migration recording and
+external-file attachment remain refused. A live attachment, failed DETACH or
+unreplayable file prefix cannot recover. The pinned test is
+[upstream_attachment_calls.test](../tests/upstream_attachment_calls.test).
+
+Explicit-profile capture accepts `--profile PROFILE.json` and, for a controlled
+clock profile, `--clock-unix-milliseconds VALUE`. The Tcl engine establishes and
+reads back foreign-key and recursive-trigger settings. Its native clock hook
+supports nonzero whole seconds through 2147483647; other values are refused.
+Capture uses UTC and excludes tests that change the controlled clock. Native
+recording retains outputs and the clock input for each reached statement, and
+the manifest declares the profile. Fresh replay preserves that evidence.
+
+The profile identifies the native recording engine. The Tcl testfixture has
+additional test compile options; its source ID is checked, and the fidelity
+check compares actual Tcl outcomes with native results. This does not measure
+the gap to a workload's driver builds. Run `nix-build build-support/default.nix
+-A tests.upstream --no-out-link` for the real profile capture check, including
+defaults, triggers, cascading deletes and a rejected clock change.
+Profile-setting refusals include the canonical PRAGMA name, so acquisition
+reports count `foreign_keys` separately from `ignore_check_constraints` and other
+settings. The pinned capture check exercises both names.
+
+The [C4 triage](../reports/20261001-adr5-c4-fidelity.md) names causes for all 143
+historical result/error mismatches. Connection methods follow SQLite's exact-name
+and unique-prefix lookup, including helpers and callback registration. Nested
+SQL and incremental BLOB operations remain excluded; global BLOB calls affect
+later eligibility even when they occur outside an assertion. Named SQL variables
+implicitly bound by Tcl remain excluded when their values/types were not traced;
+the explicit typed native parameter API remains available. Proven path-only
+database_list differences, test-only lock metadata and missing echo modules have
+specific fidelity diagnostics. Native rows are never normalized to match Tcl.
+
 Removing the close exclusion does not by itself widen the supported execution
 profile. `alter.test` still yields 12/119 and `alter3.test` 7/59: TEMP/ATTACH,
 multiple connections and LEGACY_FILE_FORMAT=1 account for remaining exclusions.
@@ -36,6 +106,18 @@ Original prefixes and minimization counts remain in each record. Runtime-generat
 and testfixture identities are checked, including SQLite's own manifest hashes.
 Nearest EVIDENCE-OF blocks are attributed using runtime source frames, not every
 requirement found anywhere in a file. Ambiguous blocks remain uncredited.
+
+New acquisition excludes a final expanded record above 1,000,000 UTF-8 JSON bytes
+as `case size limit`, retaining `caseByteCount` in its selection report. This
+measurement includes minimization evidence and provenance, before snapshot sharing;
+sharing cannot admit an oversized logical case. The stored record is also bounded.
+Retained cases share identical complete snapshots by verified content digest;
+[storage decoding](conformance-format-v2.md) preserves all native observations.
+The [frozen v3 size selection](../reports/20261001-adr5-c3-size-selection.json)
+excludes the 302,050,086-byte `e_blobbytes:e_blobbytes-1.0:0` record under this
+policy. Existing frozen artifacts remain unchanged. Append refresh preserves
+inherited observations, including legacy oversized records, and applies the cap
+to additions; ADR 0005's final freeze selects membership separately.
 
 Refresh under `build/`, then create a new version without overwriting evidence:
 

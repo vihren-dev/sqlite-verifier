@@ -10,7 +10,7 @@
         let pkgs = import nixpkgs { inherit system; };
         in { inherit pkgs; } // import ./sqlite.nix { inherit pkgs; };
     in {
-      packages = forSystems (system: { inherit (packagesFor system) sqlite sqlite346; });
+      packages = forSystems (system: { inherit (packagesFor system) sqlite sqlite346 sqlite3534; });
       checks = forSystems (system:
         let native = packagesFor system;
         in (import ../build-support/default.nix {
@@ -21,7 +21,7 @@
         let
           tools = packagesFor system;
           testPython = tools.pkgs.python3.withPackages (ps: [ ps.pytest ps.hypothesis ]);
-          runtimePackages = with tools.pkgs; [ just coreutils testPython tools.sqlite tools.sqlite346 ]
+          runtimePackages = with tools.pkgs; [ just coreutils testPython tools.sqlite tools.sqlite346 tools.sqlite3534 ]
             ++ lib.optionals stdenv.hostPlatform.isLinux [ patchelf ];
         in {
           default = tools.pkgs.mkShell {

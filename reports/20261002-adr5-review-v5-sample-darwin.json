@@ -1,0 +1,4124 @@
+{
+  "reportVersion": 1,
+  "tier": "development-sample",
+  "runtime": {
+    "parser": {
+      "path": "build/sqlite-parser",
+      "sha256": "0649a31dddcf951297d90f421a3bb60ca05b55afeee1cf355af64255176cf685"
+    },
+    "compiledModel": {
+      "path": ".lake/build/bin/conformance-runner",
+      "sha256": "ce55903cb7fc99ab9d8ab8a456b3b84ae4f0014215a11bbf40ed0e4705ca2d3a"
+    }
+  },
+  "policy": {
+    "version": 1,
+    "mandatory": "all-authored-and-synthetic",
+    "upstreamIdentity": "sha256-canonical-json-[source,name]",
+    "minimumPerNonemptySourceShard": 1,
+    "additionalUpstream": 8
+  },
+  "policySha256": "703daf8a7cf3d79fa4172435f197cf704eaea29164caf8204e3780b4a14e45aa",
+  "generic": {
+    "corpusVersion": 5,
+    "casesSha256": "663e38016b574c8436c2bb0d53ff9e356fde51b458c1640a4a99553f11fe98b4",
+    "manifestSha256": "e9a965f05ec70f45af83b43f62a0ff7b19f5095f03bb53b0b7b7a64b73f3e082",
+    "executionProfiles": [
+      {
+        "clock": "excluded",
+        "compileOptions": [
+          "ATOMIC_INTRINSICS=1",
+          "COMPILER=clang-21.1.8",
+          "DEFAULT_AUTOVACUUM",
+          "DEFAULT_CACHE_SIZE=-2000",
+          "DEFAULT_FILE_FORMAT=4",
+          "DEFAULT_JOURNAL_SIZE_LIMIT=-1",
+          "DEFAULT_MMAP_SIZE=0",
+          "DEFAULT_PAGE_SIZE=4096",
+          "DEFAULT_PCACHE_INITSZ=20",
+          "DEFAULT_RECURSIVE_TRIGGERS",
+          "DEFAULT_SECTOR_SIZE=4096",
+          "DEFAULT_SYNCHRONOUS=2",
+          "DEFAULT_WAL_AUTOCHECKPOINT=1000",
+          "DEFAULT_WAL_SYNCHRONOUS=2",
+          "DEFAULT_WORKER_THREADS=0",
+          "DIRECT_OVERFLOW_READ",
+          "ENABLE_MATH_FUNCTIONS",
+          "ENABLE_PERCENTILE",
+          "MALLOC_SOFT_LIMIT=1024",
+          "MAX_ATTACHED=10",
+          "MAX_COLUMN=2000",
+          "MAX_COMPOUND_SELECT=500",
+          "MAX_DEFAULT_PAGE_SIZE=8192",
+          "MAX_EXPR_DEPTH=1000",
+          "MAX_FUNCTION_ARG=1000",
+          "MAX_LENGTH=1000000000",
+          "MAX_LIKE_PATTERN_LENGTH=50000",
+          "MAX_MMAP_SIZE=0x7fff0000",
+          "MAX_PAGE_COUNT=0xfffffffe",
+          "MAX_PAGE_SIZE=65536",
+          "MAX_SQL_LENGTH=1000000000",
+          "MAX_TRIGGER_DEPTH=1000",
+          "MAX_VARIABLE_NUMBER=32766",
+          "MAX_VDBE_OP=250000000",
+          "MAX_WORKER_THREADS=8",
+          "MUTEX_PTHREADS",
+          "SYSTEM_MALLOC",
+          "TEMP_STORE=1",
+          "THREADSAFE=1"
+        ],
+        "engineVersion": "3.51.0",
+        "foreignKeys": false,
+        "ignoredSettings": [],
+        "name": "authored-deferred-v1",
+        "otherWriters": [],
+        "recursiveTriggers": false,
+        "sourceId": "2025-11-04 19:38:17 fb2c931ae597f8d00a37574ff67aeed3eced4e5547f9120744ae4bfa8e74527b",
+        "timezone": "UTC",
+        "transactionMode": "deferred",
+        "version": 1
+      },
+      {
+        "clock": "excluded",
+        "compileOptions": [
+          "ATOMIC_INTRINSICS=1",
+          "COMPILER=clang-21.1.8",
+          "DEFAULT_AUTOVACUUM",
+          "DEFAULT_CACHE_SIZE=-2000",
+          "DEFAULT_FILE_FORMAT=4",
+          "DEFAULT_JOURNAL_SIZE_LIMIT=-1",
+          "DEFAULT_MMAP_SIZE=0",
+          "DEFAULT_PAGE_SIZE=4096",
+          "DEFAULT_PCACHE_INITSZ=20",
+          "DEFAULT_RECURSIVE_TRIGGERS",
+          "DEFAULT_SECTOR_SIZE=4096",
+          "DEFAULT_SYNCHRONOUS=2",
+          "DEFAULT_WAL_AUTOCHECKPOINT=1000",
+          "DEFAULT_WAL_SYNCHRONOUS=2",
+          "DEFAULT_WORKER_THREADS=0",
+          "DIRECT_OVERFLOW_READ",
+          "ENABLE_MATH_FUNCTIONS",
+          "ENABLE_PERCENTILE",
+          "MALLOC_SOFT_LIMIT=1024",
+          "MAX_ATTACHED=10",
+          "MAX_COLUMN=2000",
+          "MAX_COMPOUND_SELECT=500",
+          "MAX_DEFAULT_PAGE_SIZE=8192",
+          "MAX_EXPR_DEPTH=1000",
+          "MAX_FUNCTION_ARG=1000",
+          "MAX_LENGTH=1000000000",
+          "MAX_LIKE_PATTERN_LENGTH=50000",
+          "MAX_MMAP_SIZE=0x7fff0000",
+          "MAX_PAGE_COUNT=0xfffffffe",
+          "MAX_PAGE_SIZE=65536",
+          "MAX_SQL_LENGTH=1000000000",
+          "MAX_TRIGGER_DEPTH=1000",
+          "MAX_VARIABLE_NUMBER=32766",
+          "MAX_VDBE_OP=250000000",
+          "MAX_WORKER_THREADS=8",
+          "MUTEX_PTHREADS",
+          "SYSTEM_MALLOC",
+          "TEMP_STORE=1",
+          "THREADSAFE=1"
+        ],
+        "engineVersion": "3.51.0",
+        "foreignKeys": true,
+        "ignoredSettings": [],
+        "name": "authored-foreign-keys-v1",
+        "otherWriters": [],
+        "recursiveTriggers": false,
+        "sourceId": "2025-11-04 19:38:17 fb2c931ae597f8d00a37574ff67aeed3eced4e5547f9120744ae4bfa8e74527b",
+        "timezone": "UTC",
+        "transactionMode": "immediate",
+        "version": 1
+      },
+      {
+        "clock": "unix-milliseconds-v1",
+        "compileOptions": [
+          "ATOMIC_INTRINSICS=1",
+          "COMPILER=clang-21.1.8",
+          "DEFAULT_AUTOVACUUM",
+          "DEFAULT_CACHE_SIZE=-2000",
+          "DEFAULT_FILE_FORMAT=4",
+          "DEFAULT_JOURNAL_SIZE_LIMIT=-1",
+          "DEFAULT_MMAP_SIZE=0",
+          "DEFAULT_PAGE_SIZE=4096",
+          "DEFAULT_PCACHE_INITSZ=20",
+          "DEFAULT_RECURSIVE_TRIGGERS",
+          "DEFAULT_SECTOR_SIZE=4096",
+          "DEFAULT_SYNCHRONOUS=2",
+          "DEFAULT_WAL_AUTOCHECKPOINT=1000",
+          "DEFAULT_WAL_SYNCHRONOUS=2",
+          "DEFAULT_WORKER_THREADS=0",
+          "DIRECT_OVERFLOW_READ",
+          "ENABLE_MATH_FUNCTIONS",
+          "ENABLE_PERCENTILE",
+          "MALLOC_SOFT_LIMIT=1024",
+          "MAX_ATTACHED=10",
+          "MAX_COLUMN=2000",
+          "MAX_COMPOUND_SELECT=500",
+          "MAX_DEFAULT_PAGE_SIZE=8192",
+          "MAX_EXPR_DEPTH=1000",
+          "MAX_FUNCTION_ARG=1000",
+          "MAX_LENGTH=1000000000",
+          "MAX_LIKE_PATTERN_LENGTH=50000",
+          "MAX_MMAP_SIZE=0x7fff0000",
+          "MAX_PAGE_COUNT=0xfffffffe",
+          "MAX_PAGE_SIZE=65536",
+          "MAX_SQL_LENGTH=1000000000",
+          "MAX_TRIGGER_DEPTH=1000",
+          "MAX_VARIABLE_NUMBER=32766",
+          "MAX_VDBE_OP=250000000",
+          "MAX_WORKER_THREADS=8",
+          "MUTEX_PTHREADS",
+          "SYSTEM_MALLOC",
+          "TEMP_STORE=1",
+          "THREADSAFE=1"
+        ],
+        "engineVersion": "3.51.0",
+        "foreignKeys": true,
+        "ignoredSettings": [],
+        "name": "authored-clock-v1",
+        "otherWriters": [],
+        "recursiveTriggers": false,
+        "sourceId": "2025-11-04 19:38:17 fb2c931ae597f8d00a37574ff67aeed3eced4e5547f9120744ae4bfa8e74527b",
+        "timezone": "UTC",
+        "transactionMode": "immediate",
+        "version": 1
+      },
+      {
+        "clock": "excluded",
+        "compileOptions": [
+          "ATOMIC_INTRINSICS=1",
+          "COMPILER=clang-21.1.8",
+          "DEFAULT_AUTOVACUUM",
+          "DEFAULT_CACHE_SIZE=-2000",
+          "DEFAULT_FILE_FORMAT=4",
+          "DEFAULT_JOURNAL_SIZE_LIMIT=-1",
+          "DEFAULT_MMAP_SIZE=0",
+          "DEFAULT_PAGE_SIZE=4096",
+          "DEFAULT_PCACHE_INITSZ=20",
+          "DEFAULT_RECURSIVE_TRIGGERS",
+          "DEFAULT_SECTOR_SIZE=4096",
+          "DEFAULT_SYNCHRONOUS=2",
+          "DEFAULT_WAL_AUTOCHECKPOINT=1000",
+          "DEFAULT_WAL_SYNCHRONOUS=2",
+          "DEFAULT_WORKER_THREADS=0",
+          "DIRECT_OVERFLOW_READ",
+          "ENABLE_MATH_FUNCTIONS",
+          "ENABLE_PERCENTILE",
+          "MALLOC_SOFT_LIMIT=1024",
+          "MAX_ATTACHED=10",
+          "MAX_COLUMN=2000",
+          "MAX_COMPOUND_SELECT=500",
+          "MAX_DEFAULT_PAGE_SIZE=8192",
+          "MAX_EXPR_DEPTH=1000",
+          "MAX_FUNCTION_ARG=1000",
+          "MAX_LENGTH=1000000000",
+          "MAX_LIKE_PATTERN_LENGTH=50000",
+          "MAX_MMAP_SIZE=0x7fff0000",
+          "MAX_PAGE_COUNT=0xfffffffe",
+          "MAX_PAGE_SIZE=65536",
+          "MAX_SQL_LENGTH=1000000000",
+          "MAX_TRIGGER_DEPTH=1000",
+          "MAX_VARIABLE_NUMBER=32766",
+          "MAX_VDBE_OP=250000000",
+          "MAX_WORKER_THREADS=8",
+          "MUTEX_PTHREADS",
+          "SYSTEM_MALLOC",
+          "TEMP_STORE=1",
+          "THREADSAFE=1"
+        ],
+        "engineVersion": "3.51.0",
+        "foreignKeys": false,
+        "ignoredSettings": [],
+        "name": "authored-immediate-v1",
+        "otherWriters": [],
+        "recursiveTriggers": false,
+        "sourceId": "2025-11-04 19:38:17 fb2c931ae597f8d00a37574ff67aeed3eced4e5547f9120744ae4bfa8e74527b",
+        "timezone": "UTC",
+        "transactionMode": "immediate",
+        "version": 1
+      },
+      {
+        "clock": "excluded",
+        "compileOptions": [
+          "ATOMIC_INTRINSICS=1",
+          "COMPILER=clang-21.1.8",
+          "DEFAULT_AUTOVACUUM",
+          "DEFAULT_CACHE_SIZE=-2000",
+          "DEFAULT_FILE_FORMAT=4",
+          "DEFAULT_JOURNAL_SIZE_LIMIT=-1",
+          "DEFAULT_MMAP_SIZE=0",
+          "DEFAULT_PAGE_SIZE=4096",
+          "DEFAULT_PCACHE_INITSZ=20",
+          "DEFAULT_RECURSIVE_TRIGGERS",
+          "DEFAULT_SECTOR_SIZE=4096",
+          "DEFAULT_SYNCHRONOUS=2",
+          "DEFAULT_WAL_AUTOCHECKPOINT=1000",
+          "DEFAULT_WAL_SYNCHRONOUS=2",
+          "DEFAULT_WORKER_THREADS=0",
+          "DIRECT_OVERFLOW_READ",
+          "ENABLE_MATH_FUNCTIONS",
+          "ENABLE_PERCENTILE",
+          "MALLOC_SOFT_LIMIT=1024",
+          "MAX_ATTACHED=10",
+          "MAX_COLUMN=2000",
+          "MAX_COMPOUND_SELECT=500",
+          "MAX_DEFAULT_PAGE_SIZE=8192",
+          "MAX_EXPR_DEPTH=1000",
+          "MAX_FUNCTION_ARG=1000",
+          "MAX_LENGTH=1000000000",
+          "MAX_LIKE_PATTERN_LENGTH=50000",
+          "MAX_MMAP_SIZE=0x7fff0000",
+          "MAX_PAGE_COUNT=0xfffffffe",
+          "MAX_PAGE_SIZE=65536",
+          "MAX_SQL_LENGTH=1000000000",
+          "MAX_TRIGGER_DEPTH=1000",
+          "MAX_VARIABLE_NUMBER=32766",
+          "MAX_VDBE_OP=250000000",
+          "MAX_WORKER_THREADS=8",
+          "MUTEX_PTHREADS",
+          "SYSTEM_MALLOC",
+          "TEMP_STORE=1",
+          "THREADSAFE=1"
+        ],
+        "engineVersion": "3.51.0",
+        "foreignKeys": false,
+        "ignoredSettings": [],
+        "name": "upstream-default-deferred",
+        "otherWriters": [],
+        "recursiveTriggers": false,
+        "sourceId": "2025-11-04 19:38:17 fb2c931ae597f8d00a37574ff67aeed3eced4e5547f9120744ae4bfa8e74527b",
+        "timezone": "UTC",
+        "transactionMode": "deferred",
+        "version": 1
+      },
+      {
+        "clock": "unix-milliseconds-v1",
+        "compileOptions": [
+          "ATOMIC_INTRINSICS=1",
+          "COMPILER=clang-21.1.8",
+          "DEFAULT_AUTOVACUUM",
+          "DEFAULT_CACHE_SIZE=-2000",
+          "DEFAULT_FILE_FORMAT=4",
+          "DEFAULT_JOURNAL_SIZE_LIMIT=-1",
+          "DEFAULT_MMAP_SIZE=0",
+          "DEFAULT_PAGE_SIZE=4096",
+          "DEFAULT_PCACHE_INITSZ=20",
+          "DEFAULT_RECURSIVE_TRIGGERS",
+          "DEFAULT_SECTOR_SIZE=4096",
+          "DEFAULT_SYNCHRONOUS=2",
+          "DEFAULT_WAL_AUTOCHECKPOINT=1000",
+          "DEFAULT_WAL_SYNCHRONOUS=2",
+          "DEFAULT_WORKER_THREADS=0",
+          "DIRECT_OVERFLOW_READ",
+          "ENABLE_MATH_FUNCTIONS",
+          "ENABLE_PERCENTILE",
+          "MALLOC_SOFT_LIMIT=1024",
+          "MAX_ATTACHED=10",
+          "MAX_COLUMN=2000",
+          "MAX_COMPOUND_SELECT=500",
+          "MAX_DEFAULT_PAGE_SIZE=8192",
+          "MAX_EXPR_DEPTH=1000",
+          "MAX_FUNCTION_ARG=1000",
+          "MAX_LENGTH=1000000000",
+          "MAX_LIKE_PATTERN_LENGTH=50000",
+          "MAX_MMAP_SIZE=0x7fff0000",
+          "MAX_PAGE_COUNT=0xfffffffe",
+          "MAX_PAGE_SIZE=65536",
+          "MAX_SQL_LENGTH=1000000000",
+          "MAX_TRIGGER_DEPTH=1000",
+          "MAX_VARIABLE_NUMBER=32766",
+          "MAX_VDBE_OP=250000000",
+          "MAX_WORKER_THREADS=8",
+          "MUTEX_PTHREADS",
+          "SYSTEM_MALLOC",
+          "TEMP_STORE=1",
+          "THREADSAFE=1"
+        ],
+        "engineVersion": "3.51.0",
+        "foreignKeys": false,
+        "ignoredSettings": [],
+        "name": "upstream-clock-deferred",
+        "otherWriters": [],
+        "recursiveTriggers": false,
+        "sourceId": "2025-11-04 19:38:17 fb2c931ae597f8d00a37574ff67aeed3eced4e5547f9120744ae4bfa8e74527b",
+        "timezone": "UTC",
+        "transactionMode": "deferred",
+        "version": 1
+      },
+      {
+        "clock": "excluded",
+        "compileOptions": [
+          "ATOMIC_INTRINSICS=1",
+          "COMPILER=clang-21.1.8",
+          "DEFAULT_AUTOVACUUM",
+          "DEFAULT_CACHE_SIZE=-2000",
+          "DEFAULT_FILE_FORMAT=4",
+          "DEFAULT_JOURNAL_SIZE_LIMIT=-1",
+          "DEFAULT_MMAP_SIZE=0",
+          "DEFAULT_PAGE_SIZE=4096",
+          "DEFAULT_PCACHE_INITSZ=20",
+          "DEFAULT_RECURSIVE_TRIGGERS",
+          "DEFAULT_SECTOR_SIZE=4096",
+          "DEFAULT_SYNCHRONOUS=2",
+          "DEFAULT_WAL_AUTOCHECKPOINT=1000",
+          "DEFAULT_WAL_SYNCHRONOUS=2",
+          "DEFAULT_WORKER_THREADS=0",
+          "DIRECT_OVERFLOW_READ",
+          "ENABLE_MATH_FUNCTIONS",
+          "ENABLE_PERCENTILE",
+          "MALLOC_SOFT_LIMIT=1024",
+          "MAX_ATTACHED=10",
+          "MAX_COLUMN=2000",
+          "MAX_COMPOUND_SELECT=500",
+          "MAX_DEFAULT_PAGE_SIZE=8192",
+          "MAX_EXPR_DEPTH=1000",
+          "MAX_FUNCTION_ARG=1000",
+          "MAX_LENGTH=1000000000",
+          "MAX_LIKE_PATTERN_LENGTH=50000",
+          "MAX_MMAP_SIZE=0x7fff0000",
+          "MAX_PAGE_COUNT=0xfffffffe",
+          "MAX_PAGE_SIZE=65536",
+          "MAX_SQL_LENGTH=1000000000",
+          "MAX_TRIGGER_DEPTH=1000",
+          "MAX_VARIABLE_NUMBER=32766",
+          "MAX_VDBE_OP=250000000",
+          "MAX_WORKER_THREADS=8",
+          "MUTEX_PTHREADS",
+          "SYSTEM_MALLOC",
+          "TEMP_STORE=1",
+          "THREADSAFE=1"
+        ],
+        "engineVersion": "3.51.0",
+        "foreignKeys": true,
+        "ignoredSettings": [],
+        "name": "upstream-fkey-deferred",
+        "otherWriters": [],
+        "recursiveTriggers": false,
+        "sourceId": "2025-11-04 19:38:17 fb2c931ae597f8d00a37574ff67aeed3eced4e5547f9120744ae4bfa8e74527b",
+        "timezone": "UTC",
+        "transactionMode": "deferred",
+        "version": 1
+      }
+    ],
+    "denominator": 4376,
+    "selectedDenominator": 182,
+    "selectedNames": [
+      "aggregates-empty-single-null-groups",
+      "cast-real-numeric-prefix-arithmetic",
+      "check-abort",
+      "clock-format-default-trigger",
+      "deferred-foreign-key-commit-failure",
+      "deferred-foreign-key-repaired-commit",
+      "foreign-key-failure",
+      "join-coalesce-cast-real",
+      "json-values-empty",
+      "not-null-failure",
+      "numeric-ties-windows",
+      "ordered-distinct-nocase",
+      "schema-defaults-add",
+      "text-primary-key-failure",
+      "transaction-trigger-cascade-counts",
+      "typed-values-edges",
+      "upsert-returning",
+      "add-default-storage-classes",
+      "add-not-null-empty",
+      "add-not-null-empty-insert",
+      "add-not-null-null-empty",
+      "add-not-null-null-populated",
+      "add-not-null-populated",
+      "add-rejected-current-timestamp",
+      "add-rejected-expression",
+      "add-rejected-primary-key",
+      "add-rejected-references",
+      "add-rejected-stored",
+      "add-rejected-unique",
+      "validity-duplicate-column",
+      "validity-empty-column-name",
+      "validity-identifier-case",
+      "validity-integer-primary-key-sequence",
+      "validity-missing-key-column",
+      "validity-no-columns",
+      "validity-repeated-index-column",
+      "validity-repeated-primary-key",
+      "validity-repeated-unique-key",
+      "validity-reserved-name",
+      "validity-rowid-shadow",
+      "add-null-populated",
+      "begin-default-deferred",
+      "begin-immediate",
+      "blob-affinity",
+      "charint-priority",
+      "commit-end-alias",
+      "create-ordinary-index",
+      "create-unique-duplicate",
+      "drop-index",
+      "explicit-rollback",
+      "floating-point-affinity",
+      "implicit-write-commit",
+      "index-collation",
+      "index-descending",
+      "index-duplicate",
+      "index-if-not-exists",
+      "index-null",
+      "index-subquery",
+      "integer-numeric-equivalence",
+      "nested-begin",
+      "numeric-exponent",
+      "numeric-real-to-integer",
+      "numeric-text-integer",
+      "real-integer-conversion",
+      "savepoint-rollback",
+      "string-is-numeric",
+      "text-numeric-conversion",
+      "untyped-storage",
+      "varchar-affinity",
+      "fkey2:fkey2-1.1.4.11.5:173",
+      "fkey2:fkey2-1.1.2.2.6:97",
+      "json104:json104-221:8",
+      "trigger4:trigger4-2.4:7",
+      "json101:json101-10.52:134",
+      "func7:func7-pg-230:19",
+      "altertab:altertab-27.2:94",
+      "func2:func2-1.30.1:40",
+      "func2:func2-1.37:57",
+      "fkey2:fkey2-1.1.4.4.1:127",
+      "select5:select5-3.1:10",
+      "aggnested:aggnested-1.1:0",
+      "json101:json101-10.73:155",
+      "indexexpr2:indexexpr2-3.1.1:6",
+      "insert3:insert3-1.4.2:5",
+      "json101:json101-18.1:211",
+      "aggnested:aggnested-7.0:32",
+      "selectA:selectA-2.69:73",
+      "select3:select3-8.1:38",
+      "json102:json102-620:164",
+      "json101:json101-21.7:228",
+      "indexexpr2:indexexpr2-8.0:44",
+      "json501:json501-8.8:45",
+      "indexA:indexA-2.1.2.9:41",
+      "e_select:e_select-0.2.0112.1:55",
+      "aggorderby:aggorderby-8.1:21",
+      "e_insert:e_insert-0.77:77",
+      "altercol:altercol-1.14.1:66",
+      "triggerE:triggerE-1.2.2:4",
+      "expr:expr-1.11:10",
+      "fkey5:fkey5-1.5:6",
+      "minmax:minmax-12.5:73",
+      "date2:date2-130:3",
+      "upsert4:upsert4-2.1.2.7:34",
+      "select1:select1-1.2:1",
+      "minmax4:minmax4-3.3.3:36",
+      "json105:json105-1.110:9",
+      "selectC:selectC-1.12.1:11",
+      "index:index-5.2:28",
+      "alterdropcol:alterdropcol-4.5.2:65",
+      "indexexpr1:indexexpr1-2260:103",
+      "index3:index3-2.4:8",
+      "trigger3:trigger3-1.3:3",
+      "upsert5:upsert5-1.2.505:75",
+      "select4:select4-2.2:12",
+      "check:check-11.5:83",
+      "upsert2:upsert2-201:3",
+      "alterdropcol2:alterdropcol2-2.8.2:16",
+      "json502:json502-5.1:9",
+      "altertab3:altertab3-14.1:41",
+      "delete:delete-1.1:0",
+      "cast:cast-9.11:121",
+      "distinctagg:4.6.1:39",
+      "func3:func3-5.31:22",
+      "trigger2:trigger2-2.4-before:37",
+      "func9:func9-120:2",
+      "update:update-21.3:136",
+      "fkey3:fkey3-3.1.1:6",
+      "insert:insert-3.5:25",
+      "altertab2:altertab2-3.3.3:14",
+      "insert5:insert5-2.5:6",
+      "altertrig:altertrig-2.8.2:33",
+      "upsert1:upsert1-1100:31",
+      "trans:trans-1.0.1:1",
+      "e_changes:6.3:67",
+      "countofview:countofview-1.3:3",
+      "returning1:returning1-8.3:36",
+      "transitive1:transitive1-332:14",
+      "indexexpr3:indexexpr3-1.0:0",
+      "trigger7:trigger7-2.3:4",
+      "selectH:selectH-1.1:0",
+      "alter:alter-21.3:117",
+      "fkey8:fkey8-2.1.0:14",
+      "insert2:insert2-1.0:0",
+      "alter3:alter3-9.2:48",
+      "triggerupfrom:triggerupfrom-1.0:0",
+      "e_totalchanges:1.1.4:4",
+      "trigger1:trigger1-1.6.2:11",
+      "index6:index6-15.5:63",
+      "json103:json103-300:9",
+      "e_expr:e_expr-1.cat.mul.6:22",
+      "func:func-35.110:15013",
+      "expr2:expr2-1.4.1:5",
+      "triggerD:triggerD-1.2:1",
+      "fkey7:fkey7-1.1:0",
+      "e_fkey:e_fkey-1:0",
+      "trigger9:trigger9-4.3:27",
+      "upsert3:upsert3-210:6",
+      "delete2:delete2-1.3:2",
+      "e_reindex:e_reindex-0.1.5:5",
+      "count:count-1.2.2:7",
+      "e_delete:e_delete-0.1.10:10",
+      "delete4:delete4-4.12:15",
+      "trigger8:trigger8-1.1:0",
+      "selectE:selectE-1.3:3",
+      "fkey6:fkey6-5.0:36",
+      "select8:select8-1.2:1",
+      "fkey1:fkey1-3.3:6",
+      "jsonb01:jsonb01-1.1:0",
+      "selectB:selectB-1.1:0",
+      "index2:index2-1.2:1",
+      "index9:index9-1.0:0",
+      "select6:select6-13.100:84",
+      "index8:1.1:2",
+      "select9:select9-1.1.1:1",
+      "trans3:trans3-1.1:0",
+      "index7:index7-8.1:43",
+      "indexedby:indexedby-1.3:2",
+      "trigger5:trigger5-1.1:0",
+      "selectF:selectF-1:0",
+      "triggerC:triggerC-14.1:108",
+      "fkey4:fkey4-1.4:5",
+      "func8:func8-100:0"
+    ],
+    "selectedIdentities": [
+      {
+        "name": "aggregates-empty-single-null-groups",
+        "part": "boundary-interaction",
+        "upstreamSource": null
+      },
+      {
+        "name": "cast-real-numeric-prefix-arithmetic",
+        "part": "boundary-interaction",
+        "upstreamSource": null
+      },
+      {
+        "name": "check-abort",
+        "part": "boundary-interaction",
+        "upstreamSource": null
+      },
+      {
+        "name": "clock-format-default-trigger",
+        "part": "boundary-interaction",
+        "upstreamSource": null
+      },
+      {
+        "name": "deferred-foreign-key-commit-failure",
+        "part": "boundary-interaction",
+        "upstreamSource": null
+      },
+      {
+        "name": "deferred-foreign-key-repaired-commit",
+        "part": "boundary-interaction",
+        "upstreamSource": null
+      },
+      {
+        "name": "foreign-key-failure",
+        "part": "boundary-interaction",
+        "upstreamSource": null
+      },
+      {
+        "name": "join-coalesce-cast-real",
+        "part": "boundary-interaction",
+        "upstreamSource": null
+      },
+      {
+        "name": "json-values-empty",
+        "part": "boundary-interaction",
+        "upstreamSource": null
+      },
+      {
+        "name": "not-null-failure",
+        "part": "boundary-interaction",
+        "upstreamSource": null
+      },
+      {
+        "name": "numeric-ties-windows",
+        "part": "boundary-interaction",
+        "upstreamSource": null
+      },
+      {
+        "name": "ordered-distinct-nocase",
+        "part": "boundary-interaction",
+        "upstreamSource": null
+      },
+      {
+        "name": "schema-defaults-add",
+        "part": "boundary-interaction",
+        "upstreamSource": null
+      },
+      {
+        "name": "text-primary-key-failure",
+        "part": "boundary-interaction",
+        "upstreamSource": null
+      },
+      {
+        "name": "transaction-trigger-cascade-counts",
+        "part": "boundary-interaction",
+        "upstreamSource": null
+      },
+      {
+        "name": "typed-values-edges",
+        "part": "boundary-interaction",
+        "upstreamSource": null
+      },
+      {
+        "name": "upsert-returning",
+        "part": "boundary-interaction",
+        "upstreamSource": null
+      },
+      {
+        "name": "add-default-storage-classes",
+        "part": "issue-boundary",
+        "upstreamSource": null
+      },
+      {
+        "name": "add-not-null-empty",
+        "part": "issue-boundary",
+        "upstreamSource": null
+      },
+      {
+        "name": "add-not-null-empty-insert",
+        "part": "issue-boundary",
+        "upstreamSource": null
+      },
+      {
+        "name": "add-not-null-null-empty",
+        "part": "issue-boundary",
+        "upstreamSource": null
+      },
+      {
+        "name": "add-not-null-null-populated",
+        "part": "issue-boundary",
+        "upstreamSource": null
+      },
+      {
+        "name": "add-not-null-populated",
+        "part": "issue-boundary",
+        "upstreamSource": null
+      },
+      {
+        "name": "add-rejected-current-timestamp",
+        "part": "issue-boundary",
+        "upstreamSource": null
+      },
+      {
+        "name": "add-rejected-expression",
+        "part": "issue-boundary",
+        "upstreamSource": null
+      },
+      {
+        "name": "add-rejected-primary-key",
+        "part": "issue-boundary",
+        "upstreamSource": null
+      },
+      {
+        "name": "add-rejected-references",
+        "part": "issue-boundary",
+        "upstreamSource": null
+      },
+      {
+        "name": "add-rejected-stored",
+        "part": "issue-boundary",
+        "upstreamSource": null
+      },
+      {
+        "name": "add-rejected-unique",
+        "part": "issue-boundary",
+        "upstreamSource": null
+      },
+      {
+        "name": "validity-duplicate-column",
+        "part": "issue-boundary",
+        "upstreamSource": null
+      },
+      {
+        "name": "validity-empty-column-name",
+        "part": "issue-boundary",
+        "upstreamSource": null
+      },
+      {
+        "name": "validity-identifier-case",
+        "part": "issue-boundary",
+        "upstreamSource": null
+      },
+      {
+        "name": "validity-integer-primary-key-sequence",
+        "part": "issue-boundary",
+        "upstreamSource": null
+      },
+      {
+        "name": "validity-missing-key-column",
+        "part": "issue-boundary",
+        "upstreamSource": null
+      },
+      {
+        "name": "validity-no-columns",
+        "part": "issue-boundary",
+        "upstreamSource": null
+      },
+      {
+        "name": "validity-repeated-index-column",
+        "part": "issue-boundary",
+        "upstreamSource": null
+      },
+      {
+        "name": "validity-repeated-primary-key",
+        "part": "issue-boundary",
+        "upstreamSource": null
+      },
+      {
+        "name": "validity-repeated-unique-key",
+        "part": "issue-boundary",
+        "upstreamSource": null
+      },
+      {
+        "name": "validity-reserved-name",
+        "part": "issue-boundary",
+        "upstreamSource": null
+      },
+      {
+        "name": "validity-rowid-shadow",
+        "part": "issue-boundary",
+        "upstreamSource": null
+      },
+      {
+        "name": "add-null-populated",
+        "part": "requirement",
+        "upstreamSource": null
+      },
+      {
+        "name": "begin-default-deferred",
+        "part": "requirement",
+        "upstreamSource": null
+      },
+      {
+        "name": "begin-immediate",
+        "part": "requirement",
+        "upstreamSource": null
+      },
+      {
+        "name": "blob-affinity",
+        "part": "requirement",
+        "upstreamSource": null
+      },
+      {
+        "name": "charint-priority",
+        "part": "requirement",
+        "upstreamSource": null
+      },
+      {
+        "name": "commit-end-alias",
+        "part": "requirement",
+        "upstreamSource": null
+      },
+      {
+        "name": "create-ordinary-index",
+        "part": "requirement",
+        "upstreamSource": null
+      },
+      {
+        "name": "create-unique-duplicate",
+        "part": "requirement",
+        "upstreamSource": null
+      },
+      {
+        "name": "drop-index",
+        "part": "requirement",
+        "upstreamSource": null
+      },
+      {
+        "name": "explicit-rollback",
+        "part": "requirement",
+        "upstreamSource": null
+      },
+      {
+        "name": "floating-point-affinity",
+        "part": "requirement",
+        "upstreamSource": null
+      },
+      {
+        "name": "implicit-write-commit",
+        "part": "requirement",
+        "upstreamSource": null
+      },
+      {
+        "name": "index-collation",
+        "part": "requirement",
+        "upstreamSource": null
+      },
+      {
+        "name": "index-descending",
+        "part": "requirement",
+        "upstreamSource": null
+      },
+      {
+        "name": "index-duplicate",
+        "part": "requirement",
+        "upstreamSource": null
+      },
+      {
+        "name": "index-if-not-exists",
+        "part": "requirement",
+        "upstreamSource": null
+      },
+      {
+        "name": "index-null",
+        "part": "requirement",
+        "upstreamSource": null
+      },
+      {
+        "name": "index-subquery",
+        "part": "requirement",
+        "upstreamSource": null
+      },
+      {
+        "name": "integer-numeric-equivalence",
+        "part": "requirement",
+        "upstreamSource": null
+      },
+      {
+        "name": "nested-begin",
+        "part": "requirement",
+        "upstreamSource": null
+      },
+      {
+        "name": "numeric-exponent",
+        "part": "requirement",
+        "upstreamSource": null
+      },
+      {
+        "name": "numeric-real-to-integer",
+        "part": "requirement",
+        "upstreamSource": null
+      },
+      {
+        "name": "numeric-text-integer",
+        "part": "requirement",
+        "upstreamSource": null
+      },
+      {
+        "name": "real-integer-conversion",
+        "part": "requirement",
+        "upstreamSource": null
+      },
+      {
+        "name": "savepoint-rollback",
+        "part": "requirement",
+        "upstreamSource": null
+      },
+      {
+        "name": "string-is-numeric",
+        "part": "requirement",
+        "upstreamSource": null
+      },
+      {
+        "name": "text-numeric-conversion",
+        "part": "requirement",
+        "upstreamSource": null
+      },
+      {
+        "name": "untyped-storage",
+        "part": "requirement",
+        "upstreamSource": null
+      },
+      {
+        "name": "varchar-affinity",
+        "part": "requirement",
+        "upstreamSource": null
+      },
+      {
+        "name": "fkey2:fkey2-1.1.4.11.5:173",
+        "part": "upstream",
+        "upstreamSource": "fkey2.test"
+      },
+      {
+        "name": "fkey2:fkey2-1.1.2.2.6:97",
+        "part": "upstream",
+        "upstreamSource": "fkey2.test"
+      },
+      {
+        "name": "json104:json104-221:8",
+        "part": "upstream",
+        "upstreamSource": "json104.test"
+      },
+      {
+        "name": "trigger4:trigger4-2.4:7",
+        "part": "upstream",
+        "upstreamSource": "trigger4.test"
+      },
+      {
+        "name": "json101:json101-10.52:134",
+        "part": "upstream",
+        "upstreamSource": "json101.test"
+      },
+      {
+        "name": "func7:func7-pg-230:19",
+        "part": "upstream",
+        "upstreamSource": "func7.test"
+      },
+      {
+        "name": "altertab:altertab-27.2:94",
+        "part": "upstream",
+        "upstreamSource": "altertab.test"
+      },
+      {
+        "name": "func2:func2-1.30.1:40",
+        "part": "upstream",
+        "upstreamSource": "func2.test"
+      },
+      {
+        "name": "func2:func2-1.37:57",
+        "part": "upstream",
+        "upstreamSource": "func2.test"
+      },
+      {
+        "name": "fkey2:fkey2-1.1.4.4.1:127",
+        "part": "upstream",
+        "upstreamSource": "fkey2.test"
+      },
+      {
+        "name": "select5:select5-3.1:10",
+        "part": "upstream",
+        "upstreamSource": "select5.test"
+      },
+      {
+        "name": "aggnested:aggnested-1.1:0",
+        "part": "upstream",
+        "upstreamSource": "aggnested.test"
+      },
+      {
+        "name": "json101:json101-10.73:155",
+        "part": "upstream",
+        "upstreamSource": "json101.test"
+      },
+      {
+        "name": "indexexpr2:indexexpr2-3.1.1:6",
+        "part": "upstream",
+        "upstreamSource": "indexexpr2.test"
+      },
+      {
+        "name": "insert3:insert3-1.4.2:5",
+        "part": "upstream",
+        "upstreamSource": "insert3.test"
+      },
+      {
+        "name": "json101:json101-18.1:211",
+        "part": "upstream",
+        "upstreamSource": "json101.test"
+      },
+      {
+        "name": "aggnested:aggnested-7.0:32",
+        "part": "upstream",
+        "upstreamSource": "aggnested.test"
+      },
+      {
+        "name": "selectA:selectA-2.69:73",
+        "part": "upstream",
+        "upstreamSource": "selectA.test"
+      },
+      {
+        "name": "select3:select3-8.1:38",
+        "part": "upstream",
+        "upstreamSource": "select3.test"
+      },
+      {
+        "name": "json102:json102-620:164",
+        "part": "upstream",
+        "upstreamSource": "json102.test"
+      },
+      {
+        "name": "json101:json101-21.7:228",
+        "part": "upstream",
+        "upstreamSource": "json101.test"
+      },
+      {
+        "name": "indexexpr2:indexexpr2-8.0:44",
+        "part": "upstream",
+        "upstreamSource": "indexexpr2.test"
+      },
+      {
+        "name": "json501:json501-8.8:45",
+        "part": "upstream",
+        "upstreamSource": "json501.test"
+      },
+      {
+        "name": "indexA:indexA-2.1.2.9:41",
+        "part": "upstream",
+        "upstreamSource": "indexA.test"
+      },
+      {
+        "name": "e_select:e_select-0.2.0112.1:55",
+        "part": "upstream",
+        "upstreamSource": "e_select.test"
+      },
+      {
+        "name": "aggorderby:aggorderby-8.1:21",
+        "part": "upstream",
+        "upstreamSource": "aggorderby.test"
+      },
+      {
+        "name": "e_insert:e_insert-0.77:77",
+        "part": "upstream",
+        "upstreamSource": "e_insert.test"
+      },
+      {
+        "name": "altercol:altercol-1.14.1:66",
+        "part": "upstream",
+        "upstreamSource": "altercol.test"
+      },
+      {
+        "name": "triggerE:triggerE-1.2.2:4",
+        "part": "upstream",
+        "upstreamSource": "triggerE.test"
+      },
+      {
+        "name": "expr:expr-1.11:10",
+        "part": "upstream",
+        "upstreamSource": "expr.test"
+      },
+      {
+        "name": "fkey5:fkey5-1.5:6",
+        "part": "upstream",
+        "upstreamSource": "fkey5.test"
+      },
+      {
+        "name": "minmax:minmax-12.5:73",
+        "part": "upstream",
+        "upstreamSource": "minmax.test"
+      },
+      {
+        "name": "date2:date2-130:3",
+        "part": "upstream",
+        "upstreamSource": "date2.test"
+      },
+      {
+        "name": "upsert4:upsert4-2.1.2.7:34",
+        "part": "upstream",
+        "upstreamSource": "upsert4.test"
+      },
+      {
+        "name": "select1:select1-1.2:1",
+        "part": "upstream",
+        "upstreamSource": "select1.test"
+      },
+      {
+        "name": "minmax4:minmax4-3.3.3:36",
+        "part": "upstream",
+        "upstreamSource": "minmax4.test"
+      },
+      {
+        "name": "json105:json105-1.110:9",
+        "part": "upstream",
+        "upstreamSource": "json105.test"
+      },
+      {
+        "name": "selectC:selectC-1.12.1:11",
+        "part": "upstream",
+        "upstreamSource": "selectC.test"
+      },
+      {
+        "name": "index:index-5.2:28",
+        "part": "upstream",
+        "upstreamSource": "index.test"
+      },
+      {
+        "name": "alterdropcol:alterdropcol-4.5.2:65",
+        "part": "upstream",
+        "upstreamSource": "alterdropcol.test"
+      },
+      {
+        "name": "indexexpr1:indexexpr1-2260:103",
+        "part": "upstream",
+        "upstreamSource": "indexexpr1.test"
+      },
+      {
+        "name": "index3:index3-2.4:8",
+        "part": "upstream",
+        "upstreamSource": "index3.test"
+      },
+      {
+        "name": "trigger3:trigger3-1.3:3",
+        "part": "upstream",
+        "upstreamSource": "trigger3.test"
+      },
+      {
+        "name": "upsert5:upsert5-1.2.505:75",
+        "part": "upstream",
+        "upstreamSource": "upsert5.test"
+      },
+      {
+        "name": "select4:select4-2.2:12",
+        "part": "upstream",
+        "upstreamSource": "select4.test"
+      },
+      {
+        "name": "check:check-11.5:83",
+        "part": "upstream",
+        "upstreamSource": "check.test"
+      },
+      {
+        "name": "upsert2:upsert2-201:3",
+        "part": "upstream",
+        "upstreamSource": "upsert2.test"
+      },
+      {
+        "name": "alterdropcol2:alterdropcol2-2.8.2:16",
+        "part": "upstream",
+        "upstreamSource": "alterdropcol2.test"
+      },
+      {
+        "name": "json502:json502-5.1:9",
+        "part": "upstream",
+        "upstreamSource": "json502.test"
+      },
+      {
+        "name": "altertab3:altertab3-14.1:41",
+        "part": "upstream",
+        "upstreamSource": "altertab3.test"
+      },
+      {
+        "name": "delete:delete-1.1:0",
+        "part": "upstream",
+        "upstreamSource": "delete.test"
+      },
+      {
+        "name": "cast:cast-9.11:121",
+        "part": "upstream",
+        "upstreamSource": "cast.test"
+      },
+      {
+        "name": "distinctagg:4.6.1:39",
+        "part": "upstream",
+        "upstreamSource": "distinctagg.test"
+      },
+      {
+        "name": "func3:func3-5.31:22",
+        "part": "upstream",
+        "upstreamSource": "func3.test"
+      },
+      {
+        "name": "trigger2:trigger2-2.4-before:37",
+        "part": "upstream",
+        "upstreamSource": "trigger2.test"
+      },
+      {
+        "name": "func9:func9-120:2",
+        "part": "upstream",
+        "upstreamSource": "func9.test"
+      },
+      {
+        "name": "update:update-21.3:136",
+        "part": "upstream",
+        "upstreamSource": "update.test"
+      },
+      {
+        "name": "fkey3:fkey3-3.1.1:6",
+        "part": "upstream",
+        "upstreamSource": "fkey3.test"
+      },
+      {
+        "name": "insert:insert-3.5:25",
+        "part": "upstream",
+        "upstreamSource": "insert.test"
+      },
+      {
+        "name": "altertab2:altertab2-3.3.3:14",
+        "part": "upstream",
+        "upstreamSource": "altertab2.test"
+      },
+      {
+        "name": "insert5:insert5-2.5:6",
+        "part": "upstream",
+        "upstreamSource": "insert5.test"
+      },
+      {
+        "name": "altertrig:altertrig-2.8.2:33",
+        "part": "upstream",
+        "upstreamSource": "altertrig.test"
+      },
+      {
+        "name": "upsert1:upsert1-1100:31",
+        "part": "upstream",
+        "upstreamSource": "upsert1.test"
+      },
+      {
+        "name": "trans:trans-1.0.1:1",
+        "part": "upstream",
+        "upstreamSource": "trans.test"
+      },
+      {
+        "name": "e_changes:6.3:67",
+        "part": "upstream",
+        "upstreamSource": "e_changes.test"
+      },
+      {
+        "name": "countofview:countofview-1.3:3",
+        "part": "upstream",
+        "upstreamSource": "countofview.test"
+      },
+      {
+        "name": "returning1:returning1-8.3:36",
+        "part": "upstream",
+        "upstreamSource": "returning1.test"
+      },
+      {
+        "name": "transitive1:transitive1-332:14",
+        "part": "upstream",
+        "upstreamSource": "transitive1.test"
+      },
+      {
+        "name": "indexexpr3:indexexpr3-1.0:0",
+        "part": "upstream",
+        "upstreamSource": "indexexpr3.test"
+      },
+      {
+        "name": "trigger7:trigger7-2.3:4",
+        "part": "upstream",
+        "upstreamSource": "trigger7.test"
+      },
+      {
+        "name": "selectH:selectH-1.1:0",
+        "part": "upstream",
+        "upstreamSource": "selectH.test"
+      },
+      {
+        "name": "alter:alter-21.3:117",
+        "part": "upstream",
+        "upstreamSource": "alter.test"
+      },
+      {
+        "name": "fkey8:fkey8-2.1.0:14",
+        "part": "upstream",
+        "upstreamSource": "fkey8.test"
+      },
+      {
+        "name": "insert2:insert2-1.0:0",
+        "part": "upstream",
+        "upstreamSource": "insert2.test"
+      },
+      {
+        "name": "alter3:alter3-9.2:48",
+        "part": "upstream",
+        "upstreamSource": "alter3.test"
+      },
+      {
+        "name": "triggerupfrom:triggerupfrom-1.0:0",
+        "part": "upstream",
+        "upstreamSource": "triggerupfrom.test"
+      },
+      {
+        "name": "e_totalchanges:1.1.4:4",
+        "part": "upstream",
+        "upstreamSource": "e_totalchanges.test"
+      },
+      {
+        "name": "trigger1:trigger1-1.6.2:11",
+        "part": "upstream",
+        "upstreamSource": "trigger1.test"
+      },
+      {
+        "name": "index6:index6-15.5:63",
+        "part": "upstream",
+        "upstreamSource": "index6.test"
+      },
+      {
+        "name": "json103:json103-300:9",
+        "part": "upstream",
+        "upstreamSource": "json103.test"
+      },
+      {
+        "name": "e_expr:e_expr-1.cat.mul.6:22",
+        "part": "upstream",
+        "upstreamSource": "e_expr.test"
+      },
+      {
+        "name": "func:func-35.110:15013",
+        "part": "upstream",
+        "upstreamSource": "func.test"
+      },
+      {
+        "name": "expr2:expr2-1.4.1:5",
+        "part": "upstream",
+        "upstreamSource": "expr2.test"
+      },
+      {
+        "name": "triggerD:triggerD-1.2:1",
+        "part": "upstream",
+        "upstreamSource": "triggerD.test"
+      },
+      {
+        "name": "fkey7:fkey7-1.1:0",
+        "part": "upstream",
+        "upstreamSource": "fkey7.test"
+      },
+      {
+        "name": "e_fkey:e_fkey-1:0",
+        "part": "upstream",
+        "upstreamSource": "e_fkey.test"
+      },
+      {
+        "name": "trigger9:trigger9-4.3:27",
+        "part": "upstream",
+        "upstreamSource": "trigger9.test"
+      },
+      {
+        "name": "upsert3:upsert3-210:6",
+        "part": "upstream",
+        "upstreamSource": "upsert3.test"
+      },
+      {
+        "name": "delete2:delete2-1.3:2",
+        "part": "upstream",
+        "upstreamSource": "delete2.test"
+      },
+      {
+        "name": "e_reindex:e_reindex-0.1.5:5",
+        "part": "upstream",
+        "upstreamSource": "e_reindex.test"
+      },
+      {
+        "name": "count:count-1.2.2:7",
+        "part": "upstream",
+        "upstreamSource": "count.test"
+      },
+      {
+        "name": "e_delete:e_delete-0.1.10:10",
+        "part": "upstream",
+        "upstreamSource": "e_delete.test"
+      },
+      {
+        "name": "delete4:delete4-4.12:15",
+        "part": "upstream",
+        "upstreamSource": "delete4.test"
+      },
+      {
+        "name": "trigger8:trigger8-1.1:0",
+        "part": "upstream",
+        "upstreamSource": "trigger8.test"
+      },
+      {
+        "name": "selectE:selectE-1.3:3",
+        "part": "upstream",
+        "upstreamSource": "selectE.test"
+      },
+      {
+        "name": "fkey6:fkey6-5.0:36",
+        "part": "upstream",
+        "upstreamSource": "fkey6.test"
+      },
+      {
+        "name": "select8:select8-1.2:1",
+        "part": "upstream",
+        "upstreamSource": "select8.test"
+      },
+      {
+        "name": "fkey1:fkey1-3.3:6",
+        "part": "upstream",
+        "upstreamSource": "fkey1.test"
+      },
+      {
+        "name": "jsonb01:jsonb01-1.1:0",
+        "part": "upstream",
+        "upstreamSource": "jsonb01.test"
+      },
+      {
+        "name": "selectB:selectB-1.1:0",
+        "part": "upstream",
+        "upstreamSource": "selectB.test"
+      },
+      {
+        "name": "index2:index2-1.2:1",
+        "part": "upstream",
+        "upstreamSource": "index2.test"
+      },
+      {
+        "name": "index9:index9-1.0:0",
+        "part": "upstream",
+        "upstreamSource": "index9.test"
+      },
+      {
+        "name": "select6:select6-13.100:84",
+        "part": "upstream",
+        "upstreamSource": "select6.test"
+      },
+      {
+        "name": "index8:1.1:2",
+        "part": "upstream",
+        "upstreamSource": "index8.test"
+      },
+      {
+        "name": "select9:select9-1.1.1:1",
+        "part": "upstream",
+        "upstreamSource": "select9.test"
+      },
+      {
+        "name": "trans3:trans3-1.1:0",
+        "part": "upstream",
+        "upstreamSource": "trans3.test"
+      },
+      {
+        "name": "index7:index7-8.1:43",
+        "part": "upstream",
+        "upstreamSource": "index7.test"
+      },
+      {
+        "name": "indexedby:indexedby-1.3:2",
+        "part": "upstream",
+        "upstreamSource": "indexedby.test"
+      },
+      {
+        "name": "trigger5:trigger5-1.1:0",
+        "part": "upstream",
+        "upstreamSource": "trigger5.test"
+      },
+      {
+        "name": "selectF:selectF-1:0",
+        "part": "upstream",
+        "upstreamSource": "selectF.test"
+      },
+      {
+        "name": "triggerC:triggerC-14.1:108",
+        "part": "upstream",
+        "upstreamSource": "triggerC.test"
+      },
+      {
+        "name": "fkey4:fkey4-1.4:5",
+        "part": "upstream",
+        "upstreamSource": "fkey4.test"
+      },
+      {
+        "name": "func8:func8-100:0",
+        "part": "upstream",
+        "upstreamSource": "func8.test"
+      }
+    ],
+    "selectedIdentitiesSha256": "d30e20c2437673c0cf14df9bab1bbd2f716c1696547a386c5aefec7d04574e17",
+    "nativeReplayPassed": true,
+    "queryDiagnostics": {
+      "PREFIX_MODEL_UNSUPPORTED": 75,
+      "OTHER_UNSUPPORTED": 107
+    },
+    "counts": {
+      "MODEL_UNSUPPORTED": 182
+    },
+    "byArea": {
+      "aggnested.test": {
+        "MODEL_UNSUPPORTED": 2
+      },
+      "aggorderby.test": {
+        "MODEL_UNSUPPORTED": 1
+      },
+      "alter.test": {
+        "MODEL_UNSUPPORTED": 1
+      },
+      "alter3.test": {
+        "MODEL_UNSUPPORTED": 1
+      },
+      "altercol.test": {
+        "MODEL_UNSUPPORTED": 1
+      },
+      "alterdropcol.test": {
+        "MODEL_UNSUPPORTED": 1
+      },
+      "alterdropcol2.test": {
+        "MODEL_UNSUPPORTED": 1
+      },
+      "altertab.test": {
+        "MODEL_UNSUPPORTED": 1
+      },
+      "altertab2.test": {
+        "MODEL_UNSUPPORTED": 1
+      },
+      "altertab3.test": {
+        "MODEL_UNSUPPORTED": 1
+      },
+      "altertrig.test": {
+        "MODEL_UNSUPPORTED": 1
+      },
+      "authored": {
+        "MODEL_UNSUPPORTED": 69
+      },
+      "cast.test": {
+        "MODEL_UNSUPPORTED": 1
+      },
+      "check.test": {
+        "MODEL_UNSUPPORTED": 1
+      },
+      "count.test": {
+        "MODEL_UNSUPPORTED": 1
+      },
+      "countofview.test": {
+        "MODEL_UNSUPPORTED": 1
+      },
+      "date2.test": {
+        "MODEL_UNSUPPORTED": 1
+      },
+      "delete.test": {
+        "MODEL_UNSUPPORTED": 1
+      },
+      "delete2.test": {
+        "MODEL_UNSUPPORTED": 1
+      },
+      "delete4.test": {
+        "MODEL_UNSUPPORTED": 1
+      },
+      "distinctagg.test": {
+        "MODEL_UNSUPPORTED": 1
+      },
+      "e_changes.test": {
+        "MODEL_UNSUPPORTED": 1
+      },
+      "e_delete.test": {
+        "MODEL_UNSUPPORTED": 1
+      },
+      "e_expr.test": {
+        "MODEL_UNSUPPORTED": 1
+      },
+      "e_fkey.test": {
+        "MODEL_UNSUPPORTED": 1
+      },
+      "e_insert.test": {
+        "MODEL_UNSUPPORTED": 1
+      },
+      "e_reindex.test": {
+        "MODEL_UNSUPPORTED": 1
+      },
+      "e_select.test": {
+        "MODEL_UNSUPPORTED": 1
+      },
+      "e_totalchanges.test": {
+        "MODEL_UNSUPPORTED": 1
+      },
+      "expr.test": {
+        "MODEL_UNSUPPORTED": 1
+      },
+      "expr2.test": {
+        "MODEL_UNSUPPORTED": 1
+      },
+      "fkey1.test": {
+        "MODEL_UNSUPPORTED": 1
+      },
+      "fkey2.test": {
+        "MODEL_UNSUPPORTED": 3
+      },
+      "fkey3.test": {
+        "MODEL_UNSUPPORTED": 1
+      },
+      "fkey4.test": {
+        "MODEL_UNSUPPORTED": 1
+      },
+      "fkey5.test": {
+        "MODEL_UNSUPPORTED": 1
+      },
+      "fkey6.test": {
+        "MODEL_UNSUPPORTED": 1
+      },
+      "fkey7.test": {
+        "MODEL_UNSUPPORTED": 1
+      },
+      "fkey8.test": {
+        "MODEL_UNSUPPORTED": 1
+      },
+      "func.test": {
+        "MODEL_UNSUPPORTED": 1
+      },
+      "func2.test": {
+        "MODEL_UNSUPPORTED": 2
+      },
+      "func3.test": {
+        "MODEL_UNSUPPORTED": 1
+      },
+      "func7.test": {
+        "MODEL_UNSUPPORTED": 1
+      },
+      "func8.test": {
+        "MODEL_UNSUPPORTED": 1
+      },
+      "func9.test": {
+        "MODEL_UNSUPPORTED": 1
+      },
+      "index.test": {
+        "MODEL_UNSUPPORTED": 1
+      },
+      "index2.test": {
+        "MODEL_UNSUPPORTED": 1
+      },
+      "index3.test": {
+        "MODEL_UNSUPPORTED": 1
+      },
+      "index6.test": {
+        "MODEL_UNSUPPORTED": 1
+      },
+      "index7.test": {
+        "MODEL_UNSUPPORTED": 1
+      },
+      "index8.test": {
+        "MODEL_UNSUPPORTED": 1
+      },
+      "index9.test": {
+        "MODEL_UNSUPPORTED": 1
+      },
+      "indexA.test": {
+        "MODEL_UNSUPPORTED": 1
+      },
+      "indexedby.test": {
+        "MODEL_UNSUPPORTED": 1
+      },
+      "indexexpr1.test": {
+        "MODEL_UNSUPPORTED": 1
+      },
+      "indexexpr2.test": {
+        "MODEL_UNSUPPORTED": 2
+      },
+      "indexexpr3.test": {
+        "MODEL_UNSUPPORTED": 1
+      },
+      "insert.test": {
+        "MODEL_UNSUPPORTED": 1
+      },
+      "insert2.test": {
+        "MODEL_UNSUPPORTED": 1
+      },
+      "insert3.test": {
+        "MODEL_UNSUPPORTED": 1
+      },
+      "insert5.test": {
+        "MODEL_UNSUPPORTED": 1
+      },
+      "json101.test": {
+        "MODEL_UNSUPPORTED": 4
+      },
+      "json102.test": {
+        "MODEL_UNSUPPORTED": 1
+      },
+      "json103.test": {
+        "MODEL_UNSUPPORTED": 1
+      },
+      "json104.test": {
+        "MODEL_UNSUPPORTED": 1
+      },
+      "json105.test": {
+        "MODEL_UNSUPPORTED": 1
+      },
+      "json501.test": {
+        "MODEL_UNSUPPORTED": 1
+      },
+      "json502.test": {
+        "MODEL_UNSUPPORTED": 1
+      },
+      "jsonb01.test": {
+        "MODEL_UNSUPPORTED": 1
+      },
+      "minmax.test": {
+        "MODEL_UNSUPPORTED": 1
+      },
+      "minmax4.test": {
+        "MODEL_UNSUPPORTED": 1
+      },
+      "returning1.test": {
+        "MODEL_UNSUPPORTED": 1
+      },
+      "select1.test": {
+        "MODEL_UNSUPPORTED": 1
+      },
+      "select3.test": {
+        "MODEL_UNSUPPORTED": 1
+      },
+      "select4.test": {
+        "MODEL_UNSUPPORTED": 1
+      },
+      "select5.test": {
+        "MODEL_UNSUPPORTED": 1
+      },
+      "select6.test": {
+        "MODEL_UNSUPPORTED": 1
+      },
+      "select8.test": {
+        "MODEL_UNSUPPORTED": 1
+      },
+      "select9.test": {
+        "MODEL_UNSUPPORTED": 1
+      },
+      "selectA.test": {
+        "MODEL_UNSUPPORTED": 1
+      },
+      "selectB.test": {
+        "MODEL_UNSUPPORTED": 1
+      },
+      "selectC.test": {
+        "MODEL_UNSUPPORTED": 1
+      },
+      "selectE.test": {
+        "MODEL_UNSUPPORTED": 1
+      },
+      "selectF.test": {
+        "MODEL_UNSUPPORTED": 1
+      },
+      "selectH.test": {
+        "MODEL_UNSUPPORTED": 1
+      },
+      "trans.test": {
+        "MODEL_UNSUPPORTED": 1
+      },
+      "trans3.test": {
+        "MODEL_UNSUPPORTED": 1
+      },
+      "transitive1.test": {
+        "MODEL_UNSUPPORTED": 1
+      },
+      "trigger1.test": {
+        "MODEL_UNSUPPORTED": 1
+      },
+      "trigger2.test": {
+        "MODEL_UNSUPPORTED": 1
+      },
+      "trigger3.test": {
+        "MODEL_UNSUPPORTED": 1
+      },
+      "trigger4.test": {
+        "MODEL_UNSUPPORTED": 1
+      },
+      "trigger5.test": {
+        "MODEL_UNSUPPORTED": 1
+      },
+      "trigger7.test": {
+        "MODEL_UNSUPPORTED": 1
+      },
+      "trigger8.test": {
+        "MODEL_UNSUPPORTED": 1
+      },
+      "trigger9.test": {
+        "MODEL_UNSUPPORTED": 1
+      },
+      "triggerC.test": {
+        "MODEL_UNSUPPORTED": 1
+      },
+      "triggerD.test": {
+        "MODEL_UNSUPPORTED": 1
+      },
+      "triggerE.test": {
+        "MODEL_UNSUPPORTED": 1
+      },
+      "triggerupfrom.test": {
+        "MODEL_UNSUPPORTED": 1
+      },
+      "update.test": {
+        "MODEL_UNSUPPORTED": 1
+      },
+      "upsert1.test": {
+        "MODEL_UNSUPPORTED": 1
+      },
+      "upsert2.test": {
+        "MODEL_UNSUPPORTED": 1
+      },
+      "upsert3.test": {
+        "MODEL_UNSUPPORTED": 1
+      },
+      "upsert4.test": {
+        "MODEL_UNSUPPORTED": 1
+      },
+      "upsert5.test": {
+        "MODEL_UNSUPPORTED": 1
+      }
+    },
+    "byRequirement": {
+      "R-00243-07929": {
+        "MODEL_UNSUPPORTED": 1
+      },
+      "R-00404-17670": {
+        "MODEL_UNSUPPORTED": 1
+      },
+      "R-01515-49025": {
+        "MODEL_UNSUPPORTED": 1
+      },
+      "R-02223-49279": {
+        "MODEL_UNSUPPORTED": 1
+      },
+      "R-02752-50091": {
+        "MODEL_UNSUPPORTED": 1
+      },
+      "R-03366-15091": {
+        "MODEL_UNSUPPORTED": 2
+      },
+      "R-04905-56085": {
+        "MODEL_UNSUPPORTED": 1
+      },
+      "R-05192-57965": {
+        "MODEL_UNSUPPORTED": 1
+      },
+      "R-06471-16287": {
+        "MODEL_UNSUPPORTED": 1
+      },
+      "R-06718-34797": {
+        "MODEL_UNSUPPORTED": 2
+      },
+      "R-07051-38416": {
+        "MODEL_UNSUPPORTED": 1
+      },
+      "R-07343-35026": {
+        "MODEL_UNSUPPORTED": 1
+      },
+      "R-07986-46024": {
+        "MODEL_UNSUPPORTED": 1
+      },
+      "R-09773-40602": {
+        "MODEL_UNSUPPORTED": 1
+      },
+      "R-10948-48115": {
+        "MODEL_UNSUPPORTED": 2
+      },
+      "R-11129-23371": {
+        "MODEL_UNSUPPORTED": 1
+      },
+      "R-11135-63542": {
+        "MODEL_UNSUPPORTED": 1
+      },
+      "R-11152-23456": {
+        "MODEL_UNSUPPORTED": 1
+      },
+      "R-11576-11990": {
+        "MODEL_UNSUPPORTED": 1
+      },
+      "R-12079-51392": {
+        "MODEL_UNSUPPORTED": 1
+      },
+      "R-12572-62501": {
+        "MODEL_UNSUPPORTED": 1
+      },
+      "R-12720-41494": {
+        "MODEL_UNSUPPORTED": 1
+      },
+      "R-12881-55998": {
+        "MODEL_UNSUPPORTED": 1
+      },
+      "R-13116-43655": {
+        "MODEL_UNSUPPORTED": 1
+      },
+      "R-13776-21310": {
+        "MODEL_UNSUPPORTED": 1
+      },
+      "R-13876-13274": {
+        "MODEL_UNSUPPORTED": 1
+      },
+      "R-14349-34154": {
+        "MODEL_UNSUPPORTED": 1
+      },
+      "R-14442-41305": {
+        "MODEL_UNSUPPORTED": 1
+      },
+      "R-14926-50129": {
+        "MODEL_UNSUPPORTED": 1
+      },
+      "R-15195-28467": {
+        "MODEL_UNSUPPORTED": 1
+      },
+      "R-15334-58407": {
+        "MODEL_UNSUPPORTED": 1
+      },
+      "R-15363-55230": {
+        "MODEL_UNSUPPORTED": 1
+      },
+      "R-16085-53730": {
+        "MODEL_UNSUPPORTED": 1
+      },
+      "R-16727-13091": {
+        "MODEL_UNSUPPORTED": 1
+      },
+      "R-17146-37073": {
+        "MODEL_UNSUPPORTED": 1
+      },
+      "R-17177-10067": {
+        "MODEL_UNSUPPORTED": 1
+      },
+      "R-17379-32951": {
+        "MODEL_UNSUPPORTED": 1
+      },
+      "R-17899-04554": {
+        "MODEL_UNSUPPORTED": 1
+      },
+      "R-18814-23501": {
+        "MODEL_UNSUPPORTED": 2
+      },
+      "R-18885-42713": {
+        "MODEL_UNSUPPORTED": 2
+      },
+      "R-20467-43422": {
+        "MODEL_UNSUPPORTED": 1
+      },
+      "R-21555-60916": {
+        "MODEL_UNSUPPORTED": 1
+      },
+      "R-21752-26913": {
+        "MODEL_UNSUPPORTED": 1
+      },
+      "R-21926-12440": {
+        "MODEL_UNSUPPORTED": 1
+      },
+      "R-22655-13879": {
+        "MODEL_UNSUPPORTED": 1
+      },
+      "R-22849-20349": {
+        "MODEL_UNSUPPORTED": 1
+      },
+      "R-23153-04437": {
+        "MODEL_UNSUPPORTED": 1
+      },
+      "R-24610-05866": {
+        "MODEL_UNSUPPORTED": 1
+      },
+      "R-25613-37547": {
+        "MODEL_UNSUPPORTED": 1
+      },
+      "R-26501-17306": {
+        "MODEL_UNSUPPORTED": 1
+      },
+      "R-29868-13536": {
+        "MODEL_UNSUPPORTED": 3
+      },
+      "R-29897-28851": {
+        "MODEL_UNSUPPORTED": 2
+      },
+      "R-30470-29835": {
+        "MODEL_UNSUPPORTED": 1
+      },
+      "R-30877-63179": {
+        "MODEL_UNSUPPORTED": 1
+      },
+      "R-30879-62015": {
+        "MODEL_UNSUPPORTED": 1
+      },
+      "R-31775-48204": {
+        "MODEL_UNSUPPORTED": 1
+      },
+      "R-31795-57643": {
+        "MODEL_UNSUPPORTED": 2
+      },
+      "R-32235-53300": {
+        "MODEL_UNSUPPORTED": 1
+      },
+      "R-32434-09092": {
+        "MODEL_UNSUPPORTED": 1
+      },
+      "R-32925-06786": {
+        "MODEL_UNSUPPORTED": 1
+      },
+      "R-33632-01248": {
+        "MODEL_UNSUPPORTED": 1
+      },
+      "R-33750-29536": {
+        "MODEL_UNSUPPORTED": 1
+      },
+      "R-34109-39108": {
+        "MODEL_UNSUPPORTED": 1
+      },
+      "R-34280-42283": {
+        "MODEL_UNSUPPORTED": 1
+      },
+      "R-34457-09668": {
+        "MODEL_UNSUPPORTED": 1
+      },
+      "R-34818-13664": {
+        "MODEL_UNSUPPORTED": 1
+      },
+      "R-36476-47203": {
+        "MODEL_UNSUPPORTED": 1
+      },
+      "R-36570-50350": {
+        "MODEL_UNSUPPORTED": 1
+      },
+      "R-37287-38238": {
+        "MODEL_UNSUPPORTED": 2
+      },
+      "R-37672-59189": {
+        "MODEL_UNSUPPORTED": 1
+      },
+      "R-38465-03616": {
+        "MODEL_UNSUPPORTED": 1
+      },
+      "R-38914-26427": {
+        "MODEL_UNSUPPORTED": 1
+      },
+      "R-38971-13593": {
+        "MODEL_UNSUPPORTED": 1
+      },
+      "R-41025-56247": {
+        "MODEL_UNSUPPORTED": 1
+      },
+      "R-42316-09582": {
+        "MODEL_UNSUPPORTED": 3
+      },
+      "R-42648-01192": {
+        "MODEL_UNSUPPORTED": 1
+      },
+      "R-43433-49136": {
+        "MODEL_UNSUPPORTED": 1
+      },
+      "R-44223-43966": {
+        "MODEL_UNSUPPORTED": 1
+      },
+      "R-45416-45177": {
+        "MODEL_UNSUPPORTED": 2
+      },
+      "R-45735-05060": {
+        "MODEL_UNSUPPORTED": 2
+      },
+      "R-47224-48532": {
+        "MODEL_UNSUPPORTED": 1
+      },
+      "R-47901-33947": {
+        "MODEL_UNSUPPORTED": 1
+      },
+      "R-48198-01058": {
+        "MODEL_UNSUPPORTED": 1
+      },
+      "R-48616-47814": {
+        "MODEL_UNSUPPORTED": 1
+      },
+      "R-50442-34254": {
+        "MODEL_UNSUPPORTED": 1
+      },
+      "R-50775-16353": {
+        "MODEL_UNSUPPORTED": 1
+      },
+      "R-52668-48601": {
+        "MODEL_UNSUPPORTED": 1
+      },
+      "R-53938-27527": {
+        "MODEL_UNSUPPORTED": 1
+      },
+      "R-54378-38553": {
+        "MODEL_UNSUPPORTED": 2
+      },
+      "R-55084-10555": {
+        "MODEL_UNSUPPORTED": 1
+      },
+      "R-55137-26834": {
+        "MODEL_UNSUPPORTED": 1
+      },
+      "R-55258-32329": {
+        "MODEL_UNSUPPORTED": 1
+      },
+      "R-55435-14303": {
+        "MODEL_UNSUPPORTED": 1
+      },
+      "R-57025-62168": {
+        "MODEL_UNSUPPORTED": 2
+      },
+      "R-58433-37187": {
+        "MODEL_UNSUPPORTED": 1
+      },
+      "R-61362-32087": {
+        "MODEL_UNSUPPORTED": 1
+      },
+      "R-61809-62207": {
+        "MODEL_UNSUPPORTED": 1
+      },
+      "R-62084-05956": {
+        "MODEL_UNSUPPORTED": 1
+      },
+      "R-62157-11346": {
+        "MODEL_UNSUPPORTED": 1
+      },
+      "R-63063-00748": {
+        "MODEL_UNSUPPORTED": 1
+      },
+      "R-63811-08743": {
+        "MODEL_UNSUPPORTED": 1
+      },
+      "R-64016-22984": {
+        "MODEL_UNSUPPORTED": 1
+      },
+      "R-64199-22471": {
+        "MODEL_UNSUPPORTED": 1
+      },
+      "UNTAGGED": {
+        "MODEL_UNSUPPORTED": 117
+      }
+    },
+    "cases": [
+      {
+        "name": "aggregates-empty-single-null-groups",
+        "verdict": "MODEL_UNSUPPORTED",
+        "frontendStatus": "UNSUPPORTED",
+        "error": "Model execution profile capability is not implemented",
+        "queryDiagnostic": {
+          "category": "PREFIX_MODEL_UNSUPPORTED",
+          "prefix": {
+            "verdict": "MODEL_UNSUPPORTED",
+            "frontendStatus": "UNSUPPORTED",
+            "error": "Model execution profile capability is not implemented"
+          },
+          "migrationStatements": 4,
+          "trailingObservations": 2
+        }
+      },
+      {
+        "name": "cast-real-numeric-prefix-arithmetic",
+        "verdict": "MODEL_UNSUPPORTED",
+        "frontendStatus": "UNSUPPORTED",
+        "error": "Model execution profile capability is not implemented",
+        "queryDiagnostic": {
+          "category": "PREFIX_MODEL_UNSUPPORTED",
+          "prefix": {
+            "verdict": "MODEL_UNSUPPORTED",
+            "frontendStatus": "UNSUPPORTED",
+            "error": "Model execution profile capability is not implemented"
+          },
+          "migrationStatements": 0,
+          "trailingObservations": 1
+        }
+      },
+      {
+        "name": "check-abort",
+        "verdict": "MODEL_UNSUPPORTED",
+        "frontendStatus": "UNSUPPORTED",
+        "error": "Model execution profile capability is not implemented"
+      },
+      {
+        "name": "clock-format-default-trigger",
+        "verdict": "MODEL_UNSUPPORTED",
+        "frontendStatus": "UNSUPPORTED",
+        "error": "Model execution profile capability is not implemented"
+      },
+      {
+        "name": "deferred-foreign-key-commit-failure",
+        "verdict": "MODEL_UNSUPPORTED",
+        "frontendStatus": "UNSUPPORTED",
+        "error": "Model execution profile capability is not implemented"
+      },
+      {
+        "name": "deferred-foreign-key-repaired-commit",
+        "verdict": "MODEL_UNSUPPORTED",
+        "frontendStatus": "UNSUPPORTED",
+        "error": "Model execution profile capability is not implemented",
+        "queryDiagnostic": {
+          "category": "PREFIX_MODEL_UNSUPPORTED",
+          "prefix": {
+            "verdict": "MODEL_UNSUPPORTED",
+            "frontendStatus": "UNSUPPORTED",
+            "error": "Model execution profile capability is not implemented"
+          },
+          "migrationStatements": 5,
+          "trailingObservations": 1
+        }
+      },
+      {
+        "name": "foreign-key-failure",
+        "verdict": "MODEL_UNSUPPORTED",
+        "frontendStatus": "UNSUPPORTED",
+        "error": "Model execution profile capability is not implemented"
+      },
+      {
+        "name": "join-coalesce-cast-real",
+        "verdict": "MODEL_UNSUPPORTED",
+        "frontendStatus": "UNSUPPORTED",
+        "error": "Model execution profile capability is not implemented",
+        "queryDiagnostic": {
+          "category": "PREFIX_MODEL_UNSUPPORTED",
+          "prefix": {
+            "verdict": "MODEL_UNSUPPORTED",
+            "frontendStatus": "UNSUPPORTED",
+            "error": "Model execution profile capability is not implemented"
+          },
+          "migrationStatements": 0,
+          "trailingObservations": 3
+        }
+      },
+      {
+        "name": "json-values-empty",
+        "verdict": "MODEL_UNSUPPORTED",
+        "frontendStatus": "UNSUPPORTED",
+        "error": "Model execution profile capability is not implemented",
+        "queryDiagnostic": {
+          "category": "PREFIX_MODEL_UNSUPPORTED",
+          "prefix": {
+            "verdict": "MODEL_UNSUPPORTED",
+            "frontendStatus": "UNSUPPORTED",
+            "error": "Model execution profile capability is not implemented"
+          },
+          "migrationStatements": 0,
+          "trailingObservations": 3
+        }
+      },
+      {
+        "name": "not-null-failure",
+        "verdict": "MODEL_UNSUPPORTED",
+        "frontendStatus": "UNSUPPORTED",
+        "error": "Model execution profile capability is not implemented"
+      },
+      {
+        "name": "numeric-ties-windows",
+        "verdict": "MODEL_UNSUPPORTED",
+        "frontendStatus": "UNSUPPORTED",
+        "error": "Model execution profile capability is not implemented",
+        "queryDiagnostic": {
+          "category": "PREFIX_MODEL_UNSUPPORTED",
+          "prefix": {
+            "verdict": "MODEL_UNSUPPORTED",
+            "frontendStatus": "UNSUPPORTED",
+            "error": "Model execution profile capability is not implemented"
+          },
+          "migrationStatements": 0,
+          "trailingObservations": 5
+        }
+      },
+      {
+        "name": "ordered-distinct-nocase",
+        "verdict": "MODEL_UNSUPPORTED",
+        "frontendStatus": "UNSUPPORTED",
+        "error": "Model execution profile capability is not implemented",
+        "queryDiagnostic": {
+          "category": "PREFIX_MODEL_UNSUPPORTED",
+          "prefix": {
+            "verdict": "MODEL_UNSUPPORTED",
+            "frontendStatus": "UNSUPPORTED",
+            "error": "Model execution profile capability is not implemented"
+          },
+          "migrationStatements": 0,
+          "trailingObservations": 2
+        }
+      },
+      {
+        "name": "schema-defaults-add",
+        "verdict": "MODEL_UNSUPPORTED",
+        "frontendStatus": "UNSUPPORTED",
+        "error": "Model execution profile capability is not implemented",
+        "queryDiagnostic": {
+          "category": "PREFIX_MODEL_UNSUPPORTED",
+          "prefix": {
+            "verdict": "MODEL_UNSUPPORTED",
+            "frontendStatus": "UNSUPPORTED",
+            "error": "Model execution profile capability is not implemented"
+          },
+          "migrationStatements": 3,
+          "trailingObservations": 1
+        }
+      },
+      {
+        "name": "text-primary-key-failure",
+        "verdict": "MODEL_UNSUPPORTED",
+        "frontendStatus": "UNSUPPORTED",
+        "error": "Model execution profile capability is not implemented"
+      },
+      {
+        "name": "transaction-trigger-cascade-counts",
+        "verdict": "MODEL_UNSUPPORTED",
+        "frontendStatus": "UNSUPPORTED",
+        "error": "Model execution profile capability is not implemented",
+        "queryDiagnostic": {
+          "category": "PREFIX_MODEL_UNSUPPORTED",
+          "prefix": {
+            "verdict": "MODEL_UNSUPPORTED",
+            "frontendStatus": "UNSUPPORTED",
+            "error": "Model execution profile capability is not implemented"
+          },
+          "migrationStatements": 9,
+          "trailingObservations": 1
+        }
+      },
+      {
+        "name": "typed-values-edges",
+        "verdict": "MODEL_UNSUPPORTED",
+        "frontendStatus": "UNSUPPORTED",
+        "error": "Model execution profile capability is not implemented",
+        "queryDiagnostic": {
+          "category": "PREFIX_MODEL_UNSUPPORTED",
+          "prefix": {
+            "verdict": "MODEL_UNSUPPORTED",
+            "frontendStatus": "UNSUPPORTED",
+            "error": "Model execution profile capability is not implemented"
+          },
+          "migrationStatements": 1,
+          "trailingObservations": 1
+        }
+      },
+      {
+        "name": "upsert-returning",
+        "verdict": "MODEL_UNSUPPORTED",
+        "frontendStatus": "UNSUPPORTED",
+        "error": "Model execution profile capability is not implemented"
+      },
+      {
+        "name": "add-default-storage-classes",
+        "verdict": "MODEL_UNSUPPORTED",
+        "frontendStatus": "UNSUPPORTED",
+        "error": "Model execution profile capability is not implemented",
+        "queryDiagnostic": {
+          "category": "PREFIX_MODEL_UNSUPPORTED",
+          "prefix": {
+            "verdict": "MODEL_UNSUPPORTED",
+            "frontendStatus": "UNSUPPORTED",
+            "error": "Model execution profile capability is not implemented"
+          },
+          "migrationStatements": 11,
+          "trailingObservations": 1
+        }
+      },
+      {
+        "name": "add-not-null-empty",
+        "verdict": "MODEL_UNSUPPORTED",
+        "frontendStatus": "UNSUPPORTED",
+        "error": "Model execution profile capability is not implemented",
+        "queryDiagnostic": {
+          "category": "PREFIX_MODEL_UNSUPPORTED",
+          "prefix": {
+            "verdict": "MODEL_UNSUPPORTED",
+            "frontendStatus": "UNSUPPORTED",
+            "error": "Model execution profile capability is not implemented"
+          },
+          "migrationStatements": 1,
+          "trailingObservations": 1
+        }
+      },
+      {
+        "name": "add-not-null-empty-insert",
+        "verdict": "MODEL_UNSUPPORTED",
+        "frontendStatus": "UNSUPPORTED",
+        "error": "Model execution profile capability is not implemented"
+      },
+      {
+        "name": "add-not-null-null-empty",
+        "verdict": "MODEL_UNSUPPORTED",
+        "frontendStatus": "UNSUPPORTED",
+        "error": "Model execution profile capability is not implemented",
+        "queryDiagnostic": {
+          "category": "PREFIX_MODEL_UNSUPPORTED",
+          "prefix": {
+            "verdict": "MODEL_UNSUPPORTED",
+            "frontendStatus": "UNSUPPORTED",
+            "error": "Model execution profile capability is not implemented"
+          },
+          "migrationStatements": 1,
+          "trailingObservations": 1
+        }
+      },
+      {
+        "name": "add-not-null-null-populated",
+        "verdict": "MODEL_UNSUPPORTED",
+        "frontendStatus": "UNSUPPORTED",
+        "error": "Model execution profile capability is not implemented"
+      },
+      {
+        "name": "add-not-null-populated",
+        "verdict": "MODEL_UNSUPPORTED",
+        "frontendStatus": "UNSUPPORTED",
+        "error": "Model execution profile capability is not implemented"
+      },
+      {
+        "name": "add-rejected-current-timestamp",
+        "verdict": "MODEL_UNSUPPORTED",
+        "frontendStatus": "UNSUPPORTED",
+        "error": "Model execution profile capability is not implemented"
+      },
+      {
+        "name": "add-rejected-expression",
+        "verdict": "MODEL_UNSUPPORTED",
+        "frontendStatus": "UNSUPPORTED",
+        "error": "Model execution profile capability is not implemented"
+      },
+      {
+        "name": "add-rejected-primary-key",
+        "verdict": "MODEL_UNSUPPORTED",
+        "frontendStatus": "UNSUPPORTED",
+        "error": "Model execution profile capability is not implemented"
+      },
+      {
+        "name": "add-rejected-references",
+        "verdict": "MODEL_UNSUPPORTED",
+        "frontendStatus": "UNSUPPORTED",
+        "error": "Model execution profile capability is not implemented"
+      },
+      {
+        "name": "add-rejected-stored",
+        "verdict": "MODEL_UNSUPPORTED",
+        "frontendStatus": "UNSUPPORTED",
+        "error": "Model execution profile capability is not implemented"
+      },
+      {
+        "name": "add-rejected-unique",
+        "verdict": "MODEL_UNSUPPORTED",
+        "frontendStatus": "UNSUPPORTED",
+        "error": "Model execution profile capability is not implemented"
+      },
+      {
+        "name": "validity-duplicate-column",
+        "verdict": "MODEL_UNSUPPORTED",
+        "frontendStatus": "UNSUPPORTED",
+        "error": "Model execution profile capability is not implemented"
+      },
+      {
+        "name": "validity-empty-column-name",
+        "verdict": "MODEL_UNSUPPORTED",
+        "frontendStatus": "UNSUPPORTED",
+        "error": "Model execution profile capability is not implemented",
+        "queryDiagnostic": {
+          "category": "PREFIX_MODEL_UNSUPPORTED",
+          "prefix": {
+            "verdict": "MODEL_UNSUPPORTED",
+            "frontendStatus": "UNSUPPORTED",
+            "error": "Model execution profile capability is not implemented"
+          },
+          "migrationStatements": 2,
+          "trailingObservations": 1
+        }
+      },
+      {
+        "name": "validity-identifier-case",
+        "verdict": "MODEL_UNSUPPORTED",
+        "frontendStatus": "UNSUPPORTED",
+        "error": "Model execution profile capability is not implemented",
+        "queryDiagnostic": {
+          "category": "PREFIX_MODEL_UNSUPPORTED",
+          "prefix": {
+            "verdict": "MODEL_UNSUPPORTED",
+            "frontendStatus": "UNSUPPORTED",
+            "error": "Model execution profile capability is not implemented"
+          },
+          "migrationStatements": 2,
+          "trailingObservations": 1
+        }
+      },
+      {
+        "name": "validity-integer-primary-key-sequence",
+        "verdict": "MODEL_UNSUPPORTED",
+        "frontendStatus": "UNSUPPORTED",
+        "error": "Model execution profile capability is not implemented",
+        "queryDiagnostic": {
+          "category": "PREFIX_MODEL_UNSUPPORTED",
+          "prefix": {
+            "verdict": "MODEL_UNSUPPORTED",
+            "frontendStatus": "UNSUPPORTED",
+            "error": "Model execution profile capability is not implemented"
+          },
+          "migrationStatements": 2,
+          "trailingObservations": 2
+        }
+      },
+      {
+        "name": "validity-missing-key-column",
+        "verdict": "MODEL_UNSUPPORTED",
+        "frontendStatus": "UNSUPPORTED",
+        "error": "Model execution profile capability is not implemented"
+      },
+      {
+        "name": "validity-no-columns",
+        "verdict": "MODEL_UNSUPPORTED",
+        "frontendStatus": "UNSUPPORTED",
+        "error": "Model execution profile capability is not implemented"
+      },
+      {
+        "name": "validity-repeated-index-column",
+        "verdict": "MODEL_UNSUPPORTED",
+        "frontendStatus": "UNSUPPORTED",
+        "error": "Model execution profile capability is not implemented",
+        "queryDiagnostic": {
+          "category": "PREFIX_MODEL_UNSUPPORTED",
+          "prefix": {
+            "verdict": "MODEL_UNSUPPORTED",
+            "frontendStatus": "UNSUPPORTED",
+            "error": "Model execution profile capability is not implemented"
+          },
+          "migrationStatements": 3,
+          "trailingObservations": 1
+        }
+      },
+      {
+        "name": "validity-repeated-primary-key",
+        "verdict": "MODEL_UNSUPPORTED",
+        "frontendStatus": "UNSUPPORTED",
+        "error": "Model execution profile capability is not implemented",
+        "queryDiagnostic": {
+          "category": "PREFIX_MODEL_UNSUPPORTED",
+          "prefix": {
+            "verdict": "MODEL_UNSUPPORTED",
+            "frontendStatus": "UNSUPPORTED",
+            "error": "Model execution profile capability is not implemented"
+          },
+          "migrationStatements": 2,
+          "trailingObservations": 1
+        }
+      },
+      {
+        "name": "validity-repeated-unique-key",
+        "verdict": "MODEL_UNSUPPORTED",
+        "frontendStatus": "UNSUPPORTED",
+        "error": "Model execution profile capability is not implemented",
+        "queryDiagnostic": {
+          "category": "PREFIX_MODEL_UNSUPPORTED",
+          "prefix": {
+            "verdict": "MODEL_UNSUPPORTED",
+            "frontendStatus": "UNSUPPORTED",
+            "error": "Model execution profile capability is not implemented"
+          },
+          "migrationStatements": 2,
+          "trailingObservations": 1
+        }
+      },
+      {
+        "name": "validity-reserved-name",
+        "verdict": "MODEL_UNSUPPORTED",
+        "frontendStatus": "UNSUPPORTED",
+        "error": "Model execution profile capability is not implemented"
+      },
+      {
+        "name": "validity-rowid-shadow",
+        "verdict": "MODEL_UNSUPPORTED",
+        "frontendStatus": "UNSUPPORTED",
+        "error": "Model execution profile capability is not implemented",
+        "queryDiagnostic": {
+          "category": "PREFIX_MODEL_UNSUPPORTED",
+          "prefix": {
+            "verdict": "MODEL_UNSUPPORTED",
+            "frontendStatus": "UNSUPPORTED",
+            "error": "Model execution profile capability is not implemented"
+          },
+          "migrationStatements": 2,
+          "trailingObservations": 1
+        }
+      },
+      {
+        "name": "add-null-populated",
+        "verdict": "MODEL_UNSUPPORTED",
+        "frontendStatus": "UNSUPPORTED",
+        "error": "Model execution profile capability is not implemented"
+      },
+      {
+        "name": "begin-default-deferred",
+        "verdict": "MODEL_UNSUPPORTED",
+        "frontendStatus": "UNSUPPORTED",
+        "error": "Model execution profile capability is not implemented"
+      },
+      {
+        "name": "begin-immediate",
+        "verdict": "MODEL_UNSUPPORTED",
+        "frontendStatus": "UNSUPPORTED",
+        "error": "Model execution profile capability is not implemented"
+      },
+      {
+        "name": "blob-affinity",
+        "verdict": "MODEL_UNSUPPORTED",
+        "frontendStatus": "UNSUPPORTED",
+        "error": "Model execution profile capability is not implemented"
+      },
+      {
+        "name": "charint-priority",
+        "verdict": "MODEL_UNSUPPORTED",
+        "frontendStatus": "UNSUPPORTED",
+        "error": "Model execution profile capability is not implemented"
+      },
+      {
+        "name": "commit-end-alias",
+        "verdict": "MODEL_UNSUPPORTED",
+        "frontendStatus": "UNSUPPORTED",
+        "error": "Model execution profile capability is not implemented"
+      },
+      {
+        "name": "create-ordinary-index",
+        "verdict": "MODEL_UNSUPPORTED",
+        "frontendStatus": "UNSUPPORTED",
+        "error": "Model execution profile capability is not implemented"
+      },
+      {
+        "name": "create-unique-duplicate",
+        "verdict": "MODEL_UNSUPPORTED",
+        "frontendStatus": "UNSUPPORTED",
+        "error": "Model execution profile capability is not implemented"
+      },
+      {
+        "name": "drop-index",
+        "verdict": "MODEL_UNSUPPORTED",
+        "frontendStatus": "UNSUPPORTED",
+        "error": "Model execution profile capability is not implemented"
+      },
+      {
+        "name": "explicit-rollback",
+        "verdict": "MODEL_UNSUPPORTED",
+        "frontendStatus": "UNSUPPORTED",
+        "error": "Model execution profile capability is not implemented"
+      },
+      {
+        "name": "floating-point-affinity",
+        "verdict": "MODEL_UNSUPPORTED",
+        "frontendStatus": "UNSUPPORTED",
+        "error": "Model execution profile capability is not implemented"
+      },
+      {
+        "name": "implicit-write-commit",
+        "verdict": "MODEL_UNSUPPORTED",
+        "frontendStatus": "UNSUPPORTED",
+        "error": "Model execution profile capability is not implemented"
+      },
+      {
+        "name": "index-collation",
+        "verdict": "MODEL_UNSUPPORTED",
+        "frontendStatus": "UNSUPPORTED",
+        "error": "Model execution profile capability is not implemented"
+      },
+      {
+        "name": "index-descending",
+        "verdict": "MODEL_UNSUPPORTED",
+        "frontendStatus": "UNSUPPORTED",
+        "error": "Model execution profile capability is not implemented"
+      },
+      {
+        "name": "index-duplicate",
+        "verdict": "MODEL_UNSUPPORTED",
+        "frontendStatus": "UNSUPPORTED",
+        "error": "Model execution profile capability is not implemented"
+      },
+      {
+        "name": "index-if-not-exists",
+        "verdict": "MODEL_UNSUPPORTED",
+        "frontendStatus": "UNSUPPORTED",
+        "error": "Model execution profile capability is not implemented"
+      },
+      {
+        "name": "index-null",
+        "verdict": "MODEL_UNSUPPORTED",
+        "frontendStatus": "UNSUPPORTED",
+        "error": "Model execution profile capability is not implemented"
+      },
+      {
+        "name": "index-subquery",
+        "verdict": "MODEL_UNSUPPORTED",
+        "frontendStatus": "UNSUPPORTED",
+        "error": "Model execution profile capability is not implemented"
+      },
+      {
+        "name": "integer-numeric-equivalence",
+        "verdict": "MODEL_UNSUPPORTED",
+        "frontendStatus": "UNSUPPORTED",
+        "error": "Model execution profile capability is not implemented"
+      },
+      {
+        "name": "nested-begin",
+        "verdict": "MODEL_UNSUPPORTED",
+        "frontendStatus": "UNSUPPORTED",
+        "error": "Model execution profile capability is not implemented"
+      },
+      {
+        "name": "numeric-exponent",
+        "verdict": "MODEL_UNSUPPORTED",
+        "frontendStatus": "UNSUPPORTED",
+        "error": "Model execution profile capability is not implemented"
+      },
+      {
+        "name": "numeric-real-to-integer",
+        "verdict": "MODEL_UNSUPPORTED",
+        "frontendStatus": "UNSUPPORTED",
+        "error": "Model execution profile capability is not implemented"
+      },
+      {
+        "name": "numeric-text-integer",
+        "verdict": "MODEL_UNSUPPORTED",
+        "frontendStatus": "UNSUPPORTED",
+        "error": "Model execution profile capability is not implemented"
+      },
+      {
+        "name": "real-integer-conversion",
+        "verdict": "MODEL_UNSUPPORTED",
+        "frontendStatus": "UNSUPPORTED",
+        "error": "Model execution profile capability is not implemented"
+      },
+      {
+        "name": "savepoint-rollback",
+        "verdict": "MODEL_UNSUPPORTED",
+        "frontendStatus": "UNSUPPORTED",
+        "error": "Model execution profile capability is not implemented"
+      },
+      {
+        "name": "string-is-numeric",
+        "verdict": "MODEL_UNSUPPORTED",
+        "frontendStatus": "UNSUPPORTED",
+        "error": "Model execution profile capability is not implemented"
+      },
+      {
+        "name": "text-numeric-conversion",
+        "verdict": "MODEL_UNSUPPORTED",
+        "frontendStatus": "UNSUPPORTED",
+        "error": "Model execution profile capability is not implemented"
+      },
+      {
+        "name": "untyped-storage",
+        "verdict": "MODEL_UNSUPPORTED",
+        "frontendStatus": "UNSUPPORTED",
+        "error": "Model execution profile capability is not implemented"
+      },
+      {
+        "name": "varchar-affinity",
+        "verdict": "MODEL_UNSUPPORTED",
+        "frontendStatus": "UNSUPPORTED",
+        "error": "Model execution profile capability is not implemented"
+      },
+      {
+        "name": "fkey2:fkey2-1.1.4.11.5:173",
+        "verdict": "MODEL_UNSUPPORTED",
+        "frontendStatus": "UNSUPPORTED",
+        "error": "Model execution profile capability is not implemented"
+      },
+      {
+        "name": "fkey2:fkey2-1.1.2.2.6:97",
+        "verdict": "MODEL_UNSUPPORTED",
+        "frontendStatus": "UNSUPPORTED",
+        "error": "Model execution profile capability is not implemented"
+      },
+      {
+        "name": "json104:json104-221:8",
+        "verdict": "MODEL_UNSUPPORTED",
+        "frontendStatus": "UNSUPPORTED",
+        "error": "Model execution profile capability is not implemented",
+        "queryDiagnostic": {
+          "category": "PREFIX_MODEL_UNSUPPORTED",
+          "prefix": {
+            "verdict": "MODEL_UNSUPPORTED",
+            "frontendStatus": "UNSUPPORTED",
+            "error": "Model execution profile capability is not implemented"
+          },
+          "migrationStatements": 0,
+          "trailingObservations": 1
+        }
+      },
+      {
+        "name": "trigger4:trigger4-2.4:7",
+        "verdict": "MODEL_UNSUPPORTED",
+        "frontendStatus": "UNSUPPORTED",
+        "error": "Model execution profile capability is not implemented",
+        "queryDiagnostic": {
+          "category": "PREFIX_MODEL_UNSUPPORTED",
+          "prefix": {
+            "verdict": "MODEL_UNSUPPORTED",
+            "frontendStatus": "UNSUPPORTED",
+            "error": "Model execution profile capability is not implemented"
+          },
+          "migrationStatements": 0,
+          "trailingObservations": 1
+        }
+      },
+      {
+        "name": "json101:json101-10.52:134",
+        "verdict": "MODEL_UNSUPPORTED",
+        "frontendStatus": "UNSUPPORTED",
+        "error": "Model execution profile capability is not implemented",
+        "queryDiagnostic": {
+          "category": "PREFIX_MODEL_UNSUPPORTED",
+          "prefix": {
+            "verdict": "MODEL_UNSUPPORTED",
+            "frontendStatus": "UNSUPPORTED",
+            "error": "Model execution profile capability is not implemented"
+          },
+          "migrationStatements": 0,
+          "trailingObservations": 1
+        }
+      },
+      {
+        "name": "func7:func7-pg-230:19",
+        "verdict": "MODEL_UNSUPPORTED",
+        "frontendStatus": "UNSUPPORTED",
+        "error": "Model execution profile capability is not implemented",
+        "queryDiagnostic": {
+          "category": "PREFIX_MODEL_UNSUPPORTED",
+          "prefix": {
+            "verdict": "MODEL_UNSUPPORTED",
+            "frontendStatus": "UNSUPPORTED",
+            "error": "Model execution profile capability is not implemented"
+          },
+          "migrationStatements": 0,
+          "trailingObservations": 1
+        }
+      },
+      {
+        "name": "altertab:altertab-27.2:94",
+        "verdict": "MODEL_UNSUPPORTED",
+        "frontendStatus": "UNSUPPORTED",
+        "error": "Model execution profile capability is not implemented"
+      },
+      {
+        "name": "func2:func2-1.30.1:40",
+        "verdict": "MODEL_UNSUPPORTED",
+        "frontendStatus": "UNSUPPORTED",
+        "error": "Model execution profile capability is not implemented",
+        "queryDiagnostic": {
+          "category": "PREFIX_MODEL_UNSUPPORTED",
+          "prefix": {
+            "verdict": "MODEL_UNSUPPORTED",
+            "frontendStatus": "UNSUPPORTED",
+            "error": "Model execution profile capability is not implemented"
+          },
+          "migrationStatements": 0,
+          "trailingObservations": 1
+        }
+      },
+      {
+        "name": "func2:func2-1.37:57",
+        "verdict": "MODEL_UNSUPPORTED",
+        "frontendStatus": "UNSUPPORTED",
+        "error": "Model execution profile capability is not implemented",
+        "queryDiagnostic": {
+          "category": "PREFIX_MODEL_UNSUPPORTED",
+          "prefix": {
+            "verdict": "MODEL_UNSUPPORTED",
+            "frontendStatus": "UNSUPPORTED",
+            "error": "Model execution profile capability is not implemented"
+          },
+          "migrationStatements": 0,
+          "trailingObservations": 1
+        }
+      },
+      {
+        "name": "fkey2:fkey2-1.1.4.4.1:127",
+        "verdict": "MODEL_UNSUPPORTED",
+        "frontendStatus": "UNSUPPORTED",
+        "error": "Model execution profile capability is not implemented"
+      },
+      {
+        "name": "select5:select5-3.1:10",
+        "verdict": "MODEL_UNSUPPORTED",
+        "frontendStatus": "UNSUPPORTED",
+        "error": "Model execution profile capability is not implemented",
+        "queryDiagnostic": {
+          "category": "PREFIX_MODEL_UNSUPPORTED",
+          "prefix": {
+            "verdict": "MODEL_UNSUPPORTED",
+            "frontendStatus": "UNSUPPORTED",
+            "error": "Model execution profile capability is not implemented"
+          },
+          "migrationStatements": 0,
+          "trailingObservations": 1
+        }
+      },
+      {
+        "name": "aggnested:aggnested-1.1:0",
+        "verdict": "MODEL_UNSUPPORTED",
+        "frontendStatus": "UNSUPPORTED",
+        "error": "Model execution profile capability is not implemented",
+        "queryDiagnostic": {
+          "category": "PREFIX_MODEL_UNSUPPORTED",
+          "prefix": {
+            "verdict": "MODEL_UNSUPPORTED",
+            "frontendStatus": "UNSUPPORTED",
+            "error": "Model execution profile capability is not implemented"
+          },
+          "migrationStatements": 4,
+          "trailingObservations": 1
+        }
+      },
+      {
+        "name": "json101:json101-10.73:155",
+        "verdict": "MODEL_UNSUPPORTED",
+        "frontendStatus": "UNSUPPORTED",
+        "error": "Model execution profile capability is not implemented",
+        "queryDiagnostic": {
+          "category": "PREFIX_MODEL_UNSUPPORTED",
+          "prefix": {
+            "verdict": "MODEL_UNSUPPORTED",
+            "frontendStatus": "UNSUPPORTED",
+            "error": "Model execution profile capability is not implemented"
+          },
+          "migrationStatements": 0,
+          "trailingObservations": 1
+        }
+      },
+      {
+        "name": "indexexpr2:indexexpr2-3.1.1:6",
+        "verdict": "MODEL_UNSUPPORTED",
+        "frontendStatus": "UNSUPPORTED",
+        "error": "Model execution profile capability is not implemented"
+      },
+      {
+        "name": "insert3:insert3-1.4.2:5",
+        "verdict": "MODEL_UNSUPPORTED",
+        "frontendStatus": "UNSUPPORTED",
+        "error": "Model execution profile capability is not implemented",
+        "queryDiagnostic": {
+          "category": "PREFIX_MODEL_UNSUPPORTED",
+          "prefix": {
+            "verdict": "MODEL_UNSUPPORTED",
+            "frontendStatus": "UNSUPPORTED",
+            "error": "Model execution profile capability is not implemented"
+          },
+          "migrationStatements": 0,
+          "trailingObservations": 1
+        }
+      },
+      {
+        "name": "json101:json101-18.1:211",
+        "verdict": "MODEL_UNSUPPORTED",
+        "frontendStatus": "UNSUPPORTED",
+        "error": "Model execution profile capability is not implemented",
+        "queryDiagnostic": {
+          "category": "PREFIX_MODEL_UNSUPPORTED",
+          "prefix": {
+            "verdict": "MODEL_UNSUPPORTED",
+            "frontendStatus": "UNSUPPORTED",
+            "error": "Model execution profile capability is not implemented"
+          },
+          "migrationStatements": 0,
+          "trailingObservations": 1
+        }
+      },
+      {
+        "name": "aggnested:aggnested-7.0:32",
+        "verdict": "MODEL_UNSUPPORTED",
+        "frontendStatus": "UNSUPPORTED",
+        "error": "Model execution profile capability is not implemented"
+      },
+      {
+        "name": "selectA:selectA-2.69:73",
+        "verdict": "MODEL_UNSUPPORTED",
+        "frontendStatus": "UNSUPPORTED",
+        "error": "Model execution profile capability is not implemented",
+        "queryDiagnostic": {
+          "category": "PREFIX_MODEL_UNSUPPORTED",
+          "prefix": {
+            "verdict": "MODEL_UNSUPPORTED",
+            "frontendStatus": "UNSUPPORTED",
+            "error": "Model execution profile capability is not implemented"
+          },
+          "migrationStatements": 0,
+          "trailingObservations": 1
+        }
+      },
+      {
+        "name": "select3:select3-8.1:38",
+        "verdict": "MODEL_UNSUPPORTED",
+        "frontendStatus": "UNSUPPORTED",
+        "error": "Model execution profile capability is not implemented",
+        "queryDiagnostic": {
+          "category": "PREFIX_MODEL_UNSUPPORTED",
+          "prefix": {
+            "verdict": "MODEL_UNSUPPORTED",
+            "frontendStatus": "UNSUPPORTED",
+            "error": "Model execution profile capability is not implemented"
+          },
+          "migrationStatements": 3,
+          "trailingObservations": 1
+        }
+      },
+      {
+        "name": "json102:json102-620:164",
+        "verdict": "MODEL_UNSUPPORTED",
+        "frontendStatus": "UNSUPPORTED",
+        "error": "Model execution profile capability is not implemented",
+        "queryDiagnostic": {
+          "category": "PREFIX_MODEL_UNSUPPORTED",
+          "prefix": {
+            "verdict": "MODEL_UNSUPPORTED",
+            "frontendStatus": "UNSUPPORTED",
+            "error": "Model execution profile capability is not implemented"
+          },
+          "migrationStatements": 0,
+          "trailingObservations": 1
+        }
+      },
+      {
+        "name": "json101:json101-21.7:228",
+        "verdict": "MODEL_UNSUPPORTED",
+        "frontendStatus": "UNSUPPORTED",
+        "error": "Model execution profile capability is not implemented",
+        "queryDiagnostic": {
+          "category": "PREFIX_MODEL_UNSUPPORTED",
+          "prefix": {
+            "verdict": "MODEL_UNSUPPORTED",
+            "frontendStatus": "UNSUPPORTED",
+            "error": "Model execution profile capability is not implemented"
+          },
+          "migrationStatements": 0,
+          "trailingObservations": 1
+        }
+      },
+      {
+        "name": "indexexpr2:indexexpr2-8.0:44",
+        "verdict": "MODEL_UNSUPPORTED",
+        "frontendStatus": "UNSUPPORTED",
+        "error": "Model execution profile capability is not implemented"
+      },
+      {
+        "name": "json501:json501-8.8:45",
+        "verdict": "MODEL_UNSUPPORTED",
+        "frontendStatus": "UNSUPPORTED",
+        "error": "Model execution profile capability is not implemented",
+        "queryDiagnostic": {
+          "category": "PREFIX_MODEL_UNSUPPORTED",
+          "prefix": {
+            "verdict": "MODEL_UNSUPPORTED",
+            "frontendStatus": "UNSUPPORTED",
+            "error": "Model execution profile capability is not implemented"
+          },
+          "migrationStatements": 0,
+          "trailingObservations": 1
+        }
+      },
+      {
+        "name": "indexA:indexA-2.1.2.9:41",
+        "verdict": "MODEL_UNSUPPORTED",
+        "frontendStatus": "UNSUPPORTED",
+        "error": "Model execution profile capability is not implemented",
+        "queryDiagnostic": {
+          "category": "PREFIX_MODEL_UNSUPPORTED",
+          "prefix": {
+            "verdict": "MODEL_UNSUPPORTED",
+            "frontendStatus": "UNSUPPORTED",
+            "error": "Model execution profile capability is not implemented"
+          },
+          "migrationStatements": 0,
+          "trailingObservations": 1
+        }
+      },
+      {
+        "name": "e_select:e_select-0.2.0112.1:55",
+        "verdict": "MODEL_UNSUPPORTED",
+        "frontendStatus": "UNSUPPORTED",
+        "error": "Model execution profile capability is not implemented",
+        "queryDiagnostic": {
+          "category": "PREFIX_MODEL_UNSUPPORTED",
+          "prefix": {
+            "verdict": "MODEL_UNSUPPORTED",
+            "frontendStatus": "UNSUPPORTED",
+            "error": "Model execution profile capability is not implemented"
+          },
+          "migrationStatements": 0,
+          "trailingObservations": 1
+        }
+      },
+      {
+        "name": "aggorderby:aggorderby-8.1:21",
+        "verdict": "MODEL_UNSUPPORTED",
+        "frontendStatus": "UNSUPPORTED",
+        "error": "Model execution profile capability is not implemented",
+        "queryDiagnostic": {
+          "category": "PREFIX_MODEL_UNSUPPORTED",
+          "prefix": {
+            "verdict": "MODEL_UNSUPPORTED",
+            "frontendStatus": "UNSUPPORTED",
+            "error": "Model execution profile capability is not implemented"
+          },
+          "migrationStatements": 0,
+          "trailingObservations": 1
+        }
+      },
+      {
+        "name": "e_insert:e_insert-0.77:77",
+        "verdict": "MODEL_UNSUPPORTED",
+        "frontendStatus": "UNSUPPORTED",
+        "error": "Model execution profile capability is not implemented"
+      },
+      {
+        "name": "altercol:altercol-1.14.1:66",
+        "verdict": "MODEL_UNSUPPORTED",
+        "frontendStatus": "UNSUPPORTED",
+        "error": "Model execution profile capability is not implemented"
+      },
+      {
+        "name": "triggerE:triggerE-1.2.2:4",
+        "verdict": "MODEL_UNSUPPORTED",
+        "frontendStatus": "UNSUPPORTED",
+        "error": "Model execution profile capability is not implemented"
+      },
+      {
+        "name": "expr:expr-1.11:10",
+        "verdict": "MODEL_UNSUPPORTED",
+        "frontendStatus": "UNSUPPORTED",
+        "error": "Model execution profile capability is not implemented"
+      },
+      {
+        "name": "fkey5:fkey5-1.5:6",
+        "verdict": "MODEL_UNSUPPORTED",
+        "frontendStatus": "UNSUPPORTED",
+        "error": "Model execution profile capability is not implemented"
+      },
+      {
+        "name": "minmax:minmax-12.5:73",
+        "verdict": "MODEL_UNSUPPORTED",
+        "frontendStatus": "UNSUPPORTED",
+        "error": "Model execution profile capability is not implemented",
+        "queryDiagnostic": {
+          "category": "PREFIX_MODEL_UNSUPPORTED",
+          "prefix": {
+            "verdict": "MODEL_UNSUPPORTED",
+            "frontendStatus": "UNSUPPORTED",
+            "error": "Model execution profile capability is not implemented"
+          },
+          "migrationStatements": 0,
+          "trailingObservations": 1
+        }
+      },
+      {
+        "name": "date2:date2-130:3",
+        "verdict": "MODEL_UNSUPPORTED",
+        "frontendStatus": "UNSUPPORTED",
+        "error": "Model execution profile capability is not implemented"
+      },
+      {
+        "name": "upsert4:upsert4-2.1.2.7:34",
+        "verdict": "MODEL_UNSUPPORTED",
+        "frontendStatus": "UNSUPPORTED",
+        "error": "Model execution profile capability is not implemented"
+      },
+      {
+        "name": "select1:select1-1.2:1",
+        "verdict": "MODEL_UNSUPPORTED",
+        "frontendStatus": "UNSUPPORTED",
+        "error": "Model execution profile capability is not implemented"
+      },
+      {
+        "name": "minmax4:minmax4-3.3.3:36",
+        "verdict": "MODEL_UNSUPPORTED",
+        "frontendStatus": "UNSUPPORTED",
+        "error": "Model execution profile capability is not implemented"
+      },
+      {
+        "name": "json105:json105-1.110:9",
+        "verdict": "MODEL_UNSUPPORTED",
+        "frontendStatus": "UNSUPPORTED",
+        "error": "Model execution profile capability is not implemented",
+        "queryDiagnostic": {
+          "category": "PREFIX_MODEL_UNSUPPORTED",
+          "prefix": {
+            "verdict": "MODEL_UNSUPPORTED",
+            "frontendStatus": "UNSUPPORTED",
+            "error": "Model execution profile capability is not implemented"
+          },
+          "migrationStatements": 0,
+          "trailingObservations": 1
+        }
+      },
+      {
+        "name": "selectC:selectC-1.12.1:11",
+        "verdict": "MODEL_UNSUPPORTED",
+        "frontendStatus": "UNSUPPORTED",
+        "error": "Model execution profile capability is not implemented",
+        "queryDiagnostic": {
+          "category": "PREFIX_MODEL_UNSUPPORTED",
+          "prefix": {
+            "verdict": "MODEL_UNSUPPORTED",
+            "frontendStatus": "UNSUPPORTED",
+            "error": "Model execution profile capability is not implemented"
+          },
+          "migrationStatements": 0,
+          "trailingObservations": 1
+        }
+      },
+      {
+        "name": "index:index-5.2:28",
+        "verdict": "MODEL_UNSUPPORTED",
+        "frontendStatus": "UNSUPPORTED",
+        "error": "Model execution profile capability is not implemented",
+        "queryDiagnostic": {
+          "category": "PREFIX_MODEL_UNSUPPORTED",
+          "prefix": {
+            "verdict": "MODEL_UNSUPPORTED",
+            "frontendStatus": "UNSUPPORTED",
+            "error": "Model execution profile capability is not implemented"
+          },
+          "migrationStatements": 0,
+          "trailingObservations": 1
+        }
+      },
+      {
+        "name": "alterdropcol:alterdropcol-4.5.2:65",
+        "verdict": "MODEL_UNSUPPORTED",
+        "frontendStatus": "UNSUPPORTED",
+        "error": "Model execution profile capability is not implemented"
+      },
+      {
+        "name": "indexexpr1:indexexpr1-2260:103",
+        "verdict": "MODEL_UNSUPPORTED",
+        "frontendStatus": "UNSUPPORTED",
+        "error": "Model execution profile capability is not implemented",
+        "queryDiagnostic": {
+          "category": "PREFIX_MODEL_UNSUPPORTED",
+          "prefix": {
+            "verdict": "MODEL_UNSUPPORTED",
+            "frontendStatus": "UNSUPPORTED",
+            "error": "Model execution profile capability is not implemented"
+          },
+          "migrationStatements": 1,
+          "trailingObservations": 1
+        }
+      },
+      {
+        "name": "index3:index3-2.4:8",
+        "verdict": "MODEL_UNSUPPORTED",
+        "frontendStatus": "UNSUPPORTED",
+        "error": "Model execution profile capability is not implemented"
+      },
+      {
+        "name": "trigger3:trigger3-1.3:3",
+        "verdict": "MODEL_UNSUPPORTED",
+        "frontendStatus": "UNSUPPORTED",
+        "error": "Model execution profile capability is not implemented",
+        "queryDiagnostic": {
+          "category": "PREFIX_MODEL_UNSUPPORTED",
+          "prefix": {
+            "verdict": "MODEL_UNSUPPORTED",
+            "frontendStatus": "UNSUPPORTED",
+            "error": "Model execution profile capability is not implemented"
+          },
+          "migrationStatements": 0,
+          "trailingObservations": 1
+        }
+      },
+      {
+        "name": "upsert5:upsert5-1.2.505:75",
+        "verdict": "MODEL_UNSUPPORTED",
+        "frontendStatus": "UNSUPPORTED",
+        "error": "Model execution profile capability is not implemented",
+        "queryDiagnostic": {
+          "category": "PREFIX_MODEL_UNSUPPORTED",
+          "prefix": {
+            "verdict": "MODEL_UNSUPPORTED",
+            "frontendStatus": "UNSUPPORTED",
+            "error": "Model execution profile capability is not implemented"
+          },
+          "migrationStatements": 3,
+          "trailingObservations": 1
+        }
+      },
+      {
+        "name": "select4:select4-2.2:12",
+        "verdict": "MODEL_UNSUPPORTED",
+        "frontendStatus": "UNSUPPORTED",
+        "error": "Model execution profile capability is not implemented",
+        "queryDiagnostic": {
+          "category": "PREFIX_MODEL_UNSUPPORTED",
+          "prefix": {
+            "verdict": "MODEL_UNSUPPORTED",
+            "frontendStatus": "UNSUPPORTED",
+            "error": "Model execution profile capability is not implemented"
+          },
+          "migrationStatements": 0,
+          "trailingObservations": 1
+        }
+      },
+      {
+        "name": "check:check-11.5:83",
+        "verdict": "MODEL_UNSUPPORTED",
+        "frontendStatus": "UNSUPPORTED",
+        "error": "Model execution profile capability is not implemented"
+      },
+      {
+        "name": "upsert2:upsert2-201:3",
+        "verdict": "MODEL_UNSUPPORTED",
+        "frontendStatus": "UNSUPPORTED",
+        "error": "Model execution profile capability is not implemented",
+        "queryDiagnostic": {
+          "category": "PREFIX_MODEL_UNSUPPORTED",
+          "prefix": {
+            "verdict": "MODEL_UNSUPPORTED",
+            "frontendStatus": "UNSUPPORTED",
+            "error": "Model execution profile capability is not implemented"
+          },
+          "migrationStatements": 3,
+          "trailingObservations": 1
+        }
+      },
+      {
+        "name": "alterdropcol2:alterdropcol2-2.8.2:16",
+        "verdict": "MODEL_UNSUPPORTED",
+        "frontendStatus": "UNSUPPORTED",
+        "error": "Model execution profile capability is not implemented"
+      },
+      {
+        "name": "json502:json502-5.1:9",
+        "verdict": "MODEL_UNSUPPORTED",
+        "frontendStatus": "UNSUPPORTED",
+        "error": "Model execution profile capability is not implemented",
+        "queryDiagnostic": {
+          "category": "PREFIX_MODEL_UNSUPPORTED",
+          "prefix": {
+            "verdict": "MODEL_UNSUPPORTED",
+            "frontendStatus": "UNSUPPORTED",
+            "error": "Model execution profile capability is not implemented"
+          },
+          "migrationStatements": 0,
+          "trailingObservations": 1
+        }
+      },
+      {
+        "name": "altertab3:altertab3-14.1:41",
+        "verdict": "MODEL_UNSUPPORTED",
+        "frontendStatus": "UNSUPPORTED",
+        "error": "Model execution profile capability is not implemented"
+      },
+      {
+        "name": "delete:delete-1.1:0",
+        "verdict": "MODEL_UNSUPPORTED",
+        "frontendStatus": "UNSUPPORTED",
+        "error": "Model execution profile capability is not implemented"
+      },
+      {
+        "name": "cast:cast-9.11:121",
+        "verdict": "MODEL_UNSUPPORTED",
+        "frontendStatus": "UNSUPPORTED",
+        "error": "Model execution profile capability is not implemented",
+        "queryDiagnostic": {
+          "category": "PREFIX_MODEL_UNSUPPORTED",
+          "prefix": {
+            "verdict": "MODEL_UNSUPPORTED",
+            "frontendStatus": "UNSUPPORTED",
+            "error": "Model execution profile capability is not implemented"
+          },
+          "migrationStatements": 0,
+          "trailingObservations": 1
+        }
+      },
+      {
+        "name": "distinctagg:4.6.1:39",
+        "verdict": "MODEL_UNSUPPORTED",
+        "frontendStatus": "UNSUPPORTED",
+        "error": "Model execution profile capability is not implemented"
+      },
+      {
+        "name": "func3:func3-5.31:22",
+        "verdict": "MODEL_UNSUPPORTED",
+        "frontendStatus": "UNSUPPORTED",
+        "error": "Model execution profile capability is not implemented",
+        "queryDiagnostic": {
+          "category": "PREFIX_MODEL_UNSUPPORTED",
+          "prefix": {
+            "verdict": "MODEL_UNSUPPORTED",
+            "frontendStatus": "UNSUPPORTED",
+            "error": "Model execution profile capability is not implemented"
+          },
+          "migrationStatements": 0,
+          "trailingObservations": 1
+        }
+      },
+      {
+        "name": "trigger2:trigger2-2.4-before:37",
+        "verdict": "MODEL_UNSUPPORTED",
+        "frontendStatus": "UNSUPPORTED",
+        "error": "Model execution profile capability is not implemented",
+        "queryDiagnostic": {
+          "category": "PREFIX_MODEL_UNSUPPORTED",
+          "prefix": {
+            "verdict": "MODEL_UNSUPPORTED",
+            "frontendStatus": "UNSUPPORTED",
+            "error": "Model execution profile capability is not implemented"
+          },
+          "migrationStatements": 1,
+          "trailingObservations": 2
+        }
+      },
+      {
+        "name": "func9:func9-120:2",
+        "verdict": "MODEL_UNSUPPORTED",
+        "frontendStatus": "UNSUPPORTED",
+        "error": "Model execution profile capability is not implemented"
+      },
+      {
+        "name": "update:update-21.3:136",
+        "verdict": "MODEL_UNSUPPORTED",
+        "frontendStatus": "UNSUPPORTED",
+        "error": "Model execution profile capability is not implemented"
+      },
+      {
+        "name": "fkey3:fkey3-3.1.1:6",
+        "verdict": "MODEL_UNSUPPORTED",
+        "frontendStatus": "UNSUPPORTED",
+        "error": "Model execution profile capability is not implemented"
+      },
+      {
+        "name": "insert:insert-3.5:25",
+        "verdict": "MODEL_UNSUPPORTED",
+        "frontendStatus": "UNSUPPORTED",
+        "error": "Model execution profile capability is not implemented"
+      },
+      {
+        "name": "altertab2:altertab2-3.3.3:14",
+        "verdict": "MODEL_UNSUPPORTED",
+        "frontendStatus": "UNSUPPORTED",
+        "error": "Model execution profile capability is not implemented"
+      },
+      {
+        "name": "insert5:insert5-2.5:6",
+        "verdict": "MODEL_UNSUPPORTED",
+        "frontendStatus": "UNSUPPORTED",
+        "error": "Model execution profile capability is not implemented"
+      },
+      {
+        "name": "altertrig:altertrig-2.8.2:33",
+        "verdict": "MODEL_UNSUPPORTED",
+        "frontendStatus": "UNSUPPORTED",
+        "error": "Model execution profile capability is not implemented"
+      },
+      {
+        "name": "upsert1:upsert1-1100:31",
+        "verdict": "MODEL_UNSUPPORTED",
+        "frontendStatus": "UNSUPPORTED",
+        "error": "Model execution profile capability is not implemented",
+        "queryDiagnostic": {
+          "category": "PREFIX_MODEL_UNSUPPORTED",
+          "prefix": {
+            "verdict": "MODEL_UNSUPPORTED",
+            "frontendStatus": "UNSUPPORTED",
+            "error": "Model execution profile capability is not implemented"
+          },
+          "migrationStatements": 3,
+          "trailingObservations": 1
+        }
+      },
+      {
+        "name": "trans:trans-1.0.1:1",
+        "verdict": "MODEL_UNSUPPORTED",
+        "frontendStatus": "UNSUPPORTED",
+        "error": "Model execution profile capability is not implemented"
+      },
+      {
+        "name": "e_changes:6.3:67",
+        "verdict": "MODEL_UNSUPPORTED",
+        "frontendStatus": "UNSUPPORTED",
+        "error": "Model execution profile capability is not implemented",
+        "queryDiagnostic": {
+          "category": "PREFIX_MODEL_UNSUPPORTED",
+          "prefix": {
+            "verdict": "MODEL_UNSUPPORTED",
+            "frontendStatus": "UNSUPPORTED",
+            "error": "Model execution profile capability is not implemented"
+          },
+          "migrationStatements": 2,
+          "trailingObservations": 1
+        }
+      },
+      {
+        "name": "countofview:countofview-1.3:3",
+        "verdict": "MODEL_UNSUPPORTED",
+        "frontendStatus": "UNSUPPORTED",
+        "error": "Model execution profile capability is not implemented",
+        "queryDiagnostic": {
+          "category": "PREFIX_MODEL_UNSUPPORTED",
+          "prefix": {
+            "verdict": "MODEL_UNSUPPORTED",
+            "frontendStatus": "UNSUPPORTED",
+            "error": "Model execution profile capability is not implemented"
+          },
+          "migrationStatements": 0,
+          "trailingObservations": 1
+        }
+      },
+      {
+        "name": "returning1:returning1-8.3:36",
+        "verdict": "MODEL_UNSUPPORTED",
+        "frontendStatus": "UNSUPPORTED",
+        "error": "Model execution profile capability is not implemented"
+      },
+      {
+        "name": "transitive1:transitive1-332:14",
+        "verdict": "MODEL_UNSUPPORTED",
+        "frontendStatus": "UNSUPPORTED",
+        "error": "Model execution profile capability is not implemented",
+        "queryDiagnostic": {
+          "category": "PREFIX_MODEL_UNSUPPORTED",
+          "prefix": {
+            "verdict": "MODEL_UNSUPPORTED",
+            "frontendStatus": "UNSUPPORTED",
+            "error": "Model execution profile capability is not implemented"
+          },
+          "migrationStatements": 0,
+          "trailingObservations": 1
+        }
+      },
+      {
+        "name": "indexexpr3:indexexpr3-1.0:0",
+        "verdict": "MODEL_UNSUPPORTED",
+        "frontendStatus": "UNSUPPORTED",
+        "error": "Model execution profile capability is not implemented"
+      },
+      {
+        "name": "trigger7:trigger7-2.3:4",
+        "verdict": "MODEL_UNSUPPORTED",
+        "frontendStatus": "UNSUPPORTED",
+        "error": "Model execution profile capability is not implemented"
+      },
+      {
+        "name": "selectH:selectH-1.1:0",
+        "verdict": "MODEL_UNSUPPORTED",
+        "frontendStatus": "UNSUPPORTED",
+        "error": "Model execution profile capability is not implemented"
+      },
+      {
+        "name": "alter:alter-21.3:117",
+        "verdict": "MODEL_UNSUPPORTED",
+        "frontendStatus": "UNSUPPORTED",
+        "error": "Model execution profile capability is not implemented"
+      },
+      {
+        "name": "fkey8:fkey8-2.1.0:14",
+        "verdict": "MODEL_UNSUPPORTED",
+        "frontendStatus": "UNSUPPORTED",
+        "error": "Model execution profile capability is not implemented"
+      },
+      {
+        "name": "insert2:insert2-1.0:0",
+        "verdict": "MODEL_UNSUPPORTED",
+        "frontendStatus": "UNSUPPORTED",
+        "error": "Model execution profile capability is not implemented",
+        "queryDiagnostic": {
+          "category": "PREFIX_MODEL_UNSUPPORTED",
+          "prefix": {
+            "verdict": "MODEL_UNSUPPORTED",
+            "frontendStatus": "UNSUPPORTED",
+            "error": "Model execution profile capability is not implemented"
+          },
+          "migrationStatements": 21,
+          "trailingObservations": 1
+        }
+      },
+      {
+        "name": "alter3:alter3-9.2:48",
+        "verdict": "MODEL_UNSUPPORTED",
+        "frontendStatus": "UNSUPPORTED",
+        "error": "Model execution profile capability is not implemented"
+      },
+      {
+        "name": "triggerupfrom:triggerupfrom-1.0:0",
+        "verdict": "MODEL_UNSUPPORTED",
+        "frontendStatus": "UNSUPPORTED",
+        "error": "Model execution profile capability is not implemented"
+      },
+      {
+        "name": "e_totalchanges:1.1.4:4",
+        "verdict": "MODEL_UNSUPPORTED",
+        "frontendStatus": "UNSUPPORTED",
+        "error": "Model execution profile capability is not implemented"
+      },
+      {
+        "name": "trigger1:trigger1-1.6.2:11",
+        "verdict": "MODEL_UNSUPPORTED",
+        "frontendStatus": "UNSUPPORTED",
+        "error": "Model execution profile capability is not implemented"
+      },
+      {
+        "name": "index6:index6-15.5:63",
+        "verdict": "MODEL_UNSUPPORTED",
+        "frontendStatus": "UNSUPPORTED",
+        "error": "Model execution profile capability is not implemented",
+        "queryDiagnostic": {
+          "category": "PREFIX_MODEL_UNSUPPORTED",
+          "prefix": {
+            "verdict": "MODEL_UNSUPPORTED",
+            "frontendStatus": "UNSUPPORTED",
+            "error": "Model execution profile capability is not implemented"
+          },
+          "migrationStatements": 0,
+          "trailingObservations": 1
+        }
+      },
+      {
+        "name": "json103:json103-300:9",
+        "verdict": "MODEL_UNSUPPORTED",
+        "frontendStatus": "UNSUPPORTED",
+        "error": "Model execution profile capability is not implemented",
+        "queryDiagnostic": {
+          "category": "PREFIX_MODEL_UNSUPPORTED",
+          "prefix": {
+            "verdict": "MODEL_UNSUPPORTED",
+            "frontendStatus": "UNSUPPORTED",
+            "error": "Model execution profile capability is not implemented"
+          },
+          "migrationStatements": 3,
+          "trailingObservations": 1
+        }
+      },
+      {
+        "name": "e_expr:e_expr-1.cat.mul.6:22",
+        "verdict": "MODEL_UNSUPPORTED",
+        "frontendStatus": "UNSUPPORTED",
+        "error": "Model execution profile capability is not implemented",
+        "queryDiagnostic": {
+          "category": "PREFIX_MODEL_UNSUPPORTED",
+          "prefix": {
+            "verdict": "MODEL_UNSUPPORTED",
+            "frontendStatus": "UNSUPPORTED",
+            "error": "Model execution profile capability is not implemented"
+          },
+          "migrationStatements": 0,
+          "trailingObservations": 1
+        }
+      },
+      {
+        "name": "func:func-35.110:15013",
+        "verdict": "MODEL_UNSUPPORTED",
+        "frontendStatus": "UNSUPPORTED",
+        "error": "Model execution profile capability is not implemented",
+        "queryDiagnostic": {
+          "category": "PREFIX_MODEL_UNSUPPORTED",
+          "prefix": {
+            "verdict": "MODEL_UNSUPPORTED",
+            "frontendStatus": "UNSUPPORTED",
+            "error": "Model execution profile capability is not implemented"
+          },
+          "migrationStatements": 0,
+          "trailingObservations": 1
+        }
+      },
+      {
+        "name": "expr2:expr2-1.4.1:5",
+        "verdict": "MODEL_UNSUPPORTED",
+        "frontendStatus": "UNSUPPORTED",
+        "error": "Model execution profile capability is not implemented",
+        "queryDiagnostic": {
+          "category": "PREFIX_MODEL_UNSUPPORTED",
+          "prefix": {
+            "verdict": "MODEL_UNSUPPORTED",
+            "frontendStatus": "UNSUPPORTED",
+            "error": "Model execution profile capability is not implemented"
+          },
+          "migrationStatements": 0,
+          "trailingObservations": 1
+        }
+      },
+      {
+        "name": "triggerD:triggerD-1.2:1",
+        "verdict": "MODEL_UNSUPPORTED",
+        "frontendStatus": "UNSUPPORTED",
+        "error": "Model execution profile capability is not implemented",
+        "queryDiagnostic": {
+          "category": "PREFIX_MODEL_UNSUPPORTED",
+          "prefix": {
+            "verdict": "MODEL_UNSUPPORTED",
+            "frontendStatus": "UNSUPPORTED",
+            "error": "Model execution profile capability is not implemented"
+          },
+          "migrationStatements": 1,
+          "trailingObservations": 1
+        }
+      },
+      {
+        "name": "fkey7:fkey7-1.1:0",
+        "verdict": "MODEL_UNSUPPORTED",
+        "frontendStatus": "UNSUPPORTED",
+        "error": "Model execution profile capability is not implemented"
+      },
+      {
+        "name": "e_fkey:e_fkey-1:0",
+        "verdict": "MODEL_UNSUPPORTED",
+        "frontendStatus": "UNSUPPORTED",
+        "error": "Model execution profile capability is not implemented",
+        "queryDiagnostic": {
+          "category": "PREFIX_MODEL_UNSUPPORTED",
+          "prefix": {
+            "verdict": "MODEL_UNSUPPORTED",
+            "frontendStatus": "UNSUPPORTED",
+            "error": "Model execution profile capability is not implemented"
+          },
+          "migrationStatements": 6,
+          "trailingObservations": 1
+        }
+      },
+      {
+        "name": "trigger9:trigger9-4.3:27",
+        "verdict": "MODEL_UNSUPPORTED",
+        "frontendStatus": "UNSUPPORTED",
+        "error": "Model execution profile capability is not implemented"
+      },
+      {
+        "name": "upsert3:upsert3-210:6",
+        "verdict": "MODEL_UNSUPPORTED",
+        "frontendStatus": "UNSUPPORTED",
+        "error": "Model execution profile capability is not implemented",
+        "queryDiagnostic": {
+          "category": "PREFIX_MODEL_UNSUPPORTED",
+          "prefix": {
+            "verdict": "MODEL_UNSUPPORTED",
+            "frontendStatus": "UNSUPPORTED",
+            "error": "Model execution profile capability is not implemented"
+          },
+          "migrationStatements": 1,
+          "trailingObservations": 1
+        }
+      },
+      {
+        "name": "delete2:delete2-1.3:2",
+        "verdict": "MODEL_UNSUPPORTED",
+        "frontendStatus": "UNSUPPORTED",
+        "error": "Model execution profile capability is not implemented"
+      },
+      {
+        "name": "e_reindex:e_reindex-0.1.5:5",
+        "verdict": "MODEL_UNSUPPORTED",
+        "frontendStatus": "UNSUPPORTED",
+        "error": "Model execution profile capability is not implemented"
+      },
+      {
+        "name": "count:count-1.2.2:7",
+        "verdict": "MODEL_UNSUPPORTED",
+        "frontendStatus": "UNSUPPORTED",
+        "error": "Model execution profile capability is not implemented",
+        "queryDiagnostic": {
+          "category": "PREFIX_MODEL_UNSUPPORTED",
+          "prefix": {
+            "verdict": "MODEL_UNSUPPORTED",
+            "frontendStatus": "UNSUPPORTED",
+            "error": "Model execution profile capability is not implemented"
+          },
+          "migrationStatements": 2,
+          "trailingObservations": 1
+        }
+      },
+      {
+        "name": "e_delete:e_delete-0.1.10:10",
+        "verdict": "MODEL_UNSUPPORTED",
+        "frontendStatus": "UNSUPPORTED",
+        "error": "Model execution profile capability is not implemented"
+      },
+      {
+        "name": "delete4:delete4-4.12:15",
+        "verdict": "MODEL_UNSUPPORTED",
+        "frontendStatus": "UNSUPPORTED",
+        "error": "Model execution profile capability is not implemented"
+      },
+      {
+        "name": "trigger8:trigger8-1.1:0",
+        "verdict": "MODEL_UNSUPPORTED",
+        "frontendStatus": "UNSUPPORTED",
+        "error": "Model execution profile capability is not implemented",
+        "queryDiagnostic": {
+          "category": "PREFIX_MODEL_UNSUPPORTED",
+          "prefix": {
+            "verdict": "MODEL_UNSUPPORTED",
+            "frontendStatus": "UNSUPPORTED",
+            "error": "Model execution profile capability is not implemented"
+          },
+          "migrationStatements": 4,
+          "trailingObservations": 1
+        }
+      },
+      {
+        "name": "selectE:selectE-1.3:3",
+        "verdict": "MODEL_UNSUPPORTED",
+        "frontendStatus": "UNSUPPORTED",
+        "error": "Model execution profile capability is not implemented",
+        "queryDiagnostic": {
+          "category": "PREFIX_MODEL_UNSUPPORTED",
+          "prefix": {
+            "verdict": "MODEL_UNSUPPORTED",
+            "frontendStatus": "UNSUPPORTED",
+            "error": "Model execution profile capability is not implemented"
+          },
+          "migrationStatements": 0,
+          "trailingObservations": 1
+        }
+      },
+      {
+        "name": "fkey6:fkey6-5.0:36",
+        "verdict": "MODEL_UNSUPPORTED",
+        "frontendStatus": "UNSUPPORTED",
+        "error": "Model execution profile capability is not implemented"
+      },
+      {
+        "name": "select8:select8-1.2:1",
+        "verdict": "MODEL_UNSUPPORTED",
+        "frontendStatus": "UNSUPPORTED",
+        "error": "Model execution profile capability is not implemented",
+        "queryDiagnostic": {
+          "category": "PREFIX_MODEL_UNSUPPORTED",
+          "prefix": {
+            "verdict": "MODEL_UNSUPPORTED",
+            "frontendStatus": "UNSUPPORTED",
+            "error": "Model execution profile capability is not implemented"
+          },
+          "migrationStatements": 0,
+          "trailingObservations": 1
+        }
+      },
+      {
+        "name": "fkey1:fkey1-3.3:6",
+        "verdict": "MODEL_UNSUPPORTED",
+        "frontendStatus": "UNSUPPORTED",
+        "error": "Model execution profile capability is not implemented",
+        "queryDiagnostic": {
+          "category": "PREFIX_MODEL_UNSUPPORTED",
+          "prefix": {
+            "verdict": "MODEL_UNSUPPORTED",
+            "frontendStatus": "UNSUPPORTED",
+            "error": "Model execution profile capability is not implemented"
+          },
+          "migrationStatements": 1,
+          "trailingObservations": 1
+        }
+      },
+      {
+        "name": "jsonb01:jsonb01-1.1:0",
+        "verdict": "MODEL_UNSUPPORTED",
+        "frontendStatus": "UNSUPPORTED",
+        "error": "Model execution profile capability is not implemented"
+      },
+      {
+        "name": "selectB:selectB-1.1:0",
+        "verdict": "MODEL_UNSUPPORTED",
+        "frontendStatus": "UNSUPPORTED",
+        "error": "Model execution profile capability is not implemented"
+      },
+      {
+        "name": "index2:index2-1.2:1",
+        "verdict": "MODEL_UNSUPPORTED",
+        "frontendStatus": "UNSUPPORTED",
+        "error": "Model execution profile capability is not implemented"
+      },
+      {
+        "name": "index9:index9-1.0:0",
+        "verdict": "MODEL_UNSUPPORTED",
+        "frontendStatus": "UNSUPPORTED",
+        "error": "Model execution profile capability is not implemented"
+      },
+      {
+        "name": "select6:select6-13.100:84",
+        "verdict": "MODEL_UNSUPPORTED",
+        "frontendStatus": "UNSUPPORTED",
+        "error": "Model execution profile capability is not implemented"
+      },
+      {
+        "name": "index8:1.1:2",
+        "verdict": "MODEL_UNSUPPORTED",
+        "frontendStatus": "UNSUPPORTED",
+        "error": "Model execution profile capability is not implemented",
+        "queryDiagnostic": {
+          "category": "PREFIX_MODEL_UNSUPPORTED",
+          "prefix": {
+            "verdict": "MODEL_UNSUPPORTED",
+            "frontendStatus": "UNSUPPORTED",
+            "error": "Model execution profile capability is not implemented"
+          },
+          "migrationStatements": 2,
+          "trailingObservations": 1
+        }
+      },
+      {
+        "name": "select9:select9-1.1.1:1",
+        "verdict": "MODEL_UNSUPPORTED",
+        "frontendStatus": "UNSUPPORTED",
+        "error": "Model execution profile capability is not implemented"
+      },
+      {
+        "name": "trans3:trans3-1.1:0",
+        "verdict": "MODEL_UNSUPPORTED",
+        "frontendStatus": "UNSUPPORTED",
+        "error": "Model execution profile capability is not implemented",
+        "queryDiagnostic": {
+          "category": "PREFIX_MODEL_UNSUPPORTED",
+          "prefix": {
+            "verdict": "MODEL_UNSUPPORTED",
+            "frontendStatus": "UNSUPPORTED",
+            "error": "Model execution profile capability is not implemented"
+          },
+          "migrationStatements": 4,
+          "trailingObservations": 1
+        }
+      },
+      {
+        "name": "index7:index7-8.1:43",
+        "verdict": "MODEL_UNSUPPORTED",
+        "frontendStatus": "UNSUPPORTED",
+        "error": "Model execution profile capability is not implemented"
+      },
+      {
+        "name": "indexedby:indexedby-1.3:2",
+        "verdict": "MODEL_UNSUPPORTED",
+        "frontendStatus": "UNSUPPORTED",
+        "error": "Model execution profile capability is not implemented"
+      },
+      {
+        "name": "trigger5:trigger5-1.1:0",
+        "verdict": "MODEL_UNSUPPORTED",
+        "frontendStatus": "UNSUPPORTED",
+        "error": "Model execution profile capability is not implemented",
+        "queryDiagnostic": {
+          "category": "PREFIX_MODEL_UNSUPPORTED",
+          "prefix": {
+            "verdict": "MODEL_UNSUPPORTED",
+            "frontendStatus": "UNSUPPORTED",
+            "error": "Model execution profile capability is not implemented"
+          },
+          "migrationStatements": 5,
+          "trailingObservations": 1
+        }
+      },
+      {
+        "name": "selectF:selectF-1:0",
+        "verdict": "MODEL_UNSUPPORTED",
+        "frontendStatus": "UNSUPPORTED",
+        "error": "Model execution profile capability is not implemented"
+      },
+      {
+        "name": "triggerC:triggerC-14.1:108",
+        "verdict": "MODEL_UNSUPPORTED",
+        "frontendStatus": "UNSUPPORTED",
+        "error": "Model execution profile capability is not implemented",
+        "queryDiagnostic": {
+          "category": "PREFIX_MODEL_UNSUPPORTED",
+          "prefix": {
+            "verdict": "MODEL_UNSUPPORTED",
+            "frontendStatus": "UNSUPPORTED",
+            "error": "Model execution profile capability is not implemented"
+          },
+          "migrationStatements": 14,
+          "trailingObservations": 1
+        }
+      },
+      {
+        "name": "fkey4:fkey4-1.4:5",
+        "verdict": "MODEL_UNSUPPORTED",
+        "frontendStatus": "UNSUPPORTED",
+        "error": "Model execution profile capability is not implemented",
+        "queryDiagnostic": {
+          "category": "PREFIX_MODEL_UNSUPPORTED",
+          "prefix": {
+            "verdict": "MODEL_UNSUPPORTED",
+            "frontendStatus": "UNSUPPORTED",
+            "error": "Model execution profile capability is not implemented"
+          },
+          "migrationStatements": 0,
+          "trailingObservations": 1
+        }
+      },
+      {
+        "name": "func8:func8-100:0",
+        "verdict": "MODEL_UNSUPPORTED",
+        "frontendStatus": "UNSUPPORTED",
+        "error": "Model execution profile capability is not implemented"
+      }
+    ]
+  },
+  "synthetic": {
+    "corpusVersion": 4,
+    "casesSha256": "4fe8d9ec6eb0555aa9a8eed512860ad7f19376fd2a2c43a990f8333c106d6a40",
+    "manifestSha256": "aad6c378598a8d08a5421ea21453592dce93279b0bbf648bea6b85663a099b46",
+    "executionProfiles": [
+      {
+        "clock": "excluded",
+        "compileOptions": [
+          "ATOMIC_INTRINSICS=1",
+          "COMPILER=clang-21.1.8",
+          "DEFAULT_AUTOVACUUM",
+          "DEFAULT_CACHE_SIZE=-2000",
+          "DEFAULT_FILE_FORMAT=4",
+          "DEFAULT_JOURNAL_SIZE_LIMIT=-1",
+          "DEFAULT_MMAP_SIZE=0",
+          "DEFAULT_PAGE_SIZE=4096",
+          "DEFAULT_PCACHE_INITSZ=20",
+          "DEFAULT_RECURSIVE_TRIGGERS",
+          "DEFAULT_SECTOR_SIZE=4096",
+          "DEFAULT_SYNCHRONOUS=2",
+          "DEFAULT_WAL_AUTOCHECKPOINT=1000",
+          "DEFAULT_WAL_SYNCHRONOUS=2",
+          "DEFAULT_WORKER_THREADS=0",
+          "DIRECT_OVERFLOW_READ",
+          "ENABLE_MATH_FUNCTIONS",
+          "ENABLE_PERCENTILE",
+          "MALLOC_SOFT_LIMIT=1024",
+          "MAX_ATTACHED=10",
+          "MAX_COLUMN=2000",
+          "MAX_COMPOUND_SELECT=500",
+          "MAX_DEFAULT_PAGE_SIZE=8192",
+          "MAX_EXPR_DEPTH=1000",
+          "MAX_FUNCTION_ARG=1000",
+          "MAX_LENGTH=1000000000",
+          "MAX_LIKE_PATTERN_LENGTH=50000",
+          "MAX_MMAP_SIZE=0x7fff0000",
+          "MAX_PAGE_COUNT=0xfffffffe",
+          "MAX_PAGE_SIZE=65536",
+          "MAX_SQL_LENGTH=1000000000",
+          "MAX_TRIGGER_DEPTH=1000",
+          "MAX_VARIABLE_NUMBER=32766",
+          "MAX_VDBE_OP=250000000",
+          "MAX_WORKER_THREADS=8",
+          "MUTEX_PTHREADS",
+          "SYSTEM_MALLOC",
+          "TEMP_STORE=1",
+          "THREADSAFE=1"
+        ],
+        "engineVersion": "3.51.0",
+        "foreignKeys": true,
+        "ignoredSettings": [],
+        "name": "synthetic-workload-v1",
+        "otherWriters": [],
+        "recursiveTriggers": false,
+        "sourceId": "2025-11-04 19:38:17 fb2c931ae597f8d00a37574ff67aeed3eced4e5547f9120744ae4bfa8e74527b",
+        "timezone": "UTC",
+        "transactionMode": "immediate",
+        "version": 1
+      }
+    ],
+    "denominator": 2,
+    "selectedDenominator": 2,
+    "selectedNames": [
+      "synthetic-transaction-cascade",
+      "synthetic-empty-result"
+    ],
+    "selectedIdentities": [
+      {
+        "name": "synthetic-transaction-cascade",
+        "part": "workload",
+        "upstreamSource": null
+      },
+      {
+        "name": "synthetic-empty-result",
+        "part": "workload",
+        "upstreamSource": null
+      }
+    ],
+    "selectedIdentitiesSha256": "ea71c480d7f4421815a469347939d8cbda77f0fee3d3f39b8e1281d87d101dfa",
+    "nativeReplayPassed": true,
+    "queryDiagnostics": {
+      "OTHER_UNSUPPORTED": 1,
+      "PREFIX_MODEL_UNSUPPORTED": 1
+    },
+    "counts": {
+      "MODEL_UNSUPPORTED": 2
+    },
+    "byArea": {
+      "authored": {
+        "MODEL_UNSUPPORTED": 2
+      }
+    },
+    "byRequirement": {
+      "UNTAGGED": {
+        "MODEL_UNSUPPORTED": 2
+      }
+    },
+    "cases": [
+      {
+        "name": "synthetic-transaction-cascade",
+        "verdict": "MODEL_UNSUPPORTED",
+        "frontendStatus": "UNSUPPORTED",
+        "error": "Model execution profile capability is not implemented"
+      },
+      {
+        "name": "synthetic-empty-result",
+        "verdict": "MODEL_UNSUPPORTED",
+        "frontendStatus": "UNSUPPORTED",
+        "error": "Model execution profile capability is not implemented",
+        "queryDiagnostic": {
+          "category": "PREFIX_MODEL_UNSUPPORTED",
+          "prefix": {
+            "verdict": "MODEL_UNSUPPORTED",
+            "frontendStatus": "UNSUPPORTED",
+            "error": "Model execution profile capability is not implemented"
+          },
+          "migrationStatements": 0,
+          "trailingObservations": 1
+        }
+      }
+    ]
+  },
+  "denominator": 4378,
+  "selectedDenominator": 184,
+  "counts": {
+    "MODEL_UNSUPPORTED": 184
+  },
+  "measurement": {
+    "phase": "fresh-load-native-replay-model-classification",
+    "seconds": 37.21418787539005,
+    "limitSeconds": 60
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "extraction": "build/c6-upstream-v2/manifest.json",
+  "extractionSha256": "8ae3edbefdcfd4344f57fa5c78140eff11e4dfd013950b6521b9f76324342509",
+  "extractionCanonicalSha256": "43866a800d3a3810810dd5afcf415b27db514dcf8cf343cad8ced65c9c0c4aac",
+  "casesSha256": "a428179952867fa0fc0053e02ad1a6c655206104569101892ca7d949eb403c36",
+  "differingCandidates": 11,
+  "causes": {
+    "testfixture-only virtual-table module: echo": 11
+  },
+  "ledgerSha256": "b21af975a366bd850b8ff4e327f92eea6a61c3aaa6c2fa520d7f0bd00e508608",
+  "evidenceSha256": "e801e9085ff3bacf4ebf2a58c12d7a0de578e008f94bb1408693a964fc64c54b"
+}

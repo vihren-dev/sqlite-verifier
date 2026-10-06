@@ -1,0 +1,479 @@
+{
+  "method": "Pinned source excerpts explain actual original Tcl versus freshly reconstructed native observations",
+  "sourceArchiveSha256": "5330719b8b80bf563991ff7a373052943f5357aae76cd1f3367eab845d3a75b7",
+  "sources": [
+    {
+      "path": "test/aggerror.test",
+      "sha256": "310c3880ea0405d54da53c0279c897e3180b8d470269f36b662764a9869bd20b",
+      "excerpts": [
+        {
+          "firstLine": 20,
+          "lastLine": 45,
+          "lines": [
+            "",
+            "",
+            "# Add the x_count aggregate function to the database handle.",
+            "# x_count will error out if its input is 40 or 41 or if its",
+            "# final results is 42.  Make sure that such errors are handled",
+            "# appropriately.",
+            "#",
+            "do_test aggerror-1.1 {",
+            "  set DB [sqlite3_connection_pointer db]",
+            "  sqlite3_create_aggregate $DB",
+            "  execsql {",
+            "    CREATE TABLE t1(a);",
+            "    INSERT INTO t1 VALUES(1);",
+            "    INSERT INTO t1 VALUES(2);",
+            "    INSERT INTO t1 SELECT a+2 FROM t1;",
+            "    INSERT INTO t1 SELECT a+4 FROM t1;",
+            "    INSERT INTO t1 SELECT a+8 FROM t1;",
+            "    INSERT INTO t1 SELECT a+16 FROM t1;",
+            "    INSERT INTO t1 SELECT a+32 FROM t1 ORDER BY a LIMIT 7;",
+            "    SELECT x_count(*) FROM t1;",
+            "  }",
+            "} {39}",
+            "do_test aggerror-1.2 {",
+            "  execsql {",
+            "    INSERT INTO t1 VALUES(40);",
+            "    SELECT x_count(*) FROM t1;"
+          ]
+        }
+      ]
+    },
+    {
+      "path": "src/test1.c",
+      "sha256": "0984571bc92c5583bdd24ff649789db3bff02238ef70b0323b4cc93217fb77e8",
+      "excerpts": [
+        {
+          "firstLine": 1319,
+          "lastLine": 1361,
+          "lines": [
+            "** Usage:  sqlite3_create_aggregate DB",
+            "**",
+            "** Call the sqlite3_create_function API on the given database in order",
+            "** to create a function named \"x_count\".  This function is similar",
+            "** to the built-in count() function, with a few special quirks",
+            "** for testing the sqlite3_result_error() APIs.",
+            "**",
+            "** The original motivation for this routine was to be able to call the",
+            "** sqlite3_create_aggregate function while a query is in progress in order",
+            "** to test the SQLITE_MISUSE detection logic.  See misuse.test.",
+            "**",
+            "** This routine was later extended to test the use of sqlite3_result_error()",
+            "** within aggregate functions.",
+            "**",
+            "** Later: It is now also extended to register the aggregate function",
+            "** \"legacy_count()\" with the supplied database handle. This is used",
+            "** to test the deprecated sqlite3_aggregate_count() API.",
+            "*/",
+            "static int SQLITE_TCLAPI test_create_aggregate(",
+            "  void *NotUsed,",
+            "  Tcl_Interp *interp,    /* The TCL interpreter that invoked this command */",
+            "  int argc,              /* Number of arguments */",
+            "  char **argv            /* Text of each argument */",
+            "){",
+            "  sqlite3 *db;",
+            "  int rc;",
+            "  if( argc!=2 ){",
+            "    Tcl_AppendResult(interp, \"wrong # args: should be \\\"\", argv[0],",
+            "       \" FILENAME\\\"\", 0);",
+            "    return TCL_ERROR;",
+            "  }",
+            "  if( getDbPointer(interp, argv[1], &db) ) return TCL_ERROR;",
+            "  rc = sqlite3_create_function(db, \"x_count\", 0, SQLITE_UTF8, 0, 0,",
+            "      t1CountStep,t1CountFinalize);",
+            "  if( rc==SQLITE_OK ){",
+            "    rc = sqlite3_create_function(db, \"x_count\", 1, SQLITE_UTF8, 0, 0,",
+            "        t1CountStep,t1CountFinalize);",
+            "  }",
+            "#ifndef SQLITE_OMIT_DEPRECATED",
+            "  if( rc==SQLITE_OK ){",
+            "    rc = sqlite3_create_function(db, \"legacy_count\", 0, SQLITE_ANY, 0, 0,",
+            "        legacyCountStep, legacyCountFinalize",
+            "    );"
+          ]
+        },
+        {
+          "firstLine": 8337,
+          "lastLine": 8378,
+          "lines": [
+            "  extern int sqlite3_spellfix_init(sqlite3*,char**,const sqlite3_api_routines*);",
+            "  extern int sqlite3_stmtrand_init(sqlite3*,char**,const sqlite3_api_routines*);",
+            "  extern int sqlite3_totype_init(sqlite3*,char**,const sqlite3_api_routines*);",
+            "  extern int sqlite3_wholenumber_init(sqlite3*,char**,const sqlite3_api_routines*);",
+            "  extern int sqlite3_unionvtab_init(sqlite3*,char**,const sqlite3_api_routines*);",
+            "#ifdef SQLITE_HAVE_ZLIB",
+            "  extern int sqlite3_zipfile_init(sqlite3*,char**,const sqlite3_api_routines*);",
+            "#endif",
+            "  static const struct {",
+            "    const char *zExtName;",
+            "    int (*pInit)(sqlite3*,char**,const sqlite3_api_routines*);",
+            "  } aExtension[] = {",
+            "    { \"amatch\",                sqlite3_amatch_init               },",
+            "    { \"appendvfs\",             sqlite3_appendvfs_init            },",
+            "    { \"basexx\",                sqlite3_basexx_init               },",
+            "    { \"closure\",               sqlite3_closure_init              },",
+            "    { \"csv\",                   sqlite3_csv_init                  },",
+            "    { \"decimal\",               sqlite3_decimal_init              },",
+            "    { \"eval\",                  sqlite3_eval_init                 },",
+            "    { \"explain\",               sqlite3_explain_init              },",
+            "    { \"fileio\",                sqlite3_fileio_init               },",
+            "    { \"fuzzer\",                sqlite3_fuzzer_init               },",
+            "    { \"ieee754\",               sqlite3_ieee_init                 },",
+            "    { \"nextchar\",              sqlite3_nextchar_init             },",
+            "#ifndef SQLITE_OMIT_VIRTUALTABLE",
+            "    { \"prefixes\",              sqlite3_prefixes_init             },",
+            "#endif",
+            "    { \"qpvtab\",                sqlite3_qpvtab_init               },",
+            "    { \"randomjson\",            sqlite3_randomjson_init           },",
+            "    { \"regexp\",                sqlite3_regexp_init               },",
+            "    { \"remember\",              sqlite3_remember_init             },",
+            "    { \"series\",                sqlite3_series_init               },",
+            "    { \"spellfix\",              sqlite3_spellfix_init             },",
+            "    { \"stmtrand\",              sqlite3_stmtrand_init             },",
+            "    { \"totype\",                sqlite3_totype_init               },",
+            "    { \"unionvtab\",             sqlite3_unionvtab_init            },",
+            "    { \"wholenumber\",           sqlite3_wholenumber_init          },",
+            "#ifdef SQLITE_HAVE_ZLIB",
+            "    { \"zipfile\",               sqlite3_zipfile_init              },",
+            "#endif",
+            "  };",
+            "  sqlite3 *db;"
+          ]
+        }
+      ]
+    },
+    {
+      "path": "test/func4.test",
+      "sha256": "74388c9d5b7a55817d335f3989ec6c5edf4c9066efe7ffef358f9621e6b96b1f",
+      "excerpts": [
+        {
+          "firstLine": 11,
+          "lastLine": 40,
+          "lines": [
+            "# This file implements regression tests for SQLite library. The focus of",
+            "# this file is testing the tointeger() and toreal() functions that are",
+            "# part of the \"totype.c\" extension.  This file does not test the core",
+            "# SQLite library.  Failures of tests in this file are related to the",
+            "# ext/misc/totype.c extension.",
+            "#",
+            "# Several of the toreal() tests are disabled on platforms where floating",
+            "# point precision is not high enough to represent their constant integer",
+            "# expression arguments as double precision floating point values.",
+            "#",
+            "set testdir [file dirname $argv0]",
+            "source $testdir/tester.tcl",
+            "set saved_tcl_precision $tcl_precision",
+            "set tcl_precision 0",
+            "load_static_extension db totype",
+            "",
+            "set highPrecision(1) [expr \\",
+            "    {[db eval {SELECT tointeger(9223372036854775807 + 1);}] eq {{}}}]",
+            "set highPrecision(2) [expr \\",
+            "    {[db eval {SELECT toreal(-9223372036854775808 + 1);}] eq {{}}}]",
+            "",
+            "# highPrecision(3) is only known to be false on i586 with gcc-13 and -O2.",
+            "# It is true on the exact same platform with -O0.  Both results seem",
+            "# reasonable, so we'll just very the expectation accordingly.",
+            "#",
+            "set highPrecision(3) [expr \\",
+            "    {[db eval {SELECT toreal(9007199254740992 + 1);}] eq {{}}}]",
+            "",
+            "if {!$highPrecision(1) || !$highPrecision(2) || !$highPrecision(3)} {",
+            "  puts \"NOTICE:\\"
+          ]
+        }
+      ]
+    },
+    {
+      "path": "ext/misc/totype.c",
+      "sha256": "9e192376666049b41ef850d1841eb22efcb4e6849f4247959f237d5dede55c5f",
+      "excerpts": [
+        {
+          "firstLine": 510,
+          "lastLine": 528,
+          "lines": [
+            "#endif",
+            "int sqlite3_totype_init(",
+            "  sqlite3 *db,",
+            "  char **pzErrMsg,",
+            "  const sqlite3_api_routines *pApi",
+            "){",
+            "  int rc = SQLITE_OK;",
+            "  SQLITE_EXTENSION_INIT2(pApi);",
+            "  (void)pzErrMsg;  /* Unused parameter */",
+            "  rc = sqlite3_create_function(db, \"tointeger\", 1,",
+            "        SQLITE_UTF8 | SQLITE_DETERMINISTIC | SQLITE_INNOCUOUS, 0,",
+            "        tointegerFunc, 0, 0);",
+            "  if( rc==SQLITE_OK ){",
+            "    rc = sqlite3_create_function(db, \"toreal\", 1,",
+            "        SQLITE_UTF8 | SQLITE_DETERMINISTIC | SQLITE_INNOCUOUS, 0,",
+            "        torealFunc, 0, 0);",
+            "  }",
+            "  return rc;",
+            "}"
+          ]
+        }
+      ]
+    },
+    {
+      "path": "test/index6.test",
+      "sha256": "7e257a1c0fc4a83871edc68f729c6a297816d192508fef38b9193a9980d6e895",
+      "excerpts": [
+        {
+          "firstLine": 20,
+          "lastLine": 40,
+          "lines": [
+            "  finish_test",
+            "  return",
+            "}",
+            "",
+            "load_static_extension db wholenumber;",
+            "do_test index6-1.1 {",
+            "  # Able to parse and manage partial indices",
+            "  execsql {",
+            "    CREATE TABLE t1(a,b,c);",
+            "    CREATE INDEX t1a ON t1(a) WHERE a IS NOT NULL;",
+            "    CREATE INDEX t1b ON t1(b) WHERE b>10;",
+            "    CREATE VIRTUAL TABLE nums USING wholenumber;",
+            "    INSERT INTO t1(a,b,c)",
+            "       SELECT CASE WHEN value%3!=0 THEN value END, value, value",
+            "         FROM nums WHERE value<=20;",
+            "    SELECT count(a), count(b) FROM t1;",
+            "    PRAGMA integrity_check;",
+            "  }",
+            "} {14 20 ok}",
+            "",
+            "# Make sure the count(*) optimization works correctly with"
+          ]
+        }
+      ]
+    },
+    {
+      "path": "test/index7.test",
+      "sha256": "3840b30c58580e1d3be406b9666ff458baa50ebb5a820ec79eb3ee7ff25a9a5f",
+      "excerpts": [
+        {
+          "firstLine": 42,
+          "lastLine": 68,
+          "lines": [
+            "      $db eval $crtab",
+            "    }",
+            "    $db eval $ins",
+            "  }",
+            "}",
+            "",
+            "",
+            "load_static_extension db wholenumber;",
+            "do_test index7-1.1 {",
+            "  # Able to parse and manage partial indices",
+            "  execsql {",
+            "    CREATE TABLE t1(a,b,c PRIMARY KEY) WITHOUT rowid;",
+            "    CREATE INDEX t1a ON t1(a) WHERE a IS NOT NULL;",
+            "    CREATE INDEX t1b ON t1(b) WHERE b>10;",
+            "    CREATE VIRTUAL TABLE nums USING wholenumber;",
+            "    INSERT INTO t1(a,b,c)",
+            "       SELECT CASE WHEN value%3!=0 THEN value END, value, value",
+            "         FROM nums WHERE value<=20;",
+            "    SELECT count(a), count(b) FROM t1;",
+            "    PRAGMA integrity_check;",
+            "  }",
+            "} {14 20 ok}",
+            "",
+            "# (The \"partial\" column of the PRAGMA index_list output is...)",
+            "# EVIDENCE-OF: R-34457-09668 \"1\" if the index is a partial index and \"0\"",
+            "# if not.",
+            "#"
+          ]
+        }
+      ]
+    },
+    {
+      "path": "ext/misc/wholenumber.c",
+      "sha256": "2fc00c3a4e8f28f203c5c236ee1d3aeee98689d066c7a29a0fbc1342c92305d2",
+      "excerpts": [
+        {
+          "firstLine": 269,
+          "lastLine": 283,
+          "lines": [
+            "int sqlite3_wholenumber_init(",
+            "  sqlite3 *db, ",
+            "  char **pzErrMsg, ",
+            "  const sqlite3_api_routines *pApi",
+            "){",
+            "  int rc = SQLITE_OK;",
+            "  SQLITE_EXTENSION_INIT2(pApi);",
+            "#ifndef SQLITE_OMIT_VIRTUALTABLE",
+            "  rc = sqlite3_create_module(db, \"wholenumber\", &wholenumberModule, 0);",
+            "#endif",
+            "  return rc;",
+            "}"
+          ]
+        }
+      ]
+    },
+    {
+      "path": "test/insert3.test",
+      "sha256": "cd2f6d482786dcd8612f340b71a414dbdaa8b4d588f2e9e45b2e461bef9538c5",
+      "excerpts": [
+        {
+          "firstLine": 175,
+          "lastLine": 191,
+          "lines": [
+            "",
+            "#-------------------------------------------------------------------------",
+            "# While developing tests for a different feature (savepoint) the following",
+            "# sequence was found to cause an assert() in btree.c to fail. These",
+            "# tests are included to ensure that that bug is fixed.",
+            "#",
+            "do_test insert3-4.1 {",
+            "  execsql { ",
+            "    CREATE TABLE t1(a, b, c);",
+            "    CREATE INDEX i1 ON t1(a, b);",
+            "    BEGIN;",
+            "    INSERT INTO t1 VALUES(randstr(10,400),randstr(10,400),randstr(10,400));",
+            "  }",
+            "  set r \"randstr(10,400)\"",
+            "  for {set ii 0} {$ii < 10} {incr ii} {",
+            "    execsql \"INSERT INTO t1 SELECT $r, $r, $r FROM t1\"",
+            "  }"
+          ]
+        }
+      ]
+    },
+    {
+      "path": "src/test_func.c",
+      "sha256": "e93b093804dea2f6499943d24b2d2b0f917ce78252e7da6bc2fded46febff190",
+      "excerpts": [
+        {
+          "firstLine": 662,
+          "lastLine": 690,
+          "lines": [
+            "static int registerTestFunctions(",
+            "  sqlite3 *db,",
+            "  char **pzErrMsg,",
+            "  const sqlite3_api_routines *pThunk",
+            "){",
+            "  static const struct {",
+            "     char *zName;",
+            "     signed char nArg;",
+            "     unsigned int eTextRep; /* 1: UTF-16.  0: UTF-8 */",
+            "     void (*xFunc)(sqlite3_context*,int,sqlite3_value **);",
+            "  } aFuncs[] = {",
+            "    { \"randstr\",               2, SQLITE_UTF8, randStr    },",
+            "    { \"test_destructor\",       1, SQLITE_UTF8, test_destructor},",
+            "#ifndef SQLITE_OMIT_UTF16",
+            "    { \"test_destructor16\",     1, SQLITE_UTF8, test_destructor16},",
+            "    { \"hex_to_utf16be\",        1, SQLITE_UTF8, testHexToUtf16be},",
+            "    { \"hex_to_utf16le\",        1, SQLITE_UTF8, testHexToUtf16le},",
+            "#endif",
+            "    { \"hex_to_utf8\",           1, SQLITE_UTF8, testHexToUtf8},",
+            "    { \"test_destructor_count\", 0, SQLITE_UTF8, test_destructor_count},",
+            "    { \"test_auxdata\",         -1, SQLITE_UTF8, test_auxdata},",
+            "    { \"test_error\",            1, SQLITE_UTF8, test_error},",
+            "    { \"test_error\",            2, SQLITE_UTF8, test_error},",
+            "    { \"test_eval\",             1, SQLITE_UTF8, test_eval},",
+            "    { \"test_isolation\",        2, SQLITE_UTF8, test_isolation},",
+            "    { \"test_counter\",          1, SQLITE_UTF8, counterFunc},",
+            "    { \"real2hex\",              1, SQLITE_UTF8, real2hex},",
+            "    { \"test_decode\",           1, SQLITE_UTF8, test_decode},",
+            "    { \"test_extract\",          2, SQLITE_UTF8, test_extract},"
+          ]
+        }
+      ]
+    },
+    {
+      "path": "src/test8.c",
+      "sha256": "4402c522ebd1f0eb4e74060ee2eed51d3f43d818c1d795a76fae5dc910c72b8c",
+      "excerpts": [
+        {
+          "firstLine": 1368,
+          "lastLine": 1386,
+          "lines": [
+            "static int SQLITE_TCLAPI register_echo_module(",
+            "  ClientData clientData, /* Pointer to sqlite3_enable_XXX function */",
+            "  Tcl_Interp *interp,    /* The TCL interpreter that invoked this command */",
+            "  int objc,              /* Number of arguments */",
+            "  Tcl_Obj *CONST objv[]  /* Command arguments */",
+            "){",
+            "  int rc;",
+            "  sqlite3 *db;",
+            "  EchoModule *pMod;",
+            "  if( objc!=2 ){",
+            "    Tcl_WrongNumArgs(interp, 1, objv, \"DB\");",
+            "    return TCL_ERROR;",
+            "  }",
+            "  if( getDbPointer(interp, Tcl_GetString(objv[1]), &db) ) return TCL_ERROR;",
+            "",
+            "  /* Virtual table module \"echo\" */",
+            "  pMod = sqlite3_malloc(sizeof(EchoModule));",
+            "  pMod->interp = interp;",
+            "  pMod->db = db;"
+          ]
+        }
+      ]
+    },
+    {
+      "path": "test/tester.tcl",
+      "sha256": "a13548454bab75e78e067b283062c240d58bfef3eadd6dfcd1eb93471afd8c16",
+      "excerpts": [
+        {
+          "firstLine": 94,
+          "lastLine": 104,
+          "lines": [
+            "",
+            "# Set the precision of FP arithmatic used by the interpreter. And",
+            "# configure SQLite to take database file locks on the page that begins",
+            "# 64KB into the database file instead of the one 1GB in. This means",
+            "# the code that handles that special case can be tested without creating",
+            "# very large database files.",
+            "#",
+            "set tcl_precision 15",
+            "sqlite3_test_control_pending_byte 0x0010000",
+            "",
+            ""
+          ]
+        }
+      ]
+    },
+    {
+      "path": "test/count.test",
+      "sha256": "2037d4ea3753a4eee1e62ae959ad489d7697a671064c91fa2f40b48ebe843740",
+      "excerpts": [
+        {
+          "firstLine": 97,
+          "lastLine": 123,
+          "lines": [
+            "    return 1;",
+            "  }",
+            "  return 0",
+            "}",
+            "",
+            "do_test count-2.1 {",
+            "  execsql {",
+            "    CREATE TABLE t2(a, b);",
+            "  }",
+            "  uses_op_count {SELECT count(*) FROM t2}",
+            "} {1}",
+            "do_test count-2.2 {",
+            "  catchsql {SELECT count(DISTINCT *) FROM t2}",
+            "} {1 {near \"*\": syntax error}}",
+            "do_test count-2.3 {",
+            "  uses_op_count {SELECT count(DISTINCT a) FROM t2}",
+            "} {0}",
+            "do_test count-2.4 {",
+            "  uses_op_count {SELECT count(a) FROM t2}",
+            "} {0}",
+            "do_test count-2.5 {",
+            "  uses_op_count {SELECT count() FROM t2}",
+            "} {1}",
+            "do_test count-2.6 {",
+            "  catchsql {SELECT count(DISTINCT) FROM t2}",
+            "} {1 {DISTINCT aggregates must have exactly one argument}}",
+            "do_test count-2.7 {"
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,91 @@
+this derivation will be built:
+  /nix/store/5ny1hy76j0j14jr79va5dwvcnj883jyg-sqlite-verifier-test-upstream-1.drv
+building '/nix/store/5ny1hy76j0j14jr79va5dwvcnj883jyg-sqlite-verifier-test-upstream-1.drv'...
+Running phase: unpackPhase
+unpacking source archive /nix/store/0kvdwb35sara5g1nbwxmxcr3yxcpbyv9-source
+source root is source
+Running phase: patchPhase
+Running phase: updateAutotoolsGnuConfigScriptsPhase
+Running phase: installPhase
+============================= test session starts ==============================
+platform darwin -- Python 3.14.7, pytest-9.1.1, pluggy-1.6.0 -- /nix/store/z66zfqld5swncl6sfy6fxfzn76ngp5cd-python3-3.14.7-env/bin/python3
+rootdir: /private/tmp/nix-build-sqlite-verifier-test-upstream-1.drv-0/source
+configfile: pytest.ini
+collected 58 items                                                             
+
+tests/conformance_capture_test.py::test_real_profile_capture_and_clock_change_refusal PASSED [  1%]
+tests/conformance_capture_test.py::test_real_helpers_and_context_recovery[upstream_helper_calls.test-accepted0] PASSED [  3%]
+tests/conformance_capture_test.py::test_real_helpers_and_context_recovery[upstream_context_calls.test-accepted1] PASSED [  5%]
+tests/conformance_capture_test.py::test_real_helpers_and_context_recovery[upstream_attachment_calls.test-accepted2] PASSED [  6%]
+tests/conformance_capture_test.py::test_real_helpers_and_context_recovery[upstream_nondeterminism_calls.test-accepted3] PASSED [  8%]
+tests/conformance_capture_test.py::test_real_method_aliases_and_untraced_context_refusals PASSED [ 10%]
+tests/conformance_capture_test.py::test_size_exclusion_preserves_quota_and_native_evidence PASSED [ 12%]
+tests/conformance_sampling_test.py::test_fixed_catalog_and_explicit_file_exclusions PASSED [ 13%]
+tests/conformance_sampling_test.py::test_identity_sampling_ignores_native_acceptance PASSED [ 15%]
+tests/conformance_sampling_test.py::test_real_uncapped_capture_and_prefix_sampling PASSED [ 17%]
+tests/conformance_streaming_test.py::test_iterator_is_lazy_and_matches_list_wrapper PASSED [ 18%]
+tests/conformance_streaming_test.py::test_cache_and_legacy_fallback_keep_identical_reasons PASSED [ 20%]
+tests/conformance_streaming_test.py::test_reset_inside_assertion_discards_stale_binding_markers PASSED [ 22%]
+tests/conformance_streaming_test.py::test_control_boundaries_copy_prefix_binding_reasons[control0] PASSED [ 24%]
+tests/conformance_streaming_test.py::test_control_boundaries_copy_prefix_binding_reasons[control1] PASSED [ 25%]
+tests/conformance_streaming_test.py::test_control_boundaries_copy_prefix_binding_reasons[control2] PASSED [ 27%]
+tests/conformance_streaming_test.py::test_timeout_retains_completed_candidates_without_native_acquisition PASSED [ 29%]
+tests/conformance_capture_gap_test.py::test_real_errors_and_external_control_lifetimes PASSED [ 31%]
+tests/conformance_capture_gap_test.py::test_real_completion_marker_distinguishes_assertion_failure_from_abort[finish_test-1-True] PASSED [ 32%]
+tests/conformance_capture_gap_test.py::test_real_completion_marker_distinguishes_assertion_failure_from_abort[exit 1-1-False] PASSED [ 34%]
+tests/conformance_capture_gap_test.py::test_real_completion_marker_distinguishes_assertion_failure_from_abort[exit 0-0-False] PASSED [ 36%]
+tests/conformance_command_sources_test.py::test_explain_retains_original_sql_source PASSED [ 37%]
+tests/conformance_command_sources_test.py::test_comment_boundaries_keep_both_calls[SELECT 7 -- EOF] PASSED [ 39%]
+tests/conformance_command_sources_test.py::test_comment_boundaries_keep_both_calls[SELECT 7 /*closed*/] PASSED [ 41%]
+tests/conformance_command_sources_test.py::test_comment_boundaries_keep_both_calls[SELECT '--quoted /*text*/'] PASSED [ 43%]
+tests/conformance_command_sources_test.py::test_comment_boundaries_keep_both_calls[SELECT '\xe9' -- EOF] PASSED [ 44%]
+tests/conformance_command_sources_test.py::test_unterminated_comment_cannot_hide_a_call PASSED [ 46%]
+tests/conformance_command_sources_test.py::test_real_tcl_source_observations PASSED [ 48%]
+tests/conformance_catalog_test.py::test_catalog_accounts_for_all_pinned_feature_families PASSED [ 50%]
+tests/conformance_catalog_test.py::test_changed_family_membership_is_refused[missing] PASSED [ 51%]
+tests/conformance_catalog_test.py::test_changed_family_membership_is_refused[extra] PASSED [ 53%]
+tests/conformance_source_profiles_test.py::test_real_unrelated_function_and_dependent_prefix PASSED [ 55%]
+tests/conformance_source_profiles_test.py::test_real_source_profiles_and_changed_conditions PASSED [ 56%]
+tests/conformance_source_profiles_test.py::test_profile_primitive_remains_explicit PASSED [ 58%]
+tests/conformance_tcl_values_test.py::test_round_trip_tcl_reals[123.5-123.5] PASSED [ 60%]
+tests/conformance_tcl_values_test.py::test_round_trip_tcl_reals[1e+16-10000000000000000.0] PASSED [ 62%]
+tests/conformance_tcl_values_test.py::test_round_trip_tcl_reals[1e-30-1e-30] PASSED [ 63%]
+tests/conformance_tcl_values_test.py::test_round_trip_tcl_reals[-0.0--0.0] PASSED [ 65%]
+tests/conformance_tcl_values_test.py::test_round_trip_tcl_reals[inf-Inf] PASSED [ 67%]
+tests/conformance_tcl_values_test.py::test_round_trip_tcl_reals[-inf--Inf] PASSED [ 68%]
+tests/conformance_tcl_values_test.py::test_round_trip_tcl_reals[1.0000000000000002-1.0000000000000002] PASSED [ 70%]
+tests/conformance_tcl_values_test.py::test_changed_real_values_are_not_equivalent[1.0-1.0000001] PASSED [ 72%]
+tests/conformance_tcl_values_test.py::test_changed_real_values_are_not_equivalent[-0.0-0.0] PASSED [ 74%]
+tests/conformance_tcl_values_test.py::test_changed_real_values_are_not_equivalent[1.0-1] PASSED [ 75%]
+tests/conformance_tcl_values_test.py::test_changed_real_values_are_not_equivalent[1.0-NaN] PASSED [ 77%]
+tests/conformance_tcl_values_test.py::test_changed_real_values_are_not_equivalent[1.0-1_0.0] PASSED [ 79%]
+tests/conformance_tcl_values_test.py::test_changed_real_values_are_not_equivalent[inf-1e999] PASSED [ 81%]
+tests/conformance_tcl_values_test.py::test_changed_real_values_are_not_equivalent[0.0-1e-999] PASSED [ 82%]
+tests/conformance_tcl_values_test.py::test_real_precision_requires_observed_shortest_round_trip[None] PASSED [ 84%]
+tests/conformance_tcl_values_test.py::test_real_precision_requires_observed_shortest_round_trip[3] PASSED [ 86%]
+tests/conformance_tcl_values_test.py::test_real_precision_requires_observed_shortest_round_trip[6] PASSED [ 87%]
+tests/conformance_tcl_values_test.py::test_real_precision_requires_observed_shortest_round_trip[17] PASSED [ 89%]
+tests/conformance_tcl_values_test.py::test_blob_bytes_and_helper_boundaries PASSED [ 91%]
+tests/conformance_tcl_values_test.py::test_observed_null_marker_preserves_typed_values_and_helpers[] PASSED [ 93%]
+tests/conformance_tcl_values_test.py::test_observed_null_marker_preserves_typed_values_and_helpers[NULL] PASSED [ 94%]
+tests/conformance_tcl_values_test.py::test_observed_null_marker_preserves_typed_values_and_helpers[null] PASSED [ 96%]
+tests/conformance_tcl_values_test.py::test_observed_null_marker_preserves_typed_values_and_helpers[N] PASSED [ 98%]
+tests/conformance_tcl_values_test.py::test_pinned_tcl_real_blob_acquisition_and_negative_results PASSED [100%]
+
+- generated xml file: /nix/store/ha258a0ah0sp8hcrq3ly8sf7s84lcgml-sqlite-verifier-test-upstream-1/junit.xml -
+============================= slowest 10 durations =============================
+0.77s call     tests/conformance_sampling_test.py::test_real_uncapped_capture_and_prefix_sampling
+0.21s call     tests/conformance_capture_gap_test.py::test_real_errors_and_external_control_lifetimes
+0.16s call     tests/conformance_capture_test.py::test_real_profile_capture_and_clock_change_refusal
+0.16s call     tests/conformance_source_profiles_test.py::test_real_source_profiles_and_changed_conditions
+0.10s call     tests/conformance_source_profiles_test.py::test_real_unrelated_function_and_dependent_prefix
+0.10s call     tests/conformance_tcl_values_test.py::test_pinned_tcl_real_blob_acquisition_and_negative_results
+0.10s call     tests/conformance_capture_test.py::test_real_method_aliases_and_untraced_context_refusals
+0.10s call     tests/conformance_command_sources_test.py::test_real_tcl_source_observations
+0.10s call     tests/conformance_catalog_test.py::test_changed_family_membership_is_refused[missing]
+0.08s call     tests/conformance_capture_test.py::test_size_exclusion_preserves_quota_and_native_evidence
+============================== 58 passed in 2.81s ==============================
+Running phase: fixupPhase
+checking for references to /private/tmp/nix-build-sqlite-verifier-test-upstream-1.drv-0/ in /nix/store/ha258a0ah0sp8hcrq3ly8sf7s84lcgml-sqlite-verifier-test-upstream-1...
+patching script interpreter paths in /nix/store/ha258a0ah0sp8hcrq3ly8sf7s84lcgml-sqlite-verifier-test-upstream-1
+/nix/store/ha258a0ah0sp8hcrq3ly8sf7s84lcgml-sqlite-verifier-test-upstream-1

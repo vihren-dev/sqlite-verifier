@@ -1,20 +1,19 @@
 """Versioned SQLite evidence independent of frontend admission or model constructors."""
 
 from contextlib import ExitStack
-import ctypes as c
+from dataclasses import replace
 from pathlib import Path
 from tempfile import TemporaryDirectory
-import time
-from collections.abc import Iterator
 
-from conformance.case_format import Json, cell_wire
-from conformance.native_connection import Cell, Row, Connection, NativeError, SQL_ERRORS, SOURCE_ID, library_path, load_library
+from conformance.case_format import Json
+from conformance.native_statements import execute, wire_rows
+from conformance.native_connection import Cell, Connection, SOURCE_ID, library_path, load_library
 from conformance.native_metadata import integer, quoted, text
+from conformance.execution_profile import ExecutionProfile
+from conformance.native_clock import NativeClock, utc_timezone
+from conformance.native_acquisition import open_case
+from conformance.native_library import SOURCE_IDS
 
-
-def wire_rows(rows: list[Row]) -> list[Json]:
-    """Preserve native storage classes in metadata as well as application values."""
-    return [[cell_wire(cell) for cell in row] for row in rows]
 
 
 def observe(connection: Connection) -> dict[str, Json]:
@@ -62,67 +61,43 @@ def observe(connection: Connection) -> dict[str, Json]:
     return {"schema": wire_rows(schema), "tables": tables}
 
 
-def execute(connection: Connection, sql: str) -> Iterator[dict[str, Json]]:
-    """Use SQLite's prepared-statement tail to split SQL, including trigger bodies."""
-    remaining = sql.encode()
-    while remaining.strip():
-        statement, tail = c.c_void_p(), c.c_char_p()
-        connection.deadline = time.monotonic() + 5
-        code = connection.library.sqlite3_prepare_v2(connection.handle, remaining, len(remaining),
-                                                      c.byref(statement), c.byref(tail))
-        suffix = tail.value or b""
-        consumed = remaining[:len(remaining) - len(suffix)]
-        rows: list[Row] = []
-        message = ""
-        try:
-            connection.check(code)
-            if statement.value:
-                while True:
-                    result = connection.library.sqlite3_step(statement)
-                    connection.check(result)
-                    if result == 101:
-                        break
-                    rows.append(tuple(connection.cell(statement, index) for index in range(
-                        connection.library.sqlite3_column_count(statement))))
-        except NativeError as error:
-            if getattr(connection, "recording_exclusion", None):
-                raise ValueError(connection.recording_exclusion) from error
-            code, message = error.code, str(error)
-            if code & 255 not in SQL_ERRORS:
-                raise
-        finally:
-            connection.library.sqlite3_finalize(statement)
-        if statement.value or code:
-            yield {"sql": consumed.decode(), "rows": wire_rows(rows),
-                   "primaryCode": code & 255, "extendedCode": code, "error": message}
-        if code:
-            return
-        if remaining == suffix:
-            raise ValueError("SQLite made no progress parsing SQL")
-        remaining = suffix
-
 
 def record_sql(setup: str | list[str | dict[str, Json]], migration: str, *, name: str, requirements: list[str] | None = None,
-               library: Path | None = None) -> dict[str, Json]:
-    """Keep native evidence even when today's frontend cannot represent the SQL."""
+               library: Path | None = None, outputs: bool = False,
+               parameters: list[tuple[Cell, ...]] | None = None,
+               profile: ExecutionProfile | None = None, setup_clock: int | None = None,
+               clock_values: list[int] | int | None = None,
+               setup_helpers: list[str] | None = None, migration_readonly: bool = False,
+               migration_readonly_spans: list[tuple[int, int]] | None = None,
+               auxiliary_replay: bool = False) -> dict[str, Json]:
+    """Keep native evidence; clocks can be fixed across SQL or supplied per statement."""
+    if parameters is not None and not outputs:
+        raise ValueError("Bound parameters require output recording")
+    controlled = profile is not None and profile.clock == "unix-milliseconds-v1"
+    auxiliary_replay = auxiliary_replay or any(helper.startswith("aux:") for helper in setup_helpers or [])
+    if profile is not None and not outputs:
+        raise ValueError("Explicit profiles require output recording")
+    if controlled != (setup_clock is not None and clock_values is not None):
+        raise ValueError("Controlled profile requires setup and statement clock inputs")
+    if not controlled and (setup_clock is not None or clock_values is not None):
+        raise ValueError("Clock inputs require a controlled profile")
     with TemporaryDirectory(prefix="native-corpus-") as directory, ExitStack() as stack:
-        engine = load_library(library or library_path())
-        def open_writer() -> Connection:
-            """Reject external databases before ATTACH/VACUUM can create files outside the fixture."""
-            connection = Connection(engine, Path(directory) / "case.db")
+        if controlled:
+            stack.enter_context(utc_timezone())
+        version = profile.engine_version if profile else "3.51.0"
+        if version not in SOURCE_IDS:
+            raise ValueError("Execution profile engine has no pinned native build")
+        engine = load_library(library or library_path("sqlite3" + ("" if version == "3.51.0" else "-" + version)), version)
+        clock = NativeClock(engine, setup_clock) if controlled else None
+        if clock is not None:
+            stack.callback(clock.close)
+        fixture_profile = replace(profile, access_mode="read-write") if profile else None
+        def open_writer(selected: ExecutionProfile | None = fixture_profile) -> Connection:
+            """Close every connection before the controlled VFS and fixture directory."""
+            connection = open_case(engine, Path(directory) / "case.db", profile=selected,
+                vfs=clock.name if clock else None, outputs=outputs,
+                auxiliary_replay=auxiliary_replay, controlled=controlled)
             stack.callback(connection.close)
-            def authorize(_context: int, action: int, _a: bytes, function: bytes,
-                          _database: bytes, _trigger: bytes) -> int:
-                """Deny unrecordable contexts without turning our denial into SQLite evidence."""
-                nondeterministic = {b"random", b"randomblob", b"current_timestamp", b"current_date", b"current_time",
-                    b"date", b"time", b"datetime", b"julianday", b"unixepoch", b"strftime", b"timediff"}
-                if action == 24 or action == 31 and function in nondeterministic:
-                    connection.recording_exclusion = "Excluded connection context: external database or nondeterministic function"
-                    return 1
-                return 0
-            connection.authorizer = c.CFUNCTYPE(c.c_int, c.c_void_p, c.c_int,
-                c.c_char_p, c.c_char_p, c.c_char_p, c.c_char_p)(authorize)
-            connection.check(engine.sqlite3_set_authorizer(connection.handle, connection.authorizer, None))
             return connection
 
         writer = open_writer()
@@ -132,14 +107,21 @@ def record_sql(setup: str | list[str | dict[str, Json]], migration: str, *, name
         if isinstance(setup, str):
             writer.execute_script(setup)
         else:
-            for command in setup:
+            if setup_helpers is not None and len(setup_helpers) != len(setup):
+                raise ValueError("Expected one Tcl helper per setup command")
+            for index, command in enumerate(setup):
                 if isinstance(command, dict):
                     if command == {"reopen": True}:
+                        if fixture_profile is not None:
+                            fixture_profile.verify_settings(writer)
                         writer.close()
                         writer = open_writer()
                     elif set(command) == {"dbConfig"}:
                         option, value = command["dbConfig"]
-                        if (option, value) not in {(1010, 0), (1013, 1), (1014, 1), (1017, 1)}:
+                        expected = {1010: 0, 1013: int(fixture_profile.dqs_dml) if fixture_profile else 1,
+                                    1014: int(fixture_profile.dqs_ddl) if fixture_profile else 1,
+                                    1017: int(fixture_profile.trusted_schema) if fixture_profile else 1}
+                        if expected.get(option) != value:
                             raise ValueError("Configuration outside the native profile")
                         if writer.configure(option, value) != value:
                             raise ValueError("Configuration readback differs")
@@ -147,24 +129,43 @@ def record_sql(setup: str | list[str | dict[str, Json]], migration: str, *, name
                         raise ValueError("Unknown native setup operation")
                     events = []
                 else:
-                    events = list(execute(writer, command))
+                    helper = setup_helpers[index] if setup_helpers is not None else "eval"
+                    if helper.startswith("aux:") and writer.transaction_open:
+                        raise ValueError("Auxiliary read cannot be replayed inside a primary transaction")
+                    events = list(execute(writer, command, select_only=helper.startswith("aux:") or helper in {"onecolumn", "exists"}))
                 setup_outcomes.append(events[-1]["primaryCode"] if events else 0)
                 setup_results.append([row for event in events for row in event["rows"]])
                 setup_errors.append(events[-1]["error"] if events else "")
         if writer.transaction_open:
             raise ValueError("Corpus setup must end outside a transaction")
-        reader = Connection(engine, Path(directory) / "case.db")
+        if fixture_profile is not None:
+            fixture_profile.verify_settings(writer)
+        if profile is not None and profile.access_mode == "read-only":
+            writer.close()
+            writer = open_writer(profile)
+        writer.recording_setup = False
+        reader = Connection(engine, Path(directory) / "case.db", vfs=clock.name if clock else None,
+                            access_mode=profile.access_mode if profile else "read-write")
         stack.callback(reader.close)
+        if profile is not None:
+            profile.establish(reader)
 
         def snapshot() -> dict[str, Json]:
             """Preserve committed observations independently while a transaction is open."""
+            if profile is not None:
+                profile.verify_settings(writer)
+                profile.verify_settings(reader)
             visible = observe(writer)
             return {"visible": visible, "persisted": observe(reader) if writer.transaction_open else visible,
                     "transactionOpen": writer.transaction_open}
 
         initial = snapshot()
-        trace = [{**event, **snapshot()} for event in execute(writer, migration)]
-    return {"nativeVersion": 2 if isinstance(setup, list) and any(isinstance(item, dict) for item in setup) else 1, "name": name, "setupSql": setup if isinstance(setup, str) else "\n".join(item for item in setup if isinstance(item, str)),
+        trace = [{**event, **snapshot()} for event in execute(writer, migration, outputs=outputs,
+            parameters=parameters, clock=clock, clock_values=clock_values,
+            transaction_mode=profile.transaction_mode if profile else None, select_only=migration_readonly,
+            readonly_spans=migration_readonly_spans, committed_reads=auxiliary_replay)]
+    return {"nativeVersion": 4 if profile is not None else 3 if outputs else 2 if isinstance(setup, list) and any(isinstance(item, dict) for item in setup) else 1, "name": name, "setupSql": setup if isinstance(setup, str) else "\n".join(item for item in setup if isinstance(item, str)),
             "setupCommands": [setup] if isinstance(setup, str) else setup, "setupOutcomes": setup_outcomes,
             "setupResults": setup_results, "setupErrors": setup_errors, "migrationSql": migration,
-            "sourceId": SOURCE_ID, "requirements": requirements or [], "initial": initial, "trace": trace}
+            "sourceId": engine.sqlite3_sourceid().decode(), "requirements": requirements or [], "initial": initial, "trace": trace,
+            **({"profile": profile.to_wire(), "setupClockUnixMilliseconds": setup_clock} if profile else {})}

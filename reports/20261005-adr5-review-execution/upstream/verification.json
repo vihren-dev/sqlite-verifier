@@ -1,0 +1,89 @@
+{
+  "verificationVersion": 1,
+  "stage": "upstream",
+  "scope": "Current isolated upstream Tcl checks after v5 activation",
+  "codeBaseCommit": "fe116b8744c7825529ec8eee21c33f15684a0694",
+  "command": [
+    "timeout",
+    "900",
+    "nix-build",
+    "build-support/default.nix",
+    "-A",
+    "tests.upstream",
+    "--out-link",
+    "build/nix-review-upstream-v5",
+    "--option",
+    "sandbox",
+    "true",
+    "--option",
+    "sandbox-fallback",
+    "false",
+    "--extra-experimental-features",
+    "nix-command flakes"
+  ],
+  "seconds": 9.608460707589984,
+  "exitCode": 0,
+  "resourceGuard": {
+    "beforeExitCode": 0,
+    "afterExitCode": 0
+  },
+  "sourceBindings": {
+    "count": 485,
+    "beforeSha256": "eef2534858cf9587bdba896c5318c21f0c100e78de4c060e316d9f2ecf8f7389",
+    "afterSha256": "eef2534858cf9587bdba896c5318c21f0c100e78de4c060e316d9f2ecf8f7389",
+    "unchanged": true
+  },
+  "logSha256": "65219ab79eb82fbeba34f35b7dca4a11264eaf2a22e96efa2efaab848e381034",
+  "storeOutput": "/nix/store/ha258a0ah0sp8hcrq3ly8sf7s84lcgml-sqlite-verifier-test-upstream-1",
+  "derivation": "/nix/store/5ny1hy76j0j14jr79va5dwvcnj883jyg-sqlite-verifier-test-upstream-1.drv",
+  "configuredTimeoutSeconds": {
+    "outerNix": 900,
+    "innerPytest": 420
+  },
+  "counts": {
+    "tests": 58,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "passed": 58
+  },
+  "junitSuiteSeconds": 2.813,
+  "junitPath": "/Users/tzankomatev/work/sqlite-verifier-adr5/build/20261005-final-upstream-v5.junit.xml",
+  "junitSha256": "22f5dbb2f0698bb2369385dfcf815ac196bbc7ddaa001cd2d940cedc01a8220b",
+  "skipReasons": [],
+  "evidence": [
+    {
+      "path": "/Users/tzankomatev/work/sqlite-verifier-adr5/build/20261005-final-upstream-v5.log",
+      "bytes": 8867,
+      "sha256": "65219ab79eb82fbeba34f35b7dca4a11264eaf2a22e96efa2efaab848e381034"
+    },
+    {
+      "path": "/Users/tzankomatev/work/sqlite-verifier-adr5/build/20261005-final-upstream-v5.before.json",
+      "bytes": 53731,
+      "sha256": "289a8abe00dfd81f5291b2ca0d6fd34d28d36c8f396dcb2fb317ecd0fef0e917"
+    },
+    {
+      "path": "/Users/tzankomatev/work/sqlite-verifier-adr5/build/20261005-final-upstream-v5.after.json",
+      "bytes": 53753,
+      "sha256": "d29b01994f3b5dc74d88be769a7db819262f5168f34291c3ac06d9dafe0a48eb"
+    },
+    {
+      "path": "/Users/tzankomatev/work/sqlite-verifier-adr5/build/20261005-final-upstream-v5.resources.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/Users/tzankomatev/work/sqlite-verifier-adr5/build/20261005-final-upstream-v5.junit.xml",
+      "bytes": 8092,
+      "sha256": "22f5dbb2f0698bb2369385dfcf815ac196bbc7ddaa001cd2d940cedc01a8220b"
+    }
+  ],
+  "junitIncludesSubtests": false,
+  "derivationSha256": "b44622d2a1e3f06dba38072f08822084c403ba7dd08ff8d2e6a48daf4cf84706",
+  "sourceStorePath": "/nix/store/0kvdwb35sara5g1nbwxmxcr3yxcpbyv9-source",
+  "actualExpectedTclCheck": {
+    "classname": "tests.conformance_command_sources_test",
+    "name": "test_real_tcl_source_observations",
+    "passed": true
+  }
+}

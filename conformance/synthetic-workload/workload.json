@@ -1,0 +1,28 @@
+{
+  "workloadFormatVersion": 1,
+  "profile": "profile.json",
+  "setup": ["schema.sql"],
+  "cases": [
+    {
+      "name": "synthetic-transaction-cascade",
+      "sql": "transaction.sql",
+      "features": ["transaction", "typed-parameters", "triggers", "foreign-key-cascade", "returning", "direct-counts"],
+      "parameters": [
+        [],
+        [{"integer": {"value": 2}}, {"text": {"bytes": [97]}}],
+        [{"integer": {"value": 10}}, {"integer": {"value": 2}}, {"integer": {"value": 11}}, {"integer": {"value": 2}}],
+        [],
+        [{"integer": {"value": 2}}],
+        [],
+        [],
+        []
+      ]
+    },
+    {
+      "name": "synthetic-empty-result",
+      "sql": "empty.sql",
+      "features": ["typed-parameters", "empty-result"],
+      "parameters": [[{"integer": {"value": 99}}]]
+    }
+  ]
+}

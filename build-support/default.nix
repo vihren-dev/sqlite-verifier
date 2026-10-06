@@ -15,6 +15,7 @@ let
   '';
 in rec {
   inherit leanToolchain sources;
+  sqlite3534 = native.sqlite3534;
   inherit (lean4export) exporter;
   conformanceNative = import ./conformance-native.nix { inherit pkgs; };
   conformanceDocs = import ./conformance-docs.nix {
@@ -23,6 +24,7 @@ in rec {
   tests = import ./tests.nix {
     inherit pkgs leanToolchain leanRuntime parsers runtime native conformance;
   };
+  developmentTests = pkgs.lib.removeAttrs tests [ "model" ];
   runtime = import ./runtime.nix {
     inherit pkgs sources leanToolchain parsers leanRuntime exporter;
   };

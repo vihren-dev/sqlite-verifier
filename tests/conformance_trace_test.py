@@ -65,3 +65,46 @@ theorem no_transaction : trace names [.commit, insertNew] initial =
     assert result.returncode == 0, result.stdout + result.stderr
     for forbidden in ("sorryAx", "ofReduceBool", "_native"):
         assert forbidden not in result.stdout, result.stdout
+
+
+def test_statement_outputs(tmp_path: Path, lean_sysroot: Path, lean_library: Path) -> None:
+    """Native groups allow tie permutations and cuts while rejecting corrupted outputs."""
+    proof = tmp_path / "OutputChecks.lean"
+    proof.write_text('''import VerifierConformance.Outputs
+open SqliteVerifier SqliteVerifier.Conformance
+
+def a : ResultRow := [.integer 1]
+def b : ResultRow := [.integer 2]
+def c : ResultRow := [.integer 3]
+def output (rows : List ResultRow) : StatementOutput := ⟨["x"], rows, some 0⟩
+def groups : List OutputGroup := [⟨[a, b], 2⟩, ⟨[c], 1⟩]
+def checks : List Bool := [
+  matchesOutput (output [a,b,c]) (output [b,a,c]) (some groups),
+  !matchesOutput (output [a,b,c]) (output [c,a,b]) (some groups),
+  !matchesOutput (output [a,b,c]) (output [a,a,c]) (some groups),
+  matchesOutput (output [a,b,c]) (output [c,b,a]) none,
+  !matchesOutput (output [a,b,c]) (output [a,a,c]) none,
+  matchesOutput (output [a,c]) (output [b,c]) (some [⟨[a,b],1⟩,⟨[c,a],1⟩]),
+  matchesOutput (output [a]) (output [b]) (some [⟨[a,b,c],1⟩]),
+  !matchesOutput (output [a]) (output [b,b]) (some [⟨[a,b,c],1⟩]),
+  !matchesOutput (output [a]) (output [a]) (some [⟨[],1⟩]),
+  !matchesOutput (output []) (output []) (some [⟨[a],0⟩]),
+  !matchesOutput (output [a,b,c]) (output [a,b,c])
+    (some [⟨[a],1⟩,⟨[b,a],1⟩,⟨[c],1⟩]),
+  matchesOutput (output []) (output []) (some []),
+  !matchesOutput (output []) ⟨[], [], some 0⟩ none,
+  !matchesOutput (output [a]) ⟨["x"], [a], some 1⟩ none,
+  !matchesOutput (output [a]) ⟨["x"], [a], none⟩ none,
+  !matchesOutput ⟨["x"], [[]], none⟩ ⟨["x"], [[]], none⟩ none,
+  !matchesOutput (output [a]) (output [c]) none]
+theorem output_contract : checks.all id = true := by decide +kernel
+#print axioms output_contract
+#eval if checks.all id then "COMPILED_OUTPUTS_OK" else "COMPILED_OUTPUTS_FAILED"
+''')
+    result = subprocess.run([str(lean_sysroot / "bin/lean"), str(proof)],
+                            env={**os.environ, "LEAN_PATH": str(lean_library)},
+                            text=True, capture_output=True, timeout=30)
+    assert result.returncode == 0, result.stdout + result.stderr
+    assert "COMPILED_OUTPUTS_OK" in result.stdout, result.stdout
+    for forbidden in ("sorryAx", "ofReduceBool", "_native"):
+        assert forbidden not in result.stdout, result.stdout

@@ -1,0 +1,23 @@
+{
+  "date": "2026-10-01",
+  "source": "conformance/corpus-v3/cases.jsonl.gz",
+  "uncompressedSha256": "fe50427ba3cf7b06b29eb2aa2af8e2eaf5c501e9f0d95680f2f4069f73654afb",
+  "casesMeasured": 370,
+  "caseByteLimit": 1000000,
+  "sizePolicySha256": "22252c9faef207b52c0f3283f8920857144d2aa50b433e90461aa7669e29a7cd",
+  "selectionLimitImplemented": true,
+  "excludedCases": [
+    {
+      "name": "e_blobbytes:e_blobbytes-1.0:0",
+      "line": 184,
+      "result": "case size limit",
+      "exclusions": [
+        "case size limit"
+      ],
+      "caseByteCount": 302050086
+    }
+  ],
+  "method": "Stream 65536-byte gzip blocks, measure frozen UTF-8 JSON record bytes, and apply native_storage.check_size to each size.",
+  "newAcquisitionMeasurement": "Canonical UTF-8 JSON bytes of the final expanded record, including minimization and provenance, before snapshot sharing.",
+  "frozenEvidenceChanged": false
+}

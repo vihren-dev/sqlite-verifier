@@ -1,0 +1,521 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="7" failures="1" skipped="0" tests="314" time="30.950" timestamp="2026-10-05T12:03:49.891662+03:00" hostname="tzanko-mbp"><testcase classname="tests.compilation_test" name="test_sealed_source_compilation" time="10.253" /><testcase classname="tests.compilation_test" name="test_changed_supplied_schema" time="2.033" /><testcase classname="tests.compilation_test" name="test_selected_generated_role" time="0.002" /><testcase classname="tests.compilation_test" name="test_rejected_source_graph[NextInterpretation]" time="0.089" /><testcase classname="tests.compilation_test" name="test_rejected_source_graph[proofs]" time="0.126" /><testcase classname="tests.compilation_test" name="test_rejected_source_graph[SqlInputs]" time="0.091" /><testcase classname="tests.compilation_test" name="test_rejected_source_graph[Generated]" time="0.091" /><testcase classname="tests.compilation_test" name="test_rejected_source_graph[schemainputs]" time="0.093" /><testcase classname="tests.compilation_test" name="test_rejected_source_graph[SchemaInputs.Evil]" time="0.089" /><testcase classname="tests.compilation_test" name="test_rejected_source_graph[HiddenCandidate]" time="0.089" /><testcase classname="tests.compilation_test" name="test_rejected_source_graph[CandidateOnly]" time="0.090" /><testcase classname="tests.compilation_test" name="test_rejected_source_graph[Cycle]" time="0.133" /><testcase classname="tests.compilation_test" name="test_rejected_source_graph[Conflict]" time="0.090" /><testcase classname="tests.compilation_test" name="test_compiler_output_symlink" time="0.002" /><testcase classname="tests.compilation_test" name="test_artifact_alias[parent_symlink]" time="0.001" /><testcase classname="tests.compilation_test" name="test_artifact_alias[hardlink]" time="0.001" /><testcase classname="tests.compilation_test" name="test_quoted_module_path" time="0.000" /><testcase classname="tests.conformance_axioms_test" name="test_forbidden_axiom[sorryAx]" time="0.000" /><testcase classname="tests.conformance_axioms_test" name="test_forbidden_axiom[Lean.ofReduceBool]" time="0.000" /><testcase classname="tests.conformance_axioms_test" name="test_forbidden_axiom[checkedCase._native.1]" time="0.000" /><testcase classname="tests.conformance_axioms_test" name="test_logical_axioms" time="0.000" /><testcase classname="tests.conformance_native_test" name="test_upstream_pin_and_import_fidelity" time="0.064" /><testcase classname="tests.conformance_native_test" name="test_upstream_case[alter3-3.1-1]" time="0.023" /><testcase classname="tests.conformance_native_test" name="test_upstream_case[alter3-3.1-2]" time="0.015" /><testcase classname="tests.conformance_native_test" name="test_upstream_case[alter3-3.2-1]" time="0.016" /><testcase classname="tests.conformance_native_test" name="test_final_native_observations" time="0.010" /><testcase classname="tests.coverage_evidence_test" name="test_grammar_inventory[3.51.0]" time="0.009" /><testcase classname="tests.coverage_evidence_test" name="test_grammar_inventory[3.46.0]" time="0.009" /><testcase classname="tests.coverage_evidence_test" name="test_named_proofs" time="0.521" /><testcase classname="tests.coverage_evidence_test" name="test_axiom_audit_rejects_missing_and_untrusted" time="0.000" /><testcase classname="tests.docs_test" name="test_broken_links_detects_missing_local_files" time="0.002" /><testcase classname="tests.docs_test" name="test_local_markdown_links" time="0.034" /><testcase classname="tests.early_baseline_test" name="test_changed_transitive_source" time="0.001"><error message="failed on setup with &quot;FileNotFoundError: [Errno 2] No such file or directory: '/nix/store/2pm5l48v8lk5v3p1yqbc3hx3jj1w2ylr-sqlite-verifier-conformance/examples'&quot;">tmp_path = PosixPath('/private/tmp/nix-shell.TjaOj6/pytest-of-tzankomatev/pytest-0/test_changed_transitive_source0')
+runtime_root = PosixPath('/nix/store/2pm5l48v8lk5v3p1yqbc3hx3jj1w2ylr-sqlite-verifier-conformance')
+lean_sysroot = PosixPath('/nix/store/6k56kifz4qzrjxd6g9d4qhb5d8436f23-sqlite-verifier-lean-4.33.0')
+lean_library = PosixPath('/nix/store/2pm5l48v8lk5v3p1yqbc3hx3jj1w2ylr-sqlite-verifier-conformance/.lake/build/lib/lean')
+proof_checker = PosixPath('/nix/store/2pm5l48v8lk5v3p1yqbc3hx3jj1w2ylr-sqlite-verifier-conformance/.lake/build/bin/migration-proof-checker')
+example_factory = &lt;function example_factory.&lt;locals&gt;.copy_example at 0x107e3cb40&gt;
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x107c9bce0&gt;
+
+    @pytest.fixture
+    def baseline_case(tmp_path: Path, runtime_root: Path, lean_sysroot: Path, lean_library: Path,
+                      proof_checker: Path, example_factory: Callable[[str], Path],
+                      monkeypatch: pytest.MonkeyPatch) -&gt; BaselineFixture:
+        """Redirect only runtime location; source parsing, closure discovery and verification remain real."""
+        runtime = Runtime(runtime_root, lean_sysroot, lean_library,
+                          runtime_root / "build/sqlite-parser", proof_checker)
+    
+        def locate(cls: type[Runtime], sqlite_version: str = "3.51.0") -&gt; Runtime:
+            """Bind the test's exact supported profile to the explicitly selected artifact root."""
+            assert sqlite_version == "3.51.0"
+            return runtime
+    
+        monkeypatch.setattr(Runtime, "locate", classmethod(locate))
+&gt;       approved = example_factory("approved")
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/source_fixtures.py:101: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+conftest.py:57: in copy_example
+    source = (runtime_root / "examples" / name).resolve(strict=True)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = PosixPath('/nix/store/2pm5l48v8lk5v3p1yqbc3hx3jj1w2ylr-sqlite-verifier-conformance/examples/approved')
+strict = True
+
+    def resolve(self, strict=False):
+        """
+        Make the path absolute, resolving all symlinks on the way and also
+        normalizing it.
+        """
+    
+&gt;       return self.with_segments(os.path.realpath(self, strict=strict))
+                                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       FileNotFoundError: [Errno 2] No such file or directory: '/nix/store/2pm5l48v8lk5v3p1yqbc3hx3jj1w2ylr-sqlite-verifier-conformance/examples'
+
+/nix/store/7xgkr19ify5wzfj8mafjqhywzvsmgqaq-python3-3.14.7-env/lib/python3.14/pathlib/__init__.py:938: FileNotFoundError</error></testcase><testcase classname="tests.early_baseline_test" name="test_added_closure_member" time="0.001"><error message="failed on setup with &quot;FileNotFoundError: [Errno 2] No such file or directory: '/nix/store/2pm5l48v8lk5v3p1yqbc3hx3jj1w2ylr-sqlite-verifier-conformance/examples'&quot;">tmp_path = PosixPath('/private/tmp/nix-shell.TjaOj6/pytest-of-tzankomatev/pytest-0/test_added_closure_member0')
+runtime_root = PosixPath('/nix/store/2pm5l48v8lk5v3p1yqbc3hx3jj1w2ylr-sqlite-verifier-conformance')
+lean_sysroot = PosixPath('/nix/store/6k56kifz4qzrjxd6g9d4qhb5d8436f23-sqlite-verifier-lean-4.33.0')
+lean_library = PosixPath('/nix/store/2pm5l48v8lk5v3p1yqbc3hx3jj1w2ylr-sqlite-verifier-conformance/.lake/build/lib/lean')
+proof_checker = PosixPath('/nix/store/2pm5l48v8lk5v3p1yqbc3hx3jj1w2ylr-sqlite-verifier-conformance/.lake/build/bin/migration-proof-checker')
+example_factory = &lt;function example_factory.&lt;locals&gt;.copy_example at 0x107e600f0&gt;
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x107e0c9d0&gt;
+
+    @pytest.fixture
+    def baseline_case(tmp_path: Path, runtime_root: Path, lean_sysroot: Path, lean_library: Path,
+                      proof_checker: Path, example_factory: Callable[[str], Path],
+                      monkeypatch: pytest.MonkeyPatch) -&gt; BaselineFixture:
+        """Redirect only runtime location; source parsing, closure discovery and verification remain real."""
+        runtime = Runtime(runtime_root, lean_sysroot, lean_library,
+                          runtime_root / "build/sqlite-parser", proof_checker)
+    
+        def locate(cls: type[Runtime], sqlite_version: str = "3.51.0") -&gt; Runtime:
+            """Bind the test's exact supported profile to the explicitly selected artifact root."""
+            assert sqlite_version == "3.51.0"
+            return runtime
+    
+        monkeypatch.setattr(Runtime, "locate", classmethod(locate))
+&gt;       approved = example_factory("approved")
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/source_fixtures.py:101: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+conftest.py:57: in copy_example
+    source = (runtime_root / "examples" / name).resolve(strict=True)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = PosixPath('/nix/store/2pm5l48v8lk5v3p1yqbc3hx3jj1w2ylr-sqlite-verifier-conformance/examples/approved')
+strict = True
+
+    def resolve(self, strict=False):
+        """
+        Make the path absolute, resolving all symlinks on the way and also
+        normalizing it.
+        """
+    
+&gt;       return self.with_segments(os.path.realpath(self, strict=strict))
+                                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       FileNotFoundError: [Errno 2] No such file or directory: '/nix/store/2pm5l48v8lk5v3p1yqbc3hx3jj1w2ylr-sqlite-verifier-conformance/examples'
+
+/nix/store/7xgkr19ify5wzfj8mafjqhywzvsmgqaq-python3-3.14.7-env/lib/python3.14/pathlib/__init__.py:938: FileNotFoundError</error></testcase><testcase classname="tests.early_baseline_test" name="test_removed_closure_member" time="0.001"><error message="failed on setup with &quot;FileNotFoundError: [Errno 2] No such file or directory: '/nix/store/2pm5l48v8lk5v3p1yqbc3hx3jj1w2ylr-sqlite-verifier-conformance/examples'&quot;">tmp_path = PosixPath('/private/tmp/nix-shell.TjaOj6/pytest-of-tzankomatev/pytest-0/test_removed_closure_member0')
+runtime_root = PosixPath('/nix/store/2pm5l48v8lk5v3p1yqbc3hx3jj1w2ylr-sqlite-verifier-conformance')
+lean_sysroot = PosixPath('/nix/store/6k56kifz4qzrjxd6g9d4qhb5d8436f23-sqlite-verifier-lean-4.33.0')
+lean_library = PosixPath('/nix/store/2pm5l48v8lk5v3p1yqbc3hx3jj1w2ylr-sqlite-verifier-conformance/.lake/build/lib/lean')
+proof_checker = PosixPath('/nix/store/2pm5l48v8lk5v3p1yqbc3hx3jj1w2ylr-sqlite-verifier-conformance/.lake/build/bin/migration-proof-checker')
+example_factory = &lt;function example_factory.&lt;locals&gt;.copy_example at 0x107e605c0&gt;
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x107dd56d0&gt;
+
+    @pytest.fixture
+    def baseline_case(tmp_path: Path, runtime_root: Path, lean_sysroot: Path, lean_library: Path,
+                      proof_checker: Path, example_factory: Callable[[str], Path],
+                      monkeypatch: pytest.MonkeyPatch) -&gt; BaselineFixture:
+        """Redirect only runtime location; source parsing, closure discovery and verification remain real."""
+        runtime = Runtime(runtime_root, lean_sysroot, lean_library,
+                          runtime_root / "build/sqlite-parser", proof_checker)
+    
+        def locate(cls: type[Runtime], sqlite_version: str = "3.51.0") -&gt; Runtime:
+            """Bind the test's exact supported profile to the explicitly selected artifact root."""
+            assert sqlite_version == "3.51.0"
+            return runtime
+    
+        monkeypatch.setattr(Runtime, "locate", classmethod(locate))
+&gt;       approved = example_factory("approved")
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/source_fixtures.py:101: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+conftest.py:57: in copy_example
+    source = (runtime_root / "examples" / name).resolve(strict=True)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = PosixPath('/nix/store/2pm5l48v8lk5v3p1yqbc3hx3jj1w2ylr-sqlite-verifier-conformance/examples/approved')
+strict = True
+
+    def resolve(self, strict=False):
+        """
+        Make the path absolute, resolving all symlinks on the way and also
+        normalizing it.
+        """
+    
+&gt;       return self.with_segments(os.path.realpath(self, strict=strict))
+                                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       FileNotFoundError: [Errno 2] No such file or directory: '/nix/store/2pm5l48v8lk5v3p1yqbc3hx3jj1w2ylr-sqlite-verifier-conformance/examples'
+
+/nix/store/7xgkr19ify5wzfj8mafjqhywzvsmgqaq-python3-3.14.7-env/lib/python3.14/pathlib/__init__.py:938: FileNotFoundError</error></testcase><testcase classname="tests.early_baseline_test" name="test_changed_schema_pin" time="0.001"><error message="failed on setup with &quot;FileNotFoundError: [Errno 2] No such file or directory: '/nix/store/2pm5l48v8lk5v3p1yqbc3hx3jj1w2ylr-sqlite-verifier-conformance/examples'&quot;">tmp_path = PosixPath('/private/tmp/nix-shell.TjaOj6/pytest-of-tzankomatev/pytest-0/test_changed_schema_pin0')
+runtime_root = PosixPath('/nix/store/2pm5l48v8lk5v3p1yqbc3hx3jj1w2ylr-sqlite-verifier-conformance')
+lean_sysroot = PosixPath('/nix/store/6k56kifz4qzrjxd6g9d4qhb5d8436f23-sqlite-verifier-lean-4.33.0')
+lean_library = PosixPath('/nix/store/2pm5l48v8lk5v3p1yqbc3hx3jj1w2ylr-sqlite-verifier-conformance/.lake/build/lib/lean')
+proof_checker = PosixPath('/nix/store/2pm5l48v8lk5v3p1yqbc3hx3jj1w2ylr-sqlite-verifier-conformance/.lake/build/bin/migration-proof-checker')
+example_factory = &lt;function example_factory.&lt;locals&gt;.copy_example at 0x107e609e0&gt;
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x107da9d00&gt;
+
+    @pytest.fixture
+    def baseline_case(tmp_path: Path, runtime_root: Path, lean_sysroot: Path, lean_library: Path,
+                      proof_checker: Path, example_factory: Callable[[str], Path],
+                      monkeypatch: pytest.MonkeyPatch) -&gt; BaselineFixture:
+        """Redirect only runtime location; source parsing, closure discovery and verification remain real."""
+        runtime = Runtime(runtime_root, lean_sysroot, lean_library,
+                          runtime_root / "build/sqlite-parser", proof_checker)
+    
+        def locate(cls: type[Runtime], sqlite_version: str = "3.51.0") -&gt; Runtime:
+            """Bind the test's exact supported profile to the explicitly selected artifact root."""
+            assert sqlite_version == "3.51.0"
+            return runtime
+    
+        monkeypatch.setattr(Runtime, "locate", classmethod(locate))
+&gt;       approved = example_factory("approved")
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/source_fixtures.py:101: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+conftest.py:57: in copy_example
+    source = (runtime_root / "examples" / name).resolve(strict=True)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = PosixPath('/nix/store/2pm5l48v8lk5v3p1yqbc3hx3jj1w2ylr-sqlite-verifier-conformance/examples/approved')
+strict = True
+
+    def resolve(self, strict=False):
+        """
+        Make the path absolute, resolving all symlinks on the way and also
+        normalizing it.
+        """
+    
+&gt;       return self.with_segments(os.path.realpath(self, strict=strict))
+                                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       FileNotFoundError: [Errno 2] No such file or directory: '/nix/store/2pm5l48v8lk5v3p1yqbc3hx3jj1w2ylr-sqlite-verifier-conformance/examples'
+
+/nix/store/7xgkr19ify5wzfj8mafjqhywzvsmgqaq-python3-3.14.7-env/lib/python3.14/pathlib/__init__.py:938: FileNotFoundError</error></testcase><testcase classname="tests.early_baseline_test" name="test_malformed_schema_pin" time="0.001"><error message="failed on setup with &quot;FileNotFoundError: [Errno 2] No such file or directory: '/nix/store/2pm5l48v8lk5v3p1yqbc3hx3jj1w2ylr-sqlite-verifier-conformance/examples'&quot;">tmp_path = PosixPath('/private/tmp/nix-shell.TjaOj6/pytest-of-tzankomatev/pytest-0/test_malformed_schema_pin0')
+runtime_root = PosixPath('/nix/store/2pm5l48v8lk5v3p1yqbc3hx3jj1w2ylr-sqlite-verifier-conformance')
+lean_sysroot = PosixPath('/nix/store/6k56kifz4qzrjxd6g9d4qhb5d8436f23-sqlite-verifier-lean-4.33.0')
+lean_library = PosixPath('/nix/store/2pm5l48v8lk5v3p1yqbc3hx3jj1w2ylr-sqlite-verifier-conformance/.lake/build/lib/lean')
+proof_checker = PosixPath('/nix/store/2pm5l48v8lk5v3p1yqbc3hx3jj1w2ylr-sqlite-verifier-conformance/.lake/build/bin/migration-proof-checker')
+example_factory = &lt;function example_factory.&lt;locals&gt;.copy_example at 0x107e60e00&gt;
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x107daa250&gt;
+
+    @pytest.fixture
+    def baseline_case(tmp_path: Path, runtime_root: Path, lean_sysroot: Path, lean_library: Path,
+                      proof_checker: Path, example_factory: Callable[[str], Path],
+                      monkeypatch: pytest.MonkeyPatch) -&gt; BaselineFixture:
+        """Redirect only runtime location; source parsing, closure discovery and verification remain real."""
+        runtime = Runtime(runtime_root, lean_sysroot, lean_library,
+                          runtime_root / "build/sqlite-parser", proof_checker)
+    
+        def locate(cls: type[Runtime], sqlite_version: str = "3.51.0") -&gt; Runtime:
+            """Bind the test's exact supported profile to the explicitly selected artifact root."""
+            assert sqlite_version == "3.51.0"
+            return runtime
+    
+        monkeypatch.setattr(Runtime, "locate", classmethod(locate))
+&gt;       approved = example_factory("approved")
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/source_fixtures.py:101: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+conftest.py:57: in copy_example
+    source = (runtime_root / "examples" / name).resolve(strict=True)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = PosixPath('/nix/store/2pm5l48v8lk5v3p1yqbc3hx3jj1w2ylr-sqlite-verifier-conformance/examples/approved')
+strict = True
+
+    def resolve(self, strict=False):
+        """
+        Make the path absolute, resolving all symlinks on the way and also
+        normalizing it.
+        """
+    
+&gt;       return self.with_segments(os.path.realpath(self, strict=strict))
+                                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       FileNotFoundError: [Errno 2] No such file or directory: '/nix/store/2pm5l48v8lk5v3p1yqbc3hx3jj1w2ylr-sqlite-verifier-conformance/examples'
+
+/nix/store/7xgkr19ify5wzfj8mafjqhywzvsmgqaq-python3-3.14.7-env/lib/python3.14/pathlib/__init__.py:938: FileNotFoundError</error></testcase><testcase classname="tests.early_baseline_test" name="test_missing_dependency_precedence" time="0.001"><error message="failed on setup with &quot;FileNotFoundError: [Errno 2] No such file or directory: '/nix/store/2pm5l48v8lk5v3p1yqbc3hx3jj1w2ylr-sqlite-verifier-conformance/examples'&quot;">tmp_path = PosixPath('/private/tmp/nix-shell.TjaOj6/pytest-of-tzankomatev/pytest-0/test_missing_dependency_preced0')
+runtime_root = PosixPath('/nix/store/2pm5l48v8lk5v3p1yqbc3hx3jj1w2ylr-sqlite-verifier-conformance')
+lean_sysroot = PosixPath('/nix/store/6k56kifz4qzrjxd6g9d4qhb5d8436f23-sqlite-verifier-lean-4.33.0')
+lean_library = PosixPath('/nix/store/2pm5l48v8lk5v3p1yqbc3hx3jj1w2ylr-sqlite-verifier-conformance/.lake/build/lib/lean')
+proof_checker = PosixPath('/nix/store/2pm5l48v8lk5v3p1yqbc3hx3jj1w2ylr-sqlite-verifier-conformance/.lake/build/bin/migration-proof-checker')
+example_factory = &lt;function example_factory.&lt;locals&gt;.copy_example at 0x107e61430&gt;
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x107eb5450&gt;
+
+    @pytest.fixture
+    def baseline_case(tmp_path: Path, runtime_root: Path, lean_sysroot: Path, lean_library: Path,
+                      proof_checker: Path, example_factory: Callable[[str], Path],
+                      monkeypatch: pytest.MonkeyPatch) -&gt; BaselineFixture:
+        """Redirect only runtime location; source parsing, closure discovery and verification remain real."""
+        runtime = Runtime(runtime_root, lean_sysroot, lean_library,
+                          runtime_root / "build/sqlite-parser", proof_checker)
+    
+        def locate(cls: type[Runtime], sqlite_version: str = "3.51.0") -&gt; Runtime:
+            """Bind the test's exact supported profile to the explicitly selected artifact root."""
+            assert sqlite_version == "3.51.0"
+            return runtime
+    
+        monkeypatch.setattr(Runtime, "locate", classmethod(locate))
+&gt;       approved = example_factory("approved")
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/source_fixtures.py:101: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+conftest.py:57: in copy_example
+    source = (runtime_root / "examples" / name).resolve(strict=True)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = PosixPath('/nix/store/2pm5l48v8lk5v3p1yqbc3hx3jj1w2ylr-sqlite-verifier-conformance/examples/approved')
+strict = True
+
+    def resolve(self, strict=False):
+        """
+        Make the path absolute, resolving all symlinks on the way and also
+        normalizing it.
+        """
+    
+&gt;       return self.with_segments(os.path.realpath(self, strict=strict))
+                                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       FileNotFoundError: [Errno 2] No such file or directory: '/nix/store/2pm5l48v8lk5v3p1yqbc3hx3jj1w2ylr-sqlite-verifier-conformance/examples'
+
+/nix/store/7xgkr19ify5wzfj8mafjqhywzvsmgqaq-python3-3.14.7-env/lib/python3.14/pathlib/__init__.py:938: FileNotFoundError</error></testcase><testcase classname="tests.early_baseline_test" name="test_optional_schema_pin_and_sealed_snapshot" time="0.001"><error message="failed on setup with &quot;FileNotFoundError: [Errno 2] No such file or directory: '/nix/store/2pm5l48v8lk5v3p1yqbc3hx3jj1w2ylr-sqlite-verifier-conformance/examples'&quot;">tmp_path = PosixPath('/private/tmp/nix-shell.TjaOj6/pytest-of-tzankomatev/pytest-0/test_optional_schema_pin_and_s0')
+runtime_root = PosixPath('/nix/store/2pm5l48v8lk5v3p1yqbc3hx3jj1w2ylr-sqlite-verifier-conformance')
+lean_sysroot = PosixPath('/nix/store/6k56kifz4qzrjxd6g9d4qhb5d8436f23-sqlite-verifier-lean-4.33.0')
+lean_library = PosixPath('/nix/store/2pm5l48v8lk5v3p1yqbc3hx3jj1w2ylr-sqlite-verifier-conformance/.lake/build/lib/lean')
+proof_checker = PosixPath('/nix/store/2pm5l48v8lk5v3p1yqbc3hx3jj1w2ylr-sqlite-verifier-conformance/.lake/build/bin/migration-proof-checker')
+example_factory = &lt;function example_factory.&lt;locals&gt;.copy_example at 0x107e61b10&gt;
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x107eb6050&gt;
+
+    @pytest.fixture
+    def baseline_case(tmp_path: Path, runtime_root: Path, lean_sysroot: Path, lean_library: Path,
+                      proof_checker: Path, example_factory: Callable[[str], Path],
+                      monkeypatch: pytest.MonkeyPatch) -&gt; BaselineFixture:
+        """Redirect only runtime location; source parsing, closure discovery and verification remain real."""
+        runtime = Runtime(runtime_root, lean_sysroot, lean_library,
+                          runtime_root / "build/sqlite-parser", proof_checker)
+    
+        def locate(cls: type[Runtime], sqlite_version: str = "3.51.0") -&gt; Runtime:
+            """Bind the test's exact supported profile to the explicitly selected artifact root."""
+            assert sqlite_version == "3.51.0"
+            return runtime
+    
+        monkeypatch.setattr(Runtime, "locate", classmethod(locate))
+&gt;       approved = example_factory("approved")
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/source_fixtures.py:101: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+conftest.py:57: in copy_example
+    source = (runtime_root / "examples" / name).resolve(strict=True)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = PosixPath('/nix/store/2pm5l48v8lk5v3p1yqbc3hx3jj1w2ylr-sqlite-verifier-conformance/examples/approved')
+strict = True
+
+    def resolve(self, strict=False):
+        """
+        Make the path absolute, resolving all symlinks on the way and also
+        normalizing it.
+        """
+    
+&gt;       return self.with_segments(os.path.realpath(self, strict=strict))
+                                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       FileNotFoundError: [Errno 2] No such file or directory: '/nix/store/2pm5l48v8lk5v3p1yqbc3hx3jj1w2ylr-sqlite-verifier-conformance/examples'
+
+/nix/store/7xgkr19ify5wzfj8mafjqhywzvsmgqaq-python3-3.14.7-env/lib/python3.14/pathlib/__init__.py:938: FileNotFoundError</error></testcase><testcase classname="tests.parser_build_test" name="test_generator_preserves_rules_and_rejects_mismatched_tokens" time="0.002" /><testcase classname="tests.parser_test" name="test_valid_grammar[3.51.0-empty]" time="0.006" /><testcase classname="tests.parser_test" name="test_valid_grammar[3.51.0-line_comment]" time="0.005" /><testcase classname="tests.parser_test" name="test_valid_grammar[3.51.0-comment_semicolons]" time="0.005" /><testcase classname="tests.parser_test" name="test_valid_grammar[3.51.0-create_add]" time="0.005" /><testcase classname="tests.parser_test" name="test_valid_grammar[3.51.0-quoted_names]" time="0.006" /><testcase classname="tests.parser_test" name="test_valid_grammar[3.51.0-trigger_semicolons]" time="0.006" /><testcase classname="tests.parser_test" name="test_valid_grammar[3.51.0-literal_tokens]" time="0.006" /><testcase classname="tests.parser_test" name="test_valid_grammar[3.51.0-contextual_keywords]" time="0.006" /><testcase classname="tests.parser_test" name="test_valid_grammar[3.51.0-window_filter]" time="0.006" /><testcase classname="tests.parser_test" name="test_valid_grammar[3.51.0-named_window]" time="0.006" /><testcase classname="tests.parser_test" name="test_valid_grammar[3.51.0-recursive_cte]" time="0.006" /><testcase classname="tests.parser_test" name="test_valid_grammar[3.51.0-upsert_returning]" time="0.006" /><testcase classname="tests.parser_test" name="test_valid_grammar[3.51.0-virtual_table]" time="0.006" /><testcase classname="tests.parser_test" name="test_valid_grammar[3.51.0-strict_generated]" time="0.006" /><testcase classname="tests.parser_test" name="test_valid_grammar[3.51.0-expression_index]" time="0.006" /><testcase classname="tests.parser_test" name="test_valid_grammar[3.51.0-attach_pragma_vacuum]" time="0.006" /><testcase classname="tests.parser_test" name="test_valid_grammar[3.51.0-transaction_savepoint]" time="0.006" /><testcase classname="tests.parser_test" name="test_valid_grammar[3.51.0-explain_delete]" time="0.005" /><testcase classname="tests.parser_test" name="test_valid_grammar[3.51.0-update_analyze_reindex]" time="0.005" /><testcase classname="tests.parser_test" name="test_valid_grammar[3.51.0-unicode_bom]" time="0.006" /><testcase classname="tests.parser_test" name="test_valid_grammar[3.46.0-empty]" time="0.007" /><testcase classname="tests.parser_test" name="test_valid_grammar[3.46.0-line_comment]" time="0.007" /><testcase classname="tests.parser_test" name="test_valid_grammar[3.46.0-comment_semicolons]" time="0.006" /><testcase classname="tests.parser_test" name="test_valid_grammar[3.46.0-create_add]" time="0.006" /><testcase classname="tests.parser_test" name="test_valid_grammar[3.46.0-quoted_names]" time="0.006" /><testcase classname="tests.parser_test" name="test_valid_grammar[3.46.0-trigger_semicolons]" time="0.006" /><testcase classname="tests.parser_test" name="test_valid_grammar[3.46.0-literal_tokens]" time="0.006" /><testcase classname="tests.parser_test" name="test_valid_grammar[3.46.0-contextual_keywords]" time="0.005" /><testcase classname="tests.parser_test" name="test_valid_grammar[3.46.0-window_filter]" time="0.005" /><testcase classname="tests.parser_test" name="test_valid_grammar[3.46.0-named_window]" time="0.006" /><testcase classname="tests.parser_test" name="test_valid_grammar[3.46.0-recursive_cte]" time="0.006" /><testcase classname="tests.parser_test" name="test_valid_grammar[3.46.0-upsert_returning]" time="0.006" /><testcase classname="tests.parser_test" name="test_valid_grammar[3.46.0-virtual_table]" time="0.006" /><testcase classname="tests.parser_test" name="test_valid_grammar[3.46.0-strict_generated]" time="0.009" /><testcase classname="tests.parser_test" name="test_valid_grammar[3.46.0-expression_index]" time="0.007" /><testcase classname="tests.parser_test" name="test_valid_grammar[3.46.0-attach_pragma_vacuum]" time="0.006" /><testcase classname="tests.parser_test" name="test_valid_grammar[3.46.0-transaction_savepoint]" time="0.006" /><testcase classname="tests.parser_test" name="test_valid_grammar[3.46.0-explain_delete]" time="0.006" /><testcase classname="tests.parser_test" name="test_valid_grammar[3.46.0-update_analyze_reindex]" time="0.007" /><testcase classname="tests.parser_test" name="test_valid_grammar[3.46.0-unicode_bom]" time="0.007" /><testcase classname="tests.parser_test" name="test_invalid_grammar[3.51.0-incomplete_select]" time="0.006" /><testcase classname="tests.parser_test" name="test_invalid_grammar[3.51.0-incomplete_create]" time="0.005" /><testcase classname="tests.parser_test" name="test_invalid_grammar[3.51.0-unterminated_string]" time="0.005" /><testcase classname="tests.parser_test" name="test_invalid_grammar[3.51.0-odd_blob]" time="0.006" /><testcase classname="tests.parser_test" name="test_invalid_grammar[3.51.0-trailing_nonsense]" time="0.006" /><testcase classname="tests.parser_test" name="test_invalid_grammar[3.51.0-embedded_nul]" time="0.006" /><testcase classname="tests.parser_test" name="test_invalid_grammar[3.51.0-invalid_utf8]" time="0.005" /><testcase classname="tests.parser_test" name="test_invalid_grammar[3.51.0-incomplete_trigger]" time="0.006" /><testcase classname="tests.parser_test" name="test_invalid_grammar[3.51.0-update_limit]" time="0.006" /><testcase classname="tests.parser_test" name="test_invalid_grammar[3.51.0-invalid_variable]" time="0.006" /><testcase classname="tests.parser_test" name="test_invalid_grammar[3.51.0-utf8_surrogate]" time="0.006" /><testcase classname="tests.parser_test" name="test_invalid_grammar[3.51.0-double_separator]" time="0.006" /><testcase classname="tests.parser_test" name="test_invalid_grammar[3.51.0-trailing_separator]" time="0.006" /><testcase classname="tests.parser_test" name="test_invalid_grammar[3.51.0-hex_double_separator]" time="0.006" /><testcase classname="tests.parser_test" name="test_invalid_grammar[3.51.0-separator_before_decimal]" time="0.006" /><testcase classname="tests.parser_test" name="test_invalid_grammar[3.46.0-incomplete_select]" time="0.006" /><testcase classname="tests.parser_test" name="test_invalid_grammar[3.46.0-incomplete_create]" time="0.006" /><testcase classname="tests.parser_test" name="test_invalid_grammar[3.46.0-unterminated_string]" time="0.006" /><testcase classname="tests.parser_test" name="test_invalid_grammar[3.46.0-odd_blob]" time="0.005" /><testcase classname="tests.parser_test" name="test_invalid_grammar[3.46.0-trailing_nonsense]" time="0.005" /><testcase classname="tests.parser_test" name="test_invalid_grammar[3.46.0-embedded_nul]" time="0.006" /><testcase classname="tests.parser_test" name="test_invalid_grammar[3.46.0-invalid_utf8]" time="0.006" /><testcase classname="tests.parser_test" name="test_invalid_grammar[3.46.0-incomplete_trigger]" time="0.005" /><testcase classname="tests.parser_test" name="test_invalid_grammar[3.46.0-update_limit]" time="0.006" /><testcase classname="tests.parser_test" name="test_invalid_grammar[3.46.0-invalid_variable]" time="0.006" /><testcase classname="tests.parser_test" name="test_invalid_grammar[3.46.0-utf8_surrogate]" time="0.006" /><testcase classname="tests.parser_test" name="test_invalid_grammar[3.46.0-double_separator]" time="0.006" /><testcase classname="tests.parser_test" name="test_invalid_grammar[3.46.0-trailing_separator]" time="0.006" /><testcase classname="tests.parser_test" name="test_invalid_grammar[3.46.0-hex_double_separator]" time="0.006" /><testcase classname="tests.parser_test" name="test_invalid_grammar[3.46.0-separator_before_decimal]" time="0.006" /><testcase classname="tests.parser_test" name="test_resource_limit[3.51.0]" time="0.007" /><testcase classname="tests.parser_test" name="test_resource_limit[3.46.0]" time="0.007" /><testcase classname="tests.parser_test" name="test_deterministic_unicode_spans[3.51.0]" time="0.011" /><testcase classname="tests.parser_test" name="test_deterministic_unicode_spans[3.46.0]" time="0.011" /><testcase classname="tests.parser_test" name="test_raise_expression_version_boundary[3.51.0]" time="0.006" /><testcase classname="tests.parser_test" name="test_raise_expression_version_boundary[3.46.0]" time="0.008" /><testcase classname="tests.schema_generation_test" name="test_profile_emission_equivalence" time="0.030" /><testcase classname="tests.schema_generation_test" name="test_rich_schema_kernel_properties" time="0.947" /><testcase classname="tests.schema_generation_test" name="test_literal_write_kernel_properties" time="0.669" /><testcase classname="tests.test_baseline_ci" name="test_source_and_manifest_drift" time="6.943" /><testcase classname="tests.test_ci_checks" name="test_ci_modes_retain_fresh_checks[aarch64-darwin-source]" time="0.004" /><testcase classname="tests.test_ci_checks" name="test_ci_modes_retain_fresh_checks[aarch64-darwin-build]" time="0.003" /><testcase classname="tests.test_ci_checks" name="test_ci_modes_retain_fresh_checks[x86_64-linux-source]" time="0.004" /><testcase classname="tests.test_ci_checks" name="test_ci_modes_retain_fresh_checks[x86_64-linux-build]" time="0.004" /><testcase classname="tests.test_ci_checks" name="test_ci_failure_retains_phase_status" time="0.002" /><testcase classname="tests.test_ci_checks" name="test_ci_timeout_retains_group_runner_diagnostics" time="0.003" /><testcase classname="tests.test_ci_scope.CiScopeTest" name="test_change_scopes" time="0.004" /><testcase classname="tests.test_ci_scope.CiScopeTest" name="test_real_diff_preserves_removed_runtime_paths" time="0.332" /><testcase classname="tests.test_ci_scope.CiScopeTest" name="test_release_and_manual_runs_package" time="0.001" /><testcase classname="tests.test_cli_inputs" name="test_profile_diagnostics[missing]" time="0.002" /><testcase classname="tests.test_cli_inputs" name="test_profile_diagnostics[malformed]" time="0.001" /><testcase classname="tests.test_cli_inputs" name="test_profile_diagnostics[unsupported]" time="0.001" /><testcase classname="tests.test_module_keys" name="test_proof_edit_changes_only_proofs" time="0.000" /><testcase classname="tests.test_module_keys" name="test_sql_edit_skips_modules_without_sql_inputs" time="0.000" /><testcase classname="tests.test_module_keys" name="test_contract_or_schema_edit_invalidates_every_importer" time="0.000" /><testcase classname="tests.test_module_keys" name="test_intermediate_edit_propagates_to_importers" time="0.000" /><testcase classname="tests.test_module_keys" name="test_runtime_identity_changes_every_key" time="0.000" /><testcase classname="tests.test_process" name="test_output_limit" time="0.079" /><testcase classname="tests.test_process" name="test_timeout" time="0.510" /><testcase classname="tests.test_process" name="test_explicit_environment" time="0.045" /><testcase classname="tests.test_profiles" name="test_no_framework_directives_or_reserved_catalog_names" time="0.019" /><testcase classname="tests.test_profiles" name="test_catalog_json_and_unknown_versions_reject" time="0.001" /><testcase classname="tests.test_pytest_harness" name="test_missing_prerequisite_fails_setup[source-Required Lean compiler is missing]" time="0.338" /><testcase classname="tests.test_pytest_harness" name="test_missing_prerequisite_fails_setup[installed-Required runtime file is missing]" time="0.256" /><testcase classname="tests.test_pytest_harness" name="test_installed_missing_compiler_cannot_fall_back_to_host" time="0.526" /><testcase classname="tests.test_pytest_harness" name="test_archive_installs_only_for_executed_cases" time="0.440" /><testcase classname="tests.test_pytest_harness" name="test_archive_rejects_ambiguous_runtime[source-variant]" time="0.176" /><testcase classname="tests.test_pytest_harness" name="test_archive_rejects_ambiguous_runtime[conflicting-root]" time="0.174" /><testcase classname="tests.test_pytest_harness" name="test_example_copies_are_writable_and_independent" time="0.456" /><testcase classname="tests.test_pytest_harness" name="test_command_json_diagnostics_retain_both_streams" time="0.025" /><testcase classname="tests.test_pytest_harness" name="test_timeout_kills_process_group_and_retains_output" time="1.017"><failure message="PermissionError: [Errno 1] Operation not permitted: '/bin/ps'">tmp_path = PosixPath('/private/tmp/nix-shell.TjaOj6/pytest-of-tzankomatev/pytest-0/test_timeout_kills_process_gro0')
+
+    def test_timeout_kills_process_group_and_retains_output(tmp_path: Path) -&gt; None:
+        """A timed-out command's group, including a grandchild, is killed and partial output is kept."""
+        program = ("import subprocess,sys\nfrom pathlib import Path\n"
+                   "child=subprocess.Popen([sys.executable,'-c','import time; time.sleep(60)'])\n"
+                   "Path('child.pid').write_text(str(child.pid))\n"
+                   "print('partial stdout',flush=True)\nprint('partial stderr',file=sys.stderr,flush=True)\n"
+                   "child.wait()\n")
+        with pytest.raises(CommandTimeout) as failure:
+            run_command([sys.executable, "-c", program], cwd=tmp_path, timeout=1, artifacts=tmp_path / "evidence")
+        result = failure.value.result
+        assert result.timed_out and result.returncode != 0 and result.elapsed &lt; 10
+        assert "partial stdout" in result.stdout and "partial stderr" in result.stderr
+        assert (tmp_path / "evidence/command-0000.json").is_file()
+        pid = int((tmp_path / "child.pid").read_text())
+        # The killed grandchild is reparented; it may briefly remain a zombie until init reaps it.
+        for _ in range(100):
+&gt;           state = run_command(["/bin/ps", "-o", "stat=", "-p", str(pid)], cwd=tmp_path, timeout=2).stdout.strip()
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_pytest_harness.py:140: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/runtime_support.py:72: in run_command
+    with subprocess.Popen(command, cwd=cwd, env=environment, stdin=subprocess.DEVNULL,
+/nix/store/7xgkr19ify5wzfj8mafjqhywzvsmgqaq-python3-3.14.7-env/lib/python3.14/subprocess.py:1039: in __init__
+    self._execute_child(args, executable, preexec_fn, close_fds,
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = &lt;Popen: returncode: 255 args: ('/bin/ps', '-o', 'stat=', '-p', '97899')&gt;
+args = ['/bin/ps', '-o', 'stat=', '-p', '97899'], executable = b'/bin/ps'
+preexec_fn = None, close_fds = True, pass_fds = ()
+cwd = PosixPath('/private/tmp/nix-shell.TjaOj6/pytest-of-tzankomatev/pytest-0/test_timeout_kills_process_gro0')
+env = None, startupinfo = None, creationflags = 0, shell = False, p2cread = 11
+p2cwrite = -1, c2pread = 12, c2pwrite = 13, errread = 14, errwrite = 15
+restore_signals = True, gid = None, gids = None, uid = None, umask = -1
+start_new_session = True, process_group = -1
+
+    def _execute_child(self, args, executable, preexec_fn, close_fds,
+                       pass_fds, cwd, env,
+                       startupinfo, creationflags, shell,
+                       p2cread, p2cwrite,
+                       c2pread, c2pwrite,
+                       errread, errwrite,
+                       restore_signals,
+                       gid, gids, uid, umask,
+                       start_new_session, process_group):
+        """Execute program (POSIX version)"""
+    
+        if isinstance(args, (str, bytes)):
+            args = [args]
+        elif isinstance(args, os.PathLike):
+            if shell:
+                raise TypeError('path-like args is not allowed when '
+                                'shell is true')
+            args = [args]
+        else:
+            args = list(args)
+    
+        if shell:
+            # On Android the default shell is at '/system/bin/sh'.
+            unix_shell = ('/system/bin/sh' if
+                      hasattr(sys, 'getandroidapilevel') else '/nix/store/lb6nd0iyy9x0bm7yfx2fkw0wbjllg4ic-bash-5.3p15/bin/sh')
+            args = [unix_shell, "-c"] + args
+            if executable:
+                args[0] = executable
+    
+        if executable is None:
+            executable = args[0]
+    
+        sys.audit("subprocess.Popen", executable, args, cwd, env)
+    
+        if (_USE_POSIX_SPAWN
+                and os.path.dirname(executable)
+                and preexec_fn is None
+                and (not close_fds or _HAVE_POSIX_SPAWN_CLOSEFROM)
+                and not pass_fds
+                and cwd is None
+                and (p2cread == -1 or p2cread &gt; 2)
+                and (c2pwrite == -1 or c2pwrite &gt; 2)
+                and (errwrite == -1 or errwrite &gt; 2)
+                and not start_new_session
+                and process_group == -1
+                and gid is None
+                and gids is None
+                and uid is None
+                and umask &lt; 0):
+            self._posix_spawn(args, executable, env, restore_signals, close_fds,
+                              p2cread, p2cwrite,
+                              c2pread, c2pwrite,
+                              errread, errwrite)
+            return
+    
+        orig_executable = executable
+    
+        # For transferring possible exec failure from child to parent.
+        # Data format: "exception name:hex errno:description"
+        # Pickle is not used; it is complex and involves memory allocation.
+        errpipe_read, errpipe_write = os.pipe()
+        # errpipe_write must not be in the standard io 0, 1, or 2 fd range.
+        low_fds_to_close = []
+        while errpipe_write &lt; 3:
+            low_fds_to_close.append(errpipe_write)
+            errpipe_write = os.dup(errpipe_write)
+        for low_fd in low_fds_to_close:
+            os.close(low_fd)
+        try:
+            try:
+                # We must avoid complex work that could involve
+                # malloc or free in the child process to avoid
+                # potential deadlocks, thus we do all this here.
+                # and pass it to fork_exec()
+    
+                if env is not None:
+                    env_list = []
+                    for k, v in env.items():
+                        k = os.fsencode(k)
+                        if b'=' in k:
+                            raise ValueError("illegal environment variable name")
+                        env_list.append(k + b'=' + os.fsencode(v))
+                else:
+                    env_list = None  # Use execv instead of execve.
+                executable = os.fsencode(executable)
+                if os.path.dirname(executable):
+                    executable_list = (executable,)
+                else:
+                    # This matches the behavior of os._execvpe().
+                    executable_list = tuple(
+                        os.path.join(os.fsencode(dir), executable)
+                        for dir in os.get_exec_path(env))
+                fds_to_keep = set(pass_fds)
+                fds_to_keep.add(errpipe_write)
+                self.pid = _fork_exec(
+                        args, executable_list,
+                        close_fds, tuple(sorted(map(int, fds_to_keep))),
+                        cwd, env_list,
+                        p2cread, p2cwrite, c2pread, c2pwrite,
+                        errread, errwrite,
+                        errpipe_read, errpipe_write,
+                        restore_signals, start_new_session,
+                        process_group, gid, gids, uid, umask,
+                        preexec_fn)
+                self._child_created = True
+            finally:
+                # be sure the FD is closed no matter what
+                os.close(errpipe_write)
+    
+            self._close_pipe_fds(p2cread, p2cwrite,
+                                 c2pread, c2pwrite,
+                                 errread, errwrite)
+    
+            # Wait for exec to fail or succeed; possibly raising an
+            # exception (limited in size)
+            errpipe_data = bytearray()
+            while True:
+                part = os.read(errpipe_read, 50000)
+                errpipe_data += part
+                if not part or len(errpipe_data) &gt; 50000:
+                    break
+        finally:
+            # be sure the FD is closed no matter what
+            os.close(errpipe_read)
+    
+        if errpipe_data:
+            try:
+                pid, sts = os.waitpid(self.pid, 0)
+                if pid == self.pid:
+                    self._handle_exitstatus(sts)
+                else:
+                    self.returncode = sys.maxsize
+            except ChildProcessError:
+                pass
+    
+            try:
+                exception_name, hex_errno, err_msg = (
+                        errpipe_data.split(b':', 2))
+                # The encoding here should match the encoding
+                # written in by the subprocess implementations
+                # like _posixsubprocess
+                err_msg = err_msg.decode()
+            except ValueError:
+                exception_name = b'SubprocessError'
+                hex_errno = b'0'
+                err_msg = 'Bad exception data from child: {!r}'.format(
+                              bytes(errpipe_data))
+            child_exception_type = getattr(
+                    builtins, exception_name.decode('ascii'),
+                    SubprocessError)
+            if issubclass(child_exception_type, OSError) and hex_errno:
+                errno_num = int(hex_errno, 16)
+                if err_msg == "noexec:chdir":
+                    err_msg = ""
+                    # The error must be from chdir(cwd).
+                    err_filename = cwd
+                elif err_msg == "noexec":
+                    err_msg = ""
+                    err_filename = None
+                else:
+                    err_filename = orig_executable
+                if errno_num != 0:
+                    err_msg = os.strerror(errno_num)
+                if err_filename is not None:
+&gt;                   raise child_exception_type(errno_num, err_msg, err_filename)
+E                   PermissionError: [Errno 1] Operation not permitted: '/bin/ps'
+
+/nix/store/7xgkr19ify5wzfj8mafjqhywzvsmgqaq-python3-3.14.7-env/lib/python3.14/subprocess.py:1990: PermissionError</failure></testcase><testcase classname="tests.test_resources" name="test_package_preflight_precedes_external_work" time="0.001" /><testcase classname="tests.test_resources" name="test_separate_temporary_filesystem" time="0.002" /><testcase classname="tests.test_resources" name="test_environment_and_capacity_boundaries" time="0.004" /><testcase classname="tests.test_runtime_package" name="test_install_does_not_delete_concurrent_destination" time="0.002" /><testcase classname="tests.test_runtime_staging" name="test_archive_exports_content_addressed_closure[Darwin-arm64-aarch64-darwin]" time="0.009" /><testcase classname="tests.test_runtime_staging" name="test_archive_exports_content_addressed_closure[Linux-x86_64-x86_64-linux]" time="0.009" /><testcase classname="tests.test_runtime_staging" name="test_explicit_runtime_never_falls_back_to_ambient_lean" time="0.001" /><testcase classname="tests.test_runtime_staging" name="test_archive_output_preflight_precedes_tool_reads[output-0-10 GiB]" time="0.001" /><testcase classname="tests.test_runtime_staging" name="test_archive_output_preflight_precedes_tool_reads[/nix/store/forbidden-archive-21474836480-immutable Nix store]" time="0.002" /><testcase classname="tests.test_schema_baseline" name="test_optional_schema_pin" time="0.001" /><testcase classname="tests.test_schema_translation" name="test_metadata_and_indexes_survive_nullable_add" time="0.024" /><testcase classname="tests.test_schema_translation" name="test_create_cannot_collide_with_preserved_index" time="0.011" /><testcase classname="tests.test_schema_translation" name="test_unsupported_metadata_cannot_disappear[CREATE TABLE t(x INTEGER PRIMARY KEY);]" time="0.006" /><testcase classname="tests.test_schema_translation" name="test_unsupported_metadata_cannot_disappear[CREATE TABLE t(x TEXT PRIMARY KEY DESC);]" time="0.006" /><testcase classname="tests.test_schema_translation" name="test_unsupported_metadata_cannot_disappear[CREATE TABLE t(x TEXT PRIMARY KEY ON CONFLICT REPLACE);]" time="0.006" /><testcase classname="tests.test_schema_translation" name="test_unsupported_metadata_cannot_disappear[CREATE TABLE t(x BIGINT PRIMARY KEY AUTOINCREMENT);]" time="0.006" /><testcase classname="tests.test_schema_translation" name="test_unsupported_metadata_cannot_disappear[CREATE TABLE t(x TEXT NOT NULL ON CONFLICT IGNORE);]" time="0.006" /><testcase classname="tests.test_schema_translation" name="test_unsupported_metadata_cannot_disappear[CREATE TABLE t(x TEXT DEFAULT CURRENT_DATE);]" time="0.006" /><testcase classname="tests.test_schema_translation" name="test_unsupported_metadata_cannot_disappear[CREATE TABLE t(x TEXT DEFAULT CURRENT_TIME);]" time="0.006" /><testcase classname="tests.test_schema_translation" name="test_unsupported_metadata_cannot_disappear[CREATE TABLE t(x TEXT DEFAULT (CURRENT_TIMESTAMP));]" time="0.007" /><testcase classname="tests.test_schema_translation" name="test_unsupported_metadata_cannot_disappear[CREATE TABLE t(x TEXT DEFAULT NULL);]" time="0.006" /><testcase classname="tests.test_schema_translation" name="test_unsupported_metadata_cannot_disappear[CREATE TABLE t(x TEXT DEFAULT 0);]" time="0.006" /><testcase classname="tests.test_schema_translation" name="test_unsupported_metadata_cannot_disappear[CREATE TABLE t(x TEXT CHECK(x));]" time="0.006" /><testcase classname="tests.test_schema_translation" name="test_unsupported_metadata_cannot_disappear[CREATE TABLE t(x TEXT REFERENCES u);]" time="0.007" /><testcase classname="tests.test_schema_translation" name="test_unsupported_metadata_cannot_disappear[CREATE TABLE t(x TEXT COLLATE NOCASE);]" time="0.006" /><testcase classname="tests.test_schema_translation" name="test_unsupported_metadata_cannot_disappear[CREATE TABLE t(x TEXT, CONSTRAINT named UNIQUE(x));]" time="0.006" /><testcase classname="tests.test_schema_translation" name="test_unsupported_metadata_cannot_disappear[CREATE TABLE t(x TEXT, PRIMARY KEY(x));]" time="0.006" /><testcase classname="tests.test_schema_translation" name="test_unsupported_metadata_cannot_disappear[CREATE TABLE t(x TEXT, UNIQUE(x DESC));]" time="0.006" /><testcase classname="tests.test_schema_translation" name="test_unsupported_metadata_cannot_disappear[CREATE TABLE t(x TEXT, UNIQUE(x) ON CONFLICT IGNORE);]" time="0.006" /><testcase classname="tests.test_schema_translation" name="test_unsupported_metadata_cannot_disappear[CREATE TABLE t(x TEXT) WITHOUT ROWID;]" time="0.006" /><testcase classname="tests.test_schema_translation" name="test_unsupported_metadata_cannot_disappear[CREATE TABLE t(x TEXT) STRICT;]" time="0.006" /><testcase classname="tests.test_schema_translation" name="test_unsupported_metadata_cannot_disappear[CREATE TABLE t(x TEXT); CREATE INDEX i ON t(lower(x));]" time="0.006" /><testcase classname="tests.test_schema_translation" name="test_unsupported_metadata_cannot_disappear[CREATE TABLE t(x TEXT); CREATE INDEX i ON t(x) WHERE x IS NOT NULL;]" time="0.006" /><testcase classname="tests.test_schema_translation" name="test_unsupported_metadata_cannot_disappear[CREATE TABLE t(x TEXT); CREATE INDEX i ON t(x COLLATE NOCASE);]" time="0.006" /><testcase classname="tests.test_schema_translation" name="test_unsupported_metadata_cannot_disappear[CREATE TABLE t(x TEXT); CREATE INDEX i ON t(x DESC);]" time="0.006" /><testcase classname="tests.test_schema_translation" name="test_unsupported_metadata_cannot_disappear[CREATE TABLE t(x TEXT); CREATE TRIGGER tr AFTER INSERT ON t BEGIN SELECT 1; END;]" time="0.007" /><testcase classname="tests.test_schema_translation" name="test_statistics_are_exact_engine_managed_baseline_objects" time="0.046" /><testcase classname="tests.test_schema_translation" name="test_global_namespace_references_and_aliases" time="0.052" /><testcase classname="tests.test_sql_writes" name="test_both_grammars_preserve_all_explicit_operations" time="0.026" /><testcase classname="tests.test_sql_writes" name="test_transaction_schema_effects_are_explicit" time="0.029" /><testcase classname="tests.test_sql_writes" name="test_literal_storage_values[NULL-None]" time="0.006" /><testcase classname="tests.test_sql_writes" name="test_literal_storage_values[-9223372036854775808--9223372036854775808]" time="0.006" /><testcase classname="tests.test_sql_writes" name="test_literal_storage_values[+9223372036854775807-9223372036854775807]" time="0.006" /><testcase classname="tests.test_sql_writes" name="test_literal_storage_values[00007-7]" time="0.006" /><testcase classname="tests.test_sql_writes" name="test_literal_storage_values[X''-]" time="0.006" /><testcase classname="tests.test_sql_writes" name="test_literal_storage_values['a''b\\\u03bb'-a'b\\\u03bb]" time="0.006" /><testcase classname="tests.test_sql_writes" name="test_unsupported_literal_expressions_reject[1.0]" time="0.006" /><testcase classname="tests.test_sql_writes" name="test_unsupported_literal_expressions_reject[9223372036854775808]" time="0.006" /><testcase classname="tests.test_sql_writes" name="test_unsupported_literal_expressions_reject[-9223372036854775809]" time="0.006" /><testcase classname="tests.test_sql_writes" name="test_unsupported_literal_expressions_reject[1+2]" time="0.006" /><testcase classname="tests.test_sql_writes" name="test_unsupported_literal_expressions_reject[?]" time="0.006" /><testcase classname="tests.test_sql_writes" name="test_unsupported_literal_expressions_reject[CURRENT_TIMESTAMP]" time="0.006" /><testcase classname="tests.test_sql_writes" name="test_unsupported_literal_expressions_reject[TRUE]" time="0.006" /><testcase classname="tests.test_sql_writes" name="test_unsupported_literal_expressions_reject[0x10]" time="0.006" /><testcase classname="tests.test_sql_writes" name="test_unsupported_literal_expressions_reject[CAST('7' AS INTEGER)]" time="0.006" /><testcase classname="tests.test_sql_writes" name="test_unmodeled_key_comparisons_reject[CREATE TABLE t(k TEXT PRIMARY KEY,x TEXT);-INSERT INTO t(k,x) VALUES('key','x');]" time="0.010" /><testcase classname="tests.test_sql_writes" name="test_unmodeled_key_comparisons_reject[CREATE TABLE t(k BIGINT,x NUMERIC,UNIQUE(k,x));-UPDATE t SET x=2 WHERE k=1;]" time="0.010" /><testcase classname="tests.test_sql_writes" name="test_unmodeled_key_comparisons_reject[CREATE TABLE t(k BIGINT PRIMARY KEY,x TEXT);-INSERT INTO t(k,x) VALUES(X'01','x');]" time="0.011" /><testcase classname="tests.test_sql_writes" name="test_unmodeled_key_comparisons_reject[CREATE TABLE t(k BIGINT PRIMARY KEY,x TEXT);-UPDATE t SET k=X'01' WHERE k=1;]" time="0.011" /><testcase classname="tests.test_sql_writes" name="test_unmodeled_key_comparisons_reject[CREATE TABLE t(k INTEGER,x TEXT);-UPDATE t SET x='x' WHERE k=1;]" time="0.012" /><testcase classname="tests.test_sql_writes" name="test_unique_index_key_update_is_admitted" time="0.011" /><testcase classname="tests.test_sql_writes" name="test_optional_syntax_rejects[BEGIN IMMEDIATE;]" time="0.006" /><testcase classname="tests.test_sql_writes" name="test_optional_syntax_rejects[SAVEPOINT a;]" time="0.006" /><testcase classname="tests.test_sql_writes" name="test_optional_syntax_rejects[ROLLBACK TO a;]" time="0.006" /><testcase classname="tests.test_sql_writes" name="test_optional_syntax_rejects[INSERT OR REPLACE INTO t(x) VALUES(1);]" time="0.006" /><testcase classname="tests.test_sql_writes" name="test_optional_syntax_rejects[INSERT INTO t DEFAULT VALUES;]" time="0.006" /><testcase classname="tests.test_sql_writes" name="test_optional_syntax_rejects[INSERT INTO t(x) VALUES(1),(2);]" time="0.006" /><testcase classname="tests.test_sql_writes" name="test_optional_syntax_rejects[INSERT INTO t(x) SELECT 1;]" time="0.006" /><testcase classname="tests.test_sql_writes" name="test_optional_syntax_rejects[INSERT INTO t(x) VALUES(1) RETURNING x;]" time="0.006" /><testcase classname="tests.test_sql_writes" name="test_optional_syntax_rejects[UPDATE t SET x=1;]" time="0.006" /><testcase classname="tests.test_sql_writes" name="test_optional_syntax_rejects[UPDATE t SET x=1,y=2 WHERE id=1;]" time="0.006" /><testcase classname="tests.test_sql_writes" name="test_optional_syntax_rejects[UPDATE t SET x=1 WHERE id=1 OR id=2;]" time="0.006" /><testcase classname="tests.test_sql_writes" name="test_optional_syntax_rejects[UPDATE t SET x=1 WHERE id IS NULL;]" time="0.006" /><testcase classname="tests.test_sql_writes" name="test_coercing_writes_are_unsupported[INSERT INTO t(id,x,y,z) VALUES(1,2,3,NULL);]" time="0.010" /><testcase classname="tests.test_sql_writes" name="test_coercing_writes_are_unsupported[INSERT INTO t(id,x,y,z) VALUES(1,'ok','123',NULL);]" time="0.010" /><testcase classname="tests.test_sql_writes" name="test_coercing_writes_are_unsupported[INSERT INTO t(id,x,y,z) VALUES(1,'ok',3,1);]" time="0.011" /><testcase classname="tests.test_sql_writes" name="test_coercing_writes_are_unsupported[INSERT INTO t(id,x) VALUES(1,'ok');]" time="0.012" /><testcase classname="tests.test_sql_writes" name="test_coercing_writes_are_unsupported[INSERT INTO t(x,id,y,z) VALUES('ok',1,3,NULL);]" time="0.012" /><testcase classname="tests.test_sql_writes" name="test_coercing_writes_are_unsupported[UPDATE t SET x=1 WHERE id=1;]" time="0.011" /><testcase classname="tests.test_sql_writes" name="test_coercing_writes_are_unsupported[UPDATE t SET missing=NULL WHERE id=1;]" time="0.010" /><testcase classname="tests.test_stage_store" name="test_round_trip_restores_identical_read_only_files" time="0.003" /><testcase classname="tests.test_stage_store" name="test_damaged_or_missing_entries_are_misses[missing]" time="0.002" /><testcase classname="tests.test_stage_store" name="test_damaged_or_missing_entries_are_misses[changed_file]" time="0.002" /><testcase classname="tests.test_stage_store" name="test_damaged_or_missing_entries_are_misses[removed_file]" time="0.002" /><testcase classname="tests.test_stage_store" name="test_damaged_or_missing_entries_are_misses[bad_manifest]" time="0.002" /><testcase classname="tests.test_stage_store" name="test_keys_change_with_sources_order_and_runtime" time="0.000" /><testcase classname="tests.test_stage_store" name="test_configuration_and_approved_eligibility" time="0.001" /><testcase classname="tests.test_stage_store" name="test_malformed_manifests_are_misses[empty]" time="0.002" /><testcase classname="tests.test_stage_store" name="test_malformed_manifests_are_misses[null]" time="0.002" /><testcase classname="tests.test_stage_store" name="test_malformed_manifests_are_misses[list]" time="0.002" /><testcase classname="tests.test_stage_store" name="test_malformed_manifests_are_misses[traversal]" time="0.002" /><testcase classname="tests.test_stage_store" name="test_malformed_manifests_are_misses[bad_digest]" time="0.002" /><testcase classname="tests.test_stage_store" name="test_missing_required_artifact_is_a_miss" time="0.002" /><testcase classname="tests.test_stage_store" name="test_unwritable_store_does_not_raise" time="0.001" /><testcase classname="tests.test_stage_store" name="test_runtime_identity_follows_symlinks" time="0.001" /><testcase classname="tests.test_test_ownership" name="test_host_collection_retains_source_owned_conformance_checks" time="0.929" /><testcase classname="tests.test_test_ownership" name="test_recipe_expansion_retains_full_model_in_release_checks" time="0.043" /><testcase classname="tests.test_toolchain_smoke" name="test_lean_version" time="0.325" /><testcase classname="tests.test_toolchain_smoke" name="test_lake_version" time="0.074" /><testcase classname="tests.test_toolchain_smoke" name="test_sqlite_351_identity" time="0.016" /><testcase classname="tests.test_toolchain_smoke" name="test_sqlite_346_identity" time="0.016" /><testcase classname="tests.test_translation" name="test_supported_scripts_and_prefix_failures" time="0.024" /><testcase classname="tests.test_translation" name="test_unsupported_statement[CREATE TABLE t(x INTEGER PRIMARY KEY);]" time="0.005" /><testcase classname="tests.test_translation" name="test_unsupported_statement[CREATE TABLE t(x);]" time="0.006" /><testcase classname="tests.test_translation" name="test_unsupported_statement[CREATE TABLE t(x VARCHAR(20));]" time="0.006" /><testcase classname="tests.test_translation" name="test_unsupported_statement[CREATE TABLE t(x &quot;TEXT&quot;);]" time="0.006" /><testcase classname="tests.test_translation" name="test_unsupported_statement[CREATE TABLE t(x TEXT NOT NULL);]" time="0.007" /><testcase classname="tests.test_translation" name="test_unsupported_statement[CREATE TABLE t(x TEXT DEFAULT NULL);]" time="0.006" /><testcase classname="tests.test_translation" name="test_unsupported_statement[CREATE TABLE t(x TEXT COLLATE NOCASE);]" time="0.007" /><testcase classname="tests.test_translation" name="test_unsupported_statement[CREATE TABLE t(x TEXT UNIQUE);]" time="0.006" /><testcase classname="tests.test_translation" name="test_unsupported_statement[CREATE TABLE t(x TEXT REFERENCES u);]" time="0.005" /><testcase classname="tests.test_translation" name="test_unsupported_statement[CREATE TABLE t(x TEXT CHECK(x));]" time="0.006" /><testcase classname="tests.test_translation" name="test_unsupported_statement[CREATE TABLE t(x TEXT, UNIQUE(x));]" time="0.006" /><testcase classname="tests.test_translation" name="test_unsupported_statement[CREATE TABLE t(x TEXT) STRICT;]" time="0.005" /><testcase classname="tests.test_translation" name="test_unsupported_statement[CREATE TEMP TABLE t(x TEXT);]" time="0.006" /><testcase classname="tests.test_translation" name="test_unsupported_statement[CREATE TABLE main.t(x TEXT);]" time="0.005" /><testcase classname="tests.test_translation" name="test_unsupported_statement[CREATE TABLE IF NOT EXISTS t(x TEXT);]" time="0.006" /><testcase classname="tests.test_translation" name="test_unsupported_statement[CREATE TABLE t AS SELECT 1;]" time="0.005" /><testcase classname="tests.test_translation" name="test_unsupported_statement[CREATE TABLE t(rowid TEXT);]" time="0.006" /><testcase classname="tests.test_translation" name="test_unsupported_statement[CREATE TABLE sqlite_private(x TEXT);]" time="0.006" /><testcase classname="tests.test_translation" name="test_unsupported_statement[CREATE TABLE t(x TEXT, X TEXT);]" time="0.006" /><testcase classname="tests.test_translation" name="test_unsupported_statement[ALTER TABLE main.t ADD x TEXT;]" time="0.005" /><testcase classname="tests.test_translation" name="test_unsupported_statement[ALTER TABLE t RENAME TO u;]" time="0.006" /><testcase classname="tests.test_translation" name="test_unsupported_statement[ALTER TABLE t ADD x TEXT GENERATED AS (1);]" time="0.006" /><testcase classname="tests.test_translation" name="test_unsupported_statement[CREATE TABLE t(x TEXT); CREATE VIEW v AS SELECT * FROM t;]" time="0.006" /><testcase classname="tests.test_translation" name="test_unsupported_statement[CREATE TABLE t(x TEXT); CREATE INDEX i ON t(x);]" time="0.006" /><testcase classname="tests.test_translation" name="test_unsupported_statement[CREATE TABLE t(x TEXT); CREATE TRIGGER tr AFTER INSERT ON t BEGIN SELECT 1; END;]" time="0.006" /><testcase classname="tests.test_translation" name="test_unsupported_statement[PRAGMA foreign_keys=ON;]" time="0.007" /><testcase classname="tests.test_translation" name="test_unsupported_statement[BEGIN IMMEDIATE; CREATE TABLE t(x TEXT); COMMIT;]" time="0.007" /><testcase classname="tests.test_translation" name="test_unsupported_statement[EXPLAIN CREATE TABLE t(x TEXT);]" time="0.007" /><testcase classname="tests.test_translation" name="test_unsupported_statement[SELECT 1;]" time="0.007" /><testcase classname="tests.test_translation" name="test_duplicate_and_empty_schema" time="0.011" /><testcase classname="tests.test_translation" name="test_wrong_parser_profile_is_rejected" time="0.006" /><testcase classname="tests.test_translation" name="test_parser_failure_classes[syntax]" time="0.006" /><testcase classname="tests.test_translation" name="test_parser_failure_classes[resource_limit]" time="0.008" /></testsuite></testsuites>

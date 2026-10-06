@@ -1,0 +1,20 @@
+# Small real generated cohorts prove C6 selection without mining the full source catalog.
+set testdir [file join $env(CONFORMANCE_UPSTREAM) test]
+source [file join $testdir tester.tcl]
+for {set i 0} {$i < 24} {incr i} {
+  reset_db
+  do_test uncapped-$i {db eval "SELECT $i AS value"} [list $i]
+}
+for {set i 0} {$i < 12} {incr i} {
+  reset_db
+  do_test generated-$i {db eval "SELECT $i AS value"} [list $i]
+}
+proc sampling_callback {value} {return $value}
+for {set i 0} {$i < 12} {incr i} {
+  reset_db
+  db function sampling_callback sampling_callback
+  do_test blocked-$i {db eval "SELECT $i AS value"} [list $i]
+}
+reset_db
+do_test recovered {db eval {SELECT 99 AS value}} 99
+finish_test

@@ -4,6 +4,9 @@
 test targets. Versioned conformance progress and measured coverage are documented in
 [conformance-progress.md](conformance-progress.md); they do not authorize product proofs.
 A pytest failure fails its host invocation or Nix derivation.
+The development conformance tier checks all frozen authored and synthetic cases
+plus a stable upstream sample. `just test-full`, CI and packaging retain the
+complete model, kernel, generation and historical evidence checks.
 
 The native/model target runs the pinned SQLite 3.51.0 engine, production parser
 and translator, and Lean kernel assertions. The kernel target tests independent

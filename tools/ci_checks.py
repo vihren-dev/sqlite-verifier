@@ -66,7 +66,7 @@ def run_checks(scope: str, mode: str, system: str, root: Path) -> None:
                 "lean": run("lean-version", [lean, "--version"], 10, capture=True),
                 "lake": run("lake-version", [lake, "--version"], 10, capture=True)}
     (root / "build/ci-environment.json").write_text(json.dumps(versions, indent=2) + "\n")
-    run("checks-" + scope, ["just", scope], 1800)
+    run("checks-" + scope, ["just", "test-full" if scope == "test" else scope], 1800)
 
 
 def main() -> None:

@@ -15,7 +15,7 @@ All fields are required in JSON, including empty metadata lists:
 
 | Field | Meaning |
 | --- | --- |
-| `version` | Integer `1`; other versions are harness errors. |
+| `version` | Integer `1` for this format; [v2](conformance-format-v2.md) adds outputs. Unknown versions are harness errors. |
 | `schemaSql`, `migrationSql` | Original SQL, kept separately. |
 | `schema` | Production `starting_schema` result, as structural table declarations. |
 | `initial` | Finite array of `[tableName, table]` pairs with explicit physical rowids. |

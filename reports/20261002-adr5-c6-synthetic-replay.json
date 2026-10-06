@@ -1,0 +1,53 @@
+{
+  "reportVersion": 1,
+  "workload": {
+    "corpusVersion": 4,
+    "casesSha256": "4fe8d9ec6eb0555aa9a8eed512860ad7f19376fd2a2c43a990f8333c106d6a40",
+    "denominator": 2,
+    "queryDiagnostics": {
+      "OTHER_UNSUPPORTED": 1,
+      "PREFIX_MODEL_UNSUPPORTED": 1
+    },
+    "counts": {
+      "MODEL_UNSUPPORTED": 2
+    },
+    "byArea": {
+      "authored": {
+        "MODEL_UNSUPPORTED": 2
+      }
+    },
+    "byRequirement": {
+      "UNTAGGED": {
+        "MODEL_UNSUPPORTED": 2
+      }
+    },
+    "cases": [
+      {
+        "name": "synthetic-transaction-cascade",
+        "verdict": "MODEL_UNSUPPORTED",
+        "frontendStatus": "UNSUPPORTED",
+        "error": "Model execution profile capability is not implemented"
+      },
+      {
+        "name": "synthetic-empty-result",
+        "verdict": "MODEL_UNSUPPORTED",
+        "frontendStatus": "UNSUPPORTED",
+        "error": "Model execution profile capability is not implemented",
+        "queryDiagnostic": {
+          "category": "PREFIX_MODEL_UNSUPPORTED",
+          "prefix": {
+            "verdict": "MODEL_UNSUPPORTED",
+            "frontendStatus": "UNSUPPORTED",
+            "error": "Model execution profile capability is not implemented"
+          },
+          "migrationStatements": 0,
+          "trailingObservations": 1
+        }
+      }
+    ]
+  },
+  "denominator": 2,
+  "counts": {
+    "MODEL_UNSUPPORTED": 2
+  }
+}

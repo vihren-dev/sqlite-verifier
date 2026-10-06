@@ -1,0 +1,103 @@
+{
+  "verificationVersion": 1,
+  "stage": "source-retry",
+  "scope": "Current source-owned host checks and documentation after v5 activation",
+  "codeBaseCommit": "fe116b8744c7825529ec8eee21c33f15684a0694",
+  "command": [
+    "nix",
+    "develop",
+    "path:./nix",
+    "-c",
+    "timeout",
+    "--foreground",
+    "600",
+    "python3",
+    "-u",
+    "-m",
+    "pytest",
+    "-v",
+    "tests",
+    "--source-checks",
+    "-m",
+    "not requires_nix",
+    "--runtime-root",
+    "/nix/store/n5112z9ghcv1lyys2jj5wpzymlqp2ac5-sqlite-verifier-runtime-1",
+    "--junitxml",
+    "build/test-results/source-final-v5-retry.xml"
+  ],
+  "seconds": 38.92160337464884,
+  "exitCode": 0,
+  "resourceGuard": {
+    "beforeExitCode": 0,
+    "afterExitCode": 0
+  },
+  "sourceBindings": {
+    "count": 489,
+    "beforeSha256": "41f3c53673332117941a945c60343f524e3a7ce0c0e4becb7da38dd175951357",
+    "afterSha256": "41f3c53673332117941a945c60343f524e3a7ce0c0e4becb7da38dd175951357",
+    "unchanged": true
+  },
+  "logSha256": "7de9229a3f3b12ec11fcd3d9149eaee8138ab70ecd68c35b4fbe3126ea30b3de",
+  "runtime": "/nix/store/n5112z9ghcv1lyys2jj5wpzymlqp2ac5-sqlite-verifier-runtime-1",
+  "runtimeSha256": {
+    "lean/bin/lean": "1b370cfcbf44e80d1b004ab1b1ab9a4c73951f9f7c242140bcff9bc577576554",
+    ".lake/build/lib/lean/SqliteVerifier.olean": "add84d81dc95e27b805eca85bc835738d683c6481186c70f54d6853901cac0e2",
+    ".lake/build/bin/migration-proof-checker": "f0bfd9b454b01a62cb332f6f075a13cc9a408b0aab16ce492b155a55f839f7bc",
+    "build/sqlite-parser": "0649a31dddcf951297d90f421a3bb60ca05b55afeee1cf355af64255176cf685",
+    "build/sqlite-parser-3.46.0": "2542739da35f4ca759b4175fa3495e40b54de74a111904f42f6698008c8be714"
+  },
+  "runtimeBindingsUnchanged": true,
+  "configuredTimeoutSeconds": {
+    "innerPytest": 600,
+    "driverEnvelope": 900
+  },
+  "counts": {
+    "tests": 314,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "passed": 314
+  },
+  "junitSuiteSeconds": 37.911,
+  "junitPath": "/Users/tzankomatev/work/sqlite-verifier-adr5/build/test-results/source-final-v5-retry.xml",
+  "junitSha256": "d461cf1560c10e31736c6636fe2c129a72356c24b4c2eac2083b19f7bfbd040a",
+  "skipReasons": [],
+  "evidence": [
+    {
+      "path": "/Users/tzankomatev/work/sqlite-verifier-adr5/build/20261005-final-source-retry-v5.log",
+      "bytes": 27875,
+      "sha256": "7de9229a3f3b12ec11fcd3d9149eaee8138ab70ecd68c35b4fbe3126ea30b3de"
+    },
+    {
+      "path": "/Users/tzankomatev/work/sqlite-verifier-adr5/build/20261005-final-source-retry-v5.before.json",
+      "bytes": 54731,
+      "sha256": "1ce5044a722ec41a8b698e45dfe793fcbfeb363c884feef6db816b3a5de28837"
+    },
+    {
+      "path": "/Users/tzankomatev/work/sqlite-verifier-adr5/build/20261005-final-source-retry-v5.after.json",
+      "bytes": 54753,
+      "sha256": "49e911e1111ebc32053bbc280e2e7271a81d783f2e3528389899effe85fd37f6"
+    },
+    {
+      "path": "/Users/tzankomatev/work/sqlite-verifier-adr5/build/20261005-final-source-retry-v5.resources.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/Users/tzankomatev/work/sqlite-verifier-adr5/build/test-results/source-final-v5-retry.xml",
+      "bytes": 34333,
+      "sha256": "d461cf1560c10e31736c6636fe2c129a72356c24b4c2eac2083b19f7bfbd040a"
+    }
+  ],
+  "junitIncludesSubtests": true,
+  "pytestCounts": {
+    "passed": 286,
+    "subtestsPassed": 28,
+    "deselected": 68,
+    "failed": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "executionPermission": "Approved require_escalated retry for process-group test",
+  "priorFailedAttempt": "20261005-final-source-v5.verification.json"
+}

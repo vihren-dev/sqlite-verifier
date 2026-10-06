@@ -7,12 +7,30 @@ import struct
 import sys
 import time
 from typing import TypeAlias
+from dataclasses import dataclass
+from contextlib import nullcontext
+
+from conformance.native_library import SOURCE_ID, load_library
 
 Cell: TypeAlias = tuple[int, int | bytes | None]
 Row: TypeAlias = tuple[Cell, ...]
 # SQL semantic errors; environmental/connection failures must never become model evidence.
 SQL_ERRORS = (1, 18, 19, 20)  # ERROR, TOOBIG, CONSTRAINT, MISMATCH
-SOURCE_ID = "2025-11-04 19:38:17 fb2c931ae597f8d00a37574ff67aeed3eced4e5547f9120744ae4bfa8e74527b"
+
+
+def encoded_sql(sql: str) -> bytes:
+    """Refuse NUL-truncated SQL at every C API boundary; bound values retain arbitrary bytes."""
+    if "\x00" in sql:
+        raise ValueError("SQL source contains NUL")
+    return sql.encode()
+
+
+@dataclass(frozen=True)
+class NativeResult:
+    """Column names are available even when stepping returns no rows."""
+
+    columns: tuple[str, ...]
+    rows: list[Row]
 
 
 class NativeError(RuntimeError):
@@ -32,60 +50,22 @@ def library_path(executable_name: str = "sqlite3") -> Path:
     path = Path(executable).resolve().parent.parent / "lib" / f"libsqlite3.{suffix}"
     return path.resolve(strict=True)
 
-
-def load_library(path: Path, version: str = "3.51.0") -> c.CDLL:
-    """Declare C argument widths once; pointer defaults would truncate addresses."""
-    library = c.CDLL(str(path))
-    signatures = {
-        "open": ([c.c_char_p, c.POINTER(c.c_void_p)], c.c_int),
-        "close": ([c.c_void_p], c.c_int),
-        "libversion": ([], c.c_char_p), "sourceid": ([], c.c_char_p),
-        "compileoption_used": ([c.c_char_p], c.c_int),
-        "get_autocommit": ([c.c_void_p], c.c_int),
-        "set_authorizer": ([c.c_void_p, c.c_void_p, c.c_void_p], c.c_int),
-        "busy_timeout": ([c.c_void_p, c.c_int], c.c_int),
-        "db_config": ([c.c_void_p, c.c_int], c.c_int),
-        "limit": ([c.c_void_p, c.c_int, c.c_int], c.c_int),
-        "extended_errcode": ([c.c_void_p], c.c_int),
-        "errmsg": ([c.c_void_p], c.c_char_p),
-        "exec": ([c.c_void_p, c.c_char_p, c.c_void_p, c.c_void_p, c.c_void_p], c.c_int),
-        "prepare_v2": ([c.c_void_p, c.c_char_p, c.c_int, c.POINTER(c.c_void_p),
-                        c.POINTER(c.c_char_p)], c.c_int),
-        "bind_null": ([c.c_void_p, c.c_int], c.c_int),
-        "bind_int64": ([c.c_void_p, c.c_int, c.c_int64], c.c_int),
-        "bind_double": ([c.c_void_p, c.c_int, c.c_double], c.c_int),
-        "bind_text": ([c.c_void_p, c.c_int, c.c_char_p, c.c_int, c.c_void_p], c.c_int),
-        "bind_blob": ([c.c_void_p, c.c_int, c.c_char_p, c.c_int, c.c_void_p], c.c_int),
-        "step": ([c.c_void_p], c.c_int), "finalize": ([c.c_void_p], c.c_int),
-        "column_count": ([c.c_void_p], c.c_int),
-        "column_type": ([c.c_void_p, c.c_int], c.c_int),
-        "column_int64": ([c.c_void_p, c.c_int], c.c_int64),
-        "column_double": ([c.c_void_p, c.c_int], c.c_double),
-        "column_text": ([c.c_void_p, c.c_int], c.c_void_p),
-        "column_blob": ([c.c_void_p, c.c_int], c.c_void_p),
-        "column_bytes": ([c.c_void_p, c.c_int], c.c_int),
-        "progress_handler": ([c.c_void_p, c.c_int, c.c_void_p, c.c_void_p], None),
-    }
-    for name, (arguments, result) in signatures.items():
-        function = getattr(library, "sqlite3_" + name)
-        function.argtypes, function.restype = arguments, result
-    source = {"3.51.0": SOURCE_ID, "3.46.0": "2024-05-23 13:25:27 96c92aba00c8375bc32fafcdf12429c58bd8aabfcadab6683e35bbb9cdebf19e"}[version]
-    if library.sqlite3_libversion().decode() != version or library.sqlite3_sourceid().decode() != source:
-        raise RuntimeError("SQLite library version/source ID does not match the pin")
-    if not library.sqlite3_compileoption_used(b"MAX_COLUMN=2000"):
-        raise RuntimeError("SQLite compile options do not match the profile")
-    return library
-
-
 class Connection:
     """One explicit autocommit connection with bounded statements and byte-exact reads."""
 
-    def __init__(self, library: c.CDLL, path: Path) -> None:
+    def __init__(self, library: c.CDLL, path: Path, *, vfs: bytes | None = None,
+                 access_mode: str = "read-write") -> None:
+        """Open the requested native access mode and verify its actual database flags."""
+        if access_mode not in {"read-write", "read-only"}:
+            raise ValueError("Invalid native database access mode")
         self.library = library
+        self.access_mode = access_mode
+        self.readonly_evidence = False
         self.handle = c.c_void_p()
         self.deadline = time.monotonic() + 5
         self.progress = c.CFUNCTYPE(c.c_int, c.c_void_p)(lambda _: int(time.monotonic() > self.deadline))
-        opened = library.sqlite3_open(str(path).encode(), c.byref(self.handle))
+        opened = library.sqlite3_open_v2(str(path).encode(), c.byref(self.handle),
+                                       1 if access_mode == "read-only" else 6, vfs)
         if opened:
             message = library.sqlite3_errmsg(self.handle).decode(errors="replace")
             library.sqlite3_close(self.handle)
@@ -94,6 +74,8 @@ class Connection:
         library.sqlite3_limit(self.handle, 2, 2000)
         library.sqlite3_progress_handler(self.handle, 1000, self.progress, None)
         try:
+            if library.sqlite3_db_readonly(self.handle, b"main") != int(access_mode == "read-only"):
+                raise RuntimeError("SQLite database access readback failed")
             self.configure(1010, 0)  # DEFENSIVE: preserve the reviewed native profile.
             for option in (1013, 1014):  # Verify library-default DQS_DML and DQS_DDL.
                 if self.configure(option, -1) != 1:
@@ -117,10 +99,15 @@ class Connection:
             raise NativeError(self.library.sqlite3_extended_errcode(self.handle),
                               self.library.sqlite3_errmsg(self.handle).decode(errors="replace"))
 
+    def is_sql_error(self, code: int) -> bool:
+        """Admit ordinary write denial only on a verified read-only evidence connection."""
+        return code & 255 in SQL_ERRORS or (code == 8 and self.readonly_evidence
+            and self.access_mode == "read-only" and self.library.sqlite3_db_readonly(self.handle, b"main") == 1)
+
     def execute_script(self, sql: str) -> None:
         """Initialize fixtures/configuration; migrations use single-statement query instead."""
         self.deadline = time.monotonic() + 5
-        self.check(self.library.sqlite3_exec(self.handle, sql.encode(), None, None, None))
+        self.check(self.library.sqlite3_exec(self.handle, encoded_sql(sql), None, None, None))
 
     def cell(self, statement: c.c_void_p, index: int) -> Cell:
         """Read storage class before extraction; TEXT and BLOB retain all bytes, including NUL."""
@@ -155,15 +142,34 @@ class Connection:
         self.check(code)
 
     def query(self, sql: str, parameters: tuple[Cell, ...] = ()) -> list[Row]:
-        """Prepare exactly one statement and finalize it even after an execution failure."""
+        """Keep the existing row-only observation API over the shape-aware executor."""
+        return self.query_result(sql, parameters).rows
+
+    def query_result(self, sql: str, parameters: tuple[Cell, ...] = (), *,
+                     readonly: bool = False) -> NativeResult:
+        """Restrict supplementary probes before preparation can itself change settings."""
+        from conformance.native_probe import select_probe
+        with select_probe(self) if readonly else nullcontext():
+            return self._query_result(sql, parameters, readonly=readonly)
+
+    def _query_result(self, sql: str, parameters: tuple[Cell, ...], *,
+                      readonly: bool) -> NativeResult:
+        """Require complete binding and finalize even after execution or validation failure."""
         self.deadline = time.monotonic() + 5
         statement, tail = c.c_void_p(), c.c_char_p()
-        encoded = sql.encode()
+        encoded = encoded_sql(sql)
         self.check(self.library.sqlite3_prepare_v2(self.handle, encoded, len(encoded),
                                                  c.byref(statement), c.byref(tail)))
         try:
             if not statement.value or (tail.value or b"").strip():
                 raise ValueError("Expected one complete SQL statement")
+            if self.library.sqlite3_bind_parameter_count(statement) != len(parameters):
+                raise ValueError("Expected one typed value per SQLite parameter slot")
+            if readonly and (not self.library.sqlite3_stmt_readonly(statement) or
+                             self.library.sqlite3_stmt_isexplain(statement)):
+                raise ValueError("Supplementary probe must be a read-only SELECT")
+            columns = tuple(self.library.sqlite3_column_name(statement, index).decode()
+                            for index in range(self.library.sqlite3_column_count(statement)))
             for index, cell in enumerate(parameters, 1):
                 self.bind(statement, index, cell)
             rows: list[Row] = []
@@ -171,7 +177,7 @@ class Connection:
                 code = self.library.sqlite3_step(statement)
                 self.check(code)
                 if code == 101:
-                    return rows
+                    return NativeResult(columns, rows)
                 rows.append(tuple(self.cell(statement, index)
                                   for index in range(self.library.sqlite3_column_count(statement))))
         finally:

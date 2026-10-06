@@ -40,7 +40,7 @@ def test_ci_modes_retain_fresh_checks(tmp_path: Path, mode: str, system: str) ->
         run_checks("package", mode, system, tmp_path)
         assert commands[-1] == ["just", "package"]
         run_checks("test", mode, system, tmp_path)
-    assert commands[-1] == ["just", "test"]
+    assert commands[-1] == ["just", "test-full"]
     if mode == "build":
         assert commands[0][3] == "runtime"
         assert environments[-1]["SQLITE_VERIFIER_RUNTIME_ROOT"] == str(runtime)

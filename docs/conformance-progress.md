@@ -1,11 +1,81 @@
 # Frozen progress and measured coverage (W7)
 
-`just conformance-progress` replays **corpus v3: 370 cases** through the current
+Current state, 2026-10-05: [v5](../conformance/corpus-v5/manifest.json) contains
+4,376 cases in 109 shards: 4,307 upstream cases and 69 authored cases.
+The [yield report](../reports/20261002-adr5-review-yield.json) accounts for all
+171 sources, every zero-yield source and all 57 expression cohorts.
+Labels describe scenarios or source-file membership, never feature executions.
+
+[macOS full native replay](../reports/20261002-adr5-review-v5-native-darwin.json)
+passes all cases. [Current progress](../reports/20261002-adr5-review-v5-progress-darwin.json)
+records 4,376 MODEL_UNSUPPORTED, no disagreements or harness errors, and 129
+represented rows out of all 3,500 requirements. Model semantics are unchanged.
+
+Current commands default to v5. The 184-case development sample passes on
+[macOS](../reports/20261002-adr5-review-v5-sample-darwin.json) in 37.21 seconds and
+[Linux](../reports/20261002-adr5-review-v5-sample-linux.json) in 56.58 seconds,
+with identical selected identities and the unchanged 60-second phase bound.
+The [full isolated model suite](../reports/20261005-adr5-review-execution/model/verification.json)
+passes 322 tests; one Tcl check belongs to the separate upstream suite.
+
+[Linux full native replay](../reports/20261002-adr5-review-v5-native-linux.json)
+passes all 4,376 cases in 98.13 seconds using file-backed databases on tmpfs.
+The [retained execution record](../reports/20261005-adr5-review-execution/README.md)
+predates workload-gate closure and preserves ext4 timeouts and diagnostics.
+[Linux full progress](../reports/20261002-adr5-review-v5-progress-linux.json)
+matches macOS case results and requirement views. The
+[core gate](../reports/20261005-adr5-review-gates.json) and the external workload
+suite in its owning repository are complete; model extension is subsequent work.
+V5 uses 8,694,264 bytes; v1–v5 use 12,235,391 bytes, within both budgets.
+Frozen v1–v4 remain unchanged. `just test-full`, CI and packaging retain
+full checks; explicit historical replay remains supported.
+
+## Historical v4 and v3 baselines
+
+The [v4 artifact](../conformance/corpus-v4/manifest.json) freezes 1,264 generic
+cases in 27 source/part shards. All observations pass fresh native replay. Its
+[full report](../reports/20261002-adr5-c6-v4-progress.json) keeps all 3,500
+requirement rows, with 110 represented, and reports 1,264 MODEL_UNSUPPORTED.
+The model cannot yet consume the expanded profiles.
+
+The historical progress command used all v4 cases. Its
+[C7 baseline](../reports/20261002-adr5-c7-v4-progress.json) adds verdicts and
+denominators for four parts, 80 overlapping labels and 27 ordered shards,
+while retaining every requirement row and per-case result. This historical
+report's combined `byFeature` counts include source-file membership, not
+executions of each named feature. Manifest, profiles, evidence, shard
+bytes, frontend/harness and both compiled runtime files are bound by identity.
+
+New reports separate `byCaseFeatureLabel` (authored or workload scenario
+annotations), `bySourceFileLabel` (membership in a labelled upstream file),
+and `byUnscopedFeatureLabel` (historical annotations whose scope is unknown).
+Labels count once per case within their scope and may overlap. A case from
+`json101.test` labelled `json_each` contributes only to source-file membership;
+it does not establish that its SQL executes `json_each`. No label view measures
+SQL execution coverage. Historical manifests and reports retain their original
+`byFeature` bytes; replaying them today produces the separated label views.
+
+The historical development tier used 100 cases: all 66 authored
+cases, both synthetic cases, and one lowest identity hash per nonempty upstream
+source shard plus eight additional lowest hashes. Selection ignores native
+acceptance and model verdicts. The [Darwin measurement](../reports/20261002-adr5-c7-sample-darwin.json)
+records fresh loading, native replay and model classification in 6.27 seconds;
+the [Linux measurement](../reports/20261002-adr5-c7-sample-linux.json) records
+19.70 seconds with identical profiles and selected input identities.
+All 100 cases remain unsupported. The phase has a 60-second deadline.
+`just test-full`, CI and packaging retain the full model suite. Historical
+corpora and reports remain readable without changing their membership.
+
+ADR 0004's historical progress command replayed **corpus v3: 370 cases** through its
 frontend and compiled classifier. The [review report](../reports/20260929-adr4-corpus-v3-progress.json)
 records 11 AGREE, 359 MODEL_UNSUPPORTED, no disagreements and no harness errors.
 V3 preserves v2's 183 records exactly and adds 164 upstream and 23 authored cases.
 These added agreements are corpus growth, not model progress. V1 and v2 remain
 immutable; compare model revisions using the same corpus version and digest.
+
+ADR 0005's C6 tools record profiled outputs and validate the v4 freeze.
+The [synthetic workload](conformance-workload.md) exercises the
+external-directory commands; it does not complete the actual workload gate.
 
 The raw verdict remains unchanged when a case contains queries. A separate
 `queryDiagnostic` examines successful trailing SELECTs and metadata PRAGMAs,
@@ -25,17 +95,37 @@ and inconsistent statement boundaries are harness errors.
 
 ## Requirement evidence
 
-The working matrix now has **60 of 182 rows with cases**, up from 9 of 164 in v2.
-The denominator includes the four selected documentation areas and any additional
-requirements referenced by the expanded corpus. Zero-case rows remain visible.
-Nearest, unambiguous upstream `EVIDENCE-OF` comment blocks carry source lines and
-file digests; ambiguous or obsolete references remain provenance without credit.
-These are scenario counts, not proof of entire requirements.
+The current matrix keeps **all 3,500 release requirement rows**, including rows
+with zero cases. Each case counts once per row even if it carries both a short
+and a full requirement ID. Nearest, unambiguous upstream `EVIDENCE-OF` comment
+blocks carry source lines and file digests; ambiguous or obsolete references
+remain provenance without credit. These are scenario counts, not proof of entire
+requirements.
+
+Requirement rows count explicitly attributed scenarios. They and authored
+feature annotations describe the cases, rather than proving every behavior of
+a requirement or measuring executions of SQL syntax or functions.
+
+The [C5 authored report](../reports/20261001-adr5-c5-authored.md) records **60 to
+98 rows with cases**, with 38 newly represented rows and no lost rows. It replaces
+the evidence for 29 legacy authored scenarios and adds 14 neutral scenarios.
+All 43 records have typed outputs and explicit profiles and pass fresh native
+replay. Their current model verdict is `MODEL_UNSUPPORTED`; this is evidence
+growth, not added SQL support. C6 determines the final corpus membership.
+
+The historical v3 report had **60 of 182 rows with cases**, up from 9 of 164 in
+v2. Its denominator included four selected documentation areas and additional
+requirements referenced by the expanded corpus. That growing denominator is
+replaced by the complete release inventory in new reports.
 
 Authored additions cover numeric/text/REAL conversions, declared-type precedence,
 transaction commit/rollback and savepoints, CREATE INDEX, uniqueness failures,
 IF NOT EXISTS, DROP INDEX, collation, descending indexes and prohibited subqueries.
 Unsupported cases intentionally remain useful future-model evidence.
+The new neutral cases also cover triggers, cascades, constraint rollback,
+UPSERT/RETURNING, aggregates, joins, casts, REAL arithmetic, query windows,
+controlled time and JSON. JSON has feature metadata because this requirement
+inventory has no `json_extract` or `json_each` row.
 
 `just conformance-requirements` uses SQLite's own `wrap.tcl`, `matrix.tcl` and
 public evidence scanner. The [inventory](../conformance/requirements-3.51.0.json)
@@ -50,7 +140,35 @@ Release: `version-3.51.0`; revision
 `93f1a4577785f72b4183843a7c8d33285bc36bce6f6b5258f428a6c844a0099c`.
 Original tar SHA256: `f3a39333897823546bca5924899bafaf7f593571863666221e5a38246f065423`.
 
-## Measured execution coverage
+## Freezing new generic evidence
+
+Run the pinned upstream recorder with `--uncapped --catalog --sample-expressions`.
+Catalog mode chooses source-family profiles and controlled clocks; do not combine
+it with caller-supplied profile or clock flags. Reports retain the exact source
+catalog, actual conditions, sampling identities and every exclusion reason.
+
+The finalizer accepts a complete capture and publishes a new directory:
+
+```sh
+python -m conformance.freeze_corpus --input /path/to/capture \
+  --upstream /path/to/pinned-upstream --output /path/to/new-corpus \
+  --fidelity-ledger /path/to/ledger.json
+```
+
+The ledger binds the capture manifest's SHA-256 digest. Its `ledgerVersion` is
+`1`; `entries` identify each differing-result refusal by `file`, `id` and
+`occurrence`, name its `cause`, and list `evidence` objects with relative `path`
+and `sha256`. Every such refusal needs an entry with retained proof bytes.
+When there are no differing-result refusals, omit `--fidelity-ledger`.
+
+Freezing adds the fresh authored catalogs, checks final membership and source
+hashes, replays all observations natively, and measures the 25 MB current and
+60 MB retained budgets. It accounts for every retained v1–v4 directory and
+refuses a partial or timed-out source. Original extraction, keyed triage and
+proof bytes are retained with digests and verified by ordinary corpus loading.
+The command never replaces an existing directory or edits native observations.
+
+## Historical ADR 0004 measured execution coverage
 
 Run `just conformance-coverage /path/to/llvm-cov build/fresh-coverage-directory`.
 On macOS, `xcrun --find llvm-cov` locates the tool. Separate instrumented builds

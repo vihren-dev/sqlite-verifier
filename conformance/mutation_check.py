@@ -32,7 +32,8 @@ def measure(cases: list[dict[str, Json]], runtime: Path) -> dict[str, Json]:
     hashes: dict[str, str] = {}
     for name, (target, before, after) in MUTANTS.items():
         for filename in ("SqliteVerifier/Execution.lean", "SqliteVerifier/LiteralData.lean",
-                         "SqliteVerifier/SqlExecution.lean", "VerifierConformance/Trace.lean", "VerifierConformance/Case.lean"):
+                         "SqliteVerifier/SqlExecution.lean", "VerifierConformance/Trace.lean",
+                         "VerifierConformance/Outputs.lean", "VerifierConformance/Case.lean"):
             text = (root / filename).read_text()
             hashes[filename] = hashlib.sha256(text.encode()).hexdigest()
             if Path(filename).stem == target:
@@ -46,10 +47,12 @@ def measure(cases: list[dict[str, Json]], runtime: Path) -> dict[str, Json]:
             text = text.replace("namespace SqliteVerifier", f"namespace SqliteVerifier.{name}")
             text = text.replace("end SqliteVerifier", f"end SqliteVerifier.{name}")
             source += text + "\n"
-        fields = ("version", "schemaSql", "migrationSql", "schema", "initial", "script", "nativeTrace", "requirements", "provenance")
+        fields = ("version", "schemaSql", "migrationSql", "schema", "initial", "script", "nativeTrace", "requirements", "provenance", "parameters", "outputs")
         # NativeObservation is namespace-local too, so copy its unchanged data fields explicitly.
         native = "c.nativeTrace.map fun n => { visible := n.visible, persisted := n.persisted, transactionOpen := n.transactionOpen, primaryCode := n.primaryCode, extendedCode := n.extendedCode }"
-        conversion = ", ".join(field + " := " + ("(" + native + ")" if field == "nativeTrace" else "c." + field) for field in fields)
+        outputs = "c.outputs.map fun n => { result := { columns := n.result.columns, rows := n.result.rows, changes := n.result.changes }, groups := n.groups.map (fun groups => groups.map fun g => { rows := g.rows, count := g.count }) }"
+        copied = {"nativeTrace": native, "outputs": outputs}
+        conversion = ", ".join(field + " := " + ("(" + copied[field] + ")" if field in copied else "c." + field) for field in fields)
         source += f'\ndef convert_{name} (c : SqliteVerifier.Conformance.Case) : SqliteVerifier.{name}.Conformance.Case := {{ {conversion} }}\n'
         source += f'#eval IO.println (String.intercalate "\\n" (originals.zipIdx.map fun (c, i) => s!"MUTANT|{name}|{{i}}|{{reprStr (SqliteVerifier.{name}.Conformance.classifyCase (convert_{name} c))}}"))\n'
     with TemporaryDirectory(prefix="model-mutants-") as directory:

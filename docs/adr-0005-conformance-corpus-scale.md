@@ -1,7 +1,16 @@
 # ADR 0005: Build the conformance corpus for a reference workload
 
-- Status: Proposed (revised 2026-09-30; replaces the first draft, which selected
+- Status: Accepted for implementation 2026-09-30 by owner instruction after review
+  (revised 2026-09-30; replaces the first draft, which selected
   tests by roadmap area and deferred query and expression tests)
+- Implementation: C0–C7 and the owner-authorized review repair are DONE,
+  verified 2026-10-05; [current core evidence](../reports/20261005-adr5-review-gates.json).
+  The external workload-suite gate is verified in its owning repository for the
+  owner-approved scope. Model extension and C8 remain subsequent work.
+- Owner review, 2026-10-06: repairs approved, with successful hosted CI on
+  ubuntu-22.04 and macos-14 required before merge. The owner decided to retain
+  the independent SQLite 3.53.4 native pin for recording and comparison.
+  Existing production proof profiles and model capabilities retain their scope.
 - Date: 2026-09-30
 - Implementation examined: `adr4` workspace at `d9a49d95`
 - Decision owners: product owner for corpus scope, profiles and storage; formal
@@ -322,7 +331,8 @@ corpus membership and can continue after the freeze.
   The boundary and upstream parts supply variety.
 - Extraction is not reproducible byte for byte; a corpus version is a frozen
   artifact bound by digests.
-- Yield after §3.4, replay time, and corpus size are unmeasured.
+- At proposal time, yield after §3.4, replay time and corpus size were unmeasured.
+  Their current measurements are bound in the implementation evidence above.
 - A larger corpus raises `MODEL_UNSUPPORTED` counts. That is the intended
   baseline.
 

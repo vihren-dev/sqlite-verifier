@@ -6,6 +6,7 @@ import subprocess
 from conformance.case_format import Json, schema_wire, statement_wire, table_wire
 from conformance.native_connection import Cell, Row, SOURCE_ID
 from conformance.native_metadata import check_inventory, identifier, integer, text
+from conformance.execution_profile import recorded_profile
 from migration_check.diagnostics import Rejection
 from migration_check.sql_model import Table, sql_inputs
 from migration_check.sql_tree import parse
@@ -46,10 +47,51 @@ def schema_sql(observation: dict[str, Json]) -> str:
     return "\n".join(text(row[3]) + ";" for row in rows if row[3][0] != 5)
 
 
+def output_wire(event: dict[str, Json]) -> dict[str, Json]:
+    """Check acquisition shape and typed payloads before frontend admission can hide corruption."""
+    columns = event["columns"]
+    if (not isinstance(columns, list) or any(not isinstance(name, str) for name in columns)
+            or type(event["columnCount"]) is not int or event["columnCount"] != len(columns)):
+        raise ValueError("Invalid native output shape")
+    rows = decode_rows(event["rows"])
+    decode_rows([event["parameters"]])
+    if any(len(row) != len(columns) for row in rows):
+        raise ValueError("Invalid native output row width")
+    changes = event["changes"]
+    if changes is not None and (type(changes) is not int or changes < 0):
+        raise ValueError("Invalid native direct change count")
+    groups = event.get("groups")
+    if groups is not None:
+        if not isinstance(groups, list):
+            raise ValueError("Invalid native tie groups")
+        position = 0
+        for index, group in enumerate(groups):
+            eligible = decode_rows(group["rows"])
+            count = group["count"]
+            if 0 < index < len(groups) - 1 and count != len(eligible):
+                raise ValueError("Only boundary tie groups may be partial")
+            if (type(count) is not int or not 0 < count <= len(eligible)
+                    or any(len(row) != len(columns) for row in eligible)
+                    or len(rows[position:position + count]) != count):
+                raise ValueError("Invalid native tie group shape/count")
+            for row in rows[position:position + count]:
+                if row not in eligible:
+                    raise ValueError("Native result does not fit its tie groups")
+                eligible.remove(row)
+            position += count
+        if position != len(rows):
+            raise ValueError("Native tie group window size differs")
+    return {"result": {"columns": columns, "rows": event["rows"], "changes": changes}, "groups": groups}
+
+
 def model_case(record: dict[str, Json], parser: Path) -> dict[str, Json]:
     """Re-translate on every replay, preserving frozen native truth as the model grows."""
-    if record.get("nativeVersion") not in (1, 2) or record.get("sourceId") != SOURCE_ID:
+    if record.get("nativeVersion") not in (1, 2, 3, 4) or record["nativeVersion"] != 4 and record.get("sourceId") != SOURCE_ID:
         raise ValueError("Unsupported native record version or engine identity")
+    outputs = [output_wire(event) for event in record["trace"]] if record["nativeVersion"] in (3, 4) else None
+    if record["nativeVersion"] == 4:
+        recorded_profile(record)
+        raise Rejection("UNSUPPORTED", "Model execution profile capability is not implemented")
     initial_sql = schema_sql(record["initial"]["visible"])
     schema = starting_schema(parse(parser, initial_sql.encode(), "corpus-schema.sql"))
     script = statements(parse(parser, record["migrationSql"].encode(), "corpus-migration.sql"))
@@ -99,10 +141,11 @@ def model_case(record: dict[str, Json], parser: Path) -> dict[str, Json]:
         observations.append({"visible": tables(event["visible"]), "persisted": tables(event["persisted"]),
             "transactionOpen": event["transactionOpen"], "primaryCode": event.get("primaryCode", 0),
             "extendedCode": event.get("extendedCode", 0)})
-    return {"version": 1, "schemaSql": initial_sql, "migrationSql": record["migrationSql"],
+    return {"version": 2 if outputs is not None else 1, "schemaSql": initial_sql, "migrationSql": record["migrationSql"],
             "schema": [schema_wire(table) for table in schema], "initial": tables(record["initial"]["visible"]),
             "script": [statement_wire(statement) for statement in script], "nativeTrace": observations,
-            "requirements": record["requirements"], "provenance": [["fixture", record["name"]], ["sourceId", SOURCE_ID]]}
+            "requirements": record["requirements"], "provenance": [["fixture", record["name"]], ["sourceId", SOURCE_ID]],
+            **({"outputs": outputs, "parameters": [event["parameters"] for event in trace]} if outputs is not None else {})}
 
 
 def prepare(record: dict[str, Json], parser: Path) -> tuple[dict[str, Json] | None, dict[str, Json]]:

@@ -49,11 +49,17 @@ test-list *args:
 smoke:
     timeout --foreground 15 python3 -m pytest tests/test_toolchain_smoke.py --runtime-root "${SQLITE_VERIFIER_RUNTIME_ROOT:-$PWD}"
 
-# Cache expensive hermetic suites in Nix; run cheap source tests on the host.
-# The same derivations are the flake's checks; nix-build also keeps result links.
-test: build
-    timeout 900 nix-build build-support/default.nix -A tests --out-link build/nix-tests --option sandbox true --option sandbox-fallback false --extra-experimental-features 'nix-command flakes'
-    timeout --foreground 600 python3 -u -m pytest -v tests -m "not requires_nix" --ignore=tests/runtime_package_test.py --ignore=tests/kernel_gate_test.py --ignore=tests/conformance_model_test.py --ignore=tests/conformance_trace_test.py --ignore=tests/conformance_pipeline_test.py --ignore=tests/conformance_mutation_test.py --ignore=tests/conformance_laws_test.py --ignore=tests/conformance_record_test.py --ignore=tests/conformance_dqs_test.py --ignore=tests/conformance_upstream_test.py --ignore=tests/conformance_generation_test.py --ignore=tests/conformance_coverage_test.py --ignore=tests/atuin_cli_test.py --ignore=tests/cli_test.py --ignore=tests/bundle_test.py --ignore=tests/stage_reuse_test.py --ignore=tests/generated_inputs_test.py --runtime-root "${SQLITE_VERIFIER_RUNTIME_ROOT:-$PWD}" --junitxml build/test-results/source.xml
+# Fresh development replay includes every authored/synthetic case and a stable upstream sample.
+test: build test-source
+    timeout 900 nix-build build-support/default.nix -A developmentTests --out-link build/nix-tests --option sandbox true --option sandbox-fallback false --extra-experimental-features 'nix-command flakes'
+
+# CI and package checks retain all full model, kernel and historical evidence checks.
+test-full: build test-source
+    timeout 900 nix-build build-support/default.nix -A tests --out-link build/nix-tests-full --option sandbox true --option sandbox-fallback false --extra-experimental-features 'nix-command flakes'
+
+# Test ownership is shared with Nix; all source-owned checks run on the host.
+test-source:
+    timeout --foreground 600 python3 -u -m pytest -v tests -m "not requires_nix" --source-checks --runtime-root "${SQLITE_VERIFIER_RUNTIME_ROOT:-$PWD}" --junitxml build/test-results/source.xml
 
 # Check Nix source identities, test-target invalidation, environment snapshots and the installer cache.
 test-nix:
@@ -70,7 +76,7 @@ runtime-package: build
     timeout --foreground 1800 python3 -m pytest --junitxml build/test-results/installed.xml --runtime-archive "dist/sqlite-verifier-${SQLITE_VERIFIER_SYSTEM:?Enter nix develop path:./nix}.tar.gz" --runtime-variant installed tests/runtime_package_test.py tests/atuin_cli_test.py
 
 # Keep a source snapshot alongside the checked installable runtime.
-package: test test-nix runtime-package
+package: test-full test-nix runtime-package
     mkdir -p dist
     tar --exclude='./.jj' --exclude='./.git' --exclude='./.lake' --exclude='./.direnv' --exclude='./dist' --exclude='./build' --exclude='__pycache__' --exclude='./result*' -czf dist/sqlite-verifier-source.tar.gz .
 
@@ -81,7 +87,7 @@ conformance-upstream: conformance-build
     timeout 900 python3 -m conformance.upstream_pilot --fixture build/testfixture/bin/testfixture --upstream build/upstream-sqlite --output build/upstream-pilot --pattern 'alter*.test' --pattern 'e_*.test'
 
 conformance-corpus: conformance-build
-    timeout 420 python3 -m conformance.corpus conformance/corpus-v3 --native-check --output build/corpus-progress.json
+    timeout 420 python3 -m conformance.corpus conformance/corpus-v5 --runtime-root build/conformance --native-check --output build/corpus-progress.json
 
 # The transaction/DML profiling gate is recorded in the W3/W4 status and reports.
 conformance-generate: conformance-build
@@ -99,7 +105,7 @@ conformance-requirements:
     python3 -m conformance.requirement_inventory build/conformance-docs/docinfo.db build/requirements-3.51.0.json
 
 conformance-progress: conformance-build
-    timeout 120 python3 -m conformance.progress --output build/corpus-v3-progress.json
+    timeout 420 python3 -m conformance.progress --runtime-root build/conformance --output build/corpus-v5-progress.json
 
 # Supply llvm-cov's executable path and a fresh output directory for each measurement.
 conformance-coverage llvm_cov output: conformance-generate

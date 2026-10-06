@@ -6,18 +6,22 @@ aggregation have been superseded by [Nix test targets](../build-support/README.m
 
 `.github/workflows/ci.yml` checks Linux and macOS on pull requests, main pushes,
 release tags and manual requests. `tests/ci_scope.py` routes documentation-only
-changes to link checks, ordinary changes to `just test`, and runtime/package
+changes to link checks, ordinary changes to `just test-full`, and runtime/package
 changes to `just package`. Tags and manual requests always package.
 
 Each native job enters the pinned Nix environment once. `tools/ci_checks.py`
 checks resources, builds the runtime and
-invokes the selected recipe. `just test` builds five independent Nix test targets
+invokes the selected recipe. `just test-full` builds seven independent Nix test targets
 with `nix-build -A tests`; the flake exposes the same derivations as
 `checks.<system>`:
 
 - `tests.kernel`: real Lean compilation and proof-checker replay attacks.
 - `tests.model`: production SQL translation, pinned native SQLite observations
   and concrete Lean model assertions.
+- `tests.sample`: all frozen v4 authored and synthetic cases plus a stable
+  upstream sample, with fresh native replay and model classification within
+  60 seconds.
+- `tests.upstream`: Tcl capture, sampling and import-fidelity checks.
 - `tests.atuin`: the Atuin application CLI scenarios.
 - `tests.cli`: public-entrypoint acceptance and adversarial input scenarios.
 - `tests.bundle`: the data path (`prepare`/`verify-bundle`) and opt-in stage reuse.
@@ -35,6 +39,10 @@ only the cached Atuin target. Tests use trusted repository fixtures; no producti
 sandbox is supplied or tested. Nix daemon and installation tests run on the host.
 Cheap unit tests rerun normally. Direct `just test-cases FILE` always executes
 pytest, even if the corresponding Nix target is already cached.
+Development `just test` selects `developmentTests`, the same targets except
+`tests.model`. `tests/nix_suites.json` assigns test files to Nix and supplies the
+host `--source-checks` exclusion list. Source-owned conformance checks remain
+fresh. CI test scope and `just package` both retain the complete suite.
 
 The pinned cache-nix-action restores the Nix store using a platform/environment
 prefix and a commit-specific key. Only successful main jobs save caches. PRs and

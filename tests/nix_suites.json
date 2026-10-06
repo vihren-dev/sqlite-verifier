@@ -1,0 +1,64 @@
+{
+  "upstream": [
+    "tests/conformance_capture_test.py",
+    "tests/conformance_sampling_test.py",
+    "tests/conformance_streaming_test.py",
+    "tests/conformance_capture_gap_test.py",
+    "tests/conformance_command_sources_test.py",
+    "tests/conformance_catalog_test.py",
+    "tests/conformance_source_profiles_test.py",
+    "tests/conformance_tcl_values_test.py"
+  ],
+  "atuin": [
+    "tests/atuin_cli_test.py"
+  ],
+  "bundle": [
+    "tests/bundle_test.py",
+    "tests/stage_reuse_test.py",
+    "tests/generated_inputs_test.py"
+  ],
+  "cli": [
+    "tests/cli_test.py"
+  ],
+  "kernel": [
+    "tests/kernel_gate_test.py"
+  ],
+  "model": [
+    "tests/conformance_model_test.py",
+    "tests/conformance_authored_test.py",
+    "tests/conformance_authored_queries_test.py",
+    "tests/conformance_authored_boundaries_test.py",
+    "tests/conformance_authored_review_test.py",
+    "tests/conformance_shards_test.py",
+    "tests/conformance_freeze_test.py",
+    "tests/conformance_evidence_test.py",
+    "tests/conformance_acquisition_test.py",
+    "tests/conformance_command_sources_test.py",
+    "tests/conformance_workload_test.py",
+    "tests/conformance_workload_clock_test.py",
+    "tests/conformance_requirement_coverage_test.py",
+    "tests/conformance_fidelity_test.py",
+    "tests/conformance_storage_test.py",
+    "tests/conformance_trace_test.py",
+    "tests/conformance_ordering_test.py",
+    "tests/conformance_clock_test.py",
+    "tests/conformance_profile_test.py",
+    "tests/conformance_driver_profiles_test.py",
+    "tests/conformance_readonly_workload_test.py",
+    "tests/conformance_context_test.py",
+    "tests/conformance_pipeline_test.py",
+    "tests/conformance_mutation_test.py",
+    "tests/conformance_laws_test.py",
+    "tests/conformance_record_test.py",
+    "tests/conformance_dqs_test.py",
+    "tests/conformance_upstream_test.py",
+    "tests/conformance_generation_test.py",
+    "tests/conformance_coverage_test.py",
+    "tests/conformance_progress_views_test.py",
+    "tests/conformance_tier_bindings_test.py"
+  ],
+  "sample": [
+    "tests/conformance_tiers_test.py",
+    "tests/conformance_sample_test.py"
+  ]
+}

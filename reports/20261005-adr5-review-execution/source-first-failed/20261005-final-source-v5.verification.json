@@ -1,0 +1,56 @@
+{
+  "verificationVersion": 1,
+  "stage": "source",
+  "scope": "Current post-v5 source verification",
+  "codeBaseCommit": "fe116b8744c7825529ec8eee21c33f15684a0694",
+  "command": [
+    "nix",
+    "develop",
+    "path:./nix",
+    "-c",
+    "timeout",
+    "--foreground",
+    "600",
+    "python3",
+    "-u",
+    "-m",
+    "pytest",
+    "-v",
+    "tests",
+    "--source-checks",
+    "-m",
+    "not requires_nix",
+    "--runtime-root",
+    "/nix/store/2pm5l48v8lk5v3p1yqbc3hx3jj1w2ylr-sqlite-verifier-conformance",
+    "--junitxml",
+    "build/test-results/source-final-v5.xml"
+  ],
+  "seconds": 31.9291023327969,
+  "exitCode": 1,
+  "resourceGuard": {
+    "beforeExitCode": 0,
+    "afterExitCode": 0
+  },
+  "sourceBindings": {
+    "count": 485,
+    "beforeSha256": "eef2534858cf9587bdba896c5318c21f0c100e78de4c060e316d9f2ecf8f7389",
+    "afterSha256": "eef2534858cf9587bdba896c5318c21f0c100e78de4c060e316d9f2ecf8f7389",
+    "unchanged": true
+  },
+  "logSha256": "9def3ba65f7778dff2391fe8cf0d7480d971bf8e4569687500e661b52ccbaefd",
+  "configuredTimeoutSeconds": {
+    "innerPytest": 600,
+    "driverEnvelope": 900
+  },
+  "counts": {
+    "tests": 314,
+    "failures": 1,
+    "errors": 7,
+    "skipped": 0,
+    "passed": 306
+  },
+  "junitSuiteSeconds": 30.95,
+  "junitPath": "/Users/tzankomatev/work/sqlite-verifier-adr5/build/test-results/source-final-v5.xml",
+  "junitSha256": "bddedc6c324de4e6cc32fa9068da6807f3f017eee86b491490ca8a0e9a066a85",
+  "disposition": "Failed first attempt: selected conformance runtime lacks examples; sandbox process-group execution denied. No passing source gate."
+}

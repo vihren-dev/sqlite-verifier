@@ -9,10 +9,12 @@ from pathlib import Path
 from conformance.case_format import Json
 from conformance.corpus import load
 from conformance.requirement_cases import records as authored_records
+from conformance.native_storage import shared_record, serialized
+from conformance.execution_profile import validate_manifest_profiles
 
 
 def refresh(base: Path, upstream: Path, inventory: Path, output: Path) -> dict[str, Json]:
-    """Preserve all parent records exactly; retain stale upstream citations as provenance only."""
+    """Preserve parent observations through shared storage; keep stale citations as provenance."""
     parent, records = load(base)
     capture, candidates = load(upstream)
     candidates += authored_records()
@@ -33,7 +35,13 @@ def refresh(base: Path, upstream: Path, inventory: Path, output: Path) -> dict[s
             record["upstream"]["unmappedEvidenceReferences"] = unmapped
         names.add(record["name"])
         additions.append(record)
-    payload = "".join(json.dumps(record, separators=(",", ":")) + "\n" for record in records + additions).encode()
+    payload = b"".join(serialized(shared_record(record, byte_limit=None)) + b"\n" for record in records)
+    payload += b"".join(serialized(shared_record(record)) + b"\n" for record in additions)
+    profiles: list[Json] = []
+    for profile in parent.get("executionProfiles", []) + capture.get("executionProfiles", []):
+        if profile not in profiles:
+            profiles.append(profile)
+    validate_manifest_profiles({"executionProfiles": profiles}, records + additions)
     manifest = {"corpusVersion": parent["corpusVersion"] + 1, "recordedCases": len(records) + len(additions),
         "casesSha256": hashlib.sha256(payload).hexdigest(), "parentVersion": parent["corpusVersion"],
         "parentCasesSha256": parent["casesSha256"], "upstreamCaptureSha256": capture["casesSha256"],
@@ -42,7 +50,8 @@ def refresh(base: Path, upstream: Path, inventory: Path, output: Path) -> dict[s
         "addedUpstreamCases": sum("upstream" in record for record in additions),
         "addedAuthoredCases": sum("upstream" not in record for record in additions),
         "sourceSha256": {name: hashlib.sha256(Path(__file__).with_name(name).read_bytes()).hexdigest()
-                         for name in ("refresh_corpus.py", "requirement_cases.py")}}
+                         for name in ("refresh_corpus.py", "requirement_cases.py", "native_storage.py")},
+        **({"executionProfiles": profiles} if profiles else {})}
     output.mkdir()  # Existing evidence must never be overwritten.
     (output / "cases.jsonl.gz").write_bytes(gzip.compress(payload, mtime=0))
     (output / "manifest.json").write_text(json.dumps(manifest, indent=2) + "\n")

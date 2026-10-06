@@ -1,0 +1,97 @@
+{
+  "verificationVersion": 1,
+  "scope": "Full isolated model suite after v5 activation",
+  "sourceCommit": "fe116b8744c7825529ec8eee21c33f15684a0694",
+  "command": [
+    "timeout",
+    "900",
+    "nix-build",
+    "build-support/default.nix",
+    "-A",
+    "tests.model",
+    "--out-link",
+    "build/nix-review-model-v5",
+    "--option",
+    "sandbox",
+    "true",
+    "--option",
+    "sandbox-fallback",
+    "false",
+    "--extra-experimental-features",
+    "nix-command flakes"
+  ],
+  "configuredTimeoutSeconds": {
+    "outerNix": 900,
+    "innerPytest": 420
+  },
+  "exitCode": 0,
+  "counts": {
+    "tests": 323,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 1,
+    "passed": 322
+  },
+  "elapsedSeconds": {
+    "junitSuite": 350.278,
+    "buildLogCreationToFinalWrite": 359.7506535053253,
+    "sourceBindingObservationEnvelope": 502.2076735412702
+  },
+  "timingMethod": "Suite time is actual JUnit duration; build interval is observed log creation through final write; source envelope includes observation delay",
+  "logCreatedUtc": "2026-10-05T08:13:03.827013+00:00",
+  "logFinalWriteUtc": "2026-10-05T08:19:03.577666+00:00",
+  "skipReasons": [
+    {
+      "classname": "tests.conformance_command_sources_test",
+      "name": "test_real_tcl_source_observations",
+      "reason": "Run the pinned Nix upstream target for Tcl capture",
+      "detail": "/private/tmp/nix-build-sqlite-verifier-test-model-1.drv-0/source/tests/conformance_command_sources_test.py:52: Run the pinned Nix upstream target for Tcl capture"
+    }
+  ],
+  "host": {
+    "system": "Darwin",
+    "machine": "arm64"
+  },
+  "resourceGuard": {
+    "beforeExitCode": 0,
+    "afterExitCode": 0
+  },
+  "sourceBindings": {
+    "files": 446,
+    "aggregateSha256": "da8208c381b4545e6d2c8f5823419b0e754011ce451d95825c6df7b3835652c8",
+    "unchanged": true
+  },
+  "nix": {
+    "derivation": "/nix/store/h8miyn4npz2fjghyxr0lja8bmshnyqsw-sqlite-verifier-test-model-1.drv",
+    "derivationSha256": "e8247390ce693a65dc0b146677df2750834d7db7ff64cb00e7488e361fbb680f",
+    "storeOutput": "/nix/store/nmk7kklfqivhywy7mi38mq03g53hx98g-sqlite-verifier-test-model-1",
+    "sourceStorePath": "/nix/store/shsvinl6x872kvsvmd4ph8p5xpxy9zkz-source"
+  },
+  "evidence": [
+    {
+      "path": "20261005-nix-review-model-v5.log",
+      "bytes": 36010,
+      "sha256": "dc6c9665f2b7976978c469f9dfc054d326744956e04366797c6b09fdb9faa7a6"
+    },
+    {
+      "path": "20261005-nix-model-junit.xml",
+      "bytes": 42115,
+      "sha256": "0378432da82859b4c37c0ca99eabe6c7d9b8e62b87d8ac347b00ccca8bb3654f"
+    },
+    {
+      "path": "20261005-nix-model-before.json",
+      "bytes": 49764,
+      "sha256": "12ca1421580c9d73cd20863c3e915a5277ac1afe4f172cc4cbff99ffba51ed2b"
+    },
+    {
+      "path": "20261005-nix-model-after.json",
+      "bytes": 49830,
+      "sha256": "c88dbcfafb002e341fdad049da7257675470e9a188f3a1887b6634aad68ae29b"
+    },
+    {
+      "path": "20261005-nix-model-bound-files.json",
+      "bytes": 18312,
+      "sha256": "fc4616cf13f87acd148c46faae99e4d15d6db2868281b6920d491707ca746d3d"
+    }
+  ]
+}

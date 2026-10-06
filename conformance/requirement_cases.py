@@ -4,8 +4,8 @@ from conformance.case_format import Json
 from conformance.native_record import record_sql
 
 
-def records() -> list[dict[str, Json]]:
-    """Each tag denotes the named scenario only, never complete requirement coverage."""
+def definitions() -> list[tuple[str, str, str, list[str]]]:
+    """Expose unchanged SQL scenarios so new corpora can acquire richer native evidence."""
     definitions = [
         ("blob-affinity", "CREATE TABLE t(v BLOB);",
          "INSERT INTO t(v) VALUES(1); INSERT INTO t(v) VALUES('1'); INSERT INTO t(v) VALUES(X'00'); INSERT INTO t(v) VALUES(NULL);",
@@ -67,4 +67,10 @@ def records() -> list[dict[str, Json]]:
         ("index-collation", "CREATE TABLE t(v TEXT);", "CREATE INDEX i ON t(v COLLATE NOCASE);",
          ["R-48616-47814"]),
     ]
-    return [record_sql(setup, sql, name=name, requirements=tags) for name, setup, sql, tags in definitions]
+    return definitions
+
+
+def records() -> list[dict[str, Json]]:
+    """Preserve legacy recording; each tag denotes only its named scenario."""
+    return [record_sql(setup, sql, name=name, requirements=tags)
+            for name, setup, sql, tags in definitions()]

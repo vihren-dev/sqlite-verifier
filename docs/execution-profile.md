@@ -1,6 +1,6 @@
 # Supported execution profiles
 
-The supported version strings are `3.51.0` and `3.46.0`. Both select SQLite
+The production verifier's supported version strings are `3.51.0` and `3.46.0`. Both select SQLite
 semantics without a migration framework. Unsupported versions reject.
 Lean is independently pinned to 4.33.0.
 
@@ -69,3 +69,84 @@ Its source/archive hashes are recorded under `parser/upstream-3.46.0/` and Nix.
 The same supported SQL subset and fixed assumptions apply; differences in the
 full grammar remain checked against the separately pinned parser. Selecting
 this version does not select SQLx or impose a migration-history catalog.
+
+## Native corpus profiles (ADR 0005, in progress)
+
+Explicit native evidence carries a named, versioned profile with measured engine
+version, source ID and the complete sorted compile-option list. Behavioral
+settings include foreign-key enforcement and recursive triggers; they
+are established and read back before case SQL runs. The profile names the
+deferred or immediate transaction convention; SQL must use that convention.
+Ignored settings carry reasons, and assumptions about other writers are recorded.
+
+Clock input is either excluded or `unix-milliseconds-v1`. In the latter mode,
+recording requires a setup timestamp and one timestamp per reached statement.
+A private VFS delegates native filesystem operations and supplies both SQLite
+time callbacks. Defaults, trigger bodies and supplementary probes therefore see
+the same engine time. Replay supplies the recorded inputs and refuses a different
+profile. Valid explicit-profile evidence stays model-unsupported until production
+semantics can execute that profile. Existing frozen records retain their old path.
+Controlled profiles also record `timezone: UTC`: recording/replay temporarily
+establish UTC for native `localtime` conversion and restore the caller's timezone.
+Recording is serialized while this process-global setting is active; parallel
+recording should use worker processes. Other timezone profiles are refused.
+Setting PRAGMAs outside the profile are refused. Explicit boolean writes that
+already match the profile are accepted and their settings are read back after
+SQL execution. Ignored settings may name
+`journal_mode`, `synchronous`, `cache_size`, `temp_store`, `mmap_size` and
+`busy_timeout`, each with a reason; behavioral settings cannot be labelled ignored.
+Corpus manifests declare full records in `executionProfiles`; every v4 case
+must match one declaration exactly. Missing/conflicting records and duplicate
+name/version identities are refused. Legacy manifests retain implicit profiles.
+
+Profiles using the original field set retain trusted schema on, DQS_DML=1,
+DQS_DDL=1 and read-write/create access. Their transport remains byte-for-byte
+unchanged. Profile transport `formatVersion: 2` adds four required fields:
+`trustedSchema`, `dqsDml`, `dqsDdl` (booleans), and `accessMode` (`read-write` or
+`read-only`). This format version is separate from the named profile's `version`,
+native record version 4 and snapshot/shard storage versions. Unknown fields,
+partial field sets and unsupported formats are refused.
+
+The recorder establishes trusted schema and both DQS modes on each connection,
+then verifies the settings and SQLite's actual database access flag. It checks
+them again after SQL, before initialization reopens and on committed-state
+observers. Read-only cases initialize and commit their fixtures on a separate
+writable connection with the same behavioral settings, then open the case
+database with `SQLITE_OPEN_READONLY`. A query guard or `query_only` setting
+cannot stand in for this access mode. Ordinary primary/extended code 8 write
+denial is evidence only under a verified read-only profile; extended READONLY
+recovery, locking and filesystem errors remain harness failures.
+
+An additional native-only engine, `sqlite3-3.53.4`, uses the official source ID
+`2026-07-24 19:02:57 bf7c7f30031888f4e796e429ab3978879485813aaca6f641c7b33e4e09459bcc`
+and source archive SHA256
+`0e9483900e92cd5de8fd48d16bf9200145a61f7fd5be542a5ac81d8a9516eb9c`.
+This independent source build retains its complete actual compile options. It
+does not add production parser/model support or establish equivalence with an
+application's driver build. Driver/native differences still need scoped external
+measurement and disposition before the workload gate can complete.
+
+### Measuring a workload's engine builds
+
+For each driver the application ships, build a small measurement command using
+that driver's exact module version, build tags and connection initialization.
+Run it on each shipped platform. On the opened driver connection, collect
+`SELECT sqlite_version(), sqlite_source_id();` and every row of
+`PRAGMA compile_options;`, sorted. Read back behavioral settings such as
+`PRAGMA foreign_keys;` and `PRAGMA recursive_triggers;` after application setup.
+Read the effective column limit on that same connection through the driver's
+limit API or `sqlite3_limit(db, SQLITE_LIMIT_COLUMN, -1)`. Query it without
+changing it. `MAX_COLUMN` in the compile options gives the ceiling; it does not
+show whether the application lowered the connection's limit. The current
+recorder establishes and verifies 2000. A workload with another effective limit
+needs a supported profile before its suite can be completed.
+Retain the driver dependency lock, command, build configuration and outputs
+beside the external workload profile. A system sqlite3 shell or package version
+does not measure the engine linked into a driver.
+
+Compare those measurements with the pinned recorder engine. Any version/source
+or compile-option difference remains an explicit gap until its effect on the
+workload SQL is checked. Add a source-pinned engine when the difference affects
+that SQL; do not relabel evidence from another build. Before measurements exist,
+state that evidence uses the pinned engine and the workload-engine gap is
+unmeasured. Workload identities and measurement artifacts stay outside the core.
