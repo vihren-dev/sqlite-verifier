@@ -95,3 +95,8 @@ Specifications: [ADR 0003](../docs/adr-0003-agent-proof-preparation.md),
   and why handwritten protected records remain necessary. Resolved
   `20261006T172547Z-791ec7e6#1`. The omitted set and behavior are unchanged from
   the passing 23-case checkpoint; the 37 pure checks remain passing.
+- 2026-10-06: Fixture-boundary documentation `d4441c8d` had one `should`
+  finding and no `must` findings. Named KernelCase, BundleCase.export and
+  production export_bundle directly and stated which definitions each owns
+  or omits. Resolved `20261006T172800Z-d4441c8d#1`. Behavior and the previously
+  checked omitted set are unchanged; this is a documentation correction.

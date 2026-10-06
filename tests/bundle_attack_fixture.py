@@ -13,11 +13,12 @@ from tests.kernel_fixture import KernelCase
 from tests.runtime_support import CommandResult
 
 FIXTURE_COMPILED_MODULES = {"SchemaInputs", "Requirements", "Interpretation", "SqlInputs"}
-"""The old fixture compiles all four protected modules, including SqlInputs.
+"""KernelCase compiles these four modules as protected fixture inputs.
 
-Its exports omit those fixture-owned definitions. Production preparation exports
-the candidate's generated data and omits only the header imports/protected base;
-handwritten tests submit changed records that these fixture omissions would hide.
+BundleCase.export omits their definitions because the checker owns those inputs.
+Production export_bundle omits only trusted_imports | {PROTECTED_BASE_MODULE};
+it can export reachable generated definitions from SqlInputs. Attack tests submit
+handwritten changed records because BundleCase.export omits these definitions.
 """
 
 
