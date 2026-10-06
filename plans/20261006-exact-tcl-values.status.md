@@ -122,3 +122,9 @@ Relevant files: `conformance/upstream_result_values.py`,
   `date2.test`. All 27,571 source instances remain accounted for, including
   27,471 explicitly outside the validation cohort. This is bounded validation,
   not a claim of full-family acquisition or model support.
+- 2026-10-06: Separated the complete-freeze capture fixture from its acceptance
+  checks. The updated test had grown from 199 to 209 lines with binding evidence;
+  both files now remain below 200 lines. The fixture is an explicit Nix model
+  input. All 28 existing freeze checks pass under a 90-second bound. The
+  reviewed diagnostic cleanup `331467e9` has no findings. The paired acquisition
+  artifacts are ready in the working copy and will be recorded separately.

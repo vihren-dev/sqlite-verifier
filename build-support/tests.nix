@@ -97,6 +97,7 @@ in {
   };
   model = suite "model" {
     inputs = [
+      (root + /tests/conformance_freeze_capture.py)
       (fs.fileFilter (file: file.hasExt "py") (root + /migration_check))
       (fs.fileFilter (file: file.hasExt "json") (root + /conformance/cases))
       (root + /SqliteVerifier/SqlExecution.lean)
