@@ -8,7 +8,8 @@
     "tests/conformance_catalog_test.py",
     "tests/conformance_source_profiles_test.py",
     "tests/conformance_foreign_key_recovery_test.py",
-    "tests/conformance_tcl_values_test.py"
+    "tests/conformance_tcl_values_test.py",
+    "tests/test_native_replay_storage.py"
   ],
   "atuin": [
     "tests/atuin_cli_test.py"
