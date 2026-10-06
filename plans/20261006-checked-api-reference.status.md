@@ -111,6 +111,17 @@ Relevant sources: `SqliteVerifier.lean`, `SqliteVerifier/*.lean`,
   rows with no cells are not the intended empty case. The corrected module
   compiles without warnings and remains 144 lines. No formula changed.
 
+- 2026-10-06: Literal correction `116c03e2` passes Claude review with no
+  findings (`20261006T160803Z-116c03e2`). The ambiguous empty case is resolved.
+- 2026-10-06: Added checked documentation to every authored declaration in
+  `Library.lean`. Coverage, representation soundness and update/preservation
+  statements now describe exact assumptions, quantified inputs and empty
+  cases. Reusable theorems have short proof sketches; the false failure
+  invariant's vacuous soundness is explicit. The module compiles without
+  warnings in the pinned runtime and contains 187 lines. No formula or
+  definition body changed. T05 owns a separate import change to its extracted
+  ContractProofs module; this documentation unit does not change that import.
+
 ## Acceptance remaining
 
 Dependency closure and sandboxed reference build; complete checked public
