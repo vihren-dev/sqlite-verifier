@@ -16,3 +16,15 @@ Relevant files: `lakefile.toml`, `SqliteVerifier.lean`,
 - 2026-10-06: task and status files created before the ADR. Confirmed that
   schema lookup is used by core conformance and must remain model-owned during
   the package split. Owner acceptance is required before dependent changes.
+- 2026-10-06: drafted ADR 0006 with separate model and codec libraries, a
+  structural Python frontend, exhaustive statement categories, shared atomicity
+  and constraint checks, and script-owned positions. Recorded the actual
+  `ProfileExecutes` relation and pending visible/persisted outcomes to preserve.
+- 2026-10-06: traced Nix source staging, root-only library installation,
+  runtime lookup, source dependency resolution and bundle trusted imports.
+  The proposed layout includes both installed package outputs and exact module
+  origins. Model lookup and projection facts remain available without the
+  contract; table shapes and future SQL support remain separate work.
+- 2026-10-06: bounded local-link validation passed for all 12 ADR links.
+  No executable source changed. No future implementation check is claimed as
+  executed. Independent review and final owner acceptance remain.
