@@ -1,9 +1,10 @@
 # ADR 0005: hosted validation and merge
 
-Created 2026-10-06. Status: IN PROGRESS.
+Created 2026-10-06. Status: DONE, verified 2026-10-06.
 Status: [progress](20261006-adr5-hosted-merge.status.md).
 Specs: [ADR 0005](../docs/adr-0005-conformance-corpus-scale.md),
 [completed review repair](20261002-adr5-review-remediation.status.md).
+Completion: [hosted validation record](20261006-adr5-hosted-validation.md).
 Owner instruction, 2026-10-06: publish the approved branch and open a PR;
 merge only after CI passes on ubuntu-22.04 and macos-14. Do not add retries.
 
