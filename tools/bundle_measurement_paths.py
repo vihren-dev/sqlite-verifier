@@ -18,6 +18,10 @@ Flow = Literal["verify", "bundle"]
 CHECKER_EXIT_BY_STATUS: Mapping[Literal["VERIFIED", "VIOLATED"], int] = {"VERIFIED": 0, "VIOLATED": 2}
 """Both independent checkers return 2 for checked refutation; the public CLI returns 1."""
 
+CLI_EXIT_BY_STATUS: Mapping[Literal["VERIFIED", "VIOLATED", "PREPARED"], int] = {
+    "VERIFIED": 0, "VIOLATED": 1, "PREPARED": 0}
+"""The public CLI returns zero for successful verification or preparation and one for checked refutation."""
+
 
 @dataclass(frozen=True)
 class TrialSpec:
@@ -120,12 +124,12 @@ def execute_path(spec: TrialSpec, flow: Flow, directory: Path, baseline: dict[st
     if not isinstance(runtime, dict):
         raise ValueError("Runtime identity is malformed")
     sources = source_hashes(runtime)
-    expected_exit = 0 if spec.expected_status == "VERIFIED" else 1
+    expected_exit = CLI_EXIT_BY_STATUS[spec.expected_status]
     bundle = directory / "proof.ndjson"
     selected = [("verify", (*spec.common_arguments, *spec.candidate_arguments, "--artifacts", str(directory / "generated")),
                  "cli:verify", spec.expected_status, expected_exit)] if flow == "verify" else [
         ("prepare", (*spec.common_arguments, *spec.candidate_arguments, "--workspace", str(caches[3]), "--output", str(bundle)),
-         "prepare:prepare", "PREPARED", 0),
+         "prepare:prepare", "PREPARED", CLI_EXIT_BY_STATUS["PREPARED"]),
         ("verify-bundle", (*spec.common_arguments, "--bundle", str(bundle)), "bundle:verify_bundle", spec.expected_status, expected_exit)]
     if not invalid:
         command_directories = [empty_cache_directory(directory, f"command-{index}") for index in range(len(selected))]

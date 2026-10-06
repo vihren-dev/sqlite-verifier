@@ -207,3 +207,9 @@ No new campaign, launcher, benchmark or task was started after the hold.
 - All 28 focused path, identity and child-observation checks pass in 1.60
   seconds under the 30-second limit. The three deferred findings are recorded
   as fixed in the append-only review journal. No performance trial ran.
+- Cleanup review `20261006T190500Z-ca291f9a` has no must findings and one
+  should finding. Named the public CLI exit policy as well as the independent
+  checker policy, including successful preparation. Their values are unchanged.
+- All 28 focused checks pass again in 1.54 seconds under the same 30-second
+  limit. The finding is fixed. Campaign persistence checks remain the next
+  unfinished harness requirement; no performance campaign has started.
