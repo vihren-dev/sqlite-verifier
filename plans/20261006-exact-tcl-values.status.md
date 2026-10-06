@@ -242,3 +242,7 @@ Decisions waiting for the owner:
   remain to be checked.
   T17 is IN PROGRESS; native acceptance and final delivery have not passed or
   been waived. Existing PR43/44/47/48 and paused T07 are outside this change.
+- The policy checkpoint `8ec0f179` passed independent review with no `must`
+  findings and one R9 `should`: its source comment referred to this task status
+  instead of explaining the deadline. Corrected the comment to state the
+  32-module model budget's measured hosted macOS basis; the recipe is unchanged.
