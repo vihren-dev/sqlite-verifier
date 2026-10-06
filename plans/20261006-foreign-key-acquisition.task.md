@@ -17,7 +17,10 @@ behavior. Actual setting changes during the recorded assertion remain outside
 the fixed-profile case format. Unknown contexts, unclosed setup transactions,
 and setup that does not restore the selected profile retain named refusals.
 A successful source `reset_db` is distinct from restoration in the same
-database. Existing frozen v1–v5 evidence and production FK semantics stay intact.
+database. A failed reset leaves a named refusal because it can have partial
+side effects. A reset initializer whose SQL is not retained also stays refused;
+a later plain successful reset can restore eligibility. Existing frozen
+v1–v5 evidence and production FK semantics stay intact.
 
 Source: [issue #34](https://github.com/vihren-dev/sqlite-verifier/issues/34).
 Specification: [ADR 0005](../docs/adr-0005-conformance-corpus-scale.md),

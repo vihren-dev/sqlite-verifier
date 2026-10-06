@@ -8,7 +8,11 @@ from conformance.native_connection import Connection
 
 
 def permits_foreign_key_context(connection: Connection, setting: bytes) -> bool:
-    """Replay setup changes and transaction-local no-ops before checking the case profile."""
+    """Permit FK writes during setup or transactions while profile checks remain in force.
+
+    SQLite ignores transaction-local writes. Setup-boundary and per-statement
+    readback check that the case still runs with its selected profile.
+    """
     return setting == b"foreign_keys" and (connection.recording_setup or connection.transaction_open)
 
 

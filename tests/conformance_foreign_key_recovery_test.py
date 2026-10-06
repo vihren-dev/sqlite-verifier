@@ -91,3 +91,29 @@ do_test fk-local {{db eval {{BEGIN; PRAGMA foreign_keys={int(not enabled)};
     with pytest.raises(ValueError, match="unsupported setting: foreign_keys"):
         record_sql("", f"PRAGMA foreign_keys={int(not enabled)};", name="actual-change",
                    outputs=True, profile=profile)
+
+
+@pytest.mark.parametrize(("tail", "reason"), [
+    ("SELECT missing FROM leftover", "reset_db failed"),
+    ("", "reset_db initialization SQL is not retained"),
+])
+def test_reset_keeps_unretained_initialization_context(tmp_path: Path, tail: str, reason: str) -> None:
+    """Failed resets and unretained initialization cannot fabricate an empty database."""
+    upstream = source(tmp_path, """
+set SETUP_SQL {CREATE TABLE leftover(x); INSERT INTO leftover VALUES(7); TAIL}
+catch {reset_db}
+unset SETUP_SQL
+do_test fk-failed-reset {db eval {SELECT 42}} 42
+reset_db
+do_test fk-reset-recovered {db eval {SELECT 42}} 42
+""".replace("TAIL", tail))
+    output = tmp_path / "capture"
+    report = pilot(fixture(), upstream, output, None, ("fkey_recovery.test",), catalog_profile_policy=True)
+    observed = report["files"][0]
+    assert observed["runtimeExit"] == 0 and observed["runtimeComplete"], observed
+    failed, recovered = observed["instances"]
+    assert reason in failed["exclusions"], observed
+    assert recovered["result"] == "recorded", observed
+    _, records = load(output)
+    assert len(records) == 1 and records[0]["minimization"]["originalSetupCommands"] == []
+    native_replay(records)

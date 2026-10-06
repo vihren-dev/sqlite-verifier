@@ -45,3 +45,26 @@ Relevant files: `conformance/native_acquisition.py`,
 - The uncapped after-change acquisition runs with a 1200-second limit and
   fresh native replay for every admitted case. Its output stays in
   `build/fk-acquisition-after` until the source-bound report is complete.
+- 2026-10-06: The full after acquisition completed with 514 admissions out of
+  940. All admitted cases passed fresh replay. The old authorizer applied to
+  these same 514 original SQL inputs admits 2 and refuses 512 for FK writes.
+  [The yield report](../reports/20261006-foreign-key-acquisition.md) accounts for
+  the remaining 426 refusals and distinguishes the source's random Tcl loop
+  from the exact paired admission check.
+- 2026-10-06: Claude reviewed `9390c778` with zero must findings and one should
+  finding (`20261006T093937Z-9390c778#1`). The helper docstring now explains the
+  permission and the checks that make it safe; its resolution is logged.
+- 2026-10-06: A real pinned Tcl regression demonstrated that failed resets can
+  create rows before erroring, yet the old proxy discarded that context. The
+  proxy now names that refusal and also refuses unretained `SETUP_SQL` after
+  successful resets. A later plain successful reset restores eligibility.
+  The negative test failed before the guard, then passed with it.
+- Final sandboxed upstream suite: 63 passed in 2.51 seconds, with no skips.
+  JUnit is `/nix/store/ra19ap3r7afqkw6ahhq74mr4id28gb0c-sqlite-verifier-test-upstream-1/junit.xml`.
+- A separate fixed-seed diagnostic compares the old and new reset capture on
+  the unchanged pinned source. Its 5,432,796 event bytes match exactly, SHA256
+  `080d3368c06bbf3d348d6e91bfd40bed99316275a90632b524315801f3538753`.
+  The seed is diagnostic only; source acquisition behavior is unchanged.
+- Full acquisition artifacts remain under `build/fk-acquisition-{before,after}`;
+  reset events are in `build/fk-reset-equivalence`, and the one-off report and
+  paired-check scripts are in `build/fk-acquisition-diagnostics`.

@@ -100,8 +100,11 @@ finish outside a transaction with the selected profile restored. The recorder
 checks this boundary without repairing settings or resetting the database.
 Fresh replay uses the same setup commands; upstream acquisition also checks
 their outcomes and results against the captured Tcl execution. A source reset
-clears its prefix only when the actual `reset_db` runs. Restoration in the same
-database retains the prefix and its data dependencies. Ignored settings may name
+clears its prefix only when `reset_db` succeeds. A failed reset leaves a named
+refusal because it can have partial effects. Resets with nonempty `SETUP_SQL`
+also stay refused because the reset boundary does not retain their initialization
+SQL. A later plain successful reset clears those refusals. Restoration in the
+same database retains the prefix and its data dependencies. Ignored settings may name
 `journal_mode`, `synchronous`, `cache_size`, `temp_store`, `mmap_size` and
 `busy_timeout`, each with a reason; behavioral settings cannot be labelled ignored.
 Corpus manifests declare full records in `executionProfiles`; every v4 case
