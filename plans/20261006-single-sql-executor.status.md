@@ -61,6 +61,14 @@ The generated starting-schema pattern already exists in the Atuin example.
   executables, exact trust headers and two independently checked deterministic
   bundles per small/refutation/Atuin case. Installed acceptance, protected
   schema binding and final owner review remain pending.
+- 2026-10-06: Migration review `20261006T164238Z-26fbe6fc` identified the expected
+  R8 owner-review requirement and four documentation/exhaustiveness corrections.
+  Recorded R8 as deferred only to final owner review, without approval. Replaced
+  the schema guard's catch-all with every excluded constructor, documented the
+  transition lemma's case-split proof and both helper modules' purpose, and
+  clarified that a primitive success alone does not close a transaction. All
+  migrated library proofs compile; the rebuilt source suite passed 336 checks
+  and 28 subtests in 33.36 seconds. Every should finding is recorded as fixed.
 
 ## Exporter checkpoints and remaining gates
 

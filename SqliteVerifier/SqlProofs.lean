@@ -2,6 +2,9 @@ import SqliteVerifier.SqlExecution
 
 set_option doc.verso true
 
+/-! Schema-only proof laws for the full SQL executor. Keeping these guarded
+conveniences separate leaves the statement and transaction semantics in one module. -/
+
 namespace SqliteVerifier
 
 /-- Every statement in the script is CREATE TABLE or ADD COLUMN. This is a syntax
@@ -10,7 +13,11 @@ control and literal writes do not. Use it for schema preservation laws. -/
 def SchemaOnly (script : List Statement) : Prop :=
   ∀ statement ∈ script, match statement with
     | .createTable .. | .addColumn .. => True
-    | _ => False
+    | .beginTransaction => False
+    | .commit => False
+    | .rollback => False
+    | .insert .. => False
+    | .update .. => False
 
 /-- For every position and connection state, a {name}`SchemaOnly` script passes
 the reached-statement data-domain check. Schema/index admission remains a separate
@@ -29,7 +36,9 @@ theorem supportedSqlFrom_schemaOnly (guard : SchemaOnly script) :
     | halt outcome => rfl
     | next next => exact ih tail
 
-/-- A guarded schema statement uses the primitive transition in an idle connection. -/
+/-- For every position and idle database, a guarded schema statement uses the
+primitive transition. The proof splits on the statement and uses the guard to
+exclude transaction control and literal-write constructors. -/
 theorem advance_schemaOnly
     (guard : SchemaOnly [statement]) :
     advance position statement { database := database } =

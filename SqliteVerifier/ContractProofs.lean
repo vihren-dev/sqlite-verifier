@@ -2,6 +2,10 @@ import SqliteVerifier.Contract
 
 set_option doc.verso true
 
+/-! Computation conveniences and refutation lemmas for the complete contract.
+They remain separate from its definitions, so callers can supply the primitive
+verification fields directly when these helpers do not fit their proof. -/
+
 namespace SqliteVerifier
 
 /-- Establish all verification fields from the computed SQL result. The caller

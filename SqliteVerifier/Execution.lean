@@ -50,7 +50,8 @@ inductive ExecutionError where
 /-- The final database and transaction status. Use {lean}`Outcome.success`
 for successful execution outside a transaction. -/
 inductive Outcome where
-  /-- Successful execution with the resulting committed database. -/
+  /-- Successful computation with its resulting database. The SQL executor uses
+  a pending outcome when a transaction remains open. -/
   | success (database : Database)
   /-- A stopped statement at its zero-based position, with the resulting database. -/
   | failure (position : Nat) (reason : ExecutionError) (database : Database)
