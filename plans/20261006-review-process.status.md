@@ -1,6 +1,6 @@
 # Status: independent review of each commit
 
-Created 2026-10-06. Status: in progress (statistics added).
+Created 2026-10-06. Status: DONE.
 Task: [task](20261006-review-process.task.md).
 Relevant files: `tools/review.py`, `tests/test_review.py`, `docs/review-checklist.md`,
 `justfile`, `AGENTS.md`.
@@ -55,3 +55,7 @@ Relevant files: `tools/review.py`, `tests/test_review.py`, `docs/review-checklis
   fixed and resolved as `fixed`: outcome counters built from `OUTCOMES` (R1),
   reasons in the log docstrings (R9), a next step for an unknown finding id
   (R10), tests that failed and malformed reviews are logged (R11). 35 tests pass.
+- 2026-10-06: Codex on the refactor `ed004e2`: `No findings.` Checks: source
+  suite 317 passed, `requires_nix` 59 passed. `just review-stats` on the real
+  log: 2 reviews; the Lean-only conditions show 0 chances, as expected for
+  Python-only commits. DONE.
