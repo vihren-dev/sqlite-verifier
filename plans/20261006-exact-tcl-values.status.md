@@ -145,3 +145,26 @@ Relevant files: `conformance/upstream_result_values.py`,
   The 51 affected value/binding checks pass in 0.76 seconds (90-second bound),
   and all 104 upstream sandbox checks pass in 2.71 seconds without skips.
   JUnit: `/nix/store/ay0y4ym75ich1pgp70p7ic14islxzgls-sqlite-verifier-test-upstream-1/junit.xml`.
+- 2026-10-06: Final diagnostic cleanup `331467e9` passed independent review
+  with no findings. Packaged the paired source evidence in
+  [the acquisition report](../reports/20261006-tcl-values.md), including all
+  five complete real Tcl event streams, both full refusal manifests, 100 input
+  pairs and both accepted-case sets. Independent parsing confirms zero changed
+  original input objects. All 95 after cases pass fresh native replay. A changed
+  actual `date5.test` parameter fails replay after both input copies and the
+  digest are updated. Verified every retained compressed/uncompressed artifact
+  digest and all 27,571 before/after dispositions.
+- The final sandboxed upstream target passes 104 tests in 2.84 seconds without
+  skips. JUnit:
+  `/nix/store/ka6rf4aaqh6md112k7769maksxsp75ys-sqlite-verifier-test-upstream-1/junit.xml`.
+  The source cohort and native checks are complete. The coordinated full model
+  gate remains held; no full model job has started here and this task is not DONE.
+- 2026-10-06: The source SQL encoding guard `d4eb312a` passed independent
+  review with no findings. All 1,050 SQL/setup appearances in the retained 100
+  input pairs are ASCII without NUL, so the guard does not change the paired
+  cohort. Added separate actual pinned codec evidence: 21 authored runtime
+  occurrences, 11 admitted cases and 11 successful fresh native replays. Exact
+  NUL/CESU-8 TEXT bytes and named direct-display/source-SQL refusals remain in
+  that record. The final upstream JUnit is
+  `/nix/store/ay0y4ym75ich1pgp70p7ic14islxzgls-sqlite-verifier-test-upstream-1/junit.xml`.
+  Full model validation remains held for the root task's environment feedback.

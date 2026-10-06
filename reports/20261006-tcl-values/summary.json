@@ -1,0 +1,448 @@
+{
+  "version": 1,
+  "task": "T17",
+  "created": "2026-10-06",
+  "sourceRelease": "3.51.0",
+  "sourceId": "2025-11-04 19:38:17 fb2c931ae597f8d00a37574ff67aeed3eced4e5547f9120744ae4bfa8e74527b",
+  "sourceArchiveSha256": "5330719b8b80bf563991ff7a373052943f5357aae76cd1f3367eab845d3a75b7",
+  "revisions": {
+    "before": "bf78762bd7a6cdb451d41d7a8c8df2dc1394ffb0",
+    "capture": "e6293cfce0221ff87af8192143a59e753f04f529",
+    "after": "ab78f7c20e26519853f1eb01e3fe1e1de77c70e3",
+    "finalDiagnosticCleanup": "331467e9d64b478ac9889053381c2462b7365085",
+    "finalSourceSqlEncodingGuard": "d4eb312a615ea2d59c52736dd2cc19bc86171ac6"
+  },
+  "method": "same retained actual source events; unchanged pilot/native recorder; validation-only execution adapter",
+  "cohort": {
+    "algorithm": "first-runtime-occurrences",
+    "countPerFile": 20
+  },
+  "pairedOriginalInputs": 100,
+  "changedPairedOriginalInputs": 0,
+  "totalSourceInstances": 27571,
+  "outsideCohortInstances": 27471,
+  "beforeAccepted": 55,
+  "afterAccepted": 95,
+  "newlyAccepted": 40,
+  "lostAccepted": 0,
+  "freshNativeReplay": {
+    "cases": 95,
+    "failed": 0,
+    "modelAgreementClaim": false
+  },
+  "files": [
+    {
+      "file": "date.test",
+      "sourceSha256": "28b1afbcbc245e6154008073ecf7e0b0b7080941b64565cee1c12b0ffd094c44",
+      "runtimeAssertions": 1683,
+      "cohortInstances": 20,
+      "beforeAccepted": 20,
+      "afterAccepted": 20,
+      "beforeReasons": {
+        "recorded": 20,
+        "T17 validation cohort: outside first 20 runtime occurrences": 1064,
+        "T17 validation cohort: outside first 20 runtime occurrences; test changed the controlled clock": 135,
+        "T17 validation cohort: outside first 20 runtime occurrences; external/configuration operation: sqlite3_test_control SQLITE_TESTCTRL_LOCALTIME_FAULT; test changed the controlled clock": 375,
+        "T17 validation cohort: outside first 20 runtime occurrences; application callback: function; external/configuration operation: sqlite3_test_control SQLITE_TESTCTRL_LOCALTIME_FAULT; test changed the controlled clock": 89
+      },
+      "afterReasons": {
+        "recorded": 20,
+        "T17 validation cohort: outside first 20 runtime occurrences": 1064,
+        "T17 validation cohort: outside first 20 runtime occurrences; test changed the controlled clock": 135,
+        "T17 validation cohort: outside first 20 runtime occurrences; external/configuration operation: sqlite3_test_control SQLITE_TESTCTRL_LOCALTIME_FAULT; test changed the controlled clock": 375,
+        "T17 validation cohort: outside first 20 runtime occurrences; application callback: function; external/configuration operation: sqlite3_test_control SQLITE_TESTCTRL_LOCALTIME_FAULT; test changed the controlled clock": 89
+      }
+    },
+    {
+      "file": "date2.test",
+      "sourceSha256": "0c91c3e8e64f72cb9cf8a4c77aea341068b616ba952d62a78e6384a6d1a16d8f",
+      "runtimeAssertions": 29,
+      "cohortInstances": 20,
+      "beforeAccepted": 15,
+      "afterAccepted": 15,
+      "beforeReasons": {
+        "recorded": 15,
+        "case size limit": 5,
+        "T17 validation cohort: outside first 20 runtime occurrences": 9
+      },
+      "afterReasons": {
+        "recorded": 15,
+        "case size limit": 5,
+        "T17 validation cohort: outside first 20 runtime occurrences": 9
+      }
+    },
+    {
+      "file": "date3.test",
+      "sourceSha256": "30abac78a843184046091471932ad8678f57fa99c0e88b3b597c37aac11f84fe",
+      "runtimeAssertions": 126,
+      "cohortInstances": 20,
+      "beforeAccepted": 20,
+      "afterAccepted": 20,
+      "beforeReasons": {
+        "recorded": 20,
+        "T17 validation cohort: outside first 20 runtime occurrences": 106
+      },
+      "afterReasons": {
+        "recorded": 20,
+        "T17 validation cohort: outside first 20 runtime occurrences": 106
+      }
+    },
+    {
+      "file": "date4.test",
+      "sourceSha256": "c2bfdb35a7d2f7792e1618a308a374ba028c5114db6a6a236d8ad228facd43be",
+      "runtimeAssertions": 24859,
+      "cohortInstances": 20,
+      "beforeAccepted": 0,
+      "afterAccepted": 20,
+      "beforeReasons": {
+        "implicit Tcl parameter binding: $::FMT; implicit Tcl parameter binding: $::TS": 20,
+        "T17 validation cohort: outside first 20 runtime occurrences; implicit Tcl parameter binding: $::FMT; implicit Tcl parameter binding: $::TS": 24839
+      },
+      "afterReasons": {
+        "recorded": 20,
+        "T17 validation cohort: outside first 20 runtime occurrences": 24839
+      }
+    },
+    {
+      "file": "date5.test",
+      "sourceSha256": "8d551acf63936427e69fbc331d26451a9bfbb54fdb84a497092b67dc72e00623",
+      "runtimeAssertions": 874,
+      "cohortInstances": 20,
+      "beforeAccepted": 0,
+      "afterAccepted": 20,
+      "beforeReasons": {
+        "implicit Tcl parameter binding: $::jd": 1,
+        "implicit Tcl parameter binding: $::date; implicit Tcl parameter binding: $::jd": 1,
+        "implicit Tcl parameter binding: $::date; implicit Tcl parameter binding: $::jd; implicit Tcl parameter binding: $::jd2": 1,
+        "implicit Tcl parameter binding: $::date; implicit Tcl parameter binding: $::date2; implicit Tcl parameter binding: $::jd; implicit Tcl parameter binding: $::jd2": 17,
+        "T17 validation cohort: outside first 20 runtime occurrences; implicit Tcl parameter binding: $::date; implicit Tcl parameter binding: $::date2; implicit Tcl parameter binding: $::jd; implicit Tcl parameter binding: $::jd2": 854
+      },
+      "afterReasons": {
+        "recorded": 20,
+        "T17 validation cohort: outside first 20 runtime occurrences": 854
+      }
+    }
+  ],
+  "artifacts": [
+    {
+      "path": "date.test.events.tsv.gz",
+      "bytes": 31100,
+      "sha256": "2dd522722b1e1b3ac04ad8e13585b78a220ef4822986a6b4a2a9e94fa9c21b86",
+      "uncompressedBytes": 1250192,
+      "uncompressedSha256": "daa1b52438caad5e9d2e64872571292e37e80d1000285c487992cbef5a7a8f94"
+    },
+    {
+      "path": "date.test.stdout.gz",
+      "bytes": 4400,
+      "sha256": "4585aa10ba39aac8c5f1273946f8c5dfc3d92e6c9a7a8f6edc0d665f0f8c31e6",
+      "uncompressedBytes": 32459,
+      "uncompressedSha256": "44d4b36a7a85d430da913c45f7da43b8525f6a965bb61cd64b97c46ff772029c"
+    },
+    {
+      "path": "date.test.stderr.gz",
+      "bytes": 20,
+      "sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64",
+      "uncompressedBytes": 0,
+      "uncompressedSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "date2.test.events.tsv.gz",
+      "bytes": 1936,
+      "sha256": "4595f63659e4aa3ac77e34c8c4fcff6002c5586e932173a50df76321b092a6a0",
+      "uncompressedBytes": 18794,
+      "uncompressedSha256": "9393294f8f786d672a6cca36450d0ee67b820bc50a10a7a27b414ecad2b1dc46"
+    },
+    {
+      "path": "date2.test.stdout.gz",
+      "bytes": 388,
+      "sha256": "dacd204cf3f0b8da101eed6bab0cff169b335b19a35cc85277fa89ee7d6ac466",
+      "uncompressedBytes": 999,
+      "uncompressedSha256": "e8a2dc4529313beb9c986eb0dfbdb4bbde6f911a5deaf45d73986b262bcd25d8"
+    },
+    {
+      "path": "date2.test.stderr.gz",
+      "bytes": 20,
+      "sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64",
+      "uncompressedBytes": 0,
+      "uncompressedSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "date3.test.events.tsv.gz",
+      "bytes": 3913,
+      "sha256": "a4394cb5562229004011600d69feb3cad7d9942d525f7c1208f87f6af15b86cb",
+      "uncompressedBytes": 80343,
+      "uncompressedSha256": "1665eb3a05dc7194249feb14a79bbe4a8166b7536c9c077516b4e09fe9e866d9"
+    },
+    {
+      "path": "date3.test.stdout.gz",
+      "bytes": 622,
+      "sha256": "473deb05fd5ba4f540e2f2e605cf8ab67635ea777cd43a5cc2e1a84f82453a7a",
+      "uncompressedBytes": 2852,
+      "uncompressedSha256": "a040bc33dc07961a1f6ab6868bfb65599fa75a1a8db54799d2669ff36d253aca"
+    },
+    {
+      "path": "date3.test.stderr.gz",
+      "bytes": 20,
+      "sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64",
+      "uncompressedBytes": 0,
+      "uncompressedSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "date4.test.events.tsv.gz",
+      "bytes": 879593,
+      "sha256": "8df8ba6a77a4a22d8059449d2213b2a8803b7252085f71dd34558be41ac90486",
+      "uncompressedBytes": 25739443,
+      "uncompressedSha256": "c6c17c57c4dfb478257fa4dae86674f3fcbfd84cd7eee5189e8aeab3a80b0425"
+    },
+    {
+      "path": "date4.test.stdout.gz",
+      "bytes": 62795,
+      "sha256": "1d388216f0f6889896c68c03b5e79d31fe3612922fc32d8971445250cc6e0e5b",
+      "uncompressedBytes": 436890,
+      "uncompressedSha256": "85da5d6a7fdec7bc312f38ab35189100673076fbe36a9b489522b816dab52a3d"
+    },
+    {
+      "path": "date4.test.stderr.gz",
+      "bytes": 20,
+      "sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64",
+      "uncompressedBytes": 0,
+      "uncompressedSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "date5.test.events.tsv.gz",
+      "bytes": 23092,
+      "sha256": "cd1ef2c017070677ce9d0f8856d043cc3c54e04ca73412883a378f0db5814ad2",
+      "uncompressedBytes": 617397,
+      "uncompressedSha256": "4318e49b311aa17c559810ccb113939483cba409f008043a552a0d7397f34d41"
+    },
+    {
+      "path": "date5.test.stdout.gz",
+      "bytes": 3527,
+      "sha256": "24b8b1886f624254430e9df8d4fa6558585a4b0cc8064814c04731cce7462080",
+      "uncompressedBytes": 22870,
+      "uncompressedSha256": "c0a9cfa5d9e0963cc6648155be9c343b402675b5049722106a14f3674fd713f4"
+    },
+    {
+      "path": "date5.test.stderr.gz",
+      "bytes": 20,
+      "sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64",
+      "uncompressedBytes": 0,
+      "uncompressedSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "capture.json.gz",
+      "bytes": 5399,
+      "sha256": "73c44a1b55ee79a25152b92a91e9e5b1bdfce85a2a06f08b4e43a1066b41b5ee",
+      "uncompressedBytes": 20217,
+      "uncompressedSha256": "9163029b621f8961c1af16c06d47cad181f784a0a5e0be3e8a18ab1b788dbe45"
+    },
+    {
+      "path": "paired-inputs.jsonl.gz",
+      "bytes": 23353,
+      "sha256": "1f7dc970fe288ce2232bffe7a9e23c0779f15518d2c39ee51f3d5c3e0a1a903d",
+      "uncompressedBytes": 515804,
+      "uncompressedSha256": "2dbbce23c4f190e390cd4c6ea9d8b85216768096cd6ca4d259ff109b6f58167e"
+    },
+    {
+      "path": "before-acquisition.json.gz",
+      "bytes": 372116,
+      "sha256": "40a45693e5513edd2d6d91546f2a840cc1a427b2ba59d0a15e7e80055c4b1fda",
+      "uncompressedBytes": 20494617,
+      "uncompressedSha256": "3f56aea55635b4976514e4ca04bbb8b18fa0485edc0c92b64b850b9a10197176"
+    },
+    {
+      "path": "before-cases.jsonl.gz",
+      "bytes": 182657,
+      "sha256": "8373b29bb3ba3df808bc7f3bda5d07f6cc567da3043e9a89e7a04fb92e9a3fb9",
+      "uncompressedBytes": 1578104,
+      "uncompressedSha256": "925c28f06a89608fc625689ff911292afe188861476a9b53cc835b82d32fa070"
+    },
+    {
+      "path": "after-acquisition.json.gz",
+      "bytes": 362284,
+      "sha256": "aa51a4c5a1c29a8ce59634a8c6b28f52d7b8d5d9036e98c98abc644475e2fe23",
+      "uncompressedBytes": 15549174,
+      "uncompressedSha256": "d8078586c56dff23d0b1daaa836e7292e1ff08bf1e73046ac134dab118ee56f1"
+    },
+    {
+      "path": "after-cases.jsonl.gz",
+      "bytes": 199302,
+      "sha256": "205d315501123562a04777cca7f4e738a0f35589edb9ae6d51f57bda24b3bc80",
+      "uncompressedBytes": 2064875,
+      "uncompressedSha256": "8c5ac0e415d5023ec09e225fdd593209679287e70e877de8818f3b9296430548"
+    },
+    {
+      "path": "used-validation-drivers.json.gz",
+      "bytes": 3076,
+      "sha256": "c7c17d7a43d19b48e9e5654f2c0f32dac3dadc48a4c10caf11b2bd9c70d9efa1",
+      "uncompressedBytes": 9380,
+      "uncompressedSha256": "1e2457f963b036358507dcd2a1447a3e57df01ae7ef8196419d4ffa9e7781516"
+    },
+    {
+      "path": "input-corruption.json",
+      "bytes": 875,
+      "sha256": "0fb8edfe6a37905580a29aae9f925a0c8a79776ecabece477635dc5fa4dc1902",
+      "uncompressedBytes": 875,
+      "uncompressedSha256": "0fb8edfe6a37905580a29aae9f925a0c8a79776ecabece477635dc5fa4dc1902"
+    },
+    {
+      "path": "codec-acquisition.json.gz",
+      "bytes": 7358,
+      "sha256": "a9666ae431e8e14c26b6ff654b742263938d59a3b2f0c650a6120064830b0676",
+      "uncompressedBytes": 45233,
+      "uncompressedSha256": "1f9a278e5e2d6af5cbd7ff2b42b8dcdf36e39b938096e7ea38754845abe77d66"
+    },
+    {
+      "path": "codec-cases.jsonl.gz",
+      "bytes": 3678,
+      "sha256": "6c6ff2e7456499a29d17d72b7f4cb1239acf219d1be37a98c4af8488feecf9a8",
+      "uncompressedBytes": 47171,
+      "uncompressedSha256": "2313ff67613620f18b65c951ff84e8bb1df50859b667b0eae4e88b6b865692a4"
+    },
+    {
+      "path": "codec-events.tsv.gz",
+      "bytes": 1739,
+      "sha256": "e232fa62e8ea6f404f9340b9467f6436753a9eab1cbc9cec1f37f9dd68205399",
+      "uncompressedBytes": 24415,
+      "uncompressedSha256": "d5b360b2de8414d1a9e8ed94bbd8941275e5234922dbf1f9c532a21af2a2c803"
+    },
+    {
+      "path": "codec-stdout.txt.gz",
+      "bytes": 491,
+      "sha256": "03e1416efcc047bc64828e0ba9cd23ce683f5eabf341c1ced2b6165c4737c136",
+      "uncompressedBytes": 1102,
+      "uncompressedSha256": "c318acffbda78819599ae36f227844c9d97b0844a33e4b226efc8d7bc0ce09f3"
+    },
+    {
+      "path": "codec-stderr.txt.gz",
+      "bytes": 20,
+      "sha256": "f1b651238a58fe290baec6c5e32f3bdb1943dd2bd582f02569231f7a757c7837",
+      "uncompressedBytes": 0,
+      "uncompressedSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "codec-summary.json",
+      "bytes": 3659,
+      "sha256": "67b2634ab1ea6881ff0c995f19344e869cca9254ff816e9f5dd3b36ccab963ec",
+      "uncompressedBytes": 3659,
+      "uncompressedSha256": "67b2634ab1ea6881ff0c995f19344e869cca9254ff816e9f5dd3b36ccab963ec"
+    }
+  ],
+  "usedValidationDriverSha256": {
+    "t17_date_capture.py": "93b9b4cae2c79e2c0a37655faca35a64ec8d35511857664c4a561ab0bf6d56cf",
+    "t17_date_replay.py": "fdd6b52d4fbebb51de92e7178e933339b418c8f418f6c3b61c028f4a00477a16",
+    "t17_codec_capture.py": "e99e7305fc2bd3e974c9e23b2b6a1c8285e4fea14ecfef7ddb26c48c85262a98"
+  },
+  "limits": [
+    "The first 20 runtime occurrences per source are eligible; all later occurrences are explicitly refused.",
+    "The before revision already contains the precision fix, so the paired delta measures binding capture.",
+    "The same retained actual source events feed both classifiers; no second random source execution is claimed identical.",
+    "No full-family acquisition, full-model result or production date support is claimed.",
+    "Direct TEXT displays outside standard UTF-8 retain a named codec refusal; binding and storage/hex bytes remain exact.",
+    "Source SQL whose Tcl bytes differ from the UTF-8 event transport is refused, even if its output hides that change."
+  ],
+  "historicalFrozenReference": {
+    "corpusVersion": 5,
+    "manifestSha256": "e9a965f05ec70f45af83b43f62a0ff7b19f5095f03bb53b0b7b7a64b73f3e082",
+    "extraction": {
+      "path": "extraction.json.gz",
+      "recordedCases": 4307,
+      "sha256": "301158079d20604478eeec937bc7840b3c1f201af2272dba767b883ff11bc0b8",
+      "uncompressedSha256": "05919ff51193300ef70ac75d3c5086673b0aeca169f985723cec077f76547227"
+    },
+    "pairedWithCurrentCapture": false,
+    "files": [
+      {
+        "file": "date.test",
+        "sourceSha256": "28b1afbcbc245e6154008073ecf7e0b0b7080941b64565cee1c12b0ffd094c44",
+        "runtimeAssertions": 1683,
+        "recorded": 0,
+        "reasons": {
+          "test changed the declared Tcl display precision": 116,
+          "expression prefix sampling: date-2.2c-; test changed the declared Tcl display precision": 968,
+          "test changed the controlled clock; test changed the declared Tcl display precision": 135,
+          "external/configuration operation: sqlite3_test_control SQLITE_TESTCTRL_LOCALTIME_FAULT; test changed the controlled clock; test changed the declared Tcl display precision": 375,
+          "application callback: function; external/configuration operation: sqlite3_test_control SQLITE_TESTCTRL_LOCALTIME_FAULT; test changed the controlled clock; test changed the declared Tcl display precision": 89
+        }
+      },
+      {
+        "file": "date2.test",
+        "sourceSha256": "0c91c3e8e64f72cb9cf8a4c77aea341068b616ba952d62a78e6384a6d1a16d8f",
+        "runtimeAssertions": 29,
+        "recorded": 15,
+        "reasons": {
+          "recorded": 15,
+          "case size limit": 14
+        }
+      },
+      {
+        "file": "date3.test",
+        "sourceSha256": "30abac78a843184046091471932ad8678f57fa99c0e88b3b597c37aac11f84fe",
+        "runtimeAssertions": 126,
+        "recorded": 0,
+        "reasons": {
+          "test changed the declared Tcl display precision": 126
+        }
+      },
+      {
+        "file": "date4.test",
+        "sourceSha256": "c2bfdb35a7d2f7792e1618a308a374ba028c5114db6a6a236d8ad228facd43be",
+        "runtimeAssertions": 24859,
+        "recorded": 0,
+        "reasons": {
+          "implicit Tcl parameter binding: $::FMT; implicit Tcl parameter binding: $::TS": 24859
+        }
+      },
+      {
+        "file": "date5.test",
+        "sourceSha256": "8d551acf63936427e69fbc331d26451a9bfbb54fdb84a497092b67dc72e00623",
+        "runtimeAssertions": 874,
+        "recorded": 0,
+        "reasons": {
+          "implicit Tcl parameter binding: $::jd": 1,
+          "implicit Tcl parameter binding: $::date; implicit Tcl parameter binding: $::jd": 1,
+          "implicit Tcl parameter binding: $::date; implicit Tcl parameter binding: $::jd; implicit Tcl parameter binding: $::jd2": 1,
+          "implicit Tcl parameter binding: $::date; implicit Tcl parameter binding: $::date2; implicit Tcl parameter binding: $::jd; implicit Tcl parameter binding: $::jd2": 871
+        }
+      }
+    ],
+    "interpretation": "Historical source hashes and runtime counts match; individual captured inputs and random histories are not claimed identical."
+  },
+  "checks": {
+    "finalUpstream": {
+      "passed": 104,
+      "seconds": 2.71,
+      "skipped": 0,
+      "junit": "/nix/store/ay0y4ym75ich1pgp70p7ic14islxzgls-sqlite-verifier-test-upstream-1/junit.xml"
+    },
+    "pairedInputEquality": {
+      "checked": 100,
+      "changed": 0
+    },
+    "actualInputCorruption": {
+      "checked": 1,
+      "unexpectedAcceptances": 0
+    },
+    "fullModel": "pending coordinated validation",
+    "freezeEvidence": {
+      "passed": 53,
+      "seconds": 5.16,
+      "timeoutSeconds": 90
+    }
+  },
+  "finalSourceSqlEncodingGuardValidation": {
+    "pairedOccurrences": 100,
+    "sqlAndSetupAppearances": 1050,
+    "allSourceSqlAsciiWithoutNul": true,
+    "changedCohortRefusals": 0,
+    "method": "All retained paired original SQL/setup strings satisfy the unchanged identity-to-UTF8 codec; classification artifacts keep their original revision."
+  },
+  "codecRegression": {
+    "kind": "authored fixture executed by pinned Tcl",
+    "runtimeInstances": 21,
+    "accepted": 11,
+    "freshNativeReplayPassed": 11,
+    "summary": "codec-summary.json",
+    "separateFromDateDenominator": true
+  }
+}
