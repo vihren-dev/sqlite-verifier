@@ -115,6 +115,11 @@ state. The generated starting-schema pattern now matches the Atuin example.
   the R8 owner marker remains deferred only to final owner review. No publication,
   issue closure, merge or release is performed by this task worker.
 
+- 2026-10-06: Prepared draft publication on the reviewed exporter branch.
+  Retained the exact pending evidence-review row in a named journal change.
+  Draft publication leaves final R8 approval, full model acceptance and hosted
+  integration gates open; it authorizes no merge, release or issue closure.
+
 ## Exporter checkpoints and remaining gates
 
 The T03 and T02 receipts describe a fixed model and input checkpoint. Their
@@ -132,5 +137,6 @@ for the separate T13 test-environment feedback. Bounded compilation, source,
 ordinary, affected model and installed checks can proceed; complete acceptance
 still requires the full gate after that blocker is resolved.
 
-Final owner review, ordinary and full checks, installed examples and issue
-closure remain open. The task is not DONE.
+Final owner review, full model acceptance and hosted integration checks remain
+open. Native ordinary and installed checks are complete. Issue closure remains
+with the owner. The task is not DONE.
