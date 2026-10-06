@@ -81,10 +81,9 @@ def freeze(directory: Path, output: Path, *, upstream: Path, fidelity_ledger: Pa
     """Publish a new v5 directory only after all selection and native evidence gates pass."""
     if output.exists() or output.is_symlink():
         raise ValueError("Corpus output already exists")
-    if storage_report is not None and (temporary_root is None or
-            any(storage_report.resolve().is_relative_to(path.resolve()) for path in (directory, output))):
-        raise ValueError(f'Native replay receipt {storage_report} must be outside {directory} and {output}; '
-                         'provide --temporary-root and select a receipt path outside both directories')
+    if storage_report is not None:
+        from conformance.native_replay_report import check_receipt_path
+        check_receipt_path(storage_report, temporary_root, directory, output)
     extraction = source_path(directory, "manifest.json").read_bytes()
     report, captured = load(directory)
     refusals = acquisition(report, captured, upstream, ROOT)

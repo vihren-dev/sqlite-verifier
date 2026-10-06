@@ -50,6 +50,11 @@ Relevant files: `conformance/native_record.py`, `conformance/corpus.py`,
   command remains bounded at 420 seconds. Its native phase, full command and
   the development sample are separate measurements; no bound or frozen
   denominator has been changed to resolve that full-suite failure.
+- 2026-10-06: Review of `a15be3c5` had no must findings and one should finding
+  (`20261006T093348Z-a15be3c5#1`). Split the missing-root and misplaced-receipt
+  diagnostics into separate checks in the operational-report module, with
+  tests for both conditions. Both messages now identify the failed input and
+  the required correction.
 
 ## Validation and review
 
@@ -69,3 +74,6 @@ Relevant files: `conformance/native_record.py`, `conformance/corpus.py`,
   44 passed in 2.78 seconds, including alternate pinned engines and the actual
   freezer CLI's required root, invalid-root refusal and derived receipt path.
   The freezer subprocess has a 30-second timeout.
+- Rechecked the same 44 cases after the diagnostic split; all passed. The
+  new Linux measurement helper is prepared locally, but no remote timing has
+  started yet.

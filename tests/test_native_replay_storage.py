@@ -119,8 +119,11 @@ def test_freezer_retains_a_separate_operational_receipt(
     loaded, records = load(output)
     assert loaded == manifest and len(records) == 5 and all(record['nativeVersion'] == 4 for record in records)
     assert 'nativeReplay' not in manifest and not receipt.is_relative_to(output)
-    with pytest.raises(ValueError, match='provide --temporary-root'):
+    with pytest.raises(ValueError, match='requires --temporary-root'):
         finalizer.freeze(directory, tmp_path / 'other', upstream=upstream, storage_report=receipt)
+    with pytest.raises(ValueError, match='select a receipt path outside both directories'):
+        finalizer.freeze(directory, tmp_path / 'other', upstream=upstream,
+                         temporary_root=storage, storage_report=directory / 'receipt.json')
 
 
 def test_full_cli_cannot_write_the_report_inside_frozen_inputs(

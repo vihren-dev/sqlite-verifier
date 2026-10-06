@@ -17,6 +17,16 @@ from tools.check_resources import check_resources
 ROOT = Path(__file__).resolve().parents[1]
 
 
+def check_receipt_path(receipt: Path, temporary_root: Path | None, capture: Path, corpus: Path) -> None:
+    """Keep the operational receipt outside evidence, and identify the exact missing input."""
+    if temporary_root is None:
+        raise ValueError(f'Native replay receipt {receipt} requires --temporary-root; '
+                         'select an existing writable temporary directory')
+    if any(receipt.resolve().is_relative_to(path.resolve()) for path in (capture, corpus)):
+        raise ValueError(f'Native replay receipt {receipt} is inside {capture} or {corpus}; '
+                         'select a receipt path outside both directories')
+
+
 def bindings(corpus: Path, records: list[dict[str, Json]], runtime: Path | None) -> dict[str, Json]:
     """Hash actual code, corpus, runtime and selected native library bytes before and after replay."""
     versions = {record['profile']['engineVersion'] if record['nativeVersion'] == 4 else DEFAULT_ENGINE_VERSION
