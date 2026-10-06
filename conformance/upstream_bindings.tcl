@@ -4,6 +4,10 @@ proc capture_callback_context {database} {
 }
 # Observe scalar objects before the pinned binder converts them. SQL slots are verified natively.
 proc capture_bindings {database sql} {
+  # The event transport must preserve the bytes that Tcl passes as SQL.
+  if {[encoding convertto identity $sql] ne [encoding convertto utf-8 $sql]} {
+    capture_event exclude "Tcl SQL encoding is not reproduced"
+  }
   set callbacks [capture_callback_context $database]
   foreach slot [lsort -unique [regexp -all -inline {[$:@][[:alnum:]_:]+} $sql]] {
     set variable [string range $slot 1 end]

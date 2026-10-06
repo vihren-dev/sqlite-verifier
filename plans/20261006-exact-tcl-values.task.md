@@ -10,6 +10,8 @@ recorded IEEE value. Two different REAL values that share rounded display text
 are not treated as equal. Signed zero remains distinct. Original source SQL,
 expectations and per-call precision remain in the evidence. Unobserved precision,
 variable traces and other unobservable formatting contexts retain named refusals.
+Source SQL bytes must survive the event codec unchanged; other SQL encodings
+retain a named refusal, including queries whose output would hide the change.
 
 Safely observable Tcl parameters retain their actual SQLite storage class and
 value for each SQL call, including calls in setup prefixes. Repeated slot names

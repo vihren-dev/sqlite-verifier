@@ -48,7 +48,8 @@ def test_observer_keeps_source_storage_bytes_and_scope(tmp_path: Path) -> None:
         "$::i": {"integer": {"value": 42}}, "$::r": {"real": {"bits": "4607182418800017409"}},
         "$::negative": {"real": {"bits": "9223372036854775808"}},
         "$::text": {"text": {"bytes": [52, 50]}}, "$::blob": {"blob": {"bytes": [0, 128, 255]}},
-        "$::nul": {"text": {"bytes": [192, 128]}}, "$::utf": {"text": {"bytes": [226, 130, 172]}}}
+        "$::nul": {"text": {"bytes": [192, 128]}}, "$::utf": {"text": {"bytes": [226, 130, 172]}},
+        "$::cesu": {"text": {"bytes": [237, 160, 189, 237, 184, 128]}}}
     assert observed["objects"]["$::blob"] == {"type": "bytearray", "hasString": False}
     assert observed["objects"]["$::r"] == {"type": "double", "hasString": False}
     string_blob = recorded_calls(candidates["bindings-blob-string"])["assertion"][0]
@@ -101,7 +102,11 @@ def test_actual_capture_retains_setup_calls_and_detects_parameter_corruption(tmp
             "bindings-changed", "bindings-local", "bindings-forced", "bindings-forced-number",
             "bindings-after-forced-number"} <= by_id.keys(), file["instances"]
     instances = {instance["id"]: instance for instance in file["instances"]}
-    assert "Tcl TEXT display encoding is not reproduced" in instances["bindings-nul-display"]["result"]
+    for name in ("nul-display", "cesu-display"):
+        assert "Tcl TEXT display encoding is not reproduced" in instances["bindings-" + name]["result"]
+    for name in ("nul-sql", "cesu-sql"):
+        assert "Tcl SQL encoding is not reproduced" in instances["bindings-" + name]["exclusions"]
+        assert "bindings-" + name not in by_id
     for record in records:
         assert hashlib.sha256(serialized(record["sourceCalls"])).hexdigest() == instances[
             record["upstream"]["id"]]["tclCallsSha256"] == record["upstream"]["tclCallsSha256"]

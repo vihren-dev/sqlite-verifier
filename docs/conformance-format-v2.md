@@ -115,10 +115,12 @@ new evidence or removing its recording extension cannot bypass that refusal.
 The Tcl observer preserves the original scalar object and its string-representation
 state. Named source bindings refuse variable traces, source execution callbacks,
 array forms, mixed `@` conversions and row-script contexts. Typed TEXT and BLOB
-binding bytes remain exact, including Tcl's encoded NUL. Native replay can retain
-and compare their storage class and hexadecimal bytes. Direct TEXT displays that
-the current UTF-8 comparator cannot decode retain a named refusal with the source
-instance; the recorder does not replace or normalize those bytes.
+binding bytes remain exact, including Tcl's encoded NUL and CESU-8. Native replay
+can retain and compare their storage class and hexadecimal bytes. Direct TEXT
+displays that the current UTF-8 comparator cannot decode retain a named refusal
+with the source instance. Source SQL whose Tcl bytes differ from the UTF-8 event
+transport is also refused, even when its result would hide that difference. The
+recorder does not replace or normalize those bytes.
 
 Native corpus storage has its own `snapshotStorageVersion: 1`, independent of
 `nativeVersion`. A record's `snapshots` object maps SHA-256 digests to complete

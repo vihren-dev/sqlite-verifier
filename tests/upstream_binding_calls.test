@@ -15,10 +15,11 @@ set ::text [string range x42 1 end]
 set ::blob [binary decode hex 0080ff]
 set ::nul [format %c 0]
 set ::utf [format %c 8364]
+set ::cesu "😀"
 do_test bindings-types {db eval {
   SELECT typeof($::i),$::i,typeof($::r),typeof($::text),hex($::text),
-    typeof($::blob),hex($::blob),hex($::nul),hex($::utf),typeof($::negative);
-}} {integer 42 real text 3432 blob 0080FF C080 E282AC real}
+    typeof($::blob),hex($::blob),hex($::nul),hex($::utf),hex($::cesu),typeof($::negative);
+}} {integer 42 real text 3432 blob 0080FF C080 E282AC EDA0BDEDB880 real}
 set string_bytes [format {%s!} $::blob]
 do_test bindings-blob-string {db eval {SELECT typeof($::blob),hex($::blob)}} {text C080C280C3BF}
 set ::value [expr {7}]
@@ -61,6 +62,12 @@ array set ::array {key value}
 do_test bindings-array {db eval {SELECT $::array(key)}} value
 reset_db
 do_test bindings-nul-display {db eval {SELECT $::nul}} [list $::nul]
+reset_db
+do_test bindings-cesu-display {db eval {SELECT $::cesu}} [list $::cesu]
+reset_db
+do_test bindings-cesu-sql {db eval {SELECT typeof('😀')}} text
+reset_db
+do_test bindings-nul-sql {db eval "SELECT typeof('a[format %c 0]b')"} text
 reset_db
 set ::callback_reads 0
 set ::callback_value [expr {19}]

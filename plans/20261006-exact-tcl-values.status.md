@@ -135,3 +135,13 @@ Relevant files: `conformance/upstream_result_values.py`,
   The upstream sandbox target passes 104 checks in 2.67 seconds without skips;
   JUnit: `/nix/store/25c4wdbj0h5kpk8xwi3gdvn7s50dswdp-sqlite-verifier-test-upstream-1/junit.xml`.
   The separate T04b storage caller must use the same direct import at assembly.
+- 2026-10-06: Caller cleanup `6955b294` passed independent review with no
+  findings. Added the final source SQL encoding guard: Tcl SQL bytes that the
+  UTF-8 event transport would change retain a named refusal. Actual queries
+  with NUL or CESU-8 SQL text cannot pass because a constant storage-class result
+  hides that change. CESU-8 bound TEXT retains its exact `EDA0BDEDB880` bytes and
+  passes native storage/hex replay; direct CESU-8 output stays a named codec
+  refusal. Source execution with and without observation remains unchanged.
+  The 51 affected value/binding checks pass in 0.76 seconds (90-second bound),
+  and all 104 upstream sandbox checks pass in 2.71 seconds without skips.
+  JUnit: `/nix/store/ay0y4ym75ich1pgp70p7ic14islxzgls-sqlite-verifier-test-upstream-1/junit.xml`.
