@@ -68,3 +68,8 @@ Relevant files: `conformance/native_acquisition.py`,
 - Full acquisition artifacts remain under `build/fk-acquisition-{before,after}`;
   reset events are in `build/fk-reset-equivalence`, and the one-off report and
   paired-check scripts are in `build/fk-acquisition-diagnostics`.
+- 2026-10-06: Claude reviewed reset correction `aade8373` with no findings
+  (`20261006T095954Z-aade8373`). Corrected the report's command limits to match
+  the actual baseline (900 seconds) and after run (1200 seconds). Report checks
+  confirm all 940 dispositions, 514 paired admissions, reason totals and matching
+  seeded event digests.

@@ -66,8 +66,9 @@ The native profile, recorder, context, fidelity and clock subset passes 32 tests
 
 The full runs call `conformance.upstream_pilot.pilot` with the Nix-pinned
 `conformanceNative.fixture` and `conformanceNative.upstream`, `limit=None`,
-`patterns=("e_fkey.test",)` and `catalog_profile_policy=True`. Each outer command
-has a 1200-second limit; the Tcl child has the pilot's 60-second limit.
+`patterns=("e_fkey.test",)` and `catalog_profile_policy=True`. The baseline outer
+command has a 900-second limit and the after command has a 1200-second limit;
+the Tcl child has the pilot's 60-second limit.
 The unchanged baseline used `ef2cc19e`; the after run used `9390c778`.
 
 Manifests, archives and logs remain in `build/fk-acquisition-before` and
