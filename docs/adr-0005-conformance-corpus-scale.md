@@ -7,6 +7,10 @@
   verified 2026-10-05; [current core evidence](../reports/20261005-adr5-review-gates.json).
   The external workload-suite gate is verified in its owning repository for the
   owner-approved scope. Model extension and C8 remain subsequent work.
+- Owner review, 2026-10-06: repairs approved, with successful hosted CI on
+  ubuntu-22.04 and macos-14 required before merge. The owner decided to retain
+  the independent SQLite 3.53.4 native pin for recording and comparison.
+  Existing production proof profiles and model capabilities retain their scope.
 - Date: 2026-09-30
 - Implementation examined: `adr4` workspace at `d9a49d95`
 - Decision owners: product owner for corpus scope, profiles and storage; formal
