@@ -49,6 +49,13 @@ The generated-schema feature passed 336 source checks, 184 ordinary checks and
 schema tampering before invalid proof code, current bundles and retired API
 refusal. Its installed archive SHA-256 is
 `c684a76b3bc53d16f34d3556d3a92c86badac3f61238e88bd28089dd4190d16c`.
-Native Linux acceptance is still pending. The separate T13 environment feedback
+Native Linux acceptance also passed: 184 ordinary, 83 infrastructure, 11 focused
+native/model-law and 42 actual installed cases, without failures or skips. Its
+source suite passed 334 cases and 28 subtests; two optional reviewer-CLI checks
+skipped because those CLIs are absent. All tracked source bytes stayed unchanged.
+The actual Linux archive SHA-256 is
+`137c9bc90fad00a2f92748d95b8b18f52be4e922bbb367fceca20a289165335f`.
+Both native receipt sets are retained in
+`reports/20261006-single-sql-executor/`. The separate T13 environment feedback
 holds the full model gate. Final owner approval, full acceptance, publication and
 release remain open. This packet is not an approval or a DONE record.

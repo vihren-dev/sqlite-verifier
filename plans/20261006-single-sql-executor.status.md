@@ -87,6 +87,24 @@ The generated starting-schema pattern already exists in the Atuin example.
   `build/t05-schema-*` prefix; original XML is `build/test-results/t05-installed.xml`.
   The owner packet identifies exact proposed hashes and the unchanged CI guard.
   Native Linux, full model acceptance and final owner approval remain pending.
+- 2026-10-06: Schema checkpoint `1432aec5` passed independent review
+  `20261006T171020Z-1432aec5` with no findings. Reserved Linux acceptance completed
+  from its reviewed public tracked snapshot in fresh directory
+  `/var/tmp/sqlite-verifier-executor.ZNyERa/source`. Archive and helper SHA values,
+  872 regular source files and one instruction symlink were checked before execution
+  and remained unchanged after it. Actual runtime is
+  `/nix/store/zfjrlz8kda2pxvp8dc4mn1i8hbb5qsys-sqlite-verifier-runtime-1`.
+  Source passed 334 cases and 28 subtests, with only two existing optional
+  reviewer-CLI checks skipped. All 184 ordinary, 83 infrastructure, 11 focused
+  native/model-law and 42 actual installed cases passed without failures or skips.
+  The content-verified Linux archive is 928,906,098 bytes, SHA-256
+  `137c9bc90fad00a2f92748d95b8b18f52be4e922bbb367fceca20a289165335f`.
+  Both platform receipts, 18 original XML files, exact Linux helper/snapshot and
+  post-run source verification are retained under
+  `reports/20261006-single-sql-executor/`. XML/helper hashes were checked locally
+  after transfer. Vihren was released; earlier evidence directories are unchanged.
+  No speed comparison or full model run is claimed. Full model acceptance and
+  final owner review remain pending, so this task is not DONE.
 
 ## Exporter checkpoints and remaining gates
 
