@@ -1,6 +1,6 @@
 # Independent review of each commit by the other agent tool
 
-Created 2026-10-06. Status: in progress.
+Created 2026-10-06. Status: DONE.
 Status file: [status](20261006-review-process.status.md).
 Related: the writing and proposition rules in [`AGENTS.md`](../AGENTS.md); issues #18, #21, #22, #23, #31.
 
