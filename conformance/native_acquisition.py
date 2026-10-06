@@ -7,6 +7,15 @@ from conformance.execution_profile import ExecutionProfile
 from conformance.native_connection import Connection
 
 
+def permits_foreign_key_context(connection: Connection, setting: bytes) -> bool:
+    """Permit FK writes during setup or transactions while profile checks remain in force.
+
+    SQLite ignores transaction-local writes. Setup-boundary and per-statement
+    readback check that the case still runs with its selected profile.
+    """
+    return setting == b"foreign_keys" and (connection.recording_setup or connection.transaction_open)
+
+
 def open_case(engine: c.CDLL, path: Path, *, profile: ExecutionProfile | None,
               vfs: bytes | None, outputs: bool, auxiliary_replay: bool,
               controlled: bool) -> Connection:
@@ -34,6 +43,8 @@ def open_case(engine: c.CDLL, path: Path, *, profile: ExecutionProfile | None,
                 settings = {b"foreign_keys", b"recursive_triggers", b"trusted_schema", b"writable_schema"}
                 ignored = {setting.encode() for setting, _reason in profile.ignored_settings} if profile else set()
                 permitted = profile.permits_setting(setting_name.decode(), function) if profile else setting_name in settings and function is None
+                if profile is not None and permits_foreign_key_context(connection, setting_name):
+                    permitted = True
                 if setting_name not in metadata and not permitted and setting_name not in ignored:
                     connection.recording_exclusion = ("SQL changes an established execution profile or uses an unsupported setting: "
                         + setting_name.decode())

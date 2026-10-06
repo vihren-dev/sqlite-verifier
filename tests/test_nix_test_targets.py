@@ -44,7 +44,7 @@ def source_tree(tmp_path: Path) -> Path:
     """Copy only small potential test inputs; no store outputs, vendored parsers or build trees."""
     for name in ('pytest.ini', 'conftest.py', 'LICENSE'):
         shutil.copy2(ROOT / name, tmp_path / name)
-    for name in ('tests', 'migration_check', 'conformance', 'examples', 'docs', 'packaging', 'SqliteVerifier', 'VerifierConformance', 'reports', 'nix', 'build-support'):
+    for name in ('tests', 'migration_check', 'conformance', 'examples', 'docs', 'packaging', 'SqliteVerifier', 'VerifierConformance', 'reports', 'nix', 'build-support', 'tools'):
         shutil.copytree(ROOT / name, tmp_path / name,
                         ignore=shutil.ignore_patterns('__pycache__', '*.pyc', 'upstream'))
     return tmp_path
@@ -56,12 +56,24 @@ def source_tree(tmp_path: Path) -> Path:
     ('conformance/model_cases.py', {'model', 'upstream'}),
     ('conformance/replay_tiers.py', {'model', 'sample', 'upstream'}),
     ('conformance/corpus-v5/manifest.json', {'model', 'sample'}),
-    ('conformance/corpus-v4/manifest.json', {'model'}),
-    ('conformance/corpus-v3/manifest.json', {'model'}),
+    ('conformance/corpus-v4/manifest.json', {'model', 'upstream'}),
+    ('conformance/corpus-v3/manifest.json', {'model', 'upstream'}),
+    ('conformance/corpus-v2/manifest.json', {'model', 'upstream'}),
+    ('conformance/corpus-v1/manifest.json', {'model', 'upstream'}),
+    ('conformance/requirements-3.51.0.json', {'model', 'upstream'}),
+    ('tools/__init__.py', {'upstream'}),
+    ('tools/check_resources.py', {'upstream'}),
+    ('nix/flake.nix', {'upstream'}),
+    ('nix/flake.lock', {'model', 'upstream'}),
+    ('nix/sqlite.nix', {'model', 'upstream'}),
+    ('build-support/conformance-native.nix', {'model', 'upstream'}),
     ('conformance/synthetic-workload/workload.json', {'model', 'sample'}),
     ('conformance/progress.py', {'model', 'upstream'}),
     ('tests/conformance_sample_test.py', {'sample'}),
     ('tests/conformance_tier_bindings_test.py', {'model'}),
+    ('tests/conformance_freeze_test.py', {'model', 'upstream'}),
+    ('tests/test_native_replay_storage.py', {'upstream'}),
+    ('tests/conformance_foreign_key_recovery_test.py', {'upstream'}),
     ('conformance/cases/add_then_create.json', {'model', 'bundle'}),
     ('conformance/native_trace.py', {'model', 'sample', 'upstream'}),
     ('conformance/native_acquisition.py', {'model', 'sample', 'upstream'}),

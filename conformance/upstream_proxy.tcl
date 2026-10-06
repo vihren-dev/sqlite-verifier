@@ -154,7 +154,15 @@ proc capture_test {command args} {
   } else { capture_event end [lindex $command 1]; set ::capture_active 0 }
 }
 proc capture_reset {command args} {
+  # Failed resets can have partial effects; setup SQL also leaves state to retain.
+  if {[llength $args] && [lindex $args 0] != 0} {
+    capture_event exclude "reset_db failed"
+    return
+  }
   if {[info exists ::capture_file(db)]} { capture_event reset $::capture_file(db) } else { capture_event reset }
+  if {[info exists ::SETUP_SQL] && [string trim $::SETUP_SQL] ne ""} {
+    capture_event exclude "reset_db initialization SQL is not retained"
+  }
 }
 proc capture_failure {command operation} { capture_event failed [lindex $command 1] }
 # Flush source completion before finish_test exits, including assertion failures.
