@@ -52,3 +52,11 @@ Specifications: [ADR 0003](../docs/adr-0003-agent-proof-preparation.md),
   `VIOLATED` protocols, prove fresh PIDs and bind spans to the same external
   monotonic wall interval. The combined 34 pure/child checks pass in 0.34 seconds
   (30-second bound). These are harness fixtures, not performance evidence.
+- 2026-10-06: Observer review `461a4186` found three `should` findings and
+  no `must` findings. Documented the selected stage policy, named external
+  process-role classification, and added same-process dependency/compile/checker
+  spans plus exception-ending stage coverage. Resolved
+  `20261006T170020Z-461a4186#1` through `#3`. All 35 statistics/observer checks
+  pass in 0.50 seconds (30-second bound). Public reports/exits remain unchanged,
+  and each exception path leaves zero active stage frames. No performance trial
+  or acceptance cutover occurred.

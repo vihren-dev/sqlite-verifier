@@ -23,25 +23,41 @@ def launcher(tmp_path: Path) -> Path:
     (runtime / "migration_check/contract.py").write_text('''"""A bounded observable fixture stage."""
 from time import sleep
 count = 0
-def compile_contract() -> int:
+def compile_contract(fail: bool = False) -> int:
     """Count a real stage call in this child only."""
     global count
     count += 1
     sleep(0.005)
+    if fail:
+        raise ValueError("fixture stage failed")
     return count
+''')
+    (runtime / "migration_check/process.py").write_text('''"""Bounded external-role fixture calls."""
+from time import sleep
+def run_process(arguments: list[str]) -> None:
+    """Exercise the real profiling boundary with known command roles."""
+    sleep(0.001)
 ''')
     (runtime / "migration_check/cli.py").write_text('''"""The fixture's sole command entrypoint."""
 import json,os,sys
-from migration_check.contract import compile_contract
-def verify() -> int:
+import migration_check.contract as contract
+from migration_check.process import run_process
+def verify(arguments: list[str]) -> int:
     """Use the existing fixture stage."""
-    return compile_contract()
+    run_process(["lean", "--deps-json", "Proofs.lean"])
+    run_process(["lean", "-o", "Proofs.olean", "Proofs.lean"])
+    run_process(["migration-bundle-checker", "library", "trusted"])
+    return contract.compile_contract(arguments==["error"])
 def main(arguments: list[str]) -> int:
     """Preserve the fixture public report and exit code."""
-    count = verify()
-    print(json.dumps({"status":"VIOLATED" if arguments==["negative"] else "VERIFIED",
+    try:
+        count = verify(arguments)
+        status = "VIOLATED" if arguments==["negative"] else "VERIFIED"
+    except ValueError:
+        count, status = contract.count, "UNVERIFIED"
+    print(json.dumps({"status":status,
                       "count":count,"pid":os.getpid(),"isolated":sys.flags.isolated}))
-    return 1 if arguments==["negative"] else 0
+    return 0 if status=="VERIFIED" else 1
 ''')
     entry = runtime / "bin/migration-check"
     entry.write_text('''"""Route the fixture through its sole CLI entrypoint."""
@@ -54,7 +70,7 @@ raise SystemExit(main(sys.argv[1:]))
     return entry
 
 
-@pytest.mark.parametrize("arguments,exit_code,status", [([], 0, "VERIFIED"), (["negative"], 1, "VIOLATED")])
+@pytest.mark.parametrize("arguments,exit_code,status", [([], 0, "VERIFIED"), (["negative"], 1, "VIOLATED"), (["error"], 1, "UNVERIFIED")])
 def test_current_entrypoint_and_same_invocation_stage_spans(
         launcher: Path, tmp_path: Path, arguments: list[str], exit_code: int, status: str) -> None:
     """Original reports/exits survive observation, with identity-bound spans inside external wall bounds."""
@@ -72,8 +88,11 @@ def test_current_entrypoint_and_same_invocation_stage_spans(
         assert started <= stages["started_ns"] <= stages["ended_ns"] <= ended
         assert stages["launcher_sha256_before"] == stages["launcher_sha256_after"] == hashlib.sha256(launcher.read_bytes()).hexdigest()
         assert stages["observer_sha256"] == hashlib.sha256(OBSERVER.read_bytes()).hexdigest()
-        assert {span["stage"] for span in stages["spans"]} == {"cli:verify", "contract:compile_contract"}
-        outer, inner = stages["spans"]
+        assert {span["stage"] for span in stages["spans"]} == {
+            "cli:verify", "contract:compile_contract", "process:dependencies",
+            "process:compile:Proofs", "process:migration-bundle-checker"}
+        outer = next(span for span in stages["spans"] if span["stage"] == "cli:verify")
+        inner = next(span for span in stages["spans"] if span["stage"] == "contract:compile_contract")
         assert inner["parent_identifier"] == outer["identifier"]
         for span in stages["spans"]:
             assert stages["started_ns"] <= span["started_ns"] <= span["ended_ns"] <= stages["ended_ns"]

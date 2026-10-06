@@ -1,6 +1,7 @@
 """Observe stages while executing the installed public launcher in one fresh isolated process."""
 
 import argparse
+from collections.abc import Sequence
 from dataclasses import asdict, dataclass
 import hashlib
 import json
@@ -11,6 +12,7 @@ import sys
 from time import monotonic_ns
 from types import FrameType
 
+# Driver functions whose calls become spans; the current-caller test detects renamed or removed stages.
 STAGES = {
     ("cli", "verify"), ("bundle", "verify_bundle"), ("prepare", "prepare"),
     ("inputs", "generated_inputs"), ("sql_tree", "parse"),
@@ -19,6 +21,15 @@ STAGES = {
     ("prepare", "compile_candidates"), ("prepare", "export_bundle"),
     ("process", "run_process"), ("stage_store", "restore"), ("stage_store", "save"),
 }
+
+
+def process_role(arguments: Sequence[str]) -> str:
+    """Identify current dependency scans, Lean module compiles and checker/executable calls."""
+    if "--deps-json" in arguments:
+        return "process:dependencies"
+    if arguments and arguments[-1].endswith(".lean"):
+        return "process:compile:" + Path(arguments[-1]).stem
+    return "process:" + (Path(arguments[0]).name if arguments else "empty")
 
 
 @dataclass(frozen=True)
@@ -58,12 +69,7 @@ class StageObserver:
         if (module, function) == ("process", "run_process"):
             command = frame.f_locals.get("arguments")
             if isinstance(command, (list, tuple)) and all(isinstance(part, str) for part in command):
-                executable = Path(command[0]).name if command else "empty"
-                if "--deps-json" in command:
-                    return "process:dependencies"
-                if command and str(command[-1]).endswith(".lean"):
-                    return "process:compile:" + Path(command[-1]).stem
-                return "process:" + executable
+                return process_role(command)
         return module + ":" + function
 
     def observe(self, frame: FrameType, event: str, argument: object) -> None:
