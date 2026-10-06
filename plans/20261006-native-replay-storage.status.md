@@ -148,3 +148,29 @@ Relevant files: `conformance/native_record.py`, `conformance/corpus.py`,
   `build/test-results/source.xml` and `build/t04b-integration-check.log`.
   The recorded full Linux diagnosis remains bound to its original source
   snapshot; this correction changes test ownership and declared Nix inputs.
+- 2026-10-06: Hosted PR #46 validation exposed a deterministic synthetic-fixture
+  defect on both platforms. `source_tree` omitted the `tools` package even
+  though storage/freezer tests require `tools/__init__.py` as a declared Nix
+  input. All dependency-identity cases therefore failed before evaluating
+  their intended mutation. This is repository-owned fixture wiring.
+- 2026-10-06: Merged verified main `ba48d848`, including foreign-key acquisition.
+  Combined both branches' upstream test ownership and preserved all exact
+  review-journal rows and their order, including the pending `dd80a0ae` review.
+  The source fixture now copies the required package. Extended actual Nix
+  derivation-identity checks for every new storage/freezer input, corrected
+  historical-corpus target ownership, and covered both new upstream test files.
+  No declared input, prerequisite, assertion or timeout was removed.
+- 2026-10-06: Rechecked the complete ordinary Nix infrastructure selection
+  after the fixture correction: 80 passed in 90.82 seconds, including 37 real
+  dependency-invalidation mutations. The new cases cover the required package
+  marker, resource helper, freezer fixture, requirement inventory, all retained
+  corpus versions, native build pins and both new upstream-owned test files.
+  The existing 600-second command and per-child bounds remain unchanged.
+- 2026-10-06: Rebuilt the actual isolated upstream target after merging
+  `ba48d848`: 76 passed in 4.46 seconds with no skips, failures or errors.
+  This includes all previous 71 storage/upstream checks and five merged
+  foreign-key recovery cases. JUnit is retained at
+  `/nix/store/m3ihx07w4rdig5kx95y9pa045z80n2gf-sqlite-verifier-test-upstream-1/junit.xml`;
+  the infrastructure JUnit is `build/test-results/t04b-nix-fixture.xml`.
+  No full-model, acquisition-yield or performance run was needed for this
+  repository-owned fixture correction. Independent review is pending.
