@@ -103,3 +103,21 @@ def test_fidelity_difference_does_not_suggest_recapture_as_a_fix() -> None:
     assert "Native fidelity difference for source-policy-case" in str(failure.value)
     assert "Exclude this source assertion" in str(failure.value)
     assert "Capture this source case again" not in str(failure.value)
+
+
+@pytest.mark.parametrize("damage", ["missing", "length", "rows"])
+def test_damaged_setup_results_get_field_and_case_diagnostics(damage: str) -> None:
+    """Missing, misaligned and malformed result evidence cannot masquerade as a source mismatch."""
+    _manifest, record, _instance = source_inputs()
+    if damage == "missing":
+        del record["setupResults"]
+    elif damage == "length":
+        record["setupResults"] = [[]]
+    else:
+        record["trace"][0].pop("rows")
+    with pytest.raises(ValueError) as failure:
+        validate_recording(record)
+    assert "Native binding evidence for source-policy-case" in str(failure.value)
+    assert "setupResults" in str(failure.value) if damage != "rows" else "rows" in str(failure.value)
+    assert "Capture this source case again" in str(failure.value)
+    assert "Native fidelity difference" not in str(failure.value)

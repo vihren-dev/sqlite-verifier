@@ -1,7 +1,7 @@
 """Validate complete binding evidence before model admission or native replay."""
 
 from conformance.case_format import Json
-from conformance.native_bindings import BINDING_NATIVE_VERSIONS, TCL_SQL_HELPERS, checked_binding, check_source_digest
+from conformance.native_bindings import BINDING_NATIVE_VERSIONS, TCL_SQL_HELPERS, checked_binding, check_source_digest, decode_rows
 from conformance.native_call_recording import FIELDS, control, source_setup, validate_sources, validate_call_bindings
 from conformance.upstream_helpers import command_events
 
@@ -43,6 +43,21 @@ def validate_fields(record: dict[str, Json]) -> None:
             raise ValueError("Missing native statement binding inputs")
         checked_binding({key: event[key] for key in ("parameterNames", "parameters")})
     if kind == "tcl":
+        for field in ("setupOutcomes", "setupResults", "setupErrors"):
+            if not isinstance(record.get(field), list) or len(record[field]) != len(record["setupCommands"]):
+                raise ValueError("Missing or misaligned " + field)
+        if (any(type(code) is not int for code in record["setupOutcomes"])
+                or any(not isinstance(error, str) for error in record["setupErrors"])):
+            raise ValueError("Invalid setupOutcomes or setupErrors payload")
+        for rows in record["setupResults"]:
+            if not isinstance(rows, list):
+                raise ValueError("Invalid setupResults rows")
+            decode_rows(rows)
+        for event in trace:
+            if (type(event.get("primaryCode")) is not int or not isinstance(event.get("error"), str)
+                    or not isinstance(event.get("rows"), list)):
+                raise ValueError("Missing or invalid trace primaryCode, error or rows")
+            decode_rows(event["rows"])
         validate_sources(record)
         if helpers != [call["helper"] if call is not None else "eval" for call in source_setup(record)]:
             raise ValueError("Tcl setup helpers differ from source calls")

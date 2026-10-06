@@ -98,3 +98,16 @@ Relevant files: `conformance/upstream_result_values.py`,
   checks in 9.13 seconds and 101 sandboxed upstream checks in 3.00 seconds, with
   no skips. JUnit:
   `/nix/store/xdaa2jqsjjg5v8wy95nn547zvcrm63yf-sqlite-verifier-test-upstream-1/junit.xml`.
+- 2026-10-06: Review of `e6293cfc` found one remaining diagnostic `should`:
+  missing or misaligned setup results could reach the fidelity wrapper before
+  their structure was checked. Added setup-result and trace-result shape checks
+  and missing/length/row damage regressions. The 39 affected binding/precision
+  checks passed in 0.66 seconds (90-second bound). Resolved
+  `20261006T145940Z-e6293cfc#1`.
+- Started bounded paired date-family validation after localhost was released.
+  All five pinned source files completed their actual Tcl execution with exit
+  zero. One retained source event stream feeds both the pre-binding checkpoint
+  and the current implementation. Selection uses the first 20 runtime
+  occurrences per file, independently of native acceptance, and accounts for
+  all outside-cohort refusals. This comparison measures the binding change;
+  the pre-binding checkpoint already includes the earlier precision fix.
