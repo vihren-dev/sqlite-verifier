@@ -83,8 +83,8 @@ def freeze(directory: Path, output: Path, *, upstream: Path, fidelity_ledger: Pa
         raise ValueError("Corpus output already exists")
     if storage_report is not None and (temporary_root is None or
             any(storage_report.resolve().is_relative_to(path.resolve()) for path in (directory, output))):
-        raise ValueError(f'Native replay receipt requires explicit storage outside {directory} and {output}: '
-                         f'{storage_report}; provide --temporary-root and select a receipt outside both directories')
+        raise ValueError(f'Native replay receipt {storage_report} must be outside {directory} and {output}; '
+                         'provide --temporary-root and select a receipt path outside both directories')
     extraction = source_path(directory, "manifest.json").read_bytes()
     report, captured = load(directory)
     refusals = acquisition(report, captured, upstream, ROOT)

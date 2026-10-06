@@ -119,7 +119,7 @@ def test_freezer_retains_a_separate_operational_receipt(
     loaded, records = load(output)
     assert loaded == manifest and len(records) == 5 and all(record['nativeVersion'] == 4 for record in records)
     assert 'nativeReplay' not in manifest and not receipt.is_relative_to(output)
-    with pytest.raises(ValueError, match='receipt requires explicit storage'):
+    with pytest.raises(ValueError, match='provide --temporary-root'):
         finalizer.freeze(directory, tmp_path / 'other', upstream=upstream, storage_report=receipt)
 
 

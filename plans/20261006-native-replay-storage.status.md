@@ -39,6 +39,17 @@ Relevant files: `conformance/native_record.py`, `conformance/corpus.py`,
 - 2026-10-06: The coordinator confirmed that the Linux host is idle. New
   paired and full measurements will start after the correction review passes.
   The retained toolchain-validation directory remains outside this task.
+- 2026-10-06: Claude review of correction `9d024378` completed with no must
+  findings and two should findings. Fixed the receipt-path wording
+  (`20261006T092610Z-9d024378#2`). Rejected the proposed valid-CLI skip/mock
+  (`#1`): the development environment requires 10 GiB free, and workspace
+  instructions require reporting an insufficient-resource prerequisite rather
+  than hiding it in a successful test. Both outcomes are logged.
+- 2026-10-06: The coordinator reported a separate hosted Darwin full-model
+  Nix builder timeout at 600 seconds on existing main. This task's native
+  command remains bounded at 420 seconds. Its native phase, full command and
+  the development sample are separate measurements; no bound or frozen
+  denominator has been changed to resolve that full-suite failure.
 
 ## Validation and review
 
