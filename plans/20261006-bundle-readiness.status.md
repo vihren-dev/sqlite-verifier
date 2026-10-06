@@ -82,3 +82,10 @@ Specifications: [ADR 0003](../docs/adr-0003-agent-proof-preparation.md),
   checks pass in 0.51 seconds (30-second bound). Nix infrastructure and ordinary
   integrated checks remain to run after coordinated assembly; full model is
   owner-held and timing trials remain held for the final runtime.
+- 2026-10-06: Attack checkpoint `5ae0e253` passed review with no `must`
+  findings and two `should` findings. Reused current preparation's export roots
+  and protected base constant, and gave the fixture header its actual library
+  import. Clarified the complete malformed-header test scope. Resolved
+  `20261006T172148Z-5ae0e253#1` and `#2`. All 23 direct bundle checks pass again
+  in 28.68 seconds under the same 150-second bound. No trusted/checker code or
+  public protocol changed, and no performance trial began.

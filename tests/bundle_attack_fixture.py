@@ -8,6 +8,7 @@ from pathlib import Path
 import pytest
 
 from migration_check.import_path import merged_search_path
+from migration_check.prepare import EXPORT_ROOTS, PROTECTED_BASE_MODULE
 from tests.kernel_fixture import KernelCase
 from tests.runtime_support import CommandResult
 
@@ -27,14 +28,15 @@ class BundleCase:
         roots = (case.sysroot / "lib/lean", case.library, case.root / "trusted", case.root / "candidate")
         with merged_search_path(roots, case.root) as paths:
             environment = {**case.environment, "LEAN_PATH": os.pathsep.join(map(str, paths))}
-            omitted = ["SchemaInputs", "Requirements", "Interpretation", "SqlInputs", "SqliteVerifier"]
-            result = case.runner([str(self.exporter), *["--omit=" + module for module in omitted],
-                "--ignore-missing", "Proofs", "--", "Proofs.migrationCorrect", "Proofs.migrationViolated",
-                "NextInterpretation.next", "NextInterpretation.failures"],
+            trusted_imports = {PROTECTED_BASE_MODULE}
+            # These fixture modules are compiled by the verifier; their definitions stay protected.
+            omitted = {"SchemaInputs", "Requirements", "Interpretation", "SqlInputs"} | trusted_imports
+            result = case.runner([str(self.exporter), *["--omit=" + module for module in sorted(omitted)],
+                "--ignore-missing", "Proofs", "--", *EXPORT_ROOTS],
                 cwd=case.root, environment=environment, timeout=30)
         assert result.returncode == 0, result.diagnostic()
         bundle = case.root / "bundle.ndjson"
-        bundle.write_text(json.dumps({"bundle": 1, "trusted_imports": []}) + "\n" + result.stdout)
+        bundle.write_text(json.dumps({"bundle": 1, "trusted_imports": sorted(trusted_imports)}) + "\n" + result.stdout)
         return bundle
 
     def check(self, bundle: Path, *, environment: dict[str, str] | None = None,

@@ -101,7 +101,7 @@ def test_refutation(bundle_case: BundleCase, unfinished: bool) -> None:
     ({"bundle": 1, "trusted_imports": ["Proofs"]}, "Proofs"),
 ], ids=["missing_version", "other_version", "wrong_import_type", "candidate_as_trusted_import"])
 def test_hostile_header(bundle_case: BundleCase, header: dict[str, object], diagnostic: str) -> None:
-    """A header cannot import candidate modules from their private source directory."""
+    """Reject malformed headers and attempts to import candidate modules as trusted library modules."""
     bundle = bundle_case.export()
     lines = bundle.read_text().splitlines()
     bundle.write_text(json.dumps(header) + "\n" + "\n".join(lines[1:]) + "\n")
