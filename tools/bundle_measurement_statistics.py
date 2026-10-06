@@ -6,8 +6,16 @@ from fractions import Fraction
 from math import comb
 from typing import Literal
 
-INITIAL_PAIRS, EXTENDED_PAIRS = 9, 25
-INITIAL_RANK, EXTENDED_RANK = 2, 7
+INITIAL_PAIRS = 9
+"""Approved initial count of paired cold trials."""
+EXTENDED_PAIRS = 25
+"""Approved final count, including the initial nine pairs."""
+INITIAL_RANK = 2
+"""First-look endpoints are ordered differences two and eight."""
+EXTENDED_RANK = 7
+"""Final endpoints seven and 19 retain joint coverage across both looks."""
+REQUIRED_JOINT_COVERAGE = Fraction(95, 100)
+"""The selected nine-or-25 result must cover the median with at least this probability."""
 Verdict = Literal["REGRESSION", "NO_SLOWDOWN", "UNRESOLVED"]
 
 
@@ -24,18 +32,26 @@ class MedianInterval:
     upper_ns: int
     fixed_coverage: Fraction
     joint_coverage: Fraction
+    required_joint_coverage: Fraction
     verdict: Verdict
 
 
 def fixed_coverage(pairs: int, rank: int) -> Fraction:
-    """Bound a median by order statistics without a normality assumption or time tolerance."""
+    """Return exact sign coverage of ordered endpoints rank and pairs-rank+1.
+
+    Independent observations around a continuous median give this probability;
+    ties at the median make the bounds conservative.
+    """
     if type(pairs) is not int or type(rank) is not int or not 1 <= rank <= (pairs + 1) // 2:
         raise ValueError("Invalid median rank or pair count; use an interior order-statistic bound")
     return Fraction(2**pairs - 2 * sum(comb(pairs, index) for index in range(rank)), 2**pairs)
 
 
 def joint_coverage(initial_rank: int = INITIAL_RANK, extended_rank: int = EXTENDED_RANK) -> Fraction:
-    """Cover both nested looks so selecting a result after nine or 25 pairs still covers at least 95%."""
+    """Return the probability that both nested intervals cover the median for these ranks.
+
+    The predeclared default ranks meet the required 95% joint coverage.
+    """
     fixed_coverage(INITIAL_PAIRS, initial_rank)
     fixed_coverage(EXTENDED_PAIRS, extended_rank)
     failed = 0
@@ -51,14 +67,18 @@ def joint_coverage(initial_rank: int = INITIAL_RANK, extended_rank: int = EXTEND
 def median_interval(differences_ns: Sequence[int]) -> MedianInterval:
     """Classify bundle-minus-verify differences using all pairs and the predeclared joint bounds."""
     count = len(differences_ns)
-    if count not in (INITIAL_PAIRS, EXTENDED_PAIRS) or any(type(value) is not int for value in differences_ns):
-        raise ValueError("Expected nine or 25 integer paired differences; preserve every complete raw pair")
+    invalid = next(((index, type(value).__name__) for index, value in enumerate(differences_ns)
+                    if type(value) is not int), None)
+    if count not in (INITIAL_PAIRS, EXTENDED_PAIRS) or invalid is not None:
+        detail = "none" if invalid is None else f"index {invalid[0]} has type {invalid[1]}"
+        raise ValueError(f"Expected nine or 25 integer paired differences; received {count}; "
+                         f"first non-integer: {detail}. Preserve every complete raw pair")
     ordered = sorted(differences_ns)
     rank = INITIAL_RANK if count == INITIAL_PAIRS else EXTENDED_RANK
     lower, upper = ordered[rank - 1], ordered[-rank]
     verdict: Verdict = "REGRESSION" if lower > 0 else "NO_SLOWDOWN" if upper <= 0 else "UNRESOLVED"
     return MedianInterval(count, rank, ordered[0], ordered[-1], ordered[count // 2], lower, upper,
-                          fixed_coverage(count, rank), joint_coverage(), verdict)
+                          fixed_coverage(count, rank), joint_coverage(), REQUIRED_JOINT_COVERAGE, verdict)
 
 
 def required_pairs(result: MedianInterval) -> int:

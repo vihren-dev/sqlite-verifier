@@ -36,3 +36,11 @@ Specifications: [ADR 0003](../docs/adr-0003-agent-proof-preparation.md),
   added. All 17 pure tests pass in 0.03 seconds (30-second bound), including
   independent sign counts, conservative trinomial ties, exact rank bounds,
   one-nanosecond decisions, zero and invalid evidence. No performance run began.
+- 2026-10-06: Statistics review `395b748c` confirmed the arithmetic and tie
+  calculation, with five `should` findings and no `must` findings. Documented
+  the predeclared counts, ranks and named 95% requirement, clarified coverage
+  for caller-supplied ranks, and added received count/index/type diagnostics.
+  Added invalid-rank/count tests at both looks. Resolved
+  `20261006T164839Z-395b748c#1` through `#5`. All 30 statistics checks pass under
+  the 30-second bound. Three new observer checks also pass in the working copy;
+  their feature will be recorded separately.

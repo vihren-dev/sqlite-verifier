@@ -7,7 +7,8 @@ from typing import cast
 
 import pytest
 
-from tools.bundle_measurement_statistics import fixed_coverage, joint_coverage, median_interval, required_pairs
+from tools.bundle_measurement_statistics import (REQUIRED_JOINT_COVERAGE, fixed_coverage, joint_coverage,
+                                                 median_interval, required_pairs)
 
 
 def test_order_statistic_bounds_and_exact_coverages() -> None:
@@ -23,9 +24,10 @@ def test_order_statistic_bounds_and_exact_coverages() -> None:
     covered = sum(first_weight * extra_weight for first, first_weight in signs.items()
                   for extra, extra_weight in extensions.items() if 2 <= first <= 7 and 7 <= first + extra <= 18)
     assert result.joint_coverage == extended.joint_coverage == Fraction(covered, 2**25)
-    assert result.joint_coverage >= Fraction(95, 100)
-    assert joint_coverage(2, 8) < Fraction(95, 100)
-    assert fixed_coverage(9, 3) < Fraction(95, 100)
+    assert result.required_joint_coverage == REQUIRED_JOINT_COVERAGE == Fraction(95, 100)
+    assert result.joint_coverage >= REQUIRED_JOINT_COVERAGE
+    assert joint_coverage(2, 8) < REQUIRED_JOINT_COVERAGE
+    assert fixed_coverage(9, 3) < REQUIRED_JOINT_COVERAGE
     assert joint_coverage(2, 8) < joint_coverage(2, 7)
 
 
@@ -61,7 +63,7 @@ def test_ties_make_nested_bounds_conservative() -> None:
                   for negative_b, positive_b, weight_b in extra
                   if negative_a <= 7 and positive_a <= 7
                   and negative_a + negative_b <= 18 and positive_a + positive_b <= 18)
-    assert Fraction(covered, 4**25) >= joint_coverage() >= Fraction(95, 100)
+    assert Fraction(covered, 4**25) >= joint_coverage() >= REQUIRED_JOINT_COVERAGE
 
 
 @pytest.mark.parametrize("values", [[], [0] * 8, [0] * 10, [0] * 24, [0] * 26,
@@ -70,3 +72,23 @@ def test_invalid_protocol_data_is_refused(values: list[object]) -> None:
     """Incomplete counts and noninteger evidence cannot become a published median claim."""
     with pytest.raises(ValueError, match="nine or 25 integer paired differences"):
         median_interval(cast(Sequence[int], values))
+
+
+@pytest.mark.parametrize("pairs,rank", [(9, 0), (9, 6), (25, 14), (9, True), (True, 1), (9, 1.0)])
+def test_invalid_fixed_size_policy_is_refused(pairs: object, rank: object) -> None:
+    """Invalid rank/count data cannot become a confidence probability."""
+    with pytest.raises(ValueError, match="Invalid median rank or pair count"):
+        fixed_coverage(cast(int, pairs), cast(int, rank))
+
+
+@pytest.mark.parametrize("initial,extended", [(0, 7), (6, 7), (True, 7), (2, 0), (2, 14), (2, True)])
+def test_invalid_joint_policy_is_refused(initial: object, extended: object) -> None:
+    """Both looks validate ranks before computing the nested sign distribution."""
+    with pytest.raises(ValueError, match="Invalid median rank or pair count"):
+        joint_coverage(cast(int, initial), cast(int, extended))
+
+
+def test_bad_difference_names_count_index_and_type() -> None:
+    """The operator can find the invalid evidence without guessing which pair to inspect."""
+    with pytest.raises(ValueError, match="received 9; first non-integer: index 4 has type bool"):
+        median_interval([0, 0, 0, 0, False, 0, 0, 0, 0])
