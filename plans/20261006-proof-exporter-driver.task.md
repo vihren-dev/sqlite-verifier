@@ -49,8 +49,8 @@ replay checks. `migration_check/prepare.py:export_bundle` owns the header and
 exporter invocation; source and contract discovery identify trusted imports.
 `build-support/lean4export.nix` pins the dependency source.
 `build-support/default.nix`, `runtime.nix`, `sources.nix` and `lakefile.toml`
-build and ship executables. `tools/stage_runtime.py` and runtime packaging
-must preserve the installed artifact without its upstream patched producer.
+build and ship executables. `packaging/build_runtime.py` exports the complete
+installed Nix closure; its offline archive includes the new driver.
 
 The driver depends on lean4export's `visitedConstants`, `M.run`, `initState`
 and `dumpConstant` interfaces. Inspect their actual pinned definitions before
