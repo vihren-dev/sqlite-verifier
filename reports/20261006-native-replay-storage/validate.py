@@ -40,7 +40,9 @@ def main() -> None:
     receipt = json.loads((base / 'linux/receipt.json').read_text())
     full_bytes = gzip.decompress((base / 'linux/full.json.gz').read_bytes())
     if hashlib.sha256(full_bytes).hexdigest() != receipt['full']['reportSha256']:
-        raise ValueError('Full report bytes differ from the executed receipt')
+        raise ValueError(f'Full report bytes in {base / "linux/full.json.gz"} differ from '
+                         f'{base / "linux/receipt.json"}; restore the report from its commit '
+                         'or record new evidence in a new report directory')
     report = json.loads(full_bytes)
     manifest, records = load(source / 'conformance/corpus-v5')
     receipt_path, report_path = base / 'linux/receipt.json', base / 'linux/full.json.gz'

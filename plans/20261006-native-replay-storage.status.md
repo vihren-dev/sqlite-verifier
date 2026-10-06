@@ -118,3 +118,10 @@ Relevant files: `conformance/native_record.py`, `conformance/corpus.py`,
   this run. Its actual bounded Linux execution and retained comparisons passed;
   a future measurement revision can add policy tests and improved messages
   without changing this executed evidence.
+- Corrected packet `eb7141f9` passed its documented verifier in a clean
+  tracked-file snapshot at
+  `/private/tmp/sqlite-verifier-storage-clean-o37t3s_q`; no untracked report was
+  needed. Its review had no must findings and two should findings. Fixed the
+  report-digest message and added a bounded regression that changes the raw
+  report, rebinds its gzip inventory and verifies rejection by the original
+  execution receipt. The unmodified evidence verifier still passes.
