@@ -9,7 +9,7 @@ from collections.abc import Mapping, Sequence
 from dataclasses import dataclass, field
 import sys
 
-from tools.review_log import CHECKLIST, Rule, in_scope, log_path, parse_rules, read, record_findings
+from tools.review_log import CHECKLIST, OUTCOMES, Rule, in_scope, log_path, parse_rules, read, record_findings
 
 #: A condition that fired in none of this many chances is a candidate for removal.
 NEVER_FIRED_MIN_CHANCES = 30
@@ -31,7 +31,7 @@ class RuleStats:
     chances: int = 0
     must: int = 0
     should: int = 0
-    outcomes: dict[str, int] = field(default_factory=lambda: {"fixed": 0, "rejected": 0, "deferred": 0})
+    outcomes: dict[str, int] = field(default_factory=lambda: dict.fromkeys(OUTCOMES, 0))
     unresolved: int = 0
     chances_by_reviewer: dict[str, int] = field(default_factory=dict)
     fired_by_reviewer: dict[str, int] = field(default_factory=dict)

@@ -51,3 +51,7 @@ Relevant files: `tools/review.py`, `tests/test_review.py`, `docs/review-checklis
   `review_select.py` (pure decisions) and `review.py` (shell) to stay below 200
   lines; new `review_log.py` (log, `review-resolve`) and `review_stats.py`
   (report). Each checklist condition got an "Applies to" scope. 33 tests pass.
+- 2026-10-06: first logged review (Codex on `e67e500`): 4 should findings, all
+  fixed and resolved as `fixed`: outcome counters built from `OUTCOMES` (R1),
+  reasons in the log docstrings (R9), a next step for an unknown finding id
+  (R10), tests that failed and malformed reviews are logged (R11). 35 tests pass.

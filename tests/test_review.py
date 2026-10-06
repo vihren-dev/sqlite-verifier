@@ -108,13 +108,13 @@ def test_parse_review(output: str, review: Review, code: int) -> None:
     assert exit_code(review) == code
 
 
-def stub_tools(directory: Path, review_output: str) -> Path:
+def stub_tools(directory: Path, review_output: str, exit_status: int = 0) -> Path:
     """Write `jj`, `codex` and `claude` stubs; reviewers record their call in `call.json`."""
     directory.mkdir()
     (directory / "jj").write_text(f'#!/bin/sh\ncase "$1" in diff) echo tools/review.py ;; *) echo {COMMIT} ;; esac\n')
     recorder = (f"#!{sys.executable}\nimport json, os, sys\n"
                 f"json.dump({{'argv': sys.argv, 'stdin': sys.stdin.read(), 'environ': dict(os.environ)}},"
-                f" open({str(directory / 'call.json')!r}, 'w'))\nprint({review_output!r})\n")
+                f" open({str(directory / 'call.json')!r}, 'w'))\nprint({review_output!r})\nsys.exit({exit_status})\n")
     for name in ("codex", "claude"):
         (directory / name).write_text(recorder)
     for name in ("jj", "codex", "claude"):
@@ -171,3 +171,15 @@ def test_review_refuses(tmp_path: Path, markers: dict[str, str], message: str) -
     result = run_review(stubs, markers)
     assert result.returncode == 2 and message in result.stderr, result.stderr
     assert not (stubs / "call.json").exists() and not (stubs / "log.jsonl").exists()
+
+
+@pytest.mark.integration
+@pytest.mark.parametrize("output,status", [("Looks fine.", 0), ("No findings.", 1)])
+def test_failed_or_malformed_review_is_logged(tmp_path: Path, output: str, status: int) -> None:
+    """Malformed output, or a reviewer that exits with an error, gives exit code 3 and a log line
+    that is not well formed and has no findings."""
+    stubs = stub_tools(tmp_path / "bin", output, status)
+    result = run_review(stubs, {"CLAUDECODE": "1"})
+    record = json.loads((stubs / "log.jsonl").read_text())
+    assert result.returncode == 3, result.stderr
+    assert (record["exit"], record["well_formed"], record["findings"]) == (3, False, [])

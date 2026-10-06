@@ -96,19 +96,22 @@ def review_record(*, commit: str, revision: str, reviewer: str, caller: str, fil
 
 
 def log_path() -> Path:
-    """The log file in use."""
+    """The log file in use: `reviews/log.jsonl`, or the file that `SQLITE_VERIFIER_REVIEW_LOG`
+    names, so that tests never write to the repository's log."""
     return Path(os.environ.get(LOG_VARIABLE, str(DEFAULT_LOG)))
 
 
 def append(record: Mapping[str, object], path: Path) -> None:
-    """Add one record as one line."""
+    """Add one record as one line. Records are only added, never changed, so the log is a
+    complete history for the statistics, and concurrent workspaces merge by joining lines."""
     path.parent.mkdir(parents=True, exist_ok=True)
     with path.open("a", encoding="utf-8") as stream:
         stream.write(json.dumps(record, ensure_ascii=False, sort_keys=True) + "\n")
 
 
 def read(path: Path) -> list[dict[str, object]]:
-    """All records, oldest first; an absent log has none."""
+    """All records, oldest first, as the statistics and `review-resolve` need them; an absent
+    log has none."""
     if not path.exists():
         return []
     return [json.loads(line) for line in path.read_text(encoding="utf-8").splitlines() if line.strip()]
@@ -133,7 +136,8 @@ def resolution(records: Sequence[Mapping[str, object]], finding: str, outcome: s
     if outcome != "fixed" and not reason.strip():
         raise ValueError(f"outcome {outcome!r} needs a reason")
     if finding not in finding_ids(records):
-        raise ValueError(f"no finding with id {finding!r} in the review log")
+        raise ValueError(f"no finding with id {finding!r} in {log_path()}; copy the id from the "
+                         f"'review: finding ...' lines that `just review` printed")
     return {"kind": "resolution", "finding": finding, "outcome": outcome, "reason": reason.strip(),
             "date": when.isoformat(timespec="seconds")}
 
