@@ -82,6 +82,17 @@ Relevant sources: `SqliteVerifier.lean`, `SqliteVerifier/*.lean`,
   remains 199 lines and compiles without documentation warnings; no formula
   or definition body changed.
 
+- 2026-10-06: Model correction `12bd6ade` passes independent review with no
+  findings (`20261006T160157Z-12bd6ade`). All five earlier should findings have
+  fixed resolution records in the append-only journal.
+- 2026-10-06: Added checked documentation to every authored declaration and
+  field in `SchemaExtension.lean` and `NullableProjection.lean`. Their reusable
+  theorem statements now quantify all inputs, state every assumption, describe
+  absent/empty cases and give proof sketches. The nullable view distinguishes
+  an unrequested field from an observed empty projection. Both modules and
+  their checked examples compile without warnings in the pinned Lean runtime;
+  they contain 77 and 63 lines. Formulae and definition bodies are unchanged.
+
 ## Acceptance remaining
 
 Dependency closure and sandboxed reference build; complete checked public
