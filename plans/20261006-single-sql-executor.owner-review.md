@@ -1,6 +1,6 @@
 # SQL executor and protected schema review
 
-Created 2026-10-06. Status: PENDING FINAL OWNER REVIEW.
+Created 2026-10-06. Status: APPROVED on 2026-10-07.
 Task: [observable outcomes](20261006-single-sql-executor.task.md).
 Execution: [status and acceptance](20261006-single-sql-executor.status.md).
 
@@ -28,10 +28,13 @@ Their proposed baselines bind these exact source hashes:
 | `schema.sql` | `70f3ef1458be467b401d433e2fc5c3a8aec43ed0b1f89d7069f3f5d2bfd290d3` | same |
 
 Requirements and schema SQL bytes are unchanged. The interpretation uses the
-generated equivalent schema instead of a duplicate literal. Owner approval is
-still required for these new baseline contents. The target-owned protected-baseline
-CI check stays unchanged and rejects this deliberate drift until an approved,
-recorded maintainer bypass permits integration. No automatic approval is inferred.
+generated equivalent schema instead of a duplicate literal. The owner approved
+PR #48 at reviewed head `45ac63b2e07d6677c12187adafa1cdc96dc155d6` in the
+implementation chat on 2026-10-07. Approval includes the exact proposed baseline
+contents above and the verification-target file. The target-owned protected
+baseline check stays unchanged and rejects this deliberate drift. Integration
+requires the recorded maintainer exception for that owner-reviewed change;
+the failed check is not a pass.
 
 ## Evidence and remaining gates
 
@@ -69,5 +72,7 @@ seconds); Darwin used the separately reviewed 600-second validation recipe
 (484.74 seconds). PR48 still configures 420 seconds; the timeout-task source is
 not merged here. The earlier Darwin configured-budget failure, exact invocation,
 file order, source hashes and original XML/logs remain retained in `full-model/`.
-Final hosted and timeout-task acceptance, R8 owner approval and release remain open. This packet is not an approval
-or a DONE record.
+Both hosted native checks now pass, and PR #49 delivers the timeout correction.
+Final R8 owner approval is recorded above. Publication integration, the expected
+baseline exception, merge and release remain open. This packet records approval;
+the task is not DONE.

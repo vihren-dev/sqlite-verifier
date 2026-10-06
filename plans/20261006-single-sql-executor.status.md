@@ -16,9 +16,12 @@ no timeout-task source has been merged into it.
 
 Integration includes reviewed exporter `07dc71b3`, checked root documentation
 `db69c816` and main `29d2ed7a`. Final source correction is `9e3b4419`.
-Hosted integration, acceptance of the separate timeout task and final owner review
-of the target file and proposed baselines remain pending. The exporter owner
-approval and T03 release are separate gates. T05 is not DONE.
+Both hosted native checks pass at PR #48 head `45ac63b2`. The separate timeout
+task is delivered in PR #49. The owner approved PR #48 on 2026-10-07, including
+the target file and proposed protected baselines. The exporter owner approval
+is also recorded. Publication integration, the recorded baseline exception,
+merge and release remain pending. The protected-baseline failure remains an
+expected failure; its guard is unchanged. T05 is not DONE.
 
 Relevant definitions and callers are listed in the task file. The removed
 executor's unconditional preservation law relied on treating data statements
@@ -231,15 +234,21 @@ check bundle trust bindings, reproduce deterministic preparation and independent
 verify the current success, checked refutation and Atuin cases. It does not
 compare changed inputs with the old checkpoint or add an old-runtime path.
 
-The protected-baseline CI guard remains unchanged. Proposed schema bindings
-require final owner review; the expected baseline drift failure is not proof
-acceptance or authorization to update approval. Earlier bounded work held the
-full gate for T13 feedback. The complete local suite now passes on both hosts under the explicit recipes
-above, with every model case retained. The separate timeout-task acceptance and
-PR48 configured hosted gate remain open. Passing native validation supplies no
-final owner approval.
+The protected-baseline CI guard remains unchanged. The owner approved the
+proposed schema bindings; the expected drift failure remains separate from
+proof acceptance. Earlier bounded work held the full gate for T13 feedback.
+Complete local suites and both hosted native checks now pass, with every model
+case retained. PR #49 delivers the model-only timeout correction. Passing tests
+did not supply approval; the owner's explicit PR #48 approval did.
 
-Final owner review, acceptance of the separate model timeout task and hosted
-integration checks remain open. Native ordinary, installed and full model
-validation under the stated recipes are complete. Issue closure remains
-with the owner. The task is not DONE.
+Publication integration, the recorded maintainer baseline exception, merge and
+release remain open. Native ordinary, installed and full model validation under
+the stated recipes are complete. The task is not DONE.
+
+- 2026-10-07: The owner explicitly approved PR #48 at unchanged reviewed head
+  `45ac63b2e07d6677c12187adafa1cdc96dc155d6`, after the mutation correction and
+  complete native model results. Recorded the target-file and exact baseline
+  approval in the owner packet and resolved the R8 finding. Both hosted native
+  checks pass; the deliberate protected-baseline failure remains recorded.
+  Integration will preserve the approved executor and proof sources. No guard,
+  expected failure or frozen checkpoint is changed to manufacture a pass.
