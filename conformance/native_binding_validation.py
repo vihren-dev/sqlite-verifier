@@ -1,7 +1,7 @@
 """Validate complete binding evidence before model admission or native replay."""
 
 from conformance.case_format import Json
-from conformance.native_bindings import BINDING_NATIVE_VERSIONS, TCL_SQL_HELPERS, checked_binding, check_source_digest, check_source_results
+from conformance.native_bindings import BINDING_NATIVE_VERSIONS, TCL_SQL_HELPERS, checked_binding, check_source_digest
 from conformance.native_call_recording import FIELDS, control, source_setup, validate_sources, validate_call_bindings
 from conformance.upstream_helpers import command_events
 
@@ -52,5 +52,3 @@ def validate_fields(record: dict[str, Json]) -> None:
         calls = record["sourceCalls"]["assertion"]
         for call, events in zip(calls, command_events(record, [call["sql"] for call in calls]), strict=True):
             validate_call_bindings(call, events)
-        check_source_results(record)
-

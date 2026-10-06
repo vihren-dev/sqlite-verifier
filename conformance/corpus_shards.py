@@ -79,10 +79,7 @@ def payload_records(payload: bytes, binding: dict[str, Json]) -> list[dict[str, 
                 raise ValueError(f"Unsupported corpus record format: {field}")
         check_size(len(serialized(value)))
         record = expanded_record(value)
-        try:
-            validate_recording(record)
-        except (KeyError, TypeError, IndexError) as error:
-            raise ValueError(f"Invalid corpus binding recording: {error}") from error
+        validate_recording(record)
         check_size(len(serialized(record)))
         if not isinstance(record.get("name"), str) or not record["name"]:
             raise ValueError("Invalid corpus case name")

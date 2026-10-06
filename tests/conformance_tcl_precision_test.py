@@ -74,8 +74,8 @@ finish_test
     assert source["runtimeExit"] == 0 and source["runtimeComplete"], source
     assert report["tclDisplayPrecisionPolicy"]["version"] == 2
     assert [i["result"] for i in source["instances"]] == [
-        "recorded", "native acquisition: Native binding evidence for date_precision:precision-collision:1: "
-        "assertion results differ from Tcl execution. Capture this source case again, then freeze a new corpus.", "recorded"]
+        "recorded", "native acquisition: Native fidelity difference for date_precision:precision-collision:1: "
+        "assertion results differ from Tcl execution. Exclude this source assertion; its recorded results differ.", "recorded"]
     _, records = load(output)
     assert records[0]["upstream"]["tclResultPrecision"]["values"] == [15]
     assert records[1]["upstream"]["tclResultPrecision"]["values"] == [0, 15]

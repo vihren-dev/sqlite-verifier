@@ -89,3 +89,12 @@ Relevant files: `conformance/upstream_result_values.py`,
   195 focused checks in 9.03 seconds (90-second bound), and the sandboxed upstream
   target passed 100 tests in 2.90 seconds without skips. JUnit:
   `/nix/store/v8b84fkv9myw7xas2pbv9zc2r8s6kk7a-sqlite-verifier-test-upstream-1/junit.xml`.
+- 2026-10-06: Review of refactor `fc354847` found three further `should`
+  findings and no `must` findings. Fidelity differences now say to exclude the
+  source assertion; recapture advice applies only to damaged binding fields.
+  One documented predicate covers both auxiliary and scalar read-only helpers,
+  and the unreachable shard exception wrapper was removed. Resolved
+  `20261006T144842Z-fc354847#1` through `#3`. The changes passed 196 focused
+  checks in 9.13 seconds and 101 sandboxed upstream checks in 3.00 seconds, with
+  no skips. JUnit:
+  `/nix/store/xdaa2jqsjjg5v8wy95nn547zvcrm63yf-sqlite-verifier-test-upstream-1/junit.xml`.

@@ -17,6 +17,11 @@ BINDING_NATIVE_VERSIONS = (3, 4)
 TCL_CALL_FIELDS = {"sql", "helper", "code", "results", "precision", "nullValue", "bindings", "objects"}
 
 
+def is_read_only_tcl_helper(helper: str) -> bool:
+    """Protect auxiliary reads and scalar row helpers before preparation can change native state."""
+    return helper.startswith("aux:") or helper in READ_ONLY_TCL_HELPERS
+
+
 def decode_cell(value: Json) -> Cell:
     """Reject malformed native cell transport rather than coercing its payload."""
     if value == "null":

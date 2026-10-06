@@ -91,3 +91,15 @@ def test_binding_diagnostic_identifies_case_field_and_recovery() -> None:
     assert "source-policy-case" in str(failure.value)
     assert "migrationReadonly" in str(failure.value)
     assert "Capture this source case again" in str(failure.value)
+
+
+def test_fidelity_difference_does_not_suggest_recapture_as_a_fix() -> None:
+    """Real source/native disagreement requires exclusion rather than retrying unchanged inputs."""
+    _manifest, record, _instance = source_inputs()
+    record["upstream"].pop("tclCallsSha256")
+    record["sourceCalls"]["assertion"][0]["results"] = ["8"]
+    with pytest.raises(ValueError) as failure:
+        validate_recording(record)
+    assert "Native fidelity difference for source-policy-case" in str(failure.value)
+    assert "Exclude this source assertion" in str(failure.value)
+    assert "Capture this source case again" not in str(failure.value)

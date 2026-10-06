@@ -3,7 +3,7 @@
 from conformance.case_format import Json
 from typing import cast
 
-from conformance.native_bindings import checked_binding, checked_call, call_slots, decode_rows
+from conformance.native_bindings import checked_binding, checked_call, call_slots, check_source_results, decode_rows
 from conformance.native_binding_types import NativeBindingReplayArguments
 from conformance.native_connection import Row
 from conformance.upstream_helpers import command_events, command_ranges, join_commands
@@ -116,6 +116,12 @@ def validate_recording(record: dict[str, Json]) -> None:
     except (ValueError, KeyError, TypeError, IndexError) as error:
         raise ValueError(f"Native binding evidence for {record.get('name', '<unnamed>')}: {error}. "
                          "Capture this source case again, then freeze a new corpus.") from error
+    if record.get("bindingRecordingKind") == "tcl":
+        try:
+            check_source_results(record)
+        except ValueError as error:
+            raise ValueError(f"Native fidelity difference for {record.get('name', '<unnamed>')}: {error}. "
+                             "Exclude this source assertion; its recorded results differ.") from error
 
 
 def replay_arguments(record: dict[str, Json]) -> NativeBindingReplayArguments:

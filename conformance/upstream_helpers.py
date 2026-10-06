@@ -2,7 +2,7 @@
 
 from conformance.case_format import Json
 from conformance.query_window import TOKEN, tokens
-from conformance.native_bindings import READ_ONLY_TCL_HELPERS
+from conformance.native_bindings import is_read_only_tcl_helper
 
 
 def command_separator(command: str) -> str:
@@ -36,7 +36,7 @@ def command_ranges(commands: list[str], separator: str | None = None) -> list[tu
 def readonly_spans(commands: list[str], helpers: list[str]) -> list[tuple[int, int]]:
     """Protect every statement belonging to a Tcl row helper before preparation."""
     return [span for span, helper in zip(command_ranges(commands), helpers, strict=True)
-            if helper.startswith("aux:") or helper in READ_ONLY_TCL_HELPERS]
+            if is_read_only_tcl_helper(helper)]
 
 
 def command_events(record: dict[str, Json], commands: list[str]) -> list[list[dict[str, Json]]]:
