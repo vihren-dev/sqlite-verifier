@@ -60,6 +60,11 @@ skipped because those CLIs are absent. All tracked source bytes stayed unchanged
 The actual Linux archive SHA-256 is
 `137c9bc90fad00a2f92748d95b8b18f52be4e922bbb367fceca20a289165335f`.
 Both native receipt sets are retained in
-`reports/20261006-single-sql-executor/`. The separate T13 environment feedback
-holds the full model gate. Final owner approval, full acceptance, publication and
-release remain open. This packet is not an approval or a DONE record.
+`reports/20261006-single-sql-executor/`. Draft PR48 is published for review. Its
+first hosted run failed the mutation harness on both platforms because extraction
+still depended on a deleted docstring. The requested correction has four passing
+pure regressions; targeted native mutation validation and the complete local
+model suite must pass on Darwin and Linux before acceptance. Prior ordinary and
+installed receipts remain retained, but do not replace that gate. Final owner
+approval, full acceptance and release remain open. This packet is not an approval
+or a DONE record.

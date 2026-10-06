@@ -20,6 +20,13 @@ MUTANTS = {
 }
 
 
+def schema_step_source(module: str) -> str:
+    """Shadow the primitive transition using code boundaries, independent of its documentation."""
+    start = module.index("\ndef step ") + 1
+    end = module.rindex("\nend SqliteVerifier")
+    return "namespace SqliteVerifier\n" + module[start:end] + "\nend SqliteVerifier\n"
+
+
 def measure(cases: list[dict[str, Json]], runtime: Path) -> dict[str, Json]:
     """Compile mutated definitions in private namespaces; never rewrite the model or native truth."""
     root = Path(__file__).resolve().parents[1]
@@ -41,8 +48,7 @@ def measure(cases: list[dict[str, Json]], runtime: Path) -> dict[str, Json]:
                 text = text.replace(before, after)
             if Path(filename).stem == "Execution":
                 # Reuse production Statement/Outcome types; only the step definition is shadowed.
-                text = "namespace SqliteVerifier\n" + text[text.index("def step "):text.index("/-- Restricted extension helper")]
-                text += "\nend SqliteVerifier\n"
+                text = schema_step_source(text)
             text = "\n".join(line for line in text.splitlines() if not line.startswith("import "))
             text = text.replace("namespace SqliteVerifier", f"namespace SqliteVerifier.{name}")
             text = text.replace("end SqliteVerifier", f"end SqliteVerifier.{name}")

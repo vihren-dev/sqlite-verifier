@@ -133,6 +133,14 @@ state. The generated starting-schema pattern now matches the Atuin example.
   The latest owner review freezes PR43/44/47 and permits only this requested PR48
   correction. No T07 code or new T15/T18b integration is included.
 
+- 2026-10-06: Replaced the removed-docstring extraction boundary with the actual
+  `step` declaration and namespace closure. Four short pure regressions passed
+  in 0.48 seconds: changing/removing every declaration docstring leaves the
+  shadowed production transition unchanged, and missing code boundaries fail
+  before partial model compilation. XML: `build/test-results/t05-mutation-source.xml`.
+  Lean source and frozen native inputs are unchanged. Targeted native mutation
+  validation and both full local model runs await coordinated host leases.
+
 ## Exporter checkpoints and remaining gates
 
 The T03 and T02 receipts describe a fixed model and input checkpoint. Their
@@ -145,10 +153,11 @@ compare changed inputs with the old checkpoint or add an old-runtime path.
 
 The protected-baseline CI guard remains unchanged. Proposed schema bindings
 require final owner review; the expected baseline drift failure is not proof
-acceptance or authorization to update approval. The full model gate is held
-for the separate T13 test-environment feedback. Bounded compilation, source,
-ordinary, affected model and installed checks can proceed; complete acceptance
-still requires the full gate after that blocker is resolved.
+acceptance or authorization to update approval. Earlier bounded work held the
+full gate for T13 feedback. The latest owner review now requires the complete
+local model suite on both Darwin and Linux after the mutation-harness correction,
+with the existing suite bounds and every model case retained. Passing targeted
+checks does not supply that full acceptance.
 
 Final owner review, full model acceptance and hosted integration checks remain
 open. Native ordinary and installed checks are complete. Issue closure remains
