@@ -13,8 +13,16 @@ pytestmark = [pytest.mark.integration, pytest.mark.conformance]
 
 @pytest.fixture
 def upstream() -> Path:
-    """The upstream Nix target supplies the exact source archive used by its real Tcl fixture."""
-    return Path(os.environ['CONFORMANCE_UPSTREAM'])
+    """Use the pinned archive when supplied, and explain its optional Nix prerequisite."""
+    archive = os.environ.get('CONFORMANCE_UPSTREAM')
+    if archive is None:
+        pytest.skip('CONFORMANCE_UPSTREAM is unset; run the pinned Nix upstream target with '
+                    'nix-build build-support/default.nix -A tests.upstream')
+    upstream = Path(archive)
+    if not (upstream / 'test').is_dir():
+        pytest.fail(f'CONFORMANCE_UPSTREAM has no test directory: {upstream}; '
+                    'set it to the pinned SQLite source archive')
+    return upstream
 
 
 def test_catalog_accounts_for_all_pinned_feature_families(upstream: Path) -> None:
