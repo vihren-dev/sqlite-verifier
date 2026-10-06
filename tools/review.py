@@ -25,13 +25,19 @@ GUARD = "SQLITE_VERIFIER_REVIEW"
 #: Session markers that identify the calling tool. They are not documented
 #: interfaces of either tool, so a missing marker must never select a reviewer silently.
 CALLER_MARKERS: Mapping[Reviewer, str] = {"claude": "CLAUDECODE", "codex": "CODEX_THREAD_ID"}
+#: Session variables of either tool. A reviewer must not inherit them: they would make it
+#: look like part of the caller's session, and they would make a nested caller ambiguous.
+SESSION_MARKER_NAMES = frozenset({"CLAUDECODE", "CLAUDE_PID", "CLAUDE_EFFORT", "AI_AGENT"})
+SESSION_MARKER_PREFIXES = ("CLAUDE_CODE_", "CODEX_")
 #: Configuration that a marker prefix also matches but that a reviewer may need.
 KEPT_CONFIGURATION = frozenset({"CODEX_HOME", "CLAUDE_CONFIG_DIR"})
 #: Tools a Claude Code reviewer may use: reading files and showing commits only.
 CLAUDE_READ_ONLY_TOOLS = ("Read", "Grep", "Glob", "Bash(jj show:*)", "Bash(jj diff:*)",
                           "Bash(jj log:*)", "Bash(git show:*)")
-#: Wall-clock limit for one review.
+#: Wall-clock limit for one review. A real review took about one minute in testing.
 REVIEW_TIMEOUT_SECONDS = 1200
+#: Wall-clock limit for resolving a revision with `jj`, a local and fast operation.
+JJ_TIMEOUT_SECONDS = 30
 
 FINDING = re.compile(r"^\s*[-*]\s*(R\d+)\s+(must|should)\s+(\S+?):(\d+)\b", re.MULTILINE)
 NO_FINDINGS = re.compile(r"^\s*No findings\.\s*$", re.MULTILINE)
@@ -74,8 +80,7 @@ def is_session_marker(name: str) -> bool:
     """Whether `name` is a session variable of either tool, which a reviewer must not inherit."""
     if name in KEPT_CONFIGURATION:
         return False
-    return (name in ("CLAUDECODE", "CLAUDE_PID", "CLAUDE_EFFORT", "AI_AGENT")
-            or name.startswith(("CLAUDE_CODE_", "CODEX_")))
+    return name in SESSION_MARKER_NAMES or name.startswith(SESSION_MARKER_PREFIXES)
 
 
 def reviewer_environment(environment: Mapping[str, str]) -> dict[str, str]:
@@ -116,9 +121,13 @@ def exit_code(review: Review) -> int:
 
 
 def resolve_commit(revision: str) -> str:
-    """The git commit hash of a jj revision."""
+    """The git commit hash of a jj revision.
+
+    The reviewer reads the commit with `git show` or `jj show`, and the summary line
+    names it. A hash stays valid if the working copy moves while the review runs.
+    """
     result = subprocess.run(["jj", "log", "-r", revision, "--no-graph", "-T", "commit_id"],
-                            cwd=ROOT, capture_output=True, text=True, timeout=30, check=False)
+                            cwd=ROOT, capture_output=True, text=True, timeout=JJ_TIMEOUT_SECONDS, check=False)
     commit = result.stdout.strip()
     if result.returncode or not re.fullmatch(r"[0-9a-f]{40}", commit):
         raise UsageError(f"cannot resolve revision {revision!r}: {result.stderr.strip()}")
@@ -144,7 +153,9 @@ def main(arguments: Sequence[str]) -> int:
                                 text=True, timeout=REVIEW_TIMEOUT_SECONDS, env=reviewer_environment(os.environ),
                                 check=False)
     except (OSError, subprocess.TimeoutExpired) as error:
-        print(f"review: {reviewer} did not complete: {error}", file=sys.stderr)
+        print(f"review: {reviewer} did not complete: {error}. Check that `{reviewer}` is installed and "
+              f"logged in, then run the review again, or choose the other reviewer with REVIEWER=.",
+              file=sys.stderr)
         return 3
     print(result.stdout, end="")
     review = parse_review(result.stdout) if result.returncode == 0 else Review(0, 0, False)

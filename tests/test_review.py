@@ -3,6 +3,7 @@
 import json
 import os
 from pathlib import Path
+import shutil
 import subprocess
 import sys
 
@@ -56,6 +57,25 @@ def test_reviewer_commands_are_read_only() -> None:
     claude = reviewer_command("claude")
     assert claude[:3] == ["claude", "-p", "--allowedTools"]
     assert not any(tool.startswith(("Edit", "Write", "Bash(jj commit", "Bash(rm")) for tool in claude[3:])
+
+
+@pytest.mark.integration
+@pytest.mark.parametrize("reviewer", ["codex", "claude"])
+def test_installed_cli_accepts_reviewer_options(reviewer: str) -> None:
+    """The real CLI still has every option of the reviewer command; stubs cannot show this.
+
+    With `--help` the CLI stops early, so the check needs no network and no credentials.
+    It finds renamed or removed options. It cannot find conflicts between arguments: the
+    CLI checks those only without `--help` (for example, `codex review --commit` with
+    instructions passes here but fails in a real run). A real review run is the check for
+    those. Skipped where the CLI is not installed, for example in CI.
+    """
+    if shutil.which(reviewer) is None:
+        pytest.skip(f"{reviewer} is not installed")
+    command = reviewer_command("codex" if reviewer == "codex" else "claude")
+    options = [part for part in command if part != "-"]
+    result = subprocess.run([*options, "--help"], capture_output=True, text=True, timeout=30, check=False)
+    assert result.returncode == 0, result.stderr
 
 
 @pytest.mark.unit
