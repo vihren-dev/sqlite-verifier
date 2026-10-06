@@ -26,9 +26,11 @@ def compile_contract(fail: bool = False) -> int:
 ''')
     (runtime / "migration_check/process.py").write_text('''"""Bounded external-role fixture calls."""
 from time import sleep
-def run_process(arguments: list[str]) -> None:
+import subprocess
+def run_process(arguments: list[str]) -> subprocess.CompletedProcess[str]:
     """Exercise the real profiling boundary with known command roles."""
     sleep(0.001)
+    return subprocess.CompletedProcess(arguments,0,"","")
 ''')
     (runtime / "migration_check/cli.py").write_text('''"""The fixture's sole command entrypoint."""
 import json,os,sys
@@ -38,7 +40,7 @@ def verify(arguments: list[str]) -> int:
     """Use the existing fixture stage."""
     run_process(["lean", "--deps-json", "Proofs.lean"])
     run_process(["lean", "-o", "Proofs.olean", "Proofs.lean"])
-    run_process(["migration-bundle-checker", "library", "trusted"])
+    run_process(["migration-proof-checker", "library", "trusted"])
     return contract.compile_contract(arguments==["error"])
 def main(arguments: list[str]) -> int:
     """Preserve the fixture public report and exit code."""
@@ -60,5 +62,4 @@ from migration_check.cli import main
 raise SystemExit(main(sys.argv[1:]))
 ''')
     return entry
-
 

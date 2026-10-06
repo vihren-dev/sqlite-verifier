@@ -1,6 +1,7 @@
 # Bundle attack parity and cold-run measurement
 
-Status: IN PROGRESS. Created 2026-10-06.
+Status: IN PROGRESS; HELD at an explicitly authorized incomplete checkpoint.
+Created 2026-10-06.
 
 ## Outcome
 
@@ -99,3 +100,12 @@ owner review. Keep existing trust assumptions and supported SQL/profile meanings
 The exporter/upgrade base is reviewed `07dc71b3`; the public baseline is
 `29d2ed7a`. Both remain intact. Files stay below 200 lines, and each checked
 unit has a status update, Jujutsu commit and independent review.
+
+## Current checkpoint boundary
+
+The existing attack tests, confidence policy and cold-path recorder are checked
+within the scopes listed in the status file. The campaign writer is a draft
+and has not passed end-to-end campaign validation. The named-case launcher is
+not implemented. Ordinary integrated/Nix infrastructure checks and actual
+macOS/Linux performance trials remain incomplete. The owner requested a
+checkpoint of existing work and no new scope; this task is held and is not DONE.

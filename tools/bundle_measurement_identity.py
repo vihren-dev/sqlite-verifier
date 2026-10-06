@@ -9,6 +9,9 @@ import platform
 
 from migration_check.structural import Json
 
+MEASUREMENT_SOURCE_PATTERN = "bundle_measurement*.py"
+"""Source modules that implement this measurement policy, acquisition and report pipeline."""
+
 
 def file_sha256(path: Path) -> str:
     """Hash exact bytes in bounded chunks, including large installed compiler artifacts."""
@@ -62,10 +65,12 @@ def raise_walk_error(error: OSError) -> None:
 
 def evidence_identity(runtime: Path, inputs: Sequence[Path], observer: Path, python: Path) -> dict[str, Json]:
     """Hash the complete selected runtime and explicit source roots outside measured command wall time."""
+    sources = sorted(Path(__file__).parent.glob(MEASUREMENT_SOURCE_PATTERN))
     return {"runtime": tree_identity(runtime),
             "inputs": {str(root.resolve(strict=True)): tree_identity(root) for root in inputs},
             "observer": {"path": str(observer.resolve(strict=True)), "sha256": file_sha256(observer)},
-            "python": {"path": str(python.resolve(strict=True)), "sha256": file_sha256(python)}}
+            "python": {"path": str(python.resolve(strict=True)), "sha256": file_sha256(python)},
+            "measurement_sources": {str(path.resolve()): file_sha256(path) for path in sources}}
 
 
 def host_identity() -> dict[str, Json]:

@@ -36,7 +36,7 @@ def test_current_entrypoint_and_same_invocation_stage_spans(
         assert stages["observer_sha256"] == hashlib.sha256(OBSERVER.read_bytes()).hexdigest()
         assert {span["stage"] for span in stages["spans"]} == {
             "cli:verify", "contract:compile_contract", "process:dependencies",
-            "process:compile:Proofs", "process:migration-bundle-checker"}
+            "process:compile:Proofs", "process:migration-proof-checker"}
         outer = next(span for span in stages["spans"] if span["stage"] == "cli:verify")
         inner = next(span for span in stages["spans"] if span["stage"] == "contract:compile_contract")
         assert inner["parent_identifier"] == outer["identifier"]
@@ -62,3 +62,21 @@ def test_selected_stages_follow_current_driver_callers() -> None:
     for module, function in STAGES:
         tree = ast.parse((root / f"{module}.py").read_text())
         assert function in {node.name for node in ast.walk(tree) if isinstance(node, ast.FunctionDef)}, (module, function)
+
+
+def test_observed_checker_refutation_two_remains_distinct_from_cli_one(launcher: Path, tmp_path: Path) -> None:
+    """Capture an actual CompletedProcess result without inferring its code from the public VIOLATED report."""
+    process = launcher.parents[1] / "migration_check/process.py"
+    process.write_text('''"""Fixture external result preserves the checker/CLI protocol boundary."""
+import subprocess
+def run_process(arguments: list[str]) -> subprocess.CompletedProcess[str]:
+    """Return the distinct negative checker result through the real profiler return event."""
+    return subprocess.CompletedProcess(arguments,2 if arguments[0]=="migration-proof-checker" else 0,"","")
+''')
+    trace = tmp_path / "refutation.json"
+    result = subprocess.run([sys.executable, "-I", str(OBSERVER), "--launcher", str(launcher),
+                             "--trace", str(trace), "--", "negative"], capture_output=True, timeout=10)
+    assert result.returncode == 1 and json.loads(result.stdout)["status"] == "VIOLATED"
+    spans = json.loads(trace.read_text())["spans"]
+    assert next(span["returncode"] for span in spans if span["stage"] == "process:migration-proof-checker") == 2
+    assert next(span["returncode"] for span in spans if span["stage"] == "cli:verify") is None

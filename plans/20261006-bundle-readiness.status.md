@@ -1,6 +1,7 @@
 # Bundle readiness status
 
-Status: IN PROGRESS. Created 2026-10-06.
+Status: IN PROGRESS; HELD at an explicitly authorized incomplete checkpoint.
+Created 2026-10-06.
 
 Task: [bundle attack parity and cold-run measurement](20261006-bundle-readiness.task.md).
 Source: [issue #30](https://github.com/vihren-dev/sqlite-verifier/issues/30).
@@ -140,3 +141,36 @@ Specifications: [ADR 0003](../docs/adr-0003-agent-proof-preparation.md),
   does not consume the common deadline and verifies the killed process still
   has a retained receipt. Resolved `20261006T175244Z-3f08d30f#1` and `#2`.
   All 53 focused checks pass under the 30-second bound. No timing trial began.
+- 2026-10-06: Startup-deadline validation `a66d22b0` passed independent review
+  with no findings. Added complete current path recording, immutable argv/source
+  contexts, source-root guards, one shared preparation/checking deadline and
+  observed checker exits distinct from public CLI exits. New directories and
+  active-cache observations prevent warm reuse. Runtime/source/measurement-code
+  byte identities are retained before and after each path. Whole external path
+  wall includes startup, observation and inter-command work; spans come from
+  those same invocations. Exact nine-to-25 protocol/report pure tests retain both
+  declared looks and every raw difference; invalid pairs suppress acceptance.
+  All 93 focused protocol/path/process/identity/statistics/inventory checks pass
+  under a 30-second suite bound. The fixture checks are not performance evidence.
+- 2026-10-06: The owner requested no new tasks and an immediate checkpoint of
+  existing work, allowing incomplete validation to be recorded explicitly.
+  Preserved all current tools/tests in this checkpoint and set this own task
+  and status to HELD. No benchmark, new task, heavy Nix job, push or PR started.
+
+## Remaining acceptance at the held checkpoint
+
+- The campaign writer is a draft: it has not passed end-to-end campaign,
+  interruption or invalid-pair persistence tests. It must not be used as
+  acceptance evidence yet. Pure continuation/report calculations are checked.
+- The named small/refutation/Atuin case launcher and documented execution
+  entrypoint are not implemented. No actual performance trial has run.
+- Retained artifact manifests describe files that survive each current driver.
+  Private compiler workspaces removed by those drivers are not recovered here.
+- Ordinary combined source/development checks and Nix infrastructure checks
+  for these new inputs remain incomplete; cached short kernel/bundle checks
+  do not substitute for those integrated gates.
+- Final installed T05/documentation runtime, idle macOS/Linux leases, all actual
+  nine-or-25 raw trials and owner dispositions remain required. The earlier
+  owner-held full model gate also remains held; it was not started here.
+- Required independent review of this exact incomplete checkpoint remains to
+  finish. T06 is not DONE, and this branch makes no cutover or performance claim.

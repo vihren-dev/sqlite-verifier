@@ -81,3 +81,18 @@ def test_platform_machine_cpu_identity_fields() -> None:
     assert all(isinstance(identity[key], str) for key in identity if key != "cpu_count")
     assert identity["cpu_count"] is None or type(identity["cpu_count"]) is int
     assert identity["system"] and identity["machine"] and identity["python"]
+
+
+def test_measurement_policy_source_changes_are_identity_bound(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    """A changed acquisition/statistics implementation cannot reuse the same campaign identity."""
+    import tools.bundle_measurement_identity as identities
+    tools = tmp_path / "tools"
+    tools.mkdir()
+    module = tools / "bundle_measurement_identity.py"
+    module.write_bytes(b"fixture identity implementation")
+    monkeypatch.setattr(identities, "__file__", str(module))
+    first = evidence_identity(tools, (), module, module)
+    policy = tools / "bundle_measurement_statistics.py"
+    policy.write_bytes(b"changed statistics policy")
+    assert first != evidence_identity(tools, (), module, module)
+    assert str(policy) in evidence_identity(tools, (), module, module)["measurement_sources"]

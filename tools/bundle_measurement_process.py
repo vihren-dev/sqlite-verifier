@@ -91,6 +91,8 @@ def validate_trace(path: Path, *, pid: int | None, started: int, ended: int,
         for span in spans:
             if any(type(span[key]) is not int for key in ("identifier", "pid", "started_ns", "ended_ns")):
                 return ["stage span identifiers or timestamps are malformed"]
+            if span.get("returncode") is not None and type(span["returncode"]) is not int:
+                return ["stage external process result is malformed"]
             identifier, parent = span["identifier"], span["parent_identifier"]
             if identifier != len(parents) or (parent is not None and (type(parent) is not int or parent not in parents)):
                 return ["stage span order or parent identity differs"]

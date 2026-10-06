@@ -50,6 +50,8 @@ class Span:
     pid: int
     source: str
     source_sha256: str
+    returncode: int | None
+    """Actual external process result when this stage returns CompletedProcess; other stages leave it unobserved."""
 
 
 @dataclass(frozen=True)
@@ -123,8 +125,9 @@ class StageObserver:
             ended = monotonic_ns()
             if source not in self.hashes:
                 self.hashes[source] = hashlib.sha256(Path(source).read_bytes()).hexdigest()
+            returncode = argument.returncode if isinstance(argument, subprocess.CompletedProcess) else None
             self.spans.append(Span(identifier, parent_identifier, stage, started, ended, os.getpid(),
-                                   source, self.hashes[source]))
+                                   source, self.hashes[source], returncode))
 
 
 def main() -> None:
