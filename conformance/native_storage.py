@@ -2,10 +2,14 @@
 
 import hashlib
 import json
+import marshal
 
 from conformance.case_format import Json
 
 CASE_BYTE_LIMIT = 1_000_000
+
+SNAPSHOT_COPY_VERSION = 2
+"""Internal marshal copies exclude object references so each mutable subtree is independent."""
 
 
 class CaseSizeLimit(ValueError):
@@ -68,6 +72,8 @@ def expanded_record(value: Json, *, byte_limit: int | None = None) -> dict[str, 
     A bounded record counts its reference skeleton plus each validated payload's
     replacement length. It retains the expanded-size check without serializing
     repeated reconstructed snapshots. The default primitive remains unbounded.
+    Canonical JSON defines hashes, size and normalization. Internal binary copies
+    reconstruct each occurrence from that normalized JSON without decoding it again.
     """
     if not isinstance(value, dict):
         raise ValueError("Invalid native record")
@@ -81,6 +87,7 @@ def expanded_record(value: Json, *, byte_limit: int | None = None) -> dict[str, 
     if not isinstance(snapshots, dict):
         raise ValueError("Invalid native snapshot pool")
     validated_snapshot_json: dict[str, bytes] = {}
+    snapshot_copies: dict[str, bytes] = {}
     for digest, snapshot in snapshots.items():
         if not isinstance(snapshot, dict) or set(snapshot) != {"schema", "tables"}:
             raise ValueError("Native snapshot digest or content differs")
@@ -88,6 +95,7 @@ def expanded_record(value: Json, *, byte_limit: int | None = None) -> dict[str, 
         if hashlib.sha256(payload).hexdigest() != digest:
             raise ValueError("Native snapshot digest or content differs")
         validated_snapshot_json[digest] = payload
+        snapshot_copies[digest] = marshal.dumps(json.loads(payload), SNAPSHOT_COPY_VERSION)
     result = {key: item for key, item in value.items() if key not in {"snapshotStorageVersion", "snapshots"}}
     expanded_byte_count = len(serialized(result)) if byte_limit is not None else 0
     used: set[str] = set()
@@ -101,7 +109,7 @@ def expanded_record(value: Json, *, byte_limit: int | None = None) -> dict[str, 
             digest = reference["snapshot"]
             if not isinstance(digest, str) or digest not in snapshots:
                 raise ValueError("Missing native snapshot reference")
-            copied[field] = json.loads(validated_snapshot_json[digest])
+            copied[field] = marshal.loads(snapshot_copies[digest])
             if byte_limit is not None:
                 expanded_byte_count += len(validated_snapshot_json[digest]) - len(serialized(reference))
             used.add(digest)

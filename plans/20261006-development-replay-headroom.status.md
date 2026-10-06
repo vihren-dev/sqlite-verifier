@@ -178,3 +178,17 @@ authorized one Linux diagnostic below. No production change followed it.
   checks, primitive flexibility and the independent oracle coverage. This
   status checkpoint preserves the exact raw review line. No new timing or
   native-I/O work followed the checked partial CPU change.
+- 2026-10-07: The coordinator authorized the isolated snapshot reconstruction
+  candidate. Each validated snapshot's canonical JSON is decoded once, then
+  converted to an internal marshal version-2 copy. Every occurrence reconstructs
+  a fresh tree from those internal bytes. Canonical JSON still determines hashes,
+  exact sizes and normalization; external binary data is not an input. Digest,
+  reference, missing/unused-pool checks and the unbounded default remain intact.
+  Added independent JSON-oracle, scalar, nested-alias and subclass-normalization
+  checks plus a deterministic once-per-pool decoding check. All 89 focused
+  reconstruction, snapshot, native storage, shard and tier checks pass in
+  1.64 seconds under a 60-second suite bound in the pinned Nix environment.
+  The native checks use existing pinned SQLite and conformance paths. No build
+  or development replay phase ran. Independent review is pending. Frozen
+  evidence, native SQL/profiles, selection and the 120-second guard are
+  unchanged. No performance acceptance or timing savings are claimed.

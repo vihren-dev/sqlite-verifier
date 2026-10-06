@@ -48,6 +48,10 @@ snapshots, escaped/multibyte metadata, nested independent mutations and
 malformed or unused pools retain their checks. The default expansion
 primitive remains unbounded; shard loading enforces both stored and logical
 case limits before selecting any replay cases.
+Snapshot reconstruction matches an independent canonical JSON oracle for
+scalar values, signed zero, escaped text, caller-owned JSON subclasses and
+reused nested mutable objects. Canonical JSON decoding occurs once per
+validated pool entry; every occurrence still has an independent mutable tree.
 Storage audit checks exercise actual native fixtures. Relevant corpus,
 tier and Nix target checks retain the owner-approved 120-second phase bound
 from `06a1e297`; the separate acceptance target remains less than 30 seconds.
@@ -62,6 +66,9 @@ size and digests. `native_replay.py` performs frontend admission and typed
 output validation. `native_record.py` owns native temporary fixtures.
 `tests/conformance_sample_test.py` runs the same fresh CLI as the sample
 Nix target; `build-support/tests.nix` binds that target's inputs.
+Canonical JSON remains authoritative for snapshot hashes, logical byte counts
+and normalization. Any internal binary copies are generated only from decoded
+canonical JSON in the current invocation. External binary data is not an input.
 
 The full-corpus storage evidence in
 `reports/20261006-native-replay-storage/` is immutable historical evidence.
