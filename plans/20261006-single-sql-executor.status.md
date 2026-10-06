@@ -213,6 +213,14 @@ state. The generated starting-schema pattern now matches the Atuin example.
   independently verified locally. Prior immutable reports and baselines are
   unchanged. Final hosted, timeout-task acceptance and R8 owner gates remain open.
 
+- 2026-10-06: Full-validation evidence `a247e0b1` passed required independent
+  review `20261006T185138Z-a247e0b1` with no findings. Every mutation-correction
+  should finding is fixed. The exact archived helpers and all prior receipts
+  remain unchanged. Ready to update existing draft PR48 with only the requested
+  correction and this qualified status/evidence. No separate timeout source is
+  merged; no frozen PR, protected baseline, issue closure or release changes.
+  T05 remains IN PROGRESS until its hosted, timeout-task and final R8 gates pass.
+
 ## Exporter checkpoints and remaining gates
 
 The T03 and T02 receipts describe a fixed model and input checkpoint. Their
