@@ -72,8 +72,9 @@ Linux took 49.70655691897264 seconds. Linux misses the less-than-30-second
 acceptance target. The macOS phase is qualified by the ancillary retention
 defect below. The approved process bound remains 120 seconds.
 Pending: relevant integrated checks and Linux performance acceptance.
-This task is not DONE. No further optimization or rerun is authorized in this
-turn; PR48 final validation and owner review take priority.
+This task is not DONE. The earlier measurement turn held further optimization
+and reruns while PR48 final validation took priority. The coordinator later
+authorized one Linux diagnostic below. No production change followed it.
 
 - 2026-10-06: Recorded the no-findings implementation review and preserved its
   exact raw journal line in this status checkpoint. Benchmark remains held
@@ -113,3 +114,23 @@ turn; PR48 final validation and owner review take priority.
   refactor's exact raw review line. Relevant integrated ordinary/Nix checks
   remain pending; Linux under-30-second acceptance remains unmet. No further
   optimization or measurement was run. Task status remains IN PROGRESS.
+- 2026-10-06: The coordinator continued this active task with one bounded
+  Linux diagnostic. Its first helper setup failed because `profile.py`
+  shadowed the standard library during cProfile import, before any report or
+  SQLite fixture execution. Preserved that failure, corrected the filename
+  in a fresh directory, and used the retained source/runtime/storage checks.
+- 2026-10-06: The one actual diagnostic, session 60672, completed with exit 0
+  under the unchanged 120-second bound. Its instrumented phase was
+  53.62880020798184 seconds: loading 27.8925 seconds (27.8196 parent CPU),
+  native replay 24.9686 (5.5615 parent CPU), classification 0.3676. The large
+  native non-CPU gap supports an I/O-wait hypothesis; fsync was not measured
+  directly. Canonical size serialization was 6.157 profiled seconds combined;
+  snapshot reconstruction JSON decoding was 7.971. These are diagnostic costs,
+  not acceptance timings or proof that a size-accounting change meets 30.
+- 2026-10-06: Retained all 27 raw setup/diagnostic artifacts in
+  [the Linux diagnostic](../reports/20261006-development-replay-linux-profile/README.md).
+  Both bounded receipt validators pass. All 835 source checks, 265 before/
+  after identities and 184 fixture/profile/verdict comparisons match. The
+  prior 22 raw artifacts, frozen bytes and final pending journal line remain
+  preserved. Linux heavy slot released; no production change, full-model gate,
+  additional actual phase or benchmark campaign ran. Task remains IN PROGRESS.

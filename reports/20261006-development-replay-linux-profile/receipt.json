@@ -1,0 +1,86 @@
+{
+  "format": "t04c-linux-diagnostic-retention-v1",
+  "status": "IN PROGRESS; diagnostic does not satisfy speed acceptance",
+  "sourceCommit": "82f2d1786cd732b4b89f813680506ca631239887",
+  "branchBeforeDiagnostic": "32fb63b025414551a1ff4237733b931c55227b25",
+  "completedSession": 60672,
+  "completedExit": 0,
+  "phaseLimitSeconds": 120,
+  "actualInstrumentedPhases": 1,
+  "instrumentedPhaseSeconds": 53.62880020798184,
+  "outerInstrumentedSeconds": 54.308965406,
+  "stageTotals": {
+    "runtime_binding": {
+      "calls": 1,
+      "wallSeconds": 0.284922818,
+      "parentUserSeconds": 0.23545600000000005,
+      "parentSystemSeconds": 0.048884,
+      "wallMinusParentCpuSeconds": 0.0005828179999999711
+    },
+    "load": {
+      "calls": 1,
+      "wallSeconds": 27.892517618,
+      "parentUserSeconds": 27.076581,
+      "parentSystemSeconds": 0.743,
+      "wallMinusParentCpuSeconds": 0.07293661799999851
+    },
+    "bound_records": {
+      "calls": 1,
+      "wallSeconds": 0.008854761,
+      "parentUserSeconds": 0.008865000000000123,
+      "parentSystemSeconds": 0.0,
+      "wallMinusParentCpuSeconds": -1.0239000000123594e-05
+    },
+    "select": {
+      "calls": 1,
+      "wallSeconds": 0.098798021,
+      "parentUserSeconds": 0.09836600000000217,
+      "parentSystemSeconds": 0.0,
+      "wallMinusParentCpuSeconds": 0.00043202099999782584
+    },
+    "native_replay": {
+      "calls": 2,
+      "wallSeconds": 24.968639627,
+      "parentUserSeconds": 4.824759000000004,
+      "parentSystemSeconds": 0.7367539999999998,
+      "wallMinusParentCpuSeconds": 19.407126626999997
+    },
+    "checked_replay": {
+      "calls": 2,
+      "wallSeconds": 0.367574203,
+      "parentUserSeconds": 0.26739699999999544,
+      "parentSystemSeconds": 0.020815999999999946,
+      "wallMinusParentCpuSeconds": 0.0793612030000046
+    },
+    "binding": {
+      "calls": 2,
+      "wallSeconds": 0.001079553,
+      "parentUserSeconds": 0.0012320000000016762,
+      "parentSystemSeconds": 0.0,
+      "wallMinusParentCpuSeconds": -0.00015244700000167618
+    }
+  },
+  "selectedIdentities": 184,
+  "fullDenominator": 4378,
+  "counts": {
+    "MODEL_UNSUPPORTED": 184
+  },
+  "diagnosticRoot": "/var/tmp/sqlite-verifier-headroom.j1WL5z/diagnostic-20261006.d0RV8Q",
+  "preflightRoot": "/var/tmp/sqlite-verifier-headroom.j1WL5z/diagnostic-20261006.IYfmyM",
+  "preflightSession": 16149,
+  "preflightExit": 1,
+  "preflightFailure": "profile.py shadowed the Python stdlib profile module during cProfile import. It failed at cProfile.Profile before any report or SQLite fixture execution; the created native-storage directory remained empty.",
+  "sourceFileCount": 835,
+  "sourceSymlink": {
+    "path": "CLAUDE.md",
+    "target": "AGENTS.md",
+    "beforeAndAfterChecked": true
+  },
+  "previousSourceManifest": "../20261006-development-replay-headroom/linux/source.sha256.gz",
+  "previousLinuxReport": "../20261006-development-replay-headroom/linux/report.json.gz",
+  "derivedCallersView": "diagnostic/profile-callers.txt.gz was produced locally from the retained diagnostic.pstats after the process completed.",
+  "limits": "Profiler and stage probes add overhead. Wall-minus-parent-CPU and block writes support an I/O-wait hypothesis, not direct fsync accounting. Stored and expanded size serialization share one profiler caller and are not separated.",
+  "nextCandidate": "Exact compositional logical-byte size from already validated snapshot payloads may remove redundant expanded-record serialization while retaining every validation and independent reconstructed occurrence. Combined stored+expanded size serialization is 6.157 profiled seconds, so that is an upper bound on this candidate's measured cost, not an expected speedup or proof of under 30 seconds.",
+  "productionChanges": false,
+  "heavyLeaseReleased": true
+}

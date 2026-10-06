@@ -8,6 +8,9 @@ Linux took 49.70655691897264 seconds and misses the target below. The macOS
 phase took 23.699742582997715 seconds but lost ancillary receipt fields after
 the phase completed. These observations do not satisfy both-platform
 acceptance; the task is not DONE.
+The later [Linux diagnostic](../reports/20261006-development-replay-linux-profile/README.md)
+identifies both CPU loading and native non-CPU time. Its instrumented timings
+are separate from acceptance results; it does not change the outcome below.
 
 ## Outcome
 
