@@ -21,7 +21,7 @@ def decodeName (value : String) : IO Name := do
     throw <| IO.userError "empty Lean name; supply a module or declaration name"
   return name
 
-/-- Direct and transitive imports of the selected roots in the loaded environment. -/
+/-- List the checker's direct and transitive imports so their declarations can be omitted exactly. -/
 partial def importClosure (env : Environment) (pending : List Name)
     (seen : NameSet := {}) : NameSet :=
   match pending with

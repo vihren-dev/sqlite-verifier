@@ -46,7 +46,16 @@ a caller declaration in a trusted-looking namespace.
 Atuin 12, bundle 42, CLI 13, kernel 19, sample 12 and upstream 58. Nix source,
 isolated-target and offline-staging checks passed all 72 cases.
 
-Pending: installed-archive acceptance, independent review, native Linux
-validation and final source/evidence receipt.
+The actual offline-installed Darwin archive passed 30 cases, including all
+three exact baselines, the caller module in the library namespace, Atuin and
+the original installed data path. The installed fixtures poisoned ambient
+Python and Lean import paths.
+
+Claude review of `79e844a5` reported two R8 owner-review requirements and one
+R9 docstring recommendation, with no correctness defect. The docstring was
+clarified; the R8 requirements remain final approval gates.
+
+Pending: correction review, native Linux validation and final source/evidence
+receipt.
 Publication, merge and release await the required owner review, including
 the preceding Lean 4.34.1 upgrade gate.

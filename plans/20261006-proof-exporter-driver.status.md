@@ -81,6 +81,22 @@ Source: [issue #29](https://github.com/vihren-dev/sqlite-verifier/issues/29).
   poisoned ambient imports, including the new exporter checks. The current
   self-contained implementation is ready for independent review. Native Linux
   and required final owner review remain pending.
+- 2026-10-06: Claude reviewed implementation `79e844a5`. It reported the
+  two expected R8 owner-review gates for the export path and new driver,
+  with no correctness defect. One R9 recommendation asks the closure
+  docstring to state its purpose. Clarified that the closure identifies
+  checker-provided declarations for exact omission. Required owner approval
+  remains pending in the separate review packet before release or merge.
+- 2026-10-06: The actual offline-installed Darwin archive passed all 30
+  installed cases in 155.57 seconds. These include the existing installed
+  data path and Atuin acceptance, the three exact byte baselines, the
+  library-like caller module, argument failures and transitive-origin checks.
+  Ambient Python and Lean import paths were poisoned by the installed fixtures.
+- 2026-10-06: Recorded both R8 findings as deferred final owner-review gates
+  and the R9 docstring finding as fixed, using the append-only review command.
+  The owner has not approved this change. The coordinator reserved the idle
+  Linux host for actual native build and installed acceptance after the
+  correction review. No performance comparison is inferred from these checks.
 
 ## Validation
 
