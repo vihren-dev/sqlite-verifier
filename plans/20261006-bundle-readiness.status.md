@@ -133,3 +133,10 @@ Specifications: [ADR 0003](../docs/adr-0003-agent-proof-preparation.md),
   `20261006T174416Z-847dbd2b#1`. Also subtract actual process startup from the
   remaining common deadline before waiting. All 52 focused checks pass; no
   performance acceptance or actual trial is inferred from fixture durations.
+- 2026-10-06: Timeout-handshake checkpoint `3f08d30f` had two `should`
+  findings and no `must` findings. Retained the timeout-injection timestamp
+  and asserted bounded cleanup separately from fixture readiness. Added a
+  controlled-clock test around actual Popen creation; it fails if startup
+  does not consume the common deadline and verifies the killed process still
+  has a retained receipt. Resolved `20261006T175244Z-3f08d30f#1` and `#2`.
+  All 53 focused checks pass under the 30-second bound. No timing trial began.

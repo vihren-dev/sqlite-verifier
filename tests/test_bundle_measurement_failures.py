@@ -51,16 +51,18 @@ def test_escaped_descendant_open_pipes_are_bounded_and_retained(
     directory.mkdir()
     actual_communicate = subprocess.Popen.communicate
     expired = False
+    expired_ns = 0
 
     def expire_after_readiness(process: subprocess.Popen[bytes], input: bytes | None = None,
                                timeout: float | None = None) -> tuple[bytes, bytes]:
         """Wait for the actual escaped fixture, then inject timeout without a scheduling race."""
-        nonlocal expired
+        nonlocal expired, expired_ns
         if not expired:
             limit = monotonic() + 10
             while not (ready_file.exists() and pid_file.exists() and pid_file.read_text().strip()) and monotonic() < limit:
                 sleep(0.005)
             expired = True
+            expired_ns = monotonic_ns()
             raise subprocess.TimeoutExpired(process.args, timeout or 0)
         return actual_communicate(process, input, timeout=timeout)
 
@@ -70,6 +72,7 @@ def test_escaped_descendant_open_pipes_are_bounded_and_retained(
             directory=directory, environment={}, deadline_ns=monotonic_ns() + 20_000_000_000,
             required_stage="cli:verify", launcher_sha256=file_sha256(launcher), observer_sha256=file_sha256(OBSERVER), sources={})
         assert result.timed_out
+        assert 0 < result.ended_ns - expired_ns < 5_000_000_000
         assert "output pipes remain open after bounded process cleanup" in result.invalid_conditions
         assert b"partial raw output" in Path(result.stdout).read_bytes()
         assert (directory / "invocation.json").is_file()
@@ -79,3 +82,24 @@ def test_escaped_descendant_open_pipes_are_bounded_and_retained(
                 os.kill(int(pid_file.read_text()), signal.SIGKILL)
             except ProcessLookupError:
                 pass
+
+
+def test_spawn_consumes_the_common_deadline(launcher: Path, tmp_path: Path,
+                                          monkeypatch: pytest.MonkeyPatch) -> None:
+    """A deadline reached during actual process creation cannot grant a second complete wait budget."""
+    import tools.bundle_measurement_process as recorder
+    epoch = monotonic_ns()
+    ticks = iter((epoch, epoch + 2_000_000_000, epoch + 2_000_000_001))
+
+    def startup_consumed_budget() -> int:
+        """Advance the controlled clock after the real Popen returns, independent of scheduling delay."""
+        return next(ticks)
+
+    monkeypatch.setattr(recorder, "monotonic_ns", startup_consumed_budget)
+    directory = tmp_path / "startup-expired"
+    directory.mkdir()
+    result = invoke(python=Path(sys.executable), observer=OBSERVER, launcher=launcher, arguments=(),
+        directory=directory, environment={}, deadline_ns=epoch + 1_000_000_000,
+        required_stage="cli:verify", launcher_sha256=file_sha256(launcher), observer_sha256=file_sha256(OBSERVER), sources={})
+    assert result.pid is not None and result.timed_out and "path deadline expired" in result.invalid_conditions
+    assert result.returncode is not None and (directory / "invocation.json").is_file()
