@@ -70,12 +70,14 @@ proc capture_connection {name command args} {
         }
       }
       set callback [expr {[llength $command] > 3}]
+      if {[capture_callback_context $name]} { capture_event exclude "connection execution callback context" }
       set helper $operation
       if {$operation eq "eval" && $callback && [capture_pure_row_body $command]} {
         set helper eval-script
         set callback 0
       }
       capture_event sql $name [lindex $command 2] $callback $helper
+      capture_bindings $name [lindex $command 2]
     } else {
       # Inner SQL/results must not be paired with the enclosing call's result.
       if {[incr ::capture_sql_depth -1] > 0} { return }
@@ -84,6 +86,7 @@ proc capture_connection {name command args} {
       } else { capture_event result $name [lindex $args 0] [lindex $args 1] }
       if {[lindex $args 0] != 0} { return } ;# Metadata SQL would clear the failed call's errorcode.
       capture_event result-precision $name [capture_precision]
+      if {[capture_callback_context $name]} { return } ;# Probes would run the source's callback again.
       set ::capture_metadata 1
       try {
         if {[catch {$name nullvalue} marker]} {
@@ -166,6 +169,7 @@ proc capture_failure {command operation} { capture_event failed [lindex $command
 # Flush source completion before finish_test exits, including assertion failures.
 proc capture_complete {command operation} { capture_event complete }
 source [file join [file dirname [info script]] upstream_external.tcl]
+source [file join [file dirname [info script]] upstream_bindings.tcl]
 proc capture_source {command code result operation} {
   if {[file tail [lindex $command end]] eq "tester.tcl" && ![info exists ::capture_installed]} {
     set ::capture_installed 1

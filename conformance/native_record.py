@@ -13,7 +13,7 @@ from conformance.execution_profile import ExecutionProfile
 from conformance.native_clock import NativeClock, utc_timezone
 from conformance.native_acquisition import open_case
 from conformance.native_library import SOURCE_IDS
-
+from conformance.native_call_recording import recording_inputs, validate_recording
 
 
 def observe(connection: Connection) -> dict[str, Json]:
@@ -61,7 +61,6 @@ def observe(connection: Connection) -> dict[str, Json]:
     return {"schema": wire_rows(schema), "tables": tables}
 
 
-
 def record_sql(setup: str | list[str | dict[str, Json]], migration: str, *, name: str, requirements: list[str] | None = None,
                library: Path | None = None, outputs: bool = False,
                parameters: list[tuple[Cell, ...]] | None = None,
@@ -69,12 +68,27 @@ def record_sql(setup: str | list[str | dict[str, Json]], migration: str, *, name
                clock_values: list[int] | int | None = None,
                setup_helpers: list[str] | None = None, migration_readonly: bool = False,
                migration_readonly_spans: list[tuple[int, int]] | None = None,
-               auxiliary_replay: bool = False) -> dict[str, Json]:
+               auxiliary_replay: bool = False, tcl_calls: dict[str, Json] | None = None,
+               setup_parameters: list[list[tuple[Cell, ...]]] | None = None,
+               parameter_names: list[list[str | None]] | None = None,
+               setup_parameter_names: list[list[list[str | None]]] | None = None,
+               setup_call_indices: list[int] | None = None,
+               source_setup_commands: list[str | dict[str, Json]] | None = None) -> dict[str, Json]:
     """Keep native evidence; clocks can be fixed across SQL or supplied per statement."""
     if parameters is not None and not outputs:
         raise ValueError("Bound parameters require output recording")
+    setup, recording, setup_calls = recording_inputs(setup, migration, tcl_calls, setup_parameters,
+        setup_call_indices, source_setup_commands, outputs, setup_parameter_names, parameter_names)
+    if setup_calls is not None:
+        setup_helpers = [call["helper"] if call is not None else "eval" for call in setup_calls]
     controlled = profile is not None and profile.clock == "unix-milliseconds-v1"
     auxiliary_replay = auxiliary_replay or any(helper.startswith("aux:") for helper in setup_helpers or [])
+    if tcl_calls is not None:
+        auxiliary_replay = auxiliary_replay or any(call["helper"].startswith("aux:") for call in tcl_calls["assertion"])
+    if recording is not None:
+        recording.update(setupHelpers=setup_helpers or ["eval"] * len(setup),
+            migrationReadonly=migration_readonly, migrationReadonlySpans=[list(span) for span in migration_readonly_spans or []],
+            auxiliaryReplay=auxiliary_replay)
     if profile is not None and not outputs:
         raise ValueError("Explicit profiles require output recording")
     if controlled != (setup_clock is not None and clock_values is not None):
@@ -132,7 +146,15 @@ def record_sql(setup: str | list[str | dict[str, Json]], migration: str, *, name
                     helper = setup_helpers[index] if setup_helpers is not None else "eval"
                     if helper.startswith("aux:") and writer.transaction_open:
                         raise ValueError("Auxiliary read cannot be replayed inside a primary transaction")
-                    events = list(execute(writer, command, select_only=helper.startswith("aux:") or helper in {"onecolumn", "exists"}))
+                    events = list(execute(writer, command, outputs=recording is not None,
+                        parameters=setup_parameters[index] if setup_parameters is not None else None,
+                        parameter_names=setup_parameter_names[index] if setup_parameter_names is not None else None,
+                        record_bindings=recording is not None,
+                        tcl_calls=[setup_calls[index]] if setup_calls is not None else None,
+                        select_only=helper.startswith("aux:") or helper in {"onecolumn", "exists"}))
+                if recording is not None:
+                    recording["setupBindings"].append([{key: event[key] for key in ("parameterNames", "parameters")}
+                                                       for event in events])
                 setup_outcomes.append(events[-1]["primaryCode"] if events else 0)
                 setup_results.append([row for event in events for row in event["rows"]])
                 setup_errors.append(events[-1]["error"] if events else "")
@@ -163,9 +185,13 @@ def record_sql(setup: str | list[str | dict[str, Json]], migration: str, *, name
         trace = [{**event, **snapshot()} for event in execute(writer, migration, outputs=outputs,
             parameters=parameters, clock=clock, clock_values=clock_values,
             transaction_mode=profile.transaction_mode if profile else None, select_only=migration_readonly,
-            readonly_spans=migration_readonly_spans, committed_reads=auxiliary_replay)]
-    return {"nativeVersion": 4 if profile is not None else 3 if outputs else 2 if isinstance(setup, list) and any(isinstance(item, dict) for item in setup) else 1, "name": name, "setupSql": setup if isinstance(setup, str) else "\n".join(item for item in setup if isinstance(item, str)),
+            readonly_spans=migration_readonly_spans, committed_reads=auxiliary_replay,
+            record_bindings=recording is not None, parameter_names=parameter_names,
+            tcl_calls=tcl_calls["assertion"] if tcl_calls is not None else None)]
+    result = {"nativeVersion": 4 if profile is not None else 3 if outputs else 2 if isinstance(setup, list) and any(isinstance(item, dict) for item in setup) else 1, "name": name, "setupSql": setup if isinstance(setup, str) else "\n".join(item for item in setup if isinstance(item, str)),
             "setupCommands": [setup] if isinstance(setup, str) else setup, "setupOutcomes": setup_outcomes,
             "setupResults": setup_results, "setupErrors": setup_errors, "migrationSql": migration,
             "sourceId": engine.sqlite3_sourceid().decode(), "requirements": requirements or [], "initial": initial, "trace": trace,
-            **({"profile": profile.to_wire(), "setupClockUnixMilliseconds": setup_clock} if profile else {})}
+            **({"profile": profile.to_wire(), "setupClockUnixMilliseconds": setup_clock} if profile else {}), **(recording or {})}
+    validate_recording(result)
+    return result

@@ -6,7 +6,7 @@ import pytest
 
 from conformance.case_format import Json
 from conformance.native_connection import Cell
-from conformance.native_replay import decode_rows
+from conformance.native_bindings import decode_rows
 from tests.conformance_authored_test import authored, table_rows
 
 pytestmark = [pytest.mark.integration, pytest.mark.conformance,

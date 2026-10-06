@@ -1,0 +1,74 @@
+
+set testdir [file join $env(CONFORMANCE_UPSTREAM) test]
+source [file join $testdir tester.tcl]
+reset_db
+set ::untouched [expr {1.25}]
+set before [tcl::unsupported::representation $::untouched]
+do_test bindings-comment {db eval {SELECT 1 -- @::untouched
+}} 1
+set after [tcl::unsupported::representation $::untouched]
+puts "OBSERVER-OBJECT-STABLE=[expr {$before eq $after}]"
+set ::i [expr {42}]
+set ::r [expr {1.0000000000000002}]
+set ::negative [expr {-0.0}]
+set ::text [string range x42 1 end]
+set ::blob [binary decode hex 0080ff]
+set ::nul [format %c 0]
+set ::utf [format %c 8364]
+do_test bindings-types {db eval {
+  SELECT typeof($::i),$::i,typeof($::r),typeof($::text),hex($::text),
+    typeof($::blob),hex($::blob),hex($::nul),hex($::utf),typeof($::negative);
+}} {integer 42 real text 3432 blob 0080FF C080 E282AC real}
+set string_bytes [format {%s!} $::blob]
+do_test bindings-blob-string {db eval {SELECT typeof($::blob),hex($::blob)}} {text C080C280C3BF}
+set ::value [expr {7}]
+db eval {CREATE TABLE t(x); INSERT INTO t VALUES($::value)}
+do_test bindings-setup {db eval {SELECT x FROM t}} 7
+do_test bindings-repeat {db eval {SELECT $::value,$::value}} {7 7}
+set ::value [expr {8}]
+do_test bindings-changed {db eval {SELECT $::value,$::value}} {8 8}
+do_test bindings-quoted {db eval {SELECT '$unknown',"@absent"; -- :missing
+}} {{$unknown} @absent}
+proc local_binding {} {
+  set local [expr {11}]
+  return [db eval {SELECT $local}]
+}
+do_test bindings-local {local_binding} 11
+reset_db
+do_test bindings-missing {db eval {SELECT typeof($::absent)}} null
+reset_db
+set ::traced [expr {13}]
+set ::reads 0
+proc read_binding {args} {incr ::reads}
+trace add variable ::traced read read_binding
+do_test bindings-traced {db eval {SELECT $::traced}} 13
+trace remove variable ::traced read read_binding
+rename read_binding {}
+reset_db
+set ::mixed [expr {17}]
+do_test bindings-mixed {db eval {SELECT typeof($::mixed),typeof(@::mixed)}} {integer blob}
+reset_db
+set ::row_value [expr {18}]
+do_test bindings-row-script {db eval {SELECT $::row_value AS row_value; SELECT $::row_value} {}} {}
+reset_db
+set ::forced [format %c 8364]
+do_test bindings-forced {db eval {SELECT typeof(@::forced),hex(@::forced)}} {blob AC}
+set ::forced_number [expr {1.25}]
+do_test bindings-forced-number {db eval {SELECT typeof(@::forced_number),hex(@::forced_number)}} {blob 312E3235}
+do_test bindings-after-forced-number {db eval {SELECT typeof($::forced_number),hex($::forced_number)}} {text 312E3235}
+reset_db
+array set ::array {key value}
+do_test bindings-array {db eval {SELECT $::array(key)}} value
+reset_db
+do_test bindings-nul-display {db eval {SELECT $::nul}} [list $::nul]
+reset_db
+set ::callback_reads 0
+set ::callback_value [expr {19}]
+proc source_callback {command operation} {incr ::callback_reads; set ::callback_value [expr {20}]}
+trace add execution db enter source_callback
+do_test bindings-callback {db eval {SELECT $::callback_value}} 20
+trace remove execution db enter source_callback
+rename source_callback {}
+puts "OBSERVER-READS=$::reads"
+puts "OBSERVER-CALLBACKS=$::callback_reads"
+finish_test

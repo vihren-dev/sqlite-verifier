@@ -89,7 +89,7 @@ def test_reopen_preserves_commit_and_discards_pending_write() -> None:
 
 def test_nearest_requirement_context() -> None:
     """Record local comment lines without crediting every requirement mentioned in the file."""
-    from conformance.upstream_pilot import evidence
+    from conformance.upstream_evidence import evidence
     source = "# EVIDENCE-OF: R-00001-00002 old\ndo_test old {} {}\n# EVIDENCE-OF: R-00003-00004 current\n# continued\ndo_test new {} {}\n"
     assert evidence(source, 5) == [{"id": "R-00003-00004", "line": 3}]
 

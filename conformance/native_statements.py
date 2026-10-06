@@ -8,6 +8,8 @@ import time
 from conformance.case_format import Json, cell_wire
 from conformance.native_connection import Cell, Row, Connection, NativeError, encoded_sql
 from conformance.native_clock import NativeClock
+from conformance.native_bindings import statement_bindings
+from conformance.native_call_recording import check_call_end, reached_call
 
 
 def wire_rows(rows: list[Row]) -> list[Json]:
@@ -21,10 +23,14 @@ def execute(connection: Connection, sql: str, *, outputs: bool = False,
             clock_values: list[int] | int | None = None,
             transaction_mode: str | None = None, select_only: bool = False,
             readonly_spans: list[tuple[int, int]] | None = None,
-            committed_reads: bool = False) -> Iterator[dict[str, Json]]:
+            committed_reads: bool = False, record_bindings: bool = False,
+            parameter_names: list[list[str | None]] | None = None,
+            tcl_calls: list[dict[str, Json]] | None = None) -> Iterator[dict[str, Json]]:
     """Use SQLite's prepared-statement tail to split SQL, including trigger bodies."""
     if parameters is not None and not outputs:
         raise ValueError("Bound parameters require output recording")
+    if (record_bindings or parameter_names is not None or tcl_calls is not None) and not outputs:
+        raise ValueError("Binding context requires output recording")
     if outputs and not hasattr(connection, "statement_actions"):
         raise ValueError("Output recording requires the native acquisition authorizer")
     if (clock is None) != (clock_values is None) or clock is not None and not outputs:
@@ -35,6 +41,7 @@ def execute(connection: Connection, sql: str, *, outputs: bool = False,
         clock.set_time(clock_values)
     clock_index = 0
     bindings = iter(parameters or [])
+    expected_names = iter(parameter_names or [])
     remaining = encoded_sql(sql)
     while remaining.strip():
         statement, tail = c.c_void_p(), c.c_char_p()
@@ -47,6 +54,9 @@ def execute(connection: Connection, sql: str, *, outputs: bool = False,
             connection.statement_actions.clear()
         from conformance.native_probe import select_probe
         guarded = select_only
+        call_index, call = reached_call(sql, remaining, tcl_calls) if tcl_calls is not None else (-1, None)
+        if call is not None:
+            guarded = guarded or call["helper"].startswith("aux:") or call["helper"] in {"onecolumn", "exists"}
         if readonly_spans:
             from conformance.query_window import tokens
             source = remaining.decode()
@@ -66,10 +76,19 @@ def execute(connection: Connection, sql: str, *, outputs: bool = False,
         consumed = remaining[:len(remaining) - len(suffix)]
         rows: list[Row] = []
         columns: list[str] = []
-        bound: tuple[Cell, ...] = next(bindings, ()) if outputs and (statement.value or code) else ()
+        supplied = next(bindings, None) if outputs and (statement.value or code) else ()
+        names_expected = next(expected_names, None) if outputs and (statement.value or code) else None
+        names: list[str | None] = []
+        bound: tuple[Cell, ...] = supplied or ()
         changes: int | None = None
         message = ""
         try:
+            if call is not None:
+                check_call_end(sql, remaining, consumed, call_index, tcl_calls)
+            if record_bindings and (statement.value or code):
+                if parameters is not None and supplied is None or parameter_names is not None and names_expected is None:
+                    raise ValueError("Expected binding metadata for every reached statement")
+                names, bound = statement_bindings(connection, statement, bound, names_expected, call)
             connection.check(code)
             if statement.value:
                 if guarded and (not connection.library.sqlite3_stmt_readonly(statement)
@@ -126,11 +145,15 @@ def execute(connection: Connection, sql: str, *, outputs: bool = False,
                 groups = query_groups(connection, consumed.decode(), bound, columns, rows) if not code and changes is None else None
                 event.update({"groups": groups, "columns": columns, "columnCount": len(columns),
                               "parameters": [cell_wire(cell) for cell in bound], "changes": changes})
+                if record_bindings:
+                    event["parameterNames"] = names
             if clock is not None:
                 event["clockUnixMilliseconds"] = current_clock
                 clock_index += 1
             yield event
         if code:
+            if record_bindings and (next(bindings, None) is not None or next(expected_names, None) is not None):
+                raise ValueError("Binding metadata supplied for an unexecuted statement")
             return
         if remaining == suffix:
             raise ValueError("SQLite made no progress parsing SQL")
@@ -138,5 +161,7 @@ def execute(connection: Connection, sql: str, *, outputs: bool = False,
 
     if outputs and next(bindings, None) is not None:
         raise ValueError("Parameters supplied for an unexecuted statement")
+    if parameter_names is not None and next(expected_names, None) is not None:
+        raise ValueError("Slot names supplied for an unexecuted statement")
     if isinstance(clock_values, list) and clock_index != len(clock_values):
         raise ValueError("Clock values supplied for an unexecuted statement")

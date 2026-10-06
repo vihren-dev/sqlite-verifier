@@ -102,7 +102,7 @@ def test_pinned_tcl_real_blob_acquisition_and_negative_results(tmp_path: Path) -
     assert "upstream Tcl expectation failed" in instances["values-original-expectation"]["result"]
     assert "results differ from Tcl execution" in instances["values-rounded"]["result"]
     assert "precision" in instances["values-traced"]["result"]
-    assert "Tcl NULL display marker unobservable" in instances["values-null-unobserved"]["result"]
+    assert "connection execution callback context" in instances["values-null-unobserved"]["result"]
     assert report["files"][0]["runtimeComplete"] is True
     _, records = load(output)
     native_replay(records)

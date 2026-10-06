@@ -10,7 +10,8 @@ from conformance.authored_cases import records
 from conformance.case_format import Json
 from conformance.corpus import native_replay, replay
 from conformance.native_record import record_sql
-from conformance.native_replay import decode_rows, prepare
+from conformance.native_bindings import decode_rows
+from conformance.native_replay import prepare
 from conformance.native_storage import CASE_BYTE_LIMIT, expanded_record, serialized, shared_record
 from conformance.requirement_coverage import resolved_ids
 

@@ -108,6 +108,8 @@ def verify(directory: Path, manifest: dict[str, Json], records: list[dict[str, J
               "fileExclusionPolicy", "expressionSamplingPolicy")
     if natural(manifest.get("corpusVersion"), positive=True) >= 5:
         fields += ("sourceFamilyPolicy", "sourceExecutionProfilePolicy", "tclDisplayPrecisionPolicy")
+    if report.get("corpusVersion") == 2 or "tclBindingPolicy" in manifest:
+        fields += ("tclBindingPolicy",)
     if any(field not in report or manifest.get(field) != report[field] for field in fields):
         raise ValueError("Corpus extraction policy binding differs")
     if natural(manifest.get("corpusVersion"), positive=True) >= 5:

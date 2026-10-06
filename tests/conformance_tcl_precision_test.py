@@ -82,5 +82,5 @@ finish_test
     corrupted = deepcopy(records[0])
     bits = corrupted["trace"][0]["rows"][0][0]["real"]
     bits["bits"] = str(int(bits["bits"]) ^ 1)
-    with pytest.raises(ValueError, match="Native replay changed"):
+    with pytest.raises(ValueError, match="Native replay changed|results differ from Tcl execution"):
         native_replay([corrupted])

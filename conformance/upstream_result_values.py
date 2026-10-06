@@ -5,7 +5,7 @@ import re
 import struct
 
 from conformance.case_format import Json
-from conformance.native_replay import decode_cell
+from conformance.native_bindings import decode_cell
 
 #: The pinned Tcl 8.6.16 runtime accepts precision values from zero through 17.
 TCL_MAX_PRECISION = 17
@@ -42,7 +42,10 @@ def value_text(cell: Json, precision: int | None, null_value: str | None = None)
         return str(value)
     if kind in (3, 4):
         # Pinned tclsqlite.c returns BLOBs as Tcl_NewByteArrayObj: each byte is that codepoint.
-        return value.decode("utf-8" if kind == 3 else "latin-1")
+        try:
+            return value.decode("utf-8" if kind == 3 else "latin-1")
+        except UnicodeDecodeError as error:
+            raise ValueError("Tcl TEXT display encoding is not reproduced; retain the typed bytes and exclude this assertion") from error
     verified_real_precision(precision)
     number = struct.unpack(">d", int(value).to_bytes(8, "big"))[0]
     if math.isnan(number):

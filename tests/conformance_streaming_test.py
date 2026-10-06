@@ -13,6 +13,7 @@ from conformance.native_connection import SOURCE_ID
 from conformance.upstream_assertions import assertions, iter_assertions
 from conformance.upstream_selection import candidate_reasons
 import conformance.upstream_selection as selection
+import conformance.upstream_bindings as binding_observer
 import conformance.upstream_pilot as upstream_pilot
 
 pytestmark = [pytest.mark.unit, pytest.mark.conformance]
@@ -37,14 +38,14 @@ def test_iterator_is_lazy_and_matches_list_wrapper(monkeypatch: pytest.MonkeyPat
                        ("sql", "db", f"SELECT :value{index}", "0", "eval"),
                        ("result", "db", "0", str(index)), ("end", f"loop-{index}")])
     parsed: list[str] = []
-    original = selection.tokens
+    original = binding_observer.tokens
 
     def observed_tokens(command: str) -> list[Token]:
         """Count command scans to rule out repeated scans of full candidate prefixes."""
         parsed.append(command)
         return original(command)
 
-    monkeypatch.setattr(selection, "tokens", observed_tokens)
+    monkeypatch.setattr(binding_observer, "tokens", observed_tokens)
     iterator = iter_assertions(encoded(events))
     first = next(iterator)
     before = deepcopy(first)

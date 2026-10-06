@@ -45,6 +45,7 @@ in {
       "workload" "workload_inputs" "execution_profile" "native_replay" "model_check"
       "native_record" "native_acquisition" "native_connection" "native_library" "native_clock" "native_storage"
       "native_probe" "native_ordering" "query_window" "native_metadata" "native_statements"
+      "native_bindings" "native_call_recording" "upstream_bindings" "upstream_binding_policy"
       "upstream_helpers" "model_assertions" "native_trace" "freeze_validation"
       "upstream_catalog" "upstream_sampling" "upstream_profiles" "freeze_profiles"
     ];
@@ -67,6 +68,7 @@ in {
       (root + /tests/upstream_source_calls.test)
       (root + /tests/upstream_registered_calls.test)
       (root + /tests/upstream_value_calls.test)
+      (root + /tests/upstream_binding_calls.test)
     ];
     runtime = conformance;
     tools = [ native.sqlite conformanceNative.fixture ];

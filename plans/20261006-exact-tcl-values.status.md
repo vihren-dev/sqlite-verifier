@@ -48,3 +48,35 @@ Relevant files: `conformance/upstream_result_values.py`,
   independent review finding `20261006T125917Z-2950f417#1`. The same 94 focused
   precision/value, acquisition and freeze checks passed in 2.94 seconds under
   a 90-second bound, using the existing pinned Python/Tcl/native tools.
+- 2026-10-06: Implemented observed scalar binding capture and native binding
+  recording version 1. The observer reads actual Tcl object types before
+  formatting, preserves original objects and encoded bytes, and refuses missing
+  values, traces, source callbacks, array forms, mixed `@` conversions, NaN
+  bindings and bound row-script contexts. Actual Tcl checks compare source
+  execution with and without the observer, including string-representation
+  state, numeric-looking TEXT, signed zero, changed values, NUL and non-ASCII
+  bytes. Source callbacks and variable read traces run once in both executions.
+- Native replay checks SQLite's actual slot names and counts, including repeated
+  names. Typed setup vectors, helpers, read-only guards and original source call
+  references remain paired through minimization. The explicit setup primitive
+  still supports anonymous/numbered slots and directly supplied NULL values.
+  Malformed metadata and coherently corrupted input copies fail before model
+  admission or fresh observation comparison. Both corpus loaders enforce the
+  new extension; model/profile support and frozen v1–v5 bytes remain unchanged.
+- New acquisition reports use version 2 and bind original call contexts by
+  SHA-256 in each accepted source instance. Original SQL, expectations, return
+  codes, per-call precision, NULL markers, typed values and object metadata remain
+  in `sourceCalls`, before minimization. Historical acquisition version 1 retains
+  its refusal boundary and replay shape.
+- The current TEXT display comparator accepts standard UTF-8. Tcl's encoded
+  NUL and other nonstandard display bytes remain exact in binding evidence and
+  native storage/hex replay; direct displays that the comparator cannot decode
+  retain a named refusal with the source identity. No bytes are normalized.
+- The final focused batch passed 174 tests in 12.87 seconds (90-second bound),
+  including historical v1 replay through the existing compiled runtime. The
+  final policy extraction passed 21 binding checks in 0.71 seconds. The
+  sandboxed upstream target passed 90 tests in 2.89 seconds without skips.
+  JUnit: `/nix/store/wa0ggvihd31ql0mzig62p1l19pkp7s7b-sqlite-verifier-test-upstream-1/junit.xml`.
+  The native audit also passed 205 short checks, with its one full-model case
+  deferred for host coordination. Date-family acquisition evidence and the full
+  model gate remain pending; this task is not DONE.
