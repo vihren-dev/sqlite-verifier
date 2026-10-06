@@ -81,6 +81,14 @@ the retained pair and campaign summary. Output refusals identify the output,
 input root and next action. Interrupted metadata replacement retains the prior
 complete JSON record. No incomplete pair acquires an invented duration.
 
+The named launcher selects the shipped small success, checked refutation and
+Atuin source directories through ordinary CLI arguments. It requires explicit
+runtime, declared Python, new output and common timeout selections. Configuration
+tests check current CLI parsing, expected statuses, full source roots, missing
+selected inputs and fresh output refusal. Synthetic writer tests exercise the
+entrypoint without running actual verification paths. The flexible `TrialSpec`
+primitive remains available for manual arguments and source roots.
+
 Actual performance trials wait for the final T05/documentation installed runtime
 and coordinated idle hosts. The final evidence retains all raw trials on both
 platforms and the owner's disposition where required. Until then this task is
@@ -113,7 +121,8 @@ unit has a status update, Jujutsu commit and independent review.
 The existing attack tests, confidence policy and cold-path recorder are checked
 within the scopes listed in the status file. The campaign writer has bounded
 persistence tests with synthetic observations; separate real-child tests cover
-subprocess boundaries. The named-case launcher is not implemented. Ordinary
-integrated/Nix infrastructure checks and actual macOS/Linux performance trials
+subprocess boundaries. The named-case launcher has bounded configuration and
+synthetic writer checks. Its installed-runtime execution contract is not yet
+accepted. Ordinary integrated/Nix infrastructure checks and actual macOS/Linux performance trials
 remain incomplete. Work continues on the existing harness; performance trials
 remain held and this task is not DONE.

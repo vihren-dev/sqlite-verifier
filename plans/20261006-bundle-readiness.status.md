@@ -253,3 +253,24 @@ No new campaign, launcher, benchmark or task was started after the hold.
   ready for coordinated integration. Its exact raw review row is preserved in
   this checkpoint. The named-case launcher, integrated gates, final runtime and
   actual owner-reviewed performance observations remain pending; T06 is not DONE.
+- 2026-10-07: Continued only the next unfinished T06 launcher requirement.
+  Added `tools/bundle_measurement.py` and the team execution guide
+  `docs/bundle-measurement.md`. The three configurations use shipped small
+  success/refutation sources under profile 3.51.0 and Atuin under 3.46.0. They
+  share protected role arguments between paths and retain full Lean source
+  directories. `TrialSpec` remains the flexible manual-argument primitive.
+- Runtime, Python, output and common timeout are required explicit selections.
+  The named wrapper checks the executable Python against `runtime/python-path`
+  and refuses missing selected files before campaign evidence creation. All 24
+  new bounded launcher cases pass in 0.71 seconds. Tests parse the actual source
+  CLI and exercise the actual writer with explicitly synthetic observations;
+  they do not execute installed verification paths or establish timing evidence.
+- Final installed T05/documentation runtime, ordinary integrated/Nix gates,
+  coordinated idle hosts and actual owner-reviewed macOS/Linux campaigns remain
+  required. No actual trial, heavy Nix/SSH job, publication, runtime/proof-gate
+  change or frozen review branch change occurred. T06 remains IN PROGRESS.
+- The combined measurement harness now passes all 134 checks in 5.35 seconds
+  under a 30-second command bound. JUnit is retained at
+  `build/test-results/t06-launcher-harness.xml`. New source/test files contain
+  79 and 160 lines. The prior campaign receipts and append-only review rows are
+  unchanged; the pending exact checkpoint review row is included in this unit.
