@@ -142,6 +142,17 @@ Relevant sources: `SqliteVerifier.lean`, `SqliteVerifier/*.lean`,
   finding as fixed. The corrected example module compiles without warnings;
   no formula, definition body or existing schema guard changed.
 
+- 2026-10-06: Schema example correction `34c35b16` passes independent review
+  with no findings (`20261006T161714Z-34c35b16`). Nine public-library modules
+  now have compiled, independently reviewed checked documentation: Declarations,
+  Model, Library, SchemaExtension, NullableProjection, LiteralData,
+  LiteralPreservation, SchemaPreservation and SchemaExamples. Every earlier
+  should finding in these units has a fixed outcome in the review journal.
+  The final raw review entry remains pending for the next integration commit.
+  T05 owns the remaining changed execution/contract/example modules and their
+  documentation. The reference branch owns packaging and authored coverage.
+  Full authored coverage, the walkthrough and combined acceptance remain open.
+
 ## Acceptance remaining
 
 Dependency closure and sandboxed reference build; complete checked public
