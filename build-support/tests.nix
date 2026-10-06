@@ -55,6 +55,7 @@ in {
   };
   upstream = suite "upstream" {
     inputs = [
+      (root + /tests/conformance_freeze_capture.py)
       (fs.fileFilter (file: file.hasExt "py" || file.hasExt "tcl") (root + /conformance))
       (fs.fileFilter (file: file.hasExt "py") (root + /migration_check))
       (root + /tests/upstream_profile_calls.test)

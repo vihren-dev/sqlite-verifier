@@ -128,3 +128,10 @@ Relevant files: `conformance/upstream_result_values.py`,
   input. All 28 existing freeze checks pass under a 90-second bound. The
   reviewed diagnostic cleanup `331467e9` has no findings. The paired acquisition
   artifacts are ready in the working copy and will be recorded separately.
+- 2026-10-06: Fixture extraction `ef3ff4cc` passed independent review with no
+  findings. Updated the evidence-test caller to import the flat fixture module
+  directly and declared that module in both upstream and model Nix inputs. The
+  53 affected freeze/evidence checks pass in 5.16 seconds (90-second bound).
+  The upstream sandbox target passes 104 checks in 2.67 seconds without skips;
+  JUnit: `/nix/store/25c4wdbj0h5kpk8xwi3gdvn7s50dswdp-sqlite-verifier-test-upstream-1/junit.xml`.
+  The separate T04b storage caller must use the same direct import at assembly.
