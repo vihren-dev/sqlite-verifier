@@ -60,3 +60,9 @@ Specifications: [ADR 0003](../docs/adr-0003-agent-proof-preparation.md),
   pass in 0.50 seconds (30-second bound). Public reports/exits remain unchanged,
   and each exception path leaves zero active stage frames. No performance trial
   or acceptance cutover occurred.
+- 2026-10-06: Observer process-role cleanup `3863ae85` passed independent
+  review with no findings. Extracted the unchanged private kernel fixture and
+  exact 12-case proof-attack inventory into flat helpers for both checker suites.
+  Updated the kernel target's explicit Nix inputs. All 19 existing kernel cases
+  pass against the cached reviewed Lean 4.34.1/T02 Darwin runtime (120-second
+  suite bound; each compile/check remains bounded). No actual timing trial ran.
