@@ -37,6 +37,20 @@ Relevant sources: `SqliteVerifier.lean`, `SqliteVerifier/*.lean`,
   `build/t18b-base-integration-check.log`. No executable or formula was changed
   by this baseline merge. Packaging will use doc-gen4's explicit `single` and
   `fromDb` interface, which can avoid its Git-dependent source-URI facets.
+- 2026-10-06: The baseline merge passed Claude review with no findings
+  (`20261006T142821Z-edf68e1c`). The reference build uses an isolated Jujutsu
+  workspace; this workspace owns public declaration documentation.
+- 2026-10-06: Added checked Verso documentation to every authored declaration,
+  constructor and field in `SqliteVerifier/Declarations.lean`, with exact
+  descriptions of type-spelling compatibility and the plain-column predicate.
+  Checked examples retain the field defaults and BIGINT spelling. The module
+  compiles without documentation warnings and remains below 200 lines.
+- 2026-10-06: Four real compiler tests pass in 2.18 seconds: a true checked
+  example is accepted, while an unknown reference, ill-typed example and false
+  assertion each fail at their actual source location. Sandboxed `leanRuntime`
+  compilation also passes for the complete public library, existing proof
+  examples and both gates. Log: `build/t18b-declarations-check.log`; JUnit:
+  `build/test-results/checked-docs.xml`. No formula or definition body changed.
 
 ## Acceptance remaining
 
