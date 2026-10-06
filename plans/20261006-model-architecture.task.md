@@ -1,7 +1,8 @@
 # SQLite model boundary and execution architecture
 
-Created 2026-10-06. Status: IN PROGRESS.
+Created 2026-10-06. Status: AWAITING OWNER ACCEPTANCE.
 Status file: [status](20261006-model-architecture.status.md).
+ADR: [proposed decision](../docs/adr-0006-model-boundary-and-execution-levels.md).
 Sources: public [issue #23](https://github.com/vihren-dev/sqlite-verifier/issues/23)
 and [issue #31](https://github.com/vihren-dev/sqlite-verifier/issues/31).
 

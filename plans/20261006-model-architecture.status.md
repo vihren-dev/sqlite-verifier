@@ -1,7 +1,8 @@
 # Status: SQLite model boundary and execution architecture
 
-Created 2026-10-06. Status: IN PROGRESS.
+Created 2026-10-06. Status: AWAITING OWNER ACCEPTANCE.
 Task: [task](20261006-model-architecture.task.md).
+ADR: [proposed decision](../docs/adr-0006-model-boundary-and-execution-levels.md).
 Sources: public issues #23 and #31, including #23's boundary comment.
 Relevant files: `lakefile.toml`, `SqliteVerifier.lean`,
 `SqliteVerifier/Model.lean`, `SqliteVerifier/SqlExecution.lean`,
@@ -28,3 +29,8 @@ Relevant files: `lakefile.toml`, `SqliteVerifier.lean`,
 - 2026-10-06: bounded local-link validation passed for all 12 ADR links.
   No executable source changed. No future implementation check is claimed as
   executed. Independent review and final owner acceptance remain.
+- 2026-10-06: Claude independently reviewed ADR commit `996cc60e` through
+  `REVIEWER=claude just review`: no must or should findings, exit 0.
+  Review record: `20261006T092414Z-996cc60e`. The ADR is ready for final owner
+  acceptance. It remains PROPOSED; dependent package/execution changes wait
+  for that acceptance. This task is not DONE.
