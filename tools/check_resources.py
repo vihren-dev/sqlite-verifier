@@ -69,7 +69,7 @@ def check_resources(root: Path = ROOT, *, temporary_root: Path | None = None) ->
                 pass
         except OSError as error:
             raise ValueError(f'Temporary storage directory is not writable: {temporary}; '
-                             'select a writable directory with at least 10 GiB free') from error
+                             'select a writable directory with sufficient free space') from error
 
 
 def main() -> None:

@@ -103,7 +103,7 @@ def main() -> None:
     parser.add_argument("--output", type=Path, required=True)
     args = parser.parse_args()
     if args.native_check and args.temporary_root is None:
-        parser.error("--native-check requires --temporary-root PATH; select a writable directory with at least 10 GiB free")
+        parser.error("--native-check requires --temporary-root PATH; select an existing writable directory")
     if args.temporary_root is not None and not args.native_check:
         parser.error("--temporary-root requires --native-check")
     if args.output.resolve().is_relative_to(args.directory.resolve()):

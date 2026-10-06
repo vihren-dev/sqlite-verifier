@@ -48,7 +48,7 @@ def invoke(corpus: Path, runtime: Path, output: Path, *arguments: str) -> Comman
 def test_explicit_storage_preserves_records_and_cleans_actual_files(tmp_path: Path) -> None:
     """Changing the selected directory preserves every native field while keeping ordinary files there."""
     roots = [tmp_path / 'first', tmp_path / 'second']
-    fresh = []
+    fresh: list[dict[str, Json]] = []
     for root in roots:
         root.mkdir()
         paths: list[Path] = []
@@ -149,3 +149,28 @@ def test_native_report_refuses_changed_input_bytes(
     monkeypatch.setattr(execution, 'native_replay', change_input)
     with pytest.raises(ValueError, match='Full native replay inputs changed'):
         execution.report(frozen, records, runtime_root, tmp_path)
+
+
+@pytest.mark.parametrize('storage_condition', ['unspecified', 'missing', 'valid'])
+def test_freezer_cli_requires_storage_and_names_its_separate_receipt(
+        capture: tuple[Path, Path, dict[str, Json], dict[str, Json]],
+        tmp_path: Path, storage_condition: str) -> None:
+    """The real freezer CLI refuses bad selection and publishes its native audit beside the output."""
+    directory, upstream, _capture, _record = capture
+    storage, output = tmp_path / 'storage', tmp_path / 'published'
+    if storage_condition == 'valid':
+        storage.mkdir()
+    arguments = [] if storage_condition == 'unspecified' else ['--temporary-root', str(storage)]
+    result = run_command([sys.executable, '-m', 'conformance.freeze_corpus', '--input', str(directory),
+        '--upstream', str(upstream), '--output', str(output), *arguments], cwd=ROOT, timeout=30)
+    receipt = output.with_name(output.name + '-native-replay.json')
+    if storage_condition != 'valid':
+        diagnostic = '--temporary-root' if storage_condition == 'unspecified' else 'Temporary storage directory is missing or invalid'
+        assert result.returncode == 2 and diagnostic in result.stderr, result.diagnostic()
+        assert not output.exists() and not receipt.exists()
+    else:
+        assert result.returncode == 0, result.diagnostic()
+        _manifest, records = load(output)
+        native = json.loads(receipt.read_text())['nativeReplay']
+        assert native['passed'] and native['temporaryStorage']['fixtureCount'] == len(records)
+        assert native['temporaryStorage']['selectedRoot'] == str(storage)

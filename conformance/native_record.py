@@ -12,7 +12,7 @@ from conformance.native_metadata import integer, quoted, text
 from conformance.execution_profile import ExecutionProfile
 from conformance.native_clock import NativeClock, utc_timezone
 from conformance.native_acquisition import open_case
-from conformance.native_library import SOURCE_IDS
+from conformance.native_library import DEFAULT_ENGINE_VERSION, SOURCE_IDS, library_binary
 
 
 
@@ -89,10 +89,10 @@ def record_sql(setup: str | list[str | dict[str, Json]], migration: str, *, name
     with TemporaryDirectory(prefix="native-corpus-", dir=temporary_root) as directory, ExitStack() as stack:
         if controlled:
             stack.enter_context(utc_timezone())
-        version = profile.engine_version if profile else "3.51.0"
+        version = profile.engine_version if profile else DEFAULT_ENGINE_VERSION
         if version not in SOURCE_IDS:
             raise ValueError("Execution profile engine has no pinned native build")
-        engine = load_library(library or library_path("sqlite3" + ("" if version == "3.51.0" else "-" + version)), version)
+        engine = load_library(library or library_path(library_binary(version)), version)
         clock = NativeClock(engine, setup_clock) if controlled else None
         if clock is not None:
             stack.callback(clock.close)

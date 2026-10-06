@@ -9,6 +9,7 @@ from time import monotonic
 from conformance.case_format import Json
 from conformance.corpus import native_replay
 from conformance.native_connection import library_path
+from conformance.native_library import DEFAULT_ENGINE_VERSION, library_binary
 from conformance.native_storage import serialized
 from conformance.progress import RUNTIME_FILES
 from tools.check_resources import check_resources
@@ -18,10 +19,9 @@ ROOT = Path(__file__).resolve().parents[1]
 
 def bindings(corpus: Path, records: list[dict[str, Json]], runtime: Path | None) -> dict[str, Json]:
     """Hash actual code, corpus, runtime and selected native library bytes before and after replay."""
-    versions = {record['profile']['engineVersion'] if record['nativeVersion'] == 4 else '3.51.0'
+    versions = {record['profile']['engineVersion'] if record['nativeVersion'] == 4 else DEFAULT_ENGINE_VERSION
                 for record in records}
-    libraries = [library_path('sqlite3' + ('' if version == '3.51.0' else '-' + version))
-                 for version in sorted(versions)]
+    libraries = [library_path(library_binary(version)) for version in sorted(versions)]
     sources = [*sorted((ROOT / 'conformance').glob('*.py')),
                *sorted((ROOT / 'migration_check').glob('*.py')),
                ROOT / 'tools/check_resources.py', ROOT / 'nix/sqlite.nix', ROOT / 'nix/flake.lock']

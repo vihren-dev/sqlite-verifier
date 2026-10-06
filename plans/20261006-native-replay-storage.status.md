@@ -31,6 +31,14 @@ Relevant files: `conformance/native_record.py`, `conformance/corpus.py`,
 - 2026-10-06: Nix daemon access became restricted during validation. Stopped
   and received authorization to use the established execution escalation for
   required Nix checks. No configuration or dependency change was needed.
+- 2026-10-06: Claude review of `cf763a7d` completed with no must findings and
+  five should findings (`20261006T091957Z-cf763a7d#1`–`#5`). Fixed all five:
+  removed duplicated capacity text, shared the default native engine and
+  executable-selection policy, clarified the receipt-path message, added real
+  freezer CLI checks and supplied the missing test-variable type annotation.
+- 2026-10-06: The coordinator confirmed that the Linux host is idle. New
+  paired and full measurements will start after the correction review passes.
+  The retained toolchain-validation directory remains outside this task.
 
 ## Validation and review
 
@@ -46,3 +54,7 @@ Relevant files: `conformance/native_record.py`, `conformance/corpus.py`,
   `/nix/store/jjjh0n7yjqis8206xlfr198gm132m0hh-sqlite-verifier-test-upstream-1/junit.xml`.
 - Independent review and the new Linux paired/full execution evidence remain
   pending. The historical timeout receipts and ext4 sample are unchanged.
+- After review corrections, `timeout 60 python3 -m pytest -q tests/test_native_replay_storage.py tests/test_resources.py tests/conformance_record_test.py tests/conformance_driver_profiles_test.py --runtime-root RUNTIME`:
+  44 passed in 2.78 seconds, including alternate pinned engines and the actual
+  freezer CLI's required root, invalid-root refusal and derived receipt path.
+  The freezer subprocess has a 30-second timeout.
