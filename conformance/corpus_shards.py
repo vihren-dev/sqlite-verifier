@@ -8,7 +8,7 @@ from pathlib import Path
 from conformance.case_format import Json
 from conformance.execution_profile import validate_manifest_profiles
 from conformance.native_replay import output_wire
-from conformance.native_storage import check_size, expanded_record, serialized, shared_record
+from conformance.native_storage import CASE_BYTE_LIMIT, check_size, expanded_record, serialized, shared_record
 
 FORMATS = {"shardStorageVersion": 1, "caseFormatVersion": 2,
            "nativeVersion": 4, "snapshotStorageVersion": 1}
@@ -77,8 +77,7 @@ def payload_records(payload: bytes, binding: dict[str, Json]) -> list[dict[str, 
             if type(value.get(field)) is not int or value[field] != FORMATS[field]:
                 raise ValueError(f"Unsupported corpus record format: {field}")
         check_size(len(serialized(value)))
-        record = expanded_record(value)
-        check_size(len(serialized(record)))
+        record = expanded_record(value, byte_limit=CASE_BYTE_LIMIT)
         if not isinstance(record.get("name"), str) or not record["name"]:
             raise ValueError("Invalid corpus case name")
         upstream = record.get("upstream")

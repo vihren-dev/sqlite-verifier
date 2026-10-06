@@ -62,11 +62,18 @@ def shared_record(record: dict[str, Json], *, byte_limit: int | None = CASE_BYTE
     return result
 
 
-def expanded_record(value: Json) -> dict[str, Json]:
-    """Verify every digest/reference, then reconstruct independent observations from each validated JSON payload."""
+def expanded_record(value: Json, *, byte_limit: int | None = None) -> dict[str, Json]:
+    """Verify and independently reconstruct snapshots, optionally bounding exact canonical logical bytes.
+
+    A bounded record counts its reference skeleton plus each validated payload's
+    replacement length. It retains the expanded-size check without serializing
+    repeated reconstructed snapshots. The default primitive remains unbounded.
+    """
     if not isinstance(value, dict):
         raise ValueError("Invalid native record")
     if "snapshotStorageVersion" not in value and "snapshots" not in value:
+        if byte_limit is not None:
+            check_size(len(serialized(value)), byte_limit)
         return value  # Frozen legacy cases keep their observations and size policy.
     if type(value.get("snapshotStorageVersion")) is not int or value["snapshotStorageVersion"] != 1:
         raise ValueError("Unsupported native snapshot storage version")
@@ -81,6 +88,8 @@ def expanded_record(value: Json) -> dict[str, Json]:
         if hashlib.sha256(payload).hexdigest() != digest:
             raise ValueError("Native snapshot digest or content differs")
         validated_snapshot_json[digest] = payload
+    result = {key: item for key, item in value.items() if key not in {"snapshotStorageVersion", "snapshots"}}
+    expanded_byte_count = len(serialized(result)) if byte_limit is not None else 0
     used: set[str] = set()
     restored: list[dict[str, Json]] = []
     for observation in observations(value):
@@ -93,9 +102,12 @@ def expanded_record(value: Json) -> dict[str, Json]:
             if not isinstance(digest, str) or digest not in snapshots:
                 raise ValueError("Missing native snapshot reference")
             copied[field] = json.loads(validated_snapshot_json[digest])
+            if byte_limit is not None:
+                expanded_byte_count += len(validated_snapshot_json[digest]) - len(serialized(reference))
             used.add(digest)
         restored.append(copied)
     if used != set(snapshots):
         raise ValueError("Native snapshot pool contains unused evidence")
-    result = {key: item for key, item in value.items() if key not in {"snapshotStorageVersion", "snapshots"}}
+    if byte_limit is not None:
+        check_size(expanded_byte_count, byte_limit)
     return {**result, "initial": restored[0], "trace": restored[1:]}

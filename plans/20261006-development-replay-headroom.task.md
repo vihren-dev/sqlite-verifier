@@ -42,6 +42,12 @@ Bounded tests preserve mandatory membership, stable identity ranking,
 exact result counts and all frozen bindings. Digest, snapshot, profile,
 acquisition and fidelity tampering still fail, including corruption in
 unselected records. Injected disagreements and native drift still fail.
+Bounded snapshot expansion matches the actual canonical expanded JSON byte
+length at the exact limit and one byte beyond it. Repeated and empty
+snapshots, escaped/multibyte metadata, nested independent mutations and
+malformed or unused pools retain their checks. The default expansion
+primitive remains unbounded; shard loading enforces both stored and logical
+case limits before selecting any replay cases.
 Storage audit checks exercise actual native fixtures. Relevant corpus,
 tier and Nix target checks retain the owner-approved 120-second phase bound
 from `06a1e297`; the separate acceptance target remains less than 30 seconds.

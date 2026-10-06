@@ -146,3 +146,29 @@ authorized one Linux diagnostic below. No production change followed it.
   and its limits are committed on `t04c-replay-headroom`. The coordinator has
   the measured costs and the conditional exact-size candidate. No additional
   production change or native execution was started; the task is not DONE.
+- 2026-10-06: The coordinator authorized the measured exact-size CPU candidate.
+  `expanded_record` now accepts an optional logical byte limit. It counts
+  canonical reference-skeleton bytes and each validated snapshot replacement,
+  including negative deltas and every repeated occurrence. All digest,
+  reference, missing and unused-pool checks still precede logical-size refusal;
+  each occurrence still reconstructs an independent mutable JSON tree. The
+  default primitive remains unbounded. `payload_records` keeps its stored-size
+  check and requests this logical limit instead of serializing the complete
+  reconstructed record again. No framework or alternate expansion path was
+  added.
+- 2026-10-06: All 84 focused snapshot, storage, shard and tier checks pass in
+  0.87 seconds under a 60-second suite bound, with existing pinned native and
+  conformance paths. Independent serialization oracles cover exact and +1
+  limits, escaped/multibyte metadata, repeated/empty snapshots and nested
+  mutations. Tiny limits cannot hide malformed/unused pools. A logically
+  oversized unselected case with small shared storage still fails complete
+  shard loading with its exact byte count. Frozen bytes, profiles, SQL,
+  selection, both historical receipt sets and the 120-second guard are
+  unchanged. The pending final raw diagnostic-review line is preserved.
+- This is a partial CPU change. The previous diagnostic's native replay was
+  about 25 seconds, with about 19.4 seconds outside parent CPU, and stored-case
+  parsing was 5.411 profiled seconds. Those are prior observations, not new
+  measurements of this code. This unit does not establish under-30-second
+  acceptance. No new phase, native-I/O change, full-model gate or timing
+  campaign ran; integrated checks and Linux performance acceptance remain
+  pending. Task status is IN PROGRESS.
