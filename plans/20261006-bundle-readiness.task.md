@@ -39,7 +39,9 @@ platform, output status, exit code, monotonic wall time, stage times and artifac
 identities. The combined preparation/checking wall time includes the whole path.
 The report gives both path medians, the median paired difference and full ranges.
 An interval for the median of `bundle path minus verify` uses ordered differences
-and the binomial sign distribution with at least 95% coverage. A positive lower
+and the binomial sign distribution with at least 95% coverage under the actual
+nine-to-25 continuation rule. Fixed-size and simultaneous coverage are retained
+separately; ties produce conservative bounds. A positive lower
 bound means regression; a nonpositive upper bound means no slowdown. Otherwise
 the nine-pair run extends to 25; an interval still spanning zero is unresolved.
 
