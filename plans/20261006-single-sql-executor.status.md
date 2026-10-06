@@ -141,6 +141,18 @@ state. The generated starting-schema pattern now matches the Atuin example.
   Lean source and frozen native inputs are unchanged. Targeted native mutation
   validation and both full local model runs await coordinated host leases.
 
+- 2026-10-06: Correction `941c1aa4` passed independent review with no must and
+  one should finding: document that the extraction spans the primitive definition
+  through the namespace close and requires it to remain the final declaration.
+  Added that explicit warning and recorded the finding as fixed. The actual
+  error-seeking generation/mutation check plus four source regressions then
+  passed all five cases on Darwin in 10.56 seconds. Current conformance artifact
+  is `/nix/store/3h1ww180anyrw23dhs7bpzswhkrv2l1s-sqlite-verifier-conformance`.
+  Its original XML is `build/test-results/t05-mutation-targeted.xml`; log is
+  `build/t05-mutation-targeted.log`. Both host leases are now reserved for the
+  required complete model runs. Full acceptance and final owner approval remain
+  pending; no new baseline, issue closure, merge or release is authorized.
+
 ## Exporter checkpoints and remaining gates
 
 The T03 and T02 receipts describe a fixed model and input checkpoint. Their

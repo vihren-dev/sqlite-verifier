@@ -21,7 +21,11 @@ MUTANTS = {
 
 
 def schema_step_source(module: str) -> str:
-    """Shadow the primitive transition using code boundaries, independent of its documentation."""
+    """Extract the primitive definition through its namespace close for mutation compilation.
+
+    The transition must remain the namespace's final declaration; later declarations
+    would also be copied. Declaration docstrings do not determine either boundary.
+    """
     start = module.index("\ndef step ") + 1
     end = module.rindex("\nend SqliteVerifier")
     return "namespace SqliteVerifier\n" + module[start:end] + "\nend SqliteVerifier\n"
