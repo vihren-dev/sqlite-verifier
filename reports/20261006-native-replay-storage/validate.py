@@ -16,6 +16,13 @@ def digest(path: Path) -> str:
     return hashlib.sha256(path.read_bytes()).hexdigest()
 
 
+def require(condition: bool, field: str, path: Path) -> None:
+    """Identify the exact failed report field and how to restore its execution context."""
+    if not condition:
+        raise ValueError(f'{path}: {field} differs; restore the retained report from its commit '
+                         'and select the original execution source')
+
+
 def main() -> None:
     """Require exact identities, native observations, paired fresh records and execution bindings."""
     parser = argparse.ArgumentParser(description=__doc__)
@@ -28,20 +35,27 @@ def main() -> None:
     from conformance.corpus import load
     for name, expected in json.loads((base / 'sha256.json').read_text()).items():
         if digest(base / name) != expected:
-            raise ValueError('Retained evidence bytes changed: ' + name)
+            raise ValueError(f'Retained evidence bytes changed: {base / name}; restore this file '
+                             'from its commit or record new evidence in a new report directory')
     receipt = json.loads((base / 'linux/receipt.json').read_text())
-    report = json.loads((base / 'linux/full.json').read_text())
+    full_bytes = gzip.decompress((base / 'linux/full.json.gz').read_bytes())
+    if hashlib.sha256(full_bytes).hexdigest() != receipt['full']['reportSha256']:
+        raise ValueError('Full report bytes differ from the executed receipt')
+    report = json.loads(full_bytes)
     manifest, records = load(source / 'conformance/corpus-v5')
-    if (not receipt['passed'] or not receipt['bindingsUnchanged']
-            or receipt['bindingsBefore'] != receipt['bindingsAfter']
-            or receipt['casesSha256'] != report['casesSha256']
-            or report['casesSha256'] != manifest['casesSha256']
-            or report['denominator'] != receipt['denominator'] or report['denominator'] != len(records)
-            or len(receipt['cases']) != EXPECTED_PAIRED_CASES
-            or receipt['full']['exitCode'] != 0
-            or not 0 < receipt['full']['seconds'] < receipt['full']['timeoutSeconds']
-            or [case['name'] for case in report['cases']] != [record['name'] for record in records]):
-        raise ValueError('Full replay identities or binding completion differ')
+    receipt_path, report_path = base / 'linux/receipt.json', base / 'linux/full.json.gz'
+    require(receipt['passed'], 'passed', receipt_path)
+    require(receipt['bindingsUnchanged'], 'bindingsUnchanged', receipt_path)
+    require(receipt['bindingsBefore'] == receipt['bindingsAfter'], 'bindingsBefore/After', receipt_path)
+    require(receipt['casesSha256'] == report['casesSha256'], 'casesSha256', receipt_path)
+    require(report['casesSha256'] == manifest['casesSha256'], 'casesSha256', report_path)
+    require(report['denominator'] == receipt['denominator'], 'denominator', receipt_path)
+    require(report['denominator'] == len(records), 'denominator', report_path)
+    require(len(receipt['cases']) == EXPECTED_PAIRED_CASES, 'cases', receipt_path)
+    require(receipt['full']['exitCode'] == 0, 'full.exitCode', receipt_path)
+    require(0 < receipt['full']['seconds'] < receipt['full']['timeoutSeconds'], 'full.seconds', receipt_path)
+    require([case['name'] for case in report['cases']] == [record['name'] for record in records],
+            'cases[].name', report_path)
     native = report['nativeReplay']
     audit = native['temporaryStorage']
     if (not native['passed'] or not native['bindingsUnchanged']

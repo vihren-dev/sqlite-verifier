@@ -77,8 +77,9 @@ Relevant files: `conformance/native_record.py`, `conformance/corpus.py`,
 - `timeout 900 nix-build build-support/default.nix -A tests.upstream --out-link build/nix-upstream --option sandbox true --option sandbox-fallback false --extra-experimental-features 'nix-command flakes'`:
   58 passed in 1.88 seconds, with no skips. Immutable JUnit evidence:
   `/nix/store/jjjh0n7yjqis8206xlfr198gm132m0hh-sqlite-verifier-test-upstream-1/junit.xml`.
-- Independent review and the new Linux paired/full execution evidence remain
-  pending. The historical timeout receipts and ext4 sample are unchanged.
+- The new Linux paired/full execution evidence is retained below. Packet
+  review remains pending. Historical timeout receipts and the ext4 sample are
+  unchanged.
 - After review corrections, `timeout 60 python3 -m pytest -q tests/test_native_replay_storage.py tests/test_resources.py tests/conformance_record_test.py tests/conformance_driver_profiles_test.py --runtime-root RUNTIME`:
   44 passed in 2.78 seconds, including alternate pinned engines and the actual
   freezer CLI's required root, invalid-root refusal and derived receipt path.
@@ -104,3 +105,16 @@ Relevant files: `conformance/native_record.py`, `conformance/corpus.py`,
   inventory and original execution source hashes. The verifier can be rerun
   against the recorded original source revision. The measurement helper's
   retained hash matches its actually executed bytes.
+- 2026-10-06: Jujutsu's default 1 MiB new-file guard refused the 2.1 MiB
+  full report while committing the execution packet. Retained it as
+  deterministic `full.json.gz`, verified exact decompression and the recorded
+  raw report digest, and updated the verifier and inventory. No Jujutsu
+  configuration, native observation, profile or frozen corpus was changed.
+- Packet review `20261006T124913Z-452e432c` reported two must findings for the
+  missing large report and eight should findings. The gzip packaging and clean
+  snapshot validation fix the must findings. Updated verifier diagnostics and
+  status wording. The five recommendations about the measurement helper are
+  deferred: it is the exact executed historical helper whose byte hash binds
+  this run. Its actual bounded Linux execution and retained comparisons passed;
+  a future measurement revision can add policy tests and improved messages
+  without changing this executed evidence.

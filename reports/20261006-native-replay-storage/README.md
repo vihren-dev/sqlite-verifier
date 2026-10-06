@@ -39,7 +39,7 @@ a measurement of individual flush syscalls. The run applies no recorder
 optimization, in-memory database substitution or PRAGMA change. It establishes
 neither ext4 full-run performance nor crash durability.
 
-The [full report](linux/full.json) passed all 4,376 fresh native comparisons on
+The [full report](linux/full.json.gz) passed all 4,376 fresh native comparisons on
 ordinary files under the declared tmpfs root. It audited all 4,376 actual
 fixture paths. Native replay took **42.518 seconds**; the whole corpus command
 took **91.125 seconds**, including loading, input binding and classification.
@@ -69,3 +69,5 @@ Run `python3 reports/20261006-native-replay-storage/validate.py --source-root
 /path/to/original-source` to repeat these retained-byte and observation checks.
 The original execution source is identified in `snapshot.json`; later source
 revisions require that original snapshot for the source-binding check.
+The full report is retained with deterministic gzip metadata. Decompression
+reproduces the exact executed JSON bytes and its SHA-256 digest from the receipt.
