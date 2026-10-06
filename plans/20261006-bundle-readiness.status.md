@@ -66,3 +66,19 @@ Specifications: [ADR 0003](../docs/adr-0003-agent-proof-preparation.md),
   Updated the kernel target's explicit Nix inputs. All 19 existing kernel cases
   pass against the cached reviewed Lean 4.34.1/T02 Darwin runtime (120-second
   suite bound; each compile/check remains bounded). No actual timing trial ran.
+- 2026-10-06: Shared fixture/inventory checkpoint `5062c3e9` had no `must`
+  findings. Its two `should` findings described the second caller before it
+  existed. Added that caller and resolved `20261006T171202Z-5062c3e9#1` and
+  `#2`. All 23 independently selected bundle attacks pass in 29.08 seconds
+  against the cached reviewed T02 Darwin runtime (150-second bound). Actual
+  exports cover applicable source attacks and controls; handwritten valid
+  records cover forged bodies, protected substitutions, unsafe/partial proofs
+  and hostile headers. Refutation returns direct checker 2; public CLI stays 1.
+  The review matrix explains why the old compiled-`SqlInputs` profile mutation
+  does not apply directly and tests the corresponding changed profile record
+  against the actual frontend request. No checker/exporter source changed.
+  Added exact shared fixture inputs to both Nix suites and the new bundle
+  caller to its ownership manifest. All 37 pure inventory/statistics/observer
+  checks pass in 0.51 seconds (30-second bound). Nix infrastructure and ordinary
+  integrated checks remain to run after coordinated assembly; full model is
+  owner-held and timing trials remain held for the final runtime.
