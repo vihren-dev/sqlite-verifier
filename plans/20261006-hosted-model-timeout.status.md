@@ -56,3 +56,9 @@ T03's hosted macOS result and its separate owner/release gates remain open.
   policy outside the builder. The correction uses one named attribute set
   with a 420-second default and the 600-second full-model override. This is a
   naming correction; the rendered commands and ownership are unchanged.
+- 2026-10-06: Corrective checkpoint `7101799d` passes the real rendered-command
+  check in 1.06 seconds and independent Claude review with zero findings
+  (`20261006T183741Z-7101799d`). The original R1 should finding is recorded as
+  fixed. Source checks are complete. The separate authorized draft publication
+  will request the actual hosted result; merge remains held until that check
+  completes and the owner receives its context.
