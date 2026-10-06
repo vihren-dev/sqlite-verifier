@@ -119,9 +119,6 @@ def validate_recording(record: dict[str, Json]) -> None:
     if record.get("bindingRecordingKind") == "tcl":
         try:
             check_source_results(record)
-        except (KeyError, TypeError, IndexError) as error:
-            raise ValueError(f"Native binding evidence for {record.get('name', '<unnamed>')}: {error}. "
-                             "Capture this source case again, then freeze a new corpus.") from error
         except ValueError as error:
             raise ValueError(f"Native fidelity difference for {record.get('name', '<unnamed>')}: {error}. "
                              "Exclude this source assertion; its recorded results differ.") from error

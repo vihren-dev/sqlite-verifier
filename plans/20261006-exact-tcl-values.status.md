@@ -111,3 +111,14 @@ Relevant files: `conformance/upstream_result_values.py`,
   occurrences per file, independently of native acceptance, and accounts for
   all outside-cohort refusals. This comparison measures the binding change;
   the pre-binding checkpoint already includes the earlier precision fix.
+- 2026-10-06: Removed the now-unreachable fidelity wrapper for structural
+  exceptions after review `20261006T150923Z-ab78f7c2#1`. The preceding transport
+  checks already reject those inputs with case/field diagnostics. The 39 affected
+  regressions passed in 0.61 seconds (90-second bound).
+- The fixed 100-occurrence date cohort recovered 95 cases, compared with 55 at
+  the pre-binding checkpoint: the first 20 `date4.test` and first 20 `date5.test`
+  occurrences now retain their observed values and pass native acquisition.
+  The five remaining cohort refusals are the existing case-byte limit in
+  `date2.test`. All 27,571 source instances remain accounted for, including
+  27,471 explicitly outside the validation cohort. This is bounded validation,
+  not a claim of full-family acquisition or model support.
