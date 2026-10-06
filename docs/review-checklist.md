@@ -44,15 +44,22 @@ names, no fallback to an old path.
 each constructor, without a catch-all `_` case. A new constructor must then cause
 a compile error where it is not handled.
 
-**R6. Model boundary.** The SQLite model (`Declarations`, `Model`, `Execution`,
-`LiteralData`, `SqlExecution` and the lemmas about them) does not import the
-verification application (`Contract`, `Library`, the demonstrations). Model
-docstrings speak about SQLite, not about "approved", "candidate" or "proof"
-data. See issue #31.
+**R6. Model boundary.** The SQLite model is meant for uses beyond migration
+verification, so it must not depend on that application. The model
+(`Declarations`, `Model`, `Execution`, `LiteralData`, `SqlExecution` and the
+lemmas about them) does not import the verification application (`Contract`,
+`Library`, the demonstrations). A lemma that is only about the model belongs in
+the model, not in an application file. Model docstrings speak about SQLite, not
+about "approved", "candidate" or "proof" data.
 
-**R7. SQLite rule or model restriction.** A new or changed condition in a
-validity check, a supported-subset check, or `step` says whether it is a rule of
-SQLite or a restriction of the model. See issue #18.
+**R7. SQLite rule or model restriction.** A SQLite rule is a check that SQLite
+itself makes, for example "no two columns with the same name". A model
+restriction excludes input that SQLite accepts but the model does not describe,
+for example "no column named `rowid`". A new or changed condition in a validity
+check, a supported-subset check, or `step` says which of the two it is. A model
+restriction must never appear in `step` as a modeled failure: then the model
+would predict an error where SQLite succeeds. It belongs in the supported-subset
+check instead.
 
 **R8. Trust-relevant change.** A change to the verification target
 (`VerificationConditions` and its parts), the kernel gates (`GateCore.lean`,

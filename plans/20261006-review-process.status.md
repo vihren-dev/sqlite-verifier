@@ -45,3 +45,5 @@ Relevant files: `tools/review.py`, `tests/test_review.py`, `docs/review-checklis
 - 2026-10-06: review round 4, Codex on `8ea118f`: `No findings.` Codex on the
   fix commit `527c488`: `No findings.` Every commit of this change is reviewed.
   DONE.
+- 2026-10-06 (owner feedback): the checklist must be self-contained. R6 and R7
+  referred to issues; they now state the rule and its reason directly.
