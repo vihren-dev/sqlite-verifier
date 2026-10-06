@@ -112,7 +112,7 @@ def schemaEnvironment (library trusted : System.FilePath) (external : NameSet) :
   let (base, state) ← importData (baseModules external) default
   searchPathRef.set (builtin ++ [library, trusted])
   let (inputs, state) ← importData #[`SchemaInputs] state
-  return (← base.replay (← additions base inputs), state)
+  return (Environment.ofKernelEnv (← base.toKernelEnv.replay (← additions base inputs)), state)
 
 /-- Check one bundle against the pinned library, the compiled contract and the
 generated inputs constructed from the frontend's record. -/
@@ -121,11 +121,12 @@ def checkBundle (library trusted bundle generated : System.FilePath) : IO UInt32
   let claimed ← readHeader (← stream.getLine)
   let contract ← trustedImports [trusted] [`SchemaInputs, `Requirements, `Interpretation]
   let (schemaEnv, state) ← schemaEnvironment library trusted (claimed.foldl (·.insert ·) contract)
-  let inputEnv ← schemaEnv.replay (← generatedDeclarations schemaEnv (← readGenerated generated))
+  let inputEnv := Environment.ofKernelEnv
+    (← schemaEnv.toKernelEnv.replay (← generatedDeclarations schemaEnv (← readGenerated generated)))
   let (approved, _) ← importData #[`Requirements, `Interpretation] state
-  let trustedEnv ← inputEnv.replay (← additions inputEnv approved)
+  let trustedEnv := Environment.ofKernelEnv (← inputEnv.toKernelEnv.replay (← additions inputEnv approved))
   let exported ← Export.parseStream stream
-  let checked ← trustedEnv.replay (← exportedAdditions trustedEnv exported)
+  let checked := Environment.ofKernelEnv (← trustedEnv.toKernelEnv.replay (← exportedAdditions trustedEnv exported))
   checkTarget checked (exported.constMap.contains `Proofs.migrationCorrect)
 
 /-- Test mode (ADR 0003 assumption A5): the constructed declarations must agree with

@@ -95,16 +95,17 @@ still run in the Python frontend before the record is written, and the reported
 
 ## Pinned exporter and its patch
 
-The runtime ships lean4export at tag `v4.33.0`
-(`15f6055e299ad5b89345e533cc2192f4cc00f659`) with
+The runtime ships lean4export at tag `v4.34.0`
+(`076e8e57707e813375e8f9da8bf989799ace9680`), built under Lean 4.34.1, with
 `build-support/lean4export-skip-trusted.patch`, built by
 `build-support/lean4export.nix`. The patch adds `--skip-trusted`. Decision
 (2026-09-29): keep the pinned patch for now. Proposing a general "omit declarations
 from these modules" option upstream is a separate, owner-approved step. When Lean
 is upgraded:
 
-1. Move the pin to the lean4export tag matching the new Lean version and update the
-   hash in `lean4export.nix`.
+1. Select the matching lean4export release and check that it builds under the new
+   Lean version. Update its commit and hash in `lean4export.nix`; a patch-level
+   Lean release can use the matching minor-release exporter tag.
 2. Reapply the patch; it touches only `Export.lean`'s state and `dumpConstant`.
 3. Rebuild and run `tests/bundle_test.py` (Nix target `tests.bundle`), which covers
    parity with `verify` and the rejection cases.

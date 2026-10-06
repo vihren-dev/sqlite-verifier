@@ -1,0 +1,190 @@
+{
+  "date": "2026-10-06",
+  "platform": "aarch64-darwin",
+  "leanVersion": "4.34.1",
+  "exporterTag": "v4.34.0",
+  "runtime": "/nix/store/9f4adshxfxryj5758vmp6ayayhhf8gk2-sqlite-verifier-runtime-1",
+  "junit": [
+    {
+      "path": "/Users/tzankomatev/work/sqlite-verifier/build/test-results/source.xml",
+      "sha256": "b66759ace1976c7587bdde7f51e17c0c4c16e8b94427a497d7679cd04f59a6bf",
+      "tests": 349,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "path": "/Users/tzankomatev/work/sqlite-verifier/build/test-results/nix.xml",
+      "sha256": "f4600996e946ecfdc5bd43abbf7a94bfa3adb5a2052a2433f56f98353f358aba",
+      "tests": 68,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "path": "/Users/tzankomatev/work/sqlite-verifier/build/test-results/installed.xml",
+      "sha256": "de1d19516a920cf246f99a8565c741a7719101772f42d62a033f2f8067d9a4f5",
+      "tests": 21,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "path": "/nix/store/fb63qk7lydlhfay4vkdgim67ndkfwxp0-sqlite-verifier-test-atuin-1/junit.xml",
+      "sha256": "f506db7bbdb0b2f130af62fa998bf5056f5b670d17006ad2a944243c027f3a62",
+      "tests": 12,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "path": "/nix/store/blgz8xxrwvrb8q7yvh35qgf68dp7q9g0-sqlite-verifier-test-bundle-1/junit.xml",
+      "sha256": "d6fd2dfe8886f81a21e5c8eb73ea37a2e3923c0ba78dc20fce06cc45297eac75",
+      "tests": 33,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "path": "/nix/store/9jr22cmwrjwj82jpfb0qaqh8x9br4x8c-sqlite-verifier-test-cli-1/junit.xml",
+      "sha256": "94e296c7f11ff2ce4f7ff2d3891031dff547669c3414f4d17f88bffc9cd15c72",
+      "tests": 13,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "path": "/nix/store/q1ypgnbcpg9r1i4vs3xnfhspd6hh8cf6-sqlite-verifier-test-kernel-1/junit.xml",
+      "sha256": "1258187ff9d963acc22dc0e1e0b72178daa3e037965967807f8b587d73f1e568",
+      "tests": 19,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "path": "/nix/store/h961drhwrdkkvxmawdzw3x9kmp4psgd6-sqlite-verifier-test-model-1/junit.xml",
+      "sha256": "b91996bf3596302c72fc2b56475823ea3e5ca9dfe95814b59a35d850a654e4d7",
+      "tests": 323,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 1
+    },
+    {
+      "path": "/nix/store/2l5ipsaw0cy6489mfywpl3v7h5s8nwlp-sqlite-verifier-test-sample-1/junit.xml",
+      "sha256": "760cdf36f081c2d12ee807a8effc61fccdf943ecfb93abc0e4ecfbe58c2af948",
+      "tests": 12,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "path": "/nix/store/gsssfqc890lqi1rhkbb4mwyhr1gda9x6-sqlite-verifier-test-upstream-1/junit.xml",
+      "sha256": "30661f09b7ae7d6747ea2582a3717041c86878c078a668cdc187fdb413ab2e75",
+      "tests": 58,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    }
+  ],
+  "archive": {
+    "name": "sqlite-verifier-aarch64-darwin.tar.gz",
+    "sha256": "19ac50ba4a322da3897b6c3884aee92af2705847f9a5f2e74fa63ce944767a1f",
+    "bytes": 1131235666
+  },
+  "exporterBaseline": {
+    "date": "2026-10-06",
+    "platform": "aarch64-darwin",
+    "leanVersion": "4.34.1",
+    "exporterTag": "v4.34.0",
+    "exporterCommit": "076e8e57707e813375e8f9da8bf989799ace9680",
+    "runtime": "/nix/store/9f4adshxfxryj5758vmp6ayayhhf8gk2-sqlite-verifier-runtime-1",
+    "cases": [
+      {
+        "name": "small",
+        "profile": "3.51.0",
+        "status": "VERIFIED",
+        "cliReturncode": 0,
+        "bundleSha256": "6a8289379ccac861f3fe0c09f5fb8fc3c0ff67ca803757343f825d959677105e",
+        "bundleBytes": 11358,
+        "inputSha256": {
+          "examples/approved/schema.sql": "70f3ef1458be467b401d433e2fc5c3a8aec43ed0b1f89d7069f3f5d2bfd290d3",
+          "examples/approved/Requirements.lean": "4bee30115f2aa8a7b4494a523011c1ce5fdf3eb8b2cbb142e9c5c750a6d7c4b3",
+          "examples/approved/Interpretation.lean": "0642ae14b8287a71b28aa03e76ae3f2cde3575cd0637c0e96674b3e7dab25ea8",
+          "examples/add_column_then_table/migration.sql": "efbb1727791a256229917481001f7c814f304e704723b7a66cb9ba7dbbbd8b42",
+          "examples/add_column_then_table/NextInterpretation.lean": "643a4bf7d920f9ee6625643243a944842b1df8bdb189c9d1cae201fdd99f5d21",
+          "examples/add_column_then_table/Proofs.lean": "e0d0b4ce54bc48b248b9a1694755d58bf0fcc654d9bb4d7333afcc73f3f23173"
+        },
+        "verificationInputs": {
+          "approved/Requirements.lean": "4bee30115f2aa8a7b4494a523011c1ce5fdf3eb8b2cbb142e9c5c750a6d7c4b3",
+          "approved/Interpretation.lean": "0642ae14b8287a71b28aa03e76ae3f2cde3575cd0637c0e96674b3e7dab25ea8",
+          "generated/SchemaInputs.lean": "a9efc884d6c9820da2ef7656046cbc96178d1dda8ee79841293fa1bf1d7c3b4c",
+          "generated/SqlInputs.lean": "c7ca56c35c09563adeee3eac51e99b45d68c1119d5f9b194ff9d68f4d2cf73ff",
+          "schema.sql": "70f3ef1458be467b401d433e2fc5c3a8aec43ed0b1f89d7069f3f5d2bfd290d3",
+          "migration.sql": "efbb1727791a256229917481001f7c814f304e704723b7a66cb9ba7dbbbd8b42",
+          "profile": "3.51.0",
+          "bundle": "6a8289379ccac861f3fe0c09f5fb8fc3c0ff67ca803757343f825d959677105e"
+        },
+        "seconds": 9.63
+      },
+      {
+        "name": "refutation",
+        "profile": "3.51.0",
+        "status": "VIOLATED",
+        "cliReturncode": 1,
+        "bundleSha256": "345028f84aa80c44587a2783d2cc783315a9c7dfe6dfa33f13cf3d9c84514f6e",
+        "bundleBytes": 14584,
+        "inputSha256": {
+          "examples/approved/schema.sql": "70f3ef1458be467b401d433e2fc5c3a8aec43ed0b1f89d7069f3f5d2bfd290d3",
+          "examples/approved/Requirements.lean": "4bee30115f2aa8a7b4494a523011c1ce5fdf3eb8b2cbb142e9c5c750a6d7c4b3",
+          "examples/approved/Interpretation.lean": "0642ae14b8287a71b28aa03e76ae3f2cde3575cd0637c0e96674b3e7dab25ea8",
+          "examples/missing_required_column/migration.sql": "120d24ab66e303094c7239b810d2710fa67b049232952403f516a25ea168bf6d",
+          "examples/missing_required_column/NextInterpretation.lean": "a499496865a27dec2a106cfbd6fa6c66c74cd1efb81869414dd22deafdda64af",
+          "examples/missing_required_column/Proofs.lean": "59f8c173827c52125d5d6dc25a95c0ff352e84e7b77d921feb62b88044301f1c"
+        },
+        "verificationInputs": {},
+        "seconds": 6.355
+      },
+      {
+        "name": "atuin",
+        "profile": "3.46.0",
+        "status": "VERIFIED",
+        "cliReturncode": 0,
+        "bundleSha256": "540dd2cc6d89847af49628e44d45d6e67e13fcc2092e1dd0159bc0906c8a2262",
+        "bundleBytes": 1541403,
+        "inputSha256": {
+          "examples/atuin/schema.sql": "b1cb97162debff911afacb6111907d9aa90e67fbfa1f58ba6ef814919969b6a6",
+          "examples/atuin/approved/Requirements.lean": "9febaa21679e35e00b0f1726b9fa012f51b76153ee905c910cabb0a0e30ab921",
+          "examples/atuin/approved/Interpretation.lean": "cb957b5141178ebf39d42a4eb9ffda6faaab31982fb4057b464a8af2be3ccdd4",
+          "examples/atuin/migration.sql": "3e998a7f7df2cdcc4593e3a8b0a4e3cc7da3f798869021e27638793ef17c589e",
+          "examples/atuin/NextInterpretation.lean": "76abe097200b97515e77e012cb2978b03ec227ace7347af7284ad803f8f28144",
+          "examples/atuin/Proofs.lean": "5fc147ae9262e931a4a4bff56411b3476fb3c67ca09f5a4367ec9b5f9509c068"
+        },
+        "verificationInputs": {
+          "approved/Requirements.lean": "9febaa21679e35e00b0f1726b9fa012f51b76153ee905c910cabb0a0e30ab921",
+          "approved/Interpretation.lean": "cb957b5141178ebf39d42a4eb9ffda6faaab31982fb4057b464a8af2be3ccdd4",
+          "approved/HistoryMapping.lean": "5a88021909d19a8e203dab07bf564c508ec42833f8d557b171dd83926d003015",
+          "approved/SchemaBinding.lean": "2802dddf47c91e5f531f137eeb30b369a0bef5907f7eb35e4101053fa40b748d",
+          "approved/HistoryDecoding.lean": "43628003e010f27d2b84cfdf065aefd8c3d063e33dc459201a791a5db9c4f246",
+          "approved/HistoryModel.lean": "f0d809bd441bb6c3b14010428ef3d02a46abdda555a49443f69c94dae3c11b1f",
+          "generated/SchemaInputs.lean": "32ae259f89840aa0ddf9f872ff3b9f3b4525658459ff5cd821c984db148ff946",
+          "generated/SqlInputs.lean": "ee4453d23ec165937677a7290698c278a4ac2b49396cc05ff1a144b3bddcf23c",
+          "schema.sql": "b1cb97162debff911afacb6111907d9aa90e67fbfa1f58ba6ef814919969b6a6",
+          "migration.sql": "3e998a7f7df2cdcc4593e3a8b0a4e3cc7da3f798869021e27638793ef17c589e",
+          "profile": "3.46.0",
+          "bundle": "540dd2cc6d89847af49628e44d45d6e67e13fcc2092e1dd0159bc0906c8a2262"
+        },
+        "seconds": 17.544
+      }
+    ]
+  },
+  "acceptanceState": "native checks passed; owner review and release publication pending",
+  "additionalChecks": [
+    {
+      "name": "PATH-resolved process-group timeout regression",
+      "tests": 1,
+      "status": "passed",
+      "seconds": 1.54,
+      "sourceSha256": "3e47fbaa537f3a1aabe9b0f3c9aaea695b2caaf68f91956b99097a2c6561ddeb"
+    }
+  ]
+}

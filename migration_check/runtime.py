@@ -46,8 +46,8 @@ class Runtime:
             sysroot = Path(found.stdout.strip()).resolve(strict=True)
         version = subprocess.run([str(sysroot / "bin/lean"), "--version"], cwd=root,
                                  capture_output=True, text=True, check=True, timeout=5)
-        if not version.stdout.startswith("Lean (version 4.33.0,"):
-            raise Rejection("INPUT_ERROR", "The verifier requires the pinned Lean 4.33.0 runtime")
+        if not version.stdout.startswith("Lean (version 4.34.1,"):
+            raise Rejection("INPUT_ERROR", "The verifier requires the pinned Lean 4.34.1 runtime")
         runtime = cls(root, sysroot, root / ".lake/build/lib/lean", root / "build" / parsers[sqlite_version],
                       root / ".lake/build/bin/migration-proof-checker")
         if not runtime.library.is_dir() or not runtime.parser.is_file() or not runtime.checker.is_file():

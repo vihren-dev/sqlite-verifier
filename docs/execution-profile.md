@@ -2,7 +2,7 @@
 
 The production verifier's supported version strings are `3.51.0` and `3.46.0`. Both select SQLite
 semantics without a migration framework. Unsupported versions reject.
-Lean is independently pinned to 4.33.0.
+Lean is independently pinned to 4.34.1.
 
 ## Pinned SQLite configuration
 
