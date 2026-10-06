@@ -10,6 +10,8 @@ let
     "tests/runtime_installation.py"
   ];
   python = name: pkgs.python3.withPackages (ps: [ ps.pytest ] ++ pkgs.lib.optional (name == "model") ps.hypothesis);
+  # The independently reviewed model budget is recorded in the T17 status.
+  suiteTimeoutSeconds = { default = 420; model = 600; };
   leanRoot = pkgs.runCommand "sqlite-verifier-test-lean" {} ''
     mkdir -p "$out"
     ln -s ${leanToolchain} "$out/lean"
@@ -20,6 +22,7 @@ let
       files = (builtins.fromJSON (builtins.readFile (root + /tests/nix_suites.json))).${name};
       file = builtins.head files;
       extraFiles = builtins.tail files;
+      timeoutSeconds = suiteTimeoutSeconds.${name} or suiteTimeoutSeconds.default;
     in pkgs.stdenvNoCC.mkDerivation ({
       pname = "sqlite-verifier-test-${name}";
       version = "1";
@@ -30,7 +33,7 @@ let
       installPhase = ''
         export HOME="$TMPDIR"
         export PYTEST_DISABLE_PLUGIN_AUTOLOAD=1
-        timeout 420 python3 -m pytest ${file} ${pkgs.lib.concatStringsSep " " extraFiles} --runtime-root ${runtime} \
+        timeout ${toString timeoutSeconds} python3 -m pytest ${file} ${pkgs.lib.concatStringsSep " " extraFiles} --runtime-root ${runtime} \
           -p no:cacheprovider --junitxml "$out/junit.xml" -v --durations=10
       '';
     } // environment);

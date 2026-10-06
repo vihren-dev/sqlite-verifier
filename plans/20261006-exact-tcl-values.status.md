@@ -1,6 +1,6 @@
 # Exact Tcl values status
 
-Status: HELD. Created 2026-10-06.
+Status: IN PROGRESS. Created 2026-10-06.
 
 Task: [exact Tcl values and date-family acquisition](20261006-exact-tcl-values.task.md).
 Issue: [#35](https://github.com/vihren-dev/sqlite-verifier/issues/35).
@@ -216,10 +216,29 @@ Relevant files: `conformance/upstream_result_values.py`,
 ## Hold after the owner implementation review
 
 The coordinator held further T17 work on 2026-10-06 while the requested PR
-fixes and checkpoints are completed. This task is HELD and is not DONE.
+fixes and checkpoints were completed. That historical hold did not complete T17.
 Reviewed assembly `496ca5b6` and its existing receipts remain unchanged.
 The full model suite and final delivery have not passed or been waived.
 
 Decisions waiting for the owner:
 
-- None at this stage. The four existing PR reviews take priority.
+- None at this stage.
+
+## Resumed native acceptance
+
+- 2026-10-06: The coordinator authorized completing this already-started task
+  after the separate model-only timeout correction was independently reviewed
+  at `7101799dd3043fa3d475ca94ffb3c321c0b4d327`, tested and merged. Adopted
+  only its identical named model-600/default-420 policy and timeout rendering.
+  The model still owns the same ordered 32 test modules. Every T17 source input,
+  other suite deadline, retained acquisition cohort and frozen v1–v5 byte remains
+  unchanged. The original executor still contains the mutation extractor's
+  boundary, so no T05 source or mutation fix is needed here.
+- Added the same real rendered-command check: all seven target names, every
+  ordered test file, runtime argument and reporting option must remain present.
+  It and both-platform flake/legacy routing pass all three focused checks in
+  6.86 seconds (30/60-second individual bounds). All six CI-routing checks pass
+  in 0.43 seconds and still invoke `just test-full`. The native full model gates
+  remain to be checked.
+  T17 is IN PROGRESS; native acceptance and final delivery have not passed or
+  been waived. Existing PR43/44/47/48 and paused T07 are outside this change.

@@ -3,6 +3,7 @@
 import json
 from pathlib import Path
 import shutil
+import shlex
 
 import pytest
 
@@ -37,6 +38,25 @@ def identities(root: Path) -> dict[str, str]:
         f'builtins.mapAttrs (_: test: test.drvPath) ({expression(root)})'], cwd=ROOT, timeout=30)
     assert result.returncode == 0, result.diagnostic()
     return json.loads(result.stdout)
+
+
+def test_bounded_commands_keep_complete_suite_ownership() -> None:
+    """The real Nix command retains every file and full reporting under the model's larger budget."""
+    result = run_command(['nix-instantiate', '--eval', '--strict', '--json',
+        '--extra-experimental-features', 'nix-command flakes', '--expr',
+        f'builtins.mapAttrs (_: test: test.installPhase) ({expression(ROOT)})'], cwd=ROOT, timeout=30)
+    assert result.returncode == 0, result.diagnostic()
+    scripts = json.loads(result.stdout)
+    ownership = json.loads((ROOT / 'tests/nix_suites.json').read_text())
+    assert set(scripts) == set(ownership) == {'atuin', 'bundle', 'cli', 'kernel', 'model', 'sample', 'upstream'}
+    for name, script in scripts.items():
+        command = shlex.split(next(line for line in script.replace('\\\n', ' ').splitlines()
+                                  if line.strip().startswith('timeout ')))
+        assert command[:5] == ['timeout', '600' if name == 'model' else '420', 'python3', '-m', 'pytest']
+        runtime_index = command.index('--runtime-root')
+        assert command[5:runtime_index] == ownership[name], (name, command)
+        assert command[runtime_index + 2:] == ['-p', 'no:cacheprovider', '--junitxml',
+            '$out/junit.xml', '-v', '--durations=10'], (name, command)
 
 
 @pytest.fixture
