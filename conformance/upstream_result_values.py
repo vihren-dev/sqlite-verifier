@@ -7,6 +7,9 @@ import struct
 from conformance.case_format import Json
 from conformance.native_replay import decode_cell
 
+#: The pinned Tcl 8.6.16 runtime accepts precision values from zero through 17.
+TCL_MAX_PRECISION = 17
+
 
 def helper_cells(rows: list[Json], helper: str) -> list[Json]:
     """Project only the values returned by the pinned eval, onecolumn and exists helpers."""
@@ -23,9 +26,9 @@ def helper_cells(rows: list[Json], helper: str) -> list[Json]:
 
 
 def verified_real_precision(precision: int | None) -> None:
-    """Nonzero Tcl precision can erase REAL differences before the execution trace sees them."""
-    if type(precision) is not int or precision != 0:
-        raise ValueError("Tcl REAL comparison requires captured tcl_precision=0")
+    """Require an observed Tcl precision; equality still checks the displayed value's bits."""
+    if type(precision) is not int or not 0 <= precision <= TCL_MAX_PRECISION:
+        raise ValueError("Tcl REAL comparison lacks valid precision; capture the per-call Tcl precision")
 
 
 def value_text(cell: Json, precision: int | None, null_value: str | None = None) -> str:

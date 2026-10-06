@@ -33,7 +33,7 @@ def retained_profiles(report: dict[str, Json]) -> tuple[dict[str, Json], dict[tu
     strings(policy["controlledClockPatterns"])
     precision = report.get("tclDisplayPrecisionPolicy")
     if (not isinstance(precision, dict) or set(precision) != {"version", "requested", "establishAfter"}
-            or type(precision["version"]) is not int or precision["version"] != 1
+            or type(precision["version"]) is not int or precision["version"] not in (1, 2)
             or type(precision["requested"]) is not int or precision["requested"] != 0
             or precision["establishAfter"] != "tester.tcl"):
         raise ValueError("Invalid retained Tcl precision policy")
@@ -108,7 +108,8 @@ def verify(report: dict[str, Json], records: list[dict[str, Json]]) -> None:
             reasons = strings(instance.get("exclusions"))
             if instance.get("result") != ("; ".join(reasons) or "recorded"):
                 raise ValueError("Retained acquisition result differs")
-            result_precision(instance.get("tclResultPrecision"), accepted=not reasons)
+            result_precision(instance.get("tclResultPrecision"), accepted=not reasons,
+                             policy_version=report["tclDisplayPrecisionPolicy"]["version"])
             result_nullvalue(instance.get("tclNullvalueEvidence"), instance["tclResultPrecision"], accepted=not reasons)
             if not reasons:
                 accepted[filename, instance["id"], occurrence] = (file, profile, clock,

@@ -73,6 +73,13 @@ Every v4 record must match a declaration exactly; duplicate name/version identit
 and missing or conflicting declarations are refused. Legacy corpora retain their
 implicit profile. External workload commands remain work in progress.
 
+New acquisition uses Tcl display policy version 2. It establishes precision zero
+after `tester.tcl`, then retains source-owned precision changes observed at each
+successful SQL call. A REAL display must parse to the exact independently
+recorded IEEE bits, including signed zero. Rounded collisions and unobservable
+precision stay refused. Policy version 1 retains its zero-only requirement when
+historical evidence is read. Native REAL cells are never replaced with display text.
+
 Native corpus storage has its own `snapshotStorageVersion: 1`, independent of
 `nativeVersion`. A record's `snapshots` object maps SHA-256 digests to complete
 `{schema, tables}` snapshots. Each initial/trace `visible` and `persisted` field

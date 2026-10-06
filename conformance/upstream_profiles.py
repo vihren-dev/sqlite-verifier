@@ -57,8 +57,8 @@ def profile_for_source(filename: str, profiles: dict[str, ExecutionProfile]) -> 
 
 
 def tcl_precision_policy() -> dict[str, Json]:
-    """Declare new acquisition's exact round-trip rendering without rewriting expected strings."""
-    return {"version": 1, "requested": 0, "establishAfter": "tester.tcl"}
+    """Start at precision zero, then accept observed source precision only with exact REAL bits."""
+    return {"version": 2, "requested": 0, "establishAfter": "tester.tcl"}
 
 
 def precision_observation(events: str) -> dict[str, Json] | None:

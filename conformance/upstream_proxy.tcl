@@ -67,8 +67,6 @@ proc capture_connection {name command args} {
       if {[info exists ::env(CONFORMANCE_TCL_PRECISION)]} {
         set precision [capture_precision]
         if {$precision eq ""} { capture_event exclude "Tcl display precision unobservable"
-        } elseif {$precision != $::env(CONFORMANCE_TCL_PRECISION)} {
-          capture_event exclude "test changed the declared Tcl display precision"
         }
       }
       set callback [expr {[llength $command] > 3}]
