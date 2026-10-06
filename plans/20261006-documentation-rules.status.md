@@ -11,3 +11,11 @@ Relevant files: `AGENTS.md`, `docs/review-checklist.md`.
   and proposition rules. Created the task and status files before editing.
 - The API docstrings, walkthrough and generated reference remain separate
   work in #26. This task completes only its repository-rule requirement.
+- 2026-10-06: added user-directed Verso rules for public declarations and
+  fields, with the same-commit documentation requirement, checked names,
+  examples and definitional assertions. The forward-reference limitation
+  states both permitted placements. Existing plain-words rules are preserved;
+  declaration names now use checked references.
+- 2026-10-06: checked the wording against issue #26 and its comment. No source
+  declaration changed, so no Lean build or new behavioral test is needed.
+  Independent review remains before completion.

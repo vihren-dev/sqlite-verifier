@@ -1,6 +1,6 @@
 # Status: maintenance rules and the default execution profile
 
-Created 2026-10-06. Status: IN PROGRESS.
+Created 2026-10-06. Status: DONE.
 Task: [task](20261006-maintenance-rules.task.md).
 Sources: public issues #22 and #25.
 Relevant files: `AGENTS.md`, `migration_check/profiles.py`,
@@ -26,4 +26,6 @@ Relevant files: `AGENTS.md`, `migration_check/profiles.py`,
   Used the existing runtime at
   `/nix/store/w9kdpy4l8aa31bjdy924iw23lzq6czhi-sqlite-verifier-runtime-1`.
   Source search found the new name at all three caller files and no old constant.
-- Independent review remains before completion.
+- 2026-10-06: Claude independently reviewed implementation commit `04122dc3`
+  through `REVIEWER=claude just review`: no must or should findings, exit 0.
+  The append-only review record is `20261006T083403Z-04122dc3`. DONE.

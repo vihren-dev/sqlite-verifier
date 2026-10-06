@@ -1,6 +1,6 @@
 # Maintenance rules and the default execution profile
 
-Created 2026-10-06. Status: IN PROGRESS.
+Created 2026-10-06. Status: DONE.
 Status file: [status](20261006-maintenance-rules.status.md).
 Sources: [issue #22](https://github.com/vihren-dev/sqlite-verifier/issues/22)
 and the policy portion of [issue #25](https://github.com/vihren-dev/sqlite-verifier/issues/25).
