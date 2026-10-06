@@ -55,7 +55,14 @@ Claude review of `79e844a5` reported two R8 owner-review requirements and one
 R9 docstring recommendation, with no correctness defect. The docstring was
 clarified; the R8 requirements remain final approval gates.
 
-Pending: correction review, native Linux validation and final source/evidence
-receipt.
+Correction `5a18b5bf` passed Claude review with no findings and identical
+runtime executable digests. Native Linux validation passed all development
+suites, 68 Nix checks, 21 original installed cases and all nine new installed
+exporter cases. The [execution packet](../reports/20261006-proof-exporter-driver/README.md)
+retains both platforms' receipts and original JUnit bytes, plus the Linux
+source inventory and exact executed helper. All 823 Linux source files remain
+bound to the transferred reviewed revision.
+
+Pending: final execution-packet review and this required owner approval.
 Publication, merge and release await the required owner review, including
 the preceding Lean 4.34.1 upgrade gate.

@@ -97,6 +97,27 @@ Source: [issue #29](https://github.com/vihren-dev/sqlite-verifier/issues/29).
   The owner has not approved this change. The coordinator reserved the idle
   Linux host for actual native build and installed acceptance after the
   correction review. No performance comparison is inferred from these checks.
+- 2026-10-06: Docstring correction `5a18b5bf` rebuilt successfully and passed
+  Claude review with no findings (`20261006T143032Z-5a18b5bf`). The exporter and
+  both checker executable hashes are identical before and after that correction.
+- 2026-10-06: Completed native Linux validation in a new reserved-host
+  directory from public tracked source `5a18b5bf`. Verified archive and helper
+  hashes before extraction. `just test`, all six development Nix suites and
+  `just test-nix` passed. The actual installed archive passed 21 original cases
+  and all nine exporter-specific cases. All new exporter cases have zero skips.
+  Linux's source suite retains two existing optional reviewer-CLI skips.
+- 2026-10-06: The Linux driver exited with code 0. Retained its original
+  JUnit bytes, receipt, executed helper and source inventory. Independently
+  verified all raw XML digests, counts and mandatory exact-byte/origin cases.
+  All 823 tracked source files still match after the run. Released host compute;
+  prior T03 and T04b evidence directories remain untouched.
+- 2026-10-06: Both-platform evidence is in
+  [the execution packet](../reports/20261006-proof-exporter-driver/README.md).
+  Technical acceptance is complete. The final packet review and required owner
+  review remain pending; no push, publication, merge or release occurred.
+  The T03 comparison is a fixed-input checkpoint. Later planned proof-input
+  changes require new current-example expectations while retaining the original
+  baseline receipts.
 
 ## Validation
 
