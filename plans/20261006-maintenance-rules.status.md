@@ -16,3 +16,14 @@ Relevant files: `AGENTS.md`, `migration_check/profiles.py`,
   owns the schema lookup cleanup and its marker.
 - Issue #22 can close after this task passes because the remaining cleanup is
   tracked. Issue #25 remains open until the actual Lean upgrade in #24 passes.
+- 2026-10-06: added the exact replacement rule and stable-Lean policy to
+  `AGENTS.md`; renamed the default profile and all callers without an alias.
+  The policy excludes release candidates and SQLite profile versions.
+- 2026-10-06: checks passed in `nix develop path:./nix`: 112 tests across
+  `tests/test_profiles.py`, `tests/test_cli_inputs.py`, `tests/test_translation.py`,
+  `tests/test_schema_translation.py`, `tests/test_sql_writes.py` and
+  `tests/schema_generation_test.py`, in 7.17 seconds, under a 60-second limit.
+  Used the existing runtime at
+  `/nix/store/w9kdpy4l8aa31bjdy924iw23lzq6czhi-sqlite-verifier-runtime-1`.
+  Source search found the new name at all three caller files and no old constant.
+- Independent review remains before completion.

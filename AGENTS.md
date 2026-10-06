@@ -28,6 +28,32 @@ Rules for this repository:
 - An error message tells what failed, where, and what the user can do next.
   Do not refer to internal documents, such as ADR numbers, in user-facing text.
 
+## Replaced code
+
+The project has no users. When code is replaced, update all callers and delete
+the old code. Do not keep compatibility paths, and do not mark code as "legacy".
+Do not keep aliases for replaced names or fall back to a replaced path.
+
+Review this rule again before the first public release, when users and
+compatibility matter. Historical evidence and the readers needed to replay it
+are retained; they are not replaced implementation paths.
+
+## Lean maintenance
+
+Until the project has users, follow each stable Lean release. Upgrade within
+two weeks after a stable release, in its own change, with no other work in it.
+Do not adopt release candidates. If a Lean dependency (lean4export, comparator,
+doc-gen4) has no tag for the new version, try to build its latest tag under the
+new version; if that fails, record it in the upgrade issue and wait for the
+dependency. Do not downgrade the toolchain automatically.
+
+This policy covers the Lean toolchain and the Lean dependencies built with it.
+It excludes the SQLite versions in the execution profiles: those versions
+define verification semantics and change only as product decisions.
+
+Review this policy when the project gets its first users. Upgrades must then
+also consider compatibility of user proofs.
+
 ## Propositions in plain words
 
 A proof certifies only the formula as written. If the formula says less than

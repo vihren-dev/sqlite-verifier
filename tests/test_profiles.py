@@ -6,7 +6,7 @@ from pathlib import Path
 import pytest
 
 from migration_check.diagnostics import Rejection
-from migration_check.profiles import LEGACY_PROFILE, profile
+from migration_check.profiles import DEFAULT_PROFILE, profile
 from migration_check.sql_model import sql_inputs
 from migration_check.sql_tree import Tree
 from migration_check.translate import starting_schema, statements
@@ -18,7 +18,7 @@ pytestmark = pytest.mark.parser
 @pytest.mark.requires_native
 def test_no_framework_directives_or_reserved_catalog_names(parse_sql: Callable[..., Tree]) -> None:
     """Comments stay comments, and application bookkeeping names are ordinary tables."""
-    assert profile('3.51.0') == LEGACY_PROFILE
+    assert profile('3.51.0') == DEFAULT_PROFILE
     selected = profile('3.46.0')
     schema = starting_schema(parse_sql('CREATE TABLE _sqlx_migrations(x TEXT);'))
     plain = statements(parse_sql('ALTER TABLE _sqlx_migrations ADD y TEXT;'))
