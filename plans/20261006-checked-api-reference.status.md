@@ -51,6 +51,12 @@ Relevant sources: `SqliteVerifier.lean`, `SqliteVerifier/*.lean`,
   compilation also passes for the complete public library, existing proof
   examples and both gates. Log: `build/t18b-declarations-check.log`; JUnit:
   `build/test-results/checked-docs.xml`. No formula or definition body changed.
+- 2026-10-06: Documentation review `20261006T145114Z-e9f07fe9` had no must
+  findings and two should findings. Restored the reasons for retaining type
+  spelling (the INTEGER/BIGINT rowid distinction) and requiring plain created
+  or added columns. Both findings are recorded as fixed through the review
+  command. The corrected module compiles without warnings; this correction
+  changes no term, formula or checked example.
 
 ## Acceptance remaining
 

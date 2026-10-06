@@ -23,7 +23,9 @@ inductive Affinity where
   deriving Repr, DecidableEq
 
 /-- Type spelling retained separately from {name}`Affinity`. Use
-{lean}`DeclaredType.canonical` for the canonical spelling of an affinity. -/
+{lean}`DeclaredType.canonical` for the canonical spelling of an affinity.
+The spelling determines whether a primary-key column can alias the physical
+rowid: INTEGER can do so, while BIGINT cannot. -/
 inductive DeclaredType where
   /-- Canonical spelling selected by the column's affinity. -/
   | canonical
@@ -101,7 +103,9 @@ def declaredTypeMatches (column : Column) : Bool :=
 
 /-- Test only whether the spelling is canonical, NOT NULL is absent and no
 default is present. This does not validate the name or affinity. A column that
-uses the optional field defaults is plain. -/
+uses the optional field defaults is plain. The restricted CREATE TABLE and
+ADD COLUMN operations require plain columns, so they need no new NOT NULL,
+default-expression or alias-spelling semantics. -/
 def Column.plain (column : Column) : Bool :=
   column.declaredType == .canonical && !column.notNull && column.defaultValue.isNone
 
