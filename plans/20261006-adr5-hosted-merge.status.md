@@ -1,16 +1,19 @@
 # ADR 0005 hosted validation and merge status
 
-Created 2026-10-06. Status: IN PROGRESS.
+Created 2026-10-06. Status: DONE, verified 2026-10-06.
 Task: [hosted validation and merge](20261006-adr5-hosted-merge.task.md).
 Spec: [ADR 0005](../docs/adr-0005-conformance-corpus-scale.md).
 
 ## Current state
 
-The owner approved the completed review repairs, conditional on successful
-hosted CI on ubuntu-22.04 and macos-14 before merging. The existing local work
-and scope remain approved. Publication, hosted checks, merge and follow-up
-issues are pending. The owner also requested recording retention of the
-independent SQLite 3.53.4 native pin in the ADR.
+[PR #32](https://github.com/vihren-dev/sqlite-verifier/pull/32) merged after
+successful hosted CI on ubuntu-22.04 and macos-14 and the protected-baseline
+check, at the exact approved head. All six requested post-merge issues exist.
+The ADR records the owner's decision to retain the independent SQLite 3.53.4
+native pin. The sample remains 184 cases with its 60-second phase limit;
+no test retries or deadline changes were needed. The
+[validation record](20261006-adr5-hosted-validation.md) links actual jobs,
+verification results and follow-up issues. This task is DONE.
 
 ## Progress
 
@@ -35,3 +38,16 @@ independent SQLite 3.53.4 native pin in the ADR.
   Integrated main `31848aac` with a merge commit, preserving the original
   source/evidence commits. Markdown links pass; hosted CI will validate this
   new merge candidate. The earlier run remains visible as superseded evidence.
+
+- 2026-10-06: Both platform jobs passed the complete package route at
+  `fea719a0`, and protected-baseline checks passed. Inspected actual job logs,
+  phase records and raw JUnit: full model 322 plus the expected Tcl skip,
+  actual upstream 58, sample 12, source 286 plus 28 subtests, Nix 68 and
+  installed runtime 21 pass on both platforms. Sample assertions establish
+  the unchanged child/phase bound; JUnit includes extra validation time and
+  does not supply an exact CLI phase value. Verified the 52-file evidence
+  inventory. Confirmed clean merge readiness and merged without overriding
+  branch protection, producing `98e81799`. Created issues #33–#38 after the
+  merge with source-backed outcomes and verification requirements. Frozen
+  evidence and semantic-model scope remain unchanged. Markdown and CI routing
+  checks pass; marked task/status DONE.

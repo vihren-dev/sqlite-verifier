@@ -1,6 +1,6 @@
 # Frozen progress and measured coverage (W7)
 
-Current state, 2026-10-05: [v5](../conformance/corpus-v5/manifest.json) contains
+Current state, 2026-10-06: [v5](../conformance/corpus-v5/manifest.json) contains
 4,376 cases in 109 shards: 4,307 upstream cases and 69 authored cases.
 The [yield report](../reports/20261002-adr5-review-yield.json) accounts for all
 171 sources, every zero-yield source and all 57 expression cohorts.
@@ -11,12 +11,12 @@ passes all cases. [Current progress](../reports/20261002-adr5-review-v5-progress
 records 4,376 MODEL_UNSUPPORTED, no disagreements or harness errors, and 129
 represented rows out of all 3,500 requirements. Model semantics are unchanged.
 
-Current commands default to v5. The 184-case development sample passes on
+Current v5 uses 184 development cases. Retained direct measurements pass on
 [macOS](../reports/20261002-adr5-review-v5-sample-darwin.json) in 37.21 seconds and
 [Linux](../reports/20261002-adr5-review-v5-sample-linux.json) in 56.58 seconds,
 with identical selected identities and the unchanged 60-second phase bound.
-The [full isolated model suite](../reports/20261005-adr5-review-execution/model/verification.json)
-passes 322 tests; one Tcl check belongs to the separate upstream suite.
+Hosted [CI validation](../plans/20261006-adr5-hosted-validation.md) passes on
+ubuntu-22.04 and macos-14, including the v5 sample and full model/upstream checks.
 
 [Linux full native replay](../reports/20261002-adr5-review-v5-native-linux.json)
 passes all 4,376 cases in 98.13 seconds using file-backed databases on tmpfs.
