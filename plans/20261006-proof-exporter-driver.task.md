@@ -16,6 +16,9 @@ Candidate declarations with library-like module names are exported and
 kernel-checked. Omission depends on module origin and actual imports,
 rather than namespace prefixes. This works for model modules supplied by
 the separate Lake package planned in T10.
+Compiler and exporter lookup support split package directories without
+changing file precedence: installed trusted artifacts remain ahead of
+caller artifacts with the same relative module path.
 
 Source: [issue #29](https://github.com/vihren-dev/sqlite-verifier/issues/29).
 

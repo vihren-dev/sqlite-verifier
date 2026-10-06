@@ -58,11 +58,13 @@ validation helpers. Full-only historical evidence and tests do not invalidate it
 `developmentTests` selects every target except `tests.model`; the full target set
 remains in CI and packaging.
 
-`lean4export.nix` fetches lean4export at tag `v4.34.0` as a fixed-output source and
-applies `lean4export-skip-trusted.patch`. The Lean runtime copies that source to
+`lean4export.nix` fetches unpatched lean4export at tag `v4.34.0` as a fixed-output source.
+The Lean runtime copies that source to
 `build/lean4export` inside its derivation, where `lakefile.toml` expects the path
-dependency, to build `migration-bundle-checker`. The separately built `exporter`
-provides the `lean4export` executable that the runtime ships for `prepare`. See the
+dependency, to build `migration-bundle-checker` and the repository-owned
+`migration-proof-exporter`. Both executables ship from `leanRuntime`; there is
+no separately built upstream exporter or patch. `prepare` supplies its bundle
+header's trusted imports as explicit omission modules. See the
 [data path guide](../docs/data-path.md) for the upgrade procedure.
 
 `conformanceRuntime` builds the separate `VerifierConformance` Lean library and
