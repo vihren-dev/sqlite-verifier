@@ -122,6 +122,19 @@ Relevant sources: `SqliteVerifier.lean`, `SqliteVerifier/*.lean`,
   definition body changed. T05 owns a separate import change to its extracted
   ContractProofs module; this documentation unit does not change that import.
 
+- 2026-10-06: Library documentation `fab39cc7` passes independent review
+  with no findings (`20261006T161029Z-fab39cc7`). Its real local compiler check
+  passed before commit; the reviewer did not independently rerun compilation.
+- 2026-10-06: Added checked documentation to all authored declarations and
+  concrete proof examples in `SchemaPreservation.lean` and `SchemaExamples.lean`.
+  The key meaning remains an arbitrary user-supplied predicate. The column
+  invariant explicitly requires coverage of the supplied column's name, not
+  equality between the supplied metadata and a stored declaration. All theorem
+  statements include actual assumptions, quantified inputs, empty cases and
+  short proof sketches. Both modules and their computed examples compile;
+  the retained schema guards pass. They contain 76 and 70 lines. No formula
+  or definition body changed.
+
 ## Acceptance remaining
 
 Dependency closure and sandboxed reference build; complete checked public
