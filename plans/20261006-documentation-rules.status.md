@@ -1,6 +1,6 @@
 # Status: checked public documentation rules
 
-Created 2026-10-06. Status: IN PROGRESS.
+Created 2026-10-06. Status: DONE.
 Task: [task](20261006-documentation-rules.task.md).
 Source: public issue #26 and its plain-words proposition comment.
 Relevant files: `AGENTS.md`, `docs/review-checklist.md`.
@@ -18,4 +18,7 @@ Relevant files: `AGENTS.md`, `docs/review-checklist.md`.
   declaration names now use checked references.
 - 2026-10-06: checked the wording against issue #26 and its comment. No source
   declaration changed, so no Lean build or new behavioral test is needed.
-  Independent review remains before completion.
+- 2026-10-06: Claude independently reviewed commit `0e6b479d` through
+  `REVIEWER=claude just review`: no must or should findings, exit 0.
+  The append-only review record is `20261006T083446Z-0e6b479d`. The rules portion
+  is DONE; issue #26 stays open for the existing API and reference work.

@@ -1,6 +1,6 @@
 # Checked public documentation rules
 
-Created 2026-10-06. Status: IN PROGRESS.
+Created 2026-10-06. Status: DONE.
 Status file: [status](20261006-documentation-rules.status.md).
 Source: the rules portion of [issue #26](https://github.com/vihren-dev/sqlite-verifier/issues/26).
 
