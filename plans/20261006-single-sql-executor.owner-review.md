@@ -62,9 +62,12 @@ The actual Linux archive SHA-256 is
 Both native receipt sets are retained in
 `reports/20261006-single-sql-executor/`. Draft PR48 is published for review. Its
 first hosted run failed the mutation harness on both platforms because extraction
-still depended on a deleted docstring. The requested correction has four passing
-pure regressions; targeted native mutation validation and the complete local
-model suite must pass on Darwin and Linux before acceptance. Prior ordinary and
-installed receipts remain retained, but do not replace that gate. Final owner
-approval, full acceptance and release remain open. This packet is not an approval
+still depended on a deleted docstring. The requested correction now has clean independent review, five targeted checks
+on each host and complete native model validation: 322 passed and one existing
+Tcl-capture skip per host. Linux used the unchanged 420-second budget (328.30
+seconds); Darwin used the separately reviewed 600-second validation recipe
+(484.74 seconds). PR48 still configures 420 seconds; the timeout-task source is
+not merged here. The earlier Darwin configured-budget failure, exact invocation,
+file order, source hashes and original XML/logs remain retained in `full-model/`.
+Final hosted and timeout-task acceptance, R8 owner approval and release remain open. This packet is not an approval
 or a DONE record.

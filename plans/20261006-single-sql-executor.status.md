@@ -6,15 +6,19 @@ Sources: public issues #21 and #13.
 
 ## Current state
 
-The executor implementation and prior native ordinary/installed acceptances are
-retained, but complete acceptance fails: hosted CI exposed a mutation-harness
-boundary bug on both supported platforms. The requested correction is in progress. Integration includes reviewed
-exporter `07dc71b3`, checked root documentation `db69c816` and main `29d2ed7a`.
-Full model acceptance must now run locally on both Darwin and Linux after the
-requested correction; earlier short checks do not replace it. Final
-owner review of the changed target file and proposed baselines remains pending.
-The exporter owner approval and T03 release remain separate gates. This task is
-not DONE while those required T05 acceptance gates are open.
+The executor implementation and requested mutation-harness correction are
+checked and independently reviewed. Prior native ordinary/installed acceptances
+remain retained. The complete model now passes natively on both hosts under
+explicit recipes: Linux at the branch's 420-second budget, and Darwin through
+the separately reviewed model-only 600-second validation invocation. The earlier
+Darwin 420-second failure remains retained. PR48 still configures 420 seconds;
+no timeout-task source has been merged into it.
+
+Integration includes reviewed exporter `07dc71b3`, checked root documentation
+`db69c816` and main `29d2ed7a`. Final source correction is `9e3b4419`.
+Hosted integration, acceptance of the separate timeout task and final owner review
+of the target file and proposed baselines remain pending. The exporter owner
+approval and T03 release are separate gates. T05 is not DONE.
 
 Relevant definitions and callers are listed in the task file. The removed
 executor's unconditional preservation law relied on treating data statements
@@ -185,6 +189,30 @@ state. The generated starting-schema pattern now matches the Atuin example.
   before execution. The already-started complete Linux gate remains live; it is
   not claimed as passing. Earlier task directories and receipts are untouched.
 
+- 2026-10-06: Linux full final-source gate is terminal 0: 322 passed and one
+  existing Tcl-capture skip in 328.30 seconds, under its unchanged 420-second
+  suite budget. Both original XML files, every raw log, actual output/derivation
+  identity and all 881 unchanged source hashes were verified after transfer.
+  Linux and Darwin host leases are released.
+- 2026-10-06: The owner authorized one final Darwin validation using only the
+  install-phase budget equivalent to independently reviewed timeout task
+  `7101799d`. The override changes model 420 to 600 seconds; all 32 ordered
+  files, flags, source and other targets remain unchanged. All 318 realized
+  immutable model source files match final reviewed `9e3b4419`, before and after
+  the run. The complete gate is terminal 0: 322 passed and the same existing skip
+  in 484.74 seconds; the full invocation took 487.2766 monotonic seconds. Output:
+  `/nix/store/m0l8bxww097w76m4c81k4g7gmdjp3kya-sqlite-verifier-test-model-1`.
+  The 900-second outer bound remains unchanged. This is native full validation
+  under the separate reviewed 600-second recipe, not a passing claim for PR48
+  configured CI at 420 seconds. No timeout commit is merged into this branch.
+- 2026-10-06: Retained the earlier Darwin configured-budget failure and the
+  complete paired native validations in the new `full-model/` report subdirectory.
+  Four original XML files and all raw logs/commands/source checks are retained
+  with separate hashes in the 18-file raw payload. Metadata, exact Linux helper,
+  public snapshot, private Darwin override/caller and source/file order were
+  independently verified locally. Prior immutable reports and baselines are
+  unchanged. Final hosted, timeout-task acceptance and R8 owner gates remain open.
+
 ## Exporter checkpoints and remaining gates
 
 The T03 and T02 receipts describe a fixed model and input checkpoint. Their
@@ -198,11 +226,12 @@ compare changed inputs with the old checkpoint or add an old-runtime path.
 The protected-baseline CI guard remains unchanged. Proposed schema bindings
 require final owner review; the expected baseline drift failure is not proof
 acceptance or authorization to update approval. Earlier bounded work held the
-full gate for T13 feedback. The latest owner review now requires the complete
-local model suite on both Darwin and Linux after the mutation-harness correction,
-with the existing suite bounds and every model case retained. Passing targeted
-checks does not supply that full acceptance.
+full gate for T13 feedback. The complete local suite now passes on both hosts under the explicit recipes
+above, with every model case retained. The separate timeout-task acceptance and
+PR48 configured hosted gate remain open. Passing native validation supplies no
+final owner approval.
 
-Final owner review, full model acceptance and hosted integration checks remain
-open. Native ordinary and installed checks are complete. Issue closure remains
+Final owner review, acceptance of the separate model timeout task and hosted
+integration checks remain open. Native ordinary, installed and full model
+validation under the stated recipes are complete. Issue closure remains
 with the owner. The task is not DONE.
