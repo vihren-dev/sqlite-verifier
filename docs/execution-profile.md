@@ -90,9 +90,18 @@ Controlled profiles also record `timezone: UTC`: recording/replay temporarily
 establish UTC for native `localtime` conversion and restore the caller's timezone.
 Recording is serialized while this process-global setting is active; parallel
 recording should use worker processes. Other timezone profiles are refused.
-Setting PRAGMAs outside the profile are refused. Explicit boolean writes that
-already match the profile are accepted and their settings are read back after
-SQL execution. Ignored settings may name
+Setting PRAGMAs outside the profile are refused during case SQL. Explicit boolean
+writes that already match the profile are accepted. Foreign-key writes inside
+an open transaction are also accepted: SQLite leaves that setting unchanged.
+The recorder reads back the settings after each case statement.
+
+Setup can temporarily change `foreign_keys` through its original SQL. Setup must
+finish outside a transaction with the selected profile restored. The recorder
+checks this boundary without repairing settings or resetting the database.
+Fresh replay uses the same setup commands; upstream acquisition also checks
+their outcomes and results against the captured Tcl execution. A source reset
+clears its prefix only when the actual `reset_db` runs. Restoration in the same
+database retains the prefix and its data dependencies. Ignored settings may name
 `journal_mode`, `synchronous`, `cache_size`, `temp_store`, `mmap_size` and
 `busy_timeout`, each with a reason; behavioral settings cannot be labelled ignored.
 Corpus manifests declare full records in `executionProfiles`; every v4 case
