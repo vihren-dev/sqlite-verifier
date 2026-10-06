@@ -62,7 +62,7 @@ def test_legacy_v4_tier_still_replays_its_original_sample(tmp_path: Path, runtim
     output = tmp_path / "legacy-tier.json"
     child = subprocess.run([sys.executable, "-m", "conformance.replay_tiers", "--corpus", str(GENERIC),
         "--synthetic", str(SYNTHETIC), "--runtime-root", str(runtime_root), "--output", str(output)],
-        cwd=ROOT, capture_output=True, text=True, timeout=120)
+        cwd=ROOT, capture_output=True, text=True, timeout=replay_tiers.PHASE_LIMIT_SECONDS)
     assert child.returncode == 0, child.stdout + child.stderr
     result = json.loads(output.read_text())
     assert result["generic"]["corpusVersion"] == 4
@@ -71,4 +71,4 @@ def test_legacy_v4_tier_still_replays_its_original_sample(tmp_path: Path, runtim
     assert result["generic"]["nativeReplayPassed"] and result["synthetic"]["nativeReplayPassed"]
     assert sum(result["counts"].values()) == 100
     assert not {"DISAGREE", "HARNESS_ERROR"} & result["counts"].keys()
-    assert result["measurement"]["seconds"] < 60
+    assert result["measurement"]["seconds"] < result["measurement"]["limitSeconds"] == replay_tiers.PHASE_LIMIT_SECONDS
