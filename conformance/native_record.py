@@ -14,6 +14,7 @@ from conformance.native_clock import NativeClock, utc_timezone
 from conformance.native_acquisition import open_case
 from conformance.native_library import SOURCE_IDS
 from conformance.native_call_recording import recording_inputs, validate_recording
+from conformance.native_bindings import READ_ONLY_TCL_HELPERS
 
 
 def observe(connection: Connection) -> dict[str, Json]:
@@ -151,7 +152,7 @@ def record_sql(setup: str | list[str | dict[str, Json]], migration: str, *, name
                         parameter_names=setup_parameter_names[index] if setup_parameter_names is not None else None,
                         record_bindings=recording is not None,
                         tcl_calls=[setup_calls[index]] if setup_calls is not None else None,
-                        select_only=helper.startswith("aux:") or helper in {"onecolumn", "exists"}))
+                        select_only=helper.startswith("aux:") or helper in READ_ONLY_TCL_HELPERS))
                 if recording is not None:
                     recording["setupBindings"].append([{key: event[key] for key in ("parameterNames", "parameters")}
                                                        for event in events])

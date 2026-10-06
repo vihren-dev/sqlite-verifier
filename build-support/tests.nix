@@ -46,6 +46,7 @@ in {
       "native_record" "native_acquisition" "native_connection" "native_library" "native_clock" "native_storage"
       "native_probe" "native_ordering" "query_window" "native_metadata" "native_statements"
       "native_bindings" "native_call_recording" "upstream_bindings" "upstream_binding_policy"
+      "native_binding_types" "native_binding_validation"
       "upstream_helpers" "model_assertions" "native_trace" "freeze_validation"
       "upstream_catalog" "upstream_sampling" "upstream_profiles" "freeze_profiles"
     ];

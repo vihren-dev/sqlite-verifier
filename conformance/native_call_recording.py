@@ -1,7 +1,10 @@
 """Keep source call evidence and replay inputs paired through native prefix minimization."""
 
 from conformance.case_format import Json
-from conformance.native_bindings import BINDING_NATIVE_VERSIONS, TCL_SQL_HELPERS, checked_binding, checked_call, call_slots, check_source_digest, check_source_results, decode_rows
+from typing import cast
+
+from conformance.native_bindings import checked_binding, checked_call, call_slots, decode_rows
+from conformance.native_binding_types import NativeBindingReplayArguments
 from conformance.native_connection import Row
 from conformance.upstream_helpers import command_events, command_ranges, join_commands
 
@@ -106,70 +109,33 @@ def validate_call_bindings(call: dict[str, Json], events: list[dict[str, Json]])
 
 
 def validate_recording(record: dict[str, Json]) -> None:
-    """Refuse incomplete new evidence before historical replay or unsupported admission."""
-    present = FIELDS & record.keys()
-    trace = record.get("trace", [])
-    if not present:
-        if (any(isinstance(event, dict) and "parameterNames" in event for event in trace)
-                or isinstance(record.get("upstream"), dict) and "tclCallsSha256" in record["upstream"]):
-            raise ValueError("Native slot names require a binding recording version")
-        return
-    version, kind = record.get("bindingRecordingVersion"), record.get("bindingRecordingKind")
-    required = FIELDS if kind == "tcl" else FIELDS - {"sourceCalls", "sourceSetupCommands", "setupCallIndices"}
-    if (type(version) is not int or version != 1 or not isinstance(kind, str) or kind not in {"tcl", "explicit"}
-            or present != required or type(record.get("nativeVersion")) is not int
-            or record["nativeVersion"] not in BINDING_NATIVE_VERSIONS
-            or not isinstance(record.get("setupCommands"), list) or not isinstance(trace, list)
-            or not isinstance(record.get("setupBindings"), list)
-            or len(record["setupBindings"]) != len(record["setupCommands"])):
-        raise ValueError("Invalid native binding recording version or fields")
-    helpers, spans = record["setupHelpers"], record["migrationReadonlySpans"]
-    if (not isinstance(helpers, list) or len(helpers) != len(record["setupCommands"])
-            or any(not isinstance(helper, str) or helper not in TCL_SQL_HELPERS for helper in helpers)
-            or any(type(record[key]) is not bool for key in ("migrationReadonly", "auxiliaryReplay"))
-            or not isinstance(spans, list) or any(not isinstance(span, list) or len(span) != 2
-                or any(type(value) is not int for value in span)
-                or not 0 <= span[0] <= span[1] <= len(record["migrationSql"].encode()) for span in spans)):
-        raise ValueError("Invalid native binding replay guards")
-    check_source_digest(record)
-    for command, events in zip(record["setupCommands"], record["setupBindings"], strict=True):
-        if not isinstance(events, list) or not isinstance(command, str) and (not control(command) or events):
-            raise ValueError("Invalid native setup binding inputs")
-        for event in events:
-            checked_binding(event)
-    for event in trace:
-        if not isinstance(event, dict) or "parameterNames" not in event or "parameters" not in event:
-            raise ValueError("Missing native statement binding inputs")
-        checked_binding({key: event[key] for key in ("parameterNames", "parameters")})
-    if kind == "tcl":
-        validate_sources(record)
-        if helpers != [call["helper"] if call is not None else "eval" for call in source_setup(record)]:
-            raise ValueError("Tcl setup helpers differ from source calls")
-        for call, events in zip(source_setup(record), record["setupBindings"], strict=True):
-            if call is not None:
-                validate_call_bindings(call, events)
-        calls = record["sourceCalls"]["assertion"]
-        for call, events in zip(calls, command_events(record, [call["sql"] for call in calls]), strict=True):
-            validate_call_bindings(call, events)
-        check_source_results(record)
+    """Name the source case and recovery action when binding evidence fails validation."""
+    from conformance.native_binding_validation import validate_fields
+    try:
+        validate_fields(record)
+    except (ValueError, KeyError, TypeError, IndexError) as error:
+        raise ValueError(f"Native binding evidence for {record.get('name', '<unnamed>')}: {error}. "
+                         "Capture this source case again, then freeze a new corpus.") from error
 
 
-def replay_arguments(record: dict[str, Json]) -> dict[str, Json]:
+def replay_arguments(record: dict[str, Json]) -> NativeBindingReplayArguments:
     """Supply exact setup vectors and call references to the single native recorder."""
     validate_recording(record)
     if "bindingRecordingVersion" not in record:
         return {}
-    result = {"setup_parameters": [decode_rows([event["parameters"] for event in events])
+    result: NativeBindingReplayArguments = {"setup_parameters": [decode_rows([event["parameters"] for event in events])
                                   for events in record["setupBindings"]],
-        "setup_parameter_names": [[event["parameterNames"] for event in events]
+        "setup_parameter_names": [[cast(list[str | None], event["parameterNames"]) for event in events]
                                   for events in record["setupBindings"]],
-        "parameter_names": [event["parameterNames"] for event in record["trace"]]}
-    result.update(setup_helpers=record["setupHelpers"], migration_readonly=record["migrationReadonly"],
-                  migration_readonly_spans=[tuple(span) for span in record["migrationReadonlySpans"]],
-                  auxiliary_replay=record["auxiliaryReplay"])
+        "parameter_names": [cast(list[str | None], event["parameterNames"]) for event in record["trace"]]}
+    result.update(setup_helpers=cast(list[str], record["setupHelpers"]),
+                  migration_readonly=cast(bool, record["migrationReadonly"]),
+                  migration_readonly_spans=[(span[0], span[1]) for span in cast(list[list[int]], record["migrationReadonlySpans"])],
+                  auxiliary_replay=cast(bool, record["auxiliaryReplay"]))
     if record["bindingRecordingKind"] == "tcl":
-        result.update(tcl_calls=record["sourceCalls"], source_setup_commands=record["sourceSetupCommands"],
-                      setup_call_indices=record["setupCallIndices"])
+        result.update(tcl_calls=cast(dict[str, Json], record["sourceCalls"]),
+                      source_setup_commands=cast(list[str | dict[str, Json]], record["sourceSetupCommands"]),
+                      setup_call_indices=cast(list[int], record["setupCallIndices"]))
     return result
 
 

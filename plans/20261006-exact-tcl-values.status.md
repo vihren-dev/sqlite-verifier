@@ -80,3 +80,12 @@ Relevant files: `conformance/upstream_result_values.py`,
   The native audit also passed 205 short checks, with its one full-model case
   deferred for host coordination. Date-family acquisition evidence and the full
   model gate remain pending; this task is not DONE.
+- 2026-10-06: Independent review of binding checkpoint `c86453d8` found five
+  `should` findings and no `must` findings. Added relabel/removal damage checks,
+  typed replay keyword arguments, a shared read-only helper policy, required
+  current binding observations without the obsolete token fallback, and
+  diagnostics that preserve the case name, failing fields and recapture action.
+  Resolved findings `20261006T143036Z-c86453d8#1` through `#5`. The refactor passed
+  195 focused checks in 9.03 seconds (90-second bound), and the sandboxed upstream
+  target passed 100 tests in 2.90 seconds without skips. JUnit:
+  `/nix/store/v8b84fkv9myw7xas2pbv9zc2r8s6kk7a-sqlite-verifier-test-upstream-1/junit.xml`.

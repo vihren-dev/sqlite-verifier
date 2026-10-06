@@ -7,6 +7,7 @@ import time
 
 from conformance.case_format import Json, cell_wire
 from conformance.native_connection import Cell, Row, Connection, NativeError, encoded_sql
+from conformance.native_bindings import READ_ONLY_TCL_HELPERS
 from conformance.native_clock import NativeClock
 from conformance.native_bindings import statement_bindings
 from conformance.native_call_recording import check_call_end, reached_call
@@ -56,7 +57,7 @@ def execute(connection: Connection, sql: str, *, outputs: bool = False,
         guarded = select_only
         call_index, call = reached_call(sql, remaining, tcl_calls) if tcl_calls is not None else (-1, None)
         if call is not None:
-            guarded = guarded or call["helper"].startswith("aux:") or call["helper"] in {"onecolumn", "exists"}
+            guarded = guarded or call["helper"].startswith("aux:") or call["helper"] in READ_ONLY_TCL_HELPERS
         if readonly_spans:
             from conformance.query_window import tokens
             source = remaining.decode()

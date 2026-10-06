@@ -9,6 +9,8 @@ from conformance.native_connection import Cell, Connection, Row
 #: Captured helpers with reproduced result semantics; row scripts cannot carry source bindings.
 TCL_SQL_HELPERS = frozenset({"eval", "eval-script", "onecolumn", "exists",
                              "aux:eval", "aux:eval-script", "aux:onecolumn", "aux:exists"})
+#: These Tcl helpers execute only read-only SELECT statements in native replay.
+READ_ONLY_TCL_HELPERS = frozenset({"onecolumn", "exists"})
 #: Native output/profile formats that can retain complete typed slot evidence.
 BINDING_NATIVE_VERSIONS = (3, 4)
 #: Every source call carries these observed values and conditions before prefix minimization.

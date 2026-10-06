@@ -98,13 +98,13 @@ def test_selection_cap_preserves_context_and_fidelity_reasons() -> None:
     """A capped candidate still exposes all the reasons it cannot be recovered."""
     from conformance.upstream_selection import candidate_reasons
     candidate = {"exclusions": ["multiple connections", "configuration outside profile: X"],
-                 "failed": True, "commands": [], "codes": [1, 0]}
+                 "failed": True, "commands": [], "codes": [1, 0], "implicitBindingReasons": []}
     expected = {"multiple connections", "configuration outside profile: X",
                 "upstream Tcl expectation failed", "no SQL observation",
                 "assertion continues after a SQL error"}
     assert set(candidate_reasons(candidate, selected=0, limit=1)) == expected
     assert set(candidate_reasons(candidate, selected=1, limit=1)) == expected | {"bounded pilot selection limit"}
-    candidate = {"exclusions": [], "failed": False, "commands": ["SELECT 1;"], "codes": [0]}
+    candidate = {"exclusions": [], "failed": False, "commands": ["SELECT 1;"], "codes": [0], "implicitBindingReasons": []}
     assert candidate_reasons(candidate, selected=0, limit=1) == []
 
 
