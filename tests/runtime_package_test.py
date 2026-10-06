@@ -44,7 +44,8 @@ def installed_verify(runtime_root: Path, tmp_path: Path,
             "--interpretation", str(approved / "Interpretation.lean"),
             "--migration", str(migration or proposed / "migration.sql"),
             "--next-interpretation", str(proposed / "NextInterpretation.lean"),
-            "--proofs", str(proposed / "Proofs.lean")], cwd=tmp_path, timeout=timeout)
+            "--proofs", str(proposed / "Proofs.lean"),
+            "--approved-baseline", str(approved / "baseline.json")], cwd=tmp_path, timeout=timeout)
     return invoke
 
 
@@ -58,6 +59,44 @@ def test_refuted_example(installed_verify: Callable[..., CommandResult]) -> None
     """The installed entrypoint returns VIOLATED and nonzero for a kernel-checked refutation."""
     result = installed_verify("missing_required_column")
     assert result.returncode != 0 and result.json_object()["status"] == "VIOLATED", result.diagnostic()
+
+
+@pytest.mark.parametrize("candidate,approved", [
+    ("table_then_column", "approved"),
+    ("allowed_failure", "allowed_failure/approved"),
+])
+def test_other_protected_examples(runtime_root: Path, tmp_path: Path,
+        command_runner: Callable[..., CommandResult], candidate: str, approved: str) -> None:
+    """Every other invoice candidate verifies with its actual installed protected baseline."""
+    examples = runtime_root / "examples"
+    proposed, protected = examples / candidate, examples / approved
+    result = command_runner([str(runtime_root / "bin/migration-check"), "verify", "--profile", "3.51.0",
+        "--format", "json", "--schema", str(protected / "schema.sql"),
+        "--requirements", str(protected / "Requirements.lean"),
+        "--interpretation", str(protected / "Interpretation.lean"),
+        "--migration", str(proposed / "migration.sql"),
+        "--next-interpretation", str(proposed / "NextInterpretation.lean"),
+        "--proofs", str(proposed / "Proofs.lean"),
+        "--approved-baseline", str(protected / "baseline.json")], cwd=tmp_path, timeout=180)
+    assert result.returncode == 0 and result.json_object()["status"] == "VERIFIED", result.diagnostic()
+
+
+def test_installed_protected_schema_precedes_invalid_proof(runtime_root: Path, tmp_path: Path,
+        example_factory: Callable[[str], Path], command_runner: Callable[..., CommandResult]) -> None:
+    """The installed driver rejects changed schema bytes before deliberately invalid Lean proof code."""
+    examples = example_factory(".")
+    protected, proposed = examples / "approved", examples / "add_column_then_table"
+    schema = protected / "schema.sql"
+    schema.write_bytes(schema.read_bytes() + b"\n-- unapproved schema source change\n")
+    (proposed / "Proofs.lean").write_text("import Generated\ndef invalidProof : Nat := false\n")
+    result = command_runner([str(runtime_root / "bin/migration-check"), "verify", "--profile", "3.51.0",
+        "--format", "json", "--schema", str(schema), "--requirements", str(protected / "Requirements.lean"),
+        "--interpretation", str(protected / "Interpretation.lean"), "--migration", str(proposed / "migration.sql"),
+        "--next-interpretation", str(proposed / "NextInterpretation.lean"), "--proofs", str(proposed / "Proofs.lean"),
+        "--approved-baseline", str(protected / "baseline.json")], cwd=tmp_path, timeout=30)
+    report = result.json_object()
+    assert result.returncode == 1 and report["status"] == "INPUT_ERROR", result.diagnostic()
+    assert "schema.sql" in report["message"], result.diagnostic()
 
 
 def test_unsupported_migration(installed_verify: Callable[..., CommandResult], tmp_path: Path) -> None:

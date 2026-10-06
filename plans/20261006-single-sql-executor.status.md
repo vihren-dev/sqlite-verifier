@@ -69,6 +69,24 @@ The generated starting-schema pattern already exists in the Atuin example.
   clarified that a primitive success alone does not close a transaction. All
   migrated library proofs compile; the rebuilt source suite passed 336 checks
   and 28 subtests in 33.36 seconds. Every should finding is recorded as fixed.
+- 2026-10-06: Correction `0eb80129` passed independent review
+  `20261006T164844Z-0eb80129` with no findings. Both invoice interpretations now
+  import sealed `SchemaInputs` and use `Generated.startSchema`; both proposed
+  baselines pin the exact unchanged schema SQL plus updated interpretation
+  sources. Requirements bytes and optional baseline-checker behavior are unchanged.
+  The invoice proof reuse still checks by definitional equality. Current runtime
+  `/nix/store/dv07xmydabx71bmkw4axpy4z1dfia0ph-sqlite-verifier-runtime-1`
+  passed source 336 cases and 28 subtests, and all six ordinary suites passed
+  184 cases with no failures or skips. Every invoice candidate checks its actual
+  protected baseline; a changed schema comment rejects before a deliberately
+  invalid proof through source and installed entrypoints. Content-verified offline
+  Darwin archive SHA-256 is
+  `c684a76b3bc53d16f34d3556d3a92c86badac3f61238e88bd28089dd4190d16c`.
+  Its actual installed acceptance passed all 42 example, attack, current-export
+  and removed-API cases in 191.26 seconds, with no skips. Logs use the
+  `build/t05-schema-*` prefix; original XML is `build/test-results/t05-installed.xml`.
+  The owner packet identifies exact proposed hashes and the unchanged CI guard.
+  Native Linux, full model acceptance and final owner approval remain pending.
 
 ## Exporter checkpoints and remaining gates
 

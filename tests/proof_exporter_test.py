@@ -71,7 +71,8 @@ def prepare_check(runtime: Path, examples: Path, temporary: Path, approved: str,
         "--proofs", str(examples / candidate / "Proofs.lean"),
         "--workspace", str(temporary / "agent"), "--output", str(bundle)], cwd=temporary, timeout=180)
     assert prepared.returncode == 0 and prepared.json_object()["status"] == "PREPARED", prepared.diagnostic()
-    checked = run([launcher, "verify-bundle", *common, "--bundle", str(bundle)], cwd=temporary, timeout=120)
+    checked = run([launcher, "verify-bundle", *common, "--bundle", str(bundle),
+        "--approved-baseline", str(examples / approved / "baseline.json")], cwd=temporary, timeout=120)
     report = checked.json_object()
     assert checked.returncode == (0 if report["status"] == "VERIFIED" else 1), checked.diagnostic()
     report["cliReturncode"] = checked.returncode
