@@ -105,6 +105,12 @@ Relevant sources: `SqliteVerifier.lean`, `SqliteVerifier/*.lean`,
   pinned runtime; they contain 144 and 165 lines. Formulae and definition
   bodies remain unchanged.
 
+- 2026-10-06: Literal documentation review `20261006T160656Z-f969698a`
+  reports no must findings and one should finding. Replaced the ambiguous
+  phrase "empty rows" with "a table with no rows" in the constraint docstring;
+  rows with no cells are not the intended empty case. The corrected module
+  compiles without warnings and remains 144 lines. No formula changed.
+
 ## Acceptance remaining
 
 Dependency closure and sandboxed reference build; complete checked public

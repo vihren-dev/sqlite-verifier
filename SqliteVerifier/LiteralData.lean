@@ -73,7 +73,7 @@ def uniqueRows (table : Table) (key : List String) : List Row → Bool
 
 /-- Check modeled NOT NULL cells and every retained key's pairwise uniqueness.
 NOT NULL checks inspect only zipped column/cell pairs; row width is checked
-separately. Empty rows satisfy both checks. Within the admitted table domain,
+separately. A table with no rows satisfies both checks. In the admitted domain,
 these checks represent ABORT constraints, rather than admission restrictions. -/
 def constraints (table : Table) : Bool :=
   table.rows.all (fun row => (table.columns.zip row.values).all
