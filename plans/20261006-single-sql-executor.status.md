@@ -6,10 +6,12 @@ Sources: public issues #21 and #13.
 
 ## Current state
 
-The implementation, both native runtime acceptances and independent reviews are
-complete, with the explicit qualifications below. Integration includes reviewed
+The executor implementation and prior native ordinary/installed acceptances are
+retained, but complete acceptance fails: hosted CI exposed a mutation-harness
+boundary bug on both supported platforms. The requested correction is in progress. Integration includes reviewed
 exporter `07dc71b3`, checked root documentation `db69c816` and main `29d2ed7a`.
-Full model acceptance is held for the separate T13 environment feedback. Final
+Full model acceptance must now run locally on both Darwin and Linux after the
+requested correction; earlier short checks do not replace it. Final
 owner review of the changed target file and proposed baselines remains pending.
 The exporter owner approval and T03 release remain separate gates. This task is
 not DONE while those required T05 acceptance gates are open.
@@ -112,13 +114,24 @@ state. The generated starting-schema pattern now matches the Atuin example.
   payload hashes and all 18 exact original XML hashes after transfer, the executed
   helper and snapshot bindings, the current export identities/statuses, and the
   post-run source-unchanged report. All implementation should findings are fixed;
-  the R8 owner marker remains deferred only to final owner review. No publication,
-  issue closure, merge or release is performed by this task worker.
+  the R8 owner marker remains deferred only to final owner review. Draft publication is recorded below; no issue closure, merge or release occurs.
 
 - 2026-10-06: Prepared draft publication on the reviewed exporter branch.
   Retained the exact pending evidence-review row in a named journal change.
   Draft publication leaves final R8 approval, full model acceptance and hosted
   integration gates open; it authorizes no merge, release or issue closure.
+
+- 2026-10-06: Draft PR48 is attached on `tasks/single-sql-executor`, head
+  `2ef00198994c4f285bcae0853359fe20d148d6aa`, based on reviewed T02. Its checked
+  journal publication commit passed independent review with no findings. CI run
+  `37507080453` failed on both platforms: `test_stateful_modes[True]` reaches
+  `conformance/mutation_check.py`, which still searches for the deleted
+  `/-- Restricted extension helper` docstring. The model mutation check therefore
+  never completes. Protected-baseline drift also fails the expected final owner
+  gate; that guard is unchanged. T05 cannot pass until this source-owned harness
+  bug is fixed and the full local model suite passes on both supported platforms.
+  The latest owner review freezes PR43/44/47 and permits only this requested PR48
+  correction. No T07 code or new T15/T18b integration is included.
 
 ## Exporter checkpoints and remaining gates
 
