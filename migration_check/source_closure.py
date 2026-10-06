@@ -9,6 +9,7 @@ from pathlib import Path
 from tempfile import TemporaryDirectory
 
 from .process import run_process
+from .import_path import merged_search_path
 
 
 class CompileError(RuntimeError):
@@ -77,12 +78,13 @@ def module_path(name: str) -> Path:
 def lean_process(sysroot: Path, library: Path, search: Sequence[Path], source: Path,
                  output: Path, arguments: Sequence[str], phase: str, timeout: float = 30) -> str:
     """Run only the pinned executable, with explicit paths and no ambient project settings."""
-    result = run_process(
-        [str(sysroot / "bin/lean"), *arguments, str(source)],
-        write_root=output,
-        environment={"LEAN_SYSROOT": str(sysroot), "LEAN_PATH": os.pathsep.join(
-            map(str, [sysroot / "lib/lean", library, *search]))}, timeout=timeout,
-    )
+    with merged_search_path([sysroot / "lib/lean", library, *search], output) as paths:
+        result = run_process(
+            [str(sysroot / "bin/lean"), *arguments, str(source)],
+            write_root=output,
+            environment={"LEAN_SYSROOT": str(sysroot), "LEAN_PATH": os.pathsep.join(map(str, paths))},
+            timeout=timeout,
+        )
     if result.returncode:
         raise CompileError(str(source), phase, result.stdout + result.stderr)
     return result.stdout

@@ -7,6 +7,7 @@
     "tests/conformance_command_sources_test.py",
     "tests/conformance_catalog_test.py",
     "tests/conformance_source_profiles_test.py",
+    "tests/conformance_foreign_key_recovery_test.py",
     "tests/conformance_tcl_values_test.py"
   ],
   "atuin": [
@@ -14,6 +15,7 @@
   ],
   "bundle": [
     "tests/bundle_test.py",
+    "tests/proof_exporter_test.py",
     "tests/stage_reuse_test.py",
     "tests/generated_inputs_test.py"
   ],

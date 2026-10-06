@@ -2,7 +2,7 @@
 
 The production verifier's supported version strings are `3.51.0` and `3.46.0`. Both select SQLite
 semantics without a migration framework. Unsupported versions reject.
-Lean is independently pinned to 4.33.0.
+Lean is independently pinned to 4.34.1.
 
 ## Pinned SQLite configuration
 
@@ -90,9 +90,21 @@ Controlled profiles also record `timezone: UTC`: recording/replay temporarily
 establish UTC for native `localtime` conversion and restore the caller's timezone.
 Recording is serialized while this process-global setting is active; parallel
 recording should use worker processes. Other timezone profiles are refused.
-Setting PRAGMAs outside the profile are refused. Explicit boolean writes that
-already match the profile are accepted and their settings are read back after
-SQL execution. Ignored settings may name
+Setting PRAGMAs outside the profile are refused during case SQL. Explicit boolean
+writes that already match the profile are accepted. Foreign-key writes inside
+an open transaction are also accepted: SQLite leaves that setting unchanged.
+The recorder reads back the settings after each case statement.
+
+Setup can temporarily change `foreign_keys` through its original SQL. Setup must
+finish outside a transaction with the selected profile restored. The recorder
+checks this boundary without repairing settings or resetting the database.
+Fresh replay uses the same setup commands; upstream acquisition also checks
+their outcomes and results against the captured Tcl execution. A source reset
+clears its prefix only when `reset_db` succeeds. A failed reset leaves a named
+refusal because it can have partial effects. Resets with nonempty `SETUP_SQL`
+also stay refused because the reset boundary does not retain their initialization
+SQL. A later plain successful reset clears those refusals. Restoration in the
+same database retains the prefix and its data dependencies. Ignored settings may name
 `journal_mode`, `synchronous`, `cache_size`, `temp_store`, `mmap_size` and
 `busy_timeout`, each with a reason; behavioral settings cannot be labelled ignored.
 Corpus manifests declare full records in `executionProfiles`; every v4 case
