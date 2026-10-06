@@ -124,3 +124,12 @@ Specifications: [ADR 0003](../docs/adr-0003-agent-proof-preparation.md),
   Resolved `20261006T173541Z-ed3bbd4d#1` through `#4`. All 52 focused checks pass
   in 5.16 seconds under the 30-second bound. Raw failed observations stay intact
   and cannot become timing acceptance. Actual performance remains held.
+- 2026-10-06: Cleanup-policy checkpoint `847dbd2b` had one `should`
+  finding and no `must` findings. The escaped-pipe test now waits for actual
+  child readiness and injects its timeout after that handshake; it does not
+  assume the child becomes ready within the measured timeout. Its bounded
+  readiness wait is separate test setup. The fixture records its escaped PID
+  before completion and stops it in `finally`. Resolved
+  `20261006T174416Z-847dbd2b#1`. Also subtract actual process startup from the
+  remaining common deadline before waiting. All 52 focused checks pass; no
+  performance acceptance or actual trial is inferred from fixture durations.

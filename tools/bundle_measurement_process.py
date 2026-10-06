@@ -125,6 +125,9 @@ def invoke(*, python: Path, observer: Path, launcher: Path, arguments: Sequence[
             raise subprocess.TimeoutExpired(command, 0)
         process = subprocess.Popen(command, cwd=directory, env=environment, stdin=subprocess.DEVNULL,
                                    stdout=subprocess.PIPE, stderr=subprocess.PIPE, start_new_session=True)
+        remaining = (deadline_ns - monotonic_ns()) / 1_000_000_000
+        if remaining <= 0:
+            raise subprocess.TimeoutExpired(command, 0)
         stdout, stderr = process.communicate(timeout=remaining)
     except subprocess.TimeoutExpired as failure:
         timed_out = True
