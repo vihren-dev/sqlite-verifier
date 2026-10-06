@@ -41,7 +41,27 @@ Source: [issue #33](https://github.com/vihren-dev/sqlite-verifier/issues/33).
   the reserved local host slot to the Tcl task. No code or frozen evidence
   changed during profiling.
 
+- 2026-10-06: The owner confirmed the 120-second phase limit in commit
+  `06a1e29795de6580a14fcfceb1eddaed232177d9` and ADR 0005. The earlier
+  discrepancy/feedback entries above are historical; no deadline decision
+  remains pending. The separate target remains less than 30 seconds on both
+  platforms. Corrected both stale current-deadline claims in
+  `docs/conformance-progress.md`, preserving the historical measured bounds.
+- 2026-10-06: Each snapshot now serializes once for digest validation; each
+  occurrence uses standard-library JSON reconstruction from those same bytes.
+  Every pool digest, reference shape, missing-reference and unused-pool check
+  remains active. New nested-mutation checks preserve independent schema,
+  column, row and typed-cell byte structures, including NUL/non-ASCII text,
+  BLOB bytes, integer bounds, REAL signed-zero bits and NULL. All 21 focused
+  transport/native-storage regressions pass in 0.30 seconds (60-second suite
+  bound), including fresh native round trips for acquisition versions 1–4.
+  Frozen v1–v5 have no working diff. No measurement or speed claim is made.
+- Heavy benchmark validation remains held until the coordinator releases an
+  idle host after PR48 full-model runs. Reviewed PR43/44/47 were not changed.
+
 ## Validation
 
-Pending: fresh phase profiles, focused regression checks, unchanged corpus
-byte comparison, independent review, and bounded macOS/Linux measurements.
+Complete: 21 focused snapshot/storage regressions and unchanged frozen paths.
+Pending: independent review of this change, relevant integrated checks and
+authorized fresh macOS/Linux acceptance measurements below 30 seconds. The
+approved process bound remains 120 seconds. This task is not DONE.

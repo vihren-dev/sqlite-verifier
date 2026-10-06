@@ -14,7 +14,9 @@ represented rows out of all 3,500 requirements. Model semantics are unchanged.
 Current v5 uses 184 development cases. Retained direct measurements pass on
 [macOS](../reports/20261002-adr5-review-v5-sample-darwin.json) in 37.21 seconds and
 [Linux](../reports/20261002-adr5-review-v5-sample-linux.json) in 56.58 seconds,
-with identical selected identities and the unchanged 60-second phase bound.
+with identical selected identities under the then-current 60-second phase bound.
+The owner raised the current bound to 120 seconds on 2026-10-06; the separate
+development headroom target remains less than 30 seconds on both platforms.
 Hosted [CI validation](../plans/20261006-adr5-hosted-validation.md) passes on
 ubuntu-22.04 and macos-14, including the v5 sample and full model/upstream checks.
 
@@ -103,7 +105,8 @@ acceptance and model verdicts. The [Darwin measurement](../reports/20261002-adr5
 records fresh loading, native replay and model classification in 6.27 seconds;
 the [Linux measurement](../reports/20261002-adr5-c7-sample-linux.json) records
 19.70 seconds with identical profiles and selected input identities.
-All 100 cases remain unsupported. The phase has a 60-second deadline.
+All 100 cases remain unsupported. Those historical measurements used a
+60-second phase deadline; the current owner-approved bound is 120 seconds.
 `just test-full`, CI and packaging retain the full model suite. Historical
 corpora and reports remain readable without changing their membership.
 

@@ -1,6 +1,5 @@
 """Bound new native cases and share snapshots without changing their observations."""
 
-from copy import deepcopy
 import hashlib
 import json
 
@@ -64,7 +63,7 @@ def shared_record(record: dict[str, Json], *, byte_limit: int | None = CASE_BYTE
 
 
 def expanded_record(value: Json) -> dict[str, Json]:
-    """Verify every digest/reference before restoring independent native observations."""
+    """Verify every digest/reference, then reconstruct independent observations from each validated JSON payload."""
     if not isinstance(value, dict):
         raise ValueError("Invalid native record")
     if "snapshotStorageVersion" not in value and "snapshots" not in value:
@@ -74,10 +73,14 @@ def expanded_record(value: Json) -> dict[str, Json]:
     snapshots = value.get("snapshots")
     if not isinstance(snapshots, dict):
         raise ValueError("Invalid native snapshot pool")
+    validated_snapshot_json: dict[str, bytes] = {}
     for digest, snapshot in snapshots.items():
-        if (not isinstance(snapshot, dict) or set(snapshot) != {"schema", "tables"}
-                or hashlib.sha256(serialized(snapshot)).hexdigest() != digest):
+        if not isinstance(snapshot, dict) or set(snapshot) != {"schema", "tables"}:
             raise ValueError("Native snapshot digest or content differs")
+        payload = serialized(snapshot)
+        if hashlib.sha256(payload).hexdigest() != digest:
+            raise ValueError("Native snapshot digest or content differs")
+        validated_snapshot_json[digest] = payload
     used: set[str] = set()
     restored: list[dict[str, Json]] = []
     for observation in observations(value):
@@ -89,7 +92,7 @@ def expanded_record(value: Json) -> dict[str, Json]:
             digest = reference["snapshot"]
             if not isinstance(digest, str) or digest not in snapshots:
                 raise ValueError("Missing native snapshot reference")
-            copied[field] = deepcopy(snapshots[digest])
+            copied[field] = json.loads(validated_snapshot_json[digest])
             used.add(digest)
         restored.append(copied)
     if used != set(snapshots):

@@ -33,7 +33,8 @@ exact result counts and all frozen bindings. Digest, snapshot, profile,
 acquisition and fidelity tampering still fail, including corruption in
 unselected records. Injected disagreements and native drift still fail.
 Storage audit checks exercise actual native fixtures. Relevant corpus,
-tier and Nix target checks pass without relaxing a suite deadline.
+tier and Nix target checks retain the owner-approved 120-second phase bound
+from `06a1e297`; the separate acceptance target remains less than 30 seconds.
 
 ## Constraints
 
