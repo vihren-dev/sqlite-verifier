@@ -109,7 +109,7 @@ history and individual captured inputs are not claimed identical to this run.
 No frozen v1–v5 artifact changed. The paired delta measures binding capture;
 the precision fix is checked independently with actual precision-15 Tcl cases.
 
-The final sandboxed upstream target passes all 104 tests in 2.84 seconds, with
+The final sandboxed upstream target passes all 104 tests in 2.71 seconds, with
 no skips. Its JUnit path is recorded in the summary. The affected transport and
 fidelity regressions also pass independently under a 90-second bound.
 

@@ -168,3 +168,9 @@ Relevant files: `conformance/upstream_result_values.py`,
   that record. The final upstream JUnit is
   `/nix/store/ay0y4ym75ich1pgp70p7ic14islxzgls-sqlite-verifier-test-upstream-1/junit.xml`.
   Full model validation remains held for the root task's environment feedback.
+- 2026-10-06: Evidence checkpoint `b92ca14e` had one documentation `should`
+  finding and no `must` findings. Corrected the report to name the same final
+  upstream run as its machine summary: 104 tests in 2.71 seconds, with the
+  `ay0y4` JUnit path. The earlier 2.84-second checkpoint remains a historical
+  progress entry. Artifact bytes and acquisition dispositions are unchanged.
+  Resolved `20261006T154512Z-b92ca14e#1`.
