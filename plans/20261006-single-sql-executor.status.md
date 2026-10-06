@@ -161,6 +161,30 @@ state. The generated starting-schema pattern now matches the Atuin example.
   but no full acceptance is claimed. Final source identity must be retained for
   both required local native gates after this documentation correction.
 
+- 2026-10-06: Final correction `9e3b4419` passed independent review
+  `20261006T182707Z-9e3b4419` with no findings; both prior should findings are
+  fixed. The first complete Darwin Nix model attempt, using the preceding
+  doc-only `83edc417` checkpoint, is terminal exit 1. Its raw log ends during
+  `test_actual_frozen_partition_requirement_inventory_and_identities[5]` with
+  `error: boost::bad_format_string: format-string is ill-formed`, without a pytest
+  summary or successful JUnit output. The actual generator/mutation case passed
+  inside that attempt, but the complete model gate did not pass. The 420-second
+  suite and 900-second outer bounds are unchanged. Log:
+  `build/t05-model-full-darwin.log`; derivation:
+  `/nix/store/jm2cxh55awywml9691qmyda6c4yaxmr1-sqlite-verifier-test-model-1.drv`.
+  Stopped dependent Darwin reruns and reported the external Nix failure for
+  feedback. No deadline, denominator, case membership or baseline was changed.
+- 2026-10-06: Linux final-source targeted validation is terminal 0: the actual
+  generator/mutation case plus four source cases passed in 18.85 seconds. Reviewed
+  public snapshot `9e3b4419` is in fresh retained directory
+  `/var/tmp/sqlite-verifier-mutation.tql5Ir/source`; its compressed archive SHA
+  is `684a123180dbfed30324249fbcc42941f96a8c09ebba2d26d3b0f3034cb97689`,
+  and executed helper SHA is
+  `78aedf6a2a951cc718450d3eaf45e1c3604196d68fbbec0263c04ed737e0fffb`.
+  All 881 tracked regular-file hashes and the instruction symlink were verified
+  before execution. The already-started complete Linux gate remains live; it is
+  not claimed as passing. Earlier task directories and receipts are untouched.
+
 ## Exporter checkpoints and remaining gates
 
 The T03 and T02 receipts describe a fixed model and input checkpoint. Their
