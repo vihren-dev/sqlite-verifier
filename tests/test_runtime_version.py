@@ -30,4 +30,5 @@ def test_wrong_version_identifies_runtime_and_remedy(
     assert detected in message
     assert "requires Lean 4.34.1" in message
     assert "For a development checkout, set MIGRATION_CHECK_LEAN_SYSROOT" in message
+    assert "to a Lean 4.34.1 installation" in message
     assert "Reinstall the verifier" in message
