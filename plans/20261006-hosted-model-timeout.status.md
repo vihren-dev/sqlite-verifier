@@ -51,3 +51,8 @@ T03's hosted macOS result and its separate owner/release gates remain open.
   targets (two evaluation checks, 6.53 seconds). Markdown local links resolve.
   All five compressed logs reproduce their retained decoded bytes and hashes;
   four source comparisons preserve the same complete 32-file model inventory.
+- 2026-10-06: Feature checkpoint `a14bc8ab` passed independent Claude review
+  with zero must findings and one should finding: name the aggregate deadline
+  policy outside the builder. The correction uses one named attribute set
+  with a 420-second default and the 600-second full-model override. This is a
+  naming correction; the rendered commands and ownership are unchanged.
