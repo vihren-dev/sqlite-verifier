@@ -4,8 +4,13 @@ from dataclasses import dataclass
 import os
 from pathlib import Path
 import subprocess
+from typing import Final
 
 from .diagnostics import Rejection
+
+
+PINNED_LEAN_VERSION: Final[str] = "4.34.1"
+"""Lean release used to build the installed library and both kernel gates."""
 
 
 @dataclass(frozen=True)
@@ -46,8 +51,13 @@ class Runtime:
             sysroot = Path(found.stdout.strip()).resolve(strict=True)
         version = subprocess.run([str(sysroot / "bin/lean"), "--version"], cwd=root,
                                  capture_output=True, text=True, check=True, timeout=5)
-        if not version.stdout.startswith("Lean (version 4.34.1,"):
-            raise Rejection("INPUT_ERROR", "The verifier requires the pinned Lean 4.34.1 runtime")
+        if not version.stdout.startswith(f"Lean (version {PINNED_LEAN_VERSION},"):
+            raise Rejection(
+                "INPUT_ERROR",
+                f"Lean runtime at {sysroot} reports {version.stdout.strip()!r}; "
+                f"the verifier requires Lean {PINNED_LEAN_VERSION}. "
+                "Set MIGRATION_CHECK_LEAN_SYSROOT to that installation or reinstall the verifier.",
+            )
         runtime = cls(root, sysroot, root / ".lake/build/lib/lean", root / "build" / parsers[sqlite_version],
                       root / ".lake/build/bin/migration-proof-checker")
         if not runtime.library.is_dir() or not runtime.parser.is_file() or not runtime.checker.is_file():
