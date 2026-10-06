@@ -20,6 +20,8 @@ let
       files = (builtins.fromJSON (builtins.readFile (root + /tests/nix_suites.json))).${name};
       file = builtins.head files;
       extraFiles = builtins.tail files;
+      # Full historical checks need hosted headroom; see reports/20261006-hosted-model-timeout/README.md.
+      timeoutSeconds = if name == "model" then 600 else 420;
     in pkgs.stdenvNoCC.mkDerivation ({
       pname = "sqlite-verifier-test-${name}";
       version = "1";
@@ -30,7 +32,7 @@ let
       installPhase = ''
         export HOME="$TMPDIR"
         export PYTEST_DISABLE_PLUGIN_AUTOLOAD=1
-        timeout 420 python3 -m pytest ${file} ${pkgs.lib.concatStringsSep " " extraFiles} --runtime-root ${runtime} \
+        timeout ${toString timeoutSeconds} python3 -m pytest ${file} ${pkgs.lib.concatStringsSep " " extraFiles} --runtime-root ${runtime} \
           -p no:cacheprovider --junitxml "$out/junit.xml" -v --durations=10
       '';
     } // environment);

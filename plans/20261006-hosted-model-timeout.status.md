@@ -22,7 +22,32 @@ Base: public main `29d2ed7ab7621373e5bb33c97ce8c325fad1b41f`.
 
 ## Acceptance remaining
 
-Retain and compare original hosted logs, identify the cause, implement only a
-justified complete bounded check path if needed, run meaningful cheap checks and
-independent reviews, and obtain actual hosted model completion. Temporary T03
-platform acceptance still needs exact hosted Linux/local Darwin evidence links.
+Complete independent review, publish the authorized separate draft PR and obtain
+actual hosted model completion. The 600-second proposal is not yet measured.
+T03's hosted macOS result and its separate owner/release gates remain open.
+
+## Checked investigation
+
+- 2026-10-06: Retained five complete decoded hosted job logs with original and
+  compressed SHA-256 bindings. Actual model deadline is 420 seconds; 600 seconds
+  belongs to later host checks. PR #43, #44 and main time out near the final
+  cases with exit 124 and no model JUnit. PR #47 freshly runs all 323 cases,
+  322 passed/one Tcl skip in 300.70 seconds. PR #43 hosted Linux passes the same
+  count in 222.42 seconds. Exact head/merge/runtime identities and temporary
+  T03 platform evidence are in the [report](../reports/20261006-hosted-model-timeout/README.md).
+- 2026-10-06: The ordered 32-file ownership list is identical in all four
+  checkouts. Progress and both final test files are byte-identical. Buffered
+  logs cannot isolate why execution speeds differ; the measured historical
+  work and repeated frozen loads explain the aggregate budget pressure.
+  Only the full model deadline increases to 600 seconds, approximately twice
+  the measured passing macOS time. Six other deadlines, all cases, subprocess
+  limits and complete report flags remain unchanged.
+- 2026-10-06: Real Nix command/ownership evaluation and existing CI scope/check
+  tests pass: 10 cases plus 28 subtests in 1.49 seconds. No heavy native rerun
+  or frozen-branch change occurred. Independent review and the authorized
+  separate draft PR still follow. The new hosted model result is required
+  before this task can be DONE.
+- 2026-10-06: Both native-system flake projections reuse all seven real test
+  targets (two evaluation checks, 6.53 seconds). Markdown local links resolve.
+  All five compressed logs reproduce their retained decoded bytes and hashes;
+  four source comparisons preserve the same complete 32-file model inventory.

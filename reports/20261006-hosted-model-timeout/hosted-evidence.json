@@ -1,0 +1,155 @@
+{
+  "date": "2026-10-06",
+  "jobs": [
+    {
+      "label": "PR43",
+      "head": "6917e3c8153af78daa6ebfc01d1f95785768e5f8",
+      "checkout": "a1757c799df0912273a042bab2637207e86190a1",
+      "run": 37443485808,
+      "job": 112202601131,
+      "url": "https://github.com/vihren-dev/sqlite-verifier/actions/runs/37443485808/job/112202601131",
+      "deadlineSeconds": 420,
+      "modelDrv": "/nix/store/lyczz41sdgs83wd103vnxjla7696gahm-sqlite-verifier-test-model-1.drv",
+      "freshBuilder": true,
+      "runtimePaths": {
+        "runtime": [
+          "/nix/store/6vy66xcbbw91l4lvlf3y6x2dhm0y44bz-sqlite-verifier-runtime-1"
+        ],
+        "conformance-runtime": [
+          "/nix/store/rxnxwwy2880d9fylks9ph814vykads0r-sqlite-verifier-conformance-runtime-1"
+        ]
+      },
+      "collected": 323,
+      "exitCode": 124,
+      "elapsedSeconds": null,
+      "passed": null,
+      "skipped": null,
+      "unfinishedCase": "test_changed_synthetic_source_fails_bound_input_loading",
+      "junit": null,
+      "decodedLogSha256": "20cd1c176b0f98f32e3ee37b12a770f37c617461f7bf1751d92c359f74d214c6",
+      "decodedLogBytes": 500088,
+      "retainedLog": "job-112202601131.log.gz",
+      "retainedLogSha256": "59833ef3cacbf1368614b24c8bf56c4c3f9f3b5c163365e3aa5706dc3b7e5767"
+    },
+    {
+      "label": "PR44",
+      "head": "d08d91eef9f5edd6d8fef6ee315009fb00729bbb",
+      "checkout": "220b2dfaccef363fc08d11f3a12f8d2c9620c6c2",
+      "run": 37443498908,
+      "job": 112202644400,
+      "url": "https://github.com/vihren-dev/sqlite-verifier/actions/runs/37443498908/job/112202644400",
+      "deadlineSeconds": 420,
+      "modelDrv": "/nix/store/jqjl4dl2zk71an91zdm8ilvpgvk5lw0p-sqlite-verifier-test-model-1.drv",
+      "freshBuilder": true,
+      "runtimePaths": {
+        "runtime": [
+          "/nix/store/n5112z9ghcv1lyys2jj5wpzymlqp2ac5-sqlite-verifier-runtime-1"
+        ],
+        "conformance-runtime": [
+          "/nix/store/kibvjgrwi3lz2d83hp6nkh2vgbii1flg-sqlite-verifier-conformance-runtime-1"
+        ]
+      },
+      "collected": 323,
+      "exitCode": 124,
+      "elapsedSeconds": null,
+      "passed": null,
+      "skipped": null,
+      "unfinishedCase": "test_changed_synthetic_source_fails_bound_input_loading",
+      "junit": null,
+      "decodedLogSha256": "25607cd2d0765e6bc1f265025fb68353b71d34846d9a950353ae105c09f6b5a6",
+      "decodedLogBytes": 501048,
+      "retainedLog": "job-112202644400.log.gz",
+      "retainedLogSha256": "79b079a5f3bc0631a6fd72376c0a077af696e5756b9fda8ad7fa1ecc23eadc28"
+    },
+    {
+      "label": "PR47",
+      "head": "07dc71b323808ac03991407e75dd4e74031924cb",
+      "checkout": "fd2083afaea086c2e5fa9bea8ed5e83d599a1f8d",
+      "run": 37486282958,
+      "job": 112347001173,
+      "url": "https://github.com/vihren-dev/sqlite-verifier/actions/runs/37486282958/job/112347001173",
+      "deadlineSeconds": 420,
+      "modelDrv": "/nix/store/51m2c33gd6j4f9sjzyyjh6zk1pck80yj-sqlite-verifier-test-model-1.drv",
+      "freshBuilder": true,
+      "runtimePaths": {
+        "runtime": [
+          "/nix/store/216qpsj7d7anm2a4n3wqpgd2a7dgz4am-sqlite-verifier-runtime-1"
+        ],
+        "conformance-runtime": [
+          "/nix/store/0yyh131xmbm3avs9g1rbifx9ri2fgpp5-sqlite-verifier-conformance-runtime-1"
+        ]
+      },
+      "collected": 323,
+      "exitCode": 0,
+      "elapsedSeconds": 300.7,
+      "passed": 322,
+      "skipped": 1,
+      "unfinishedCase": null,
+      "junit": "/nix/store/03c6k6cgxk7yk677m0bizdsrzp173hnq-sqlite-verifier-test-model-1/junit.xml",
+      "decodedLogSha256": "0e6fcdd4a41e5aba8e4384feefa9ec78f8d7dc4515fa512666c00170f4f6720c",
+      "decodedLogBytes": 564729,
+      "retainedLog": "job-112347001173.log.gz",
+      "retainedLogSha256": "04beee76de077c9b856c878d5b4ef50ccbf3a1eddf02a128a2a64352c2611c6c"
+    },
+    {
+      "label": "main",
+      "head": "29d2ed7ab7621373e5bb33c97ce8c325fad1b41f",
+      "checkout": "29d2ed7ab7621373e5bb33c97ce8c325fad1b41f",
+      "run": 37493710756,
+      "job": 112372734456,
+      "url": "https://github.com/vihren-dev/sqlite-verifier/actions/runs/37493710756/job/112372734456",
+      "deadlineSeconds": 420,
+      "modelDrv": "/nix/store/v1yyrm0zf3nwg1mssnjmyib2s7lj68xk-sqlite-verifier-test-model-1.drv",
+      "freshBuilder": true,
+      "runtimePaths": {
+        "runtime": [
+          "/nix/store/gvrg3bk27s5r82xjfz45ybdx8xmnpkhx-sqlite-verifier-runtime-1"
+        ],
+        "conformance-runtime": [
+          "/nix/store/kibvjgrwi3lz2d83hp6nkh2vgbii1flg-sqlite-verifier-conformance-runtime-1"
+        ]
+      },
+      "collected": 323,
+      "exitCode": 124,
+      "elapsedSeconds": null,
+      "passed": null,
+      "skipped": null,
+      "unfinishedCase": "test_legacy_v4_tier_still_replays_its_original_sample",
+      "junit": null,
+      "decodedLogSha256": "0d843efc92fd5a882e98b4d18c00e7d9d1a367e24536989010a36612ef8f50c2",
+      "decodedLogBytes": 504398,
+      "retainedLog": "job-112372734456.log.gz",
+      "retainedLogSha256": "b9a8c4d67f3d7f1f13cea4781a85091299493487cb6ef0c9798f7b0758b75b38"
+    },
+    {
+      "label": "PR43Linux",
+      "head": "6917e3c8153af78daa6ebfc01d1f95785768e5f8",
+      "checkout": "a1757c799df0912273a042bab2637207e86190a1",
+      "run": 37443485808,
+      "job": 112202600836,
+      "url": "https://github.com/vihren-dev/sqlite-verifier/actions/runs/37443485808/job/112202600836",
+      "deadlineSeconds": 420,
+      "modelDrv": "/nix/store/wq2vv1n0vhpyfmajqmpq6a6ksszqcv7j-sqlite-verifier-test-model-1.drv",
+      "freshBuilder": true,
+      "runtimePaths": {
+        "runtime": [
+          "/nix/store/dqhmda3azcr2gcacd3cgqw56l43k1lvl-sqlite-verifier-runtime-1"
+        ],
+        "conformance-runtime": [
+          "/nix/store/3vqdizmr1vsywnh5ci9anwwgadyw112q-sqlite-verifier-conformance-runtime-1"
+        ]
+      },
+      "collected": 323,
+      "exitCode": 0,
+      "elapsedSeconds": 222.42,
+      "passed": 322,
+      "skipped": 1,
+      "unfinishedCase": null,
+      "junit": "/nix/store/cc61gw90z87f66fqn6xdmkdpq7iqi0j0-sqlite-verifier-test-model-1/junit.xml",
+      "decodedLogSha256": "1e273f129ccfec439e10784bcab10d3ee59c33a12372325e97b7143a1cb71b35",
+      "decodedLogBytes": 288692,
+      "retainedLog": "job-112202600836.log.gz",
+      "retainedLogSha256": "6030d65716e746f042289b0f14930fe775c9c532775b74930380d7c5111eb156"
+    }
+  ]
+}
