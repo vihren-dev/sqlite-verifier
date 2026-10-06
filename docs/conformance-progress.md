@@ -30,6 +30,41 @@ V5 uses 8,694,264 bytes; v1–v5 use 12,235,391 bytes, within both budgets.
 Frozen v1–v4 remain unchanged. `just test-full`, CI and packaging retain
 full checks; explicit historical replay remains supported.
 
+## Full native replay storage
+
+Run `just conformance-corpus /path/to/native-storage` with an existing writable
+directory and at least 10 GiB free, as required by the development resource
+policy. The directory is an explicit input; the command never substitutes
+ambient temporary storage. The report in `build/corpus-progress.json` records
+the selected device and capacity, every actual `case.db` path, native timing,
+the command and unchanged code, corpus, runtime and native-library hashes.
+Fixture directories are removed when each case finishes.
+The report output must be outside the selected corpus.
+
+On Linux, the retained ext4 full-run attempts exceeded both 420 and 900 seconds.
+The paired records are identical on ext4 and tmpfs; the long trigger setup took
+10.72 seconds on ext4 and 0.10 seconds on tmpfs. The full replay completed on
+tmpfs within the existing 420-second bound. Select tmpfs explicitly for that
+Linux full-run condition. For example, first inspect its mount and capacity
+with `findmnt -T /dev/shm` and `df -B1 /dev/shm`, create a private directory
+under that mount, then pass that directory to `just conformance-corpus`.
+SQLite still uses ordinary files and its unchanged profiles and PRAGMAs. These
+measurements do not establish ext4 full-run performance or crash durability.
+
+To replay another frozen version, supply the same explicit storage input:
+
+```sh
+timeout 420 python3 -m conformance.corpus conformance/corpus-v5 \
+  --runtime-root build/conformance --native-check \
+  --temporary-root /path/to/native-storage --output build/corpus-progress.json
+```
+
+`just conformance-progress` classifies frozen observations with the current
+frontend and model. It does not run fresh native comparisons and needs no
+native storage argument. Small native recordings and samples retain the
+ambient-storage library primitive; callers can pass `temporary_root` and a
+`fixture_paths` list to `native_replay` or `record_sql` to audit explicit storage.
+
 ## Historical v4 and v3 baselines
 
 The [v4 artifact](../conformance/corpus-v4/manifest.json) freezes 1,264 generic
@@ -152,6 +187,7 @@ The finalizer accepts a complete capture and publishes a new directory:
 ```sh
 python -m conformance.freeze_corpus --input /path/to/capture \
   --upstream /path/to/pinned-upstream --output /path/to/new-corpus \
+  --temporary-root /path/to/native-storage \
   --fidelity-ledger /path/to/ledger.json
 ```
 
@@ -167,6 +203,10 @@ hashes, replays all observations natively, and measures the 25 MB current and
 refuses a partial or timed-out source. Original extraction, keyed triage and
 proof bytes are retained with digests and verified by ordinary corpus loading.
 The command never replaces an existing directory or edits native observations.
+Its full native check uses the same explicit storage and resource policy above.
+The separate `new-corpus-native-replay.json` receipt retains fixture paths and
+unchanged bindings beside the new corpus; it does not change the frozen record
+format, execution profiles or membership.
 
 ## Historical ADR 0004 measured execution coverage
 

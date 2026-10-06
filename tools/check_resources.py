@@ -39,10 +39,14 @@ def existing_parent(path: Path) -> Path:
     return path
 
 
-def check_resources(root: Path = ROOT) -> None:
+def check_resources(root: Path = ROOT, *, temporary_root: Path | None = None) -> None:
     """Check workspace, temporary, toolchain and Nix-store write destinations separately."""
     check_environment(root)
-    destinations = [root / 'dist', root / 'build', root / '.lake', Path(tempfile.gettempdir())]
+    temporary = temporary_root.resolve() if temporary_root is not None else Path(tempfile.gettempdir())
+    if temporary_root is not None and not temporary.is_dir():
+        raise ValueError(f'Temporary storage directory is missing or invalid: {temporary}; '
+                         'select an existing writable directory')
+    destinations = [root / 'dist', root / 'build', root / '.lake', temporary]
     if Path('/nix/store').exists():
         destinations.append(Path('/nix/store'))
     failures: list[str] = []
@@ -59,6 +63,13 @@ def check_resources(root: Path = ROOT) -> None:
     if failures:
         raise ValueError('At least 10 GiB free is required before expensive development work: ' +
                          '; '.join(failures) + '. Stop and request targeted cleanup approval; no automatic deletion.')
+    if temporary_root is not None:
+        try:
+            with tempfile.TemporaryDirectory(prefix='native-storage-check-', dir=temporary):
+                pass
+        except OSError as error:
+            raise ValueError(f'Temporary storage directory is not writable: {temporary}; '
+                             'select a writable directory with at least 10 GiB free') from error
 
 
 def main() -> None:

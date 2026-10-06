@@ -5,7 +5,9 @@ Status: IN PROGRESS. Created 2026-10-06.
 ## Outcome
 
 Full native corpus replay uses an explicitly selected temporary-storage
-directory. The CLI and `just conformance-corpus` make that input visible.
+directory. The corpus and freezer CLIs and `just conformance-corpus` make that
+input visible. The freezer retains an operational receipt beside its output,
+without adding storage conditions to frozen observations or execution profiles.
 Its report records the selected path, available storage, actual ordinary-file
 fixture paths, timing, execution command and unchanged source, corpus, runtime
 and native-library bindings. A missing, invalid, unwritable or insufficient
@@ -25,6 +27,8 @@ and the corpus CLI. They check the reported fixture paths and exact preserved
 observations, and reject absent, invalid and insufficient storage. The existing
 10 GiB development resource policy supplies the capacity threshold. Tests
 verify cleanup and the unchanged bindings in a successful small full replay.
+The freezer uses the selected root and retains a separate receipt for its
+successful native replay without changing its manifest or case format.
 Each subprocess has a short timeout.
 
 Retained Linux measurements compare a short authored case and the longest
@@ -48,7 +52,8 @@ its CLI performs full replay. `conformance/progress.py` classifies frozen
 evidence without a fresh native check. `tools/check_resources.py` supplies the
 existing capacity policy. `justfile` and `docs/conformance-progress.md` describe
 the user commands. The existing diagnosis and timeout records are in
-`reports/20261005-adr5-review-execution/`.
+`reports/20261005-adr5-review-execution/`. `conformance/freeze_corpus.py` performs
+another full native replay before publishing newly frozen evidence.
 
 Small library recordings and test samples retain their flexible ambient-storage
 primitive. Full native CLI runs bind their selected root directly to fixture

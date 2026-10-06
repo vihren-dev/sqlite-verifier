@@ -69,8 +69,13 @@ def record_sql(setup: str | list[str | dict[str, Json]], migration: str, *, name
                clock_values: list[int] | int | None = None,
                setup_helpers: list[str] | None = None, migration_readonly: bool = False,
                migration_readonly_spans: list[tuple[int, int]] | None = None,
-               auxiliary_replay: bool = False) -> dict[str, Json]:
-    """Keep native evidence; clocks can be fixed across SQL or supplied per statement."""
+               auxiliary_replay: bool = False, temporary_root: Path | None = None,
+               fixture_paths: list[Path] | None = None) -> dict[str, Json]:
+    """Keep native evidence with fixed or per-statement clocks.
+
+    An explicit root places ordinary file fixtures there; an optional path list
+    records their actual database paths without adding them to native evidence.
+    """
     if parameters is not None and not outputs:
         raise ValueError("Bound parameters require output recording")
     controlled = profile is not None and profile.clock == "unix-milliseconds-v1"
@@ -81,7 +86,7 @@ def record_sql(setup: str | list[str | dict[str, Json]], migration: str, *, name
         raise ValueError("Controlled profile requires setup and statement clock inputs")
     if not controlled and (setup_clock is not None or clock_values is not None):
         raise ValueError("Clock inputs require a controlled profile")
-    with TemporaryDirectory(prefix="native-corpus-") as directory, ExitStack() as stack:
+    with TemporaryDirectory(prefix="native-corpus-", dir=temporary_root) as directory, ExitStack() as stack:
         if controlled:
             stack.enter_context(utc_timezone())
         version = profile.engine_version if profile else "3.51.0"
@@ -101,6 +106,11 @@ def record_sql(setup: str | list[str | dict[str, Json]], migration: str, *, name
             return connection
 
         writer = open_writer()
+        if fixture_paths is not None:
+            database = Path(directory) / "case.db"
+            if not database.is_file():
+                raise ValueError(f'Native file fixture is missing: {database}; check the native recorder')
+            fixture_paths.append(database)
         setup_outcomes: list[Json] = []
         setup_results: list[Json] = []
         setup_errors: list[Json] = []
