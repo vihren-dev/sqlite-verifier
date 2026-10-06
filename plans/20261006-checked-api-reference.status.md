@@ -93,6 +93,18 @@ Relevant sources: `SqliteVerifier.lean`, `SqliteVerifier/*.lean`,
   their checked examples compile without warnings in the pinned Lean runtime;
   they contain 77 and 63 lines. Formulae and definition bodies are unchanged.
 
+- 2026-10-06: Schema-update and nullable-observation documentation `78cd697b`
+  passes Claude review with no findings (`20261006T160355Z-78cd697b`).
+- 2026-10-06: Added checked documentation to every authored declaration in
+  `LiteralData.lean` and `LiteralPreservation.lean`. The readiness predicates
+  describe their exact affinity and value domains, and distinguish admission
+  from the new table's constraints. The constraint docs expose zipped-cell
+  checks and their separate width requirement. All reusable theorem statements
+  include assumptions, quantified inputs, empty cases and proof sketches.
+  Both modules and their computed examples compile without warnings in the
+  pinned runtime; they contain 144 and 165 lines. Formulae and definition
+  bodies remain unchanged.
+
 ## Acceptance remaining
 
 Dependency closure and sandboxed reference build; complete checked public
