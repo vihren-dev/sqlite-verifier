@@ -56,8 +56,9 @@ Source: [issue #33](https://github.com/vihren-dev/sqlite-verifier/issues/33).
   transport/native-storage regressions pass in 0.30 seconds (60-second suite
   bound), including fresh native round trips for acquisition versions 1–4.
   Frozen v1–v5 have no working diff. No measurement or speed claim is made.
-- Heavy benchmark validation remains held until the coordinator releases an
-  idle host after PR48 full-model runs. Reviewed PR43/44/47 were not changed.
+- After the implementation checkpoint, heavy benchmark validation was held
+  until the coordinator released an idle host after PR48 full-model runs.
+  Reviewed PR43/44/47 were not changed.
 
 ## Validation
 
@@ -99,3 +100,9 @@ turn; PR48 final validation and owner review take priority.
   Frozen v1–v5 bytes are unchanged. This commit preserves the pending raw
   `82f2d178` independent-review journal line. No speed acceptance is claimed
   for Linux, and the task remains IN PROGRESS.
+- 2026-10-06: Receipt commit `0aca8aef80da5befbfe550a8820dc5262bf4ab7c`
+  passed independent review `20261006T185111Z-0aca8aef` with zero must findings
+  and one should finding. Named the validator's fixed selection count, phase
+  guard and archived source count, as requested. Receipt validation passed
+  again within 15 seconds; no native phase or build was run. Recorded the
+  finding as fixed and preserved its raw review/resolution journal lines.

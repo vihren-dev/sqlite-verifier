@@ -11,6 +11,12 @@ from typing import TypeAlias, cast
 Json: TypeAlias = None | bool | int | float | str | list["Json"] | dict[str, "Json"]
 ROOT = Path(__file__).resolve().parent
 REPO = ROOT.parent.parent
+#: Unchanged T04c development selection, required on both measured platforms.
+SELECTED_IDENTITIES = 184
+#: Owner-approved phase guard; the separate speed target remains below 30 seconds.
+PHASE_LIMIT_SECONDS = 120
+#: Regular files in the exact archived public source checked before and after Linux.
+ARCHIVED_SOURCE_FILE_COUNT = 835
 FIELDS = (
     "corpusVersion", "casesSha256", "manifestSha256", "executionProfiles",
     "denominator", "selectedDenominator", "selectedNames", "selectedIdentities",
@@ -64,13 +70,13 @@ def check_reports(receipt: dict[str, Json]) -> None:
                 assert mapping(report[side])[field] == mapping(old[side])[field], (platform, side, field)
         assert report["policy"] == old["policy"]
         assert report["policySha256"] == old["policySha256"]
-        assert report["selectedDenominator"] == 184
-        assert report["counts"] == old["counts"] == {"MODEL_UNSUPPORTED": 184}
+        assert report["selectedDenominator"] == SELECTED_IDENTITIES
+        assert report["counts"] == old["counts"] == {"MODEL_UNSUPPORTED": SELECTED_IDENTITIES}
         measurement = mapping(report["measurement"])
         assert measurement["phase"] == "fresh-load-native-replay-model-classification"
-        assert measurement["limitSeconds"] == 120
+        assert measurement["limitSeconds"] == PHASE_LIMIT_SECONDS
         seconds = measurement["seconds"]
-        assert isinstance(seconds, float) and 0 < seconds < 120
+        assert isinstance(seconds, float) and 0 < seconds < PHASE_LIMIT_SECONDS
         assert seconds == mapping(receipt[platform])["phaseSeconds"]
 
 
@@ -89,14 +95,14 @@ def check_linux(receipt: dict[str, Json]) -> None:
     storage_root = storage["root"]
     assert isinstance(storage_root, str)
     paths = storage["fixturePaths"]
-    assert isinstance(paths, list) and len(paths) == 184
-    assert len(set(cast(list[str], paths))) == 184
+    assert isinstance(paths, list) and len(paths) == SELECTED_IDENTITIES
+    assert len(set(cast(list[str], paths))) == SELECTED_IDENTITIES
     for path in paths:
         assert isinstance(path, str)
         assert Path(path).is_relative_to(storage_root) and Path(path).name == "case.db"
     assert storage["fixturesCleaned"] is True
     lines = raw("linux/source.sha256").decode().splitlines()
-    assert len(lines) == mapping(receipt["linux"])["sourceFileCount"] == 835
+    assert len(lines) == mapping(receipt["linux"])["sourceFileCount"] == ARCHIVED_SOURCE_FILE_COUNT
     source_hashes = dict(line.split("  ", 1)[::-1] for line in lines)
     source_root = str(mapping(receipt["linux"])["remoteRoot"]) + "/source/"
     for path, digest in before.items():
@@ -133,7 +139,7 @@ def check_darwin(receipt: dict[str, Json]) -> None:
     assert summary["measurement"] == original["measurement"]
     assert summary["underTarget"] is True
     assert mapping(summary["storage"])["fixturePaths"] is None
-    assert mapping(summary["storage"])["fixtureCountAssertedInDriver"] == 184
+    assert mapping(summary["storage"])["fixtureCountAssertedInDriver"] == SELECTED_IDENTITIES
     assert "hashesBefore" not in summary and "hashesAfter" not in summary
     assert "startedMonotonicNs" not in summary and "endedMonotonicNs" not in summary
     darwin = mapping(receipt["darwin"])
