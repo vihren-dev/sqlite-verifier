@@ -57,6 +57,21 @@ Relevant sources: `SqliteVerifier.lean`, `SqliteVerifier/*.lean`,
   or added columns. Both findings are recorded as fixed through the review
   command. The corrected module compiles without warnings; this correction
   changes no term, formula or checked example.
+- 2026-10-06: Correction `d01db1e6` passed Claude review with no findings
+  (`20261006T151029Z-d01db1e6`). Its related observation about a model
+  restriction reported as a failure belongs to the planned validity/domain
+  separation; this documentation unit does not change those formulas.
+- 2026-10-06: Added checked documentation to every authored declaration,
+  constructor and field in `SqliteVerifier/Model.lean`. Proposition statements
+  now state each conjunct and quantify stored rows, schema entries and table
+  lookups, including their empty/absent cases. Lookup and projection docs
+  describe the first match and missing-cell behavior exactly. The model module
+  is 199 lines and compiles without documentation warnings.
+- 2026-10-06: Complete sandboxed `leanRuntime` compilation passes against the
+  checked model documentation, including existing public proofs and both
+  gates. Log: `build/t18b-model-check.log`; output:
+  `/nix/store/70bscijcagr3s02fcphyjcf5rj0lahy9-sqlite-verifier-lean-runtime-1`.
+  No formula or definition body changed.
 
 ## Acceptance remaining
 
