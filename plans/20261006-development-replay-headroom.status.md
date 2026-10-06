@@ -140,3 +140,9 @@ authorized one Linux diagnostic below. No production change followed it.
   hash exceptions, observed filesystem and preflight markers. All three are
   recorded as fixed. Both bounded receipt validators pass; this refactor
   changes no production code, raw evidence or measured result.
+- 2026-10-06: Refactor `d4c2e2445054deaf1ec7f71773279b8851180181`
+  passed independent review `20261006T191308Z-d4c2e244` with no findings.
+  This status checkpoint preserves its exact raw journal line. The diagnostic
+  and its limits are committed on `t04c-replay-headroom`. The coordinator has
+  the measured costs and the conditional exact-size candidate. No additional
+  production change or native execution was started; the task is not DONE.
