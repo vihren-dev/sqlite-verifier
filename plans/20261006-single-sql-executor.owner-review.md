@@ -39,6 +39,10 @@ Checked migration `26fbe6fc` and correction `0eb80129` have source, ordinary,
 compiler, focused native/model and real Nix input-identity checks. The correction
 has independent review with no findings. The earlier R8 owner marker is deferred
 to this review, without approval.
+Schema checkpoint `1432aec5` and native evidence checkpoint `9bee3dd0` each
+passed required independent review with no findings. Every implementation
+should finding is fixed. Payload and exact XML/helper/source hashes were checked
+locally after receipt transfer.
 
 Current bundles are checked against their actual inputs/library and repeated
 preparation produces identical bytes. Immutable T03/T02 fixed-model/input byte

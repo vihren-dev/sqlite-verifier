@@ -6,16 +6,18 @@ Sources: public issues #21 and #13.
 
 ## Current state
 
-Investigation and task specification are complete. The dependency integration
-combines the prepared T05 task with reviewed exporter `07dc71b3`, current main
-`ba48d848` and checked declaration documentation `d01db1e6`. The first execution
-proof migration is in progress. Final owner approval of the exporter and the T03
-release remain separate gates.
+The implementation, both native runtime acceptances and independent reviews are
+complete, with the explicit qualifications below. Integration includes reviewed
+exporter `07dc71b3`, checked root documentation `db69c816` and main `29d2ed7a`.
+Full model acceptance is held for the separate T13 environment feedback. Final
+owner review of the changed target file and proposed baselines remains pending.
+The exporter owner approval and T03 release remain separate gates. This task is
+not DONE while those required T05 acceptance gates are open.
 
 Relevant definitions and callers are listed in the task file. The removed
 executor's unconditional preservation law relied on treating data statements
-as errors. Its replacement must state a schema-extension domain explicitly.
-The generated starting-schema pattern already exists in the Atuin example.
+as errors. Its replacement has an explicit CREATE/ADD guard and idle starting
+state. The generated starting-schema pattern now matches the Atuin example.
 
 ## Progress
 
@@ -105,6 +107,13 @@ The generated starting-schema pattern already exists in the Atuin example.
   after transfer. Vihren was released; earlier evidence directories are unchanged.
   No speed comparison or full model run is claimed. Full model acceptance and
   final owner review remain pending, so this task is not DONE.
+- 2026-10-06: Evidence checkpoint `9bee3dd0` passed required independent review
+  `20261006T174432Z-9bee3dd0` with no findings. Locally verified the two compressed
+  payload hashes and all 18 exact original XML hashes after transfer, the executed
+  helper and snapshot bindings, the current export identities/statuses, and the
+  post-run source-unchanged report. All implementation should findings are fixed;
+  the R8 owner marker remains deferred only to final owner review. No publication,
+  issue closure, merge or release is performed by this task worker.
 
 ## Exporter checkpoints and remaining gates
 
