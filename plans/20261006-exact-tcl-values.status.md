@@ -1,6 +1,6 @@
 # Exact Tcl values status
 
-Status: IN PROGRESS. Created 2026-10-06.
+Status: HELD. Created 2026-10-06.
 
 Task: [exact Tcl values and date-family acquisition](20261006-exact-tcl-values.task.md).
 Issue: [#35](https://github.com/vihren-dev/sqlite-verifier/issues/35).
