@@ -1,6 +1,6 @@
 # Bundle readiness status
 
-Status: IN PROGRESS; HELD at an explicitly authorized incomplete checkpoint.
+Status: IN PROGRESS. Harness validation has resumed; performance trials remain held.
 Created 2026-10-06.
 
 Task: [bundle attack parity and cold-run measurement](20261006-bundle-readiness.task.md).
@@ -192,3 +192,18 @@ held harness resumes; the append-only journal records each exact reason.
 - #6: Complete static typing of the runtime-tested deadline-forwarding wrapper.
 
 No new campaign, launcher, benchmark or task was started after the hold.
+
+## Continued harness validation
+
+- 2026-10-06: Continued this already-started task after the requested checkpoint.
+  The owner permits completion of active tasks while the four reviews proceed.
+  Performance trials remain held for the final installed runtime and idle hosts.
+  No unstarted card or frozen review branch changed.
+- Named the existing checker exit policy without changing its values. Clarified
+  the measurement-policy source hashes in the identity function. The real-child
+  deadline test now forwards explicitly typed parameters. These corrections
+  address deferred findings `20261006T182144Z-324ca1e8#4`, `#5` and `#6`.
+  Campaign tests, launcher work and other acceptance checks remain incomplete.
+- All 28 focused path, identity and child-observation checks pass in 1.60
+  seconds under the 30-second limit. The three deferred findings are recorded
+  as fixed in the append-only review journal. No performance trial ran.

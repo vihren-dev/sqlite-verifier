@@ -1,6 +1,6 @@
 # Bundle attack parity and cold-run measurement
 
-Status: IN PROGRESS; HELD at an explicitly authorized incomplete checkpoint.
+Status: IN PROGRESS. Harness validation has resumed; performance trials remain held.
 Created 2026-10-06.
 
 ## Outcome

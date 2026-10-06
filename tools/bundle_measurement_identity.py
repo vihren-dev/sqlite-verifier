@@ -64,7 +64,7 @@ def raise_walk_error(error: OSError) -> None:
 
 
 def evidence_identity(runtime: Path, inputs: Sequence[Path], observer: Path, python: Path) -> dict[str, Json]:
-    """Hash the complete selected runtime and explicit source roots outside measured command wall time."""
+    """Hash runtime, inputs, observer, Python and measurement-policy sources outside measured wall time."""
     sources = sorted(Path(__file__).parent.glob(MEASUREMENT_SOURCE_PATTERN))
     return {"runtime": tree_identity(runtime),
             "inputs": {str(root.resolve(strict=True)): tree_identity(root) for root in inputs},

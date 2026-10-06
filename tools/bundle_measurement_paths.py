@@ -15,6 +15,9 @@ from tools.bundle_measurement_process import Invocation, invoke
 
 Flow = Literal["verify", "bundle"]
 
+CHECKER_EXIT_BY_STATUS: Mapping[Literal["VERIFIED", "VIOLATED"], int] = {"VERIFIED": 0, "VIOLATED": 2}
+"""Both independent checkers return 2 for checked refutation; the public CLI returns 1."""
+
 
 @dataclass(frozen=True)
 class TrialSpec:
@@ -146,7 +149,7 @@ def execute_path(spec: TrialSpec, flow: Flow, directory: Path, baseline: dict[st
                 invalid.append(f"{name} returned {result.status}/{result.returncode}; expected {status}/{code}")
             if name in ("verify", "verify-bundle") and not result.invalid_conditions:
                 checker = "migration-proof-checker" if name == "verify" else "migration-bundle-checker"
-                expected_checker_code = 0 if spec.expected_status == "VERIFIED" else 2
+                expected_checker_code = CHECKER_EXIT_BY_STATUS[spec.expected_status]
                 spans = json.loads(Path(result.trace).read_text())["spans"]
                 codes = [span["returncode"] for span in spans if span["stage"] == "process:" + checker]
                 if codes != [expected_checker_code]:

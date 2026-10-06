@@ -1,6 +1,7 @@
 """Whole paths retain fresh cold commands, exact identities and a single shared deadline."""
 
 from dataclasses import replace
+from collections.abc import Mapping, Sequence
 import gzip
 import json
 from pathlib import Path
@@ -111,10 +112,16 @@ def test_combined_path_commands_share_one_deadline(trial_spec: TrialSpec, tmp_pa
     actual_invoke = paths.invoke
     deadlines: list[int] = []
 
-    def retain_deadline(**keywords: object) -> paths.Invocation:
+    def retain_deadline(*, python: Path, observer: Path, launcher: Path, arguments: Sequence[str],
+                        directory: Path, environment: Mapping[str, str], deadline_ns: int,
+                        launcher_sha256: str, observer_sha256: str, sources: Mapping[str, str],
+                        required_stage: str) -> paths.Invocation:
         """Forward actual child execution while retaining its common absolute deadline."""
-        deadlines.append(keywords["deadline_ns"])
-        return actual_invoke(**keywords)
+        deadlines.append(deadline_ns)
+        return actual_invoke(python=python, observer=observer, launcher=launcher, arguments=arguments,
+            directory=directory, environment=environment, deadline_ns=deadline_ns,
+            launcher_sha256=launcher_sha256, observer_sha256=observer_sha256,
+            sources=sources, required_stage=required_stage)
 
     monkeypatch.setattr(paths, "invoke", retain_deadline)
     result = execute_path(trial_spec, "bundle", tmp_path / "deadline", trial_spec.identity())
