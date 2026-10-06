@@ -10,6 +10,10 @@ import subprocess
 from time import monotonic_ns
 
 from tools.bundle_measurement_identity import file_sha256
+from tools.bundle_measurement_child import process_journal_path
+
+CLEANUP_OUTPUT_TIMEOUT_SECONDS = 5
+"""Bound partial-output collection after recorded groups stop; pipes still open invalidate the observation."""
 
 
 @dataclass(frozen=True)
@@ -126,9 +130,9 @@ def invoke(*, python: Path, observer: Path, launcher: Path, arguments: Sequence[
         timed_out = True
         stdout, stderr = failure.output or b"", failure.stderr or b""
         if process is not None:
-            cleanup_conditions = terminate_observed_groups(process.pid, trace.with_suffix(".processes.jsonl"))
+            cleanup_conditions = terminate_observed_groups(process.pid, process_journal_path(trace))
             try:
-                stdout, stderr = process.communicate(timeout=5)
+                stdout, stderr = process.communicate(timeout=CLEANUP_OUTPUT_TIMEOUT_SECONDS)
             except subprocess.TimeoutExpired as incomplete:
                 stdout, stderr = incomplete.output or stdout, incomplete.stderr or stderr
                 cleanup_conditions.append("output pipes remain open after bounded process cleanup")

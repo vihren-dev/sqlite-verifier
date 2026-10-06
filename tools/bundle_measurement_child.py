@@ -24,6 +24,11 @@ STAGES = {
 }
 
 
+def process_journal_path(trace: Path) -> Path:
+    """Use one shared trace-to-journal rule so observer creation and timeout cleanup find the same evidence."""
+    return trace.with_suffix(".processes.jsonl")
+
+
 def process_role(arguments: Sequence[str]) -> str:
     """Identify current dependency scans, Lean module compiles and checker/executable calls."""
     if "--deps-json" in arguments:
@@ -133,7 +138,7 @@ def main() -> None:
         parser.error("Stage observation requires isolated Python; use the installed interpreter with -I")
     launcher = options.launcher.resolve(strict=True)
     arguments = options.arguments[1:] if options.arguments[:1] == ["--"] else options.arguments
-    observer = StageObserver(launcher.parents[1], options.trace.with_suffix(".processes.jsonl"))
+    observer = StageObserver(launcher.parents[1], process_journal_path(options.trace))
     before = hashlib.sha256(launcher.read_bytes()).hexdigest()
     sys.argv = [str(launcher), *arguments]
     started = monotonic_ns()

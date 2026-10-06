@@ -5,7 +5,7 @@ from pathlib import Path
 
 import pytest
 
-from tools.bundle_measurement_identity import empty_cache_directory, evidence_identity, host_conditions, tree_identity
+from tools.bundle_measurement_identity import empty_cache_directory, evidence_identity, host_conditions, host_identity, tree_identity
 
 
 def test_exact_file_bytes_and_modes(tmp_path: Path) -> None:
@@ -72,3 +72,12 @@ def test_cache_conditions_state_observation_limits() -> None:
     assert conditions["os_file_caches"] == "not flushed; file residency is not observed"
     assert "before and after each path" in conditions["identity_reads"]
     assert "individual process activity is not observed" in conditions["background_processes"]
+
+
+def test_platform_machine_cpu_identity_fields() -> None:
+    """A campaign records the actual machine and Python identities independently of changing load."""
+    identity = host_identity()
+    assert set(identity) == {"system", "release", "machine", "node", "cpu_count", "python"}
+    assert all(isinstance(identity[key], str) for key in identity if key != "cpu_count")
+    assert identity["cpu_count"] is None or type(identity["cpu_count"]) is int
+    assert identity["system"] and identity["machine"] and identity["python"]

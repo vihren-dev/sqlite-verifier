@@ -115,3 +115,12 @@ Specifications: [ADR 0003](../docs/adr-0003-agent-proof-preparation.md),
   cleanup, invalid UTF-8 output, changed identities and malformed stage traces.
   These deterministic fixtures are not performance evidence. No coordinated
   timing trial, heavy Nix check or held full-model gate started.
+- 2026-10-06: Process checkpoint `ed3bbd4d` had four `should` findings and
+  no `must` findings. Named the bounded cleanup-output deadline and shared the
+  trace-to-process-journal rule with the observer and tests. Added host identity
+  field/type checks plus actual expired-before-launch, missing-executable and
+  escaped-descendant open-pipe cases. The escaped fixture is explicitly stopped
+  by its test after incomplete cleanup is recorded; no sandbox claim is made.
+  Resolved `20261006T173541Z-ed3bbd4d#1` through `#4`. All 52 focused checks pass
+  in 5.16 seconds under the 30-second bound. Raw failed observations stay intact
+  and cannot become timing acceptance. Actual performance remains held.

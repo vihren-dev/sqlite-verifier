@@ -11,6 +11,7 @@ from time import monotonic_ns
 import pytest
 
 from tests.bundle_measurement_fixture import launcher
+from tools.bundle_measurement_child import process_journal_path
 from tools.bundle_measurement_identity import file_sha256
 from tools.bundle_measurement_process import Invocation, invoke, validate_trace
 
@@ -77,7 +78,8 @@ def test_timeout_kills_recorded_separate_group(launcher: Path, tmp_path: Path,
                                              monkeypatch: pytest.MonkeyPatch, malformed_journal: bool) -> None:
     """The timeout retains partial streams and stops an actual new-session descendant of the observer."""
     module = launcher.parents[1] / "migration_check/cli.py"
-    append = 'open("stages.processes.jsonl","a").write("{")' if malformed_journal else "pass"
+    journal_path = process_journal_path(tmp_path / "timeout/stages.json")
+    append = f"open({str(journal_path)!r},'a').write('{{')" if malformed_journal else "pass"
     module.write_text(module.read_text().replace("count = verify(arguments)", """import subprocess,time
         child = subprocess.Popen([sys.executable,"-c","import time; time.sleep(60)"], start_new_session=True)
         APPEND_JOURNAL
@@ -96,7 +98,7 @@ def test_timeout_kills_recorded_separate_group(launcher: Path, tmp_path: Path,
     result = run_observed(launcher, tmp_path / "timeout", timeout=1)
     assert result.timed_out and result.wall_ns() < 6_000_000_000 and "path deadline expired" in result.invalid_conditions
     child = int(Path(result.stdout).read_bytes())
-    journal = Path(result.trace).with_suffix(".processes.jsonl")
+    journal = process_journal_path(Path(result.trace))
     spawn = json.loads(journal.read_text().splitlines()[0])
     assert spawn["pid"] == spawn["process_group"] == child
     assert (child, signal.SIGKILL) in signals and (result.pid, signal.SIGKILL) in signals
