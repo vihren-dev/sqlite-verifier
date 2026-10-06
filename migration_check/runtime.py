@@ -56,7 +56,8 @@ class Runtime:
                 "INPUT_ERROR",
                 f"Lean runtime at {sysroot} reports {version.stdout.strip()!r}; "
                 f"the verifier requires Lean {PINNED_LEAN_VERSION}. "
-                "Set MIGRATION_CHECK_LEAN_SYSROOT to that installation or reinstall the verifier.",
+                "Reinstall the verifier. For a development checkout, set "
+                "MIGRATION_CHECK_LEAN_SYSROOT to that installation.",
             )
         runtime = cls(root, sysroot, root / ".lake/build/lib/lean", root / "build" / parsers[sqlite_version],
                       root / ".lake/build/bin/migration-proof-checker")
