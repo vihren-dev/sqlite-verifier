@@ -172,3 +172,9 @@ authorized one Linux diagnostic below. No production change followed it.
   acceptance. No new phase, native-I/O change, full-model gate or timing
   campaign ran; integrated checks and Linux performance acceptance remain
   pending. Task status is IN PROGRESS.
+- 2026-10-06: Exact-size commit `16f2deecfd9cec5bc6fa86e3fce7caf138a98061`
+  passed independent review `20261006T192320Z-16f2deec` with no findings. The
+  reviewer confirmed canonical byte equivalence, validation order, both size
+  checks, primitive flexibility and the independent oracle coverage. This
+  status checkpoint preserves the exact raw review line. No new timing or
+  native-I/O work followed the checked partial CPU change.
