@@ -172,5 +172,23 @@ Specifications: [ADR 0003](../docs/adr-0003-agent-proof-preparation.md),
 - Final installed T05/documentation runtime, idle macOS/Linux leases, all actual
   nine-or-25 raw trials and owner dispositions remain required. The earlier
   owner-held full model gate also remains held; it was not started here.
-- Required independent review of this exact incomplete checkpoint remains to
-  finish. T06 is not DONE, and this branch makes no cutover or performance claim.
+- Checkpoint `324ca1e88254a515c59013801b9e89b17fde6efc` passed independent
+  review `20261006T182144Z-324ca1e8` with 0 must and 6 should findings. Their
+  explicit deferrals are recorded below. T06 is not DONE; no cutover or
+  performance claim is made.
+
+## Held checkpoint review deferrals
+
+The owner requested an incomplete checkpoint and a switch to the already-started
+T04c task. These `20261006T182144Z-324ca1e8` findings remain deferred until this
+held harness resumes; the append-only journal records each exact reason.
+
+- #1: Campaign persistence/end-to-end tests remain incomplete; no acceptance use.
+- #2: Include pair/directory details in the held draft's machine-change error.
+- #3: Include output/root/action details in the held draft's output-path error.
+- #4: Name the existing checker/status mapping; observed 0/2 versus CLI 0/1
+  has focused coverage, but the policy cleanup remains pending.
+- #5: Clarify that evidence_identity also hashes measurement-policy sources.
+- #6: Complete static typing of the runtime-tested deadline-forwarding wrapper.
+
+No new campaign, launcher, benchmark or task was started after the hold.
