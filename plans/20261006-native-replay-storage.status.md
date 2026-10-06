@@ -174,3 +174,7 @@ Relevant files: `conformance/native_record.py`, `conformance/corpus.py`,
   the infrastructure JUnit is `build/test-results/t04b-nix-fixture.xml`.
   No full-model, acquisition-yield or performance run was needed for this
   repository-owned fixture correction. Independent review is pending.
+- 2026-10-06: Fixture correction and main integration `e757275e` passed
+  Claude review with no findings. The checked tip is ready for the PR #46
+  update; no push or PR merge was performed here. The new review-journal
+  entry remains pending for the next integration commit.
