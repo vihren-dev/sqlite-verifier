@@ -85,10 +85,12 @@ def reviewer_environment(environment: Mapping[str, str]) -> dict[str, str]:
     return clean
 
 
-def reviewer_command(reviewer: Reviewer, commit: str) -> list[str]:
-    """The command line of one review; the instructions arrive on standard input."""
+def reviewer_command(reviewer: Reviewer) -> list[str]:
+    """The command line of one review; the instructions, with the commit, arrive on standard input."""
     if reviewer == "codex":
-        return ["codex", "review", "--commit", commit, "-"]
+        # `codex review --commit` rejects custom instructions, so the review runs as a
+        # read-only `codex exec` session that is told which commit to review.
+        return ["codex", "exec", "--sandbox", "read-only", "--ephemeral", "-"]
     return ["claude", "-p", "--allowedTools", *CLAUDE_READ_ONLY_TOOLS]
 
 
@@ -138,7 +140,7 @@ def main(arguments: Sequence[str]) -> int:
         return 2
     text = instructions(CHECKLIST.read_text(encoding="utf-8"), options.revision, commit)
     try:
-        result = subprocess.run(reviewer_command(reviewer, commit), cwd=ROOT, input=text, capture_output=True,
+        result = subprocess.run(reviewer_command(reviewer), cwd=ROOT, input=text, capture_output=True,
                                 text=True, timeout=REVIEW_TIMEOUT_SECONDS, env=reviewer_environment(os.environ),
                                 check=False)
     except (OSError, subprocess.TimeoutExpired) as error:

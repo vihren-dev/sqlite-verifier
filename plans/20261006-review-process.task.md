@@ -48,7 +48,8 @@ Related: the writing and proposition rules in [`AGENTS.md`](../AGENTS.md); issue
   fail visibly, not select the wrong reviewer silently.
 - Removing markers must not remove configuration that the reviewer needs
   (for example `CODEX_HOME`).
-- The repository is a colocated jj/git repository: `codex review --commit`
-  takes the git commit hash of the jj revision.
+- The repository is a colocated jj/git repository: the reviewer is given the
+  git commit hash of the jj revision and reads it with `git show` or `jj show`.
+  `codex review --commit` cannot be used: it rejects custom instructions.
 - The checklist holds the conditions; `AGENTS.md` only holds the rule to run the
   review, so that agents do not load the checklist in every session.

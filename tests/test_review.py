@@ -51,9 +51,9 @@ def test_reviewer_environment_strips_session_markers() -> None:
 
 @pytest.mark.unit
 def test_reviewer_commands_are_read_only() -> None:
-    """Codex reviews the commit; Claude Code gets only reading tools."""
-    assert reviewer_command("codex", COMMIT) == ["codex", "review", "--commit", COMMIT, "-"]
-    claude = reviewer_command("claude", COMMIT)
+    """Codex runs in its read-only sandbox; Claude Code gets only reading tools."""
+    assert reviewer_command("codex") == ["codex", "exec", "--sandbox", "read-only", "--ephemeral", "-"]
+    claude = reviewer_command("claude")
     assert claude[:3] == ["claude", "-p", "--allowedTools"]
     assert not any(tool.startswith(("Edit", "Write", "Bash(jj commit", "Bash(rm")) for tool in claude[3:])
 
@@ -101,7 +101,7 @@ def test_claude_caller_gets_isolated_codex_review(tmp_path: Path) -> None:
     result = run_review(stubs, {"CLAUDECODE": "1", "AI_AGENT": "claude-code"})
     call = json.loads((stubs / "call.json").read_text())
     assert result.returncode == 1, result.stderr
-    assert Path(call["argv"][0]).name == "codex" and call["argv"][1:] == ["review", "--commit", COMMIT, "-"]
+    assert Path(call["argv"][0]).name == "codex" and call["argv"][1:4] == ["exec", "--sandbox", "read-only"]
     assert "CLAUDECODE" not in call["environ"] and "AI_AGENT" not in call["environ"]
     assert call["environ"][GUARD] == "1" and "Output format" in call["stdin"] and COMMIT in call["stdin"]
 
