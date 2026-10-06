@@ -133,3 +133,18 @@ Relevant files: `conformance/native_record.py`, `conformance/corpus.py`,
   is empty for frozen corpora v1–v5 and the historical execution directory.
   All task acceptance outcomes are complete. The final append-only review
   entry remains pending for the next integration commit.
+- 2026-10-06: Ordinary integration exposed a test ownership defect: the
+  source suite supplied the verification runtime, but full native receipt
+  checks need the conformance runner. Assigned the storage tests to the
+  existing upstream Nix suite, which supplies the conformance runtime, and
+  declared its freezer fixture, requirement inventory, historical corpora,
+  resource helper and native build inputs. The real freezer and full CLI
+  checks remain enabled; no prerequisite check or assertion was removed.
+- 2026-10-06: Integrated merged main `e9fd9533` and preserved every exact
+  review line from both branches. The corrected ordinary command,
+  `nix develop path:./nix --command timeout 1200 just test`, exits 0.
+  All six development Nix targets pass, including 71 upstream and storage
+  checks in 5.01 seconds. Source JUnit and the complete command log are
+  `build/test-results/source.xml` and `build/t04b-integration-check.log`.
+  The recorded full Linux diagnosis remains bound to its original source
+  snapshot; this correction changes test ownership and declared Nix inputs.
