@@ -25,7 +25,7 @@ def test_frozen_cli_replays_every_authored_and_synthetic_case_within_bound(
     output = tmp_path / "sample.json"
     child = subprocess.run([sys.executable, "-m", "conformance.replay_tiers",
         "--runtime-root", str(runtime_root), "--output", str(output)],
-        cwd=ROOT, capture_output=True, text=True, timeout=60)
+        cwd=ROOT, capture_output=True, text=True, timeout=replay_tiers.PHASE_LIMIT_SECONDS)
     assert child.returncode == 0, child.stdout + child.stderr
     result = json.loads(output.read_text())
     manifest, records = load(GENERIC)
@@ -57,4 +57,4 @@ def test_frozen_cli_replays_every_authored_and_synthetic_case_within_bound(
     assert sum(result["counts"].values()) == result["selectedDenominator"]
     assert not {"DISAGREE", "HARNESS_ERROR"} & result["counts"].keys()
     assert result["measurement"]["phase"] == "fresh-load-native-replay-model-classification"
-    assert result["measurement"]["seconds"] < result["measurement"]["limitSeconds"] == 60
+    assert result["measurement"]["seconds"] < result["measurement"]["limitSeconds"] == replay_tiers.PHASE_LIMIT_SECONDS

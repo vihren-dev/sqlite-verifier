@@ -1,0 +1,61 @@
+# Status: independent review of each commit
+
+Created 2026-10-06. Status: DONE.
+Task: [task](20261006-review-process.task.md).
+Relevant files: `tools/review.py`, `tests/test_review.py`, `docs/review-checklist.md`,
+`justfile`, `AGENTS.md`.
+
+## Progress
+
+- 2026-10-06: task and status files.
+- 2026-10-06: `tools/review.py`, `tests/test_review.py` (17 tests, all pass in
+  about 1 s, no credentials needed) and `docs/review-checklist.md` (conditions
+  R1-R13 and the output format).
+- 2026-10-06: `just review` recipe and the "Review after each commit" rule in
+  `AGENTS.md`.
+- 2026-10-06: first real run (`just review` from Claude Code, reviewer Codex)
+  failed with exit code 3: `codex review --commit` rejects custom instructions.
+  Fixed: Codex reviews run as `codex exec --sandbox read-only --ephemeral -`.
+- 2026-10-06: second real run, Codex reviewing commit `39e069d` (the script):
+  well formed, about 60 s, 1 must and 4 should findings.
+  - R11 must (the command the real CLI rejects): already fixed by the commit
+    above. Added a test that runs each installed CLI's option parser with
+    `--help`. Limit, recorded here and in the test: it finds renamed or removed
+    options, but not argument conflicts, which the CLI checks only without
+    `--help`. The original bug was such a conflict; only a real run finds it.
+  - R1 should (session-marker names and the `jj` timeout were literals): fixed,
+    now named constants with reasons.
+  - R9 should (`resolve_commit` gave no reason): fixed.
+  - R10 should (reviewer failure gave no next step): fixed.
+- 2026-10-06: review round 2.
+  - Codex on the refactor commit `f3de27e`: 0 must, 1 should. R11: `claude`
+    ignores unknown options when `--help` is given (confirmed), so the parser
+    test could not find a renamed Claude option. Fixed: the test now compares
+    the command's options with the help text (`missing_options`, unit-tested;
+    it reports `--allowedToolz` and `--ephemeralz`).
+  - Claude Code (`REVIEWER=claude`, first real run of that direction) on the
+    `justfile`/`AGENTS.md` commit `5ac8fdb`: `No findings.`, with an unconfirmed
+    note that `just --list` shows only the last comment line of the recipe.
+    Confirmed and fixed: the recipe comment is one line.
+- 2026-10-06: checks: source suite (the pytest part of `just test`) 304 passed;
+  `requires_nix` tests 59 passed; `tests/test_review.py` 20 passed.
+- 2026-10-06: review round 3, Codex on `84cf79b`: 0 must, 1 should. R11:
+  `missing_options` matched substrings, so `-p` passed inside `--print`. Fixed:
+  it compares complete option tokens; regression test added.
+- 2026-10-06: review round 4, Codex on `8ea118f`: `No findings.` Codex on the
+  fix commit `527c488`: `No findings.` Every commit of this change is reviewed.
+  DONE.
+- 2026-10-06 (owner feedback): the checklist must be self-contained. R6 and R7
+  referred to issues; they now state the rule and its reason directly.
+- 2026-10-06 (owner request): review statistics. `tools/review.py` split into
+  `review_select.py` (pure decisions) and `review.py` (shell) to stay below 200
+  lines; new `review_log.py` (log, `review-resolve`) and `review_stats.py`
+  (report). Each checklist condition got an "Applies to" scope. 33 tests pass.
+- 2026-10-06: first logged review (Codex on `e67e500`): 4 should findings, all
+  fixed and resolved as `fixed`: outcome counters built from `OUTCOMES` (R1),
+  reasons in the log docstrings (R9), a next step for an unknown finding id
+  (R10), tests that failed and malformed reviews are logged (R11). 35 tests pass.
+- 2026-10-06: Codex on the refactor `ed004e2`: `No findings.` Checks: source
+  suite 317 passed, `requires_nix` 59 passed. `just review-stats` on the real
+  log: 2 reviews; the Lean-only conditions show 0 chances, as expected for
+  Python-only commits. DONE.
