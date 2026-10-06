@@ -43,12 +43,13 @@ in {
     ] ++ map (name: root + "/conformance/${name}.py") [
       "replay_tiers" "corpus" "corpus_shards" "corpus_evidence" "corpus_acquisition" "case_format"
       "workload" "workload_inputs" "execution_profile" "native_replay" "model_check"
-      "native_record" "native_acquisition" "native_connection" "native_library" "native_clock" "native_storage"
+      "native_record" "native_observation" "native_acquisition" "native_connection" "native_library" "native_clock" "native_storage"
       "native_probe" "native_ordering" "query_window" "native_metadata" "native_statements"
       "native_bindings" "native_call_recording" "upstream_bindings" "upstream_binding_policy"
       "native_binding_types" "native_binding_validation"
       "upstream_helpers" "model_assertions" "native_trace" "freeze_validation"
       "upstream_catalog" "upstream_sampling" "upstream_profiles" "freeze_profiles"
+      "upstream_result_values" "upstream_fidelity" "upstream_display"
     ];
     runtime = conformance;
     tools = [ native.sqlite ];
@@ -58,6 +59,17 @@ in {
       (root + /tests/conformance_freeze_capture.py)
       (fs.fileFilter (file: file.hasExt "py" || file.hasExt "tcl") (root + /conformance))
       (fs.fileFilter (file: file.hasExt "py") (root + /migration_check))
+      (root + /conformance/requirements-3.51.0.json)
+      (root + /conformance/corpus-v1)
+      (root + /conformance/corpus-v2)
+      (root + /conformance/corpus-v3)
+      (root + /conformance/corpus-v4)
+      (root + /tools/__init__.py)
+      (root + /tools/check_resources.py)
+      (root + /nix/flake.nix)
+      (root + /nix/flake.lock)
+      (root + /nix/sqlite.nix)
+      (root + /build-support/conformance-native.nix)
       (root + /tests/upstream_profile_calls.test)
       (root + /tests/upstream_helper_calls.test)
       (root + /tests/upstream_context_calls.test)
@@ -124,6 +136,7 @@ in {
       (root + /conformance/synthetic-workload)
       (root + /conformance/upstream_proxy.tcl)
       (root + /conformance/upstream_external.tcl)
+      (root + /conformance/upstream_bindings.tcl)
       (root + /nix/sqlite.nix)
       (root + /nix/flake.lock)
       (root + /build-support/conformance-native.nix)
@@ -136,6 +149,9 @@ in {
       "upstream_selection" "upstream_catalog" "upstream_sampling" "upstream_profiles" "upstream_functions" "upstream_result_values"
       "corpus_shards" "corpus_evidence" "corpus_acquisition" "freeze_corpus" "freeze_validation" "freeze_profiles" "workload" "workload_inputs"
       "upstream_assertions"
+      "native_bindings" "native_call_recording" "native_binding_types" "native_binding_validation"
+      "native_observation"
+      "upstream_bindings" "upstream_binding_policy" "upstream_display" "upstream_evidence"
       "upstream_helpers"
       "native_fixture" "import_fixture" "schema"
       "case_format" "native_connection" "native_library" "native_clock" "native_probe" "native_ordering" "query_window" "native_metadata" "native_record" "native_statements" "native_replay" "upstream_pilot" "upstream_fidelity" "corpus" "generated_program" "mutation_check" "state_machine" "regressions" "progress" "measure_coverage" "native_trace" "pipeline"

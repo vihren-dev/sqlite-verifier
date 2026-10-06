@@ -11,7 +11,8 @@ Relevant files: `conformance/upstream_result_values.py`,
 `conformance/upstream_proxy.tcl`, `conformance/upstream_assertions.py`,
 `conformance/upstream_selection.py`, `conformance/upstream_fidelity.py`,
 `conformance/native_record.py`, `conformance/native_statements.py`,
-`conformance/native_library.py`, `conformance/corpus.py`.
+`conformance/native_library.py`, `conformance/native_observation.py`,
+`conformance/corpus.py`.
 
 ## Progress
 
@@ -174,3 +175,20 @@ Relevant files: `conformance/upstream_result_values.py`,
   `ay0y4` JUnit path. The earlier 2.84-second checkpoint remains a historical
   progress entry. Artifact bytes and acquisition dispositions are unchanged.
   Resolved `20261006T154512Z-b92ca14e#1`.
+- 2026-10-06: Assembled the reviewed T17 working parent `b1676026`, storage
+  head `cbcbf0bd` and published main `ba48d848` without rewriting feature
+  commits. The merge retains 72 unchanged raw review-journal lines and every
+  parent's line order. Replay now carries typed call inputs together with the
+  selected ordinary-file storage. Updated the storage capture caller to the
+  flat fixture module and removed its obsolete test-module Nix input.
+- Declared the required binding/display modules in the model/sample inputs,
+  and the Tcl observer in model inputs. Separated the unchanged native schema
+  observation into `native_observation.py`; the combined recorder is 163 lines
+  and the observation module is 52. Frozen v1–v5 bytes remain unchanged.
+- The combined targeted batch passes 141 checks in 8.17 seconds (90-second
+  bound). The integrated upstream sandbox passes 117 checks in 5.02 seconds
+  without skips. JUnit:
+  `/nix/store/bvxkw4a5qz1qxf8lp37kf77n1dihmb54-sqlite-verifier-test-upstream-1/junit.xml`.
+  Ordinary source/development and Nix infrastructure checks wait for the T05
+  local baseline to finish. The full model gate remains held for environment
+  feedback; no full model job has started here.

@@ -1,0 +1,9 @@
+{
+  "sourceRevision": "698cc4d428c4101261df567901ef6ae7fa939126",
+  "addedMeasurementHelperSha256": "5caafefa10935137288e43d8e382856e047e6c4feeeb9dbc5026f624d1bbb3f3",
+  "sourceArchiveSha256": "16bdf5ede50d3a69cce1ee6c07cc9a4991c79ba864a3b74c4130ee2211d9a798",
+  "retrievedEvidenceArchiveSha256": "2d1d903236d0ee9855f8a0c1b59545e55df8e91b10757aeb37740bb0d4077995",
+  "sourceDirectory": "/var/tmp/sqlite-verifier-storage.xkLtmU/source",
+  "runtime": "/nix/store/rhinzr7jq41azsh6s8i8dmndi7idnv3k-sqlite-verifier-conformance",
+  "retainedToolchainDirectoryUnchanged": true
+}

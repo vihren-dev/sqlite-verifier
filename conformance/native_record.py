@@ -6,60 +6,15 @@ from pathlib import Path
 from tempfile import TemporaryDirectory
 
 from conformance.case_format import Json
-from conformance.native_statements import execute, wire_rows
-from conformance.native_connection import Cell, Connection, SOURCE_ID, library_path, load_library
-from conformance.native_metadata import integer, quoted, text
+from conformance.native_statements import execute
+from conformance.native_connection import Cell, Connection, library_path, load_library
+from conformance import native_observation
 from conformance.execution_profile import ExecutionProfile
 from conformance.native_clock import NativeClock, utc_timezone
 from conformance.native_acquisition import open_case
-from conformance.native_library import SOURCE_IDS
+from conformance.native_library import DEFAULT_ENGINE_VERSION, SOURCE_IDS, library_binary
 from conformance.native_call_recording import recording_inputs, validate_recording
 from conformance.native_bindings import is_read_only_tcl_helper
-
-
-def observe(connection: Connection) -> dict[str, Json]:
-    """Record all schema objects and readable rows without asking the translator."""
-    if any(text(row[1]) not in ("main", "temp") for row in connection.query("PRAGMA database_list;")):
-        raise ValueError("Excluded connection context: attached database")
-    if connection.query("SELECT name FROM sqlite_temp_schema;"):
-        raise ValueError("Excluded connection context: temporary schema")
-    schema = connection.query("SELECT type,name,tbl_name,sql FROM sqlite_schema ORDER BY type,name;")
-    inventory = {text(row[1]): row for row in connection.query("PRAGMA table_list;") if text(row[0]) == "main"}
-    tables: list[Json] = []
-    for kind, name_cell, _, _ in schema:
-        if text(kind) not in ("table", "view"):
-            continue
-        name = text(name_cell)
-        columns = connection.query(f"PRAGMA table_xinfo({quoted(name)});")
-        visible = [row for row in columns if integer(row[6]) != 1]
-        names = [text(row[1]) for row in visible]
-        without_rowid = bool(integer(inventory[name][4]))
-        key = [text(row[1]) for row in sorted(visible, key=lambda row: integer(row[5])) if integer(row[5])]
-        rowid = next((alias for alias in ("rowid", "_rowid_", "oid")
-                      if alias not in {n.lower() for n in names}), None)
-        if not without_rowid and text(kind) == "table" and rowid:
-            key = [rowid]
-        elif text(kind) == "view" or not without_rowid:
-            key = names  # No exposed physical identity: retain the complete ordered multiset.
-        ordering = ",".join(quoted(n) for n in key)
-        identities = connection.query(f"SELECT {ordering} FROM {quoted(name)} ORDER BY {ordering};")
-        values: list[list[Cell]] = [[] for _ in identities]
-        for offset in range(0, len(names), 2000):
-            selected = ",".join(quoted(n) for n in names[offset:offset + 2000])
-            chunk = connection.query(f"SELECT {selected} FROM {quoted(name)} ORDER BY {ordering};")
-            if len(chunk) != len(identities):
-                raise ValueError("Native rows changed during observation")
-            for destination, row in zip(values, chunk, strict=True):
-                destination.extend(row)
-        indexes = connection.query(f"PRAGMA index_list({quoted(name)});")
-        tables.append({"name": name, "kind": text(kind), "withoutRowid": without_rowid,
-            "columns": wire_rows(columns), "indexes": [
-                {"entry": wire_rows([entry])[0], "columns": wire_rows(connection.query(
-                    f"PRAGMA index_xinfo({quoted(text(entry[1]))});"))} for entry in indexes],
-            "foreignKeys": wire_rows(connection.query(f"PRAGMA foreign_key_list({quoted(name)});")),
-            "rowKey": key, "rows": [{"identity": wire_rows([identity])[0], "values": wire_rows([tuple(row)])[0]}
-                                     for identity, row in zip(identities, values, strict=True)]})
-    return {"schema": wire_rows(schema), "tables": tables}
 
 
 def record_sql(setup: str | list[str | dict[str, Json]], migration: str, *, name: str, requirements: list[str] | None = None,
@@ -74,8 +29,13 @@ def record_sql(setup: str | list[str | dict[str, Json]], migration: str, *, name
                parameter_names: list[list[str | None]] | None = None,
                setup_parameter_names: list[list[list[str | None]]] | None = None,
                setup_call_indices: list[int] | None = None,
-               source_setup_commands: list[str | dict[str, Json]] | None = None) -> dict[str, Json]:
-    """Keep native evidence; clocks can be fixed across SQL or supplied per statement."""
+               source_setup_commands: list[str | dict[str, Json]] | None = None,
+               temporary_root: Path | None = None, fixture_paths: list[Path] | None = None) -> dict[str, Json]:
+    """Keep exact call inputs and native evidence with fixed or per-statement clocks.
+
+    An explicit root places ordinary file fixtures there; an optional path list
+    records their actual database paths without adding them to native evidence.
+    """
     if parameters is not None and not outputs:
         raise ValueError("Bound parameters require output recording")
     setup, recording, setup_calls = recording_inputs(setup, migration, tcl_calls, setup_parameters,
@@ -96,13 +56,13 @@ def record_sql(setup: str | list[str | dict[str, Json]], migration: str, *, name
         raise ValueError("Controlled profile requires setup and statement clock inputs")
     if not controlled and (setup_clock is not None or clock_values is not None):
         raise ValueError("Clock inputs require a controlled profile")
-    with TemporaryDirectory(prefix="native-corpus-") as directory, ExitStack() as stack:
+    with TemporaryDirectory(prefix="native-corpus-", dir=temporary_root) as directory, ExitStack() as stack:
         if controlled:
             stack.enter_context(utc_timezone())
-        version = profile.engine_version if profile else "3.51.0"
+        version = profile.engine_version if profile else DEFAULT_ENGINE_VERSION
         if version not in SOURCE_IDS:
             raise ValueError("Execution profile engine has no pinned native build")
-        engine = load_library(library or library_path("sqlite3" + ("" if version == "3.51.0" else "-" + version)), version)
+        engine = load_library(library or library_path(library_binary(version)), version)
         clock = NativeClock(engine, setup_clock) if controlled else None
         if clock is not None:
             stack.callback(clock.close)
@@ -116,6 +76,11 @@ def record_sql(setup: str | list[str | dict[str, Json]], migration: str, *, name
             return connection
 
         writer = open_writer()
+        if fixture_paths is not None:
+            database = Path(directory) / "case.db"
+            if not database.is_file():
+                raise ValueError(f'Native file fixture is missing: {database}; check the native recorder')
+            fixture_paths.append(database)
         setup_outcomes: list[Json] = []
         setup_results: list[Json] = []
         setup_errors: list[Json] = []
@@ -178,8 +143,8 @@ def record_sql(setup: str | list[str | dict[str, Json]], migration: str, *, name
             if profile is not None:
                 profile.verify_settings(writer)
                 profile.verify_settings(reader)
-            visible = observe(writer)
-            return {"visible": visible, "persisted": observe(reader) if writer.transaction_open else visible,
+            visible = native_observation.observe(writer)
+            return {"visible": visible, "persisted": native_observation.observe(reader) if writer.transaction_open else visible,
                     "transactionOpen": writer.transaction_open}
 
         initial = snapshot()

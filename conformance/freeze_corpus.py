@@ -76,10 +76,14 @@ def membership(upstream: list[dict[str, Json]]) -> list[tuple[str, str, list[dic
 
 
 def freeze(directory: Path, output: Path, *, upstream: Path, fidelity_ledger: Path | None = None,
-           retained: tuple[Path, ...] | None = None) -> dict[str, Json]:
+           retained: tuple[Path, ...] | None = None, temporary_root: Path | None = None,
+           storage_report: Path | None = None) -> dict[str, Json]:
     """Publish a new v5 directory only after all selection and native evidence gates pass."""
     if output.exists() or output.is_symlink():
         raise ValueError("Corpus output already exists")
+    if storage_report is not None:
+        from conformance.native_replay_report import check_receipt_path
+        check_receipt_path(storage_report, temporary_root, directory, output)
     extraction = source_path(directory, "manifest.json").read_bytes()
     report, captured = load(directory)
     refusals = acquisition(report, captured, upstream, ROOT)
@@ -98,7 +102,15 @@ def freeze(directory: Path, output: Path, *, upstream: Path, fidelity_ledger: Pa
         raise ValueError("Final membership requires native v4 outputs and profiles")
     for case in cases:
         check_size(len(serialized(case)))
-    native_replay(cases)
+    if temporary_root is None:
+        native_replay(cases)
+    else:
+        from conformance.native_replay_report import report as native_report
+        native = native_report(directory, cases, None, temporary_root)
+        if storage_report is not None:
+            storage_report.parent.mkdir(parents=True, exist_ok=True)
+            with storage_report.open('x') as receipt:
+                receipt.write(json.dumps(native, indent=2) + '\n')
     previous = retained_bytes(retained if retained is not None else
                               tuple(ROOT / f"conformance/corpus-v{version}" for version in (1, 2, 3, 4)))
     extraction_gzip = gzip.compress(extraction, mtime=0)
@@ -168,9 +180,17 @@ def main() -> None:
     parser.add_argument("--output", type=Path, required=True)
     parser.add_argument("--fidelity-ledger", type=Path)
     parser.add_argument("--retained", type=Path, action="append")
+    parser.add_argument("--temporary-root", type=Path, required=True)
     args = parser.parse_args()
+    from tools.check_resources import check_resources
+    try:
+        check_resources(ROOT, temporary_root=args.temporary_root)
+    except (OSError, ValueError) as error:
+        parser.error(str(error))
     result = freeze(args.input, args.output, upstream=args.upstream, fidelity_ledger=args.fidelity_ledger,
-                    retained=tuple(args.retained) if args.retained is not None else None)
+                    retained=tuple(args.retained) if args.retained is not None else None,
+                    temporary_root=args.temporary_root,
+                    storage_report=args.output.with_name(args.output.name + '-native-replay.json'))
     print(json.dumps({"recordedCases": result["recordedCases"], **result["freezeStatistics"]}))
 
 

@@ -3,13 +3,20 @@
 import ctypes as c
 from pathlib import Path
 
+#: Unprofiled native evidence uses the release selected by the generic corpus.
+DEFAULT_ENGINE_VERSION = "3.51.0"
 SOURCE_ID = "2025-11-04 19:38:17 fb2c931ae597f8d00a37574ff67aeed3eced4e5547f9120744ae4bfa8e74527b"
-SOURCE_IDS: dict[str, str] = {"3.51.0": SOURCE_ID,
+SOURCE_IDS: dict[str, str] = {DEFAULT_ENGINE_VERSION: SOURCE_ID,
     "3.46.0": "2024-05-23 13:25:27 96c92aba00c8375bc32fafcdf12429c58bd8aabfcadab6683e35bbb9cdebf19e",
     "3.53.4": "2026-07-24 19:02:57 bf7c7f30031888f4e796e429ab3978879485813aaca6f641c7b33e4e09459bcc"}
 
 
-def load_library(path: Path, version: str = "3.51.0") -> c.CDLL:
+def library_binary(version: str) -> str:
+    """Use the generic corpus's default executable or the explicitly versioned native executable."""
+    return "sqlite3" + ("" if version == DEFAULT_ENGINE_VERSION else "-" + version)
+
+
+def load_library(path: Path, version: str = DEFAULT_ENGINE_VERSION) -> c.CDLL:
     """Declare C argument widths once; pointer defaults would truncate addresses."""
     library = c.CDLL(str(path))
     signatures = {

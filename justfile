@@ -101,8 +101,9 @@ conformance-upstream: conformance-build
     timeout 900 nix-build build-support/default.nix -A conformanceNative.upstream --out-link build/upstream-sqlite --extra-experimental-features 'nix-command flakes'
     timeout 900 python3 -m conformance.upstream_pilot --fixture build/testfixture/bin/testfixture --upstream build/upstream-sqlite --output build/upstream-pilot --pattern 'alter*.test' --pattern 'e_*.test'
 
-conformance-corpus: conformance-build
-    timeout 420 python3 -m conformance.corpus conformance/corpus-v5 --runtime-root build/conformance --native-check --output build/corpus-progress.json
+# Select native fixture storage explicitly; Linux full replay can opt in to tmpfs.
+conformance-corpus temporary_root: conformance-build
+    timeout 420 python3 -m conformance.corpus conformance/corpus-v5 --runtime-root build/conformance --native-check --temporary-root {{quote(temporary_root)}} --output build/corpus-progress.json
 
 # The transaction/DML profiling gate is recorded in the W3/W4 status and reports.
 conformance-generate: conformance-build
@@ -119,6 +120,7 @@ conformance-requirements:
     timeout 900 nix-build build-support/default.nix -A conformanceDocs --out-link build/conformance-docs --extra-experimental-features 'nix-command flakes'
     python3 -m conformance.requirement_inventory build/conformance-docs/docinfo.db build/requirements-3.51.0.json
 
+# Classify every frozen case without performing fresh native replay.
 conformance-progress: conformance-build
     timeout 420 python3 -m conformance.progress --runtime-root build/conformance --output build/corpus-v5-progress.json
 
