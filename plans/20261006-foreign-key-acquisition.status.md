@@ -77,3 +77,14 @@ Relevant files: `conformance/native_acquisition.py`,
   no findings (`20261006T100107Z-88478fd5`). All findings are resolved and the
   task is DONE. The last append-only review entry remains in the working copy
   for the next integration commit, as required by the review workflow.
+- 2026-10-06: The ordinary integration check now passes after the approval
+  service became available. Command: `nix develop path:./nix --command timeout
+  1200 just test`. Source checks pass 327 tests and 28 subtests in 45.40
+  seconds. All six development Nix targets pass: Atuin, bundle, CLI, kernel,
+  sample and upstream. The command exits 0. Its complete log is
+  `build/t16-integration-check.log`; source JUnit is
+  `build/test-results/source.xml`. The model target is excluded from this
+  ordinary command, as the task does not change model behavior.
+- 2026-10-06: Integrated merged main `e9fd9533`. The merge adds no source
+  changes to the checked T16 implementation and retains its final review
+  entry. Preparing a pull request with the source-bound acquisition report.
