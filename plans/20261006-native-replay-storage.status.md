@@ -1,6 +1,6 @@
 # Full native replay storage status
 
-Status: IN PROGRESS. Created 2026-10-06.
+Status: DONE. Created and completed 2026-10-06.
 
 Task: [full native replay storage](20261006-native-replay-storage.task.md).
 Source: [issue #37](https://github.com/vihren-dev/sqlite-verifier/issues/37).
@@ -78,7 +78,7 @@ Relevant files: `conformance/native_record.py`, `conformance/corpus.py`,
   58 passed in 1.88 seconds, with no skips. Immutable JUnit evidence:
   `/nix/store/jjjh0n7yjqis8206xlfr198gm132m0hh-sqlite-verifier-test-upstream-1/junit.xml`.
 - The new Linux paired/full execution evidence is retained below. Packet
-  review remains pending. Historical timeout receipts and the ext4 sample are
+  review is complete. Historical timeout receipts and the ext4 sample are
   unchanged.
 - After review corrections, `timeout 60 python3 -m pytest -q tests/test_native_replay_storage.py tests/test_resources.py tests/conformance_record_test.py tests/conformance_driver_profiles_test.py --runtime-root RUNTIME`:
   44 passed in 2.78 seconds, including alternate pinned engines and the actual
@@ -98,7 +98,8 @@ Relevant files: `conformance/native_record.py`, `conformance/corpus.py`,
   under the declared tmpfs root; all before/after bindings match. Model
   classification remains 4,376 `MODEL_UNSUPPORTED`.
 - Linux host compute was released after the completed run. Review of the
-  measurement helper and retained evidence remains pending.
+  measurement helper and retained evidence is complete, with the documented
+  historical-helper recommendations deferred.
 - `timeout 30 python3 reports/20261006-native-replay-storage/validate.py`:
   verified all 4,376 full-run identities, native completion/path bindings,
   all three paired fresh/frozen comparisons, recorded phase bounds, byte
@@ -125,3 +126,10 @@ Relevant files: `conformance/native_record.py`, `conformance/corpus.py`,
   report-digest message and added a bounded regression that changes the raw
   report, rebinds its gzip inventory and verifies rejection by the original
   execution receipt. The unmodified evidence verifier still passes.
+- Final correction `062a9792` passed Claude review with no findings
+  (`20261006T130430Z-062a9792`). All must findings are fixed. The tamper
+  regression passed in 0.81 seconds; the unmodified verifier checked all 4,376
+  identities and all three paired cases again. Jujutsu diff against `4a425828`
+  is empty for frozen corpora v1–v5 and the historical execution directory.
+  All task acceptance outcomes are complete. The final append-only review
+  entry remains pending for the next integration commit.
