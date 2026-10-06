@@ -41,6 +41,8 @@ JJ_TIMEOUT_SECONDS = 30
 
 FINDING = re.compile(r"^\s*[-*]\s*(R\d+)\s+(must|should)\s+(\S+?):(\d+)\b", re.MULTILINE)
 NO_FINDINGS = re.compile(r"^\s*No findings\.\s*$", re.MULTILINE)
+#: A complete option in help text, such as `-p` or `--allowedTools`, but not `-p` inside `--print`.
+OPTION_TOKEN = re.compile(r"(?<![\w-])--?[A-Za-z][\w-]*")
 
 
 class UsageError(Exception):
@@ -105,7 +107,8 @@ def missing_options(command: Sequence[str], help_text: str) -> list[str]:
     Used to check that an installed CLI still has the options of the reviewer command,
     because some CLIs ignore unknown options when `--help` is given.
     """
-    return [part for part in command if part.startswith("-") and part != "-" and part not in help_text]
+    listed = set(OPTION_TOKEN.findall(help_text))
+    return [part for part in command if part.startswith("-") and part != "-" and part not in listed]
 
 
 def instructions(checklist: str, revision: str, commit: str) -> str:

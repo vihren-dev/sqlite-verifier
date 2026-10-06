@@ -65,6 +65,7 @@ def test_missing_options() -> None:
     help_text = "Usage: claude [options]\n  -p, --print\n  --allowedTools <tools...>\n"
     assert missing_options(["claude", "-p", "--allowedTools", "Read", "-"], help_text) == []
     assert missing_options(["claude", "-p", "--allowedToolz", "Read"], help_text) == ["--allowedToolz"]
+    assert missing_options(["claude", "-p"], "Usage: claude [options]\n  --print\n") == ["-p"]
 
 
 @pytest.mark.integration

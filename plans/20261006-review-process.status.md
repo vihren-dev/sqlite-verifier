@@ -39,3 +39,6 @@ Relevant files: `tools/review.py`, `tests/test_review.py`, `docs/review-checklis
     Confirmed and fixed: the recipe comment is one line.
 - 2026-10-06: checks: source suite (the pytest part of `just test`) 304 passed;
   `requires_nix` tests 59 passed; `tests/test_review.py` 20 passed.
+- 2026-10-06: review round 3, Codex on `84cf79b`: 0 must, 1 should. R11:
+  `missing_options` matched substrings, so `-p` passed inside `--print`. Fixed:
+  it compares complete option tokens; regression test added.
