@@ -55,6 +55,15 @@ Relevant files: `conformance/native_record.py`, `conformance/corpus.py`,
   diagnostics into separate checks in the operational-report module, with
   tests for both conditions. Both messages now identify the failed input and
   the required correction.
+- 2026-10-06: Correction `698cc4d4` passed Claude review with no findings
+  (`20261006T093857Z-698cc4d4`). Staged only tracked public source plus the
+  measurement helper in a separate Linux directory. Verified that local and
+  remote archive hashes match. No retained toolchain evidence was changed.
+- 2026-10-06: Completed serial Linux ext4/tmpfs comparisons and one bounded
+  full tmpfs replay. Retrieved the receipts and locally checked exact frozen
+  observations, complete paired fresh records, profiles, native source ids,
+  case names, all actual fixture paths and execution source hashes. Preserved
+  historical timeout receipts and the passing ext4 sample.
 
 ## Validation and review
 
@@ -77,3 +86,21 @@ Relevant files: `conformance/native_record.py`, `conformance/corpus.py`,
 - Rechecked the same 44 cases after the diagnostic split; all passed. The
   new Linux measurement helper is prepared locally, but no remote timing has
   started yet.
+- Linux execution is retained in
+  [the storage evidence record](../reports/20261006-native-replay-storage/README.md).
+  Three paired cases passed exact fresh/frozen and cross-storage equality.
+  Trigger-prefix native timings were 10.7872 seconds on ext4 and 0.0853 seconds
+  on tmpfs. Each child kept its 60-second bound.
+- The actual full v5 corpus CLI completed in 91.1252 seconds under its
+  unchanged 420-second bound. The native phase took 42.5182 seconds and passed
+  all 4,376 frozen comparisons. All 4,376 ordinary-file paths were audited
+  under the declared tmpfs root; all before/after bindings match. Model
+  classification remains 4,376 `MODEL_UNSUPPORTED`.
+- Linux host compute was released after the completed run. Review of the
+  measurement helper and retained evidence remains pending.
+- `timeout 30 python3 reports/20261006-native-replay-storage/validate.py`:
+  verified all 4,376 full-run identities, native completion/path bindings,
+  all three paired fresh/frozen comparisons, recorded phase bounds, byte
+  inventory and original execution source hashes. The verifier can be rerun
+  against the recorded original source revision. The measurement helper's
+  retained hash matches its actually executed bytes.

@@ -50,6 +50,12 @@ with `findmnt -T /dev/shm` and `df -B1 /dev/shm`, create a private directory
 under that mount, then pass that directory to `just conformance-corpus`.
 SQLite still uses ordinary files and its unchanged profiles and PRAGMAs. These
 measurements do not establish ext4 full-run performance or crash durability.
+The [current storage execution](../reports/20261006-native-replay-storage/README.md)
+retains a new paired comparison and full v5 run: 42.52 seconds for native
+replay and 91.13 seconds for the whole command, with all 4,376 actual fixture
+paths and unchanged bindings. Its write-heavy trigger prefix takes 10.79
+seconds on ext4 and 0.085 seconds on tmpfs; its read-only expression prefix
+has little difference. The earlier receipts remain separate evidence.
 
 To replay another frozen version, supply the same explicit storage input:
 
