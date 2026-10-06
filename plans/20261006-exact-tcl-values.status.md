@@ -212,3 +212,14 @@ Relevant files: `conformance/upstream_result_values.py`,
   are complete. The full model gate is still held for the root task's T13
   environment feedback; it was not run or waived. This task remains IN PROGRESS
   pending that coordinated gate and delivery.
+
+## Hold after the owner implementation review
+
+The coordinator held further T17 work on 2026-10-06 while the requested PR
+fixes and checkpoints are completed. This task is HELD and is not DONE.
+Reviewed assembly `496ca5b6` and its existing receipts remain unchanged.
+The full model suite and final delivery have not passed or been waived.
+
+Decisions waiting for the owner:
+
+- None at this stage. The four existing PR reviews take priority.
