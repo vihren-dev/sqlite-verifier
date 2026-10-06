@@ -12,7 +12,8 @@ from tools.bundle_measurement_paths import Flow, PathObservation, TrialSpec
 
 def synthetic_paths(monkeypatch: pytest.MonkeyPatch, differences: Sequence[int], *,
                     invalid_pair: int | None = None,
-                    interruption: tuple[int, Flow] | None = None) -> list[tuple[int, Flow]]:
+                    interruption: tuple[int, Flow] | None = None,
+                    interruption_error: BaseException | None = None) -> list[tuple[int, Flow]]:
     """Keep real evidence files while supplying deterministic intervals instead of running a child."""
     calls: list[tuple[int, Flow]] = []
 
@@ -24,7 +25,7 @@ def synthetic_paths(monkeypatch: pytest.MonkeyPatch, differences: Sequence[int],
         (directory / "stdout.bin").write_bytes(f"synthetic fixture {number} {flow}".encode())
         (directory / "stderr.bin").write_bytes(b"")
         if interruption == (number, flow):
-            raise KeyboardInterrupt("synthetic fixture interruption")
+            raise interruption_error if interruption_error is not None else KeyboardInterrupt("synthetic fixture interruption")
         before = campaign.retain_identity(directory / "identity-before.json.gz", baseline)
         after = campaign.retain_identity(directory / "identity-after.json.gz", baseline)
         artifacts = campaign.retain_identity(directory / "artifacts.json.gz", {"synthetic_fixture": True})

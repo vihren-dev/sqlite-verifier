@@ -12,6 +12,9 @@ from tools.bundle_measurement_paths import PathObservation, TrialSpec, execute_p
 from tools.bundle_measurement_protocol import PairObservation, next_pair_count, observed_pair, pair_order
 from tools.bundle_measurement_report import summarize_pairs
 
+INTERRUPTING_EXCEPTIONS = (KeyboardInterrupt, SystemExit)
+"""Session interruptions stop acquisition; other path failures invalidate the retained evidence."""
+
 
 def write_record(path: Path, record: Mapping[str, object]) -> None:
     """Replace complete metadata atomically while leaving interrupted writes and raw trials intact."""
@@ -63,7 +66,7 @@ def execute_pair(spec: TrialSpec, number: int, directory: Path, baseline: dict[s
         try:
             path = execute_path(spec, flow, directory / flow, baseline)
         except BaseException as error:
-            record.update(state="INTERRUPTED" if isinstance(error, (KeyboardInterrupt, SystemExit)) else "INVALID",
+            record.update(state="INTERRUPTED" if isinstance(error, INTERRUPTING_EXCEPTIONS) else "INVALID",
                 invalid_conditions=[f"{flow} did not complete: {type(error).__name__}: {error}"])
             write_record(directory / "pair.json", record)
             raise
@@ -98,7 +101,7 @@ def run_campaign(spec: TrialSpec, output: Path) -> dict[str, Json]:
             pair = execute_pair(spec, number, output / f"pair-{number:02d}", baseline)
             observed_machine = host_identity()
         except BaseException as error:
-            state = "INTERRUPTED" if isinstance(error, (KeyboardInterrupt, SystemExit)) else "INVALID"
+            state = "INTERRUPTED" if isinstance(error, INTERRUPTING_EXCEPTIONS) else "INVALID"
             condition = f"Campaign validation for pair {number} in {output} did not finish: {type(error).__name__}: {error}"
             if pair is not None:
                 pair = replace(pair, difference_ns=None, invalid_conditions=(*pair.invalid_conditions, condition))

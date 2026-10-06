@@ -125,3 +125,24 @@ def test_unserializable_metadata_preserves_previous_record(tmp_path: Path) -> No
         campaign.write_record(output, {"unsupported": Path("synthetic unsupported value")})
     assert str(output) in str(error.value) and "correct the record values" in str(error.value)
     assert json.loads(output.read_text()) == {"state": "previous"}
+
+
+@pytest.mark.parametrize("error_type,state", [(OSError, "INVALID"), (SystemExit, "INTERRUPTED")])
+def test_path_exception_kind_is_durable(trial_spec: TrialSpec, tmp_path: Path,
+                                       monkeypatch: pytest.MonkeyPatch, error_type: type[BaseException],
+                                       state: str) -> None:
+    """Ordinary path errors and explicit exits retain distinct pair/campaign states and their original condition."""
+    synthetic_paths(monkeypatch, [1], interruption=(1, "bundle"),
+                    interruption_error=error_type("synthetic fixture path failure"))
+    output = tmp_path / "path-failed"
+    with pytest.raises(error_type, match="synthetic fixture"):
+        campaign.run_campaign(trial_spec, output)
+    pair = json.loads((output / "pair-01/pair.json").read_text())
+    summary = json.loads((output / "summary.json").read_text())
+    context = json.loads((output / "campaign.json").read_text())
+    assert pair["state"] == summary["status"] == context["state"] == state
+    assert pair["difference_ns"] is None and len(pair["paths"]) == 1
+    assert error_type.__name__ in pair["invalid_conditions"][0]
+    assert error_type.__name__ in summary["invalid_pairs"]["1"][0] == context["condition"]
+    assert all((output / f"pair-01/{flow}/stdout.bin").is_file() for flow in ("verify", "bundle"))
+    assert not (output / "pair-02").exists()

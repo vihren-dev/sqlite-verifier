@@ -239,3 +239,12 @@ No new campaign, launcher, benchmark or task was started after the hold.
   performance trials and owner dispositions remain incomplete. No actual
   performance campaign, SSH job, heavy Nix job, publication or frozen review
   branch change occurred. T06 remains IN PROGRESS.
+- Persistence checkpoint `efbce3b814a3727145913f2fb2754ae42f4c2337` passed
+  review `20261006T193034Z-efbce3b8` with no must findings and two should
+  findings. Named the shared interruption-exception policy and added actual
+  writer checks for ordinary path errors and `SystemExit`. Each retains its
+  distinct pair, summary and campaign state plus the original failure condition.
+  Both findings are fixed; all original review rows remain in the journal.
+- All 110 measurement harness checks pass in 4.26 seconds under the same
+  30-second bound. This includes 19 synthetic writer checks and the existing
+  real-child boundary checks. No actual timing trial or acceptance cutover ran.
