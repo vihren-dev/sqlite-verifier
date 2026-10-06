@@ -19,6 +19,27 @@ Source: [issue #33](https://github.com/vihren-dev/sqlite-verifier/issues/33).
 - 2026-10-06: The current phase guard is 120 seconds, while historical
   receipts and documentation describe 60 seconds. The speed target is
   separately less than 30 seconds. No deadline has been raised.
+- 2026-10-06: Reported the deadline discrepancy to the coordinator, who
+  requested owner feedback. Changes to the guard remain pending. The
+  coordinator authorized read-only profiling with the guard unchanged.
+- 2026-10-06: One bounded diagnostic ran on the idle local host using the
+  retained pinned Python 3.12.8 and conformance runtime, with explicit
+  ordinary-file storage. It passed all 184 native comparisons and reported
+  184 `MODEL_UNSUPPORTED`. The instrumented phase took 72.44 seconds:
+  generic loading 65.84, synthetic loading 0.03, native replay 4.22, model
+  classification 1.61, runtime binding 0.10, and selection 0.06. These are
+  profiler timings, not acceptance measurements. Its 120-second process
+  bound was unchanged. Local artifacts are in `build/headroom-profile/`.
+- 2026-10-06: Profiling attributes 49.96 cumulative seconds to independent
+  snapshot `deepcopy` operations in `native_storage.expanded_record`, with
+  about 218 million total function calls. Loading's JSON decoding took
+  6.01 seconds and canonical serialization 5.73 seconds. The existing
+  validated snapshot bytes can support independent JSON reconstruction
+  through the standard library. Requested coordinator feedback before
+  this isolated change while the deadline question remains pending.
+- 2026-10-06: The diagnostic process is terminal with exit code 0. Released
+  the reserved local host slot to the Tcl task. No code or frozen evidence
+  changed during profiling.
 
 ## Validation
 
