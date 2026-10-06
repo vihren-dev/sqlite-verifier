@@ -1,6 +1,14 @@
 # Hosted macOS model-suite timeout
 
-Status: IN PROGRESS. Created 2026-10-06.
+Status: DONE. Created 2026-10-06.
+
+Completed: both native hosted jobs in CI run `37512848112` passed for reviewed
+published head `b7883400`, executed merge `4056410c`. Original case-report ZIPs
+and decoded logs are retained with independent hashes. See
+[completion](../reports/20261006-hosted-model-timeout/acceptance/completion.json).
+PR #49 is merged at `d8faab74d80a58fa8ff194602f03018e1d6f3d25`. The adopted
+recipe has the same Git blob as the tested recipe. Unrelated owner gates and
+the historical failed checks remain separate.
 
 ## Outcome
 

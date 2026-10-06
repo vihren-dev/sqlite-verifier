@@ -1,0 +1,85 @@
+{
+  "qualification": "Separate local PR48 mutation-corrected source; not hosted PR49 or a pass of configured PR48 420-second CI.",
+  "passingSource": "9e3b44193981bae46dc9fdeedc66eca3f255f419",
+  "reviewedTimeoutTask": "7101799dd3043fa3d475ca94ffb3c321c0b4d327",
+  "validationSuiteLimitSeconds": 600,
+  "branchConfiguredSuiteLimitSeconds": 420,
+  "outerLimitSeconds": 900,
+  "passingExitCode": 0,
+  "passingModelOutput": "/nix/store/m0l8bxww097w76m4c81k4g7gmdjp3kya-sqlite-verifier-test-model-1",
+  "passingDerivation": "/nix/store/bz64l7s4k3wagg3wnk5x4y147mvq1jq9-sqlite-verifier-test-model-1.drv",
+  "selectedSourceFiles": 318,
+  "selectedSourceVerifiedAfter": true,
+  "passingXml": {
+    "name": "pytest",
+    "errors": "0",
+    "failures": "0",
+    "skipped": "1",
+    "tests": "323",
+    "time": "484.735",
+    "timestamp": "2026-10-06T18:41:07.526479+00:00",
+    "hostname": "tzanko-mbp",
+    "sha256": "cc36c9329cd32f5c166b3107f63b52952c2888a111753b7d07f3f3b2f3160db6",
+    "bytes": 42113,
+    "skips": [
+      {
+        "type": "pytest.skip",
+        "message": "Run the pinned Nix upstream target for Tcl capture"
+      }
+    ]
+  },
+  "passingProcess": {
+    "command": [
+      "timeout",
+      "900",
+      "nix-build",
+      "/private/tmp/t05-model-600.nix",
+      "--out-link",
+      "build/t05-nix-model-600",
+      "--option",
+      "sandbox",
+      "true",
+      "--option",
+      "sandbox-fallback",
+      "false",
+      "--extra-experimental-features",
+      "nix-command flakes"
+    ],
+    "outerLimitSeconds": 900,
+    "validationSuiteLimitSeconds": 600,
+    "startedUtc": "2026-10-06T18:41:05.713024+00:00",
+    "finishedUtc": "2026-10-06T18:49:12.989397+00:00",
+    "elapsedMonotonicSeconds": 487.27657666699815,
+    "exitCode": 0
+  },
+  "earlierConfiguredFailure": {
+    "sourceCommit": "83edc417eea4ff74da8f67aebbc0d43a0fc7b1c6",
+    "command": "timeout 900 nix-build build-support/default.nix -A tests.model --out-link build/t05-nix-model --option sandbox true --option sandbox-fallback false --extra-experimental-features nix-command flakes",
+    "suiteLimitSeconds": 420,
+    "outerLimitSeconds": 900,
+    "exitCode": 1,
+    "derivation": "/nix/store/jm2cxh55awywml9691qmyda6c4yaxmr1-sqlite-verifier-test-model-1.drv",
+    "conformanceRoot": "/nix/store/3h1ww180anyrw23dhs7bpzswhkrv2l1s-sqlite-verifier-conformance",
+    "logSha256": "2cfd27a5a3a2db683dabb7160bf1e124234cb7dc128e2c6534a0567d480aad54",
+    "logBytes": 33554,
+    "logCreatedUtc": "2026-10-06T18:25:01.131094+00:00",
+    "lastLogWriteUtc": "2026-10-06T18:32:03.956139+00:00",
+    "logWriteIntervalSeconds": 422.8250455856323,
+    "elapsedQualification": "Wall-clock file creation through last write; no monotonic process-start measurement was captured.",
+    "lastCase": "tests/conformance_progress_views_test.py::test_actual_frozen_partition_requirement_inventory_and_identities[5]",
+    "error": "boost::bad_format_string: format-string is ill-formed",
+    "junitProduced": false,
+    "pytestSummaryProduced": false,
+    "completedProgressLines": 315,
+    "skippedProgressLines": 1,
+    "hostNixVersion": "2.18.1"
+  },
+  "sourceReceiptHashes": {
+    "darwin.json": "a36a4bbff9e3ba8d91447fd09395513f7dbabd85e0ca3ea9674fe676333af1dc",
+    "darwin-failure.json": "e25010c24653b2384e1ce12f28636590ae4be447cd8aa434692c07e06a741861",
+    "darwin-invocation.json": "0c9218a1552d2dc9008abddf69f0ae66ac8a41ad584b9ddbefff564bd46b0ea5",
+    "darwin-600.nix": "22ca1824b3559d5d40a9ba534ed4aaf52c4468d9cc0a99fa14650f1203d34906",
+    "darwin-run.py": "6c6e33423be9ec9b5db17210fbdfb33965dcff7b7e5d4ddfd8c266fdb039fb93",
+    "raw-receipts.json.gz": "283ae595bfc6fb289d0af83226444c41c3cd0694ed525c1b7fd004105782147e"
+  }
+}
