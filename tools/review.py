@@ -99,6 +99,15 @@ def reviewer_command(reviewer: Reviewer) -> list[str]:
     return ["claude", "-p", "--allowedTools", *CLAUDE_READ_ONLY_TOOLS]
 
 
+def missing_options(command: Sequence[str], help_text: str) -> list[str]:
+    """The options of `command` that `help_text` does not mention.
+
+    Used to check that an installed CLI still has the options of the reviewer command,
+    because some CLIs ignore unknown options when `--help` is given.
+    """
+    return [part for part in command if part.startswith("-") and part != "-" and part not in help_text]
+
+
 def instructions(checklist: str, revision: str, commit: str) -> str:
     """The reviewer's instructions: which commit to review, then the checklist."""
     return (f"Review the changes introduced by commit {commit} (jj revision {revision}; "

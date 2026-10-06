@@ -9,8 +9,8 @@ import sys
 
 import pytest
 
-from tools.review import (GUARD, Review, UsageError, exit_code, parse_review, reviewer_command,
-                          reviewer_environment, select_reviewer)
+from tools.review import (GUARD, Review, UsageError, exit_code, missing_options, parse_review,
+                          reviewer_command, reviewer_environment, select_reviewer)
 
 SCRIPT = Path(__file__).resolve().parents[1] / "tools" / "review.py"
 COMMIT = "0123456789abcdef0123456789abcdef01234567"
@@ -59,23 +59,31 @@ def test_reviewer_commands_are_read_only() -> None:
     assert not any(tool.startswith(("Edit", "Write", "Bash(jj commit", "Bash(rm")) for tool in claude[3:])
 
 
+@pytest.mark.unit
+def test_missing_options() -> None:
+    """An option that the help text does not mention is reported; values and `-` are not options."""
+    help_text = "Usage: claude [options]\n  -p, --print\n  --allowedTools <tools...>\n"
+    assert missing_options(["claude", "-p", "--allowedTools", "Read", "-"], help_text) == []
+    assert missing_options(["claude", "-p", "--allowedToolz", "Read"], help_text) == ["--allowedToolz"]
+
+
 @pytest.mark.integration
 @pytest.mark.parametrize("reviewer", ["codex", "claude"])
-def test_installed_cli_accepts_reviewer_options(reviewer: str) -> None:
-    """The real CLI still has every option of the reviewer command; stubs cannot show this.
+def test_installed_cli_has_reviewer_options(reviewer: str) -> None:
+    """The installed CLI's help still lists every option of the reviewer command.
 
-    With `--help` the CLI stops early, so the check needs no network and no credentials.
-    It finds renamed or removed options. It cannot find conflicts between arguments: the
-    CLI checks those only without `--help` (for example, `codex review --commit` with
-    instructions passes here but fails in a real run). A real review run is the check for
-    those. Skipped where the CLI is not installed, for example in CI.
+    Some CLIs ignore unknown options when `--help` is given, so the check compares the
+    options with the help text. It needs no network and no credentials. It cannot find
+    conflicts between arguments (for example, `codex review --commit` with instructions);
+    only a real review run finds those. Skipped where the CLI is not installed, as in CI.
     """
     if shutil.which(reviewer) is None:
         pytest.skip(f"{reviewer} is not installed")
     command = reviewer_command("codex" if reviewer == "codex" else "claude")
-    options = [part for part in command if part != "-"]
-    result = subprocess.run([*options, "--help"], capture_output=True, text=True, timeout=30, check=False)
+    subcommand = [part for part in command if not part.startswith("-")][:2 if reviewer == "codex" else 1]
+    result = subprocess.run([*subcommand, "--help"], capture_output=True, text=True, timeout=30, check=False)
     assert result.returncode == 0, result.stderr
+    assert missing_options(command, result.stdout) == []
 
 
 @pytest.mark.unit

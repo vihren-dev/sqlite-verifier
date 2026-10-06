@@ -61,8 +61,7 @@ test-full: build test-source
 test-source:
     timeout --foreground 600 python3 -u -m pytest -v tests -m "not requires_nix" --source-checks --runtime-root "${SQLITE_VERIFIER_RUNTIME_ROOT:-$PWD}" --junitxml build/test-results/source.xml
 
-# Review one commit (default: @-) with the other agent tool against docs/review-checklist.md.
-# REVIEWER=claude or REVIEWER=codex overrides the choice. Exit codes: see tools/review.py.
+# Review a commit (default: @-) with the other agent tool against docs/review-checklist.md (REVIEWER= overrides).
 [positional-arguments]
 review *args:
     python3 tools/review.py "$@"

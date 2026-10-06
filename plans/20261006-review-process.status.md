@@ -27,3 +27,15 @@ Relevant files: `tools/review.py`, `tests/test_review.py`, `docs/review-checklis
     now named constants with reasons.
   - R9 should (`resolve_commit` gave no reason): fixed.
   - R10 should (reviewer failure gave no next step): fixed.
+- 2026-10-06: review round 2.
+  - Codex on the refactor commit `f3de27e`: 0 must, 1 should. R11: `claude`
+    ignores unknown options when `--help` is given (confirmed), so the parser
+    test could not find a renamed Claude option. Fixed: the test now compares
+    the command's options with the help text (`missing_options`, unit-tested;
+    it reports `--allowedToolz` and `--ephemeralz`).
+  - Claude Code (`REVIEWER=claude`, first real run of that direction) on the
+    `justfile`/`AGENTS.md` commit `5ac8fdb`: `No findings.`, with an unconfirmed
+    note that `just --list` shows only the last comment line of the recipe.
+    Confirmed and fixed: the recipe comment is one line.
+- 2026-10-06: checks: source suite (the pytest part of `just test`) 304 passed;
+  `requires_nix` tests 59 passed; `tests/test_review.py` 20 passed.
