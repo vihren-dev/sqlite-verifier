@@ -1,5 +1,7 @@
 import NextInterpretation
 
+set_option doc.verso true
+
 /-! Candidate-specific schema facts and arbitrary-row ADD correctness.
 Changing the added column changes these candidate proofs, never approved meaning. -/
 namespace AtuinFacts
@@ -16,7 +18,9 @@ theorem next_valid : Generated.nextSchema.Valid := by
   simp [Schema.Valid, Generated.nextSchema]
   decide +kernel
 
-/-- Any represented history table covers all eleven protected names. -/
+/-- Every table with the approved history columns covers every name in
+{name}`SchemaBinding.fields`. The proof turns membership in the column-name
+list into a checked column index; rows impose no premise. -/
 theorem covers {table : Table} (columns : table.columns = SchemaBinding.history.columns) :
     Covers table SchemaBinding.fields := by
   intro name member
@@ -26,10 +30,14 @@ theorem covers {table : Table} (columns : table.columns = SchemaBinding.history.
   obtain ⟨column, named, equal⟩ := List.mem_map.mp member
   exact ⟨_, List.findIdx?_eq_some_of_exists ⟨column, named, by simp [equal]⟩⟩
 
-/-- ADD succeeds for arbitrary old rows and preserves full resulting-schema conformance. -/
+/-- For every database conforming to {name}`SchemaBinding.start`, there exists
+a present history table with the approved columns and table validity. The computed
+SQL result is successful with its NULL extension, and that result conforms to
+{name}`Generated.nextSchema`. The proof recovers the table from conformance,
+checks ADD applicability and applies schema conformance preservation. -/
 theorem payload {database : Database} (conforms : Conforms SchemaBinding.start database) :
     ∃ table, database "history" = some table ∧ table.columns = SchemaBinding.history.columns ∧
-      table.Valid ∧ run Generated.script database =
+      table.Valid ∧ runSql Generated.script database =
         .success (database.set "history" (table.appendColumns [added])) ∧
       Conforms Generated.nextSchema (database.set "history" (table.appendColumns [added])) := by
   obtain ⟨table, present, columns, valid⟩ := conforms.table (name := "history") (by rfl)
@@ -40,11 +48,14 @@ theorem payload {database : Database} (conforms : Conforms SchemaBinding.start d
     have nameAllowed : supportedTableName "history" = true := by decide +kernel
     have columnAllowed : supportedColumn added = true := by decide +kernel
     have plain : added.plain = true := by decide +kernel
-    simp [run, runFrom, script_bound, step, nameAllowed, columnAllowed, plain, present, size, fresh]
+    simp [runSql, runSqlFrom, advance, literalStep, SqlState.finish, script_bound, step, nameAllowed, columnAllowed, plain, present, size, fresh]
   · rw [next_bound]
     exact conforms.appendAt present (next_bound ▸ next_valid) (by rw [columns]; decide +kernel)
 
-/-- Reading the old business fields ignores new columns and preserves every row in order. -/
+/-- For every present, valid history table with the approved columns, if the
+before database observes a logical value, setting its NULL extension observes
+the same value. The premise is vacuous for an undefined before observation.
+The proof preserves the named old-field projection and reuses its decoder result. -/
 theorem observed (present : database "history" = some history)
     (columns : history.columns = SchemaBinding.history.columns) (valid : history.Valid)
     (before : HistoryMapping.observe database = some logical) :

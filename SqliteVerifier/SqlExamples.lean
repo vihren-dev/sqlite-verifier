@@ -1,10 +1,13 @@
-import SqliteVerifier.SqlExecution
+import SqliteVerifier.SqlProofs
+
+set_option doc.verso true
 
 /-! Kernel-checked finite SQL regressions complement independent native comparisons.
 They exercise ordinary table names and values, not application-specific policy. -/
 namespace SqliteVerifier.SqlExamples
 
-/-- BIGINT PRIMARY KEY remains an ordinary nullable column, distinct from rowid. -/
+/-- The retained BIGINT key and nonnullable text field for these finite checks.
+BIGINT is an ordinary key column, independent of the physical rowid. -/
 def columns : List Column := [
   { name := "key", affinity := .integer, declaredType := .bigInt },
   { name := "value", affinity := .text, notNull := true }]
@@ -15,10 +18,12 @@ def original : Table where
   properties := { primaryKey := ["key"] }
   rows := [⟨-5, [.null, .text [97]]⟩, ⟨-2, [.integer 1, .text [98]]⟩]
 
-/-- Only the declared ordinary table exists in this finite starting state. -/
+/-- The finite starting database contains {name}`original` only at the records
+name. Every other table name is absent. -/
 def database : Database := fun name => if name = "records" then some original else none
 
-/-- A nullable added field preserves old observations through a transactional DML script. -/
+/-- The nullable text field appended by the finite script, using the plain column
+defaults. Existing rows receive NULL in this field. -/
 def note : Column := { name := "note", affinity := .text }
 
 /-- The file itself supplies both transaction control and literal writes. -/
@@ -26,12 +31,15 @@ def script : List Statement := [.beginTransaction, .addColumn "records" note,
   .insert "records" ["key", "value", "note"] [.integer 2, .text [99], .null],
   .commit, .update "records" "value" (.text [100]) "key" 2]
 
-/-- Observe transaction status without comparing function-valued databases. -/
+/-- Return true exactly for a pending transaction; success and failure return
+false. Use it to check transaction status without comparing database functions. -/
 def openTransaction : Outcome → Bool
   | .pending .. => true
   | _ => false
 
-/-- Native-style statement failures retain their location and constraint category. -/
+/-- Read a failure position/error from either a closed failure or a pending
+transaction with an error. Successful and error-free pending outcomes return
+{name}`Option.none`. Use it alongside {name}`openTransaction` to distinguish them. -/
 def error : Outcome → Option (Nat × ExecutionError)
   | .failure position reason _ => some (position, reason)
   | .pending _ _ reason => reason
@@ -72,6 +80,6 @@ example : LiteralData.lossless { name := "x", affinity := .numeric }
 example : LiteralData.insertReady { original with rows := [⟨9223372036854775807, [.null, .text []]⟩] }
     ["key", "value"] [.integer 2, .text []] = false := by decide +kernel
 example : LiteralData.constraints (LiteralData.inserted original [.null, .text []]) = true := by decide +kernel
-example : script.all Statement.isExtension = false := by decide +kernel
+example : ¬ SchemaOnly script := by simp [SchemaOnly, script]
 
 end SqliteVerifier.SqlExamples

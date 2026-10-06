@@ -8,9 +8,9 @@ Sources: public issues #21 and #13.
 
 Investigation and task specification are complete. The dependency integration
 combines the prepared T05 task with reviewed exporter `07dc71b3`, current main
-`ba48d848` and checked declaration documentation `d01db1e6`. Executable feature
-work has not started. Final owner approval of the exporter and the T03 release
-remain separate gates.
+`ba48d848` and checked declaration documentation `d01db1e6`. The first execution
+proof migration is in progress. Final owner approval of the exporter and the T03
+release remain separate gates.
 
 Relevant definitions and callers are listed in the task file. The removed
 executor's unconditional preservation law relied on treating data statements
@@ -34,6 +34,33 @@ The generated starting-schema pattern already exists in the Atuin example.
   kernel, development replay and upstream. Logs are retained locally as
   `build/t05-base-build.log`, `build/t05-base-source.log` and
   `build/t05-base-tests.log`; each Nix output retains its original JUnit XML.
+- 2026-10-06: The dependency integration passed independent Claude review
+  `20261006T160313Z-3b048277` with no findings. Removed the extension script
+  evaluator, duplicate relation and bridge. Current invoice, failure, preservation,
+  SQL regressions, all real kernel fixture modules and Atuin sources compile
+  against the migrated SQL library. Every compiler call has a 30-second bound.
+  The guarded schema-prefix law retains failure positions; it makes no claim for
+  transaction prefixes. SQL contract conveniences require a support proof for
+  every admitted database and retain the profile. A literal INSERT regression
+  explains why the schema-preservation guard is necessary. The exact primitive
+  `step` body SHA and all existing Contract target formulas are unchanged.
+  All modified owned public declarations and fields have checked Verso docs.
+  Built current runtime
+  `/nix/store/74b05piwizmdwn54rrcjyb7gvqxh73zc-sqlite-verifier-runtime-1`.
+  Source checks passed 336 cases and 28 subtests. Ordinary Nix suites passed
+  12 Atuin, 42 bundle, 13 CLI, 19 kernel, 12 development replay and 76 upstream
+  cases, with no failures or skips. The expanded kernel suite then passed all
+  28 cases, including real compiler rejection of retired declarations and the
+  removed bridge import. Eleven affected native/model/kernel-law checks passed
+  in 19.79 seconds. All 80 existing Nix infrastructure checks passed, followed
+  by three new real identity mutations for both helper modules and the new
+  kernel test. The latter prove exact source selection and target invalidation.
+  Local logs use the `build/t05-migration-*`, `build/t05-kernel-api*`,
+  `build/t05-model-short*` and `build/t05-new-inputs*` prefixes. The current-export
+  JUnit properties retain actual inputs, all 130 compiled library-file hashes,
+  executables, exact trust headers and two independently checked deterministic
+  bundles per small/refutation/Atuin case. Installed acceptance, protected
+  schema binding and final owner review remain pending.
 
 ## Exporter checkpoints and remaining gates
 
