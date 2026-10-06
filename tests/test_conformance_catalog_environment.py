@@ -22,7 +22,7 @@ def test_catalog_archive_environment(archive_state: str, tmp_path: Path) -> None
     archive = tmp_path / 'upstream'
     if archive_state != 'absent':
         environment['CONFORMANCE_UPSTREAM'] = '' if archive_state == 'empty' else str(archive)
-    if archive_state in ('missing', 'extra', 'valid'):
+    if archive_state in ('empty', 'missing', 'extra', 'valid'):
         (archive / 'test').mkdir(parents=True)
         for filename in catalog_patterns():
             (archive / 'test' / filename).touch()
@@ -31,8 +31,9 @@ def test_catalog_archive_environment(archive_state: str, tmp_path: Path) -> None
         elif archive_state == 'extra':
             (archive / 'test/selectZ.test').touch()
     result = run_command([sys.executable, '-m', 'pytest', '-q', '-p', 'no:cacheprovider',
-                          'tests/conformance_catalog_test.py'],
-                         cwd=ROOT, timeout=10, environment=environment)
+                          str(ROOT / 'tests/conformance_catalog_test.py')],
+                         cwd=archive if archive_state == 'empty' else ROOT,
+                         timeout=10, environment=environment)
     assert 'KeyError' not in result.stdout, result.diagnostic()
     if archive_state == 'absent':
         assert result.returncode == 0 and '3 skipped' in result.stdout, result.diagnostic()
@@ -44,6 +45,7 @@ def test_catalog_archive_environment(archive_state: str, tmp_path: Path) -> None
             assert result.returncode == 0 and '3 passed' in result.stdout, result.diagnostic()
         else:
             assert result.returncode == 1, result.diagnostic()
-            diagnostic = ('CONFORMANCE_UPSTREAM has no test directory' if archive_state in ('empty', 'invalid')
+            diagnostic = ('CONFORMANCE_UPSTREAM is set but empty' if archive_state == 'empty'
+                          else 'CONFORMANCE_UPSTREAM has no test directory' if archive_state == 'invalid'
                           else 'pinned feature families')
             assert diagnostic in result.stdout, result.diagnostic()

@@ -20,6 +20,10 @@ Relevant files: `tests/conformance_catalog_test.py`,
   actual catalog module with absent, empty, invalid, missing-member,
   extra-member and valid inputs. Catalog definitions and Nix ownership remain
   unchanged.
+- 2026-10-06: Fixed review finding `20261006T084650Z-f1617c4a#1`. An empty
+  configured value now fails before path conversion. The regression runs that
+  case from a directory with a valid catalog, so it cannot accept `.` as the
+  archive by accident.
 
 ## Validation and review
 
@@ -36,4 +40,14 @@ Relevant files: `tests/conformance_catalog_test.py`,
   58 passed in 2.63 seconds, with no skips. All three original catalog cases
   passed. Immutable JUnit evidence:
   `/nix/store/q61g66skga5wr74vk5zpjyc4s3dg6x32-sqlite-verifier-test-upstream-1/junit.xml`.
-- Independent review pending.
+- The sandboxed Claude review of `f1617c4a` failed with API DNS error
+  `ENOTFOUND` (exit 3), recorded as `20261006T083643Z-f1617c4a`. Automatic
+  approval rejected the first network escalation before execution. After the
+  user authorized Claude API reviews, the required retry completed with no
+  must findings and one should finding, recorded as
+  `20261006T084650Z-f1617c4a`. The finding is fixed and its resolution is logged.
+- After the review fix, the six subprocess cases passed in 2.36 seconds.
+  The sandboxed Nix upstream suite rebuilt: 58 passed in 5.62 seconds, with no
+  skips. Latest immutable JUnit evidence:
+  `/nix/store/n53v5snbfma8j650l779gfp38aylg4f7-sqlite-verifier-test-upstream-1/junit.xml`.
+- Review of the refactor commit is pending.

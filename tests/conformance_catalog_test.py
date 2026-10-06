@@ -18,6 +18,9 @@ def upstream() -> Path:
     if archive is None:
         pytest.skip('CONFORMANCE_UPSTREAM is unset; run the pinned Nix upstream target with '
                     'nix-build build-support/default.nix -A tests.upstream')
+    if not archive:
+        pytest.fail('CONFORMANCE_UPSTREAM is set but empty; '
+                    'set it to the pinned SQLite source archive')
     upstream = Path(archive)
     if not (upstream / 'test').is_dir():
         pytest.fail(f'CONFORMANCE_UPSTREAM has no test directory: {upstream}; '
