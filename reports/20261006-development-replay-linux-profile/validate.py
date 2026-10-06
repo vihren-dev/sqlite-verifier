@@ -11,6 +11,19 @@ from typing import TypeAlias, cast
 Json: TypeAlias = None | bool | int | float | str | list["Json"] | dict[str, "Json"]
 ROOT = Path(__file__).resolve().parent
 PREVIOUS = ROOT.parent / "20261006-development-replay-headroom"
+#: The original report binds every field below; only its measured timing may differ.
+UNCHANGED_REPORT_FIELDS = (
+    "runtime", "policy", "policySha256", "generic", "synthetic", "denominator",
+    "selectedDenominator", "counts",
+)
+#: This diagnostic observer has different bytes from the prior acceptance observer.
+DIAGNOSTIC_HELPER_SUFFIX = "/t04c_diagnostic.py"
+#: Exclude only the previous observer when comparing unchanged source/runtime inputs.
+PREVIOUS_HELPER_SUFFIX = "/../measure.py"
+#: ext4 was observed for this diagnostic; it is not a platform-wide requirement.
+OBSERVED_FILESYSTEM_MARKER = b"ext4"
+#: These exact traceback markers bind the retained failure before replay began.
+PREFLIGHT_FAILURE_MARKERS = (b"cProfile.Profile()", b"partially initialized module")
 
 
 def mapping(value: Json) -> dict[str, Json]:
@@ -49,7 +62,7 @@ def validate() -> None:
         assert len(content) == fields["uncompressedBytes"], name
     report = decode(raw("diagnostic/report.json"))
     old = decode(gzip.decompress((PREVIOUS / "linux/report.json.gz").read_bytes()))
-    for field in ("runtime", "policy", "policySha256", "generic", "synthetic", "denominator", "selectedDenominator", "counts"):
+    for field in UNCHANGED_REPORT_FIELDS:
         assert report[field] == old[field], field
     assert report["selectedDenominator"] == receipt["selectedIdentities"]
     assert report["denominator"] == receipt["fullDenominator"]
@@ -60,8 +73,8 @@ def validate() -> None:
     before, after = decode(raw("diagnostic/identity-before.json")), decode(raw("diagnostic/identity-after.json"))
     assert before == after == summary["hashesBefore"] == summary["hashesAfter"]
     previous_hashes = decode(gzip.decompress((PREVIOUS / "linux/identity-before.json.gz").read_bytes()))
-    assert {key: value for key, value in before.items() if not key.endswith("/t04c_diagnostic.py")} == {
-        key: value for key, value in previous_hashes.items() if not key.endswith("/../measure.py")}
+    assert {key: value for key, value in before.items() if not key.endswith(DIAGNOSTIC_HELPER_SUFFIX)} == {
+        key: value for key, value in previous_hashes.items() if not key.endswith(PREVIOUS_HELPER_SUFFIX)}
     started, ended = summary["startedMonotonicNs"], summary["endedMonotonicNs"]
     assert isinstance(started, int) and isinstance(ended, int)
     assert (ended - started) / 1e9 == summary["outerInstrumentedSeconds"] == receipt["outerInstrumentedSeconds"]
@@ -87,9 +100,8 @@ def validate() -> None:
     assert raw("preflight/source-before.log") == previous_source
     assert len(previous_source.splitlines()) == receipt["sourceFileCount"]
     assert raw("diagnostic/filesystem-before.txt") == raw("diagnostic/filesystem-after.txt")
-    assert b"ext4" in raw("diagnostic/filesystem-before.txt")
-    assert b"cProfile.Profile()" in raw("preflight/run.log")
-    assert b"partially initialized module" in raw("preflight/run.log")
+    assert OBSERVED_FILESYSTEM_MARKER in raw("diagnostic/filesystem-before.txt")
+    assert all(marker in raw("preflight/run.log") for marker in PREFLIGHT_FAILURE_MARKERS)
     assert not any(name.startswith("preflight/") and "report.json" in name for name in manifest)
     print("Diagnostic hashes, timings, full source checks and unchanged selection/verdicts pass.")
 

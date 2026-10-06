@@ -134,3 +134,9 @@ authorized one Linux diagnostic below. No production change followed it.
   prior 22 raw artifacts, frozen bytes and final pending journal line remain
   preserved. Linux heavy slot released; no production change, full-model gate,
   additional actual phase or benchmark campaign ran. Task remains IN PROGRESS.
+- 2026-10-06: Diagnostic commit `db970e10a31f0077fd8cb32e3b323dd8a7aff318`
+  passed review `20261006T191103Z-db970e10` with zero must findings and three
+  should findings. Named the evidence validator's unchanged fields, observer
+  hash exceptions, observed filesystem and preflight markers. All three are
+  recorded as fixed. Both bounded receipt validators pass; this refactor
+  changes no production code, raw evidence or measured result.
