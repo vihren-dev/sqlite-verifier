@@ -130,6 +130,13 @@ Source: [issue #29](https://github.com/vihren-dev/sqlite-verifier/issues/29).
 
 ## Validation
 
-Pending: pinned upstream API audit, exact origin/closure design, focused
-tests, byte-identical native baseline comparisons, installed runtime checks
-on both platforms, independent review and required owner review.
+Technical acceptance is complete: pinned upstream API audit, exact
+origin/closure design, focused tests, byte-identical native baseline
+comparisons, installed runtime checks on both platforms and independent
+reviews. Required final owner approval remains pending; see the linked
+owner packet and both-platform execution evidence.
+
+- 2026-10-06: Preparing a draft pull request against the Lean upgrade branch,
+  so the exporter change has a separate review from its prerequisite. Retained
+  the final packet-review entry. Draft review preparation does not grant the
+  R8 approval or authorize merge and release before that approval.
