@@ -2,8 +2,10 @@
 
 Status: IN PROGRESS. Created 2026-10-06.
 
-Technical acceptance and independent reviews are complete. Final owner
-review remains pending before publication, merge or release.
+Technical acceptance and independent reviews are complete. The owner approved
+PR #47 at reviewed head `07dc71b3` on 2026-10-07. Both export-path review
+findings are resolved. Publication integration, merge and release remain
+pending behind the approved Lean upgrade.
 
 Task: [proof exporter driver](20261006-proof-exporter-driver.task.md).
 Source: [issue #29](https://github.com/vihren-dev/sqlite-verifier/issues/29).
@@ -133,10 +135,18 @@ Source: [issue #29](https://github.com/vihren-dev/sqlite-verifier/issues/29).
 Technical acceptance is complete: pinned upstream API audit, exact
 origin/closure design, focused tests, byte-identical native baseline
 comparisons, installed runtime checks on both platforms and independent
-reviews. Required final owner approval remains pending; see the linked
-owner packet and both-platform execution evidence.
+reviews. Final owner approval is recorded in the linked owner packet.
+Publication integration remains pending; retained execution evidence applies
+to the reviewed implementation.
 
 - 2026-10-06: Preparing a draft pull request against the Lean upgrade branch,
   so the exporter change has a separate review from its prerequisite. Retained
   the final packet-review entry. Draft review preparation does not grant the
   R8 approval or authorize merge and release before that approval.
+- 2026-10-07: The owner explicitly approved PR #47 in the implementation
+  chat at unchanged reviewed head `07dc71b323808ac03991407e75dd4e74031924cb`.
+  Recorded approval in the owner packet and resolved both exporter R8
+  findings. The original hosted Linux, macOS and protected-baseline checks
+  pass. Its upgrade prerequisite has a reviewed publication integration
+  at `be59f4d3`; exporter integration will retain the approved source and
+  exact baseline receipts. The task remains IN PROGRESS until delivery.

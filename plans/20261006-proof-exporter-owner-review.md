@@ -1,10 +1,13 @@
 # Proof exporter owner review
 
-Status: PENDING. Created 2026-10-06.
+Status: APPROVED on 2026-10-07. Created 2026-10-06.
 
 Task: [proof exporter driver](20261006-proof-exporter-driver.task.md).
 Review rule: [R8](../docs/review-checklist.md), “owner review required” for
-changes to the export path. This record does not grant that approval.
+changes to the export path. The owner approved PR #47 at unchanged reviewed
+head `07dc71b323808ac03991407e75dd4e74031924cb` in the implementation chat
+on 2026-10-07. This records acceptance of the omission logic, merged import
+view and installed producer described below.
 
 ## Change to inspect
 
