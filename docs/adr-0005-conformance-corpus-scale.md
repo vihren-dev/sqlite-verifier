@@ -308,7 +308,9 @@ for.
   25 MB for the current version and 60 MB across retained versions. Overflow
   moves to a release asset fetched by Nix with a fixed hash.
 - `just test` replays the synthetic workload, every authored case and a bounded
-  sample of the rest, within 60 seconds. The reference workload is replayed by
+  sample of the rest, within 120 seconds (raised from 60 seconds by owner
+  decision on 2026-10-06, after the sample timed out on a hosted CI runner).
+  The reference workload is replayed by
   its own command. `just conformance-progress` replays everything
   and reports per part, per feature and per shard.
 
@@ -368,7 +370,7 @@ a moving denominator cannot measure progress.
 | C4: fidelity triage | C2 | Every differing-result candidate has a named cause |
 | C5: authored cases | C0, C1 | Boundary and interaction cases against neutral schemas, and requirement cases; requirement rows with cases reported before and after |
 | C6: corpus v4 freeze and external workloads | C0–C5 | Generic parts frozen in this repository with their final membership; the synthetic workload recorded and replayed from an external-style directory; a manifest mismatch in format or profile is refused; size within budget; native replay passes |
-| C7: replay tiers and generic baseline | C6 | `just test` sample within 60 seconds; progress report per part, feature and shard over the frozen generic corpus |
+| C7: replay tiers and generic baseline | C6 | `just test` sample within 120 seconds (60 seconds until 2026-10-06); progress report per part, feature and shard over the frozen generic corpus |
 | C8: mutants | C6, and the model semantics concerned | Output and ordering mutants of the production model killed, once the model produces those outputs; an unsupported query cannot kill a mutant. No change to corpus membership |
 
 C0, C1 and C2 can proceed in parallel. Each package follows the repository

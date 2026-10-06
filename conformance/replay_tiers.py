@@ -19,7 +19,7 @@ POLICY: dict[str, Json] = {"version": 1, "mandatory": "all-authored-and-syntheti
     "upstreamIdentity": "sha256-canonical-json-[source,name]",
     "minimumPerNonemptySourceShard": 1, "additionalUpstream": 8}
 VERDICTS = {"AGREE", "DISAGREE", "MODEL_UNSUPPORTED", "HARNESS_ERROR"}
-PHASE_LIMIT_SECONDS = 60
+PHASE_LIMIT_SECONDS = 120
 
 
 def digest(value: Json) -> str:

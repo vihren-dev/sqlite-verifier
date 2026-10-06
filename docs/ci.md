@@ -20,7 +20,7 @@ with `nix-build -A tests`; the flake exposes the same derivations as
   and concrete Lean model assertions.
 - `tests.sample`: all frozen v4 authored and synthetic cases plus a stable
   upstream sample, with fresh native replay and model classification within
-  60 seconds.
+  120 seconds.
 - `tests.upstream`: Tcl capture, sampling and import-fidelity checks.
 - `tests.atuin`: the Atuin application CLI scenarios.
 - `tests.cli`: public-entrypoint acceptance and adversarial input scenarios.

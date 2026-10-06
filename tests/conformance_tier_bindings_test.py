@@ -62,7 +62,7 @@ def test_legacy_v4_tier_still_replays_its_original_sample(tmp_path: Path, runtim
     output = tmp_path / "legacy-tier.json"
     child = subprocess.run([sys.executable, "-m", "conformance.replay_tiers", "--corpus", str(GENERIC),
         "--synthetic", str(SYNTHETIC), "--runtime-root", str(runtime_root), "--output", str(output)],
-        cwd=ROOT, capture_output=True, text=True, timeout=60)
+        cwd=ROOT, capture_output=True, text=True, timeout=120)
     assert child.returncode == 0, child.stdout + child.stderr
     result = json.loads(output.read_text())
     assert result["generic"]["corpusVersion"] == 4
