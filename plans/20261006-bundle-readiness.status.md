@@ -44,3 +44,11 @@ Specifications: [ADR 0003](../docs/adr-0003-agent-proof-preparation.md),
   `20261006T164839Z-395b748c#1` through `#5`. All 30 statistics checks pass under
   the 30-second bound. Three new observer checks also pass in the working copy;
   their feature will be recorded separately.
+- 2026-10-06: Confidence-policy cleanup `6df37baa` passed independent review
+  with no findings. Added a stage observer that runs the actual installed
+  launcher under its pinned isolated Python, retaining source-hashed nested
+  spans from that invocation. It does not replace driver functions or change
+  reports/exits. Four bounded child/current-caller tests preserve positive and
+  `VIOLATED` protocols, prove fresh PIDs and bind spans to the same external
+  monotonic wall interval. The combined 34 pure/child checks pass in 0.34 seconds
+  (30-second bound). These are harness fixtures, not performance evidence.
