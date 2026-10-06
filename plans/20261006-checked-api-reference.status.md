@@ -73,6 +73,15 @@ Relevant sources: `SqliteVerifier.lean`, `SqliteVerifier/*.lean`,
   `/nix/store/70bscijcagr3s02fcphyjcf5rj0lahy9-sqlite-verifier-lean-runtime-1`.
   No formula or definition body changed.
 
+- 2026-10-06: Model documentation review `20261006T155010Z-19d3b2c7`
+  reports no must findings and five should findings. Restored the reasons for
+  the fixed SQLite column limit, typeless statistics columns, ASCII identifier
+  folding, ordered schemas and the executable empty database. The final
+  empty-database statement requires `Conforms`, which includes schema and
+  table validity. Recorded all five findings as fixed. The corrected module
+  remains 199 lines and compiles without documentation warnings; no formula
+  or definition body changed.
+
 ## Acceptance remaining
 
 Dependency closure and sandboxed reference build; complete checked public

@@ -54,17 +54,15 @@ structure TableSchema where
   properties : TableProperties := {}
   deriving Repr, DecidableEq
 
-/-- Ordered finite {name}`TableSchema` entries; {lean}`([] : Schema)` is empty. -/
+/-- Ordered finite {name}`TableSchema` entries for generated artifacts.
+Valid schemas have unique names for lookup; {lean}`([] : Schema)` is empty. -/
 abbrev Schema := List TableSchema
-
 /-- A table lookup by name; {lean}`(fun _ => none : Database)` stores no tables. -/
 abbrev Database := String → Option Table
-
-/-- Fold ASCII capitals to lowercase; leave every other character unchanged.
-This also applies to decoded quoted identifiers. -/
+/-- Copy SQLite's ASCII-only case folding, including decoded quoted identifiers.
+Fold ASCII capitals to lowercase and leave every other character unchanged. -/
 def normalizeIdentifier (name : String) : String :=
   name.map fun c => if 'A' ≤ c ∧ c ≤ 'Z' then Char.ofNat (c.toNat + 32) else c
-
 /-- Admit a nonempty normalized name except {lit}`rowid`, {lit}`_rowid_` and
 {lit}`oid`, with a spelling that satisfies {name}`declaredTypeMatches`.
 The excluded names would hide physical rowid observations. -/
@@ -72,7 +70,8 @@ def supportedColumn (column : Column) : Bool :=
   column.name != "" && normalizeIdentifier column.name == column.name &&
     !(["rowid", "_rowid_", "oid"].contains column.name) && declaredTypeMatches column
 
-/-- The current model's fixed column bound; {assert}`maximumColumns = 2000`. -/
+/-- SQLite's default column limit, SQLITE_MAX_COLUMN; this profile fixes it at
+{assert}`maximumColumns = 2000`. -/
 def maximumColumns : Nat := 2000
 
 /-- Require nonempty columns within {name}`maximumColumns`, each admitted by
@@ -105,8 +104,8 @@ def supportedProperties (columns : List Column) (properties : TableProperties) :
   properties.indexes.all (fun index => supportedTableName index.name &&
     supportedKey columns index.columns)
 
-/-- Construct columns with the given names, BLOB affinity and no declared type.
-The remaining fields use {name}`Column` defaults. -/
+/-- Build the typeless shapes of SQLite's engine-managed statistics tables.
+Use the given names, BLOB affinity and the remaining {name}`Column` defaults. -/
 def statisticsColumns (names : List String) : List Column :=
   names.map fun name => { name := name, affinity := .blob, declaredType := .untyped }
 
@@ -166,8 +165,9 @@ def Conforms (schema : Schema) (database : Database) : Prop :=
     ∀ table, database name = some table → table.Valid ∧
       schema.lookupProperties name = some table.properties
 
-/-- Use the first schema entry for each name to construct a table with no rows.
-Missing entries yield no table. Validity remains a separate proof obligation. -/
+/-- Construct a finite empty database for executable schema calculations.
+Use the first entry for each name; missing entries yield no table. Show
+{name}`Conforms`, including schema and table validity, separately. -/
 def Schema.emptyDatabase (schema : Schema) : Database :=
   fun name => (schema.find? fun entry => entry.name == name).map fun entry =>
     { columns := entry.columns, rows := [], properties := entry.properties }
