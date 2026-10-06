@@ -12,6 +12,14 @@ from migration_check.prepare import EXPORT_ROOTS, PROTECTED_BASE_MODULE
 from tests.kernel_fixture import KernelCase
 from tests.runtime_support import CommandResult
 
+FIXTURE_COMPILED_MODULES = {"SchemaInputs", "Requirements", "Interpretation", "SqlInputs"}
+"""The old fixture compiles all four protected modules, including SqlInputs.
+
+Its exports omit those fixture-owned definitions. Production preparation exports
+the candidate's generated data and omits only the header imports/protected base;
+handwritten tests submit changed records that these fixture omissions would hide.
+"""
+
 
 @dataclass
 class BundleCase:
@@ -29,8 +37,7 @@ class BundleCase:
         with merged_search_path(roots, case.root) as paths:
             environment = {**case.environment, "LEAN_PATH": os.pathsep.join(map(str, paths))}
             trusted_imports = {PROTECTED_BASE_MODULE}
-            # These fixture modules are compiled by the verifier; their definitions stay protected.
-            omitted = {"SchemaInputs", "Requirements", "Interpretation", "SqlInputs"} | trusted_imports
+            omitted = FIXTURE_COMPILED_MODULES | trusted_imports
             result = case.runner([str(self.exporter), *["--omit=" + module for module in sorted(omitted)],
                 "--ignore-missing", "Proofs", "--", *EXPORT_ROOTS],
                 cwd=case.root, environment=environment, timeout=30)

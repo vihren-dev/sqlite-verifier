@@ -89,3 +89,9 @@ Specifications: [ADR 0003](../docs/adr-0003-agent-proof-preparation.md),
   `20261006T172148Z-5ae0e253#1` and `#2`. All 23 direct bundle checks pass again
   in 28.68 seconds under the same 150-second bound. No trusted/checker code or
   public protocol changed, and no performance trial began.
+- 2026-10-06: Attack export cleanup `791ec7e6` had no `must` findings.
+  Named and documented the four fixture-only compiled-module omissions,
+  including why fixture-owned `SqlInputs` differs from production preparation
+  and why handwritten protected records remain necessary. Resolved
+  `20261006T172547Z-791ec7e6#1`. The omitted set and behavior are unchanged from
+  the passing 23-case checkpoint; the 37 pure checks remain passing.
