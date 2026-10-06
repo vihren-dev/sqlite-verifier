@@ -1,6 +1,6 @@
 # Optional upstream catalog tests
 
-Status: IN PROGRESS. Created 2026-10-06.
+Status: DONE. Created and completed 2026-10-06.
 
 ## Outcome
 

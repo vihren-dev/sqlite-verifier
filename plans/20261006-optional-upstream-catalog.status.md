@@ -1,6 +1,6 @@
 # Optional upstream catalog tests status
 
-Status: IN PROGRESS. Created 2026-10-06.
+Status: DONE. Created and completed 2026-10-06.
 
 Task: [optional upstream catalog tests](20261006-optional-upstream-catalog.task.md).
 Source: [issue #38](https://github.com/vihren-dev/sqlite-verifier/issues/38).
@@ -24,6 +24,9 @@ Relevant files: `tests/conformance_catalog_test.py`,
   configured value now fails before path conversion. The regression runs that
   case from a directory with a valid catalog, so it cannot accept `.` as the
   archive by accident.
+- 2026-10-06: Completed all acceptance checks and independent review. Task and
+  status records are DONE. The final append-only review entry is pending for
+  the next integration commit, as required by the review workflow.
 
 ## Validation and review
 
@@ -50,4 +53,7 @@ Relevant files: `tests/conformance_catalog_test.py`,
   The sandboxed Nix upstream suite rebuilt: 58 passed in 5.62 seconds, with no
   skips. Latest immutable JUnit evidence:
   `/nix/store/n53v5snbfma8j650l779gfp38aylg4f7-sqlite-verifier-test-upstream-1/junit.xml`.
-- Review of the refactor commit is pending.
+- Claude reviewed refactor commit `0f2c00a8` with no findings (exit 0), recorded
+  as `20261006T084824Z-0f2c00a8`. All review findings are resolved. The final
+  review entry remains pending in `reviews/log.jsonl`; earlier outcomes and
+  the finding resolution are committed in the refactor.
