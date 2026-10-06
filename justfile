@@ -61,6 +61,12 @@ test-full: build test-source
 test-source:
     timeout --foreground 600 python3 -u -m pytest -v tests -m "not requires_nix" --source-checks --runtime-root "${SQLITE_VERIFIER_RUNTIME_ROOT:-$PWD}" --junitxml build/test-results/source.xml
 
+# Review one commit (default: @-) with the other agent tool against docs/review-checklist.md.
+# REVIEWER=claude or REVIEWER=codex overrides the choice. Exit codes: see tools/review.py.
+[positional-arguments]
+review *args:
+    python3 tools/review.py "$@"
+
 # Check Nix source identities, test-target invalidation, environment snapshots and the installer cache.
 test-nix:
     timeout --foreground 600 python3 -u -m pytest -v tests -m requires_nix --ignore=tests/runtime_package_test.py --runtime-root "${SQLITE_VERIFIER_RUNTIME_ROOT:-$PWD}" --junitxml build/test-results/nix.xml

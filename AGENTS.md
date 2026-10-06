@@ -50,3 +50,27 @@ reader checks that the formula and the intent agree.
   proof longer than about 20 lines, has a short proof sketch (1-5 sentences)
   in its docstring. The sketch describes the strategy and the key idea, not
   each step.
+
+## Review after each commit
+
+An independent reviewer checks each commit against
+[`docs/review-checklist.md`](docs/review-checklist.md). The reviewer is the other
+agent tool: Codex reviews commits from Claude Code sessions, and Claude Code
+reviews commits from Codex sessions.
+
+- After each commit whose checks pass, run `just review`. It reviews `@-`, the
+  commit before the working copy. A commit that changes only files in `plans/`
+  needs no review.
+- Exit code 0: no "must" findings. Fix "should" findings, or record each one
+  with a reason in the status file.
+- Exit code 1: fix each "must" finding in a `refactor:` commit before the next
+  feature commit, and review that commit too. After two review rounds with new
+  "must" findings, stop and report to the owner.
+- If you disagree with a finding, record the finding and the reason in the
+  status file. Repeated disagreements show that the checklist needs a change.
+- Exit code 2: the command cannot choose a reviewer or revision; follow its
+  message (for example, set `REVIEWER=claude` or `REVIEWER=codex`).
+- Exit code 3: the reviewer failed or gave no recognizable result. Run the
+  review once more; if it fails again, record it and tell the owner.
+- A reviewer never starts `just review`; the command stops if it is called
+  inside a review.
