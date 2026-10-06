@@ -54,6 +54,12 @@ described as identical inputs. Relevant short native/Tcl tests and the pinned
 upstream suite pass with timeouts. Long acquisition and full-model runs wait for
 host coordination. Independent review outcomes remain in the append-only journal.
 
+The full Nix model target passes on native Darwin and Linux with the same
+ordered 32 modules, complete reporting and the reviewed model-only 600-second
+deadline. The six other target deadlines remain 420 seconds. Native acceptance
+retains exact public source/helper hashes and original JUnit, including the
+direct Tcl checks owned by the pinned upstream target.
+
 ## Constraints and relevant code
 
 `upstream_result_values.values_agree` already compares REAL bits; observed

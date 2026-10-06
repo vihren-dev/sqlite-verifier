@@ -1,0 +1,279 @@
+{
+  "task": "T17 exact Tcl values",
+  "publicRevision": "970e89ff1e6999bed12afe1d28d3d703d218b5ac",
+  "publicArchiveSha256": "5a8992c25502d62e3391ed7b86bd2fa43e9e67a0f403569e870e1c1e2aa279da",
+  "publicRawArchiveSha256": "f8a67d1708f4a48f131d49db177a2926c76ab8ddae694373ebfd2062184f48fe",
+  "modelModules": [
+    "tests/conformance_model_test.py",
+    "tests/conformance_authored_test.py",
+    "tests/conformance_authored_queries_test.py",
+    "tests/conformance_authored_boundaries_test.py",
+    "tests/conformance_authored_review_test.py",
+    "tests/conformance_shards_test.py",
+    "tests/conformance_freeze_test.py",
+    "tests/conformance_evidence_test.py",
+    "tests/conformance_acquisition_test.py",
+    "tests/conformance_command_sources_test.py",
+    "tests/conformance_workload_test.py",
+    "tests/conformance_workload_clock_test.py",
+    "tests/conformance_requirement_coverage_test.py",
+    "tests/conformance_fidelity_test.py",
+    "tests/conformance_storage_test.py",
+    "tests/conformance_trace_test.py",
+    "tests/conformance_ordering_test.py",
+    "tests/conformance_clock_test.py",
+    "tests/conformance_profile_test.py",
+    "tests/conformance_driver_profiles_test.py",
+    "tests/conformance_readonly_workload_test.py",
+    "tests/conformance_context_test.py",
+    "tests/conformance_pipeline_test.py",
+    "tests/conformance_mutation_test.py",
+    "tests/conformance_laws_test.py",
+    "tests/conformance_record_test.py",
+    "tests/conformance_dqs_test.py",
+    "tests/conformance_upstream_test.py",
+    "tests/conformance_generation_test.py",
+    "tests/conformance_coverage_test.py",
+    "tests/conformance_progress_views_test.py",
+    "tests/conformance_tier_bindings_test.py"
+  ],
+  "suiteOwnershipSha256": "0168cb55d913958029e35947e6ff9071d94623ba99dea532eb87020bdbc5ba00",
+  "platforms": {
+    "darwin": {
+      "source": {
+        "publicRevision": "970e89ff1e6999bed12afe1d28d3d703d218b5ac",
+        "platform": "aarch64-darwin",
+        "helperSha256": "fd2fc633fe930f6ecccb2ec728aa666190ff39e0407526fab077d0df765df594",
+        "archiveSha256": "5a8992c25502d62e3391ed7b86bd2fa43e9e67a0f403569e870e1c1e2aa279da",
+        "symlink": {
+          "CLAUDE.md": "AGENTS.md"
+        }
+      },
+      "publicRegularFiles": 902,
+      "sourceBytesBeforeAfterEqual": true,
+      "selectedInputsBeforeAfterEqual": true,
+      "gates": {
+        "upstream": {
+          "command": [
+            "timeout",
+            "900",
+            "nix-build",
+            "build-support/default.nix",
+            "-A",
+            "tests.upstream",
+            "--out-link",
+            "build/t17-nix-upstream",
+            "--option",
+            "sandbox",
+            "true",
+            "--option",
+            "sandbox-fallback",
+            "false",
+            "--extra-experimental-features",
+            "nix-command flakes"
+          ],
+          "outerLimitSeconds": 900,
+          "exitCode": 0,
+          "startedUtc": "2026-10-06T19:32:11.366226+00:00",
+          "finishedUtc": "2026-10-06T19:32:12.213936+00:00",
+          "elapsedMonotonicSeconds": 0.8475386669997533,
+          "output": "/nix/store/bvxkw4a5qz1qxf8lp37kf77n1dihmb54-sqlite-verifier-test-upstream-1",
+          "junitSha256": "a483bbaa9a633a9925b29c729fbc26ccd969f216697387311b8d9b8cb4091bef",
+          "recipeLimitSeconds": 420,
+          "junit": {
+            "cases": 117,
+            "passed": 117,
+            "skipped": 0,
+            "failures": 0,
+            "errors": 0,
+            "seconds": 5.016,
+            "timestamp": "2026-10-06T16:01:33.345235+00:00",
+            "skipReasons": []
+          },
+          "target": {
+            "drv": "/nix/store/k5vywzbhd1zmwdayc9nm4sb5djzc1lmp-sqlite-verifier-test-upstream-1.drv",
+            "installPhase": "export HOME=\"$TMPDIR\"\nexport PYTEST_DISABLE_PLUGIN_AUTOLOAD=1\ntimeout 420 python3 -m pytest tests/conformance_capture_test.py tests/conformance_sampling_test.py tests/conformance_streaming_test.py tests/conformance_capture_gap_test.py tests/conformance_command_sources_test.py tests/conformance_catalog_test.py tests/conformance_source_profiles_test.py tests/conformance_foreign_key_recovery_test.py tests/conformance_tcl_values_test.py tests/conformance_tcl_precision_test.py tests/conformance_tcl_bindings_test.py tests/conformance_native_bindings_test.py tests/conformance_tcl_binding_policy_test.py tests/test_native_replay_storage.py --runtime-root /nix/store/2pm5l48v8lk5v3p1yqbc3hx3jj1w2ylr-sqlite-verifier-conformance \\\n  -p no:cacheprovider --junitxml \"$out/junit.xml\" -v --durations=10\n",
+            "output": "/nix/store/bvxkw4a5qz1qxf8lp37kf77n1dihmb54-sqlite-verifier-test-upstream-1",
+            "src": "/nix/store/3a6xabbhjsdxjx3500rls19jkaw4d20l-source"
+          },
+          "selectedInputCount": 182
+        },
+        "model": {
+          "command": [
+            "timeout",
+            "900",
+            "nix-build",
+            "build-support/default.nix",
+            "-A",
+            "tests.model",
+            "--out-link",
+            "build/t17-nix-model",
+            "--option",
+            "sandbox",
+            "true",
+            "--option",
+            "sandbox-fallback",
+            "false",
+            "--extra-experimental-features",
+            "nix-command flakes"
+          ],
+          "outerLimitSeconds": 900,
+          "exitCode": 0,
+          "startedUtc": "2026-10-06T19:32:12.214669+00:00",
+          "finishedUtc": "2026-10-07T06:30:12.349968+00:00",
+          "elapsedMonotonicSeconds": 581.3775253749991,
+          "output": "/nix/store/lbnmjcr3ly8agayl5b6pnlgvzy7qbisw-sqlite-verifier-test-model-1",
+          "junitSha256": "9680acfd921ae6ba969ae5bc7721400c0e2181dba890e1ea3b48144144fa31ed",
+          "recipeLimitSeconds": 600,
+          "junit": {
+            "cases": 324,
+            "passed": 323,
+            "skipped": 1,
+            "failures": 0,
+            "errors": 0,
+            "seconds": 578.425,
+            "timestamp": "2026-10-06T19:32:14.054802+00:00",
+            "skipReasons": [
+              "Run the pinned Nix upstream target for Tcl capture"
+            ]
+          },
+          "target": {
+            "drv": "/nix/store/7rdhy9qbdmj3nfwzmrrbyq6bqhi7hzgw-sqlite-verifier-test-model-1.drv",
+            "installPhase": "export HOME=\"$TMPDIR\"\nexport PYTEST_DISABLE_PLUGIN_AUTOLOAD=1\ntimeout 600 python3 -m pytest tests/conformance_model_test.py tests/conformance_authored_test.py tests/conformance_authored_queries_test.py tests/conformance_authored_boundaries_test.py tests/conformance_authored_review_test.py tests/conformance_shards_test.py tests/conformance_freeze_test.py tests/conformance_evidence_test.py tests/conformance_acquisition_test.py tests/conformance_command_sources_test.py tests/conformance_workload_test.py tests/conformance_workload_clock_test.py tests/conformance_requirement_coverage_test.py tests/conformance_fidelity_test.py tests/conformance_storage_test.py tests/conformance_trace_test.py tests/conformance_ordering_test.py tests/conformance_clock_test.py tests/conformance_profile_test.py tests/conformance_driver_profiles_test.py tests/conformance_readonly_workload_test.py tests/conformance_context_test.py tests/conformance_pipeline_test.py tests/conformance_mutation_test.py tests/conformance_laws_test.py tests/conformance_record_test.py tests/conformance_dqs_test.py tests/conformance_upstream_test.py tests/conformance_generation_test.py tests/conformance_coverage_test.py tests/conformance_progress_views_test.py tests/conformance_tier_bindings_test.py --runtime-root /nix/store/2pm5l48v8lk5v3p1yqbc3hx3jj1w2ylr-sqlite-verifier-conformance \\\n  -p no:cacheprovider --junitxml \"$out/junit.xml\" -v --durations=10\n",
+            "output": "/nix/store/lbnmjcr3ly8agayl5b6pnlgvzy7qbisw-sqlite-verifier-test-model-1",
+            "src": "/nix/store/0nisxnakcabi6wkk71z862nkxwm2qjlm-source"
+          },
+          "selectedInputCount": 328
+        }
+      }
+    },
+    "linux": {
+      "source": {
+        "publicRevision": "970e89ff1e6999bed12afe1d28d3d703d218b5ac",
+        "platform": "x86_64-linux",
+        "helperSha256": "6290c7b2119766d28732fc88ed24897fecda5ee11164c28517438b77d6e48ca7",
+        "archiveSha256": "5a8992c25502d62e3391ed7b86bd2fa43e9e67a0f403569e870e1c1e2aa279da",
+        "symlink": {
+          "CLAUDE.md": "AGENTS.md"
+        }
+      },
+      "publicRegularFiles": 902,
+      "sourceBytesBeforeAfterEqual": true,
+      "selectedInputsBeforeAfterEqual": true,
+      "gates": {
+        "upstream": {
+          "command": [
+            "timeout",
+            "900",
+            "nix-build",
+            "build-support/default.nix",
+            "-A",
+            "tests.upstream",
+            "--out-link",
+            "build/t17-nix-upstream",
+            "--option",
+            "sandbox",
+            "true",
+            "--option",
+            "sandbox-fallback",
+            "false",
+            "--extra-experimental-features",
+            "nix-command flakes"
+          ],
+          "outerLimitSeconds": 900,
+          "exitCode": 0,
+          "startedUtc": "2026-10-06T19:34:21.042597+00:00",
+          "finishedUtc": "2026-10-06T19:34:42.411549+00:00",
+          "elapsedMonotonicSeconds": 21.36895557702519,
+          "output": "/nix/store/f228lw41lyr160jvs69mcjxjn4m5k340-sqlite-verifier-test-upstream-1",
+          "junitSha256": "6d8826efb9a8aa295458e84684633b0dfc57be6472281c6739f51c5e88274315",
+          "recipeLimitSeconds": 420,
+          "junit": {
+            "cases": 117,
+            "passed": 117,
+            "skipped": 0,
+            "failures": 0,
+            "errors": 0,
+            "seconds": 20.085,
+            "timestamp": "2026-10-06T19:34:22.136911+00:00",
+            "skipReasons": []
+          },
+          "target": {
+            "drv": "/nix/store/7lfg8n5lwkzg0fqwmn5gvpc30dn4pssz-sqlite-verifier-test-upstream-1.drv",
+            "installPhase": "export HOME=\"$TMPDIR\"\nexport PYTEST_DISABLE_PLUGIN_AUTOLOAD=1\ntimeout 420 python3 -m pytest tests/conformance_capture_test.py tests/conformance_sampling_test.py tests/conformance_streaming_test.py tests/conformance_capture_gap_test.py tests/conformance_command_sources_test.py tests/conformance_catalog_test.py tests/conformance_source_profiles_test.py tests/conformance_foreign_key_recovery_test.py tests/conformance_tcl_values_test.py tests/conformance_tcl_precision_test.py tests/conformance_tcl_bindings_test.py tests/conformance_native_bindings_test.py tests/conformance_tcl_binding_policy_test.py tests/test_native_replay_storage.py --runtime-root /nix/store/f2xi9qgf5fil1n5r18w0n7fndrg1nfzz-sqlite-verifier-conformance \\\n  -p no:cacheprovider --junitxml \"$out/junit.xml\" -v --durations=10\n",
+            "output": "/nix/store/f228lw41lyr160jvs69mcjxjn4m5k340-sqlite-verifier-test-upstream-1",
+            "src": "/nix/store/3a6xabbhjsdxjx3500rls19jkaw4d20l-source"
+          },
+          "selectedInputCount": 182
+        },
+        "model": {
+          "command": [
+            "timeout",
+            "900",
+            "nix-build",
+            "build-support/default.nix",
+            "-A",
+            "tests.model",
+            "--out-link",
+            "build/t17-nix-model",
+            "--option",
+            "sandbox",
+            "true",
+            "--option",
+            "sandbox-fallback",
+            "false",
+            "--extra-experimental-features",
+            "nix-command flakes"
+          ],
+          "outerLimitSeconds": 900,
+          "exitCode": 0,
+          "startedUtc": "2026-10-06T19:34:42.411930+00:00",
+          "finishedUtc": "2026-10-06T19:40:31.867926+00:00",
+          "elapsedMonotonicSeconds": 349.4560054060421,
+          "output": "/nix/store/6nggq1pb5lnx3w9p64fh29w6wrzvkmsp-sqlite-verifier-test-model-1",
+          "junitSha256": "0ffda6c804f5b7bfa1e37bccf8028d336bb96ebbc4d6f81007c27088dbafc0cf",
+          "recipeLimitSeconds": 600,
+          "junit": {
+            "cases": 324,
+            "passed": 323,
+            "skipped": 1,
+            "failures": 0,
+            "errors": 0,
+            "seconds": 347.663,
+            "timestamp": "2026-10-06T19:34:43.664213+00:00",
+            "skipReasons": [
+              "Run the pinned Nix upstream target for Tcl capture"
+            ]
+          },
+          "target": {
+            "drv": "/nix/store/0llmxl3rx755gjjb5bbipayqwswpjj0g-sqlite-verifier-test-model-1.drv",
+            "installPhase": "export HOME=\"$TMPDIR\"\nexport PYTEST_DISABLE_PLUGIN_AUTOLOAD=1\ntimeout 600 python3 -m pytest tests/conformance_model_test.py tests/conformance_authored_test.py tests/conformance_authored_queries_test.py tests/conformance_authored_boundaries_test.py tests/conformance_authored_review_test.py tests/conformance_shards_test.py tests/conformance_freeze_test.py tests/conformance_evidence_test.py tests/conformance_acquisition_test.py tests/conformance_command_sources_test.py tests/conformance_workload_test.py tests/conformance_workload_clock_test.py tests/conformance_requirement_coverage_test.py tests/conformance_fidelity_test.py tests/conformance_storage_test.py tests/conformance_trace_test.py tests/conformance_ordering_test.py tests/conformance_clock_test.py tests/conformance_profile_test.py tests/conformance_driver_profiles_test.py tests/conformance_readonly_workload_test.py tests/conformance_context_test.py tests/conformance_pipeline_test.py tests/conformance_mutation_test.py tests/conformance_laws_test.py tests/conformance_record_test.py tests/conformance_dqs_test.py tests/conformance_upstream_test.py tests/conformance_generation_test.py tests/conformance_coverage_test.py tests/conformance_progress_views_test.py tests/conformance_tier_bindings_test.py --runtime-root /nix/store/f2xi9qgf5fil1n5r18w0n7fndrg1nfzz-sqlite-verifier-conformance \\\n  -p no:cacheprovider --junitxml \"$out/junit.xml\" -v --durations=10\n",
+            "output": "/nix/store/6nggq1pb5lnx3w9p64fh29w6wrzvkmsp-sqlite-verifier-test-model-1",
+            "src": "/nix/store/0nisxnakcabi6wkk71z862nkxwm2qjlm-source"
+          },
+          "selectedInputCount": 328
+        }
+      }
+    }
+  },
+  "linuxRetainedDirectory": "/var/tmp/sqlite-verifier-t17-acceptance.Cf3bM9",
+  "linuxReceiptArchiveSha256": "d49aee3a671f8d11d75795899a024fa06b1693df1a27db85342fbb9acf9fe036",
+  "linuxPreflight": {
+    "failedBeforeAnyGate": true,
+    "cause": "Read-only nix-instantiate --eval did not realize a fresh selected source path.",
+    "correction": "Separate Linux helper adds --read-write-mode only; recipe/source/test bytes are unchanged.",
+    "initialHelperSha256": "fd2fc633fe930f6ecccb2ec728aa666190ff39e0407526fab077d0df765df594",
+    "finalHelperSha256": "6290c7b2119766d28732fc88ed24897fecda5ee11164c28517438b77d6e48ca7",
+    "clientSessionExit": 255,
+    "clientDiagnostic": "Read from remote host: Connection reset by peer; remote gates and after-source verification completed before disconnect."
+  },
+  "darwinWallClockNote": "The model wall interval spans overnight. Preserve the distinct wall timestamps, pytest578.425s and outer monotonic581.378s; no comparable performance measurement is claimed.",
+  "darwinUpstreamNote": "Reused the unchanged derivation and its original117-pass JUnit from the previously checked assembly; this was not a fresh upstream rerun.",
+  "rawArtifacts": 35,
+  "rawReceiptBytes": 1251081,
+  "rawReceiptSha256": "9efc07f110bcf07e092943b3b6a55e1ca3e2964911ecc91b87aaa8a736e0dc20",
+  "compressedReceiptSha256": "22204b05d0bdca7cd90fecb4ad07c81f64cbb0045808de386dcb2c9f0ef103b8",
+  "oldFrozenEvidenceChanged": false,
+  "oldAcquisitionCohortChanged": false,
+  "publication": "pending reviewed delivery; no release or issue closure"
+}

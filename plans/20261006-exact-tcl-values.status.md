@@ -246,3 +246,30 @@ Decisions waiting for the owner:
   findings and one R9 `should`: its source comment referred to this task status
   instead of explaining the deadline. Corrected the comment to state the
   32-module model budget's measured hosted macOS basis; the recipe is unchanged.
+- 2026-10-07: Comment correction `970e89ff` passed independent review with no
+  findings. Both native full model gates pass from that exact public source:
+  323 passed, one existing Tcl-source skip, zero failures/errors on each platform.
+  Darwin JUnit reports 578.425 seconds; Linux reports 347.663 seconds. Both use
+  the configured 600-second recipe with the unchanged ordered 32 model modules
+  and a 900-second outer bound. The upstream Tcl suite passes all 117 checks on
+  each platform without skips: Darwin reuses the identical reviewed receipt;
+  Linux runs fresh in 20.085 seconds.
+- Darwin's wall interval spans overnight; its outer monotonic duration is
+  581.378 seconds, distinct from the wall timestamps. Linux's outer duration is
+  349.456 seconds. These validation receipts do not establish speed parity.
+  Linux's initial helper failed before any suite because Nix read-only
+  evaluation did not realize a source path. A separately hashed helper adds
+  evaluation read/write mode only; both helper texts and the failed preflight
+  remain retained. The later SSH connection reset happened after the remote
+  gates and after-source verification completed.
+- Verified all 902 public regular files and the authored symlink before/after,
+  plus all 328 model and 182 upstream Nix-selected inputs on both platforms.
+  Retained 35 exact raw payloads, including four original JUnit files, complete
+  logs, rendered commands, source inventories and helper bytes in
+  [the native acceptance receipt](../reports/20261007-tcl-values-native-acceptance/README.md).
+  Every embedded payload equals its original bytes and digest. All old frozen
+  corpora, acquisition artifacts and prior integration receipts are unchanged;
+  all 73 prior raw review rows remain an exact prefix. Both host slots released.
+- The native full acceptance hold is resolved. T17 remains IN PROGRESS until
+  the evidence checkpoint receives its required independent review and normal
+  PR delivery. No protected baseline or frozen PR43/44/47/48 was changed.
