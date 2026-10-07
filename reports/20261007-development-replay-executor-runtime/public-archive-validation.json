@@ -1,0 +1,18 @@
+{
+  "revision": "77883debecf72fece4e7602799595f3ce584a0fb",
+  "archivalGzipFiles": 47,
+  "archiveSha256": "f6d0212b8b14db1591ae0766f27ce87a76f3970184b5dc5675506de0be06b6f4",
+  "archiveBytes": 4474880,
+  "scripts": {
+    "validate.py": {
+      "returncode": 0,
+      "stdout": "Validated exact native runtime readiness; no replay or acceptance performed.\n",
+      "stderr": ""
+    },
+    "check_mutations.py": {
+      "returncode": 0,
+      "stdout": "Refused four independent runtime readiness, build-bound and journal-order mutations.\n",
+      "stderr": ""
+    }
+  }
+}

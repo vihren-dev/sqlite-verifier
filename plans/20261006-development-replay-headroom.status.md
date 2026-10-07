@@ -620,3 +620,13 @@ authorized one Linux diagnostic below. No production change followed it.
   findings have fixed append-only journal resolutions. The refactor's
   public-archive checks and independent review must pass before handoff.
   Neither runtime build was repeated; no replay or performance phase ran.
+- 2026-10-07: Artifact refactor
+  `77883debecf72fece4e7602799595f3ce584a0fb` received Claude review
+  `20261007T111602Z-77883deb`, session 87355 exit 0, with no must findings
+  and two should naming findings. The archival name mapping is now a named
+  policy that explains the ignore-rule boundary, and journal diagnostic
+  counts come from their policy constants. Both findings have fixed journal
+  resolutions; both bounded read-only checks still pass. A clean public
+  Git archive of the refactor contains all 47 raw gzip artifacts, and both
+  scripts pass there with empty error streams. Its original check result
+  is retained in the report. The final naming refactor review is pending.

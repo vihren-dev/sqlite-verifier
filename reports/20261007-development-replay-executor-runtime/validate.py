@@ -29,6 +29,8 @@ PINNED_LEAN_VERSION = "4.34.1"
 """Both approved publication builds use this actual compiler release."""
 PINNED_PYTHON_VERSION = "3.14.7"
 """The same locked environment supplies both native capture interpreters."""
+ARCHIVED_COMMAND_PATHS = {"linux/build/command-0000.json": "linux/commands/command-0000.json"}
+"""Keep the original remote names while archival commands avoid the generated build-directory ignore rule."""
 
 
 def read(root: Path, name: str) -> Json:
@@ -77,7 +79,7 @@ def validate(root: Path) -> None:
     merged_bytes = raw(root, "integration/merged-review-log.jsonl")
     merged = merged_bytes.splitlines(keepends=True)
     assert len(merged) == JOURNAL_ROWS["merged"] and Counter(merged)[pending[0]] == JOURNAL_ROWS["pending"], (
-        "merged-review-log.jsonl: require 208 rows and one pending review. Compare the exact saved journals.")
+        f"merged-review-log.jsonl: require {JOURNAL_ROWS['merged']} rows and {JOURNAL_ROWS['pending']} pending review. Compare the exact saved journals.")
     for original in (headroom, executor, headroom + pending):
         assert subsequence(original, merged) and not (Counter(original) - Counter(merged)), (
             "merged-review-log.jsonl: original order or row occurrences differ. Compare both saved journals and the pending row.")
@@ -85,7 +87,7 @@ def validate(root: Path) -> None:
         "merged-review-log.jsonl: contains an unrecorded row occurrence. Compare the exact saved originals.")
     original_hashes = read(root, "linux/original-manifest.json")
     for name, expected in original_hashes.items():
-        archive_name = "linux/commands/command-0000.json" if name == "linux/build/command-0000.json" else name
+        archive_name = ARCHIVED_COMMAND_PATHS.get(name, name)
         payload = raw(root, "linux/" + archive_name)
         assert {"sha256": hashlib.sha256(payload).hexdigest(), "bytes": len(payload)} == expected, (
             f"{name}: original remote SHA or size differs. Compare linux/original-manifest.json.")
@@ -116,10 +118,10 @@ def validate(root: Path) -> None:
             else:
                 assert {key: observed[key] for key in ("sha256", "bytes")} == expected, f"{prefix}{name}: source SHA/size differs. Compare the public source manifest."
         assert before["source"]["files"]["reviews/log.jsonl"]["sha256"] == journal["sha256"], f"{prefix}reviews/log.jsonl: SHA differs. Compare journal-merge.json."
-        assert len(headroom) == journal["headroomRows"] == JOURNAL_ROWS["headroom"], "journal-merge.json: require 110 headroom rows. Compare its saved original."
-        assert len(executor) == journal["executorRows"] == JOURNAL_ROWS["executor"], "journal-merge.json: require 161 executor rows. Compare its saved original."
-        assert len(pending) == journal["pendingRows"] == JOURNAL_ROWS["pending"], "journal-merge.json: require one pending row. Compare its saved original."
-        assert journal["mergedRows"] == JOURNAL_ROWS["merged"], "journal-merge.json: require 208 merged rows. Compare the archived merged journal."
+        assert len(headroom) == journal["headroomRows"] == JOURNAL_ROWS["headroom"], f"journal-merge.json: require {JOURNAL_ROWS['headroom']} headroom rows. Compare its saved original."
+        assert len(executor) == journal["executorRows"] == JOURNAL_ROWS["executor"], f"journal-merge.json: require {JOURNAL_ROWS['executor']} executor rows. Compare its saved original."
+        assert len(pending) == journal["pendingRows"] == JOURNAL_ROWS["pending"], f"journal-merge.json: require {JOURNAL_ROWS['pending']} pending row. Compare its saved original."
+        assert journal["mergedRows"] == JOURNAL_ROWS["merged"], f"journal-merge.json: require {JOURNAL_ROWS['merged']} merged rows. Compare the archived merged journal."
         assert journal["parentOrdersAndMultiplicitiesRetained"] is True, "journal-merge.json: order/multiplicity check must pass. Compare exact journal rows."
         expected_runtime = read(root, prefix + "expected-runtime.json")
         receipt = read(root, prefix + "receipt.json")
