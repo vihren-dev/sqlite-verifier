@@ -279,3 +279,13 @@ Decisions waiting for the owner:
   reviewer did not execute a separate decompression/digest check. Native
   acceptance and evidence are ready for normal PR delivery. T17 remains
   IN PROGRESS until delivered; no additional integrated gate is currently needed.
+- The coordinator authorized publication integration with the reviewed merged
+  timeout tip `d8faab74`, excluding main metadata `6852f6fa`. Only the equivalent
+  timeout comment and append-only journal conflicted. Retained both complete
+  parent row orders and exact contents: 79 own rows plus 50 incoming rows merge
+  to 81 distinct rows and 40 unique reviews. No test/source ownership changed.
+  Three real rendered-command/both-platform routing checks pass in 8.74 seconds;
+  all six CI checks pass in 0.58 seconds. Actual model/upstream source, derivation,
+  output and full command fields on both platforms are exactly those already
+  accepted natively, as recorded in the publication receipt. No further full
+  gate is needed for this comment, journal and timeout-evidence integration.

@@ -56,3 +56,14 @@ does not claim production date-function support or model agreement for the
 unsupported date cohort. The [task status](../../plans/20261006-exact-tcl-values.status.md)
 remains IN PROGRESS pending reviewed delivery. No protected baseline, kernel
 gate, release, issue closure or frozen PR43/44/47/48 changed.
+
+For publication, the coordinator authorized only the reviewed merged timeout
+tip `d8faab74`, excluding later main metadata `6852f6fa`. The equivalent timeout
+comment and append-only journal were the only conflicts. Both original journal
+orders remain intact: 79 T17 rows and 50 incoming rows form 81 distinct exact
+rows with 40 unique reviews. Three real command/routing checks and all six CI
+checks pass after integration. [publication-targets.json](publication-targets.json)
+records that both platforms' complete model/upstream source, derivation, output
+and rendered command identities still equal those accepted above.
+[publication-checks.json](publication-checks.json) records the bounded checks
+and original compressed JUnit digests. No additional runtime change was needed.

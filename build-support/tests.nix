@@ -10,7 +10,8 @@ let
     "tests/runtime_installation.py"
   ];
   python = name: pkgs.python3.withPackages (ps: [ ps.pytest ] ++ pkgs.lib.optional (name == "model") ps.hypothesis);
-  # The full 32-module model budget is twice the measured hosted macOS completion.
+  # The full model budget is twice the measured hosted macOS completion.
+  # Evidence and the unchanged coverage are in reports/20261006-hosted-model-timeout/README.md.
   suiteTimeoutSeconds = { default = 420; model = 600; };
   leanRoot = pkgs.runCommand "sqlite-verifier-test-lean" {} ''
     mkdir -p "$out"
