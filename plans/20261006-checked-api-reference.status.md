@@ -575,3 +575,14 @@ that PRs run only on Linux. The reference runs on both platforms while
 verifier checks retain their schedule. No workflow behavior changes in
 this text correction. Both findings are recorded as fixed; correction
 review remains required.
+
+
+Correction `88ea1c48` passes independent review
+`20261007T175732Z-88ea1c48` with no findings. The two previous
+descriptions have fixed journal resolutions. Draft publication will use
+the new clean branch against delivered main `923b7cee`. Its reference
+job runs on both platforms; verifier checks retain the Linux PR schedule.
+The current development set has seven Nix suites. The earlier six-suite
+readiness wording is historical. Original native reference receipts are
+retained, and no new local expensive acceptance is claimed. Hosted
+reference artifacts, ordinary checks and normal delivery remain required.
