@@ -517,3 +517,22 @@ checks verified every archive and original payload against the retained files.
 Clarified spaces around status codes and the executor revision in the derived
 JSON summary. All original logs, metadata payloads and archive bytes remain
 unchanged. This wording correction awaits review. No heavy check has started.
+
+Correction `7fd10159` passed independent Claude review with no findings
+(`20261007T113950Z-7fd10159`). Native evidence is ready. The next integration
+must use the reviewed complete-job deadline correction coordinated by the
+parent. The proposed whole-job budget is 105 minutes: the base's 75 minutes
+plus the existing 1,800-second reference phase outside the orchestrator. A
+guard must account for that actual workflow phase and preserve all child
+limits, including 600 seconds for model and 420 for the other Nix suites.
+No deadline or implementation change is made in this readiness record.
+
+After that integration, required local checks are the ordinary `just test`
+recipe (source checks, public inventory and all six development Nix targets),
+`just test-nix`, and the proof runtime's exclusion of documentation packages.
+Native leases must be coordinated before these checks. Full model, performance
+and acquisition work are excluded from this local acceptance unit. Hosted
+checks must still exercise the complete existing recipes and retain both
+reference artifacts from the published reviewed head. Publication and normal
+delivery remain with the parent. The final raw review row remains pending for
+the next integration; Status remains IN PROGRESS.
