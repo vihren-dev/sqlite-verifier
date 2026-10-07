@@ -262,3 +262,21 @@ The complete public CLI suite passes all 14 checks in
 suite limits. The launcher preserves positive, refutation and refusal outcomes
 on the moved frontend. Its XML and build log remain retained; actual output
 is `/nix/store/z065a6d9i9klrkmrz6n1gnxr6l1x48c5-sqlite-verifier-test-cli-1`.
+
+
+## Frontend caller review correction
+
+Independent frontend review `20261007T153011Z-a4ef6c5b` has no mandatory
+findings and one suggestion. The latency diagnostic now catches both the
+application rejection and frontend SQL refusal. Its parser recorder also
+hooks `inputs.parse`, the current orchestration entrypoint, instead of the
+removed `cli.parse` attribute. Both real refusal trials return their status
+without compiling Lean or producing a traceback. The two new checks belong
+to `bundle`; its Nix source includes the diagnostic and its case definitions.
+
+All ten correction and frontend closure checks pass in 1.03 seconds. Four
+actual command ownership and host exclusion checks pass in 1.77 seconds.
+The real frontend suite invalidation check passes in 2.21 seconds after its
+source fixture includes the new diagnostic inputs. Commands have 60- or
+90-second outer limits; trial subprocesses have a 10-second limit. The
+finding is recorded as fixed. This correction awaits independent review.

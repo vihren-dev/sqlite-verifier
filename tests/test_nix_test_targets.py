@@ -68,6 +68,10 @@ def source_tree(tmp_path: Path) -> Path:
     for name in ('tests', 'migration_check', 'belay', 'conformance', 'examples', 'docs', 'packaging', 'packages', 'SqliteVerifier', 'VerifierConformance', 'reports', 'nix', 'build-support', 'tools'):
         shutil.copytree(ROOT / name, tmp_path / name,
                         ignore=shutil.ignore_patterns('__pycache__', '*.pyc', 'upstream'))
+    for name in ("cases.py", "stage_timing.py"):
+        path = tmp_path / "experiments/adr-0003-latency" / name
+        path.parent.mkdir(parents=True, exist_ok=True)
+        shutil.copy2(ROOT / "experiments/adr-0003-latency" / name, path)
     return tmp_path
 
 

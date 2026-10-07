@@ -150,6 +150,8 @@ in {
       (fs.fileFilter (file: file.hasExt "py") (root + /belay/sqlite))
       (fs.fileFilter (file: file.hasExt "json") (root + /conformance/cases))
       (root + /tests/sql_fixtures.py)
+      (root + /experiments/adr-0003-latency/cases.py)
+      (root + /experiments/adr-0003-latency/stage_timing.py)
     ];
     inherit runtime;
   };

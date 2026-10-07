@@ -15,9 +15,10 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 from cases import CASES, ROOT  # noqa: E402
 
 sys.path.insert(0, str(ROOT))
-from migration_check import cli, process  # noqa: E402
+from migration_check import cli, inputs, process  # noqa: E402
 from migration_check import source_closure  # noqa: E402
 from migration_check.diagnostics import Rejection  # noqa: E402
+from belay.sqlite.errors import SqlError  # noqa: E402
 
 EVENTS: list[tuple[str, float]] = []
 
@@ -51,7 +52,7 @@ def process_label(command: object) -> str:
 
 source_closure.run_process = recorded(process.run_process, process_label)
 cli.run_process = recorded(process.run_process, process_label)
-cli.parse = recorded(cli.parse, lambda _parser: "sql_parse")
+inputs.parse = recorded(inputs.parse, lambda _parser: "sql_parse")
 
 
 def trial(arguments: list[str]) -> dict[str, object]:
@@ -60,7 +61,7 @@ def trial(arguments: list[str]) -> dict[str, object]:
     started = time.perf_counter()
     try:
         status = str(cli.verify(cli.arguments(arguments))["status"])
-    except Rejection as rejection:
+    except (Rejection, SqlError) as rejection:
         status = rejection.status
     total = time.perf_counter() - started
     stages: dict[str, float] = {}
