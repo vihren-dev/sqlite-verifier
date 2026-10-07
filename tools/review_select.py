@@ -68,8 +68,10 @@ def reviewer_command(reviewer: Reviewer) -> list[str]:
     """The command line of one review; the instructions, with the commit, arrive on standard input."""
     if reviewer == "codex":
         # `codex review --commit` rejects custom instructions, so the review runs as a
-        # read-only `codex exec` session that is told which commit to review.
-        return ["codex", "exec", "--sandbox", "read-only", "--ephemeral", "-"]
+        # read-only `codex exec` session that is told which commit to review. Secondary jj
+        # workspaces have no `.git` directory, and Codex refuses to start outside a Git
+        # repository unless told to skip that check; the read-only sandbox still applies.
+        return ["codex", "exec", "--sandbox", "read-only", "--ephemeral", "--skip-git-repo-check", "-"]
     return ["claude", "-p", "--allowedTools", *CLAUDE_READ_ONLY_TOOLS]
 
 

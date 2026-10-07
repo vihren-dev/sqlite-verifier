@@ -1,15 +1,15 @@
-# Upstream release asset SHA-256 digests, verified against downloaded 4.33.0 archives.
+# Official release asset SHA-256 digests; Nix verifies the downloaded archives.
 { pkgs }:
 let
-  version = "4.33.0";
+  version = "4.34.1";
   archives = {
     aarch64-darwin = {
       platform = "darwin_aarch64";
-      hash = "sha256:db5274b669be270af048b5e4f1e0ce571df6750e411956b3e1e6fcc2012410c2";
+      hash = "sha256:65f22a4f047738ec742667b3247e836a86ebf06eabc12655c3dee00637e37866";
     };
     x86_64-linux = {
       platform = "linux";
-      hash = "sha256:4b3fb03c29a1e0a253fb1d11f9bae3725f19a0dc6fc09b3ea16d2c9df3349e2c";
+      hash = "sha256:47bf4bbd78f70c2e9670598ab7124d92b6efb7330ff33e5fbb4030f6fd72e4e4";
     };
   };
   archive = archives.${pkgs.stdenv.hostPlatform.system}

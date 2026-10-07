@@ -2,12 +2,13 @@
 
 import json
 from pathlib import Path
+import shlex
 import subprocess
 from unittest.mock import patch
 
 import pytest
 
-from tools.ci_checks import run_checks
+from tools.ci_checks import NIX_TEST_BUILD_OPTIONS, run_checks
 from tests.runtime_support import CommandResult, CommandTimeout
 
 pytestmark = [pytest.mark.unit, pytest.mark.environment]
@@ -16,7 +17,7 @@ pytestmark = [pytest.mark.unit, pytest.mark.environment]
 @pytest.mark.parametrize("mode", ["source", "build"])
 @pytest.mark.parametrize("system", ["aarch64-darwin", "x86_64-linux"])
 def test_ci_modes_retain_fresh_checks(tmp_path: Path, mode: str, system: str) -> None:
-    """Both modes keep host checks; only declared Nix mode supplies artifacts and cached build outputs."""
+    """Both modes retain complete host recipes and the selected native system's bundle schedule."""
     runtime = tmp_path / "runtime"
     (runtime / "build").mkdir(parents=True)
     original_bin = tmp_path / "original-bin"
@@ -39,8 +40,23 @@ def test_ci_modes_retain_fresh_checks(tmp_path: Path, mode: str, system: str) ->
          patch.dict("os.environ", {"SQLITE_VERIFIER_SYSTEM": system, "PATH": str(original_bin), "CC": "clang"}, clear=True):
         run_checks("package", mode, system, tmp_path)
         assert commands[-1] == ["just", "package"]
+        if system == "aarch64-darwin":
+            assert commands[-2][3] == "tests.bundle"
+        run_checks("infrastructure", mode, system, tmp_path)
+        assert commands[-1] == ["just", "test-full", "test-nix"]
+        run_checks("packaging", mode, system, tmp_path)
+        assert commands[-1] == ["just", "test-full", "runtime-package"]
         run_checks("test", mode, system, tmp_path)
     assert commands[-1] == ["just", "test-full"]
+    bundle_commands = [command for command in commands if "tests.bundle" in command]
+    if system == "aarch64-darwin":
+        assert len(bundle_commands) == 4
+        assert commands[-2] == bundle_commands[-1]
+        assert bundle_commands[0] == bundle_commands[1] == [
+            "nix-build", "build-support/default.nix", "-A", "tests.bundle",
+            "--out-link", "build/nix-tests-bundle", *NIX_TEST_BUILD_OPTIONS]
+    else:
+        assert bundle_commands == []
     if mode == "build":
         assert commands[0][3] == "runtime"
         assert environments[-1]["SQLITE_VERIFIER_RUNTIME_ROOT"] == str(runtime)
@@ -54,6 +70,28 @@ def test_ci_modes_retain_fresh_checks(tmp_path: Path, mode: str, system: str) ->
         assert commands[0] == ["just", "setup"]
         assert "SQLITE_VERIFIER_UNIT_CHECKS" not in environments[-1]
     assert all(row["exit_code"] == 0 for row in json.loads((tmp_path / "build/ci-phases.json").read_text()))
+
+
+def test_unknown_scope_is_rejected(tmp_path: Path) -> None:
+    """A scope that tests/ci_scope.py does not produce fails before any command runs."""
+    with patch("tools.ci_checks.run_command") as run, pytest.raises(ValueError, match="Unknown CI scope"):
+        run_checks("docs", "build", "x86_64-linux", tmp_path)
+    run.assert_not_called()
+
+
+def test_bundle_policy_matches_existing_nix_test_recipes() -> None:
+    """The isolated phase uses the actual complete recipes' isolation options, so their policies cannot drift."""
+    recipes = (Path(__file__).resolve().parents[1] / "justfile").read_text().splitlines()
+    targets: set[str] = set()
+    for line in recipes:
+        if not line.lstrip().startswith("timeout 900 nix-build "):
+            continue
+        words = shlex.split(line)
+        if "--option" not in words:
+            continue
+        targets.add(words[words.index("-A") + 1])
+        assert tuple(words[words.index("--option"):]) == NIX_TEST_BUILD_OPTIONS
+    assert targets == {"developmentTests", "tests", "tests.atuin"}
 
 
 def test_ci_failure_retains_phase_status(tmp_path: Path) -> None:

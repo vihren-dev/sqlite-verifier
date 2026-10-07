@@ -8,7 +8,7 @@ derivations as `checks.<system>`. The development shell remains
 
 Targets `leanToolchain`, `parsers`, `leanRuntime` and `runtime` share the locked
 nixpkgs input. Derivations build offline after their declared archives/packages
-are fetched. Lean is exactly 4.33.0; neither Elan nor a nixpkgs Lean version is
+are fetched. Lean is exactly 4.34.1; neither Elan nor a nixpkgs Lean version is
 used. Linux binaries use the pinned loader via autoPatchelf. Darwin upstream
 binaries already use bundled-relative/platform loaders.
 
@@ -35,32 +35,38 @@ missing required inputs. CI runs
 them on both native platforms whenever packaging is selected. Fixtures contain tiny
 synthetic inputs; they never copy a checkout or build a package.
 
-Archive digests were taken from the official GitHub v4.33.0 release asset metadata
-and verified by downloading both actual native archives on 2026-09-28. Darwin
-native graph/build/loader checks passed locally; Linux execution remains a native
-CI requirement. Evaluating its derivations on Darwin is not Linux validation.
+Lean archive digests come from the official GitHub v4.34.1 release asset metadata.
+Nix verifies each downloaded archive against its pinned digest. Native build,
+loader and installed-runtime checks must pass on both supported platforms;
+evaluating Linux derivations on Darwin does not validate Linux execution.
+The [upgrade status](../plans/20261006-lean-4-34-1-upgrade.status.md) records
+the actual verification evidence.
 
-`tests.kernel`, `tests.model`, `tests.sample`, `tests.upstream`, `tests.atuin`,
-`tests.cli` and `tests.bundle` are independent pytest derivations declared in
-`tests.nix`. `tests/nix_suites.json` gives their test-file ownership and also
+`tests.kernel`, `tests.model`, `tests.frozen`, `tests.harness`, `tests.sample`,
+`tests.upstream`, `tests.atuin`, `tests.cli` and `tests.bundle` are independent
+pytest derivations declared in `tests.nix`. `tests/nix_suites.json` gives their test-file ownership and also
 drives the host `--source-checks` exclusions. Kernel inputs are the test/Lean fixtures, shared pytest support,
-pinned Python/pytest and Lean toolchain/library/checker. Model inputs add its
-explicit conformance helpers, Python translator sources, parsers and pinned
-SQLite. Kernel/model targets exclude unrelated tests, examples and documentation. Atuin,
+pinned Python/pytest and Lean toolchain/library/checker. The model, frozen and
+harness inputs add their explicit conformance helpers, the SQL frontend modules
+in `tests/conformance_frontend.json`, parsers and pinned SQLite; only frozen adds
+the frozen corpora and retained reports. Kernel and conformance targets exclude
+unrelated tests, examples and documentation. Atuin,
 CLI and bundle each add their test files and the complete runtime (including Python
 implementation and examples); bundle also adds the Python sources its stage-reuse
 cases import. Changes to those runtime inputs invalidate all three. Changes to
-shared pytest support invalidate all seven. Nix owns all result reuse.
+shared pytest support invalidate all nine. Nix owns all result reuse.
 The sample owns the frozen v4 and synthetic inputs plus their shared replay and
 validation helpers. Full-only historical evidence and tests do not invalidate it.
-`developmentTests` selects every target except `tests.model`; the full target set
-remains in CI and packaging.
+`developmentTests` selects every target except `tests.model` and `tests.frozen`;
+the full target set remains in CI and packaging.
 
-`lean4export.nix` fetches lean4export at tag `v4.33.0` as a fixed-output source and
-applies `lean4export-skip-trusted.patch`. The Lean runtime copies that source to
+`lean4export.nix` fetches unpatched lean4export at tag `v4.34.0` as a fixed-output source.
+The Lean runtime copies that source to
 `build/lean4export` inside its derivation, where `lakefile.toml` expects the path
-dependency, to build `migration-bundle-checker`. The separately built `exporter`
-provides the `lean4export` executable that the runtime ships for `prepare`. See the
+dependency, to build `migration-bundle-checker` and the repository-owned
+`migration-proof-exporter`. Both executables ship from `leanRuntime`; there is
+no separately built upstream exporter or patch. `prepare` supplies its bundle
+header's trusted imports as explicit omission modules. See the
 [data path guide](../docs/data-path.md) for the upgrade procedure.
 
 `conformanceRuntime` builds the separate `VerifierConformance` Lean library and
@@ -81,7 +87,7 @@ Flake equivalence tests stage a temporary Git source boundary so the real Nix 2.
 subdirectory-flake command also works from a dedicated Jujutsu workspace without
 a colocated `.git`. The project itself continues to use Jujutsu.
 
-Run all seven checks through the flake:
+Run all nine checks through the flake:
 
 ```sh
 nix flake check ./nix -L \

@@ -61,8 +61,9 @@ One UTF-8 file:
    The checker imports them only from the sysroot and verifier library.
 2. A [lean4export](https://github.com/leanprover/lean4export) NDJSON 3.1.0 export
    of the proof, next/failure interpretations and their dependencies. Declarations
-   from `Init`, `Std`, `Lean` and `SqliteVerifier` are omitted, using the pinned
-   exporter's `--skip-trusted` option (see below).
+   supplied by the checker's trusted import closure are omitted. The exporter
+   uses each declaration's origin module, so a candidate module under a library
+   namespace is still exported.
 
 Other versions are rejected. The format is for trusted execution; hardened
 decoding of hostile bundles is part of the
@@ -93,21 +94,36 @@ still run in the Python frontend before the record is written, and the reported
 `generated/SqlInputs.lean` hash is unchanged. `verify` and `prepare` still compile
 `SqlInputs.lean`; `tests/generated_inputs_test.py` checks that both forms agree.
 
-## Pinned exporter and its patch
+## Pinned exporter library and driver
 
-The runtime ships lean4export at tag `v4.33.0`
-(`15f6055e299ad5b89345e533cc2192f4cc00f659`) with
-`build-support/lean4export-skip-trusted.patch`, built by
-`build-support/lean4export.nix`. The patch adds `--skip-trusted`. Decision
-(2026-09-29): keep the pinned patch for now. Proposing a general "omit declarations
-from these modules" option upstream is a separate, owner-approved step. When Lean
-is upgraded:
+The runtime ships `migration-proof-exporter`, built from `ProofExporter.lean`
+under Lean 4.34.1. It uses unpatched lean4export at tag `v4.34.0`
+(`076e8e57707e813375e8f9da8bf989799ace9680`), pinned by
+`build-support/lean4export.nix`. `prepare` passes `--omit=SqliteVerifier` plus
+one `--omit=MODULE` for every trusted import in the same bundle header.
+The driver marks exactly the declarations from those modules' import closure as
+visited before invoking upstream emission. Approved and generated declarations
+remain in the export for the checker to compare. Module origins work across
+Lake packages and do not depend on a model package's name or namespace.
+Lean resolves a package directory before its individual modules. Preparation
+uses a temporary merged view when a caller-owned module shares a package with
+the installed library. Each artifact keeps the existing search-root precedence;
+an installed trusted artifact wins over a candidate with the same path. The
+checker continues to load its trusted base from the original installed roots.
 
-1. Move the pin to the lean4export tag matching the new Lean version and update the
-   hash in `lean4export.nix`.
-2. Reapply the patch; it touches only `Export.lean`'s state and `dumpConstant`.
+The driver uses lean4export's internal `State.visitedConstants`, `M.run`,
+`initState`, `dumpMetadata` and `dumpConstant` interfaces. Upstream can change
+these interfaces without notice. When Lean is upgraded:
+
+1. Select the matching lean4export release and check that it builds under the new
+   Lean version. Update its commit and hash in `lean4export.nix`; a patch-level
+   Lean release can use the matching minor-release exporter tag.
+2. Check the internal interfaces used by `ProofExporter.lean`, and check Lean's
+   declaration-origin and module-import APIs. Keep upstream unsafe/partial
+   declaration handling unchanged.
 3. Rebuild and run `tests/bundle_test.py` (Nix target `tests.bundle`), which covers
-   parity with `verify` and the rejection cases.
+   parity with `verify` and the rejection cases. The exporter tests also check
+   the retained bundle byte identities and a candidate in a library namespace.
 4. Re-check the exporter's normalization (it removes metadata and sets `let`
    nondep flags to false). `BundleChecker.lean` applies the same normalization when
    comparing protected declarations.

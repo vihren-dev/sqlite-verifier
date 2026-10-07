@@ -1,5 +1,5 @@
 # Assemble immutable runtime artifacts for trusted source execution.
-{ pkgs, sources, leanToolchain, parsers, leanRuntime, exporter }:
+{ pkgs, sources, leanToolchain, parsers, leanRuntime }:
 let
   python = pkgs.python3;
   runtimePath = pkgs.lib.makeBinPath [ python ];
@@ -19,7 +19,6 @@ in pkgs.stdenv.mkDerivation {
     cp -R ${parsers}/build "$out/"
     cp -R ${leanRuntime}/.lake "$out/"
     chmod -R u+w "$out"
-    cp ${exporter}/bin/lean4export "$out/.lake/build/bin/"
     ln -s ${leanToolchain} "$out/lean"
     echo '${python}/bin/python3' > "$out/python-path"
     echo '${pkgs.stdenv.hostPlatform.system}' > "$out/platform"
