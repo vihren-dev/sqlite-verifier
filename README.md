@@ -43,7 +43,7 @@ in `lean-toolchain`. Initial dependency fetching needs network access; unchanged
 builds reuse Nix outputs. No Elan or Mathlib is required.
 
 The supported development systems are Apple Silicon macOS (`aarch64-darwin`)
-and Intel/AMD Linux (`x86_64-linux`). Lean is pinned to 4.33.0; native SQLite is
+and Intel/AMD Linux (`x86_64-linux`). Lean is pinned to 4.34.1; native SQLite is
 built from the official 3.51.0 autoconf archive with its default configuration
 and readline disabled. `nix build path:./nix#sqlite` builds that engine independently.
 SQLite's compile settings can be inspected with `sqlite3 :memory: 'PRAGMA compile_options;'`.

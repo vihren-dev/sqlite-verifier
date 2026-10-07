@@ -60,3 +60,9 @@ Relevant files: `lakefile.toml`, `SqliteVerifier.lean`,
   `build/t09-accepted-namespace-bounded-validation.json`. The repository has no
   new `belay/` or `packages/belay-sqlite/` tree. Delivery and final integration
   with the newly reviewed main remain pending.
+- Namespace amendment `bac76f40f3f9d4ed11abb247fe4f9d5db053bb46` passed
+  independent review `20261007T073445Z-bac76f40` with no findings. Integrated the
+  normally merged, reviewed Lean upgrade main
+  `bc9e2dce58f755b608cf00e545162257b81ab51a`. Only the journal conflicted.
+  Its 71 main rows and 61 accepted-task rows are retained as 75 distinct rows,
+  with both complete parent orders preserved. Main source is unchanged.

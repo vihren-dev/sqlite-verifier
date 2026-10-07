@@ -1,18 +1,18 @@
-# lean4export v4.33.0 with the ADR 0003 skip-trusted patch: source for the bundle
+# lean4export v4.34.0 with the ADR 0003 skip-trusted patch: source for the bundle
 # checker's Lake path dependency, and the exporter executable used by `prepare`.
 { pkgs, leanToolchain }:
 rec {
   src = pkgs.applyPatches {
-    name = "lean4export-v4.33.0-skip-trusted";
+    name = "lean4export-v4.34.0-skip-trusted";
     src = pkgs.fetchzip {
-      url = "https://github.com/leanprover/lean4export/archive/15f6055e299ad5b89345e533cc2192f4cc00f659.tar.gz";
-      hash = "sha256-7yxHyiUlXFVx4xBiSmtoKkh7FSgQrR5SXFgGj06yaaw=";
+      url = "https://github.com/leanprover/lean4export/archive/076e8e57707e813375e8f9da8bf989799ace9680.tar.gz";
+      hash = "sha256-sy3UivooYm1t1xdXu+/Fcq0x+U0V/6v19i1c/snnfFo=";
     };
     patches = [ ./lean4export-skip-trusted.patch ];
   };
   exporter = pkgs.stdenv.mkDerivation {
     pname = "sqlite-verifier-lean4export";
-    version = "4.33.0";
+    version = "4.34.0";
     inherit src;
     nativeBuildInputs = [ leanToolchain ]
       ++ pkgs.lib.optional pkgs.stdenv.hostPlatform.isLinux pkgs.autoPatchelfHook;
