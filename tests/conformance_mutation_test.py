@@ -10,7 +10,7 @@ import pytest
 from conformance.native_connection import Connection
 from conformance.native_trace import Fixture, initialize, record
 from conformance.model_check import compiled, evaluate
-from migration_check.sql_model import Table
+from belay.sqlite.sql_model import Table
 
 ROOT = Path(__file__).resolve().parents[1]
 pytestmark = [pytest.mark.integration, pytest.mark.conformance, pytest.mark.kernel,

@@ -21,7 +21,10 @@ the grammar before Nix compiles and links the C sources.
 `parsers/build/` retains both executables, Lemon tools and generated grammar for
 fresh host coverage. `leanRuntime/.lake/build/` contains the current Lean library
 and checker. `runtime/` assembles those outputs, source/module membership,
-examples and Python CLI. `just build` uses this same runtime and exposes local development
+examples, the `belay.sqlite` namespace frontend and the Python CLI.
+The frontend takes explicit parser and profile inputs. It has no dependency on
+the verification application. Application Lean emission lives in
+`migration_check/lean_inputs.py`; conformance calls frontend admission directly. `just build` uses this same runtime and exposes local development
 paths as links; it does not rebuild Lean through Elan or Lake outside Nix. It never caches a user
 proof verdict or installed test result. Set
 `SQLITE_VERIFIER_RUNTIME_ROOT` to this immutable output before `just test` or

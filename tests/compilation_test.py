@@ -11,7 +11,8 @@ import pytest
 
 from migration_check.compile import artifact_bytes, compile_modules, compile_project
 from migration_check.source_closure import CompileError, module_path
-from migration_check.sql_model import Column, Table, schema_inputs
+from belay.sqlite.sql_model import Column, Table
+from migration_check.lean_inputs import schema_inputs
 from tests.runtime_support import CommandResult
 from tests.source_fixtures import (CompilationFixture, DEEPER, FIXTURES, HELPER,
                                    compilation_case, source_runtime_only)

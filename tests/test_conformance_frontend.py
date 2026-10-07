@@ -14,8 +14,8 @@ import pytest
 
 ROOT = Path(__file__).resolve().parents[1]
 CONFORMANCE_SUITES = ("model", "frozen", "harness", "sample", "upstream")
-"""The Nix suites that receive the narrowed frontend inputs; the others get all of migration_check."""
-LOCAL_PACKAGES = ("conformance", "migration_check", "tests", "tools")
+"""The Nix suites that receive the narrowed frontend inputs; the others receive the application and frontend."""
+LOCAL_PACKAGES = ("belay", "conformance", "migration_check", "tests", "tools")
 """Repository packages whose imports are followed; other imports are standard or pinned libraries."""
 pytestmark = [pytest.mark.unit]
 
@@ -27,13 +27,14 @@ def imported_modules(path: Path, root: Path = ROOT) -> set[str]:
     is included when it is a module file. Imports inside functions count too, because
     they run when the function runs.
     """
-    package = path.parent.name
+    package = ".".join(path.relative_to(root).parts[:-1])
     names: set[str] = set()
     for node in ast.walk(ast.parse(path.read_text(encoding="utf-8"))):
         if isinstance(node, ast.ImportFrom):
             base = node.module or ""
-            if node.level == 1:
-                base = f"{package}.{base}" if base else package
+            if node.level:
+                parent = ".".join(package.split(".")[:len(package.split(".")) - node.level + 1])
+                base = f"{parent}.{base}" if base else parent
             names.add(base)
             names.update(f"{base}.{alias.name}" for alias in node.names
                          if module_file(f"{base}.{alias.name}", root) is not None)
@@ -69,7 +70,7 @@ def declared_frontend() -> set[str]:
 
 def test_declared_frontend_modules_exist() -> None:
     """A stale entry fails here instead of as a Nix evaluation error."""
-    missing = {name for name in declared_frontend() if not (ROOT / f"migration_check/{name}.py").is_file()}
+    missing = {name for name in declared_frontend() if not (ROOT / (name.replace(".", "/") + ".py")).is_file()}
     assert not missing, f"tests/conformance_frontend.json names missing modules: {sorted(missing)}"
 
 
@@ -84,12 +85,25 @@ def test_closure_follows_submodules_imported_from_a_package(tmp_path: Path) -> N
     assert "migration_check.secret" in import_closure(["tests/example_test.py"], tmp_path)
 
 
+def test_closure_follows_nested_frontend_relative_imports(tmp_path: Path) -> None:
+    """A relative frontend import resolves inside belay.sqlite and exposes application dependencies."""
+    for name, text in {"tests/example_test.py": "from belay.sqlite.sql_model import Table\n",
+                       "belay/sqlite/sql_model.py": "from . import helper\n",
+                       "belay/sqlite/helper.py": "from migration_check.secret import value\n",
+                       "migration_check/secret.py": "value = 1\n"}.items():
+        (tmp_path / name).parent.mkdir(parents=True, exist_ok=True)
+        (tmp_path / name).write_text(text, encoding="utf-8")
+    assert "migration_check.secret" in import_closure(["tests/example_test.py"], tmp_path)
+
+
 @pytest.mark.parametrize("suite", CONFORMANCE_SUITES)
 def test_suite_imports_only_declared_frontend_modules(suite: str) -> None:
     """Add a module that a conformance test starts to import to tests/conformance_frontend.json."""
     files = json.loads((ROOT / "tests/nix_suites.json").read_text(encoding="utf-8"))[suite]
-    used = {name.split(".", 1)[1] for name in import_closure(files)
-            if name.startswith("migration_check.")}
+    closure = import_closure(files)
+    application = {name for name in closure if name.startswith("migration_check.")}
+    assert not application, f"Suite {suite} imports application modules: {sorted(application)}"
+    used = {name for name in closure if name.startswith("belay.sqlite.")}
     undeclared = used - declared_frontend()
     assert not undeclared, (f"Suite {suite} imports frontend modules that its Nix inputs omit: "
                             f"{sorted(undeclared)}; add them to tests/conformance_frontend.json")

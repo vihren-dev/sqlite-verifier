@@ -64,11 +64,11 @@ def test_gcov_reached_function_denominator() -> None:
 def test_parser_failure_is_not_subset_exclusion(runtime_root: Path, monkeypatch: pytest.MonkeyPatch) -> None:
     """A timed-out or broken parser cannot turn a frozen native case into an unsupported verdict."""
     from conformance.native_replay import prepare
-    from migration_check.diagnostics import Rejection
+    from belay.sqlite.errors import SqlError
     record = load(ROOT / "conformance/corpus-v2")[1][-1]
     def failed(*args: object, **kwargs: object) -> None:
         """Inject the real parser's resource-failure category."""
-        raise Rejection("UNVERIFIED", "SQL parser exceeded its time limit", source="case.sql")
+        raise SqlError("UNVERIFIED", "SQL parser exceeded its time limit", source="case.sql")
     monkeypatch.setattr("conformance.native_replay.parse", failed)
     assert prepare(record, runtime_root / "build/sqlite-parser")[1]["verdict"] == "HARNESS_ERROR"
 

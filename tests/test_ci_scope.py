@@ -23,6 +23,8 @@ class CiScopeTest(unittest.TestCase):
                     (["SqliteVerifier/Preservation.lean"], "test"),
                     (["tests/coverage_test.py"], "test"), (["unknown/file"], "test"),
                     (["migration_check/prepare.py"], "test"), (["tools/review.py"], "test"),
+                    (["belay/sqlite/sql_model.py"], "packaging"),
+                    (["packages/belay-sqlite/Belay/Sqlite/Model.lean"], "packaging"),
                     (["packaging/install.py"], "packaging"), (["nix/flake.lock"], "package"),
                     (["tools/check_resources.py"], "infrastructure"),
                     (["build-support/default.nix"], "package"),

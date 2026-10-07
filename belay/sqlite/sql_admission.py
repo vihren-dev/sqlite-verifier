@@ -2,9 +2,8 @@
 
 from dataclasses import replace
 
-from .diagnostics import Rejection
-from .sql_model import Column, Statement, Table
-from .sql_values import SqlValue
+from .errors import SqlError
+from .sql_model import Column, Statement, Table, SqlValue
 
 NUMERIC_BYTES = frozenset(b'0123456789+-.eE \t\r\n\v\f')
 
@@ -75,5 +74,5 @@ def validate_writes(schema: tuple[Table, ...], script: tuple[Statement, ...]) ->
                 if not reason and any(not lossless(value, columns[name]) for name, value in zip(statement.names, statement.values)):
                     reason = 'Literal affinity conversion is outside the lossless supported subset'
             if reason:
-                raise Rejection('UNSUPPORTED', reason, source=statement.source,
+                raise SqlError('UNSUPPORTED', reason, source=statement.source,
                                 start=statement.start, end=statement.end)

@@ -1,15 +1,13 @@
-"""Version-one structural JSON for frontend results (`docs/conformance-format-v1.md`).
+"""Version-one structural JSON transports SQLite profiles, schemas and statements.
 
-One encoder serves both consumers of the Lean codec in `StructuralCodec.lean`: the
-conformance runner (ADR 0004) and the bundle checker's generated inputs (ADR 0003
-P3). Enum tags and field names follow Lean's derived JSON representation.
+Enum tags and named fields match the model codec. Typed cells preserve storage
+classes, and callers explicitly choose index ordering.
 """
 
 from typing import TypeAlias
 
 from .profiles import ExecutionProfile
-from .sql_model import Column, Statement, Table, transition
-from .sql_values import SqlValue
+from .sql_model import Column, Statement, Table, SqlValue, transition
 
 Json: TypeAlias = None | bool | int | str | list["Json"] | dict[str, "Json"]
 Cell: TypeAlias = tuple[int, int | bytes | None]
@@ -78,12 +76,9 @@ def statement_wire(statement: Statement) -> Json:
 
 def generated_inputs_wire(schema: tuple[Table, ...], script: tuple[Statement, ...],
                           profile: ExecutionProfile) -> dict[str, Json]:
-    """The record the bundle checker turns into `Generated.nextSchema`, `script` and `profile`.
-
-    `schema` lets the checker confirm the record matches the compiled starting schema.
-    """
+    """Encode the profile, both schemas and script with declaration-order indexes."""
     result, _ = transition(schema, script)
-    return {"version": 1, "profile": profile.lean().removeprefix("."),
+    return {"version": 1, "profile": profile.wire_tag,
             "schema": [schema_wire(table, canonical_indexes=False) for table in schema],
             "nextSchema": [schema_wire(table, canonical_indexes=False) for table in result],
             "script": [statement_wire(statement) for statement in script]}

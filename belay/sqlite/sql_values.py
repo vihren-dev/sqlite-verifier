@@ -1,11 +1,10 @@
 """Translate only literal stored values whose SQLite representation is explicit."""
 
 import re
-from typing import TypeAlias
 
 from .sql_tree import Node, Tree
 
-SqlValue: TypeAlias = int | str | bytes | None
+from .sql_model import SqlValue
 
 
 def literal(tree: Tree, node: Node) -> SqlValue:
@@ -44,11 +43,3 @@ def literal(tree: Tree, node: Node) -> SqlValue:
     raise tree.unsupported(node, 'Only NULL, decimal int64, text and blob literals are supported')
 
 
-def lean_value(value: SqlValue) -> str:
-    """Use bytes for SQLite TEXT/BLOB values and never interpolate executable source."""
-    if value is None:
-        return '.null'
-    if isinstance(value, int):
-        return f'.integer ({value})'
-    kind, data = ('text', value.encode('utf-8')) if isinstance(value, str) else ('blob', value)
-    return f'.{kind} [' + ', '.join(map(str, data)) + ']'

@@ -10,8 +10,9 @@ Source: [issue #31](https://github.com/vihren-dev/sqlite-verifier/issues/31).
 
 The owner-approved T10 card and accepted ADR define the package boundary.
 The first structural refactor separates model facts from application helpers.
-The standalone model package builds independently. Application integration and
-the Python frontend migration remain incomplete.
+The standalone model package builds independently. The Python frontend now
+lives in `belay.sqlite`; its source and sandbox checks pass. Application model
+integration and the two trusted compiled roots remain incomplete.
 
 The accepted ADR was delivered through
 [PR44](https://github.com/vihren-dev/sqlite-verifier/pull/44), normal merge
@@ -34,10 +35,10 @@ or receipts are not accepted inputs.
   [codec](../StructuralCodec.lean) and
   [conformance laws](../VerifierConformance/Laws.lean) show current ownership
   edges. Both schema lookups are structural dependencies of `Conforms`.
-- [Frontend types and emission](../migration_check/sql_model.py),
-  [parser](../migration_check/sql_tree.py),
-  [translation](../migration_check/translate.py),
-  [records](../migration_check/structural.py) and
+- [Frontend types and emission](../belay/sqlite/sql_model.py),
+  [parser](../belay/sqlite/sql_tree.py),
+  [translation](../belay/sqlite/translate.py),
+  [records](../belay/sqlite/structural.py) and
   [inputs](../migration_check/inputs.py) show the shared-record boundary.
   Current type methods, profiles and values also emit Lean text; neutral errors
   currently share application diagnostics. These edges need explicit ownership.
@@ -216,4 +217,48 @@ five documentation and diagnostic suggestions are recorded as fixed.
 The source duplication suggestion is deferred to the next application
 integration unit. That unit must update all callers and delete the original
 model, laws and codec paths. No compatibility path is part of final T10
-acceptance. This correction awaits independent review.
+acceptance. Correction `0d37929f` passes independent review with no findings
+(`20261007T152055Z-0d37929f`).
+
+
+## Independent Python frontend checkpoint
+
+The ten frontend modules move to `belay/sqlite/`, with independent SQL refusal
+and admission modules. The parent namespace has no initializer and contains
+only `sqlite/`. Normalized model types no longer import parser I/O or emit
+Lean. `ExecutionProfile.wire_tag` supplies structural tags directly.
+Application constructor and Generated input emission moves to
+`migration_check/lean_inputs.py`. All old frontend implementation paths are
+deleted, and current callers, experiments and local document links are updated.
+Conformance calls the same admission function before execution and imports
+no verification application module. Inert string quotation is shared transport.
+
+The conformance frontend list uses full module names, and its import checker
+resolves nested relative imports. A regression fixture follows a forbidden
+application edge. Nix includes the new frontend in the runtime and affected
+suites. CI selects packaging checks for frontend and model package changes.
+The two new real-parser boundary checks belong to `harness`.
+
+All 138 focused frontend, parser and generated-input parity checks pass in
+26.37 seconds under a 180-second outer limit. All 373 source-owned checks
+and 37 subtests pass in 44.94 seconds under the existing 600-second limit.
+All 102 selected Nix identity, suite ownership, frontend closure and routing
+checks and 37 subtests pass in 105.41 seconds under a 180-second limit.
+Original XML files remain in `build/t10-standalone-model-darwin/`.
+The final hardened runtime is
+`/nix/store/jfbgdmz32id477ygz83550xfxrcp43nv-sqlite-verifier-runtime-1`.
+The complete hardened harness passes all 122 checks in 2.520 seconds with
+no failures, errors or skips. Its actual output is
+`/nix/store/absh3bw7b34bf86s04dmrj69vxanp5cz-sqlite-verifier-test-harness-1`.
+The final runtime and harness logs are retained beside the XML. Frozen corpus
+and historical receipt bytes remain unchanged. Authored Markdown links resolve.
+
+Model caller migration, deletion of the original Lean paths, runtime trust,
+full native suites and installed archives remain required. This frontend unit
+awaits independent review. T10 is not DONE.
+
+The complete public CLI suite passes all 14 checks in
+35.791 seconds under the same hardened sandbox and existing
+suite limits. The launcher preserves positive, refutation and refusal outcomes
+on the moved frontend. Its XML and build log remain retained; actual output
+is `/nix/store/z065a6d9i9klrkmrz6n1gnxr6l1x48c5-sqlite-verifier-test-cli-1`.

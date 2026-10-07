@@ -5,7 +5,7 @@ import os
 from pathlib import Path
 import subprocess
 
-from migration_check.diagnostics import Rejection
+from belay.sqlite.errors import SqlError
 from conformance.case_format import Json
 from conformance.model_assertions import assertions, audit_axioms
 from conformance.native_trace import Fixture, record
@@ -40,7 +40,7 @@ def acquire(fixture: Fixture, runtime: Path) -> tuple[dict[str, Json] | None, di
     """Keep acquisition errors separate from cases submitted to the model."""
     try:
         return record(fixture, runtime / "build/sqlite-parser"), {}
-    except Rejection as error:
+    except SqlError as error:
         return None, {"verdict": "MODEL_UNSUPPORTED" if error.status == "UNSUPPORTED" else "HARNESS_ERROR",
                       "error": str(error)}
     except (RuntimeError, ValueError, OSError, subprocess.SubprocessError) as error:

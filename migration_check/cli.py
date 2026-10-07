@@ -8,6 +8,7 @@ from tempfile import TemporaryDirectory
 from collections.abc import Sequence
 
 from .diagnostics import Rejection
+from belay.sqlite.errors import SqlError
 from .inputs import generated_inputs, read_sql
 from .runtime import Runtime
 from .process import run_process
@@ -102,7 +103,7 @@ def main(values: Sequence[str]) -> int:
             result = verify_bundle(options)
         else:
             result = verify(options)
-    except Rejection as error:
+    except (Rejection, SqlError) as error:
         result = error.diagnostic()
     except (ValueError, OSError) as error:
         result = Rejection("INPUT_ERROR", str(error)).diagnostic()

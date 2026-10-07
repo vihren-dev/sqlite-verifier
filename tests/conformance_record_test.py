@@ -18,7 +18,7 @@ def test_outside_subset_survives(runtime_root: Path, monkeypatch: pytest.MonkeyP
         raise AssertionError("translator invoked by native recording")
 
     with monkeypatch.context() as patch:
-        patch.setattr("migration_check.sql_tree.parse", reject)
+        patch.setattr("belay.sqlite.sql_tree.parse", reject)
         record = record_sql("CREATE TABLE t(k TEXT PRIMARY KEY,v INTEGER CHECK(v>0)) WITHOUT ROWID; "
             "CREATE VIEW v AS SELECT * FROM t; CREATE TRIGGER tr AFTER INSERT ON t "
             "BEGIN UPDATE t SET v=v+1 WHERE k=new.k; END;",

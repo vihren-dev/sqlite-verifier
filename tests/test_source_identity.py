@@ -20,6 +20,7 @@ DYNAMIC: dict[str, set[str]] = {
     "SqliteVerifier/ContractProofs.lean": {"lean", "conformanceLean"},
     "SqliteVerifier/SqlProofs.lean": {"lean", "conformanceLean"},
     "VerifierConformance/Trace.lean": {"conformanceLean"},
+    "belay/sqlite/sql_model.py": {"runtime"},
     "migration_check/runtime.py": {"runtime"}, "tests/test_input.py": set(),
     "packaging/helper.py": set(), "tools/helper.py": set(),
     "conformance/check.py": set(), "examples/example.sql": {"runtime"},
@@ -32,7 +33,7 @@ FIXED: dict[str, set[str]] = {
     "packaging/install.py": {"runtime"},
     **{name: {"lean", "conformanceLean"} for name in ("lakefile.toml", "lake-manifest.json", "lean-toolchain")},
 }
-PARENTS: tuple[str, ...] = (".", "parser", "SqliteVerifier", "VerifierConformance", "migration_check", "tests", "packaging", "tools",
+PARENTS: tuple[str, ...] = (".", "parser", "SqliteVerifier", "VerifierConformance", "migration_check", "belay/sqlite", "tests", "packaging", "tools",
            "conformance", "examples", "packages/belay-sqlite", "packages/belay-sqlite/Belay/Sqlite")
 IGNORED: tuple[str, ...] = (".git", ".jj", ".lake", "build", "dist", "__pycache__")
 

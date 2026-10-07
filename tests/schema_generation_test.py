@@ -6,10 +6,10 @@ import os
 
 import pytest
 
-from migration_check.profiles import ExecutionProfile
-from migration_check.sql_model import schema_inputs, sql_inputs
-from migration_check.sql_tree import parse
-from migration_check.translate import starting_schema, statements
+from belay.sqlite.profiles import ExecutionProfile
+from migration_check.lean_inputs import schema_inputs, sql_inputs
+from belay.sqlite.sql_tree import parse
+from belay.sqlite.translate import starting_schema, statements
 from tests.sql_fixtures import RICH_BASELINE
 from tests.runtime_support import CommandResult
 

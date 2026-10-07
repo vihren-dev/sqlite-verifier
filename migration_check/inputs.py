@@ -10,12 +10,12 @@ import hashlib
 from pathlib import Path
 
 from .diagnostics import Rejection
-from .profiles import ExecutionProfile, profile
+from belay.sqlite.profiles import ExecutionProfile, profile
 from .runtime import Runtime
-from .sql_model import schema_inputs, sql_inputs
-from .structural import Json, generated_inputs_wire
-from .sql_tree import parse
-from .translate import starting_schema, statements
+from .lean_inputs import schema_inputs, sql_inputs
+from belay.sqlite.structural import Json, generated_inputs_wire
+from belay.sqlite.sql_tree import parse
+from belay.sqlite.translate import starting_schema, statements
 
 
 def read_sql(path: Path) -> bytes:
@@ -53,7 +53,7 @@ def generated_inputs(options: argparse.Namespace) -> GeneratedInputs:
     schema_hash = hashlib.sha256(schema_bytes).hexdigest()
     hashes = {"schema.sql": schema_hash, "migration.sql": hashlib.sha256(migration_bytes).hexdigest(),
               "profile": selected.engine}
-    # sql_inputs also runs the frontend's migration and write validation.
+    # Lean emission calls the same frontend admission as native and model consumers.
     sql_source = sql_inputs(schema, script, selected)
     return GeneratedInputs(selected, schema_inputs(schema), sql_source, schema_hash, len(script), hashes,
                            generated_inputs_wire(schema, script, selected))

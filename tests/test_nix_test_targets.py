@@ -65,7 +65,7 @@ def source_tree(tmp_path: Path) -> Path:
     """Copy only small potential test inputs; no store outputs, vendored parsers or build trees."""
     for name in ('pytest.ini', 'conftest.py', 'LICENSE'):
         shutil.copy2(ROOT / name, tmp_path / name)
-    for name in ('tests', 'migration_check', 'conformance', 'examples', 'docs', 'packaging', 'packages', 'SqliteVerifier', 'VerifierConformance', 'reports', 'nix', 'build-support', 'tools'):
+    for name in ('tests', 'migration_check', 'belay', 'conformance', 'examples', 'docs', 'packaging', 'packages', 'SqliteVerifier', 'VerifierConformance', 'reports', 'nix', 'build-support', 'tools'):
         shutil.copytree(ROOT / name, tmp_path / name,
                         ignore=shutil.ignore_patterns('__pycache__', '*.pyc', 'upstream'))
     return tmp_path
@@ -106,7 +106,7 @@ def source_tree(tmp_path: Path) -> Path:
     ('conformance/case_format.py', {'model', 'frozen', 'harness', 'sample', 'upstream'}),
     ('VerifierConformance/Trace.lean', {'model', 'frozen', 'harness'}),
     ('tests/conformance_pipeline_test.py', {'model'}),
-    ('migration_check/translate.py', {'model', 'frozen', 'harness', 'sample', 'upstream', 'atuin', 'cli', 'bundle'}),
+    ('belay/sqlite/translate.py', {'model', 'frozen', 'harness', 'sample', 'upstream', 'atuin', 'cli', 'bundle'}),
     ('migration_check/prepare.py', {'atuin', 'cli', 'bundle'}),
     ('conftest.py', {'kernel', 'model', 'frozen', 'harness', 'sample', 'upstream', 'atuin', 'cli', 'bundle'}),
     ('tests/atuin_cli_test.py', {'atuin'}),

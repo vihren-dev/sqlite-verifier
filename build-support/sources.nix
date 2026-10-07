@@ -30,6 +30,7 @@ in {
   };
   runtime = source (fs.unions [
     (extensions [ "py" ] (root + /migration_check))
+    (extensions [ "py" ] (root + /belay/sqlite))
     (filtered (file: file.name != ".DS_Store" && !file.hasExt "pyc") (root + /examples))
     (root + /LICENSE) (root + /docs/install.md)
     (root + /packaging/install.py) (root + /packaging/install.sh)

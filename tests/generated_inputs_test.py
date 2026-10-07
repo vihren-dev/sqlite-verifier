@@ -8,11 +8,11 @@ from pathlib import Path
 import pytest
 
 from migration_check.contract import Contract, compile_trusted
-from migration_check.profiles import profile
-from migration_check.sql_model import schema_inputs, sql_inputs
-from migration_check.sql_tree import Tree
-from migration_check.structural import Json, generated_inputs_wire
-from migration_check.translate import starting_schema, statements
+from belay.sqlite.profiles import profile
+from migration_check.lean_inputs import schema_inputs, sql_inputs
+from belay.sqlite.sql_tree import Tree
+from belay.sqlite.structural import Json, generated_inputs_wire
+from belay.sqlite.translate import starting_schema, statements
 from tests.runtime_support import CommandResult, run_command
 from tests.sql_fixtures import RICH_BASELINE
 

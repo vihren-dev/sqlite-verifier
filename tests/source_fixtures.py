@@ -13,7 +13,7 @@ import pytest
 from migration_check.cli import arguments
 from migration_check.compile import CompiledProject, compile_project
 from migration_check.runtime import Runtime
-from migration_check.sql_model import schema_inputs, sql_inputs
+from migration_check.lean_inputs import schema_inputs, sql_inputs
 
 FIXTURES = Path(__file__).resolve().parent / "kernel_gate"
 HELPER = b"/- import Ignored -/\nimport Deeper\ndef approvedHelper : Nat := deeperValue\n"

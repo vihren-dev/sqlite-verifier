@@ -18,7 +18,7 @@ let
   suiteTimeoutSeconds = 1200;
   # The conformance suites use only the SQL frontend, not the verification application.
   # tests/test_conformance_frontend.py checks this list against the actual imports.
-  frontend = map (name: root + "/migration_check/${name}.py")
+  frontend = map (name: root + "/${builtins.replaceStrings [ "." ] [ "/" ] name}.py")
     (builtins.fromJSON (builtins.readFile (root + /tests/conformance_frontend.json)));
   leanRoot = pkgs.runCommand "sqlite-verifier-test-lean" {} ''
     mkdir -p "$out"
@@ -147,6 +147,7 @@ in {
   bundle = suite "bundle" {
     inputs = [
       (fs.fileFilter (file: file.hasExt "py") (root + /migration_check))
+      (fs.fileFilter (file: file.hasExt "py") (root + /belay/sqlite))
       (fs.fileFilter (file: file.hasExt "json") (root + /conformance/cases))
       (root + /tests/sql_fixtures.py)
     ];

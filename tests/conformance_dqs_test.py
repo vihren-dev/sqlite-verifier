@@ -3,10 +3,10 @@
 from pathlib import Path
 import pytest
 from conformance.native_connection import Connection, library_path, load_library
-from migration_check.diagnostics import Rejection
-from migration_check.sql_tree import parse
-from migration_check.sql_model import sql_inputs
-from migration_check.translate import starting_schema, statements
+from belay.sqlite.errors import SqlError
+from belay.sqlite.sql_tree import parse
+from belay.sqlite.admission import admit
+from belay.sqlite.translate import starting_schema, statements
 
 pytestmark = [pytest.mark.integration, pytest.mark.conformance,
               pytest.mark.requires_native("sqlite3", "sqlite3-3.46.0", "sqlite-parser", "sqlite-parser-3.46.0")]
@@ -26,20 +26,20 @@ def test_library_default_and_frontend(version: str, suffix: str, runtime_root: P
         connection.query('CREATE TABLE checks(x CHECK(x != "forbidden"));')
         connection.query('CREATE INDEX i ON t("nosuch");')
         assert connection.query("PRAGMA index_xinfo(i);")[0][1] == (1, -2)
-        with pytest.raises(Rejection) as caught:
+        with pytest.raises(SqlError) as caught:
             starting_schema(parse(parser, (schema_sql + 'CREATE INDEX i ON t("nosuch");').encode(), "index.sql", version))
         assert caught.value.status == "UNSUPPORTED"
         indexed = starting_schema(parse(parser, (schema_sql + 'CREATE INDEX i ON t("id");').encode(), "index.sql", version))
         assert indexed[0].indexes[0].columns == ("id",)
         schema = starting_schema(parse(parser, schema_sql.encode(), "schema.sql", version))
         good = statements(parse(parser, b'UPDATE "t" SET "value"=\'ok\' WHERE "id"=1;', "good.sql", version))
-        sql_inputs(schema, good)
+        admit(schema, good)
         for sql in ('INSERT INTO t(id,value) VALUES(2,"fallback");',
                     'UPDATE t SET value="fallback" WHERE id=1;',
                     'UPDATE t SET value=\'ok\' WHERE "absent"=1;',
                     'CREATE INDEX i ON t("nosuch");'):
-            with pytest.raises(Rejection) as caught:
-                sql_inputs(schema, statements(parse(parser, sql.encode(), "bad.sql", version)))
+            with pytest.raises(SqlError) as caught:
+                admit(schema, statements(parse(parser, sql.encode(), "bad.sql", version)))
             assert caught.value.status == "UNSUPPORTED"
     finally:
         connection.close()

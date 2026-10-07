@@ -2,7 +2,7 @@
 
 from dataclasses import replace
 
-from .diagnostics import Rejection
+from .errors import SqlError
 from .schema_syntax import baseline_column, key_columns, unique_keys
 from .sql_model import Column, Index, Statement, Table
 from .sql_tree import Node, Tree
@@ -83,11 +83,11 @@ def schema(tree: Tree) -> tuple[Table, ...]:
         else:
             raise tree.unsupported(command, "Starting schema requires supported tables and indexes")
         if name in names:
-            raise Rejection("INPUT_ERROR", "Starting schema contains duplicate object names", source=tree.source)
+            raise SqlError("INPUT_ERROR", "Starting schema contains duplicate object names", source=tree.source)
         names.add(name)
     for owner, index in indexes:
         if owner not in tables:
-            raise Rejection("INPUT_ERROR", "Index references a missing table", source=tree.source)
+            raise SqlError("INPUT_ERROR", "Index references a missing table", source=tree.source)
         tables[owner] = replace(tables[owner], indexes=tables[owner].indexes + (index,))
     for table in tables.values():
         statistics = {"sqlite_stat1": ("tbl", "idx", "stat"),
@@ -96,12 +96,12 @@ def schema(tree: Tree) -> tuple[Table, ...]:
             expected = Table(table.name, tuple(Column(name, "blob", "untyped")
                                                for name in statistics[table.name]))
             if table != expected:
-                raise Rejection("UNSUPPORTED", "Statistics tables require their exact native definition",
+                raise SqlError("UNSUPPORTED", "Statistics tables require their exact native definition",
                                 source=tree.source)
         column_names = {column.name for column in table.columns}
         keys = (*table.unique_keys, *(index.columns for index in table.indexes))
         if any(not key or len(set(key)) != len(key) or not set(key) <= column_names for key in keys):
-            raise Rejection("UNSUPPORTED", "Keys require distinct existing columns", source=tree.source)
+            raise SqlError("UNSUPPORTED", "Keys require distinct existing columns", source=tree.source)
     return tuple(tables.values())
 
 
@@ -111,5 +111,5 @@ def validate_migration(schema: tuple[Table, ...], script: tuple[Statement, ...])
            any(column.not_null or column.current_timestamp for column in table.columns) for table in schema):
         for statement in script:
             if statement.kind == "createTable":
-                raise Rejection("UNSUPPORTED", "CREATE TABLE with baseline keys or indexes is not modeled",
+                raise SqlError("UNSUPPORTED", "CREATE TABLE with baseline keys or indexes is not modeled",
                                 source=statement.source, start=statement.start, end=statement.end)

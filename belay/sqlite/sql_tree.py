@@ -7,7 +7,7 @@ import subprocess
 from tempfile import TemporaryDirectory
 from collections.abc import Iterator
 
-from .diagnostics import Rejection
+from .errors import SqlError
 
 
 @dataclass(frozen=True)
@@ -45,9 +45,9 @@ class Tree:
             yield current
             pending.extend(reversed(self.children(current)))
 
-    def unsupported(self, node: Node, message: str) -> Rejection:
+    def unsupported(self, node: Node, message: str) -> SqlError:
         """Locate a semantic admission failure in the original input."""
-        return Rejection("UNSUPPORTED", message, source=self.source,
+        return SqlError("UNSUPPORTED", message, source=self.source,
                          start=node.start, end=node.end)
 
 
@@ -60,12 +60,12 @@ def parse(parser: Path, sql: bytes, source: str, expected_profile: str = "3.51.0
             result = subprocess.run([str(parser), str(snapshot)], capture_output=True,
                                     text=True, timeout=5)
         except subprocess.TimeoutExpired as error:
-            raise Rejection("UNVERIFIED", "SQL parser exceeded its time limit", source=source) from error
+            raise SqlError("UNVERIFIED", "SQL parser exceeded its time limit", source=source) from error
     try:
         payload = json.loads(result.stdout)
         if payload["status"] != "PARSED":
             status = "UNVERIFIED" if payload["status"] == "RESOURCE_LIMIT" else "INPUT_ERROR"
-            raise Rejection(status, str(payload.get("message", "SQL parser rejected input")),
+            raise SqlError(status, str(payload.get("message", "SQL parser rejected input")),
                             source=source, start=int(payload.get("offset", 0)))
         if result.returncode != 0 or payload["profile"] != expected_profile:
             raise ValueError("Parser build/profile mismatch")
@@ -81,4 +81,4 @@ def parse(parser: Path, sql: bytes, source: str, expected_profile: str = "3.51.0
             raise ValueError("Invalid syntax-tree root")
         return Tree(source, sql, nodes, root)
     except (ValueError, KeyError, TypeError) as error:
-        raise Rejection("UNVERIFIED", f"Parser output is unusable: {error}", source=source) from error
+        raise SqlError("UNVERIFIED", f"Parser output is unusable: {error}", source=source) from error

@@ -11,8 +11,8 @@ from conformance.generated_program import Program, command, native_laws
 from conformance.model_check import acquire, compiled
 from conformance.native_record import record_sql
 from conformance.native_replay import prepare
-from migration_check.sql_model import Affinity
-from migration_check.sql_values import SqlValue
+from belay.sqlite.sql_model import Affinity
+from belay.sqlite.sql_values import SqlValue
 
 VALUES = {
     "blob": [None, "", "1", " 1", "1.0", "a'\nb", b"", b"\x00\xff", -(2**63), 2**63-1],

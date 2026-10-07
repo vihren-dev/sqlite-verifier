@@ -50,7 +50,8 @@
     "tests/conformance_driver_profiles_test.py",
     "tests/conformance_readonly_workload_test.py",
     "tests/conformance_context_test.py",
-    "tests/conformance_requirement_coverage_test.py"
+    "tests/conformance_requirement_coverage_test.py",
+    "tests/conformance_frontend_boundary_test.py"
   ],
   "sample": [
     "tests/conformance_tiers_test.py",

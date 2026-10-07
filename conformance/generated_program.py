@@ -6,10 +6,10 @@ from pathlib import Path
 from conformance.case_format import Json, statement_wire
 from conformance.native_trace import Fixture
 from conformance.native_connection import Cell
-from migration_check.sql_model import Affinity, Column, Statement
-from migration_check.sql_tree import parse
-from migration_check.sql_values import SqlValue
-from migration_check.translate import statements
+from belay.sqlite.sql_model import Affinity, Column, Statement
+from belay.sqlite.sql_tree import parse
+from belay.sqlite.sql_values import SqlValue
+from belay.sqlite.translate import statements
 
 
 def literal(value: SqlValue) -> str:

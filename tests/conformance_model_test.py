@@ -11,9 +11,9 @@ from conformance.model_cases import cases
 from conformance.native_trace import record
 from conformance.model_check import compiled, prove
 from conformance.pipeline import fixtures
-from migration_check.sql_model import Affinity, Column, Table, transition
-from migration_check.sql_tree import parse
-from migration_check.translate import statements
+from belay.sqlite.sql_model import Affinity, Column, Table, transition
+from belay.sqlite.sql_tree import parse
+from belay.sqlite.translate import statements
 
 pytestmark = [pytest.mark.integration, pytest.mark.conformance, pytest.mark.kernel,
               pytest.mark.requires_lean, pytest.mark.requires_native("sqlite-parser", "sqlite3")]

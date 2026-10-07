@@ -13,7 +13,7 @@ import pytest
 from tests.runtime_support import run_command
 
 if TYPE_CHECKING:
-    from migration_check.sql_tree import Tree
+    from belay.sqlite.sql_tree import Tree
 
 
 def require_file(path: Path, *, executable: bool = False) -> Path:
@@ -83,7 +83,7 @@ def parse_sql(runtime_root: Path) -> Callable[..., Tree]:
     The implementation import stays inside the fixture: Nix test targets that do not
     declare the Python sources still load this plugin.
     """
-    from migration_check.sql_tree import parse
+    from belay.sqlite.sql_tree import parse
 
     def parse_with_selected_grammar(sql: str, version: str = "3.51.0") -> Tree:
         """Choose the parser binary matching the release so its profile check passes."""
