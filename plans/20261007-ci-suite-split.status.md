@@ -53,3 +53,17 @@ push changed only `plans/`, `reviews/`, `reports/` or documentation.
   macOS stores evict each other, and a cache saved for each pull request push
   would evict the `main` entry. Saving on pull requests is not implemented;
   the owner decides between a smaller store, a binary cache or no change.
+- 2026-10-07: Owner chose to shrink the cache. Measurement on macOS: the
+  closure that one commit needs (outputs of the test targets, runtimes,
+  parsers, dev shell and their build inputs) is 131 paths, 5.15 GB
+  uncompressed and 1.34 GB with zstd. The 5.8 GB Linux cache therefore holds
+  mostly outputs of older commits. `tools/ci_store_gc.py` roots the current
+  closure and collects the rest before the save; the cache key now ignores
+  `plans/` and `reviews/`, and every run saves, so outcome 4 is back in scope.
+  Root registration was checked locally without collecting; collection itself
+  can be checked only in CI.
+- 2026-10-07: Review tooling. `just review` failed twice (exit 3) because Codex
+  refuses to run without a `.git` directory, which secondary jj workspaces lack.
+  Fix `0d8cf966` passes `--skip-git-repo-check`; its review passed. Review of
+  `437ce97c` found one must (package submodule imports skipped by the frontend
+  check) and three shoulds; all fixed in `023d9df8`, whose review passed.

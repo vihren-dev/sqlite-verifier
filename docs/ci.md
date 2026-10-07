@@ -73,15 +73,24 @@ Development `just test` selects `developmentTests`, the same targets except
 host `--source-checks` exclusion list. Source-owned conformance checks remain
 fresh. Every scope from `test` up runs all Nix targets.
 
-The pinned cache-nix-action restores the Nix store using a platform/environment
-prefix and a commit-specific key. Only successful `main` and nightly jobs save
-caches. Pull requests and tags restore them. Nix, not the GitHub cache key,
-determines which outputs can be reused. An unrelated test edit can reuse kernel/model
-results; changing a declared input creates a different test derivation. No extra
-signing credentials, custom source fingerprinting in production CI, or checkout
-build caches are required. One saved store is about 6 GB, and GitHub keeps at most
-10 GB of caches for the repository, so the Linux and macOS caches can evict each
-other; an evicted platform then starts from an empty store.
+The pinned cache-nix-action restores the Nix store and saves it again after the
+checks, on every run. The cache key is the platform, the Nix pins and a hash of
+every file except `plans/` and `reviews/`. A push that changes only task records
+therefore restores the exact store of the earlier push, finds every Nix target
+cached and saves nothing. Any other push restores the newest store with the same
+platform and pins: first the pull request's own, then the one from `main`. A pull
+request's cache is visible only to its own later runs. Nix, not the GitHub cache
+key, determines which outputs can be reused; changing a declared input creates a
+different test derivation. No extra signing credentials are required.
+
+Before the save, `tools/ci_store_gc.py` registers garbage-collector roots for the
+test targets, runtimes, parsers, development shell and flake inputs of the current
+commit, and removes every other store path. Nix keeps the outputs of rooted
+derivations' build inputs (`keep-outputs`). Without this step the store kept every
+older commit's outputs and grew to 5.8 GB for Linux, while one commit needs about
+1.4 GB compressed; GitHub keeps at most 10 GB of caches for a repository, so the
+platform caches evicted each other. A path removed by mistake costs a rebuild in a
+later run and cannot change a result. The step may fail without failing the job.
 
 Host JUnit reports, cached Nix test outputs and CI phase diagnostics are
 retained for 14 days. Pytest's exit status decides success. Individual subprocess
