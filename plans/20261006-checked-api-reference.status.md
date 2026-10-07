@@ -693,3 +693,10 @@ Both authored-link checks pass in 0.48 seconds under a 60-second bound.
 The incoming main and evidence-parent journals remain ordered subsequences
 of the current journal, including repeated rows. All original native and
 Linux member hashes verify. Final publication review remains required.
+
+
+Current-main publication integration `6ff39df6` passes independent review
+`20261007T190331Z-6ff39df6` with no findings. The final evidence is ready
+for publication in PR57 against accepted main `d75fdc2b`. Both prior native
+acceptance records and all tested input identities remain unchanged. Fresh
+publication CI remains required before normal merge. This task is not DONE.
