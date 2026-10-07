@@ -466,3 +466,12 @@ until owner approval and normal delivery.
   Baseline enforcement and raw SQL pins are unchanged.
 - Approve the one completed test-temp directory in the separate cleanup
   proposal before further expensive local work.
+
+
+PR56 is ready for final owner review at published head `0e8c57a2`. Its
+final-head Linux CI `37659387986`, job `112922702589`, succeeds. The macOS
+PR job skips checks; complete native macOS evidence is retained separately.
+The protected baseline check requires explicit owner review of the changed
+pins. The published branch is frozen during review except for requested
+fixes. This local status checkpoint does not move that branch. Approval,
+normal merge and task closeout remain pending.
