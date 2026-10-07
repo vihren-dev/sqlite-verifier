@@ -34,3 +34,13 @@ Relevant files: `lakefile.toml`, `SqliteVerifier.lean`,
   Review record: `20261006T092414Z-996cc60e`. The ADR is ready for final owner
   acceptance. It remains PROPOSED; dependent package/execution changes wait
   for that acceptance. This task is not DONE.
+- 2026-10-07: The owner accepted PR44 with the Python import/layout amendment
+  `belay.sqlite`, a `belay/` namespace directory without `__init__.py`, and only
+  its `sqlite/` child initially. Package/execution implementation remains gated
+  and unstarted; this task resumes only the accepted ADR and delivery update.
+- Integrated reviewed main `6852f6fac316b2f5c177d561ba924e7c73640f9e` using a
+  merge. Only the review journal conflicted. Preserved its 57 main rows and
+  11 task rows as 59 distinct rows, retaining each complete parent order.
+  The diff against main contains only this ADR, its task/status and the journal.
+  Every main source file is unchanged. The accepted namespace amendment and
+  final delivery remain to be recorded; this task is IN PROGRESS.

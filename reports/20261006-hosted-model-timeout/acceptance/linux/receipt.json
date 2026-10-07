@@ -1,0 +1,319 @@
+{
+  "head": "b78834000049bfca9ad57bbc6d522827fe35b9ae",
+  "checkout": "4056410cc327dffc6a457368ed2061199a0b8ade",
+  "run": 37512848112,
+  "job": 112438177974,
+  "conclusion": "success",
+  "recipeGitBlob": "0977664bc1ee5b38ff71c84c604f2a94b72fd5a9",
+  "modelLimitSeconds": 600,
+  "otherSuiteLimitSeconds": 420,
+  "artifacts": [
+    {
+      "id": 11437315288,
+      "name": "case-reports-x86_64-linux",
+      "size_in_bytes": 34608,
+      "url": "https://api.github.com/repos/vihren-dev/sqlite-verifier/actions/artifacts/11437315288",
+      "archive_download_url": "https://api.github.com/repos/vihren-dev/sqlite-verifier/actions/artifacts/11437315288/zip",
+      "expired": false,
+      "created_at": "2026-10-06T18:47:12Z",
+      "expires_at": "2026-10-20T18:47:11Z",
+      "updated_at": "2026-10-06T18:47:12Z",
+      "digest": "sha256:400d37b971570edc23e054e01aba6c91074af72bc84a28b0b9f34f237a51c723",
+      "workflow_run": {
+        "id": 37512848112,
+        "repository_id": 1385232720,
+        "head_repository_id": 1385232720,
+        "head_branch": "codex/hosted-model-timeout",
+        "head_sha": "b78834000049bfca9ad57bbc6d522827fe35b9ae"
+      }
+    },
+    {
+      "id": 11436641171,
+      "name": "runtime-x86_64-linux",
+      "size_in_bytes": 940334211,
+      "url": "https://api.github.com/repos/vihren-dev/sqlite-verifier/actions/artifacts/11436641171",
+      "archive_download_url": "https://api.github.com/repos/vihren-dev/sqlite-verifier/actions/artifacts/11436641171/zip",
+      "expired": false,
+      "created_at": "2026-10-06T18:47:26Z",
+      "expires_at": "2026-10-20T18:47:15Z",
+      "updated_at": "2026-10-06T18:47:26Z",
+      "digest": "sha256:35944d13f811be858d06233416dd17e100bf55a7aa2068b7a4154de408f5e19d",
+      "workflow_run": {
+        "id": 37512848112,
+        "repository_id": 1385232720,
+        "head_repository_id": 1385232720,
+        "head_branch": "codex/hosted-model-timeout",
+        "head_sha": "b78834000049bfca9ad57bbc6d522827fe35b9ae"
+      }
+    },
+    {
+      "id": 11435921658,
+      "name": "development-source-x86_64-linux",
+      "size_in_bytes": 21151607,
+      "url": "https://api.github.com/repos/vihren-dev/sqlite-verifier/actions/artifacts/11435921658",
+      "archive_download_url": "https://api.github.com/repos/vihren-dev/sqlite-verifier/actions/artifacts/11435921658/zip",
+      "expired": false,
+      "created_at": "2026-10-06T18:47:15Z",
+      "expires_at": "2026-10-20T18:47:13Z",
+      "updated_at": "2026-10-06T18:47:15Z",
+      "digest": "sha256:6a92e42368cb31aae58e6f8b45b244ca8580907ede1dfb64a2e54015d1b7ecbd",
+      "workflow_run": {
+        "id": 37512848112,
+        "repository_id": 1385232720,
+        "head_repository_id": 1385232720,
+        "head_branch": "codex/hosted-model-timeout",
+        "head_sha": "b78834000049bfca9ad57bbc6d522827fe35b9ae"
+      }
+    }
+  ],
+  "ciPhases": [
+    {
+      "phase": "runtime",
+      "command": [
+        "nix-build",
+        "build-support/default.nix",
+        "-A",
+        "runtime",
+        "--no-out-link",
+        "--extra-experimental-features",
+        "nix-command flakes"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 18.205661600000013
+    },
+    {
+      "phase": "lean-version",
+      "command": [
+        "/nix/store/1qqnb7zwh50cx1v5av9h9fx87d3gfca4-sqlite-verifier-runtime-1/lean/bin/lean",
+        "--version"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.02679616199998236
+    },
+    {
+      "phase": "lake-version",
+      "command": [
+        "/nix/store/1qqnb7zwh50cx1v5av9h9fx87d3gfca4-sqlite-verifier-runtime-1/lean/bin/lake",
+        "--version"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.028599999999983083
+    },
+    {
+      "phase": "checks-package",
+      "command": [
+        "just",
+        "package"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 392.18889543100005
+    }
+  ],
+  "ciEnvironment": {
+    "python": "3.14.7 (main, Aug  5 2026, 10:29:49) [GCC 15.3.0]",
+    "lean": "Lean (version 4.33.0, x86_64-unknown-linux-gnu, commit d8b18978322de05a8f3dba51ef03cf5461676c17, Release)",
+    "lake": "Lake version 5.0.0-src+d8b1897 (Lean version 4.33.0)"
+  },
+  "modelDrv": "/nix/store/fbsbp2fnanigq3sz7hpq9arsxn0naysx-sqlite-verifier-test-model-1.drv",
+  "modelFreshBuilder": true,
+  "modelJUnit": {
+    "path": "nix-tests-full-5/junit.xml",
+    "bytes": 42057,
+    "sha256": "73bc8c319149318bbd9eeccfed0a3dc8bf25fe6f1a19def662202d03701f5f89",
+    "suites": [
+      {
+        "name": "pytest",
+        "errors": "0",
+        "failures": "0",
+        "skipped": "1",
+        "tests": "323",
+        "time": "177.327",
+        "timestamp": "2026-10-06T18:40:58.314488+00:00",
+        "hostname": "localhost"
+      }
+    ]
+  },
+  "junitReports": [
+    {
+      "path": "nix-tests-full/junit.xml",
+      "bytes": 1442,
+      "sha256": "92366e398087de387e6d5d8b7c67cf96f3ed228ec62777c138d30305d5dc8904",
+      "suites": [
+        {
+          "name": "pytest",
+          "errors": "0",
+          "failures": "0",
+          "skipped": "0",
+          "tests": "12",
+          "time": "147.552",
+          "timestamp": "2026-10-06T13:35:28.460672+00:00",
+          "hostname": "localhost"
+        }
+      ]
+    },
+    {
+      "path": "nix-tests-full-2/junit.xml",
+      "bytes": 4229,
+      "sha256": "551b629376d9650cf9f09d9849b7de29fc88c150871d66ef7f6a796678f51240",
+      "suites": [
+        {
+          "name": "pytest",
+          "errors": "0",
+          "failures": "0",
+          "skipped": "0",
+          "tests": "33",
+          "time": "223.342",
+          "timestamp": "2026-10-06T13:35:28.489648+00:00",
+          "hostname": "localhost"
+        }
+      ]
+    },
+    {
+      "path": "nix-tests-full-3/junit.xml",
+      "bytes": 1433,
+      "sha256": "24588bb50caafaccdab74fd48ffcfad9858f4b12a6ffb079c5323e1d7000e212",
+      "suites": [
+        {
+          "name": "pytest",
+          "errors": "0",
+          "failures": "0",
+          "skipped": "0",
+          "tests": "13",
+          "time": "54.829",
+          "timestamp": "2026-10-06T13:35:28.510381+00:00",
+          "hostname": "localhost"
+        }
+      ]
+    },
+    {
+      "path": "nix-tests-full-4/junit.xml",
+      "bytes": 2155,
+      "sha256": "86b47228156c2e45def46639f2a1c4e971d5027f4fcfb4ee3693af23c3d99f43",
+      "suites": [
+        {
+          "name": "pytest",
+          "errors": "0",
+          "failures": "0",
+          "skipped": "0",
+          "tests": "19",
+          "time": "72.000",
+          "timestamp": "2026-10-06T08:52:42.708831+00:00",
+          "hostname": "localhost"
+        }
+      ]
+    },
+    {
+      "path": "nix-tests-full-5/junit.xml",
+      "bytes": 42057,
+      "sha256": "73bc8c319149318bbd9eeccfed0a3dc8bf25fe6f1a19def662202d03701f5f89",
+      "suites": [
+        {
+          "name": "pytest",
+          "errors": "0",
+          "failures": "0",
+          "skipped": "1",
+          "tests": "323",
+          "time": "177.327",
+          "timestamp": "2026-10-06T18:40:58.314488+00:00",
+          "hostname": "localhost"
+        }
+      ]
+    },
+    {
+      "path": "nix-tests-full-6/junit.xml",
+      "bytes": 1882,
+      "sha256": "dec8915e5f00e212deca522eec410093e0fa6ff89ddf4ee14a9abe9e0d45cc6a",
+      "suites": [
+        {
+          "name": "pytest",
+          "errors": "0",
+          "failures": "0",
+          "skipped": "0",
+          "tests": "12",
+          "time": "81.165",
+          "timestamp": "2026-10-06T16:13:18.475621+00:00",
+          "hostname": "localhost"
+        }
+      ]
+    },
+    {
+      "path": "nix-tests-full-7/junit.xml",
+      "bytes": 10696,
+      "sha256": "44235633c3714f2767e3f28a1a721a6b2148166ce76410e594c19ee51406571d",
+      "suites": [
+        {
+          "name": "pytest",
+          "errors": "0",
+          "failures": "0",
+          "skipped": "0",
+          "tests": "76",
+          "time": "7.424",
+          "timestamp": "2026-10-06T16:13:18.386327+00:00",
+          "hostname": "localhost"
+        }
+      ]
+    },
+    {
+      "path": "test-results/installed.xml",
+      "bytes": 2348,
+      "sha256": "0df8482cfabc68bdc45f3359182aba75eb63eec4600e7d02ae88d93617b7838b",
+      "suites": [
+        {
+          "name": "pytest",
+          "errors": "0",
+          "failures": "0",
+          "skipped": "0",
+          "tests": "21",
+          "time": "86.473",
+          "timestamp": "2026-10-06T18:45:43.376078+00:00",
+          "hostname": "runnervmwvtoz"
+        }
+      ]
+    },
+    {
+      "path": "test-results/source.xml",
+      "bytes": 39344,
+      "sha256": "c39c7dd6536049c465c75436193ad9756c7f03132a0ae525f006601e6c5560c7",
+      "suites": [
+        {
+          "name": "pytest",
+          "errors": "0",
+          "failures": "0",
+          "skipped": "2",
+          "tests": "356",
+          "time": "17.442",
+          "timestamp": "2026-10-06T18:40:39.668463+00:00",
+          "hostname": "runnervmwvtoz"
+        }
+      ]
+    },
+    {
+      "path": "test-results/nix.xml",
+      "bytes": 10593,
+      "sha256": "2b858ef5dce12807a35d1bf2756ff012f89b576703381e2bf26597cae33cc68a",
+      "suites": [
+        {
+          "name": "pytest",
+          "errors": "0",
+          "failures": "0",
+          "skipped": "0",
+          "tests": "81",
+          "time": "52.853",
+          "timestamp": "2026-10-06T18:43:57.336330+00:00",
+          "hostname": "runnervmwvtoz"
+        }
+      ]
+    }
+  ],
+  "rawLogSha256": "4440104b90da8ab6785085b2195105a2a49e088941f6f814fa3c9de837e044cb",
+  "retainedLogSha256": "6ebb0b2254230c9bd7ebb214fded8acfa7b4b179dcbbf01337a7f88142bd358a",
+  "retainedArtifactSha256": "400d37b971570edc23e054e01aba6c91074af72bc84a28b0b9f34f237a51c723",
+  "modelCaseIdsSha256": "013966fa55311573a167646907342d0783b03e61fb0baa812a05f1b131a27884",
+  "modelOwnedFileCount": 32,
+  "modelSkips": [
+    {
+      "id": "tests.conformance_command_sources_test::test_real_tcl_source_observations",
+      "message": "Run the pinned Nix upstream target for Tcl capture"
+    }
+  ]
+}

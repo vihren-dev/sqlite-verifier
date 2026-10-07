@@ -3,6 +3,7 @@
 import json
 from pathlib import Path
 import shutil
+import shlex
 
 import pytest
 
@@ -39,12 +40,31 @@ def identities(root: Path) -> dict[str, str]:
     return json.loads(result.stdout)
 
 
+def test_bounded_commands_keep_complete_suite_ownership() -> None:
+    """The real Nix command retains every file and full reporting under the model's larger budget."""
+    result = run_command(['nix-instantiate', '--eval', '--strict', '--json',
+        '--extra-experimental-features', 'nix-command flakes', '--expr',
+        f'builtins.mapAttrs (_: test: test.installPhase) ({expression(ROOT)})'], cwd=ROOT, timeout=30)
+    assert result.returncode == 0, result.diagnostic()
+    scripts = json.loads(result.stdout)
+    ownership = json.loads((ROOT / 'tests/nix_suites.json').read_text())
+    assert set(scripts) == set(ownership) == {'atuin', 'bundle', 'cli', 'kernel', 'model', 'sample', 'upstream'}
+    for name, script in scripts.items():
+        command = shlex.split(next(line for line in script.replace('\\\n', ' ').splitlines()
+                                  if line.strip().startswith('timeout ')))
+        assert command[:5] == ['timeout', '600' if name == 'model' else '420', 'python3', '-m', 'pytest']
+        runtime_index = command.index('--runtime-root')
+        assert command[5:runtime_index] == ownership[name], (name, command)
+        assert command[runtime_index + 2:] == ['-p', 'no:cacheprovider', '--junitxml',
+            '$out/junit.xml', '-v', '--durations=10'], (name, command)
+
+
 @pytest.fixture
 def source_tree(tmp_path: Path) -> Path:
     """Copy only small potential test inputs; no store outputs, vendored parsers or build trees."""
     for name in ('pytest.ini', 'conftest.py', 'LICENSE'):
         shutil.copy2(ROOT / name, tmp_path / name)
-    for name in ('tests', 'migration_check', 'conformance', 'examples', 'docs', 'packaging', 'SqliteVerifier', 'VerifierConformance', 'reports', 'nix', 'build-support'):
+    for name in ('tests', 'migration_check', 'conformance', 'examples', 'docs', 'packaging', 'SqliteVerifier', 'VerifierConformance', 'reports', 'nix', 'build-support', 'tools'):
         shutil.copytree(ROOT / name, tmp_path / name,
                         ignore=shutil.ignore_patterns('__pycache__', '*.pyc', 'upstream'))
     return tmp_path
@@ -56,12 +76,24 @@ def source_tree(tmp_path: Path) -> Path:
     ('conformance/model_cases.py', {'model', 'upstream'}),
     ('conformance/replay_tiers.py', {'model', 'sample', 'upstream'}),
     ('conformance/corpus-v5/manifest.json', {'model', 'sample'}),
-    ('conformance/corpus-v4/manifest.json', {'model'}),
-    ('conformance/corpus-v3/manifest.json', {'model'}),
+    ('conformance/corpus-v4/manifest.json', {'model', 'upstream'}),
+    ('conformance/corpus-v3/manifest.json', {'model', 'upstream'}),
+    ('conformance/corpus-v2/manifest.json', {'model', 'upstream'}),
+    ('conformance/corpus-v1/manifest.json', {'model', 'upstream'}),
+    ('conformance/requirements-3.51.0.json', {'model', 'upstream'}),
+    ('tools/__init__.py', {'upstream'}),
+    ('tools/check_resources.py', {'upstream'}),
+    ('nix/flake.nix', {'upstream'}),
+    ('nix/flake.lock', {'model', 'upstream'}),
+    ('nix/sqlite.nix', {'model', 'upstream'}),
+    ('build-support/conformance-native.nix', {'model', 'upstream'}),
     ('conformance/synthetic-workload/workload.json', {'model', 'sample'}),
     ('conformance/progress.py', {'model', 'upstream'}),
     ('tests/conformance_sample_test.py', {'sample'}),
     ('tests/conformance_tier_bindings_test.py', {'model'}),
+    ('tests/conformance_freeze_test.py', {'model', 'upstream'}),
+    ('tests/test_native_replay_storage.py', {'upstream'}),
+    ('tests/conformance_foreign_key_recovery_test.py', {'upstream'}),
     ('conformance/cases/add_then_create.json', {'model', 'bundle'}),
     ('conformance/native_trace.py', {'model', 'sample', 'upstream'}),
     ('conformance/native_acquisition.py', {'model', 'sample', 'upstream'}),

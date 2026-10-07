@@ -63,7 +63,10 @@ profiles add `clockUnixMilliseconds` to each reached statement. Native replay
 validates the profile and supplies those clock values through a private native
 VFS, including default/trigger reads and supplementary probes. Different profile
 identities, engine builds, transaction modes and changes to established behavioral
-settings are refused. The model has no explicit-profile capability yet; valid v4
+settings during case SQL are refused. Setup can replay FK changes when it restores
+the selected profile before case SQL. Transaction-local FK writes keep SQLite's
+no-op behavior; readback still checks the fixed profile after each statement.
+The model has no explicit-profile capability yet; valid v4
 records remain `MODEL_UNSUPPORTED`, while malformed evidence is a harness error.
 Manifests declare `executionProfiles`, an array of these complete profile records.
 Every v4 record must match a declaration exactly; duplicate name/version identities
