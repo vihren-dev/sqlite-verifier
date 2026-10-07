@@ -342,3 +342,11 @@ the stated recipes are complete. The task is not DONE.
   `112722153900` and Darwin job `112722154338`. Earlier failures and the
   protected-baseline exception remain recorded. This local publication record
   does not change the published source while those checks run.
+- 2026-10-07: The current Darwin job is terminal cancelled, not a pass. Its
+  authoritative timestamps span 1824 seconds and match the workflow's
+  30-minute job guard. The separate bundle passes all 42 cases in 376.21
+  seconds before the later complete recipe is cancelled. Linux passes.
+  PR #47 has merged normally as `2e01c49a`; PR #48 is retargeted to main.
+  Their base trees are identical. No replacement native run exists at the
+  unchanged head. Prepared the separate complete-job budget task before any
+  workflow edit; individual suite budgets and approved source remain intact.
