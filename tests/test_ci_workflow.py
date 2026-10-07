@@ -1,9 +1,4 @@
-"""On pull requests, the macOS job only reports; every working step is skipped there.
-
-The repository ruleset requires a result from the macOS job, so the job runs on pull
-requests but must not build or upload anything. A step without the platform guard
-would run on macOS pull requests, and an upload step would then fail for lack of files.
-"""
+"""Checks and reference builds share the Linux-only pull-request schedule."""
 
 from pathlib import Path
 import re
@@ -14,7 +9,7 @@ ROOT = Path(__file__).resolve().parents[1]
 GUARD = "env.PLATFORM_RUNS == 'true'"
 """The condition that limits a step to the platforms that check this event."""
 EXPLANATION_STEP = "Skip macOS checks on pull requests"
-"""The one step that runs on macOS pull requests; it only explains why nothing else runs."""
+"""The explanatory step reports the skipped native platform without running it."""
 pytestmark = [pytest.mark.unit]
 
 
@@ -33,17 +28,30 @@ def check_job_steps() -> list[tuple[str, str]]:
 
 
 def test_platform_runs_skips_macos_only_on_pull_requests() -> None:
-    """Linux always checks; macOS checks every event except pull requests."""
+    """Linux runs checks and references; macOS runs them outside pull requests."""
     text = (ROOT / ".github/workflows/ci.yml").read_text(encoding="utf-8")
     assert ("PLATFORM_RUNS: ${{ matrix.system == 'x86_64-linux' || "
             "github.event_name != 'pull_request' }}") in text
 
 
 def test_every_working_step_is_guarded() -> None:
-    """Only the explanatory step runs on macOS pull requests; all others carry the guard."""
+    """Every working step is skipped on macOS pull requests, including reference setup."""
     steps = check_job_steps()
     assert steps, "No steps found in the check job"
     unguarded = [name for name, condition in steps
                  if GUARD not in condition and name != EXPLANATION_STEP]
     assert not unguarded, f"Steps that would run on macOS pull requests: {unguarded}"
-    assert dict(steps)[EXPLANATION_STEP] == "env.PLATFORM_RUNS != 'true'"
+    conditions = dict(steps)
+    assert conditions[EXPLANATION_STEP] == "env.PLATFORM_RUNS != 'true'"
+    reference = "Build checked API reference"
+    assert conditions[reference] == GUARD + " && steps.scope.outputs.scope != 'docs'"
+    assert conditions["Retain checked API reference"] == "always() && " + conditions[reference]
+
+
+def test_cache_save_is_limited_to_main_and_nightly() -> None:
+    """Pull requests, tags and manual runs can restore caches but cannot publish them."""
+    text = (ROOT / ".github/workflows/ci.yml").read_text(encoding="utf-8")
+    expected = ("save: ${{ github.event_name == 'schedule' || "
+                "(github.event_name == 'push' && github.ref == 'refs/heads/main') }}")
+    assert expected in text
+    assert "save: true" not in text

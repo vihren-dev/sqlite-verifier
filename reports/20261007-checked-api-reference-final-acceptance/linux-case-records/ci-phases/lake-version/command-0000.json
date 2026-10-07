@@ -1,0 +1,11 @@
+{
+  "command": [
+    "/nix/store/r7j59p1zj9b5jrny9jzfrfaabm38ga8p-sqlite-verifier-runtime-1/lean/bin/lake",
+    "--version"
+  ],
+  "returncode": 0,
+  "stdout": "Lake version 5.0.0-src+5045d00 (Lean version 4.34.1)\n",
+  "stderr": "",
+  "elapsed": 0.04948565899985624,
+  "timed_out": false
+}

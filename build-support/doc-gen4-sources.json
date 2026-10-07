@@ -1,0 +1,38 @@
+[
+  {
+    "name": "doc-gen4",
+    "repository": "leanprover/doc-gen4",
+    "revision": "953c8992d174b4e56955e01e101d46668c68f2bb",
+    "hash": "sha256-Hj9SuhZXkokGWNEcNAJK5rAhALP8q1pjQ1XrmrIfhmI="
+  },
+  {
+    "name": "leansqlite",
+    "repository": "leanprover/leansqlite",
+    "revision": "f9cdb9eacb5c8b8ecc02ee9fd9e568d7d28c1416",
+    "hash": "sha256-JnGTRWXbxVwRChHv3mRa24F8/+Lyk06qwiAAAZteyfE="
+  },
+  {
+    "name": "Cli",
+    "repository": "leanprover/lean4-cli",
+    "revision": "e92c9f15fdfacc8536f31cfb3b7ad26c3c8cd204",
+    "hash": "sha256-3HLYlycvm4Ho98pB7eF+u8RN1GQJ7Ve6COqMSZr4Hic="
+  },
+  {
+    "name": "UnicodeBasic",
+    "repository": "fgdorais/lean4-unicode-basic",
+    "revision": "0e569d08b6443ce0908d356884c765397253e2f0",
+    "hash": "sha256-M+mf8akYO80yyQfRVm23s7MBLGwQ3ORFBL+WZNCv1/k="
+  },
+  {
+    "name": "BibtexQuery",
+    "repository": "dupuisf/BibtexQuery",
+    "revision": "4d8616fd4870d0a3453d845770833eac7951fe1c",
+    "hash": "sha256-hBXmPzQc5njUQ0McwKl6Za/3i8JJA5ZwhS9XkcDUwtw="
+  },
+  {
+    "name": "MD4Lean",
+    "repository": "acmepjz/md4lean",
+    "revision": "31907cc18f48a95384f99cee5582c00fb39e0f67",
+    "hash": "sha256-J9JZUxfiKQRg4VvLamtWztjMzudnNR+NqLIS7hLQOlY="
+  }
+]

@@ -269,3 +269,24 @@ collection. Its macOS job skips execution. PR #53 is marked ready for review.
 The final owner review request names this exact head. The published branch
 will remain unchanged while that review is pending unless the owner requests
 a correction. T15 is not DONE before final approval and normal delivery.
+
+- 2026-10-08: The owner approves PR #53 and requests accepted-main
+  integration before normal merge. Integrated main `a38d0001`, which
+  delivers the checked API reference and revised CI cache policy. The
+  single journal conflict preserves all three original ordered journals
+  in 319 rows. All feature code bytes are unchanged except the public
+  barrel, which keeps both feature imports and main's checked walkthrough.
+  The exact combined runtime builds as
+  `/nix/store/hyyvqd49sbkd2cxjjmdc6m76ns9dh5m8-sqlite-verifier-runtime-1`.
+  Ordinary acceptance is running. No new acceptance or merge is claimed
+  before its checks and independent review finish.
+
+- 2026-10-08: Approved-main integration passes 281 checked public API
+  items, 412 source tests and 35 subtests, all seven ordinary native
+  macOS suites with 313 checks, 95 actual infrastructure tests, and
+  27 fresh installed checks. Both parents' imports remain in the public
+  barrel. The content-verified archive, installed root, original XML,
+  logs, source hashes and complete journals are retained in
+  [the combined acceptance](../reports/20261008-application-key-approved-main/README.md).
+  Independent review, fresh hosted Linux checks and normal merge remain.
+  T15 is not DONE.

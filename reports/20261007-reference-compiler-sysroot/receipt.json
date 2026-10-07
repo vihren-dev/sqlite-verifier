@@ -1,0 +1,107 @@
+{
+  "failed_head": "773827a19b0368b8a31a63111c2cf96a17b7d992",
+  "workflow_run": 37663864057,
+  "linux_job": 112937964012,
+  "linux_source": {
+    "failed": 9,
+    "passed": 399,
+    "subtests_passed": 35,
+    "skipped_optional_reviewer_tools": 2,
+    "junit": {
+      "name": "pytest",
+      "errors": "0",
+      "failures": "9",
+      "skipped": "2",
+      "tests": "445",
+      "time": "59.324",
+      "timestamp": "2026-10-07T18:15:33.820193+00:00",
+      "hostname": "runnervma94yk"
+    }
+  },
+  "reference_artifacts": {
+    "linux": {
+      "artifact_id": 11503380560,
+      "zip_sha256": "8c3d2510bbeab2f63086c43815e3113c3c8a9d65b0197a877ca7352d6e0ac20f",
+      "zip_bytes": 8408378,
+      "source_revision": "485f1eb8bfd1224ea70f6071fba42a9628b53bb1",
+      "authored_checked": 259,
+      "public_modules": 21,
+      "public_declarations": 323,
+      "html_pages": 1167,
+      "local_links": 829618
+    },
+    "darwin": {
+      "artifact_id": 11502900940,
+      "zip_sha256": "c79551e18401a8271dd864a3161151e8f1a018ebd76817b10b21ce49bcb25491",
+      "zip_bytes": 8408523,
+      "source_revision": "485f1eb8bfd1224ea70f6071fba42a9628b53bb1",
+      "authored_checked": 259,
+      "public_modules": 21,
+      "public_declarations": 323,
+      "html_pages": 1167,
+      "local_links": 829618
+    }
+  },
+  "cause": "Lean.findSysroot invokes ambient lean when LEAN_SYSROOT is unset; the explicit compiler remained valid.",
+  "corrected_local_checks": {
+    "all_inventory": {
+      "name": "pytest",
+      "errors": "0",
+      "failures": "0",
+      "skipped": "0",
+      "tests": "12",
+      "time": "39.137",
+      "timestamp": "2026-10-07T21:25:23.910767+03:00",
+      "hostname": "tzanko-mbp"
+    },
+    "poisoned_path": {
+      "name": "pytest",
+      "errors": "0",
+      "failures": "0",
+      "skipped": "0",
+      "tests": "1",
+      "time": "3.199",
+      "timestamp": "2026-10-07T21:27:15.675156+03:00",
+      "hostname": "tzanko-mbp"
+    }
+  },
+  "raw_files": {
+    "linux-first-case-reports.zip": {
+      "sha256": "b84effd006e15ac544d52ed283f9ba5e4ed0c54a1e76e9ee75ee3e63deaee585",
+      "bytes": 26891
+    },
+    "linux-reference-check.json": {
+      "sha256": "5e067ecde22b4e3a6fdc19567b64e310de71ac445579ff4436c62a830b18c456",
+      "bytes": 195
+    },
+    "darwin-public-doc-inventory.json": {
+      "sha256": "ca4aa358db25b03eb98183304d764b8ff82b18baa9be4800676bf1a69b233f12",
+      "bytes": 583642
+    },
+    "darwin-reference-check.json": {
+      "sha256": "5e067ecde22b4e3a6fdc19567b64e310de71ac445579ff4436c62a830b18c456",
+      "bytes": 195
+    },
+    "compiler-sysroot.xml": {
+      "sha256": "d55ff520769fddc527b010a7c244522510211127662e9e804409767b7428f9ad",
+      "bytes": 1885
+    },
+    "compiler-poisoned-path.xml": {
+      "sha256": "f8132c5bb5abad4a27abea5ae9cb3ea36e3fd833488cacbfc09b12f000d45b57",
+      "bytes": 383
+    },
+    "linux-public-doc-inventory.json": {
+      "sha256": "8aa149dab99ede4e1af3f70d7fcc82fbccfc9405dbbd3bfbc943a08d6ff208d3",
+      "bytes": 582928
+    },
+    "linux-first-job.log.gz": {
+      "sha256": "964204d7fb7f0f69dc95ecda426cac89fe0a9ddccf13dcfaa9286452a6cec3e2",
+      "bytes": 44293
+    },
+    "linux-first-source.xml": {
+      "sha256": "b851c5845d3112d381ffc51ac41dc3a7b62854e4c1c55a104b3a2b709bbe706a",
+      "bytes": 113743
+    }
+  },
+  "corrected_hosted_acceptance_complete": false
+}
