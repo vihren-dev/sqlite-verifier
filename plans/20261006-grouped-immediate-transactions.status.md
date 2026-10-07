@@ -174,6 +174,17 @@ The draft transaction PR can target accepted main directly. The old feature
 branch and historical evidence remain preserved. Publication and Linux
 acceptance remain required; this task is not DONE.
 
+Published reviewed head `c9989d42` on the clean branch and created attached
+draft [PR #55](https://github.com/vihren-dev/sqlite-verifier/pull/55) against
+accepted main. Linux CI `37638375235` is complete: model 51, frozen 152 and
+harness 126 pass, including all 13 new transaction nodes. Source checks pass
+368 tests and 35 subtests with two existing optional reviewer-CLI skips;
+infrastructure passes 95 tests. Original decoded console bytes and hashes are
+retained in the native record; counts are console-derived and original XML
+remains in hosted artifacts. The macOS PR job skips execution; its local
+329-case acceptance remains the evidence. Linux evidence review and normal
+delivery remain required. No old record or formatting failure is relabeled.
+
 ## Decisions waiting for the owner
 
 - None for the limited diagnostic. The owner authorized it on 2026-10-06.
