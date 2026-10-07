@@ -148,6 +148,24 @@ actual store outputs. No formatting failure occurs. The old failure's cause
 remains unexplained, and no old receipt is relabeled. Linux and hosted
 acceptance, independent evidence review and normal PR delivery remain required.
 
+Native evidence `d774c59f` passes independent review with no findings
+(`20261007T140035Z-d774c59f`). Publication integration uses exact reviewed
+executor head `b8eb25dd`, including accepted main's CI follow-up. Only the
+journal conflicts. The preserved native working copy, executor journal and
+original clean feature journal have 186, 239 and 176 rows. All three remain
+ordered subsequences of the 250-row result, with repeated rows preserved.
+All eight accepted native inputs and all 74 approved executor files remain
+unchanged. Actual Nix evaluation produces the same three store outputs as
+the successful native run. No model, frozen or harness build is repeated.
+
+All 42 integration checks and 35 subtests pass in 13.13 seconds with a
+120-second limit; 46 unrelated Nix checks are deselected. The
+[integration record](../reports/20261007-grouped-immediate-transactions-native/integration.json)
+retains the original XML, journal checks and unchanged output identities.
+This integration awaits independent review. Draft publication will use a new
+branch on the reviewed executor, preserving the old transaction branch.
+Linux and hosted acceptance and normal delivery remain required.
+
 ## Decisions waiting for the owner
 
 - None for the limited diagnostic. The owner authorized it on 2026-10-06.

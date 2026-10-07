@@ -44,14 +44,22 @@ PACKAGING_FILES = {"build-support/runtime.nix", "build-support/default.nix", "bu
 
 
 def is_shared_test_helper(path: str) -> bool:
-    """A Python file under tests/ that is not itself a test module, such as a fixture module."""
+    """A Python file under tests/ that is not a test module, such as a fixture module.
+
+    Many suites import such helpers, so a change to one selects the host Nix tests,
+    which check the Nix target inputs and their invalidation.
+    """
     name = Path(path).name
     return (path.startswith("tests/") and path.endswith(".py")
             and not name.startswith("test_") and not name.endswith("_test.py"))
 
 
 def is_documentation(path: str) -> bool:
-    """Markdown at the top level or under docs/, plans/ or examples/, except installation docs."""
+    """Markdown at the top level or under docs/, plans/ or examples/, except installation docs.
+
+    No build reads these files, so a change of only such files needs only the link checks.
+    The installation guide ships in the runtime archive and is excluded.
+    """
     return (path.endswith(".md") and path not in PACKAGING_FILES
             and ("/" not in path or path.startswith(("docs/", "plans/", "examples/"))))
 
