@@ -807,3 +807,11 @@ authorized one Linux diagnostic below. No production change followed it.
   All source files remain below 200 lines. Independent source review and
   standalone acceptance on both platforms remain required. The Linux
   33.707907737-second miss remains unchanged.
+
+- 2026-10-07: Parallel loading commit `2a42afdd` passes independent
+  review `20261007T193300Z-2a42afdd` with no mandatory defect. Its one
+  documentation suggestion is fixed: the named four-process limit applies
+  to each loading or native replay phase, and the phases do not overlap.
+  An executable-AST comparison confirms that the correction changes no
+  behavior. All original source bindings and acceptance bytes remain
+  unchanged. Correction review remains required.
