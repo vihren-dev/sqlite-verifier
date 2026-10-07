@@ -464,8 +464,6 @@ until owner approval and normal delivery.
   mandatory flags remain recorded in `20261007T164606Z-e38bc101`.
 - Review the seven example source-pin changes for the model namespace.
   Baseline enforcement and raw SQL pins are unchanged.
-- Approve the one completed test-temp directory in the separate cleanup
-  proposal before further expensive local work.
 
 
 PR56 is ready for final owner review at published head `0e8c57a2`. Its
@@ -475,3 +473,13 @@ The protected baseline check requires explicit owner review of the changed
 pins. The published branch is frozen during review except for requested
 fixes. This local status checkpoint does not move that branch. Approval,
 normal merge and task closeout remain pending.
+
+
+The owner approved the pending targeted cleanup on 2026-10-07. Only
+`/private/tmp/nix-shell.xSzEcW/pytest-of-tzankomatev/pytest-6` was removed.
+The retained final Nix XML and compressed log were verified before removal.
+The cleanup reclaimed about 1.8 GiB; the measured free space afterward is
+15.824 GiB. The local receipt is
+`build/t10-model-integration-darwin/cleanup-receipt.json`. The disk threshold
+is satisfied. Main now includes delivered T13, so PR56 requires integration
+before merge. Its current owner-review head remains unchanged.
