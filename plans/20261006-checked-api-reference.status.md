@@ -658,3 +658,11 @@ The corrected hosted macOS job succeeds; its downloaded reference ZIP
 matches the workflow digest. Linux has built the reference and is running
 complete checks. Independent evidence review and corrected Linux acceptance
 remain required. No task completion or normal merge is claimed.
+
+
+Native integration evidence `9806253f` passes independent review
+`20261007T184719Z-9806253f` with no findings. All 15 stored artifacts
+verify against their original hash bindings, including decompressed bytes.
+The local acceptance and inventory checks are complete. Corrected Linux CI
+`37667476876` is still running, and its result remains unclaimed. This
+status checkpoint leaves the published branch unchanged.
