@@ -8,6 +8,9 @@ On reviewed publication-base source, macOS took 21.434975332995236 seconds
 and Linux took 39.57022682100069 seconds. Both retain complete bindings,
 timestamps and actual fixture paths. Linux still misses the target. Earlier
 observations below remain historical evidence; this task is not DONE.
+The later [parent/child CPU diagnostic](../reports/20261007-development-replay-linux-stages/README.md)
+records current loading and worker-stage costs on the same source/runtime.
+Its instrumented result is separate from acceptance.
 
 The one-run measurement record is in
 [the dated receipt](../reports/20261006-development-replay-headroom/README.md).
@@ -47,6 +50,12 @@ Historical v4 replay keeps its 100-case membership.
 Bounded receipt checks distinguish a valid measurement from a speed-target
 pass. They refuse corrupted selected identities, native-library hashes,
 duplicate actual fixture paths and a target flag that hides a Linux miss.
+An instrumented diagnostic retains wall time and parent and reaped direct-child
+CPU for each existing top-level report stage, including the development worker
+helper. It preserves original returns and exceptions, complete binding/path
+evidence and the configured process-group bound. Its result is diagnostic
+evidence. Summed parallel CPU can exceed wall time; differences between wall
+and CPU do not measure I/O or fsync time.
 
 Bounded tests preserve mandatory membership, stable identity ranking,
 exact result counts and all frozen bindings. Digest, snapshot, profile,

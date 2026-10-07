@@ -1,0 +1,97 @@
+{
+  "actualInstrumentedPhases": 1,
+  "completedExit": 0,
+  "completedSession": 81515,
+  "diagnosticOnly": true,
+  "ended": {
+    "monotonicNs": 421281473599835,
+    "utc": "2026-10-07T08:27:15.873303+00:00"
+  },
+  "evidenceValid": true,
+  "format": "t04c-parent-child-stage-retention-v1",
+  "fullDenominator": 4378,
+  "instrumentedPhaseSeconds": 39.26042659499217,
+  "interpretation": "Wall and parent/reaped-direct-child CPU are separate observations. Parallel child CPU can exceed wall time. A wall-minus-CPU difference is not measured I/O or fsync time. This instrumented result cannot replace the fresh Linux target miss.",
+  "newConformanceBuild": false,
+  "outerPhaseSeconds": 40.081648631,
+  "phaseLimitSeconds": 120,
+  "preflightSession": 32289,
+  "productionChanges": false,
+  "rawArtifacts": 20,
+  "remoteRoot": "/var/tmp/sqlite-verifier-t04c-stages-20261007.ukouzpmj",
+  "retainedMonotonicNs": 35926406810375,
+  "retainedUtc": "2026-10-07T08:28:58.516807+00:00",
+  "retrievalSession": 78288,
+  "runtime": "/nix/store/rhinzr7jq41azsh6s8i8dmndi7idnv3k-sqlite-verifier-conformance",
+  "selectedIdentities": 184,
+  "sourceCommit": "5d15607fdf78d0a209b539ca158939739b54d377",
+  "stageTotals": {
+    "binding": {
+      "calls": 2,
+      "childrenSystemSeconds": 0.0,
+      "childrenUserSeconds": 0.0,
+      "parentSystemSeconds": 0.0,
+      "parentUserSeconds": 0.0009490000000020871,
+      "wallSeconds": 0.00094649
+    },
+    "bound_records": {
+      "calls": 1,
+      "childrenSystemSeconds": 0.0,
+      "childrenUserSeconds": 0.0,
+      "parentSystemSeconds": 0.0,
+      "parentUserSeconds": 0.005192000000000974,
+      "wallSeconds": 0.00522781
+    },
+    "checked_replay": {
+      "calls": 2,
+      "childrenSystemSeconds": 0.03383500000000006,
+      "childrenUserSeconds": 0.05953700000000062,
+      "parentSystemSeconds": 0.018457000000000057,
+      "parentUserSeconds": 0.15484500000000168,
+      "wallSeconds": 0.258761494
+    },
+    "load": {
+      "calls": 1,
+      "childrenSystemSeconds": 0.0,
+      "childrenUserSeconds": 0.0,
+      "parentSystemSeconds": 0.834831,
+      "parentUserSeconds": 19.901823,
+      "wallSeconds": 20.791746283
+    },
+    "replay_native_cases": {
+      "calls": 1,
+      "childrenSystemSeconds": 1.035633,
+      "childrenUserSeconds": 4.496802,
+      "parentSystemSeconds": 0.028686999999999907,
+      "parentUserSeconds": 0.30434800000000095,
+      "wallSeconds": 17.867181973
+    },
+    "runtime_binding": {
+      "calls": 1,
+      "childrenSystemSeconds": 0.0,
+      "childrenUserSeconds": 0.0,
+      "parentSystemSeconds": 0.049883,
+      "parentUserSeconds": 0.23668700000000004,
+      "wallSeconds": 0.287032796
+    },
+    "select": {
+      "calls": 1,
+      "childrenSystemSeconds": 0.0,
+      "childrenUserSeconds": 0.0,
+      "parentSystemSeconds": 0.0,
+      "parentUserSeconds": 0.046586999999998824,
+      "wallSeconds": 0.04673635
+    }
+  },
+  "started": {
+    "group": 362752,
+    "monotonicNs": 421241391951204,
+    "pid": 362752,
+    "utc": "2026-10-07T08:26:35.791666+00:00"
+  },
+  "taskStatus": "IN PROGRESS",
+  "transferSessions": [
+    51599,
+    77556
+  ]
+}

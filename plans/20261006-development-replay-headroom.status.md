@@ -326,3 +326,31 @@ authorized one Linux diagnostic below. No production change followed it.
   values and exceptions and has a spawn main guard. Bounded local pure-helper
   preflight passes without invoking a report. The actual diagnostic is pending;
   no production change, source rebuild or new acceptance phase is authorized.
+- 2026-10-07: The single authorized Linux stage diagnostic is terminal:
+  session 81515, exit 0, valid receipt. Its instrumented phase took
+  39.26042659499217 seconds; outer call 40.081648631. The unchanged bound is
+  120 seconds. All seven existing stage names retain original results and
+  exceptions. Loading took 20.791746283 seconds with 20.736654 parent CPU;
+  `replay_native_cases` took 17.867181973 seconds with 0.333035 parent CPU
+  and 5.532435 reaped direct-child CPU. Classification took 0.258761494
+  seconds. These are actual diagnostic counters, not acceptance or direct
+  fsync/I/O accounting. No per-function current loading costs were observed.
+- 2026-10-07: The complete source, runtime, archive, Python, Lean and native
+  identities match both before/after and the fresh Linux receipt. The same
+  4378 full denominator and all 184 selected identities, profiles, SQL,
+  native comparisons and current-model verdicts remain unchanged. The
+  observer uses the existing verified runtime and explicit pinned Python;
+  no source rebuild, production change or phase restart occurred. The new
+  ext4 ordinary-file root, all 184 unique actual paths, cleanup, original
+  streams, UTC/monotonic boundaries and full host conditions are retained.
+- 2026-10-07: Retained all 20 diagnostic raw artifacts and exact public
+  helpers in
+  [the stage record](../reports/20261007-development-replay-linux-stages/README.md).
+  Retrieval session 78288 is terminal, and all 13 original hashes match the
+  independent remote inventory. Bounded read-only validation and two stage/
+  child-counter corruption checks pass in the pinned environment within
+  15-second bounds. The pure helper preflight also preserves return and
+  exception behavior. Prior receipts, frozen evidence and the pending clean
+  `90ed5e5b` review row remain preserved. Diagnostic evidence review is
+  pending. Linux's fresh target miss remains unchanged; the task is not DONE.
+  No further diagnostic or optimization is started.
