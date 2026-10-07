@@ -447,3 +447,12 @@ The walkthrough artifacts and original fixture XML are retained in
 `build/t18b-clean-source-isolation/`. No source compiler or test failure remains
 in this isolated unit. Ordinary integration, both fresh native references,
 hosted artifact retention and final delivery still remain.
+
+Independent review of `db01381d` returned zero must findings and one R11
+suggestion (`20261007T093912Z-db01381d#1`). The `--report-only` success override
+had no caller or required use. Removed it; incomplete coverage now always
+fails the CLI gate after writing the complete report. The inventory function
+still supplies diagnostic data to callers. Recorded the suggestion as fixed.
+All five actual incomplete-coverage fixtures and both link checks pass in
+22.50 seconds under 120 seconds. This correction changes no compiler helper,
+coverage classification, proof rule or reference layout.

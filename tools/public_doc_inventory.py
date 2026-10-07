@@ -62,12 +62,11 @@ def main() -> int:
     parser.add_argument("--entry", default="SqliteVerifier")
     parser.add_argument("--lean", type=Path, required=True)
     parser.add_argument("--output", type=Path, required=True)
-    parser.add_argument("--report-only", action="store_true", help="Retain explicitly incomplete diagnostic coverage")
     arguments = parser.parse_args()
     root, output = arguments.root.resolve(), arguments.output.resolve()
     report = inventory(root, arguments.entry, arguments.lean.resolve(), output)
     complete = require_complete(report, output)
-    return 0 if complete or arguments.report_only else 1
+    return 0 if complete else 1
 
 
 if __name__ == "__main__":
