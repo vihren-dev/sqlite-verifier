@@ -7,6 +7,12 @@ The complete `tests.sample` Nix target runs in the hardened macOS sandbox.
 All 22 checks pass in 40.40 seconds, including the actual four-worker timeout
 case. Its original JUnit and compressed build log are retained here.
 
+The exact reviewed inputs also pass all 22 checks in the hardened Linux
+sandbox in 66.937 seconds. The [Linux receipt](linux-receipt.json), original
+JUnit and compressed build log are retained. Their hashes match the original
+remote files and all four source inputs match the reviewed macOS record.
+The approved archive's SHA-256 is checked before extraction and after the run.
+
 Each blocked worker holds an exclusive file lock before it publishes its PID
 marker. The parent checks that all four locks become available after the
 configured process-group timeout. A running blocked worker still holds its

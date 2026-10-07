@@ -707,3 +707,17 @@ authorized one Linux diagnostic below. No production change followed it.
   The resource guard passes. No production source, frozen corpus or previous
   receipt changes. Independent review remains required. This is sandbox
   acceptance for the test dependency fix, not standalone performance acceptance.
+
+- 2026-10-07: The sandbox fix `fda5b133` passes independent review with no
+  findings (`20261007T134905Z-fda5b133`). Automatic approval review initially
+  rejected copying the source archive to Linux. The owner explicitly approved
+  the exact 40 MB archive and isolated destination. The transfer then completed;
+  its original SHA-256 matches before extraction and after validation. Resource
+  and process checks pass before the Linux build; no native project co-runner
+  is observed, without claiming that all background activity is absent.
+  The exact `tests.sample` Linux target passes all 22 checks in 66.937 seconds
+  with no failures, errors or skips. All four source inputs match the reviewed
+  macOS inputs. Original XML and log hashes are checked after retrieval and
+  retained in the sandbox record. Both platforms now verify the requested
+  removal of the `ps` dependency. This does not establish the performance
+  target. Independent review of the Linux evidence remains required.
