@@ -1,0 +1,30 @@
+{
+  "sourceRevision": "c9989d42445f5942d7e4133ad90b2d91dc0be38c",
+  "workflowRun": 37638375235,
+  "jobId": 112850494116,
+  "system": "x86_64-linux",
+  "countsSource": "original hosted console; hosted XML remains in retained artifacts",
+  "model": {
+    "passed": 51,
+    "seconds": 97.95
+  },
+  "frozen": {
+    "passed": 152,
+    "seconds": 276.92
+  },
+  "harness": {
+    "passed": 126,
+    "seconds": 6.25
+  },
+  "totalThreeSuitesPassed": 329,
+  "newTransactionPassLines": 13,
+  "sourceChecks": {
+    "passed": 368,
+    "optionalCliSkips": 2,
+    "subtests": 35
+  },
+  "infrastructureChecksPassed": 95,
+  "originalDecodedLogSha256": "d9269db9ad3dd9355c3811eda16ebd2da67e9107bfcb04161eb09902a6b3212f",
+  "compressedLogSha256": "0196d1c3be0789440f3ea845f8afc6e5c391340b8a73312142d00a2968521dfb",
+  "macosPullRequestExecutionSkipped": true
+}

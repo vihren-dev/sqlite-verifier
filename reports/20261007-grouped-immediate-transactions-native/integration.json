@@ -1,0 +1,35 @@
+{
+  "executorBase": "b8eb25dda700d111b2c9e7583189d017061a5490",
+  "nativeAcceptedSource": "2c9d732298a9f27d87edf7c03231dc5238cbb4b9",
+  "originalJournalSources": [
+    "t13-native-accepted-20261007",
+    "b8eb25dda700d111b2c9e7583189d017061a5490",
+    "ba3348304140fec49e4c230a548ed25159eba320"
+  ],
+  "originalJournalRows": [
+    186,
+    239,
+    176
+  ],
+  "mergedRows": 250,
+  "allOriginalOrdersAndMultiplicityPreserved": true,
+  "nativeSourceInputsUnchanged": 8,
+  "approvedExecutorFilesUnchanged": 74,
+  "evaluatedSuiteOutputs": {
+    "model": "/nix/store/kvjm5wslx9bxlakld3ni4ni416z3f0c2-sqlite-verifier-test-model-1",
+    "frozen": "/nix/store/rfdfcvgsswwi4w2pjgcvwlqh664ygxnl-sqlite-verifier-test-frozen-1",
+    "harness": "/nix/store/zibyi4rm8w3w3gflszr35c7wnwp97prn-sqlite-verifier-test-harness-1"
+  },
+  "allThreeAcceptedSuiteOutputsUnchanged": true,
+  "integrationChecks": {
+    "tests": 77,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "junit": "integration-junit.xml",
+    "sha256": "b634cd21e2d27a50aed2e7a2872c81fa940691048b2beb2eda382274f890752e",
+    "commandLimitSeconds": 120,
+    "ordinaryTests": 42,
+    "subtests": 35
+  }
+}
