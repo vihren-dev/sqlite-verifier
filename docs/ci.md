@@ -23,7 +23,18 @@ request base:
 
 Each native job enters the pinned Nix environment once. `tools/ci_checks.py`
 checks resources, builds the runtime and
-invokes the selected recipe. `just test-full` builds nine independent Nix test targets
+invokes the selected recipe. Darwin first builds the identical `tests.bundle`
+target with sandboxing enabled and fallback disabled. Its output is linked at
+`build/nix-tests-bundle` for artifact retention. A bundle failure stops the job
+before the complete recipe starts model or upstream test builders. Linux keeps
+the complete recipe's current schedule.
+
+The prebuild retains the 900-second Nix build deadline; the bundle tests keep
+their per-test limits, described below. The
+[dated evidence](../reports/20261007-darwin-bundle-scheduling/README.md)
+distinguishes the earlier hosted failures from the isolated local pass.
+
+`just test-full` builds nine independent Nix test targets
 with `nix-build -A tests`; the flake exposes the same derivations as
 `checks.<system>`:
 

@@ -75,3 +75,10 @@ push changed only `plans/`, `reviews/`, `reports/` or documentation.
   Linux because the workflow changed): Linux passed in 14.6 min; the macOS job
   reported success in 5 s without checks. It restored the 6.1 GB `v1` cache;
   garbage collection took 5 s, and the saved `v2` cache is 3.2 GB.
+- 2026-10-07: `main` gained PR #47, whose Darwin bundle-first CI step and
+  bundle inputs conflicted with this branch. Merged `main`: kept the Darwin
+  bundle prebuild, combined it with the scope recipes, and updated its text
+  for the per-test limits. Local macOS checks after the merge: all nine suites
+  pass (bundle now 42 tests), `just test-source` and `just test-nix` (86) pass.
+  The record-only push `0d42c506` started no CI run because the pull request
+  had a merge conflict; the cache-reuse check is repeated after this merge.

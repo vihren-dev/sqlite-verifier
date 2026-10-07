@@ -30,8 +30,8 @@ class Runtime:
 
     @property
     def exporter(self) -> Path:
-        """Pinned lean4export used by `prepare`; an agent-side convenience, not acceptance."""
-        return self.root / ".lake/build/bin/lean4export"
+        """Repository exporter used by `prepare` with the checker's explicit trusted imports."""
+        return self.root / ".lake/build/bin/migration-proof-exporter"
 
     @classmethod
     def locate(cls, sqlite_version: str = "3.51.0") -> "Runtime":

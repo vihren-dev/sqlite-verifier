@@ -1,4 +1,4 @@
-"""Run the same fresh host gates with either checkout builds or explicit Nix artifacts."""
+"""Run complete native gates with Darwin's bundle before concurrent suite builds."""
 
 import argparse
 import json
@@ -20,9 +20,17 @@ SCOPE_RECIPES = {
 }
 """The `just` recipes for each scope of tests/ci_scope.py; one invocation runs shared dependencies once."""
 
+BUNDLE_FIRST_SYSTEM = "aarch64-darwin"
+"""Darwin completes the bundle gate before the complete recipe starts other test builders."""
+BUNDLE_BUILD_LIMIT_SECONDS = 900
+"""Retain the existing Nix build budget; the bundle tests keep their own per-test limits."""
+NIX_TEST_BUILD_OPTIONS = ("--option", "sandbox", "true", "--option", "sandbox-fallback", "false",
+                          "--extra-experimental-features", "nix-command flakes")
+"""Use the complete test recipes' sandbox policy for the isolated bundle target."""
+
 
 def run_checks(scope: str, mode: str, system: str, root: Path) -> None:
-    """Use Nix build/test targets while installed acceptance stays fresh."""
+    """Use all complete gates and isolate Darwin's bundle phase from model and upstream builders."""
     if scope not in SCOPE_RECIPES or mode not in {"source", "build"}:
         raise ValueError(f"Unknown CI scope or build mode: {scope}, {mode}; use a scope from tests/ci_scope.py")
     check_resources(root)
@@ -74,6 +82,9 @@ def run_checks(scope: str, mode: str, system: str, root: Path) -> None:
                 "lean": run("lean-version", [lean, "--version"], 10, capture=True),
                 "lake": run("lake-version", [lake, "--version"], 10, capture=True)}
     (root / "build/ci-environment.json").write_text(json.dumps(versions, indent=2) + "\n")
+    if system == BUNDLE_FIRST_SYSTEM:
+        run("bundle", ["nix-build", "build-support/default.nix", "-A", "tests.bundle",
+            "--out-link", "build/nix-tests-bundle", *NIX_TEST_BUILD_OPTIONS], BUNDLE_BUILD_LIMIT_SECONDS)
     run("checks-" + scope, ["just", *SCOPE_RECIPES[scope]], 1800)
 
 

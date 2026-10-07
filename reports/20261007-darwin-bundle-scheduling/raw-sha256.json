@@ -1,0 +1,98 @@
+{
+  "build-result.json": {
+    "bytes": 667,
+    "gzip": "build-result.json.gz",
+    "gzipSha256": "37c1c8f0bcf93377deac98137f366ab38380ad49bb49e07e35158ae851333eba",
+    "sha256": "42dd9ee7013e54ac8620498908ae93e9f7ca17dc9da577036f946ea97a6995d0"
+  },
+  "build-start.json": {
+    "bytes": 592,
+    "gzip": "build-start.json.gz",
+    "gzipSha256": "2b32ab6d546b3d81c890608f8908e915a8628eb61da4da46fdec06a3079ef434",
+    "sha256": "2f3b1463575b8a63766a15f48544504176da710ca79e8acd66aa97bd029f79c2"
+  },
+  "exact-derivation.drv": {
+    "bytes": 2488,
+    "gzip": "exact-derivation.drv.gz",
+    "gzipSha256": "f97fdcae6965c2ca85defc751ed29f86474b116eb2bd0c5d1271308b060b155a",
+    "sha256": "73d95ff52641f2de62492385409b7eec5e7c4dc19e6216fad95c3022c8d672ee"
+  },
+  "identity-after.json": {
+    "bytes": 8015797,
+    "gzip": "identity-after.json.gz",
+    "gzipSha256": "3e1237e36dcf1c54ee0628225d215f6e439bb79ea31284de693e5b38212a8517",
+    "sha256": "bf2d30d334d26204d8df271809a24c64d0679ed1c0ae42979bdefedeaf36d8ae"
+  },
+  "identity-before.json": {
+    "bytes": 8015797,
+    "gzip": "identity-before.json.gz",
+    "gzipSha256": "3e1237e36dcf1c54ee0628225d215f6e439bb79ea31284de693e5b38212a8517",
+    "sha256": "bf2d30d334d26204d8df271809a24c64d0679ed1c0ae42979bdefedeaf36d8ae"
+  },
+  "junit.xml": {
+    "bytes": 5317,
+    "gzip": "junit.xml.gz",
+    "gzipSha256": "33761c594ba2bdbf3e72b4a0c8b9f4c415dff1a74f83a8548e9be651734ee5a4",
+    "sha256": "c9754c317161ab76a26571b26f2c7311355ea07533ea103d6d58212b1ea81c6b"
+  },
+  "observe.py": {
+    "bytes": 6728,
+    "gzip": "observe.py.gz",
+    "gzipSha256": "f2741d76f6833495d095b53d77d8257149dfa50bef6693a3b4ad046acdbbe570",
+    "sha256": "47b5a0f0ed4a5bfa270a3eda1d77e941dacf5c3e6e491ab14833668f14a44e44"
+  },
+  "pr47-hosted-darwin-555b9a74.log": {
+    "bytes": 480930,
+    "gzip": "pr47-hosted-darwin-555b9a74.log.gz",
+    "gzipSha256": "c105c36a58e32e524c9cdd589cc42a3baa612d9d1048a05c0616c394d5500123",
+    "sha256": "f470b5aff176bfaa4328752346ed6d2304230051f445ab07390f87e95493e27f"
+  },
+  "pr48-hosted-darwin-8e10a593.log": {
+    "bytes": 497347,
+    "gzip": "pr48-hosted-darwin-8e10a593.log.gz",
+    "gzipSha256": "77b382088cd1db51bbb952a18da539fded43faac470f6eacf3efa8e9aa288b9d",
+    "sha256": "e1322e8b5c7d8786c0d488a4e6be131519adc1079c33b31089eb559c4b55b596"
+  },
+  "preflight.json": {
+    "bytes": 1958,
+    "gzip": "preflight.json.gz",
+    "gzipSha256": "b821569340ad39b433151f1157a428fe8e01d1b31135b9cc1a893c2ee941f78d",
+    "sha256": "6fb8dff3ccc9e2d1221f3db9c9f242b05e550e4f24b52d2d99da995b0557496b"
+  },
+  "raw-sha256.json": {
+    "bytes": 1537,
+    "gzip": "raw-sha256.json.gz",
+    "gzipSha256": "71e6bdab05392c9dd9ba902dc8a4f242c829037c6bde29dd5145f88f5e436bcd",
+    "sha256": "b7f7c6d3219448f0437da9d08fdb3144b2a95c3a725782b957077b77d7dde492"
+  },
+  "stderr.log": {
+    "bytes": 6344,
+    "gzip": "stderr.log.gz",
+    "gzipSha256": "3948e5b324ce61e3f22142c429037249c43e760ce38ba3da9e4ea4e1e0060b55",
+    "sha256": "e9bccfb61687d3abf838d64acc31d8a09321d6d30b3e4ffd5e3d14c957a73d0a"
+  },
+  "stdout.log": {
+    "bytes": 74,
+    "gzip": "stdout.log.gz",
+    "gzipSha256": "eb2d9e0af19a5750c078682bc41f69c74b0d6e5d2618a6f06b03d6a21e09c11a",
+    "sha256": "0a1e155efbbc212f7ef4b497566a8bda9dfae687ecc9ad36215ee1b21e46036d"
+  },
+  "stream-events.jsonl": {
+    "bytes": 15219,
+    "gzip": "stream-events.jsonl.gz",
+    "gzipSha256": "1cab92f90c7417c8ee5da6dc687c24b5dc76833ec8013c219971b5af2e3c7e69",
+    "sha256": "9abbd4014f53dcb00affd4b4257607a370e77c2cd13018cacecaa447aa9e39d5"
+  },
+  "summary.json": {
+    "bytes": 219,
+    "gzip": "summary.json.gz",
+    "gzipSha256": "31006332a4c8331875d4adf6782c5502a72a3a34c4f569ea4da7fc88b7319482",
+    "sha256": "62f745effbde08c5207af4e6b4970a58bf4e62d1e5621e411679b2e9400b9b38"
+  },
+  "t04c_metadata.py": {
+    "bytes": 4990,
+    "gzip": "t04c_metadata.py.gz",
+    "gzipSha256": "4a1e56b691271c8cc98516391c3fb5d7051219d4b3c43331b3223daaef5e71c2",
+    "sha256": "e30580375c214ac8b338c5e509118d29b80473fbc71936ad6755cf149c141e6c"
+  }
+}

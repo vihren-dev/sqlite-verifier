@@ -1,0 +1,244 @@
+{
+  "date": "2026-10-06",
+  "platform": "aarch64-darwin",
+  "machine": "arm64",
+  "implementationRevision": "79e844a5b504c994acbb0c2ad68af8ffe4fc0f7c",
+  "correctionRevision": "5a18b5bfc21abdf7caf38a2f12682a4a8cdd39cd",
+  "runtime": "/nix/store/2hr0i77lmkabqxk0r7h1rsp2mbq5fga8-sqlite-verifier-runtime-1",
+  "docCorrectionRuntime": "/nix/store/216qpsj7d7anm2a4n3wqpgd2a7dgz4am-sqlite-verifier-runtime-1",
+  "leanVersion": "4.34.1",
+  "upstreamExporterCommit": "076e8e57707e813375e8f9da8bf989799ace9680",
+  "executablesSha256": {
+    "migration-proof-exporter": "bb90835efcaa41ba6c3dde40e493e598c69ee37c6061412ed195ef29cd0875ee",
+    "migration-bundle-checker": "c852ad0cc1e4ed85db93d6887410f5457aa17637235b44f6a19d85f00ccb616e",
+    "migration-proof-checker": "731e13f5cf4e6447edccbd06828ffa58d040cfc650af2de03f80ba7a7d46bdf2"
+  },
+  "docCorrectionExecutablesIdentical": true,
+  "sourceFilesSha256": {
+    "ProofExporter.lean": "3a137c728e833a2fb1d436ad02865c0d8e5d16738603257cefae72455035f030",
+    "migration_check/prepare.py": "0528035a7cf6b252efbc977c8a2e027323ddb09fa9f30c4e3eaacc41f62c9256",
+    "migration_check/runtime.py": "49429b0f09d08c0d5be6ed94c8afce5dac9429a475290203a8cfaad3df527626",
+    "migration_check/source_closure.py": "8460a85bfd46f8556dcd501c2f47cfac431a12d9870ef0a0f23d382101f88c3a",
+    "migration_check/import_path.py": "824fc8ee782f13f6092ff26461a9f180894c1d50060e16e7ed0bddfd937b784a",
+    "lakefile.toml": "a2d5f3fdb66c5abc6b483160e1e18292ae28f5547e6d488a1101bf5470b12719",
+    "build-support/lean4export.nix": "49f5e8e76441b6272f0a04f115d03f40cb8c99a9704c96f3af4d0577ec45e832",
+    "build-support/default.nix": "55091e5af1fb31d228bfeeb854c94a0da64261f93840b3484e65d176d5c875b5",
+    "build-support/runtime.nix": "f51ff839c76f512daec6dc4855335c910e960ede1fc179c9c75960731f21f301",
+    "tests/proof_exporter_test.py": "8199e05acaf9e9d9998bf7a74188a120bca3db73b9057c7f6d75a750019aaf00",
+    "tests/test_import_path.py": "b91dc93958a24f1acf34fb3140ab23dec86f13e694e6798fd6742690512d5767"
+  },
+  "baselineReceiptsSha256": {
+    "reports/20261006-lean-4341-upgrade-darwin.json": "1e371d070654cea93fc5931e5551ea4718384dc9a5e629e4e9f924cbfeb02a56",
+    "reports/20261006-lean-4341-upgrade-linux.json": "e847f0a86e607f74373081d22bb4b2ea2da7b3f21869874ce9d7bf78990748ad"
+  },
+  "junit": [
+    {
+      "path": "/Users/tzankomatev/work/sqlite-verifier-catalog/build/test-results/source.xml",
+      "sha256": "9630b6a874e1e806499a71ae6a7a7c47c2c7a679fb2bc7c9e9b12dc3100d76c9",
+      "suites": [
+        {
+          "tests": "353",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0",
+          "time": "34.449"
+        }
+      ]
+    },
+    {
+      "path": "/Users/tzankomatev/work/sqlite-verifier-catalog/build/proof-exporter-nix-inputs.xml",
+      "sha256": "5502bd1473498578a4d19e39922326b568f212b1f39be57bdfe104182084e431",
+      "suites": [
+        {
+          "tests": "72",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0",
+          "time": "82.180"
+        }
+      ]
+    },
+    {
+      "path": "/Users/tzankomatev/work/sqlite-verifier-catalog/build/proof-exporter-installed.xml",
+      "sha256": "3853ad8cfaa8d9e9c12783ef9f28d6ac3fdf3e2b1e525caba63b42389a0596cb",
+      "suites": [
+        {
+          "tests": "30",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0",
+          "time": "155.123"
+        }
+      ]
+    },
+    {
+      "path": "/Users/tzankomatev/work/sqlite-verifier-catalog/build/proof-exporter-import-path.xml",
+      "sha256": "0aaf184f95ae61f4ac4c5303b6f86bfece718493a15ec14545ae72883d14d792",
+      "suites": [
+        {
+          "tests": "3",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0",
+          "time": "3.651"
+        }
+      ]
+    },
+    {
+      "path": "/Users/tzankomatev/work/sqlite-verifier-catalog/build/proof-exporter-origin.xml",
+      "sha256": "b1670d7f952e40af25c12f0f976b0eb1cf504467146eb88710bb173db212a734",
+      "suites": [
+        {
+          "tests": "1",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0",
+          "time": "1.605"
+        }
+      ]
+    },
+    {
+      "path": "/nix/store/f60d52xq6r5hszc1pnxa8a4sad0jp2x0-sqlite-verifier-test-atuin-1/junit.xml",
+      "sha256": "9b962913dd0c2cf4354e4781f7b7d38cc7d0e5ab86337cea224bd971924e2315",
+      "suites": [
+        {
+          "tests": "12",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0",
+          "time": "82.416"
+        }
+      ]
+    },
+    {
+      "path": "/nix/store/vd1nfa8c1gbpvx2q174k965wlbshwn69-sqlite-verifier-test-bundle-1/junit.xml",
+      "sha256": "d42343b90431aa76e1e126abe051f1418274bd0ec5c34e5e4216ea012bfc1d75",
+      "suites": [
+        {
+          "tests": "42",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0",
+          "time": "232.174"
+        }
+      ]
+    },
+    {
+      "path": "/nix/store/mqcflxf8kdj8xx2ay6girwmr0m656dp4-sqlite-verifier-test-cli-1/junit.xml",
+      "sha256": "d20ef0d62b662ddaf575269a358d250c57f3402104b14a10faadbc44c3f22329",
+      "suites": [
+        {
+          "tests": "13",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0",
+          "time": "35.978"
+        }
+      ]
+    },
+    {
+      "path": "/nix/store/05d5bk84ah4w3ghaxdb083md4i1lhs8f-sqlite-verifier-test-kernel-1/junit.xml",
+      "sha256": "ac429e326dcf1f6805e4e1eab3424770f0fcf7bd7e022ce754c5fababb1811e1",
+      "suites": [
+        {
+          "tests": "19",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0",
+          "time": "37.695"
+        }
+      ]
+    },
+    {
+      "path": "/nix/store/9hp28bg9ddw9nmic05hcdliwschmm03r-sqlite-verifier-test-sample-1/junit.xml",
+      "sha256": "158ec1c56f527f2ed818325e76f0d176f327873f60187494263179230457442f",
+      "suites": [
+        {
+          "tests": "12",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0",
+          "time": "44.504"
+        }
+      ]
+    },
+    {
+      "path": "/nix/store/af5agl3la0pviccn96h1i4xq4w41m1ba-sqlite-verifier-test-upstream-1/junit.xml",
+      "sha256": "ff6e25ffd0361225c2946b976174ca5a35e5bce8cbd71cdafe4a1b524f499159",
+      "suites": [
+        {
+          "tests": "58",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0",
+          "time": "1.664"
+        }
+      ]
+    }
+  ],
+  "archive": {
+    "name": "sqlite-verifier-aarch64-darwin.tar.gz",
+    "bytes": 1113481910,
+    "sha256": "dc2cca4f54c6ddf6283027716a8ebb695f2833d07671cc4bb88b1c8fe085901f"
+  },
+  "acceptanceState": "Darwin development and installed checks passed; Linux and final owner review pending",
+  "performanceClaim": "No exporter speed comparison is made.",
+  "expectedPatchedBaselineCases": [
+    {
+      "name": "small",
+      "profile": "3.51.0",
+      "status": "VERIFIED",
+      "cliReturncode": 0,
+      "bundleSha256": "6a8289379ccac861f3fe0c09f5fb8fc3c0ff67ca803757343f825d959677105e",
+      "bundleBytes": 11358,
+      "inputSha256": {
+        "examples/approved/schema.sql": "70f3ef1458be467b401d433e2fc5c3a8aec43ed0b1f89d7069f3f5d2bfd290d3",
+        "examples/approved/Requirements.lean": "4bee30115f2aa8a7b4494a523011c1ce5fdf3eb8b2cbb142e9c5c750a6d7c4b3",
+        "examples/approved/Interpretation.lean": "0642ae14b8287a71b28aa03e76ae3f2cde3575cd0637c0e96674b3e7dab25ea8",
+        "examples/add_column_then_table/migration.sql": "efbb1727791a256229917481001f7c814f304e704723b7a66cb9ba7dbbbd8b42",
+        "examples/add_column_then_table/NextInterpretation.lean": "643a4bf7d920f9ee6625643243a944842b1df8bdb189c9d1cae201fdd99f5d21",
+        "examples/add_column_then_table/Proofs.lean": "e0d0b4ce54bc48b248b9a1694755d58bf0fcc654d9bb4d7333afcc73f3f23173"
+      }
+    },
+    {
+      "name": "refutation",
+      "profile": "3.51.0",
+      "status": "VIOLATED",
+      "cliReturncode": 1,
+      "bundleSha256": "345028f84aa80c44587a2783d2cc783315a9c7dfe6dfa33f13cf3d9c84514f6e",
+      "bundleBytes": 14584,
+      "inputSha256": {
+        "examples/approved/schema.sql": "70f3ef1458be467b401d433e2fc5c3a8aec43ed0b1f89d7069f3f5d2bfd290d3",
+        "examples/approved/Requirements.lean": "4bee30115f2aa8a7b4494a523011c1ce5fdf3eb8b2cbb142e9c5c750a6d7c4b3",
+        "examples/approved/Interpretation.lean": "0642ae14b8287a71b28aa03e76ae3f2cde3575cd0637c0e96674b3e7dab25ea8",
+        "examples/missing_required_column/migration.sql": "120d24ab66e303094c7239b810d2710fa67b049232952403f516a25ea168bf6d",
+        "examples/missing_required_column/NextInterpretation.lean": "a499496865a27dec2a106cfbd6fa6c66c74cd1efb81869414dd22deafdda64af",
+        "examples/missing_required_column/Proofs.lean": "59f8c173827c52125d5d6dc25a95c0ff352e84e7b77d921feb62b88044301f1c"
+      }
+    },
+    {
+      "name": "atuin",
+      "profile": "3.46.0",
+      "status": "VERIFIED",
+      "cliReturncode": 0,
+      "bundleSha256": "540dd2cc6d89847af49628e44d45d6e67e13fcc2092e1dd0159bc0906c8a2262",
+      "bundleBytes": 1541403,
+      "inputSha256": {
+        "examples/atuin/schema.sql": "b1cb97162debff911afacb6111907d9aa90e67fbfa1f58ba6ef814919969b6a6",
+        "examples/atuin/approved/Requirements.lean": "9febaa21679e35e00b0f1726b9fa012f51b76153ee905c910cabb0a0e30ab921",
+        "examples/atuin/approved/Interpretation.lean": "cb957b5141178ebf39d42a4eb9ffda6faaab31982fb4057b464a8af2be3ccdd4",
+        "examples/atuin/migration.sql": "3e998a7f7df2cdcc4593e3a8b0a4e3cc7da3f798869021e27638793ef17c589e",
+        "examples/atuin/NextInterpretation.lean": "76abe097200b97515e77e012cb2978b03ec227ace7347af7284ad803f8f28144",
+        "examples/atuin/Proofs.lean": "5fc147ae9262e931a4a4bff56411b3476fb3c67ca09f5a4367ec9b5f9509c068"
+      }
+    }
+  ],
+  "baselineComparisonEvidence": "All three actual new-producer tests compare these input digests, bundle length/SHA256 and status; JUnit records each passing case.",
+  "examplesUnchangedFromUpgrade": true,
+  "retainedJUnit": {
+    "path": "reports/20261006-proof-exporter-driver/darwin-junit.json.gz",
+    "sha256": "ff586c1015bd810cd13627bfa5b341a19432ea0907187d4345320f3587ddfab1",
+    "uncompressedSha256": "31889c1f6c6d690646f52670d63b9f42b85785bf985958338153efc45d7991c3",
+    "format": "gzip-json-map-path-to-original-xml"
+  }
+}

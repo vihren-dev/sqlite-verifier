@@ -1,0 +1,70 @@
+{
+  "approvedRevision": "07dc71b323808ac03991407e75dd4e74031924cb",
+  "integratedParents": [
+    "2a4a2060d3166eb9e91f7c088935882c1f3136e5",
+    "bc9e2dce58f755b608cf00e545162257b81ab51a"
+  ],
+  "approvedLeanExporterAndParserIdentitiesUnchanged": true,
+  "runtimeIdentityChangedByMain": [
+    "migration_check/sql_model.py",
+    "migration_check/profiles.py"
+  ],
+  "identities": {
+    "aarch64-darwin": {
+      "approved": {
+        "conformance": "/nix/store/4n4739qxi1bcafgibcl0wbfrfaqssb0k-sqlite-verifier-conformance.drv",
+        "leanRuntime": "/nix/store/j9b9l26gipa6n6ajm5nqpg1l67pwlgna-sqlite-verifier-lean-runtime-1.drv",
+        "leanToolchain": "/nix/store/sckgvvnn5hnr8m8y7ylap910bzh511g6-sqlite-verifier-lean-4.34.1.drv",
+        "runtime": "/nix/store/4y1rhy3dybxm9789s17qd79p58bxy103-sqlite-verifier-runtime-1.drv",
+        "runtimeOutput": "/nix/store/216qpsj7d7anm2a4n3wqpgd2a7dgz4am-sqlite-verifier-runtime-1",
+        "sources": {
+          "conformanceLean": "/nix/store/d3ylj04a550mdhcdpwfrjmg54jlsyriq-source",
+          "lean": "/nix/store/5awj0i9qbrg794rc9dnhvpy0lia00184-source",
+          "parsers": "/nix/store/yy1vr2vbblnnqpmnpx9hwxdkslk1pg89-source",
+          "runtime": "/nix/store/b5pvfx8hppqwrridqqiw5vhm8cir7mnp-source"
+        }
+      },
+      "integrated": {
+        "conformance": "/nix/store/4n4739qxi1bcafgibcl0wbfrfaqssb0k-sqlite-verifier-conformance.drv",
+        "leanRuntime": "/nix/store/j9b9l26gipa6n6ajm5nqpg1l67pwlgna-sqlite-verifier-lean-runtime-1.drv",
+        "leanToolchain": "/nix/store/sckgvvnn5hnr8m8y7ylap910bzh511g6-sqlite-verifier-lean-4.34.1.drv",
+        "runtime": "/nix/store/w49sjcqzi3h8svw221b0a54pvrxhj1za-sqlite-verifier-runtime-1.drv",
+        "runtimeOutput": "/nix/store/dsb751zkkicbqgxca8lkk3zf4rcz8i85-sqlite-verifier-runtime-1",
+        "sources": {
+          "conformanceLean": "/nix/store/d3ylj04a550mdhcdpwfrjmg54jlsyriq-source",
+          "lean": "/nix/store/5awj0i9qbrg794rc9dnhvpy0lia00184-source",
+          "parsers": "/nix/store/yy1vr2vbblnnqpmnpx9hwxdkslk1pg89-source",
+          "runtime": "/nix/store/6qphjjblyk3lqm35vmiw176brrbl47zy-source"
+        }
+      }
+    },
+    "x86_64-linux": {
+      "approved": {
+        "conformance": "/nix/store/qzbb9dmbsy8ala1s86ylr8n8fkjammfv-sqlite-verifier-conformance.drv",
+        "leanRuntime": "/nix/store/wx3yd13d1s6nknjf6hp3qiparzqqz5mn-sqlite-verifier-lean-runtime-1.drv",
+        "leanToolchain": "/nix/store/nzpvkvnvnq5642viyx6z9gyxia3n79ih-sqlite-verifier-lean-4.34.1.drv",
+        "runtime": "/nix/store/kwgwqmc0dvfqjlcsmg2l4hx77m0j01zy-sqlite-verifier-runtime-1.drv",
+        "runtimeOutput": "/nix/store/la6glkdjla3lp9flpja0rqa0mjd3fmjr-sqlite-verifier-runtime-1",
+        "sources": {
+          "conformanceLean": "/nix/store/d3ylj04a550mdhcdpwfrjmg54jlsyriq-source",
+          "lean": "/nix/store/5awj0i9qbrg794rc9dnhvpy0lia00184-source",
+          "parsers": "/nix/store/yy1vr2vbblnnqpmnpx9hwxdkslk1pg89-source",
+          "runtime": "/nix/store/b5pvfx8hppqwrridqqiw5vhm8cir7mnp-source"
+        }
+      },
+      "integrated": {
+        "conformance": "/nix/store/qzbb9dmbsy8ala1s86ylr8n8fkjammfv-sqlite-verifier-conformance.drv",
+        "leanRuntime": "/nix/store/wx3yd13d1s6nknjf6hp3qiparzqqz5mn-sqlite-verifier-lean-runtime-1.drv",
+        "leanToolchain": "/nix/store/nzpvkvnvnq5642viyx6z9gyxia3n79ih-sqlite-verifier-lean-4.34.1.drv",
+        "runtime": "/nix/store/rlg922c0j3y8y5gg2q90mza7lb0rq26f-sqlite-verifier-runtime-1.drv",
+        "runtimeOutput": "/nix/store/2l4z42m5b31ka8finl09b83x3b2758hk-sqlite-verifier-runtime-1",
+        "sources": {
+          "conformanceLean": "/nix/store/d3ylj04a550mdhcdpwfrjmg54jlsyriq-source",
+          "lean": "/nix/store/5awj0i9qbrg794rc9dnhvpy0lia00184-source",
+          "parsers": "/nix/store/yy1vr2vbblnnqpmnpx9hwxdkslk1pg89-source",
+          "runtime": "/nix/store/6qphjjblyk3lqm35vmiw176brrbl47zy-source"
+        }
+      }
+    }
+  }
+}
