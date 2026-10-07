@@ -1,0 +1,35 @@
+{
+  "sourceBase": "4c3b9f24",
+  "system": "aarch64-darwin",
+  "actualNixTarget": "tests.sample",
+  "actualOutput": "/nix/store/dd46cg42kz8fgfgn54hncnxsm3r9wp7z-sqlite-verifier-test-sample-1",
+  "sandbox": true,
+  "sandboxFallback": false,
+  "outerCommandLimitSeconds": 900,
+  "suiteHangGuardSeconds": 1200,
+  "perTestLimitSeconds": 300,
+  "phaseLimitSeconds": 120,
+  "workerDriverLimitSeconds": 5,
+  "workerDisappearanceLimitSeconds": 3,
+  "checks": {
+    "tests": 22,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "workerTimeoutCaseActuallyExecuted": true,
+  "productionWorkerCodeChanged": false,
+  "standalonePerformanceAcceptanceClaimed": false,
+  "sourceSha256": {
+    "tests/test_native_workers.py": "98c49786da4921c25fc328c3ad4ab29fd375fafb88365be2b86beab70a6a4b27",
+    "tests/native_worker_fixtures.py": "7f1196b7218e07d77548583be59e405e2be7d861a60f840858ac07d230eed1af",
+    "tests/test_nix_test_targets.py": "48e6a794e1e7dd205d0d6a4a383f32563662e5627dc2e36fdd6b702fee6c092b",
+    "build-support/tests.nix": "43b536cea3cd501277af586383623456f16069a284cf29135395b6a43f6a169b"
+  },
+  "originalPayloadSha256": {
+    "focused.xml": "0ba8f19d271e235bb4102a060ff800d6f739e0085ce022338b9546a327529bb5",
+    "sample-build.log.gz": "8cfeae87e9880b0ce65bc7bbe4e27d1330827d96a7404e91338d34c861bce7df",
+    "sample-ownership.xml": "1eaa0d8359455b019a0a3dbaaa15a70d2cc359b647b6ca84ad408a988e3b3021",
+    "sample-junit.xml": "ad6ae2937a02b8da08f0a6183b60e5aec96a5cfe0c003a22752a296471c25fc8"
+  }
+}

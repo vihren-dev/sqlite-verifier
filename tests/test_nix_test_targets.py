@@ -97,6 +97,7 @@ def source_tree(tmp_path: Path) -> Path:
     ('tests/conformance_tier_bindings_test.py', {'frozen'}),
     ('tests/conformance_authored_test.py', {'frozen'}),
     ('tests/conformance_storage_test.py', {'harness'}),
+    ('tests/native_worker_fixtures.py', {'sample'}),
     ('tests/conformance_freeze_test.py', {'frozen', 'upstream'}),
     ('tests/conformance_command_sources_test.py', {'upstream'}),
     ('tests/test_native_replay_storage.py', {'upstream'}),

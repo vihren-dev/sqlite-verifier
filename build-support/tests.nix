@@ -95,6 +95,7 @@ let
 in {
   sample = suite "sample" {
     inputs = frontend ++ [
+      (root + /tests/native_worker_fixtures.py)
       (root + /conformance/corpus-v5)
       (root + /conformance/synthetic-workload)
     ] ++ map (name: root + "/conformance/${name}.py") [

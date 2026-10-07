@@ -683,3 +683,27 @@ authorized one Linux diagnostic below. No production change followed it.
   Cache residency remains unobserved and no causal speedup claim is made.
   Linux's heavy lease is released. Darwin had no T04 phase; the coordinator
   must decide any next unit after this receipt is reviewed. T04 remains IN PROGRESS.
+
+- 2026-10-07: The owner refreshed the branch with accepted main and requested
+  a fix for the sandboxed worker test's dependency on `ps`. The timeout fixture
+  now holds a file lock before it publishes its PID marker. After the actual
+  outer timeout, the test requires that each worker's kernel lock is released.
+  This checks terminated workers, including unreaped zombies, without a host
+  process-list command. The three-second disappearance bound and five-second
+  process-group timeout remain unchanged. Worker fixtures move to a small test
+  module that is an explicit sample input. No production replay code, phase
+  limit, fixture case, performance receipt or frozen corpus changes. Bounded
+  native, frontend and real Nix input checks remain required before commit.
+
+- 2026-10-07: All 13 native-worker and frontend checks pass in 6.86 seconds
+  under a 30-second command limit. The real Nix command and fixture ownership
+  checks pass; after confirming the worker files belong to `sample`, its
+  corrected dependency check passes in 2.38 seconds. The first 120-case
+  `harness` run did not contain worker tests and does not establish this fix.
+  The actual `tests.sample` target then passes all 22 checks in 40.40 seconds
+  inside the hardened macOS sandbox, including four real spawned workers and
+  their configured timeout. The original XML, log and source bindings are in
+  [the sandbox record](../reports/20261007-development-replay-sandbox-workers/README.md).
+  The resource guard passes. No production source, frozen corpus or previous
+  receipt changes. Independent review remains required. This is sandbox
+  acceptance for the test dependency fix, not standalone performance acceptance.
