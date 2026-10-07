@@ -1,0 +1,370 @@
+{
+  "date": "2026-10-06",
+  "platform": "x86_64-linux",
+  "leanVersion": "4.34.1",
+  "exporterTag": "v4.34.0",
+  "runtime": "/nix/store/g1hykmha4xw4l938i9fjya5fwhb36xcj-sqlite-verifier-runtime-1",
+  "runtimeIdentities": [
+    "Linux vihren-demo 7.1.5 #1-NixOS SMP PREEMPT_DYNAMIC Fri Jul 24 14:21:27 UTC 2026 x86_64 GNU/Linux",
+    "nix (Nix) 2.34.8",
+    "Lean (version 4.34.1, x86_64-unknown-linux-gnu, commit 5045d0056413266e57c625dcd7c365b10e377c52, Release)",
+    "Lake version 5.0.0-src+5045d00 (Lean version 4.34.1)",
+    "3.51.0 2025-11-04 19:38:17 fb2c931ae597f8d00a37574ff67aeed3eced4e5547f9120744ae4bfa8e74527b (64-bit)",
+    "3.46.0 2024-05-23 13:25:27 96c92aba00c8375bc32fafcdf12429c58bd8aabfcadab6683e35bbb9cdebf19e (64-bit)",
+    "Python 3.14.7",
+    "/nix/store/g1hykmha4xw4l938i9fjya5fwhb36xcj-sqlite-verifier-runtime-1",
+    "d5edba4e4b8faad9c1baeadb265716d20d03be4d1a2647dc5e35b0c0325bea7b  lean-toolchain"
+  ],
+  "junit": [
+    {
+      "path": "/var/tmp/sqlite-verifier-t03.AOLMCD/source/build/test-results/source.xml",
+      "sha256": "9e6c511300e43b24236a4369c467d4d94796614d76dec5bc6d8f447251e927f0",
+      "tests": 349,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 2,
+      "skipReasons": [
+        {
+          "test": "tests.test_review::test_installed_cli_has_reviewer_options[codex]",
+          "reason": "codex is not installed"
+        },
+        {
+          "test": "tests.test_review::test_installed_cli_has_reviewer_options[claude]",
+          "reason": "claude is not installed"
+        }
+      ]
+    },
+    {
+      "path": "/var/tmp/sqlite-verifier-t03.AOLMCD/source/build/test-results/nix.xml",
+      "sha256": "b88df649bd8fb24664fa87bb3e1ee5b829dcde341e9fcd08a45901bccc06eeb7",
+      "tests": 68,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "path": "/var/tmp/sqlite-verifier-t03.AOLMCD/source/build/test-results/installed.xml",
+      "sha256": "80327a64a3ff1a5aeb2df3e8c43b9f2ccb7b88011b71f86abe233d3acbf000bf",
+      "tests": 21,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "path": "/nix/store/yia898zpf738bkkzhv7gdqxlqkqp12il-sqlite-verifier-test-bundle-1/junit.xml",
+      "sha256": "6af7ca67bb68cab0541d45c4752800caa89d53e10548d4009d8698dce579ee21",
+      "tests": 33,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "path": "/nix/store/lq40ca0npz8cf28b8cjhiwp63pv32fm4-sqlite-verifier-test-cli-1/junit.xml",
+      "sha256": "3c4a4d7e8072beb7d9c6c5beadec4241452743c1c6b90d84c81cc8d3c18cbb57",
+      "tests": 13,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "path": "/nix/store/6xc28wn3m7lhljagaqp3ql7rwzfrd3p1-sqlite-verifier-test-kernel-1/junit.xml",
+      "sha256": "83119f51c51102ce3b0f8096f006fabd152a3587ff2e1a9a438b0a53226963d9",
+      "tests": 19,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "path": "/nix/store/6wznx582ci191rr8zcddh7z33656sgg2-sqlite-verifier-test-model-1/junit.xml",
+      "sha256": "c276c4a0231d37f4e2108ec8d017aa47f4fad5ece1ffffcf08bb62dae9991e41",
+      "tests": 323,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 1,
+      "skipReasons": [
+        {
+          "test": "tests.conformance_command_sources_test::test_real_tcl_source_observations",
+          "reason": "Run the pinned Nix upstream target for Tcl capture"
+        }
+      ]
+    },
+    {
+      "path": "/nix/store/whgqf5xglm1xy7qx08s7jgs2xrg9q92m-sqlite-verifier-test-sample-1/junit.xml",
+      "sha256": "efa933ad9e3e379d98a1ff0e605ee803dfa16e6ba59c57a8080dd2fe4a8c7836",
+      "tests": 12,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "path": "/nix/store/v02c8bqbshj0m53drzqx8wihc99wfpmd-sqlite-verifier-test-upstream-1/junit.xml",
+      "sha256": "8a09eb335e93c223dd107563b6129616891e8d0fc93fb9733e329cc2fd2edbcd",
+      "tests": 58,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "path": "/nix/store/q4jxdkhs5ydxkg6vqwwh1q836drqag4w-sqlite-verifier-test-atuin-1/junit.xml",
+      "sha256": "35250858466981024714d772396a7fd7c586501b0b8aee08dd4e59d38686c260",
+      "tests": 12,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    }
+  ],
+  "archive": {
+    "name": "sqlite-verifier-x86_64-linux.tar.gz",
+    "sha256": "7e91ad3c5a1c2cc532cc54ad4d024d95c8ff723db700c95962ff92aa8a7339db",
+    "bytes": 950355556
+  },
+  "exporterBaseline": {
+    "date": "2026-10-06",
+    "platform": "x86_64-linux",
+    "leanVersion": "4.34.1",
+    "leanIdentity": "Lean (version 4.34.1, x86_64-unknown-linux-gnu, commit 5045d0056413266e57c625dcd7c365b10e377c52, Release)",
+    "exporterTag": "v4.34.0",
+    "exporterCommit": "076e8e57707e813375e8f9da8bf989799ace9680",
+    "runtime": "/nix/store/g1hykmha4xw4l938i9fjya5fwhb36xcj-sqlite-verifier-runtime-1",
+    "exporterBinarySha256": "1fc54999c757b31fb98c9fd512a0a621b81fe2c5eb516d90ca70116c8e37acbe",
+    "sourceManifestSha256": "040d7a1c7b21b9134c925fb9ed983e05008ff91461b46d2678e9aea99dc77789",
+    "cases": [
+      {
+        "name": "small",
+        "profile": "3.51.0",
+        "status": "VERIFIED",
+        "cliReturncode": 0,
+        "internalCheckerReturncode": 0,
+        "bundleSha256": "6a8289379ccac861f3fe0c09f5fb8fc3c0ff67ca803757343f825d959677105e",
+        "bundleBytes": 11358,
+        "inputSha256": {
+          "examples/approved/schema.sql": "70f3ef1458be467b401d433e2fc5c3a8aec43ed0b1f89d7069f3f5d2bfd290d3",
+          "examples/approved/Requirements.lean": "4bee30115f2aa8a7b4494a523011c1ce5fdf3eb8b2cbb142e9c5c750a6d7c4b3",
+          "examples/approved/Interpretation.lean": "0642ae14b8287a71b28aa03e76ae3f2cde3575cd0637c0e96674b3e7dab25ea8",
+          "examples/add_column_then_table/migration.sql": "efbb1727791a256229917481001f7c814f304e704723b7a66cb9ba7dbbbd8b42",
+          "examples/add_column_then_table/NextInterpretation.lean": "643a4bf7d920f9ee6625643243a944842b1df8bdb189c9d1cae201fdd99f5d21",
+          "examples/add_column_then_table/Proofs.lean": "e0d0b4ce54bc48b248b9a1694755d58bf0fcc654d9bb4d7333afcc73f3f23173"
+        },
+        "verificationInputs": {
+          "approved/Requirements.lean": "4bee30115f2aa8a7b4494a523011c1ce5fdf3eb8b2cbb142e9c5c750a6d7c4b3",
+          "approved/Interpretation.lean": "0642ae14b8287a71b28aa03e76ae3f2cde3575cd0637c0e96674b3e7dab25ea8",
+          "generated/SchemaInputs.lean": "a9efc884d6c9820da2ef7656046cbc96178d1dda8ee79841293fa1bf1d7c3b4c",
+          "generated/SqlInputs.lean": "c7ca56c35c09563adeee3eac51e99b45d68c1119d5f9b194ff9d68f4d2cf73ff",
+          "schema.sql": "70f3ef1458be467b401d433e2fc5c3a8aec43ed0b1f89d7069f3f5d2bfd290d3",
+          "migration.sql": "efbb1727791a256229917481001f7c814f304e704723b7a66cb9ba7dbbbd8b42",
+          "profile": "3.51.0",
+          "bundle": "6a8289379ccac861f3fe0c09f5fb8fc3c0ff67ca803757343f825d959677105e"
+        },
+        "verificationInputProvenance": "Fresh direct checker using identical inputs/runtime; CLI hashes compared when emitted",
+        "structuralInputSha256": "960112883a2c1266ed5498186b1a14b79450a4b9079a022197e65ced6aa28e38"
+      },
+      {
+        "name": "refutation",
+        "profile": "3.51.0",
+        "status": "VIOLATED",
+        "cliReturncode": 1,
+        "internalCheckerReturncode": 2,
+        "bundleSha256": "345028f84aa80c44587a2783d2cc783315a9c7dfe6dfa33f13cf3d9c84514f6e",
+        "bundleBytes": 14584,
+        "inputSha256": {
+          "examples/approved/schema.sql": "70f3ef1458be467b401d433e2fc5c3a8aec43ed0b1f89d7069f3f5d2bfd290d3",
+          "examples/approved/Requirements.lean": "4bee30115f2aa8a7b4494a523011c1ce5fdf3eb8b2cbb142e9c5c750a6d7c4b3",
+          "examples/approved/Interpretation.lean": "0642ae14b8287a71b28aa03e76ae3f2cde3575cd0637c0e96674b3e7dab25ea8",
+          "examples/missing_required_column/migration.sql": "120d24ab66e303094c7239b810d2710fa67b049232952403f516a25ea168bf6d",
+          "examples/missing_required_column/NextInterpretation.lean": "a499496865a27dec2a106cfbd6fa6c66c74cd1efb81869414dd22deafdda64af",
+          "examples/missing_required_column/Proofs.lean": "59f8c173827c52125d5d6dc25a95c0ff352e84e7b77d921feb62b88044301f1c"
+        },
+        "verificationInputs": {
+          "approved/Requirements.lean": "4bee30115f2aa8a7b4494a523011c1ce5fdf3eb8b2cbb142e9c5c750a6d7c4b3",
+          "approved/Interpretation.lean": "0642ae14b8287a71b28aa03e76ae3f2cde3575cd0637c0e96674b3e7dab25ea8",
+          "generated/SchemaInputs.lean": "a9efc884d6c9820da2ef7656046cbc96178d1dda8ee79841293fa1bf1d7c3b4c",
+          "generated/SqlInputs.lean": "bc8b6bdf3bab2e04f8ef24a1baac332c4f496b395ee5fddfd17fb5e047b60b3c",
+          "schema.sql": "70f3ef1458be467b401d433e2fc5c3a8aec43ed0b1f89d7069f3f5d2bfd290d3",
+          "migration.sql": "120d24ab66e303094c7239b810d2710fa67b049232952403f516a25ea168bf6d",
+          "profile": "3.51.0",
+          "bundle": "345028f84aa80c44587a2783d2cc783315a9c7dfe6dfa33f13cf3d9c84514f6e"
+        },
+        "verificationInputProvenance": "Fresh direct checker using identical inputs/runtime; CLI hashes compared when emitted",
+        "structuralInputSha256": "5ec86c31c57de5a9c5023f92a83d94411832f465b2ba5fe9d58a84e90f420369"
+      },
+      {
+        "name": "atuin",
+        "profile": "3.46.0",
+        "status": "VERIFIED",
+        "cliReturncode": 0,
+        "internalCheckerReturncode": 0,
+        "bundleSha256": "540dd2cc6d89847af49628e44d45d6e67e13fcc2092e1dd0159bc0906c8a2262",
+        "bundleBytes": 1541403,
+        "inputSha256": {
+          "examples/atuin/schema.sql": "b1cb97162debff911afacb6111907d9aa90e67fbfa1f58ba6ef814919969b6a6",
+          "examples/atuin/approved/Requirements.lean": "9febaa21679e35e00b0f1726b9fa012f51b76153ee905c910cabb0a0e30ab921",
+          "examples/atuin/approved/Interpretation.lean": "cb957b5141178ebf39d42a4eb9ffda6faaab31982fb4057b464a8af2be3ccdd4",
+          "examples/atuin/migration.sql": "3e998a7f7df2cdcc4593e3a8b0a4e3cc7da3f798869021e27638793ef17c589e",
+          "examples/atuin/NextInterpretation.lean": "76abe097200b97515e77e012cb2978b03ec227ace7347af7284ad803f8f28144",
+          "examples/atuin/Proofs.lean": "5fc147ae9262e931a4a4bff56411b3476fb3c67ca09f5a4367ec9b5f9509c068"
+        },
+        "verificationInputs": {
+          "approved/Requirements.lean": "9febaa21679e35e00b0f1726b9fa012f51b76153ee905c910cabb0a0e30ab921",
+          "approved/Interpretation.lean": "cb957b5141178ebf39d42a4eb9ffda6faaab31982fb4057b464a8af2be3ccdd4",
+          "approved/HistoryMapping.lean": "5a88021909d19a8e203dab07bf564c508ec42833f8d557b171dd83926d003015",
+          "approved/SchemaBinding.lean": "2802dddf47c91e5f531f137eeb30b369a0bef5907f7eb35e4101053fa40b748d",
+          "approved/HistoryDecoding.lean": "43628003e010f27d2b84cfdf065aefd8c3d063e33dc459201a791a5db9c4f246",
+          "approved/HistoryModel.lean": "f0d809bd441bb6c3b14010428ef3d02a46abdda555a49443f69c94dae3c11b1f",
+          "generated/SchemaInputs.lean": "32ae259f89840aa0ddf9f872ff3b9f3b4525658459ff5cd821c984db148ff946",
+          "generated/SqlInputs.lean": "ee4453d23ec165937677a7290698c278a4ac2b49396cc05ff1a144b3bddcf23c",
+          "schema.sql": "b1cb97162debff911afacb6111907d9aa90e67fbfa1f58ba6ef814919969b6a6",
+          "migration.sql": "3e998a7f7df2cdcc4593e3a8b0a4e3cc7da3f798869021e27638793ef17c589e",
+          "profile": "3.46.0",
+          "bundle": "540dd2cc6d89847af49628e44d45d6e67e13fcc2092e1dd0159bc0906c8a2262"
+        },
+        "verificationInputProvenance": "Fresh direct checker using identical inputs/runtime; CLI hashes compared when emitted",
+        "structuralInputSha256": "ab308f5e93161b79a77c9eb61346da372e566a3c9939ca00ca56f7c2fa73c3d9"
+      }
+    ]
+  },
+  "baselineBytesMatchDarwin": true,
+  "sourceSnapshot": {
+    "publicRepository": "https://github.com/vihren-dev/sqlite-verifier",
+    "files": 814,
+    "archiveSha256": "44a03cf23e99d8538ba01faebb4e3b22e5aa7e4dfee6176df13ba448b5bd5b16",
+    "archiveBytes": 20533540,
+    "initialManifestSha256": "0362e3bb7c3806adddee08a32bcbe6d55e2c0a93c3a88bf7a6a1572cdfe4a540",
+    "resumedManifestSha256": "040d7a1c7b21b9134c925fb9ed983e05008ff91461b46d2678e9aea99dc77789",
+    "authorizedAdjustment": {
+      "reason": "Owner authorized locating ps through PATH",
+      "file": "tests/test_pytest_harness.py",
+      "old": "9b433ebe9ee7b88b7e0bc586c95d9cd9fa4cd9713f76e69601e5862568a27e91",
+      "new": "3e47fbaa537f3a1aabe9b0f3c9aaea695b2caaf68f91956b99097a2c6561ddeb",
+      "manifestSha256": "040d7a1c7b21b9134c925fb9ed983e05008ff91461b46d2678e9aea99dc77789"
+    },
+    "finalManifestVerification": "passed after all validation and baseline captures",
+    "excluded": [
+      ".git",
+      ".jj",
+      ".lake",
+      "build",
+      "dist",
+      ".direnv",
+      "result*",
+      "__pycache__",
+      "developer lean symlink"
+    ],
+    "privateProductInputsTransferred": false
+  },
+  "validationScope": {
+    "passed": [
+      "pinned Linux runtime/exporter and gates build",
+      "actual process-group timeout regression",
+      "complete source-owned suite",
+      "all seven full Nix targets",
+      "Nix boundary suite",
+      "offline installed runtime and Atuin suite",
+      "three fresh prepare/verify-bundle paths with independently observed internal checker exits"
+    ],
+    "notIncluded": [
+      "later runtime diagnostic wording changes",
+      "T02 exporter replacement",
+      "T06 cold-run measurements",
+      "owner review",
+      "release publication"
+    ],
+    "sourceOptionalCliSkips": [
+      "codex is not installed",
+      "claude is not installed"
+    ],
+    "modelSkip": "Real Tcl capture is owned by the separate pinned upstream target, which passed"
+  },
+  "phases": [
+    {
+      "attempt": "initial",
+      "phase": "resources",
+      "exitCode": 0,
+      "seconds": 0,
+      "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "attempt": "initial",
+      "phase": "build",
+      "exitCode": 0,
+      "seconds": 63,
+      "logSha256": "d6a76b4ebbe3316ec7e084a2f246c4e413c3758c5a42496d638892e2143cc2eb"
+    },
+    {
+      "attempt": "initial",
+      "phase": "identities",
+      "exitCode": 0,
+      "seconds": 0,
+      "logSha256": "1f89bc08cbcb3faa23a5d142b4395cbf89f4770e1191ff327384218f20d8c026"
+    },
+    {
+      "attempt": "initial",
+      "phase": "test-full",
+      "exitCode": 1,
+      "seconds": 24,
+      "logSha256": "f5a46ec2127386b1575fa306fb5a0f90fe2c17ce5156c85675a2a4063c40d7fc"
+    },
+    {
+      "attempt": "resume",
+      "phase": "resources",
+      "exitCode": 0,
+      "seconds": 0,
+      "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "attempt": "resume",
+      "phase": "process-group-test",
+      "exitCode": 0,
+      "seconds": 2,
+      "logSha256": "d054fdcb09256ddd6e83717b793e8421faed9bff57598c05e5b79fbdedc5df7a"
+    },
+    {
+      "attempt": "resume",
+      "phase": "test-source",
+      "exitCode": 0,
+      "seconds": 24,
+      "logSha256": "81d2b276483aa42e983cf25b5b440484373cbf46d2addbe2624b88fa7b819be0"
+    },
+    {
+      "attempt": "resume",
+      "phase": "test-full-nix",
+      "exitCode": 0,
+      "seconds": 360,
+      "logSha256": "846d463d32279a01f4f9f6c9073acff77da9c55885eeda04541092fd59205e23"
+    },
+    {
+      "attempt": "resume",
+      "phase": "test-nix",
+      "exitCode": 0,
+      "seconds": 76,
+      "logSha256": "3bde90d31abb2241f7d041ddcb179f8df505417f07d58894c4142df24ba55b61"
+    },
+    {
+      "attempt": "resume",
+      "phase": "runtime-package",
+      "exitCode": 0,
+      "seconds": 231,
+      "logSha256": "0553e5b95bc738623b29345d9bfa6a86b9b0c8a0942763db20a1c1315d519270"
+    }
+  ],
+  "additionalChecks": [
+    {
+      "name": "PATH-resolved process-group timeout regression",
+      "tests": 1,
+      "status": "passed",
+      "seconds": 1.72,
+      "sourceSha256": "3e47fbaa537f3a1aabe9b0f3c9aaea695b2caaf68f91956b99097a2c6561ddeb",
+      "junitSha256": "dd2b3df094b25128f1e5a57ae832fdf16eae1b91354d1ef92ba68fa86526345c"
+    }
+  ],
+  "evidenceArchives": [
+    {
+      "name": "validation-receipts.tar.gz",
+      "sha256": "5d072f343a07ab749572f46c8e50ea01df19356e78a5aaa844dcf8c312ceb973"
+    },
+    {
+      "name": "baseline-receipts.tar.gz",
+      "sha256": "2d1b8ef48cf7bb2c3a6a63cced602aedf27b613c8417d8039e8e295d7d79579e"
+    }
+  ],
+  "acceptanceState": "native checks passed for the recorded source snapshot; owner review and release publication pending"
+}

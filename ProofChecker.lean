@@ -17,12 +17,12 @@ def checkProof (library trusted candidate : System.FilePath) : IO UInt32 := do
   searchPathRef.set (builtin ++ [library, trusted])
   -- Fix generated inputs first: even approved definitions cannot replace the supplied schema.
   let (inputs, state) ← importData #[`SchemaInputs, `SqlInputs] state
-  let inputEnv ← base.replay (← additions base inputs)
+  let inputEnv := Environment.ofKernelEnv (← base.toKernelEnv.replay (← additions base inputs))
   let (approved, state) ← importData #[`Requirements, `Interpretation] state
-  let trustedEnv ← inputEnv.replay (← additions inputEnv approved)
+  let trustedEnv := Environment.ofKernelEnv (← inputEnv.toKernelEnv.replay (← additions inputEnv approved))
   searchPathRef.set (builtin ++ [library, trusted, candidate])
   let (imported, _) ← importData #[`Proofs] state
-  let checked ← trustedEnv.replay (← additions trustedEnv imported)
+  let checked := Environment.ofKernelEnv (← trustedEnv.toKernelEnv.replay (← additions trustedEnv imported))
   checkTarget checked (imported.toKernelEnv.find? `Proofs.migrationCorrect).isSome
 
 /-- Exit zero only after replay, axiom audit, and the fixed target comparison all succeed. -/

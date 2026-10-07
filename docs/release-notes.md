@@ -1,3 +1,18 @@
+# v0.1.2 — Lean 4.34.1 runtime
+
+Native macOS arm64 and Linux amd64 archives now include Lean 4.34.1.
+Both kernel gates use its kernel replay API. Proof preparation uses the
+current skip-trusted patch on lean4export v4.34.0.
+
+An incompatible Lean runtime reports its directory, detected version and
+repair instructions. The process timeout test finds `ps` on PATH so it also
+runs on NixOS. The supported SQLite profiles and verification contracts
+retain their documented meanings.
+
+Follow the [installation guide](https://github.com/vihren-dev/sqlite-verifier/blob/v0.1.2/docs/install.md).
+Nix remains an installation prerequisite. The archives contain the pinned
+runtime and its local cache for offline installation.
+
 # v0.1.1 — Verified SQLite schema extensions
 
 Initial stable release of the owner-accepted Step 1 product.

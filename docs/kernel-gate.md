@@ -9,7 +9,7 @@ LEAN_SYSROOT=/absolute/pinned/lean \
 ```
 
 All four paths must be existing absolute directories. The driver supplies the
-pinned Lean 4.33.0 installation, controls the environment, and seals the library
+pinned Lean 4.34.1 installation, controls the environment, and seals the library
 and approved stage before compiling candidate files. The gate ignores `LEAN_PATH`.
 It searches the pinned Lean standard library, packaged `SqliteVerifier` library,
 approved stage, then candidate stage, in that order.

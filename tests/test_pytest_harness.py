@@ -137,7 +137,7 @@ def test_timeout_kills_process_group_and_retains_output(tmp_path: Path) -> None:
     pid = int((tmp_path / "child.pid").read_text())
     # The killed grandchild is reparented; it may briefly remain a zombie until init reaps it.
     for _ in range(100):
-        state = run_command(["/bin/ps", "-o", "stat=", "-p", str(pid)], cwd=tmp_path, timeout=2).stdout.strip()
+        state = run_command(["ps", "-o", "stat=", "-p", str(pid)], cwd=tmp_path, timeout=2).stdout.strip()
         if not state or state.startswith("Z"):
             break
         time.sleep(0.02)
