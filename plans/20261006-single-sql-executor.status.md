@@ -305,3 +305,14 @@ the stated recipes are complete. The task is not DONE.
   Published only the existing PR #48 feature branch. Current head is
   `8e10a593bf830c272bf6b5e6af525d943ce90212`; fresh CI `37592618106` is running.
   No source, timeout, baseline guard, main ref or earlier receipt changed.
+- 2026-10-07: Current hosted run `37592618106` is terminal on both platforms.
+  Linux job `112697692784` passes, with 42 bundle cases in 334.95 seconds,
+  322 model passes and one existing skip in 323.07 seconds, and 76 upstream
+  cases in 11.11 seconds. Darwin job `112697693167` fails because the bundle
+  builder exhausts its unchanged 420-second budget. It collected 42 tests and
+  completed 20 before stopping during the stage-reuse case. The stateful
+  mutation case passes. No assertion or individual child timeout is reported.
+  The unfinished model build is not evidence of a model timeout or a pass.
+  The exporter has the same Darwin bundle failure; an isolated exact builder
+  is being tested before any scheduling change. Merge remains held for this
+  acceptance failure and the already-approved baseline exception.
