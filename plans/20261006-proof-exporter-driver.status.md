@@ -186,3 +186,27 @@ to the reviewed implementation.
   note: the two parent journals share 18 inherited rows, which explains the
   retained total of 81. Every original row/order/multiplicity is preserved;
   no source, input, runtime or receipt payload changes in this clarification.
+- Clarification `28556a43` passed required Claude review with no findings
+  (`20261007T075736Z-28556a43`). Published only `tasks/proof-exporter`, retargeted
+  PR #47 to main and marked it ready. Its fresh native CI run is `37590714910`;
+  protected-baseline checks pass at that reviewed head.
+- After PR #44's normal merge as `b91e5cb5`, GitHub reported a publication
+  conflict. Refreshed the feature branch with that reviewed main tip. The only
+  conflict is the journal; the incoming ADR and two plan files remain byte-exact.
+  Retained 83 own rows and 76 main rows, with 71 shared inherited occurrences,
+  as 88 rows preserving every exact row/order/multiplicity, including the final
+  `28556a43` review. All 101 approved files, deliberate removals and existing
+  current/historical receipt bytes remain exact. Only docs/journal paths change;
+  runtime/source selections and accepted test inputs are unchanged. No native
+  rebuild, model, installed or performance rerun is needed for this refresh.
+- The two existing authored-link checks pass in 0.72 seconds. All six prior
+  current integration receipt files are byte-exact against `28556a43`. The
+  [refresh record](../reports/20261007-proof-exporter-integration/b91-refresh.json)
+  retains incoming document and journal hashes plus the original link JUnit
+  digest. Task remains IN PROGRESS pending refreshed publication/hosted checks.
+- Refresh `10ae1399` passed required Claude review with no findings
+  (`20261007T080853Z-10ae1399`). Corrected its unclassified receipt-count wording
+  to six prior receipt files and the recorded link-test duration to 0.72 seconds.
+  This status-only correction changes no source, runtime, input, journal or
+  receipt payload. The final raw refresh review stays preserved in the working
+  copy; the reviewed feature is ready for PR #47-only publication.

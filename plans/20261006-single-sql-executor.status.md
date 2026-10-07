@@ -16,8 +16,8 @@ used 420 seconds. Published integration `4111dea0` now adopts the reviewed
 600-second model policy from merged main; the other six suites retain 420.
 
 Integration includes approved exporter source `07dc71b3` and its checked
-publication record `28556a43`, checked root documentation `db69c816` and
-reviewed main `bc9e2dce`. Final source correction is `9e3b4419`.
+publication record `555b9a74`, checked root documentation `db69c816` and
+reviewed main `b91e5cb5`. Final source correction is `9e3b4419`.
 Both hosted native checks pass at PR #48 head `45ac63b2`. The separate timeout
 task is delivered in PR #49. The owner approved PR #48 on 2026-10-07, including
 the target file and proposed protected baselines. The exporter owner approval
@@ -285,3 +285,14 @@ the stated recipes are complete. The task is not DONE.
   `37590978613` is running on Linux job `112692115126` and Darwin job
   `112692115395`. The exporter must reach main before this stacked PR is
   retargeted and merged. No hosted completion or baseline pass is claimed.
+- 2026-10-07: PR #44 merged normally as `b91e5cb5` after both hosted platforms
+  and protected baselines passed. Integrated the exporter's reviewed main
+  refresh `555b9a74`. The incoming changes contain the accepted ADR, plans and
+  receipt only. No production code or test input changed. All 74 approved
+  source, pin and baseline files remain unchanged. The journal retains both
+  parent orders and repeated rows: 88 exporter rows and 141 executor rows
+  combine into 147 exact rows. The earlier seven source-boundary and routing
+  checks remain valid for unchanged inputs; this refresh does not claim a new
+  native test run. At published head `4111dea0`, protected job `112692365150`
+  fails exactly because `examples/approved/baseline.json` changed. That expected
+  failure remains separate from the running native jobs and the owner approval.
