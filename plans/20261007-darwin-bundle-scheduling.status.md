@@ -34,6 +34,8 @@ streams, JUnit, boundaries and identities are retained under
 
 - Defined complete-gate behavior, failure retention, unchanged suite limits
   and required hosted acceptance before implementation.
+- Clarified that the seven existing targets contain six default 420-second
+  targets, including bundle, and one 600-second model target.
 - Approved exporter sources and protected baseline bytes remain unchanged.
   The earlier raw review journal row remains pending for the next checked
   implementation commit.

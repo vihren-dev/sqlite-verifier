@@ -11,8 +11,8 @@ Nix targets and the existing source, infrastructure and installed gates.
 Linux keeps its current schedule.
 
 The bundle gate retains its four test files and all 42 cases. Its suite limit
-remains 420 seconds. The other six default limits remain 420 seconds, and the
-full model limit remains 600 seconds. Source, profiles, protected baselines,
+remains 420 seconds. All six default targets, including bundle, retain 420
+seconds; the full model retains 600 seconds. Source, profiles, protected baselines,
 proof checking, export and trust rules retain their existing meaning.
 
 A failed or timed-out bundle phase fails CI before the complete recipe starts.
