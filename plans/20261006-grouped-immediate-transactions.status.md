@@ -1,6 +1,6 @@
 # Status: native evidence for grouped immediate transactions
 
-Created 2026-10-06. Status: IN PROGRESS.
+Created 2026-10-06. Status: DONE. Completed 2026-10-07.
 Task: [task](20261006-grouped-immediate-transactions.task.md).
 Source: public issue #36.
 Relevant files: `conformance/authored_cases.py`, `native_record.py`,
@@ -185,6 +185,29 @@ remains in hosted artifacts. The macOS PR job skips execution; its local
 329-case acceptance remains the evidence. Linux evidence review and normal
 delivery remain required. No old record or formatting failure is relabeled.
 
+Linux evidence commit `c26e0257` passes independent review with no findings
+(`20261007T145916Z-c26e0257`). PR #55 is ready for review. Current-head CI
+`37641604233` is complete: Linux job `112861715402` passes all selected checks;
+the macOS job skips execution. The retained local macOS acceptance remains
+its platform evidence. Two normal merge requests for exact head `c26e0257`
+returned internal connector errors. A subsequent authoritative read confirms
+that the PR remains open and mergeable against main `eb061e76`. No direct
+main push or force merge was attempted. Delivery remains incomplete.
+
 ## Decisions waiting for the owner
 
-- None for the limited diagnostic. The owner authorized it on 2026-10-06.
+- None. The completed task is delivered.
+
+
+## Completed delivery
+
+Revalidated exact head `c26e0257`, its successful CI `37641604233`, normal
+merge eligibility and repository administrator access. The subsequent
+normal merge succeeds as `923b7ceea6f36a6c89bc0024c03e79cdf5d59e4b`.
+The fetched main tree has zero changed files against the tested head.
+The two earlier connector errors remain failures; they did not merge the PR.
+The task is DONE. Issue #36 is closed as completed. No code, frozen
+artifact or acceptance result changes in this closeout.
+
+The public closeout record retains the completed issue state. No code,
+verification result or historical artifact changes.
