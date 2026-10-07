@@ -332,3 +332,75 @@ the stated recipes are complete. The task is not DONE.
   write; the corrected check confirmed the actual clean review. The isolated
   exact bundle receipt is a local pass, not proof of the hosted failure cause.
   Fresh hosted acceptance and exporter delivery remain required.
+- 2026-10-07: The scheduling integration passed independent review with no
+  findings. Jujutsu stopped the first push because the journal-only parent had
+  no description; no remote changed. Added its description and reviewed that
+  parent as `9fc40a76`, with no findings. The resulting integration `9e91e525`
+  has exactly the earlier checked tree and passes its own clean review
+  `20261007T092131Z-9e91e525`. Published only the existing PR #48 branch and
+  updated its body. Hosted CI `37600117584` is running, with Linux job
+  `112722153900` and Darwin job `112722154338`. Earlier failures and the
+  protected-baseline exception remain recorded. This local publication record
+  does not change the published source while those checks run.
+- 2026-10-07: The current Darwin job is terminal cancelled, not a pass. Its
+  authoritative timestamps span 1824 seconds and match the workflow's
+  30-minute job guard. The separate bundle passes all 42 cases in 376.21
+  seconds before the later complete recipe is cancelled. Linux passes.
+  PR #47 has merged normally as `2e01c49a`; PR #48 is retargeted to main.
+  Their base trees are identical. No replacement native run exists at the
+  unchanged head. Prepared the separate complete-job budget task before any
+  workflow edit; individual suite budgets and approved source remain intact.
+
+- 2026-10-07: The aggregate CI repair changes only the overall job guard to
+  75 minutes. The declared sequential commands can use 3620 seconds; the old
+  job limit allowed only 1800. All 26 bounded checks and 28 subtests pass,
+  including actual Nix suite ownership and unchanged individual budgets.
+  The negative oracle rejects the old guard. All 74 approved files remain
+  unchanged. Original cancellation evidence is retained; a new hosted pass
+  remains required before delivery.
+
+- 2026-10-07: The aggregate deadline review has no must findings. Corrected
+  its two suggestions: the guide now states 75 minutes and the test names
+  its setup allowance. All 26 focused checks and 28 subtests pass again.
+  Every owner-approved source and baseline file remains unchanged.
+- 2026-10-07: Final aggregate-budget correction `46bd04b5` passes independent
+  review `20261007T113253Z-46bd04b5` with no findings. Published only the
+  existing PR #48 branch and updated its body with the original cancellation
+  and exact new budget. Current CI `37615200892` is active on Linux job
+  `112771743045` and Darwin job `112771743430`. All 74 approved files remain
+  unchanged. The original failed and cancelled receipts and owner-approved
+  baseline exception remain intact. No new hosted completion is claimed.
+
+- 2026-10-07: CI `37615200892` is now complete. Both actual native jobs at
+  `46bd04b5` pass the complete pinned checks and all artifact retention steps.
+  The owner refreshed the branch with accepted main and split suites at
+  `935e42db`. Current run `37628447150` passes actual Linux execution; macOS
+  runs only the PR skip step and is not counted as acceptance. All 74 approved
+  source, pin and baseline files remain byte-identical. The new suite limits
+  come from the accepted main change and do not rewrite prior receipts.
+- 2026-10-07: The refreshed merge omitted 15 original committed review rows
+  and changed their order. Restored both complete histories without editing
+  or deleting existing rows, and recovered the pending clean `0855f956`
+  review from its retained working-copy revision. The merged journal has
+  211 rows before this repair's review. The
+  [refreshed acceptance record](../reports/20261007-executor-refreshed-acceptance/README.md)
+  retains actual job responses, the approved source manifest and preservation
+  checks. This repair changes only review and acceptance records and this
+  status. Independent review, normal publication and delivery remain required.
+
+- 2026-10-07: Repair `59ad4eab` passes independent review with no findings
+  and is normally published. The attempted expected-head merge is rejected
+  with GitHub error 405 for conflicts; no main write occurs. A fresh response
+  shows that main advanced to `98b90975` through accepted PR #54 after the
+  earlier refresh. Fetched that exact main and integrated it locally. Its CI
+  follow-up changes platform conditions, scope handling and store retention;
+  it changes no library or model input. The only conflict is the journal.
+  Preserved all 212 branch rows, including the pending repair review, and all
+  148 main rows in their original order with 239 merged rows. All 74 approved
+  source, pin and baseline files remain unchanged. The
+  [preservation record](../reports/20261007-executor-refreshed-acceptance/main54-journal-preservation.json)
+  records the exact parents and counts. All 36 relevant CI, frontend, link and
+  actual Nix membership checks pass with 35 subtests in 2.36 seconds under a
+  120-second command limit; 46 unrelated Nix checks are deselected. Original
+  XML is retained at `build/t05-main54-integration/checks.xml`. Integration
+  review, normal feature publication and delivery remain required.

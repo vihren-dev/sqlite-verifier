@@ -1,0 +1,65 @@
+{
+  "sourceRevision": "2c9d732298a9f27d87edf7c03231dc5238cbb4b9",
+  "system": "aarch64-darwin",
+  "sandbox": true,
+  "sandboxFallback": false,
+  "completeCommandLimitSeconds": 1800,
+  "suiteHangGuardSeconds": 1200,
+  "perTestLimitSeconds": 300,
+  "suites": [
+    {
+      "suite": "model",
+      "output": "/nix/store/kvjm5wslx9bxlakld3ni4ni416z3f0c2-sqlite-verifier-test-model-1",
+      "junit": "model-junit.xml",
+      "junitSha256": "beeed95c60242ff8cbacf4ac7666a9e21b8fd0070e9c51cdaf516532ee24f9f3",
+      "junitSeconds": 63.9,
+      "transactionTests": 0,
+      "tests": 51,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "frozen",
+      "output": "/nix/store/rfdfcvgsswwi4w2pjgcvwlqh664ygxnl-sqlite-verifier-test-frozen-1",
+      "junit": "frozen-junit.xml",
+      "junitSha256": "b33078c02b2ce11773b69219dc07413868f3ccf8c6e1f938e08da9428a879252",
+      "junitSeconds": 272.087,
+      "transactionTests": 7,
+      "tests": 152,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "harness",
+      "output": "/nix/store/zibyi4rm8w3w3gflszr35c7wnwp97prn-sqlite-verifier-test-harness-1",
+      "junit": "harness-junit.xml",
+      "junitSha256": "1e4e499b512bf73377ba6645c614194fccf81a49fb095f9285e6dab007e0ee43",
+      "junitSeconds": 2.385,
+      "transactionTests": 6,
+      "tests": 126,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    }
+  ],
+  "totalPassed": 329,
+  "transactionTestsPassed": 13,
+  "sourceInputsSha256": {
+    "conformance/authored_transactions.py": "6cb0e43adff8b1644e177ef4061f44d9a302254a39f58657d5e9ccd9af28f6b7",
+    "conformance/transaction_evidence.py": "3e5310fdf258783923f232745f097ac256fac164f211da0fd4fcecc6d9e47760",
+    "tests/conformance_authored_transactions_test.py": "4fa35a150fd709f8664f630c0d6737130ac5c817a2c6162e56136beb54d7ce26",
+    "tests/conformance_transaction_evidence_test.py": "5fbf94b0e833570ad9b14ce1114ef52d44ff298dc16c82da0576cf5fedf2e2c1",
+    "tests/nix_suites.json": "159e27d22b236d1f76e1c9eb514e5a2775d7bd4b07a2ec659deb92105f65efb4",
+    "tests/conformance_frontend.json": "b696fe9466541b0ba6169934b1b7b68d689edcb7ef5336c0d783abb2e2818141",
+    "build-support/tests.nix": "3ba7e033e707f0d94f4713aed00c8c7ab86a1714d804dc9fc60fb5c708fd7272",
+    "tests/test_nix_test_targets.py": "98d5ac99a6e9d6e5c6b0786d083ea920be55f590fec3756bba343eda2b7cae77"
+  },
+  "logSha256": "96f07e5a08f8504ea8e62eb128274350630d33eef1ab049994a879ceeb9163cf",
+  "compressedLogSha256": "2dd1d803cab926112ca3ff0147dd3ab1d0eb751b492fb7835a5637e9f27d8819",
+  "priorFormattingFailureReproduced": false,
+  "priorFormattingFailureCauseEstablished": false,
+  "linuxAcceptanceComplete": false,
+  "hostedAcceptanceComplete": false
+}

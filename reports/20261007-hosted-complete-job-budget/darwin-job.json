@@ -1,0 +1,140 @@
+{
+  "id": 112722154338,
+  "run_id": 37600117584,
+  "workflow_name": "CI",
+  "head_branch": "tasks/single-sql-executor",
+  "run_url": "https://api.github.com/repos/vihren-dev/sqlite-verifier/actions/runs/37600117584",
+  "run_attempt": 1,
+  "node_id": "CR_kwDOUpD5UM8AAAAaPsOTYg",
+  "head_sha": "9e91e5259885e6f9612f144298674f44e1558bf5",
+  "url": "https://api.github.com/repos/vihren-dev/sqlite-verifier/actions/jobs/112722154338",
+  "html_url": "https://github.com/vihren-dev/sqlite-verifier/actions/runs/37600117584/job/112722154338",
+  "status": "completed",
+  "conclusion": "cancelled",
+  "created_at": "2026-10-07T09:22:07Z",
+  "started_at": "2026-10-07T09:22:17Z",
+  "completed_at": "2026-10-07T09:52:41Z",
+  "name": "Check (aarch64-darwin)",
+  "steps": [
+    {
+      "name": "Set up job",
+      "status": "completed",
+      "conclusion": "success",
+      "number": 1,
+      "started_at": "2026-10-07T09:22:18Z",
+      "completed_at": "2026-10-07T09:22:21Z"
+    },
+    {
+      "name": "Run actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803",
+      "status": "completed",
+      "conclusion": "success",
+      "number": 2,
+      "started_at": "2026-10-07T09:22:21Z",
+      "completed_at": "2026-10-07T09:22:24Z"
+    },
+    {
+      "name": "Select complete checks for the changed inputs",
+      "status": "completed",
+      "conclusion": "success",
+      "number": 3,
+      "started_at": "2026-10-07T09:22:24Z",
+      "completed_at": "2026-10-07T09:22:25Z"
+    },
+    {
+      "name": "Check documentation and CI routing",
+      "status": "completed",
+      "conclusion": "skipped",
+      "number": 4,
+      "started_at": "2026-10-07T09:22:25Z",
+      "completed_at": "2026-10-07T09:22:25Z"
+    },
+    {
+      "name": "Run cachix/install-nix-action@13d8dd58da0234aa297dedd986986ccb8e7f3e24",
+      "status": "completed",
+      "conclusion": "success",
+      "number": 5,
+      "started_at": "2026-10-07T09:22:25Z",
+      "completed_at": "2026-10-07T09:22:53Z"
+    },
+    {
+      "name": "Restore Nix builds and test results",
+      "status": "completed",
+      "conclusion": "success",
+      "number": 6,
+      "started_at": "2026-10-07T09:22:53Z",
+      "completed_at": "2026-10-07T09:26:33Z"
+    },
+    {
+      "name": "Run checks in one pinned environment",
+      "status": "completed",
+      "conclusion": "cancelled",
+      "number": 7,
+      "started_at": "2026-10-07T09:26:33Z",
+      "completed_at": "2026-10-07T09:52:35Z"
+    },
+    {
+      "name": "Retain pytest reports and Nix test outputs",
+      "status": "completed",
+      "conclusion": "success",
+      "number": 8,
+      "started_at": "2026-10-07T09:52:35Z",
+      "completed_at": "2026-10-07T09:52:37Z"
+    },
+    {
+      "name": "Retain proof runtime closure",
+      "status": "completed",
+      "conclusion": "success",
+      "number": 9,
+      "started_at": "2026-10-07T09:52:37Z",
+      "completed_at": "2026-10-07T09:52:37Z"
+    },
+    {
+      "name": "Retain development source snapshot",
+      "status": "completed",
+      "conclusion": "skipped",
+      "number": 10,
+      "started_at": "2026-10-07T09:52:37Z",
+      "completed_at": "2026-10-07T09:52:37Z"
+    },
+    {
+      "name": "Retain checked native runtime",
+      "status": "completed",
+      "conclusion": "skipped",
+      "number": 11,
+      "started_at": "2026-10-07T09:52:37Z",
+      "completed_at": "2026-10-07T09:52:37Z"
+    },
+    {
+      "name": "Post Restore Nix builds and test results",
+      "status": "completed",
+      "conclusion": "skipped",
+      "number": 21,
+      "started_at": "2026-10-07T09:52:37Z",
+      "completed_at": "2026-10-07T09:52:37Z"
+    },
+    {
+      "name": "Post Run actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803",
+      "status": "completed",
+      "conclusion": "success",
+      "number": 22,
+      "started_at": "2026-10-07T09:52:37Z",
+      "completed_at": "2026-10-07T09:52:37Z"
+    },
+    {
+      "name": "Complete job",
+      "status": "completed",
+      "conclusion": "success",
+      "number": 23,
+      "started_at": "2026-10-07T09:52:37Z",
+      "completed_at": "2026-10-07T09:52:39Z"
+    }
+  ],
+  "check_run_url": "https://api.github.com/repos/vihren-dev/sqlite-verifier/check-runs/112722154338",
+  "labels": [
+    "macos-14"
+  ],
+  "runner_id": 1000000409,
+  "runner_name": "GitHub Actions 1000000409",
+  "runner_group_id": 0,
+  "runner_group_name": "GitHub Actions"
+}

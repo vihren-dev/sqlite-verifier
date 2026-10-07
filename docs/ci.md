@@ -4,28 +4,32 @@ CI uses Nix to cache builds and expensive hermetic pytest suites. The earlier
 [ADR 0001](adr-0001-pytest-and-nix-ci.md) unit-result receipts and coverage
 aggregation have been superseded by [Nix test targets](../build-support/README.md).
 
-`.github/workflows/ci.yml` checks pull requests on Linux. Pushes to `main`, release
-tags, manual requests and a nightly schedule check both Linux and macOS. On a pull
-request the macOS job reports success without running checks, because the
-repository ruleset requires a result from it; macOS changes are checked locally
-with `just test` and after the merge.
+`.github/workflows/ci.yml` runs the verifier checks on Linux for pull requests.
+Pushes to `main`, release tags, manual requests and the nightly schedule run
+those checks on both native platforms. On pull requests, macOS skips the
+verifier checks and builds the API reference for non-documentation scopes.
+Local macOS `just test` results remain required for verifier acceptance.
 
 `tests/ci_scope.py` selects the checks from the files that differ from the pull
 request base:
 
 | Scope | Selected when | Recipes |
 | --- | --- | --- |
-| `docs` | only Markdown documentation changed | link checks, no build |
+| `docs` | only Markdown documentation changed, including on a `main` push | link checks, no build |
 | `test` | any other change | `just test-full` |
 | `infrastructure` | build definitions or shared test infrastructure changed | `just test-full test-nix` |
 | `packaging` | archive contents, installation or runtime discovery changed | `just test-full runtime-package` |
-| `package` | both of the above, `main` pushes, tags, manual and nightly runs | `just package` |
+| `package` | both of the above, other `main` pushes, tags, manual and nightly runs | `just package` |
 
-Each native job builds the [checked API reference](api-reference.md) in the
+Both native jobs build the [checked API reference](api-reference.md) for
+non-documentation scopes, including pull requests. They use the
 pinned Nix environment with the checkout's full commit hash for source links.
 CI retains `api-reference-SYSTEM` for 14 days, including when a later check
 fails. The reference checks authored Verso coverage and retains its inventory.
 Documentation dependencies stay outside the installed proof runtime.
+The 105-minute job budget adds the bounded 30-minute reference phase to
+the accepted native job budget. Individual compiler, suite and installer
+timeouts remain unchanged.
 
 Each complete check invocation enters the pinned Nix environment once. `tools/ci_checks.py`
 checks resources, builds the runtime and
@@ -112,7 +116,9 @@ later run and cannot change a result. The step may fail without failing the job.
 Host JUnit reports, cached Nix test outputs and CI phase diagnostics are
 retained for 14 days. Pytest's exit status decides success. Individual subprocess
 and whole-command deadlines remain bounded (a timed-out test command's process
-group is killed); the job limit is 30 minutes.
+group is killed). The hosted job limit is 75 minutes. It covers the sequential
+runtime, Darwin bundle and complete-check phase budgets, plus setup and artifact
+retention. Individual suite and command limits remain unchanged.
 Superseded ordinary runs are cancelled; release/manual runs are not.
 
 The matrix follows GitHub's documented native runner architectures:

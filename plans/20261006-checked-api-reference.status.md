@@ -536,3 +536,33 @@ checks must still exercise the complete existing recipes and retain both
 reference artifacts from the published reviewed head. Publication and normal
 delivery remain with the parent. The final raw review row remains pending for
 the next integration; Status remains IN PROGRESS.
+
+
+## Integration with delivered main
+
+Accepted main is now `923b7cee`, including T13 and the 75-minute CI repair.
+The unpublished T18b branch is being integrated with that base. Only the
+review journal conflicts. The 208-row feature journal, 252-row main journal
+and 209-row pending journal remain ordered subsequences of the 294-row
+result; repeated rows are preserved. Main source, evidence and baselines
+are retained.
+
+The reference step currently follows the runtime platform guard, which
+skips macOS on PRs. The task requires both hosted reference artifacts.
+Reference setup, generation and retention will run on both native platforms
+for non-documentation scopes; runtime checks keep their existing guard.
+The combined job budget is 105 minutes, accounting for the existing
+1,800-second reference phase in addition to the accepted native budget.
+No child timeout or dependency pin changes. Local expensive checks remain
+on hold at the resource guard while cleanup approval is pending. Bounded
+workflow checks and Linux acceptance can proceed.
+
+
+The integrated workflow passes 54 bounded checks and 35 subtests in
+1.21 seconds under a 120-second limit. Twelve native or Nix checks are
+explicitly deselected. Reference Lean sources, tooling and pins have no
+changed file against accepted native source `2df58fd1`; no new native
+reference execution is claimed. [The integration record](../reports/20261007-checked-api-reference-main-integration/README.md)
+retains the original XML and journal proof. The current source preserves
+delivered main and its checks. Independent review remains required before
+draft publication for hosted acceptance.

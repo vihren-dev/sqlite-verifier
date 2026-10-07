@@ -1,0 +1,27 @@
+{
+  "base": "923b7ceea6f36a6c89bc0024c03e79cdf5d59e4b",
+  "original_native_source": "2df58fd1ca2cdfc01a822e5b36602f43140f0809",
+  "reference_lean_tooling_and_pins_unchanged": true,
+  "checks": {
+    "passed": 54,
+    "subtests_passed": 35,
+    "deselected": 12,
+    "seconds": 1.21,
+    "timeout_seconds": 120
+  },
+  "job_budget_minutes": 105,
+  "reference_phase_seconds": 1800,
+  "hosted_reference_platforms": [
+    "x86_64-linux",
+    "aarch64-darwin"
+  ],
+  "runtime_pr_platforms": [
+    "x86_64-linux"
+  ],
+  "local_expensive_checks_complete": false,
+  "hosted_checks_complete": false,
+  "raw_files": {
+    "journal-preservation.json": "cdf2a1c4cfb5536739c27f4d22110147893dd9913fe47874e4dd52cb7de59908",
+    "bounded.xml": "676c6182c715e76a3c0df735a51c2a8a9104a5cc682db0bf32bc26fe4682ca81"
+  }
+}

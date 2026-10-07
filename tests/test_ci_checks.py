@@ -2,6 +2,7 @@
 
 import json
 from pathlib import Path
+import re
 import shlex
 import subprocess
 from unittest.mock import patch
@@ -12,6 +13,40 @@ from tools.ci_checks import NIX_TEST_BUILD_OPTIONS, run_checks
 from tests.runtime_support import CommandResult, CommandTimeout
 
 pytestmark = [pytest.mark.unit, pytest.mark.environment]
+
+HOSTED_SETUP_AND_ARTIFACT_ALLOWANCE_SECONDS = 300
+"""Leave five minutes beyond complete phase limits for runner setup and artifact retention."""
+
+
+@pytest.mark.parametrize("scope", ["test", "package"])
+@pytest.mark.parametrize("mode", ["source", "build"])
+@pytest.mark.parametrize("system", ["aarch64-darwin", "x86_64-linux"])
+def test_hosted_job_covers_sequential_phase_budgets(
+        tmp_path: Path, scope: str, mode: str, system: str) -> None:
+    """A hosted job must allow the actual complete phase limits plus setup and artifact retention."""
+    workflow = (Path(__file__).resolve().parents[1] / ".github/workflows/ci.yml").read_text()
+    check_job = workflow.split("  check:\n", 1)[1].split("\n  publish:", 1)[0]
+    match = re.search(r"(?m)^    timeout-minutes: ([1-9][0-9]*)$", check_job)
+    assert match is not None
+    budgets: list[float] = []
+
+    def invoke(command: list[str], *, cwd: Path, environment: dict[str, str],
+               timeout: float, artifacts: Path) -> CommandResult:
+        """Observe real orchestration limits while replacing only external build and version work."""
+        budgets.append(timeout)
+        output = str(tmp_path / "runtime") if command[0] == "nix-build" else ""
+        return CommandResult(tuple(command), 0, output, "", 0.01)
+
+    with patch("tools.ci_checks.check_resources"), patch("tools.ci_checks.run_command", side_effect=invoke), \
+         patch.dict("os.environ", {"SQLITE_VERIFIER_SYSTEM": system}):
+        run_checks(scope, mode, system, tmp_path)
+    recipes = (Path(__file__).resolve().parents[1] / "justfile").read_text()
+    reference = re.search(r"timeout ([1-9][0-9]*) nix-build [^\n]*-A apiReference", recipes)
+    assert reference is not None, "Reference phase has no bounded recipe"
+    reference_limit = int(reference.group(1))
+    assert sum(budgets) + reference_limit + HOSTED_SETUP_AND_ARTIFACT_ALLOWANCE_SECONDS <= int(match.group(1)) * 60, \
+        f"Hosted job budget cannot cover {sum(budgets) + reference_limit} seconds of phases plus " \
+        f"{HOSTED_SETUP_AND_ARTIFACT_ALLOWANCE_SECONDS} seconds of setup and artifacts"
 
 
 @pytest.mark.parametrize("mode", ["source", "build"])

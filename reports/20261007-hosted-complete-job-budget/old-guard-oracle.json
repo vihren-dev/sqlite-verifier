@@ -1,0 +1,5 @@
+{
+  "oldGuardMinutes": 30,
+  "rejected": true,
+  "diagnostic": "Hosted job budget cannot cover 3620 seconds of phases plus 300 seconds of setup and artifacts"
+}
