@@ -13,9 +13,13 @@ from tests.bundle_measurement_campaign_fixture import synthetic_paths
 from tools.bundle_measurement import main, named_trial_spec
 from tools.bundle_measurement_paths import CHECKER_EXIT_BY_STATUS, CLI_EXIT_BY_STATUS
 
-CASES = [("small-success", "add_column_then_table", "3.51.0", "VERIFIED"),
-         ("checked-refutation", "missing_required_column", "3.51.0", "VIOLATED"),
-         ("atuin", "atuin", "3.46.0", "VERIFIED")]
+CASES = [
+    ("small-success", "approved", "add_column_then_table", "approved/schema.sql",
+     ("approved", "add_column_then_table"), "3.51.0", "VERIFIED"),
+    ("checked-refutation", "approved", "missing_required_column", "approved/schema.sql",
+     ("approved", "missing_required_column"), "3.51.0", "VIOLATED"),
+    ("atuin", "atuin/approved", "atuin", "atuin/schema.sql", ("atuin",), "3.46.0", "VERIFIED"),
+]
 """Independent expected selections for the three documented source examples."""
 
 
@@ -38,14 +42,14 @@ def command(runtime: Path, output: Path, name: str = "small-success") -> list[st
             "--output", str(output), "--timeout-seconds", "7"]
 
 
-@pytest.mark.parametrize("name,candidate,profile,status", CASES)
-def test_named_roles_match_current_cli(named_runtime: Path, name: str, candidate: str,
-                                      profile: str, status: str) -> None:
+@pytest.mark.parametrize("name,approved_name,candidate,schema_name,roots,profile,status", CASES)
+def test_named_roles_match_current_cli(named_runtime: Path, name: str, approved_name: str, candidate: str,
+                                      schema_name: str, roots: tuple[str, ...], profile: str, status: str) -> None:
     """All three public parsers consume the same protected inputs and the correct candidate roles."""
     spec = named_trial_spec(name, runtime=named_runtime, python=Path(sys.executable), timeout_ns=7_000_000_000)
     selected = named_runtime / "examples" / candidate
-    approved = selected / "approved" if name == "atuin" else named_runtime / "examples/approved"
-    schema = selected / "schema.sql" if name == "atuin" else approved / "schema.sql"
+    approved = named_runtime / "examples" / approved_name
+    schema = named_runtime / "examples" / schema_name
     verify = arguments(("verify", *spec.common_arguments, *spec.candidate_arguments))
     prepared = arguments(("prepare", *spec.common_arguments, *spec.candidate_arguments,
                           "--workspace", "/new/agent", "--output", "/new/proof.ndjson"))
@@ -57,7 +61,7 @@ def test_named_roles_match_current_cli(named_runtime: Path, name: str, candidate
         assert options.migration == selected / "migration.sql"
     assert verify.next_interpretation == prepared.next_interpretation == selected / "NextInterpretation.lean"
     assert verify.proofs == prepared.proofs == selected / "Proofs.lean"
-    assert spec.input_roots == ((selected,) if name == "atuin" else (approved, selected))
+    assert spec.input_roots == tuple(named_runtime / "examples" / relative for relative in roots)
     assert spec.expected_status == status and spec.timeout_ns == 7_000_000_000
     assert CLI_EXIT_BY_STATUS[spec.expected_status] == (1 if status == "VIOLATED" else 0)
     assert CHECKER_EXIT_BY_STATUS[spec.expected_status] == (2 if status == "VIOLATED" else 0)
@@ -66,10 +70,11 @@ def test_named_roles_match_current_cli(named_runtime: Path, name: str, candidate
     assert manual.candidate_arguments[-2:] == ("--custom-mode", "value")
 
 
-@pytest.mark.parametrize("name,candidate,profile,status", CASES)
+@pytest.mark.parametrize("name,approved_name,candidate,schema_name,roots,profile,status", CASES)
 def test_entrypoint_retains_synthetic_campaign(named_runtime: Path, tmp_path: Path,
                                               monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str],
-                                              name: str, candidate: str, profile: str, status: str) -> None:
+                                              name: str, approved_name: str, candidate: str, schema_name: str,
+                                              roots: tuple[str, ...], profile: str, status: str) -> None:
     """The real writer stores the named spec and nine synthetic pairs without launching verifier source."""
     calls = synthetic_paths(monkeypatch, [-1] * 9)
     output = tmp_path / "new campaign % # ü"
@@ -81,6 +86,10 @@ def test_entrypoint_retains_synthetic_campaign(named_runtime: Path, tmp_path: Pa
     assert context["name"] == name and context["specification"]["expected_status"] == status
     assert context["specification"]["timeout_ns"] == 7_000_000_000
     assert context["specification"]["common_arguments"][1] == profile
+    assert context["specification"]["input_roots"] == [str(named_runtime / "examples" / root) for root in roots]
+    assert str(named_runtime / "examples" / schema_name) in context["specification"]["common_arguments"]
+    assert str(named_runtime / "examples" / approved_name / "Requirements.lean") in context["specification"]["common_arguments"]
+    assert str(named_runtime / "examples" / candidate / "Proofs.lean") in context["specification"]["candidate_arguments"]
     first = (output / "pair-01/pair.json").read_bytes()
     with pytest.raises(SystemExit) as error:
         main(command(named_runtime, output, name))
@@ -114,7 +123,8 @@ def test_missing_selected_files_fail_closed(named_runtime: Path, tmp_path: Path,
     assert not output.exists()
 
 
-@pytest.mark.parametrize("selection", ["missing-python", "wrong-python", "not-executable", "zero-timeout"])
+@pytest.mark.parametrize("selection", ["missing-python", "wrong-python", "relative-python",
+                                      "not-executable", "zero-timeout"])
 def test_invalid_configuration_has_no_output(named_runtime: Path, tmp_path: Path,
                                             capsys: pytest.CaptureFixture[str], selection: str) -> None:
     """Only the declared executable interpreter and a positive common timeout can start acquisition."""
@@ -128,11 +138,19 @@ def test_invalid_configuration_has_no_output(named_runtime: Path, tmp_path: Path
         values[values.index("--python") + 1] = str(python)
     elif selection == "not-executable":
         (named_runtime / "bin/migration-check").chmod(0o644)
+    elif selection == "relative-python":
+        (named_runtime / "python-path").write_text("relative/python3\n")
     else:
         values[-1] = "0"
     with pytest.raises(SystemExit) as error:
         main(values)
-    assert error.value.code == 2 and capsys.readouterr().err and not output.exists()
+    message = capsys.readouterr().err
+    assert error.value.code == 2 and message and not output.exists()
+    if selection == "zero-timeout":
+        assert "--timeout-seconds" in message and "positive number of seconds" in message
+    elif selection == "relative-python":
+        assert str(named_runtime / "python-path") in message and "not absolute" in message
+        assert "repair the installation" in message
 
 
 @pytest.mark.parametrize("flag", ["--case", "--runtime", "--python", "--output", "--timeout-seconds"])

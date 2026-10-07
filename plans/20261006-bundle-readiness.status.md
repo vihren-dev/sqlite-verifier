@@ -274,3 +274,14 @@ No new campaign, launcher, benchmark or task was started after the hold.
   `build/test-results/t06-launcher-harness.xml`. New source/test files contain
   79 and 160 lines. The prior campaign receipts and append-only review rows are
   unchanged; the pending exact checkpoint review row is included in this unit.
+- Launcher checkpoint `4be027d9` passed review `20261007T063405Z-4be027d9`
+  with no must findings and three should findings. Moved each source layout and
+  identity root into the named case definition. Added distinct malformed
+  `python-path` diagnostics and positive `--timeout-seconds` validation in the
+  units supplied by the caller. The bounded tests check both diagnostic changes.
+  These three findings are fixed; every prior raw journal row remains intact.
+- All 135 measurement harness checks pass in 5.32 seconds under the same
+  30-second command bound. The additional check covers a relative declared
+  Python path. JUnit is `build/test-results/t06-launcher-harness-reviewed.xml`;
+  the prior receipts are retained. The launcher and test files contain 99 and
+  178 lines. Installed-runtime execution and actual campaigns remain pending.
