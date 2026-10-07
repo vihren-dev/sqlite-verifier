@@ -2,6 +2,7 @@
 
 import json
 from pathlib import Path
+import shlex
 import subprocess
 from unittest.mock import patch
 
@@ -47,8 +48,6 @@ def test_ci_modes_retain_fresh_checks(tmp_path: Path, mode: str, system: str) ->
     if system == "aarch64-darwin":
         assert len(bundle_commands) == 2
         assert commands[-2] == bundle_commands[-1]
-        assert NIX_TEST_BUILD_OPTIONS == ("--option", "sandbox", "true", "--option", "sandbox-fallback", "false",
-                                          "--extra-experimental-features", "nix-command flakes")
         assert bundle_commands[0] == bundle_commands[1] == [
             "nix-build", "build-support/default.nix", "-A", "tests.bundle",
             "--out-link", "build/nix-tests-bundle", *NIX_TEST_BUILD_OPTIONS]
@@ -67,6 +66,21 @@ def test_ci_modes_retain_fresh_checks(tmp_path: Path, mode: str, system: str) ->
         assert commands[0] == ["just", "setup"]
         assert "SQLITE_VERIFIER_UNIT_CHECKS" not in environments[-1]
     assert all(row["exit_code"] == 0 for row in json.loads((tmp_path / "build/ci-phases.json").read_text()))
+
+
+def test_bundle_policy_matches_existing_nix_test_recipes() -> None:
+    """The isolated phase uses the actual complete recipes' isolation options, so their policies cannot drift."""
+    recipes = (Path(__file__).resolve().parents[1] / "justfile").read_text().splitlines()
+    targets: set[str] = set()
+    for line in recipes:
+        if not line.lstrip().startswith("timeout 900 nix-build "):
+            continue
+        words = shlex.split(line)
+        if "--option" not in words:
+            continue
+        targets.add(words[words.index("-A") + 1])
+        assert tuple(words[words.index("--option"):]) == NIX_TEST_BUILD_OPTIONS
+    assert targets == {"developmentTests", "tests", "tests.atuin"}
 
 
 def test_ci_failure_retains_phase_status(tmp_path: Path) -> None:

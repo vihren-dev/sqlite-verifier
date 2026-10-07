@@ -62,3 +62,11 @@ streams, JUnit, boundaries and identities are retained under
   retained-evidence validator passed again. All three findings are recorded
   fixed in the append-only journal. Correction review and publication remain
   pending.
+- Review `20261007T090510Z-1c43cbb1` found no must findings and one should
+  finding: the named isolation options also need a drift check against the
+  actual complete `justfile` recipes. Added that direct source check and
+  removed the redundant comparison with a copied literal.
+- The drift check initially tried to parse comments as shell commands and
+  failed on a prose apostrophe. Restricted it to actual Nix command lines.
+  The final bounded suite passed 17 tests and 28 subtests in 3.15 seconds.
+  Recorded the remaining finding fixed; final correction review remains pending.
