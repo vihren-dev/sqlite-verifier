@@ -3,8 +3,8 @@
 Created 2026-10-07. Status: IN PROGRESS.
 Task: [task](20261007-hosted-complete-job-budget.task.md).
 
-The workflow's 30-minute job guard cancelled PR #48 Darwin job `112722154338`
-after 1824 seconds. No replacement run exists at the same head. The bundle had
+PR #48 Darwin job `112722154338` was cancelled after 1824 seconds, matching
+the configured 30-minute job guard. No replacement run exists at the same head. The bundle had
 already passed 42 tests in 376.21 seconds. Its later complete recipe remained
 unfinished. Linux passed; neither result supplies a complete Darwin pass.
 
@@ -21,3 +21,12 @@ no workflow change and claims no new hosted acceptance.
 Decisions waiting for the owner:
 
 - None for this CI repair. The exact proposed baseline drift is already approved.
+
+The workflow now has a 75-minute overall limit. All 26 focused orchestration,
+scheduling, failure retention, routing, documentation and actual Nix-command
+ownership checks pass, with 28 subtests, in 3.91 seconds under 120 seconds.
+The actual phase-budget test rejects the original 30-minute guard without
+changing the repository. All 74 owner-approved source, pin and baseline files
+remain unchanged. Original job metadata, console bytes and the negative
+oracle are retained in [the report](../reports/20261007-hosted-complete-job-budget/README.md).
+Independent review and new hosted acceptance remain pending.

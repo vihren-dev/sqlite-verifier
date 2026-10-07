@@ -350,3 +350,11 @@ the stated recipes are complete. The task is not DONE.
   Their base trees are identical. No replacement native run exists at the
   unchanged head. Prepared the separate complete-job budget task before any
   workflow edit; individual suite budgets and approved source remain intact.
+
+- 2026-10-07: The aggregate CI repair changes only the overall job guard to
+  75 minutes. The declared sequential commands can use 3620 seconds; the old
+  job limit allowed only 1800. All 26 bounded checks and 28 subtests pass,
+  including actual Nix suite ownership and unchanged individual budgets.
+  The negative oracle rejects the old guard. All 74 approved files remain
+  unchanged. Original cancellation evidence is retained; a new hosted pass
+  remains required before delivery.
