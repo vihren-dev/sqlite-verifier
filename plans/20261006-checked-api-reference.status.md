@@ -644,3 +644,17 @@ T10 test-temp cleanup, and its removal leaves 15.824 GiB free. The retained
 T10 results are intact. The disk threshold is satisfied, and remaining
 ordinary local acceptance can resume after its normal resource preflight.
 This local status checkpoint does not move the branch while CI is running.
+
+
+Fresh native macOS integration acceptance passes at corrected head `d7e5e950`.
+The complete pinned `just test` exits zero: 410 source tests and 35 subtests
+pass, followed by 310 checks across all seven hardened development suites.
+The separate Nix infrastructure command passes all 95 checks in 122.51
+seconds. The inventory checks all 259 authored items. The rebuilt runtime
+output closure has 53 paths and excludes documentation tools and artifacts.
+Original XML, complete logs, output identities and input hashes are retained
+in [the final acceptance record](../reports/20261007-checked-api-reference-final-acceptance/README.md).
+The corrected hosted macOS job succeeds; its downloaded reference ZIP
+matches the workflow digest. Linux has built the reference and is running
+complete checks. Independent evidence review and corrected Linux acceptance
+remain required. No task completion or normal merge is claimed.

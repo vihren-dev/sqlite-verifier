@@ -1,0 +1,175 @@
+{
+  "created": "2026-10-07",
+  "head": "d7e5e950d6d78610c0eb1f55729eb008e2175ad2",
+  "source_difference_at_acceptance": [
+    "plans/20261006-checked-api-reference.status.md",
+    "reviews/log.jsonl"
+  ],
+  "development_command": [
+    "nix",
+    "develop",
+    "path:./nix",
+    "--command",
+    "bash",
+    "-c",
+    "set -o pipefail; just test 2>&1 | tee build/t18b-main-integration/local-acceptance/development.log"
+  ],
+  "development_session": 43812,
+  "development_exit": 0,
+  "source_tests": 410,
+  "source_subtests": 35,
+  "source_deselected_nix_tests": 95,
+  "development_checks": 310,
+  "suites": {
+    "atuin": {
+      "output": "/nix/store/pqc2z8rhsj10q92slwk7s0vw2znxn9pl-sqlite-verifier-test-atuin-1",
+      "tests": 12,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "seconds": "80.371"
+    },
+    "bundle": {
+      "output": "/nix/store/n9gwsv1ns5mznbbk0pqr4xs2qiy52kbj-sqlite-verifier-test-bundle-1",
+      "tests": 42,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "seconds": "245.324"
+    },
+    "cli": {
+      "output": "/nix/store/m8inwnh5cb4p6wprza5sswxbdgiwg6md-sqlite-verifier-test-cli-1",
+      "tests": 14,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "seconds": "39.138"
+    },
+    "harness": {
+      "output": "/nix/store/bnp2ighdvszkprn0l2k1q308lxjpfsph-sqlite-verifier-test-harness-1",
+      "tests": 126,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "seconds": "2.570"
+    },
+    "kernel": {
+      "output": "/nix/store/m9ham02b0ycdggry6lkx0dyn6rrqp1wl-sqlite-verifier-test-kernel-1",
+      "tests": 28,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "seconds": "45.808"
+    },
+    "sample": {
+      "output": "/nix/store/w2zpqlbj6whjg5n99n3b83dr1bn02cfr-sqlite-verifier-test-sample-1",
+      "tests": 12,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "seconds": "47.969"
+    },
+    "upstream": {
+      "output": "/nix/store/74spky1a8snh5a92ki6k5vh4zxxj49mg-sqlite-verifier-test-upstream-1",
+      "tests": 76,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "seconds": "4.403"
+    }
+  },
+  "artifacts": {
+    "darwin-source.xml": {
+      "sha256": "ace9e8cb4daaa2ddd65a954bba5d1a3461c4dd3cc4faa29f2272be1ca7df848e",
+      "bytes": 49990
+    },
+    "darwin-reference-check.json": {
+      "sha256": "2e6247be144f1d1fc4e0005fe213fa58e78247cc1f0aa8efd9a36524d00f8300",
+      "bytes": 195
+    },
+    "runtime-output-closure.json": {
+      "sha256": "9090134b53a404fa0caa863cf87798a8f9fa217470734e4df11874517b4db4b7",
+      "bytes": 3869
+    },
+    "darwin-atuin.xml": {
+      "sha256": "d4d6aa23a667dc3602f9acb6628fcb1869b8bda5bea43d4cf2ccb15d26dd1225",
+      "bytes": 1442
+    },
+    "darwin-bundle.xml": {
+      "sha256": "74e12f9ee0db63f396a3f429b7f025b76919ff85972aa561dfd009069df62850",
+      "bytes": 79814
+    },
+    "darwin-cli.xml": {
+      "sha256": "421bbe19d063fd7f04cb48e2302a5e5db6598766cdb84724d35146111d06d784",
+      "bytes": 1538
+    },
+    "darwin-harness.xml": {
+      "sha256": "e1955227823238069938f4caffb00c08c46829dc9a1f6b3f71e984bcff498382",
+      "bytes": 17027
+    },
+    "darwin-kernel.xml": {
+      "sha256": "ad74c64a87f55ba14d64e197cfc18ac1840bc633fac835f1eae7b93dd53b517e",
+      "bytes": 3256
+    },
+    "darwin-sample.xml": {
+      "sha256": "1b5a783e33f85dc51b821eb7f1f29533768b5ce86990209557f8893498652f89",
+      "bytes": 1883
+    },
+    "darwin-upstream.xml": {
+      "sha256": "312344f2d61bd8cca0d8f804377d1981d337d1588fe66afd94b598fe6e1fa9eb",
+      "bytes": 10697
+    },
+    "darwin-development.log.gz": {
+      "original_sha256": "025f235a7cfe30d3ada5940d54a737627c8dd29af5ababa9c3ef3b6d52e54f77",
+      "original_bytes": 357420,
+      "sha256": "fa4ed2afcf27ff9b838d4898de402349a075b4a49e0140361ac3079fa06caca4"
+    },
+    "darwin-nix.xml": {
+      "sha256": "e995dea8d01300b1b05d1012235323b7960d98a9f4b165e46d8aa872702c55d0",
+      "bytes": 12712
+    },
+    "darwin-nix.log.gz": {
+      "sha256": "4813c1d76fe26056098adba0db7ed4dff36224a25f6e93a7395f2e7ca38fcd4e",
+      "original_sha256": "d5d54f723660694f09ae55dfc94f19526ff8a98188498f17df0a752209d6170c",
+      "original_bytes": 10849
+    },
+    "darwin-native-public-doc-inventory.json.gz": {
+      "sha256": "58f7968a9185c65bfb45d9147241dc357d97fb95baf27b1ecddfbbe9609b9702",
+      "original_sha256": "627ac4b9cb5d641067d4d5e9cee2fd4be90d1f4378066d502efbf87fc02860d5",
+      "original_bytes": 584209
+    },
+    "darwin-public-doc-inventory.json.gz": {
+      "sha256": "f7a48418a0ce8bb31cafae95be2efc10fc4fd933be64882a766ceaea7fe9358c",
+      "original_sha256": "d707c47ebbacd8d61b7fe02a0bd1e39c5ad20420793fdc612f5092d726d2bcdc",
+      "original_bytes": 583642
+    }
+  },
+  "hosted_run": 37667476876,
+  "darwin_reference_zip": {
+    "artifact_id": 11503279092,
+    "sha256": "316c7962249130b45575b3e1585fc403e4e5f67635e93fdea30866832a0499c9",
+    "bytes": 8408541
+  },
+  "nix_infrastructure_session": 81134,
+  "nix_infrastructure_terminal": true,
+  "linux_hosted_terminal": false,
+  "nix_infrastructure_exit": 0,
+  "nix_infrastructure_checks": 95,
+  "nix_infrastructure_seconds": "122.508",
+  "working_directory": "/Users/tzankomatev/work/sqlite-verifier-reference-build",
+  "input_bindings": {
+    "nix/flake.nix": "03ec90f54a0c05143afe0ace49da844b782735b6bd87f7607746ff6d870b7021",
+    "nix/flake.lock": "3708bc87b9623cfca479aa486baeef6ecd8345d2e49dc7aca9b8a62b1dd51ac6",
+    "nix/sqlite.nix": "4e4a463fbedf19cc0cecbe411abd475ca96e1a248026ce4789b5f63171853f41",
+    "justfile": "0094fe18898e600840dffc5bb76511432ea1e764a71d02c668940fcc5a1f1152",
+    "build-support/default.nix": "065e38edf1884f842a2b112e0f92ae5568e139ffbc10e0b1cb0ec6dfaa8183b2",
+    "build-support/tests.nix": "3ba7e033e707f0d94f4713aed00c8c7ab86a1714d804dc9fc60fb5c708fd7272",
+    "build-support/public-documentation.nix": "03096c35dee59bcde4b5448718bba3159e83795b2b28444fb41689e37b9faa3d",
+    "build-support/api-reference.nix": "74e739f7fb68f8271cc2e48f6d8a0b8f8249403cf3c400f9466f9a4b26ef0f99",
+    "tools/public_doc_inventory.py": "0faa7749cb147ef8e91511732757561535cab6b7ae215170dd6bc16d9ffd54b4",
+    "tools/PublicDocInventory.lean": "bb841a28461262f4a5a485540aa729a6932876be4350340babab541b8aa542de",
+    "tools/PublicDocSyntax.lean": "121ffd2bc28edde2afb96190929765dca21dda4cef6f6da01cab07ed8359d729",
+    "tools/public_doc_coverage.py": "f1fa2f2785ea5820d849b21cd4cf3f2021902c4133ddff3a58748bcb58a98279",
+    "tests/test_public_doc_inventory.py": "6e17543d5e7e4ec7df5506abc1de940857287c7515a1d0ecd341925ea4403c2b"
+  }
+}
