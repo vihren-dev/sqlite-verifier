@@ -10,8 +10,10 @@ from tests.runtime_support import run_command
 
 ROOT = Path(__file__).resolve().parents[1]
 pytestmark = [pytest.mark.integration, pytest.mark.environment, pytest.mark.requires_nix]
-COMPONENTS: set[str] = {"runtime", "parsers", "lean", "conformanceLean"}
+COMPONENTS: set[str] = {"runtime", "parsers", "lean", "conformanceLean", "model"}
 DYNAMIC: dict[str, set[str]] = {
+    "packages/belay-sqlite/Belay/Sqlite/Model.lean": {"model"},
+    "packages/belay-sqlite/Belay/Sqlite/Codec.lean": {"model"},
     **{f"parser/input.{suffix}": {"parsers"}
        for suffix in ("py", "c", "h", "y", "json")},
     "SqliteVerifier/Model.lean": {"lean", "conformanceLean"}, "Root.lean": {"lean", "conformanceLean"},
@@ -23,13 +25,15 @@ DYNAMIC: dict[str, set[str]] = {
     "conformance/check.py": set(), "examples/example.sql": {"runtime"},
 }
 FIXED: dict[str, set[str]] = {
+    **{f"packages/belay-sqlite/{name}": {"model"}
+       for name in ("lakefile.toml", "lake-manifest.json", "lean-toolchain")},
     "ConformanceRunner.lean": {"conformanceLean"},
     **{name: {"runtime"} for name in ("LICENSE", "docs/install.md", "packaging/install.sh")},
     "packaging/install.py": {"runtime"},
     **{name: {"lean", "conformanceLean"} for name in ("lakefile.toml", "lake-manifest.json", "lean-toolchain")},
 }
 PARENTS: tuple[str, ...] = (".", "parser", "SqliteVerifier", "VerifierConformance", "migration_check", "tests", "packaging", "tools",
-           "conformance", "examples")
+           "conformance", "examples", "packages/belay-sqlite", "packages/belay-sqlite/Belay/Sqlite")
 IGNORED: tuple[str, ...] = (".git", ".jj", ".lake", "build", "dist", "__pycache__")
 
 

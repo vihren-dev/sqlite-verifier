@@ -10,7 +10,8 @@ Source: [issue #31](https://github.com/vihren-dev/sqlite-verifier/issues/31).
 
 The owner-approved T10 card and accepted ADR define the package boundary.
 The first structural refactor separates model facts from application helpers.
-The package and Python frontend migration are not yet implemented.
+The standalone model package builds independently. Application integration and
+the Python frontend migration remain incomplete.
 
 The accepted ADR was delivered through
 [PR44](https://github.com/vihren-dev/sqlite-verifier/pull/44), normal merge
@@ -57,34 +58,12 @@ or receipts are not accepted inputs.
 
 ## Progress
 
-- 2026-10-07: read the workspace and repository rules, accepted ADR0006, public
-  issue #31, its empty comment list and the approved T10 card. The broad naming
-  proposals in the issue are bounded by the accepted ADR and deferred #27/#28.
-- Inspected architecture source at readiness commit
-  `9458fc52d7d79f4b003e4535f77cf002eb43c7c2`, based on reviewed main
-  `bc9e2dce58f755b608cf00e545162257b81ab51a`. The existing exact raw readiness
-  review row remains pending in `reviews/log.jsonl` and is outside this
-  plans-only checkpoint. The T09 bookmark is not changed.
-- Read approved exporter source
-  `07dc71b323808ac03991407e75dd4e74031924cb`, including `ProofExporter.lean`,
-  `migration_check/import_path.py`, source discovery, preparation and runtime
-  identity. Its exact-origin omission and split package-directory handling
-  must extend to model modules without granting trust by namespace.
-- Read approved executor source
-  `45ac63b2e07d6677c12187adafa1cdc96dc155d6`, including SQL execution, contract,
-  preservation and the mutation harness. `runSqlFrom`, `runSql`,
-  `SupportedSql` and `ProfileExecutes` supply the migration baseline. The
-  deleted `ExtensionExecution` module is not a package-move input.
-- Drafted the task's observable ownership, frontend, Nix, runtime, trust and
-  preservation outcomes. Its acceptance requires actual isolated builds,
-  forbidden-import failures, generated-input parity, attack checks, replay and
-  fresh native installed archives on both supported platforms with configured
-  bounds. Synthetic checks and inherited receipts do not establish completion.
-- Bounded planning validation passed: 67 local references resolve, both files
-  stay below 200 lines, required acceptance outcomes are present and no numbered
-  implementation sequence or package scaffold exists. Only the two new plan
-  files enter the checked commit. Repository rules exempt plans-only commits
-  from independent review; no implementation test or build is claimed.
+Planning and acceptance were prepared before code at `9458fc52`, with reviewed
+exporter `07dc71b3` and executor `45ac63b2` as audit inputs. All 67 initial
+local references resolved. The accepted ADR fixes the package names and leaves
+the Python leaf initializer choice open. The structural ownership and frontend
+dependency findings below remain the migration constraints. Dependency delivery
+then establishes main `eb061e76` as the implementation base.
 
 ## Read-only ownership audit
 
@@ -196,4 +175,28 @@ Original XML and log are retained under `build/t10-structural-ownership-darwin/`
 The resource guard passes. Review `20261007T145948Z-e4a725f6` has no must findings.
 Named import roots and project prefixes fix its policy-literal suggestion.
 Both actual compiler checks pass in 7.65 seconds with a 120-second guard.
-Independent correction review remains required.
+Independent correction review `20261007T150213Z-dbe963ae` reports no findings.
+
+## Standalone package checkpoint
+
+The standalone `packages/belay-sqlite` Lake package now supplies `Belay.Sqlite`
+and the separate `Belay.Sqlite.Codec` library. Its thirteen core modules use
+only model, Init and Std imports. Core module globs exclude the codec. The Nix
+`modelPackage` selects only package source/configuration; missing required
+configuration fails explicitly. Generated trees are excluded. Application
+migration is still pending, so the existing application model remains in use;
+its old paths will be deleted when callers move to the package.
+
+The hardened Nix build compiles all 18 jobs with no application inputs. All
+46 real source-identity checks pass in 24.95 seconds, including addition,
+editing, rename, deletion, missing configuration, generated trees and
+application-only changes. The final three package checks pass in 2.84 seconds:
+core import closure, an unrelated installed-artifact consumer with codec
+roundtrip/version/byte refusals, and a forbidden application import despite an
+adjacent source checkout. Results are in
+`build/t10-standalone-model-darwin/package.xml`. The tested artifact is
+`/nix/store/2w1wn11c4gq07b4a1f422qfycphx18bj-belay-sqlite-model-0.1.0`.
+The real nine-suite command ownership check passes in 1.07 seconds, with a
+90-second outer limit. Authored Markdown file links resolve. Application
+integration, the frontend, trust roots, offline installation and both native
+final suites remain incomplete. This checkpoint awaits independent review.

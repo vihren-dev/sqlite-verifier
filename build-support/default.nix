@@ -15,6 +15,10 @@ let
   '';
 in rec {
   inherit leanToolchain sources;
+  modelPackage = import ./model-package.nix {
+    inherit pkgs leanToolchain;
+    source = sources.model;
+  };
   sqlite3534 = native.sqlite3534;
   conformanceNative = import ./conformance-native.nix { inherit pkgs; };
   conformanceDocs = import ./conformance-docs.nix {
