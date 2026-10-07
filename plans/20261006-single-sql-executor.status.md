@@ -11,8 +11,8 @@ checked and independently reviewed. Prior native ordinary/installed acceptances
 remain retained. The complete model now passes natively on both hosts under
 explicit recipes: Linux at the branch's 420-second budget, and Darwin through
 the separately reviewed model-only 600-second validation invocation. The earlier
-Darwin 420-second failure remains retained. Published PR #48 head `45ac63b2`
-uses 420 seconds. The checked publication integration now adopts the reviewed
+Darwin 420-second failure remains retained. Earlier PR #48 head `45ac63b2`
+used 420 seconds. Published integration `4111dea0` now adopts the reviewed
 600-second model policy from merged main; the other six suites retain 420.
 
 Integration includes approved exporter source `07dc71b3` and its checked
@@ -278,3 +278,10 @@ the stated recipes are complete. The task is not DONE.
   `build/test-results/t05-exporter-integration-routing.xml`. The previous
   complete native model and installed results remain historical acceptance
   for the unchanged implementation; hosted integration is still pending.
+- 2026-10-07: Exporter integration `4111dea0` passed independent review
+  `20261007T080016Z-4111dea0` with no findings. Pushed only the existing PR #48
+  feature branch and marked it ready. Its body records the owner approval,
+  exact baseline exception and earlier failed budget separately. Fresh CI
+  `37590978613` is running on Linux job `112692115126` and Darwin job
+  `112692115395`. The exporter must reach main before this stacked PR is
+  retargeted and merged. No hosted completion or baseline pass is claimed.
