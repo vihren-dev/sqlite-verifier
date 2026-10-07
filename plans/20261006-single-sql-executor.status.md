@@ -387,3 +387,20 @@ the stated recipes are complete. The task is not DONE.
   retains actual job responses, the approved source manifest and preservation
   checks. This repair changes only review and acceptance records and this
   status. Independent review, normal publication and delivery remain required.
+
+- 2026-10-07: Repair `59ad4eab` passes independent review with no findings
+  and is normally published. The attempted expected-head merge is rejected
+  with GitHub error 405 for conflicts; no main write occurs. A fresh response
+  shows that main advanced to `98b90975` through accepted PR #54 after the
+  earlier refresh. Fetched that exact main and integrated it locally. Its CI
+  follow-up changes platform conditions, scope handling and store retention;
+  it changes no library or model input. The only conflict is the journal.
+  Preserved all 212 branch rows, including the pending repair review, and all
+  148 main rows in their original order with 239 merged rows. All 74 approved
+  source, pin and baseline files remain unchanged. The
+  [preservation record](../reports/20261007-executor-refreshed-acceptance/main54-journal-preservation.json)
+  records the exact parents and counts. All 36 relevant CI, frontend, link and
+  actual Nix membership checks pass with 35 subtests in 2.36 seconds under a
+  120-second command limit; 46 unrelated Nix checks are deselected. Original
+  XML is retained at `build/t05-main54-integration/checks.xml`. Integration
+  review, normal feature publication and delivery remain required.

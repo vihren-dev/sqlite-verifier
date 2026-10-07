@@ -24,3 +24,9 @@ restores the original pending `0855f956` review from the retained working-copy
 revision. [The preservation record](journal-preservation.json) binds the
 211-row result before the new review is appended. No existing row is edited
 or deleted. This repair changes no production or test input.
+
+Main later advances through accepted PR #54 to `98b90975`. The integration
+retains that CI follow-up and resolves only the journal conflict. Its
+[preservation record](main54-journal-preservation.json) verifies both complete
+histories and all 74 approved source files. The original job responses above
+remain evidence for their exact source revisions.
