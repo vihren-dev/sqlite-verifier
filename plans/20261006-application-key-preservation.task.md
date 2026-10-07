@@ -87,6 +87,10 @@ The clean change uses the approved T05 implementation at
 `8e10a593bf830c272bf6b5e6af525d943ce90212` and contains only this task's helpers,
 example, tests and guidance. It retains that base's source, protected baselines,
 mutation correction, model timeout and evidence. Held T07 and T18b changes are
-excluded. T05 owner approval is recorded; its repository delivery and clean T15
-checks, independent review and delivery remain required. This task remains
-IN PROGRESS. The status file identifies old receipts separately from new checks.
+excluded. Its clean Darwin compiler, source, ordinary, example and fresh-archive
+installed checks now pass and bind checked source `d2d33a6b`. The status file
+records the exact inputs, runtime, archive and original receipts. T05 owner
+approval is recorded; reviewed CI/release metadata integration, repository
+delivery, required hosted checks and T15 delivery remain required. The
+acceptance and integration checkpoints require independent review. This task
+remains IN PROGRESS; old receipts stay separate from the new checks.

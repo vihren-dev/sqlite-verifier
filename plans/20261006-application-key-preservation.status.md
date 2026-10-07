@@ -100,20 +100,73 @@ copying does not turn old mixed-history receipts into clean-runtime acceptance.
   hashes and prior receipt hashes still match. No performance claim is made.
 - The coordinator held fresh Nix assembly, ordinary and installed gates while
   auditing new hosted bundle-suite timeout failures on PR47/48. Those failures
-  remain failures. No suite guard changed, and no heavy job is running. The
-  clean source unit proceeds only to its required independent review.
+  remain failures. No suite guard changed, and no heavy job ran during that
+  hold. The clean source unit proceeded to its required independent review.
+- The first review invocation returned exit 3 because the CLI reported no
+  login. Raw row `20261007T083543Z-d2d33a6b` remains preserved. The coordinator's
+  one authorized retry reviewed exact source commit
+  `d2d33a6bc4e889baa90d19eaf453498720947790` and returned zero with no findings:
+  `20261007T083946Z-d2d33a6b`. No new authentication or wrapper was required.
+- The coordinator cleared the Darwin native lease after T02's isolated bundle
+  reproduction passed under its unchanged 420-second guard. Fresh clean runtime,
+  ordinary and archive-installed T15 validation now resumes. The Linux lease
+  remains reserved elsewhere. No full model or performance campaign is selected.
+- The first clean ordinary invocation stopped at the configured resource check,
+  before building: 9.40 GiB was free against the 10 GiB requirement. Its exit 1,
+  log and exact command remain in `build/t15-clean-acceptance-darwin/ordinary*`.
+  No guard was lowered and no artifact was deleted by this task.
+- The owner approved only the seven pytest temporary subtrees listed in
+  `cleanup-proposal.json`. Coordinator cleanup session 59774 returned zero;
+  `cleanup-completion.json` records 9,582,145,536 observed reclaimed bytes and
+  32,653,336,576 free bytes. Source/history, archives, receipts and Nix store
+  were excluded from that cleanup. The resource check then passed.
+- Rechecked all seven prior receipt hashes and 439 clean code/test/example
+  inputs. The earlier unknown frozen job is gone; active local work is the
+  identified ci-split infrastructure suite. No process was signaled. The
+  coordinator approved resuming in the configured pinned shell, with concurrent
+  infrastructure as a load qualification and no performance comparison. The
+  stale cached Python-shell path is not the toolchain contract.
+
+- The fresh pinned-shell ordinary retry returned zero in 671.32 seconds. The
+  source suite passed 341 tests and 28 subtests; all six Nix suites passed 187
+  checks. The full model was excluded. Original source and suite XML, logs,
+  exact commands and runtime inputs are in `build/t15-clean-acceptance-darwin/`.
+- Fresh runtime assembly is `w9gq5ixswhvpv2hb08vlh2andqxxhip0`; the compiler
+  reports Lean 4.34.1 and Lake 5.0.0-src. The archive used enabled Nix content
+  addressing and closure verification and returned zero in 91.35 seconds.
+  Its size is 1,113,668,765 bytes and its SHA-256 is
+  `1e34f4df1dbd8bcd6c283611383533a14661285bdbe5b6b71629e936176fffb5`.
+- Actual fresh-archive installation passed all 27 standard package, Atuin and
+  exact T15 nodes in 188.67 seconds, with no skips or errors. Selection used
+  `--runtime-variant installed --runtime-archive` without runtime-root. Fresh
+  installation and test workspaces, the original XML and both independent
+  application-key bundles remain under the clean acceptance directory.
+- The addressed runtime is `z7lckizldcb6z54ryzhy616b4f5fw7l8`. Its 106 authored
+  runtime files match the checked source. All 116 compiled-library files remain
+  byte-identical to assembly; 29 build traces differ only by Nix's addressed
+  compiler-path rewrite. XML binds all 145 actual library files, current
+  example inputs and the exact trusted-import header. Both fresh keyed bundles
+  are 9,390 bytes, with SHA-256
+  `a2e63cc3a638a5dca3159d252b5cb3b8afbaddc27ff51fde31da1ed72563fdb4`.
+- All 439 selected code/test/example input hashes and seven prior receipt hashes
+  still match. Every heavy T15 job is terminal; the Darwin lease is released.
+  `acceptance.json`, `ordinary-receipt.json`, `archive-receipt.json` and
+  `installed-receipt.json` bind this evidence to checked source `d2d33a6b`
+  over approved base `8e10a593`. No performance result is claimed.
 
 ## Remaining acceptance
 
-The clean source unit's bounded compiler and example checks pass; independent
-review remains. Fresh runtime assembly, ordinary integration and installed
-acceptance require coordinated native leases; no full model or installed
-campaign runs before the clean unit is reviewed. The three installed T15 nodes
-need explicit selection because the standard package/Atuin selection omits
-them. Earlier receipts and cached artifacts do not substitute for those checks.
+The clean base's local compiler, source, ordinary, example and fresh-archive
+installed checks pass. The acceptance checkpoint's independent review remains
+required. These receipts do not establish acceptance of a later integration.
+
+The coordinator requires reviewed T05 CI/release metadata at `9e91e525` before
+T15 publication, with a bounded routing check and independent integration review.
+T05 remains open, with hosted run 37600117584 active and a separate protected
+baseline gate failure; this local evidence does not resolve that failure.
+Dependency repository delivery, required hosted native checks and T15 delivery
+remain pending. No PR or main write has run.
 
 The task specifies no additional native platform gate beyond its relevant
-source, example, ordinary and installed checks. Hosted publication still follows
-the repository's native CI checks. Dependency delivery, a reviewable clean
-feature diff, required hosted checks and T15 delivery remain pending. Every
-command retains an explicit timeout. No PR, main write or publication has run.
+source, example, ordinary and installed checks. Every command retains its bound.
+The clean source excludes held T07/T18b code and authorizes no path cutover.
