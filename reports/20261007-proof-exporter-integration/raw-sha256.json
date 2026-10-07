@@ -1,0 +1,30 @@
+{
+  "routing-junit.xml": {
+    "bytes": 626,
+    "sha256": "5a6aa34a0b57247eb92b73c3af2f2c5b55e8bc75712abd9496a3ed5d84dbbfea"
+  },
+  "exporter-junit.xml": {
+    "bytes": 1712,
+    "sha256": "10d2617d69ae3f818f28df6b09402a867f3a6d3dfa1b4b1b476b882ba3800744"
+  },
+  "ci-junit.xml": {
+    "bytes": 944,
+    "sha256": "42fc6ac45272c2e208861745965a3cc6a1168a73aae7ce47cb3c5ace72878068"
+  },
+  "small-bundle.ndjson": {
+    "bytes": 11358,
+    "sha256": "6a8289379ccac861f3fe0c09f5fb8fc3c0ff67ca803757343f825d959677105e"
+  },
+  "refutation-bundle.ndjson": {
+    "bytes": 14584,
+    "sha256": "345028f84aa80c44587a2783d2cc783315a9c7dfe6dfa33f13cf3d9c84514f6e"
+  },
+  "atuin-bundle.ndjson": {
+    "bytes": 1541403,
+    "sha256": "540dd2cc6d89847af49628e44d45d6e67e13fcc2092e1dd0159bc0906c8a2262"
+  },
+  "library-like-candidate-bundle.ndjson": {
+    "bytes": 11555,
+    "sha256": "75b9f161ef16424213115b60023b0b31166b408177abae3721f82e844ffac68d"
+  }
+}

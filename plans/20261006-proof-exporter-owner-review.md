@@ -1,10 +1,13 @@
 # Proof exporter owner review
 
-Status: PENDING. Created 2026-10-06.
+Status: APPROVED on 2026-10-07. Created 2026-10-06.
 
 Task: [proof exporter driver](20261006-proof-exporter-driver.task.md).
 Review rule: [R8](../docs/review-checklist.md), “owner review required” for
-changes to the export path. This record does not grant that approval.
+changes to the export path. The owner approved PR #47 at unchanged reviewed
+head `07dc71b323808ac03991407e75dd4e74031924cb` in the implementation chat
+on 2026-10-07. This records acceptance of the omission logic, merged import
+view and installed producer described below.
 
 ## Change to inspect
 
@@ -53,7 +56,8 @@ Python and Lean import paths.
 
 Claude review of `79e844a5` reported two R8 owner-review requirements and one
 R9 docstring recommendation, with no correctness defect. The docstring was
-clarified; the R8 requirements remain final approval gates.
+clarified. Both R8 findings were resolved after the owner's explicit approval
+on 2026-10-07; the approval record `79fe3504` passed independent review.
 
 Correction `5a18b5bf` passed Claude review with no findings and identical
 runtime executable digests. Native Linux validation passed all development
@@ -65,7 +69,13 @@ bound to the transferred reviewed revision.
 
 Execution packet `35b6dbee` passed Claude review with no findings
 (`20261006T150137Z-35b6dbee`). The technical work and independent reviews are
-complete. Pending: this required owner approval.
-Merge and release await the required owner review, including the preceding
-Lean 4.34.1 upgrade gate. A draft pull request provides the concrete change
-and evidence for that final review.
+complete. The owner approval above is recorded, and the approved Lean upgrade
+was merged through PR #43 as `bc9e2dce`. Publication integration preserves all
+101 exporter/import-view/pin/baseline and receipt files checked against the
+approved head. Main updates two engine-settings caller files, so the combined
+runtime has a new identity. The separate
+[current-input receipt](../reports/20261007-proof-exporter-integration/summary.json)
+records a fresh Darwin assembly and all three fixed T03 bundle-byte/status
+comparisons, plus origin and collision tests. Historical both-platform receipt
+bytes are unchanged. Normal PR checks and delivery remain pending; release is
+a separate decision.

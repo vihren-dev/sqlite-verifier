@@ -27,6 +27,17 @@ def test_host_collection_retains_source_owned_conformance_checks() -> None:
     assert all((ROOT / name).is_file() for name in delegated)
 
 
+def test_each_delegated_file_belongs_to_one_suite() -> None:
+    """A file in two suites would run twice and rerun when either suite's inputs change."""
+    suites = json.loads((ROOT / "tests/nix_suites.json").read_text())
+    owners: dict[str, list[str]] = {}
+    for suite, files in suites.items():
+        for name in files:
+            owners.setdefault(name, []).append(suite)
+    shared = {name: names for name, names in owners.items() if len(names) > 1}
+    assert not shared, f"Test files listed in more than one Nix suite: {shared}"
+
+
 @pytest.mark.requires_native("just")
 def test_recipe_expansion_retains_full_model_in_release_checks() -> None:
     """Actual just dependencies select the sample for development and the full set for releases."""

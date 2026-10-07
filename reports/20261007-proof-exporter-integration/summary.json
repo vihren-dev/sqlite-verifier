@@ -1,0 +1,158 @@
+{
+  "approvedRevision": "07dc71b323808ac03991407e75dd4e74031924cb",
+  "publicationParents": [
+    "2a4a2060d3166eb9e91f7c088935882c1f3136e5",
+    "bc9e2dce58f755b608cf00e545162257b81ab51a"
+  ],
+  "approvedFilesByteExact": 101,
+  "deliberateRemovalsAbsent": [
+    "build-support/lean4export-skip-trusted.patch"
+  ],
+  "mainCallerDifferences": [
+    "migration_check/sql_model.py",
+    "migration_check/profiles.py"
+  ],
+  "currentDarwinRuntime": "/nix/store/dsb751zkkicbqgxca8lkk3zf4rcz8i85-sqlite-verifier-runtime-1",
+  "currentDarwinExecutables": {
+    ".lake/build/bin/migration-proof-exporter": {
+      "path": "/nix/store/dsb751zkkicbqgxca8lkk3zf4rcz8i85-sqlite-verifier-runtime-1/.lake/build/bin/migration-proof-exporter",
+      "sha256": "bb90835efcaa41ba6c3dde40e493e598c69ee37c6061412ed195ef29cd0875ee"
+    },
+    ".lake/build/bin/migration-proof-checker": {
+      "path": "/nix/store/dsb751zkkicbqgxca8lkk3zf4rcz8i85-sqlite-verifier-runtime-1/.lake/build/bin/migration-proof-checker",
+      "sha256": "731e13f5cf4e6447edccbd06828ffa58d040cfc650af2de03f80ba7a7d46bdf2"
+    },
+    ".lake/build/bin/migration-bundle-checker": {
+      "path": "/nix/store/dsb751zkkicbqgxca8lkk3zf4rcz8i85-sqlite-verifier-runtime-1/.lake/build/bin/migration-bundle-checker",
+      "sha256": "c852ad0cc1e4ed85db93d6887410f5457aa17637235b44f6a19d85f00ccb616e"
+    }
+  },
+  "currentChecks": {
+    "routing": {
+      "name": "pytest",
+      "errors": "0",
+      "failures": "0",
+      "skipped": "0",
+      "tests": "3",
+      "time": "7.969",
+      "timestamp": "2026-10-07T10:39:16.553133+03:00",
+      "hostname": "tzanko-mbp",
+      "sha256": "5a6aa34a0b57247eb92b73c3af2f2c5b55e8bc75712abd9496a3ed5d84dbbfea"
+    },
+    "exporter": {
+      "name": "pytest",
+      "errors": "0",
+      "failures": "0",
+      "skipped": "0",
+      "tests": "12",
+      "time": "52.781",
+      "timestamp": "2026-10-07T10:45:23.263586+03:00",
+      "hostname": "tzanko-mbp",
+      "sha256": "10d2617d69ae3f818f28df6b09402a867f3a6d3dfa1b4b1b476b882ba3800744"
+    },
+    "ci": {
+      "name": "pytest",
+      "errors": "0",
+      "failures": "0",
+      "skipped": "0",
+      "tests": "6",
+      "time": "0.052",
+      "timestamp": "2026-10-07T10:45:24.372325+03:00",
+      "hostname": "tzanko-mbp",
+      "sha256": "42fc6ac45272c2e208861745965a3cc6a1168a73aae7ce47cb3c5ace72878068"
+    }
+  },
+  "fixedInputCases": [
+    {
+      "name": "small",
+      "bundleBytes": 11358,
+      "bundleSha256": "6a8289379ccac861f3fe0c09f5fb8fc3c0ff67ca803757343f825d959677105e",
+      "header": {
+        "bundle": 1,
+        "trusted_imports": [
+          "Init",
+          "SqliteVerifier.Demonstration",
+          "SqliteVerifier.Library"
+        ]
+      },
+      "inputSha256": {
+        "examples/approved/schema.sql": "70f3ef1458be467b401d433e2fc5c3a8aec43ed0b1f89d7069f3f5d2bfd290d3",
+        "examples/approved/Requirements.lean": "4bee30115f2aa8a7b4494a523011c1ce5fdf3eb8b2cbb142e9c5c750a6d7c4b3",
+        "examples/approved/Interpretation.lean": "0642ae14b8287a71b28aa03e76ae3f2cde3575cd0637c0e96674b3e7dab25ea8",
+        "examples/add_column_then_table/migration.sql": "efbb1727791a256229917481001f7c814f304e704723b7a66cb9ba7dbbbd8b42",
+        "examples/add_column_then_table/NextInterpretation.lean": "643a4bf7d920f9ee6625643243a944842b1df8bdb189c9d1cae201fdd99f5d21",
+        "examples/add_column_then_table/Proofs.lean": "e0d0b4ce54bc48b248b9a1694755d58bf0fcc654d9bb4d7333afcc73f3f23173"
+      },
+      "statusCheckedByBaselineRegression": "VERIFIED"
+    },
+    {
+      "name": "refutation",
+      "bundleBytes": 14584,
+      "bundleSha256": "345028f84aa80c44587a2783d2cc783315a9c7dfe6dfa33f13cf3d9c84514f6e",
+      "header": {
+        "bundle": 1,
+        "trusted_imports": [
+          "Init",
+          "SqliteVerifier.Library"
+        ]
+      },
+      "inputSha256": {
+        "examples/approved/schema.sql": "70f3ef1458be467b401d433e2fc5c3a8aec43ed0b1f89d7069f3f5d2bfd290d3",
+        "examples/approved/Requirements.lean": "4bee30115f2aa8a7b4494a523011c1ce5fdf3eb8b2cbb142e9c5c750a6d7c4b3",
+        "examples/approved/Interpretation.lean": "0642ae14b8287a71b28aa03e76ae3f2cde3575cd0637c0e96674b3e7dab25ea8",
+        "examples/missing_required_column/migration.sql": "120d24ab66e303094c7239b810d2710fa67b049232952403f516a25ea168bf6d",
+        "examples/missing_required_column/NextInterpretation.lean": "a499496865a27dec2a106cfbd6fa6c66c74cd1efb81869414dd22deafdda64af",
+        "examples/missing_required_column/Proofs.lean": "59f8c173827c52125d5d6dc25a95c0ff352e84e7b77d921feb62b88044301f1c"
+      },
+      "statusCheckedByBaselineRegression": "VIOLATED"
+    },
+    {
+      "name": "atuin",
+      "bundleBytes": 1541403,
+      "bundleSha256": "540dd2cc6d89847af49628e44d45d6e67e13fcc2092e1dd0159bc0906c8a2262",
+      "header": {
+        "bundle": 1,
+        "trusted_imports": [
+          "Init",
+          "SqliteVerifier",
+          "Std"
+        ]
+      },
+      "inputSha256": {
+        "examples/atuin/schema.sql": "b1cb97162debff911afacb6111907d9aa90e67fbfa1f58ba6ef814919969b6a6",
+        "examples/atuin/approved/Requirements.lean": "9febaa21679e35e00b0f1726b9fa012f51b76153ee905c910cabb0a0e30ab921",
+        "examples/atuin/approved/Interpretation.lean": "cb957b5141178ebf39d42a4eb9ffda6faaab31982fb4057b464a8af2be3ccdd4",
+        "examples/atuin/migration.sql": "3e998a7f7df2cdcc4593e3a8b0a4e3cc7da3f798869021e27638793ef17c589e",
+        "examples/atuin/NextInterpretation.lean": "76abe097200b97515e77e012cb2978b03ec227ace7347af7284ad803f8f28144",
+        "examples/atuin/Proofs.lean": "5fc147ae9262e931a4a4bff56411b3476fb3c67ca09f5a4367ec9b5f9509c068"
+      },
+      "statusCheckedByBaselineRegression": "VERIFIED"
+    }
+  ],
+  "libraryLikeCandidate": {
+    "bundleBytes": 11555,
+    "bundleSha256": "75b9f161ef16424213115b60023b0b31166b408177abae3721f82e844ffac68d",
+    "header": {
+      "bundle": 1,
+      "trusted_imports": [
+        "Init",
+        "SqliteVerifier.Demonstration",
+        "SqliteVerifier.Library"
+      ]
+    },
+    "verificationCheckedByRegression": "VERIFIED"
+  },
+  "journal": {
+    "approvalParentRows": 28,
+    "mainParentRows": 71,
+    "mergedRows": 81,
+    "bothFullOrdersAndMultiplicitiesPreserved": true,
+    "pending79ReviewRetained": true,
+    "sha256": "24dc7b9f508cc9d229b7669b88b055be99f7c3535283e37e69a406f53a27fbe1",
+    "sharedInheritedRows": 18
+  },
+  "historicalAcceptance": "Existing both-platform T02 receipts remain byte-immutable at their recorded source/runtime revisions. Current Darwin caller acceptance is separate. Current Linux runtime identities are evaluated, not freshly built or tested here; hosted CI will cover integrated source.",
+  "fullModelOrdinaryInstalledReruns": false,
+  "compressedRawSha256": "0e247c0e50471d313e0cbecc829d11b99d61378affbc180bf33d2b991fe03bff",
+  "rawSha256": "2a8b717b83db1b7d5b0c6569c339850ccea7b768b1592954043da9622905a604"
+}
