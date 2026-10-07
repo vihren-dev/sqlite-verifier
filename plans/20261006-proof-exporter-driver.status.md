@@ -4,8 +4,10 @@ Status: IN PROGRESS. Created 2026-10-06.
 
 Technical acceptance and independent reviews are complete. The owner approved
 PR #47 at reviewed head `07dc71b3` on 2026-10-07. Both export-path review
-findings are resolved. Publication integration, merge and release remain
-pending behind the approved Lean upgrade.
+findings are resolved. The approved Lean upgrade is merged. Integrated hosted
+acceptance remains failing on Darwin's whole bundle-suite deadline; merge and
+release remain pending. The bounded correction is described in
+[the Darwin CI task](20261007-darwin-bundle-scheduling.task.md).
 
 Task: [proof exporter driver](20261006-proof-exporter-driver.task.md).
 Source: [issue #29](https://github.com/vihren-dev/sqlite-verifier/issues/29).
