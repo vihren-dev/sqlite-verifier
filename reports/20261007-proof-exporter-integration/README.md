@@ -5,7 +5,8 @@ This integration combines its recorded approval with merged approved Lean
 upgrade `bc9e2dce`. Every checked exporter, prepare/import-view, pin, baseline
 and historical receipt file remains byte-exact: 101 files, with the deleted
 lean4export patch still absent. Only the journal conflicted; all original
-contents, orders and multiplicities remain (28 plus 71 parent rows, 81 merged).
+contents, orders and multiplicities remain. The parents contain 28 and 71 rows,
+with 18 shared inherited rows; the merge retains 81 rows without duplication.
 
 The approved Lean/exporter, parser and conformance source/derivation identities
 remain equal on both native platforms. Main independently updates

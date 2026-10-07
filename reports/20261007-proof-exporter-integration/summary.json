@@ -148,7 +148,8 @@
     "mergedRows": 81,
     "bothFullOrdersAndMultiplicitiesPreserved": true,
     "pending79ReviewRetained": true,
-    "sha256": "24dc7b9f508cc9d229b7669b88b055be99f7c3535283e37e69a406f53a27fbe1"
+    "sha256": "24dc7b9f508cc9d229b7669b88b055be99f7c3535283e37e69a406f53a27fbe1",
+    "sharedInheritedRows": 18
   },
   "historicalAcceptance": "Existing both-platform T02 receipts remain byte-immutable at their recorded source/runtime revisions. Current Darwin caller acceptance is separate. Current Linux runtime identities are evaluated, not freshly built or tested here; hosted CI will cover integrated source.",
   "fullModelOrdinaryInstalledReruns": false,

@@ -153,7 +153,8 @@ to the reviewed implementation.
 - 2026-10-07: Integrated the approved exporter/approval parent `2a4a2060` with
   merged approved upgrade `bc9e2dce`. Only the append-only journal conflicted.
   Retained every exact row, order and multiplicity: 28 approval/exporter rows
-  plus 71 main rows form 81 rows. The pending `79fe3504` review is retained.
+  plus 71 main rows share 18 inherited rows, yielding 81 retained rows. The
+  pending `79fe3504` review is retained.
   All 101 checked exporter/prepare/import-view/pin/baseline and historical
   receipt files are byte-exact `07dc71b3`; the removed patch remains absent.
 - Both native platforms' evaluated Lean/exporter, parser and conformance source
@@ -180,3 +181,8 @@ to the reviewed implementation.
   here; hosted CI will cover the combined source. Both T03/T02 historical
   receipt directories are unchanged. Darwin slot released to the T04c agent.
   Task remains IN PROGRESS pending integration review and normal PR delivery.
+- Integration `128a2019` passed required independent Claude review with no
+  findings (`20261007T075456Z-128a2019`). Clarified its unclassified wording
+  note: the two parent journals share 18 inherited rows, which explains the
+  retained total of 81. Every original row/order/multiplicity is preserved;
+  no source, input, runtime or receipt payload changes in this clarification.
