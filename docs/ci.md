@@ -116,7 +116,7 @@ later run and cannot change a result. The step may fail without failing the job.
 Host JUnit reports, cached Nix test outputs and CI phase diagnostics are
 retained for 14 days. Pytest's exit status decides success. Individual subprocess
 and whole-command deadlines remain bounded (a timed-out test command's process
-group is killed). The hosted job limit is 75 minutes. It covers the sequential
+group is killed). The hosted job limit is 105 minutes, including the 30-minute reference phase. It covers the sequential
 runtime, Darwin bundle and complete-check phase budgets, plus setup and artifact
 retention. Individual suite and command limits remain unchanged.
 Superseded ordinary runs are cancelled; release/manual runs are not.

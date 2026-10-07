@@ -6,7 +6,8 @@ on:
     branches: [main]
     tags: ["v*"]
   workflow_dispatch:
-  # Nightly full run on both platforms; pull requests check only Linux.
+  # Nightly verifier checks run on both platforms. Pull requests run them on
+  # Linux and build the API reference on both platforms.
   schedule:
     - cron: "17 2 * * *"
 

@@ -566,3 +566,12 @@ reference execution is claimed. [The integration record](../reports/20261007-che
 retains the original XML and journal proof. The current source preserves
 delivered main and its checks. Independent review remains required before
 draft publication for hosted acceptance.
+
+
+Integration `ba3f3213` passes independent review
+`20261007T175523Z-ba3f3213` with no mandatory finding. Two stale
+descriptions are corrected: the old hosted budget and the old statement
+that PRs run only on Linux. The reference runs on both platforms while
+verifier checks retain their schedule. No workflow behavior changes in
+this text correction. Both findings are recorded as fixed; correction
+review remains required.
