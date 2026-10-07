@@ -8,19 +8,17 @@ Source: [issue #31](https://github.com/vihren-dev/sqlite-verifier/issues/31).
 
 ## Current checkpoint
 
-The owner-approved T10 card and the accepted ADR define the package boundary.
-This checkpoint contains outcome and acceptance files only. No package scaffold,
-frontend move, proof change, runtime change or build is included.
+The owner-approved T10 card and accepted ADR define the package boundary.
+The first structural refactor separates model facts from application helpers.
+The package and Python frontend migration are not yet implemented.
 
 The accepted ADR was delivered through
 [PR44](https://github.com/vihren-dev/sqlite-verifier/pull/44), normal merge
-`b91e5cb5b3e145bc9713cc5e2b88bd502aa9ad0a`. Implementation remains held for
-repository delivery of the approved exporter in
-[PR47](https://github.com/vihren-dev/sqlite-verifier/pull/47) and approved single
-executor in [PR48](https://github.com/vihren-dev/sqlite-verifier/pull/48).
-Owner approval does not replace hosted integration or delivery checks. The
-implementation base will be delivered, reviewed main. Held T07, T15 and T18b
-source or receipts are not accepted inputs.
+`b91e5cb5b3e145bc9713cc5e2b88bd502aa9ad0a`. The approved exporter in
+[PR47](https://github.com/vihren-dev/sqlite-verifier/pull/47) and single executor
+in [PR48](https://github.com/vihren-dev/sqlite-verifier/pull/48) are also delivered.
+Implementation uses reviewed main `eb061e76`. Held T07, T15 and T18b source
+or receipts are not accepted inputs.
 
 ## Relevant specifications and source
 
@@ -162,14 +160,12 @@ file. T09's completed plans, feature bookmark and raw review row stay unchanged.
 
 ## Remaining acceptance and open issues
 
-No T10 implementation acceptance has run. Dependency delivery, source migration,
-both native platform gates, independent implementation reviews, R8 final owner
-review and repository delivery remain. T10 and #31 are not DONE.
+Structural source compilation passes. Package/frontend migration, both native
+platform gates, independent reviews, R8 final owner review and repository
+delivery remain. T10 and #31 are not DONE.
 
-#23's later execution restructuring, #15's table shape, #18's validity changes
-and the deferred #27/#28 renames remain separate work. There is no new owner
-design question in this planning checkpoint. Any later environment blocker or
-specification contradiction must be reported under the workspace rules.
+#23's execution changes, #15's table shape, #18's validity and #27/#28 renames
+remain separate. Report environment or specification blockers under workspace rules.
 
 ## Delivered implementation base
 
@@ -188,3 +184,16 @@ Structural nullable projection also needs its model dependency rather than
 the application `LogicalRows` alias. Actual compiler checks and a neutral
 model-only consumer must verify the separation before its commit. No package
 or frontend implementation is claimed at this planning checkpoint.
+
+The first source unit moves eight structural declarations to `ModelFacts`
+and NULL projection to `ModelProjection`. Model preservation/extension helpers
+import the structural facts; conformance laws drop their application import.
+Logical observations stay application-owned. Proof bodies and statement
+signatures are retained; structural types replace the application row alias.
+Both actual isolated compiler checks pass in 11.59 seconds with a 120-second
+command limit: a neutral consumer imports the facts and an application import
+fails despite adjacent real source/artifacts. The hardened native application
+build passes all 66 jobs under a 900-second limit, producing
+`/nix/store/qh7qnknc536ndan68lrw4a53ipg1l8xz-sqlite-verifier-lean-runtime-1`.
+Original XML and log are retained under `build/t10-structural-ownership-darwin/`.
+The resource guard passes. Independent review of this unit remains required.

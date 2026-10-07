@@ -1,4 +1,4 @@
-import SqliteVerifier.Library
+import SqliteVerifier.ModelFacts
 
 set_option doc.verso true
 

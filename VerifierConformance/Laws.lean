@@ -1,5 +1,4 @@
 import SqliteVerifier.SqlExecution
-import SqliteVerifier.NullableProjection
 
 /-! ADR 0004 W5 laws use the same transitions as the verifier. -/
 set_option maxHeartbeats 2000000

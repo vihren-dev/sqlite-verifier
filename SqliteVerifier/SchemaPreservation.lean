@@ -1,4 +1,4 @@
-import SqliteVerifier.Library
+import SqliteVerifier.ModelFacts
 
 set_option doc.verso true
 
@@ -38,7 +38,7 @@ theorem TableExtends.declarations (extension : TableExtends before after) :
 names and projected rows. With no keys this requires nothing. Supply the desired
 SQLite comparison and NULL meaning, or any other logical key predicate;
 this flexible primitive selects neither a comparator nor a nonnullness rule. -/
-def Table.KeysValid (meaning : List String → LogicalRows → Prop) (table : Table) : Prop :=
+def Table.KeysValid (meaning : List String → List (Int × List (Option Value)) → Prop) (table : Table) : Prop :=
   ∀ key ∈ table.properties.keys, meaning key (table.project key)
 
 /-- For every before/after table and key predicate, assume {name}`TableExtends`,
@@ -63,7 +63,7 @@ with stored column metadata is not a premise. With no old rows, widths are
 vacuous. Use this to retain any fact about this observation.
 The proof rewrites the projection using {name}`TableExtends.project`. -/
 theorem TableExtends.columnInvariant {column : Column}
-    {predicate : Column → LogicalRows → Prop} (extension : TableExtends before after)
+    {predicate : Column → List (Int × List (Option Value)) → Prop} (extension : TableExtends before after)
     (width : ∀ row ∈ before.rows, row.values.length = before.columns.length)
     (covered : Covers before [column.name])
     (valid : predicate column (before.project [column.name])) :
