@@ -739,3 +739,13 @@ authorized one Linux diagnostic below. No production change followed it.
   diagnostic names its artifact and field. The validator stays at 162 lines.
   All three findings have fixed journal resolutions. Independent review of
   this correction remains required; no performance phase ran.
+
+- 2026-10-07: Correction review `20261007T170611Z-75f1c382` finds no
+  mandatory issue. Its two diagnostic suggestions identify imprecise parent
+  field names; each JSON narrowing now names its exact artifact and field.
+  The suggested additional string-format test is rejected because this
+  reversible diagnostic correction is already checked manually and the
+  existing mutation checks verify the meaningful receipt refusals. No replay
+  behavior, evidence or acceptance limit changes. The validator and all four
+  mutation checks pass again under separate 60-second limits. Exact diagnostic
+  paths were checked at each narrowing call. Independent review remains required.

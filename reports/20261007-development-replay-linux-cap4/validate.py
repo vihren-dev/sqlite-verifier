@@ -88,36 +88,36 @@ def validate(root: Path) -> None:
     built = obj(cast(Json, json.loads(gzip.decompress((repo / BUILD_RECORD).read_bytes()))), BUILD_RECORD)
     for field in ("source", "runtime", "archive", "python", "nativeLibraries", "leanVersion"):
         expect(before[field] == built[field], f"{field}: exact-source runtime build identity differs")
-    expect(obj(before["runtime"], "linux/identity-before.json.runtime")["root"] == summary["runtime"] == RUNTIME, "Runtime path differs")
-    for value in obj(report["runtime"], "linux/report.json.runtime").values():
-        binding = obj(value, "linux/report.json.runtime entry")
-        expect(binding["sha256"] == obj(obj(obj(before["runtime"], "linux/identity-before.json.runtime.files")["files"], "linux/identity-before.json.runtime.files")[cast(str, binding["path"])], "linux/identity-before.json.runtime.files")["sha256"], "Report executable binding differs from the exact installed runtime")
+    expect(obj(before["runtime"], 'linux/identity-before.json.runtime')["root"] == summary["runtime"] == RUNTIME, "Runtime path differs")
+    for key, value in obj(report["runtime"], 'linux/report.json.runtime').items():
+        binding = obj(value, f'linux/report.json.runtime.{key}')
+        expect(binding["sha256"] == obj(obj(obj(before["runtime"], 'linux/identity-before.json.runtime')["files"], 'linux/identity-before.json.runtime.files')[cast(str, binding["path"])], f'linux/identity-before.json.runtime.files.{binding["path"]}')["sha256"], "Report executable binding differs from the exact installed runtime")
     for field in ("source", "runtime"):
-        expect(len(obj(obj(before[field], f"linux/identity-before.json.{field}.files")["files"], f"linux/identity-before.json.{field}.files")) == COUNTS[field], f"{field}: complete file count differs")
+        expect(len(obj(obj(before[field], f'linux/identity-before.json.{field}')["files"], f'linux/identity-before.json.{field}.files')) == COUNTS[field], f"{field}: complete file count differs")
     source = read(root, "source-manifest.json")
-    expect(source["revision"] == SOURCE_COMMIT and obj(before["archive"], "linux/identity-before.json.archive")["sha256"] == source["archiveSha256"], "Public archive identity differs")
-    files = obj(obj(before["source"], "linux/identity-before.json.source.files")["files"], "linux/identity-before.json.source.files")
-    for name, value in obj(source["files"], "source-manifest.json.files").items():
-        expected, actual = obj(value, f"source entry {name}"), obj(files[name], f"source entry {name}")
+    expect(source["revision"] == SOURCE_COMMIT and obj(before["archive"], 'linux/identity-before.json.archive')["sha256"] == source["archiveSha256"], "Public archive identity differs")
+    files = obj(obj(before["source"], 'linux/identity-before.json.source')["files"], 'linux/identity-before.json.source.files')
+    for name, value in obj(source["files"], 'source-manifest.json.files').items():
+        expected, actual = obj(value, f'source-manifest.json.files.{name}'), obj(files[name], f'linux/identity-before.json.source.files.{name}')
         expect(actual["link"] == expected["link"] if "link" in expected else {k: actual[k] for k in ("sha256", "bytes")} == expected, f"{name}: public source entry differs")
     helpers = read(root, "helper-manifest.json")
     for name, expected in helpers.items():
         content = raw(root, "helpers/" + name)
         expect({"sha256": hashlib.sha256(content).hexdigest(), "bytes": len(content)} == expected, f"{name}: helper identity differs")
-        expect(obj(obj(obj(before["helpers"], f"helper entry {name}")["files"], f"helper entry {name}")[name], f"helper entry {name}")["sha256"] == obj(expected, f"helper entry {name}")["sha256"], f"{name}: actual helper differs")
+        expect(obj(obj(obj(before["helpers"], 'linux/identity-before.json.helpers')["files"], 'linux/identity-before.json.helpers.files')[name], f'linux/identity-before.json.helpers.files.{name}')["sha256"] == obj(expected, f'helper-manifest.json.{name}')["sha256"], f"{name}: actual helper differs")
     old, current = raw(root, "reviewed-driver.py"), raw(root, "helpers/t04c_capture.py")
     expect(old.replace(PRIOR_DRIVER_SOURCE.encode(), SOURCE_COMMIT.encode()) == current and old.count(PRIOR_DRIVER_SOURCE.encode()) == 1, "Reviewed driver changed beyond its source label")
     original_bytes = (repo / HISTORICAL_RECORD).read_bytes(); original = obj(cast(Json, json.loads(original_bytes)), HISTORICAL_RECORD)
-    expect(hashlib.sha256(original_bytes).hexdigest() == obj(receipt["historicalReceipt"], "linux/receipt.json.historicalReceipt")["sha256"], "Historical v5 receipt SHA differs")
+    expect(hashlib.sha256(original_bytes).hexdigest() == obj(receipt["historicalReceipt"], 'linux/receipt.json.historicalReceipt')["sha256"], "Historical v5 receipt SHA differs")
     for side in ("generic", "synthetic"):
-        observed, prior = obj(report[side], f"{side} evidence"), obj(original[side], f"{side} evidence")
+        observed, prior = obj(report[side], f'linux/report.json.{side}'), obj(original[side], f'{HISTORICAL_RECORD}.{side}')
         expect(all(observed[field] == prior[field] for field in FIELDS) and observed["nativeReplayPassed"] is True, f"{side}: selected evidence/profile/verdict fields differ")
         encoded = json.dumps(observed["selectedIdentities"], sort_keys=True, separators=(",", ":"), ensure_ascii=False).encode()
         expect(hashlib.sha256(encoded).hexdigest() == observed["selectedIdentitiesSha256"], f"{side}: selected identity digest differs")
     expect(report["denominator"] == summary["fullDenominator"] == COUNTS["denominator"] and report["selectedDenominator"] == summary["selectedIdentities"] == COUNTS["selected"], "Complete/selected denominator differs")
     expect(report["counts"] == summary["modelCounts"] == {MODEL_CLASSIFICATION: COUNTS["selected"]}, "Unsupported-only verdict count differs")
     expect(report["policy"] == original["policy"] and report["policySha256"] == original["policySha256"], "Selection policy differs")
-    measurement = obj(report["measurement"], "linux/report.json.measurement"); seconds = measurement["seconds"]
+    measurement = obj(report["measurement"], 'linux/report.json.measurement'); seconds = measurement["seconds"]
     expect(measurement["phase"] == MEASUREMENT_PHASE, "Fresh measured phase kind differs")
     expect(type(seconds) in (int, float) and TARGET <= cast(float, seconds) < PHASE_LIMIT, "Valid target-miss timing differs")
     expect(receipt["measurement"] == measurement and summary["phaseSeconds"] == seconds, "Original phase seconds differ")
@@ -137,22 +137,22 @@ def validate(root: Path) -> None:
     for side in ("before", "after"):
         conditions = read(root, f"linux/conditions-{side}.json")
         expect(conditions == receipt["conditions" + side.title()] and conditions["storageRoot"] == storage and conditions["storageDevice"] == summary["storageDevice"], f"{side}: original storage observation differs")
-        expect(f'"fstype": "{FILESYSTEM_TYPE}"' in cast(str, obj(conditions["filesystem"], f"linux/conditions-{side}.json.filesystem")["findmnt"]) and conditions["osFileCaches"] == CACHE_QUALIFICATION, f"{side}: filesystem/cache qualification differs")
-    command, observation = read(root, "linux/commands/command-0000.json"), obj(receipt["command"], "linux/receipt.json.command")
+        expect(f'"fstype": "{FILESYSTEM_TYPE}"' in cast(str, obj(conditions["filesystem"], f'linux/conditions-{side}.json.filesystem')["findmnt"]) and conditions["osFileCaches"] == CACHE_QUALIFICATION, f"{side}: filesystem/cache qualification differs")
+    command, observation = read(root, "linux/commands/command-0000.json"), obj(receipt["command"], 'linux/receipt.json.command')
     expect(command["returncode"] == observation["returncode"] == summary["exitCode"] == 0 and command["timed_out"] is False, "Original phase command failed or timed out")
     expect(all(command[k] == observation[k] for k in ("stdout", "stderr")) and command["elapsed"] == observation["elapsedSeconds"], "Original command streams/duration differ")
     stdout = obj(cast(Json, json.loads(cast(str, command["stdout"]))), "linux/commands/command-0000.json.stdout")
     expect(stdout["phaseCompleted"] is True and stdout["failure"] is None and stdout["measurement"] == measurement, "Original phase stdout differs from its report")
     arguments = cast(list[str], command["command"])
-    expect(arguments[1:] == ["-B", str(Path(cast(str, obj(before["helpers"], "linux/identity-before.json.helpers")["root"])) / "t04c_capture.py"), "phase",
-        cast(str, obj(before["source"], "linux/identity-before.json source or archive")["root"]), RUNTIME, str(Path(storage).parent), cast(str, obj(before["archive"], "linux/identity-before.json source or archive")["path"])], "Original report-driver arguments differ")
-    expect(Path(arguments[0]).parent == Path(cast(str, obj(before["python"], "linux/identity-before.json.python")["path"])).parent, "Original pinned Python entrypoint differs")
+    expect(arguments[1:] == ["-B", str(Path(cast(str, obj(before["helpers"], 'linux/identity-before.json.helpers')["root"])) / "t04c_capture.py"), "phase",
+        cast(str, obj(before["source"], 'linux/identity-before.json.source')["root"]), RUNTIME, str(Path(storage).parent), cast(str, obj(before["archive"], 'linux/identity-before.json.archive')["path"])], "Original report-driver arguments differ")
+    expect(Path(arguments[0]).parent == Path(cast(str, obj(before["python"], 'linux/identity-before.json.python')["path"])).parent, "Original pinned Python entrypoint differs")
     preflight = read(root, "linux/preflight.json")
     expect(preflight["resourceGuardPassed"] is True and preflight["fullSourceMatchesReviewedArchive"] is True and preflight["helperHashes"] == helpers, "Original guard/source/helper preflight differs")
     expect(read(root, "linux/host-activity-preflight.json")["projectBuildTestReplayNames"] == [], "Preflight project co-runner observation differs")
     originals = read(root, "original-manifest.json")
-    expect(originals["storageEmpty"] is True and len(obj(originals["files"], "original-manifest.json.files")) == ORIGINAL_FILE_COUNT, "Later actual fixture cleanup or original inventory differs")
-    for name, value in obj(originals["files"], "original-manifest.json.files").items():
+    expect(originals["storageEmpty"] is True and len(obj(originals["files"], 'original-manifest.json.files')) == ORIGINAL_FILE_COUNT, "Later actual fixture cleanup or original inventory differs")
+    for name, value in obj(originals["files"], 'original-manifest.json.files').items():
         content = raw(root, "linux/" + name)
         expect({"sha256": hashlib.sha256(content).hexdigest(), "bytes": len(content)} == value, f"{name}: original remote bytes differ")
 
