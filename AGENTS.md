@@ -28,6 +28,50 @@ Rules for this repository:
 - An error message tells what failed, where, and what the user can do next.
   Do not refer to internal documents, such as ADR numbers, in user-facing text.
 
+## Replaced code
+
+The project has no users. When code is replaced, update all callers and delete
+the old code. Do not keep compatibility paths, and do not mark code as "legacy".
+Do not keep aliases for replaced names or fall back to a replaced path.
+
+Review this rule again before the first public release, when users and
+compatibility matter. Historical evidence and the readers needed to replay it
+are retained; they are not replaced implementation paths.
+
+## Lean maintenance
+
+Until the project has users, follow each stable Lean release. Upgrade within
+two weeks after a stable release, in its own change, with no other work in it.
+Do not adopt release candidates. If a Lean dependency (lean4export, comparator,
+doc-gen4) has no tag for the new version, try to build its latest tag under the
+new version; if that fails, record it in the upgrade issue and wait for the
+dependency. Do not downgrade the toolchain automatically.
+
+This policy covers the Lean toolchain and the Lean dependencies built with it.
+It excludes the SQLite versions in the execution profiles: those versions
+define verification semantics and change only as product decisions.
+
+Review this policy when the project gets its first users. Upgrades must then
+also consider compatibility of user proofs.
+
+## Checked public documentation
+
+A change to a public declaration updates its docstring in the same commit.
+Docstrings of public Lean declarations and their fields use Verso format.
+Enable it with `set_option doc.verso true` for the file or declaration, so Lean
+checks the documentation when it compiles the code.
+
+Write these docstrings for library users: state the meaning, give an example,
+and say which value to use when the user does not need the feature. Names use
+checked `{name}` references. Terms and code examples use checked `{lean}` terms
+or `lean` code blocks. Use `{assert}` for computed facts that Lean can check by
+definitional equality.
+
+Checked references cannot refer to declarations defined later in the same file.
+Place each referenced declaration before the docstring that uses it, or put
+the walkthrough in a module docstring at the end of the file. A plain code span
+is not a checked reference.
+
 ## Propositions in plain words
 
 A proof certifies only the formula as written. If the formula says less than
@@ -44,6 +88,7 @@ reader checks that the formula and the intent agree.
   so.
 - The structure of the text follows the formula: one item for each conjunct or
   case.
+- Declaration names in the statement use checked `{name}` references.
 - A change to a formula changes its plain-words statement in the same commit.
 - Proofs need no restatement: the kernel checks them, and trust does not
   depend on them. Exception: a library theorem that other proofs use, or a

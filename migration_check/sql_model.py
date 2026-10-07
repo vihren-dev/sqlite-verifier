@@ -3,7 +3,7 @@
 from dataclasses import dataclass, replace
 from typing import Literal
 
-from .profiles import ExecutionProfile, LEGACY_PROFILE
+from .profiles import ExecutionProfile, DEFAULT_PROFILE
 from .sql_values import SqlValue, lean_value
 
 Affinity = Literal["integer", "real", "text", "blob", "numeric"]
@@ -150,7 +150,7 @@ def schema_inputs(schema: tuple[Table, ...]) -> str:
 
 
 def sql_inputs(schema: tuple[Table, ...], script: tuple[Statement, ...],
-               execution_profile: ExecutionProfile = LEGACY_PROFILE) -> str:
+               execution_profile: ExecutionProfile = DEFAULT_PROFILE) -> str:
     """Bind the candidate-independent parsed inputs in a separately sealed module."""
     from .schema_translate import validate_migration
     from .sql_admission import validate_writes

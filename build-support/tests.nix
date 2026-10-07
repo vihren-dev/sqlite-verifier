@@ -10,6 +10,9 @@ let
     "tests/runtime_installation.py"
   ];
   python = name: pkgs.python3.withPackages (ps: [ ps.pytest ] ++ pkgs.lib.optional (name == "model") ps.hypothesis);
+  # The full model budget is twice the measured hosted macOS completion.
+  # Evidence and the unchanged coverage are in reports/20261006-hosted-model-timeout/README.md.
+  suiteTimeoutSeconds = { default = 420; model = 600; };
   leanRoot = pkgs.runCommand "sqlite-verifier-test-lean" {} ''
     mkdir -p "$out"
     ln -s ${leanToolchain} "$out/lean"
@@ -20,6 +23,7 @@ let
       files = (builtins.fromJSON (builtins.readFile (root + /tests/nix_suites.json))).${name};
       file = builtins.head files;
       extraFiles = builtins.tail files;
+      timeoutSeconds = suiteTimeoutSeconds.${name} or suiteTimeoutSeconds.default;
     in pkgs.stdenvNoCC.mkDerivation ({
       pname = "sqlite-verifier-test-${name}";
       version = "1";
@@ -30,7 +34,7 @@ let
       installPhase = ''
         export HOME="$TMPDIR"
         export PYTEST_DISABLE_PLUGIN_AUTOLOAD=1
-        timeout 420 python3 -m pytest ${file} ${pkgs.lib.concatStringsSep " " extraFiles} --runtime-root ${runtime} \
+        timeout ${toString timeoutSeconds} python3 -m pytest ${file} ${pkgs.lib.concatStringsSep " " extraFiles} --runtime-root ${runtime} \
           -p no:cacheprovider --junitxml "$out/junit.xml" -v --durations=10
       '';
     } // environment);
@@ -55,6 +59,18 @@ in {
     inputs = [
       (fs.fileFilter (file: file.hasExt "py" || file.hasExt "tcl") (root + /conformance))
       (fs.fileFilter (file: file.hasExt "py") (root + /migration_check))
+      (root + /tests/conformance_freeze_test.py)
+      (root + /conformance/requirements-3.51.0.json)
+      (root + /conformance/corpus-v1)
+      (root + /conformance/corpus-v2)
+      (root + /conformance/corpus-v3)
+      (root + /conformance/corpus-v4)
+      (root + /tools/__init__.py)
+      (root + /tools/check_resources.py)
+      (root + /nix/flake.nix)
+      (root + /nix/flake.lock)
+      (root + /nix/sqlite.nix)
+      (root + /build-support/conformance-native.nix)
       (root + /tests/upstream_profile_calls.test)
       (root + /tests/upstream_helper_calls.test)
       (root + /tests/upstream_context_calls.test)

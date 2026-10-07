@@ -230,3 +230,15 @@ authorized one Linux diagnostic below. No production change followed it.
   records the completed unit; integrated gates and both-platform timing
   acceptance remain pending. The overall task remains IN PROGRESS. No
   benchmark, broader gate, build, SSH or PR operation ran in this unit.
+- 2026-10-07: The coordinator authorized publication-base integration from
+  reviewed main `bc9e2dce58f755b608cf00e545162257b81ab51a` before acceptance.
+  The only merge conflict was the append-only journal. Its resolution preserves
+  all 90 exact rows from both histories, including the pending worker review.
+  Worker/snapshot code, frozen v1-v5 and prior T04c receipts have no diff from
+  the reviewed task tip. Main's Lean 4.34.1, runtime, FK acquisition and owned
+  suite routing are inherited. The development guard remains 120 seconds.
+  All 53 selected routing, snapshot, worker and ownership checks pass in
+  8.69 seconds under a 60-second bound with an existing Lean 4.34.1 runtime.
+  This is routing evidence; exact-source runtime builds and fresh acceptance
+  are still pending. Merge review is pending. T02 released Darwin after its
+  terminal runtime/input checks; no acceptance phase has started.

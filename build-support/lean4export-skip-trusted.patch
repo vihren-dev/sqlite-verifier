@@ -20,7 +20,7 @@ index e77a14f..f5c83fb 100644
      recursorMap
 @@ -237,6 +239,12 @@ partial def dumpConstant (c : Name) : M Unit := do
      | if (← get).ignoreMissing then return else panic! s!"Constant {c} not found in environment."
-   if (declar.isUnsafe && !(← get).exportUnsafe) || (← get).visitedConstants.contains c then
+   if ((declar.isUnsafe || declar.isPartial) && !(← get).exportUnsafe) || (← get).visitedConstants.contains c then
      return
 +  -- Experiment (ADR 0003): omit declarations the checker already trusts from its pinned library.
 +  let env := (← read).env
