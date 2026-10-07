@@ -61,7 +61,8 @@ BEFORE_COLLECTION = ("No store paths were removed. The cache is saved without ga
                      "fix the command and run the workflow again to shrink it.")
 """What a failure means while roots are registered: the store is unchanged."""
 DURING_COLLECTION = ("Garbage collection stopped early: some unneeded paths may remain, so the saved "
-                     "cache can be larger. Every rooted path is kept.")
+                     "cache can be larger. Every rooted path is kept. Correct the cause in the Nix "
+                     "error above and run the workflow again to shrink the cache.")
 """What a failure of `nix-store --gc` itself means: the collection may be incomplete."""
 
 
