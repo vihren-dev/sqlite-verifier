@@ -395,3 +395,12 @@ All nine suites have zero failures, errors or skips. Original JUnit timestamps
 and immutable output paths are retained; cached outputs are not reported as
 new executions. The final runtime rebuild passes. Fresh archive and installed
 acceptance are still running and are not counted as passing.
+
+
+The final macOS runtime `x52xw4fpnfmw7wdc7gc5pyi7gr813j1k` produces a fresh
+content-verified archive. All 26 installed package and Atuin checks pass in
+124.695 seconds, without failures or skips. Both new package checks execute
+against installed files. [The native record](../reports/20261007-model-package-darwin/README.md)
+retains the original bytes and binds the component inputs and archive. The
+final comment correction changes suite input identities, so all affected Nix
+suites are being rerun. Linux acceptance and final owner review remain pending.
