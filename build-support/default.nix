@@ -2,11 +2,19 @@
 { system ? builtins.currentSystem
 , pkgs ? import ./locked-nixpkgs.nix { inherit system; }
 , native ? import ../nix/sqlite.nix { inherit pkgs; }
+, referenceRevision ? null
 }:
 let
   sources = import ./sources.nix { inherit (pkgs) lib; };
   leanToolchain = import ./lean-toolchain.nix { inherit pkgs; };
   lean4export = import ./lean4export.nix { inherit pkgs; };
+  inventoryTools = pkgs.lib.fileset.toSource {
+    root = ../.;
+    fileset = pkgs.lib.fileset.unions [
+      ../tools/PublicDocSyntax.lean ../tools/PublicDocInventory.lean
+      ../tools/public_doc_coverage.py ../tools/public_doc_inventory.py
+    ];
+  };
   # lakefile.toml requires lean4export as a path dependency at build/lean4export.
   lakeDependencies = ''
     mkdir -p build
@@ -16,6 +24,14 @@ let
 in rec {
   inherit leanToolchain sources;
   sqlite3534 = native.sqlite3534;
+  docGen4 = import ./doc-gen4.nix { inherit pkgs leanToolchain; };
+  apiReference = import ./api-reference.nix {
+    inherit pkgs sources leanToolchain lean4export docGen4 inventoryTools;
+    revision = referenceRevision;
+  };
+  publicDocumentation = import ./public-documentation.nix {
+    inherit pkgs sources leanToolchain leanRuntime inventoryTools;
+  };
   conformanceNative = import ./conformance-native.nix { inherit pkgs; };
   conformanceDocs = import ./conformance-docs.nix {
     inherit pkgs; inherit (conformanceNative) fixture upstream;

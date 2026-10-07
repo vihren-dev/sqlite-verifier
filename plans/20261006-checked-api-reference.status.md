@@ -386,8 +386,9 @@ Relevant sources: `SqliteVerifier.lean`, `SqliteVerifier/*.lean`,
 ## Acceptance remaining
 
 The owner approved PRs #43, #44, #47 and #48, and T03's release is complete.
-The original review freeze has ended. This branch remains HELD for clean
-dependency integration and hosted artifact acceptance.
+At audit checkpoint `176196be`, the original review freeze had ended. The
+mixed branch remained HELD for clean dependency integration and hosted
+artifact acceptance.
 
 On 2026-10-07, a read-only comparison against approved executor `8e10a593`
 found that the current branch also contains T15's three ApplicationKey modules,
@@ -401,11 +402,10 @@ walkthrough and help changes, then run the required current-source acceptance.
 No source change, build or new acceptance occurred in this audit.
 
 Hosted CI must build and retain both platform artifacts from the published
-reviewed source. This has not run in this task. Implementation, README/CLI guide
-links, checked public documentation, authoritative coverage, compiling
-walkthroughs, negative Verso fixtures, both native references and independent
-reviews pass. The upgraded runtime and T05 trust changes retain their separate
-required owner-review gates.
+reviewed source. This has not run in this task. The original mixed-source
+implementation passed its link, coverage, compiler, native reference and review
+checks. Those results do not establish clean-source acceptance. The upgraded
+runtime and T05 trust changes retain their separate owner-review records.
 
 ## Clean isolation resumed on 2026-10-07
 
@@ -422,3 +422,28 @@ Source and bounded tooling checks can proceed while T15 holds the Darwin
 native lease. Fresh native reference builds wait for that lease. Prior mixed
 builds remain historical evidence. No new PR, reference output or hosted pass
 is claimed by this planning checkpoint.
+
+The first isolated tooling run passed 44 tests and 28 subtests in 3.69 seconds,
+but the Markdown gate failed because the restored status linked to a missing
+historical receipt. Restored that exact receipt from `6dce0468`; no raw evidence
+was changed. The original XML remains `build/t18b-clean-source-isolation/tooling.xml`.
+Actual rendered Nix commands pass their ownership check in 1.54 seconds,
+retaining all seven targets and the existing 420/600-second budgets.
+The 161 base journal rows and 132 mixed-source rows combine into 198 rows,
+preserving both orders and repeated entries. All 73 approved source, pin and
+baseline files outside the entry-point walkthrough remain unchanged; that
+entry point keeps its imports and formulas. No T15 module or example is copied.
+The corrected local Markdown gate passes both tests in 0.66 seconds.
+Compiler fixtures and the adapted walkthrough still await their coordinated
+check. No reference build or clean-source completion is claimed.
+
+The adapted public walkthrough compiles with exit zero under a 30-second
+bound. It imports only the approved base modules. Sixteen real compiler
+fixtures pass in 57.47 seconds under 120 seconds, including source-location
+failures, authored fields, generated exclusions and checked module comments.
+They use the fresh T15 runtime's pinned compiler and unchanged dependency
+modules; they do not validate the T15 public entry or replace a clean Nix build.
+The walkthrough artifacts and original fixture XML are retained in
+`build/t18b-clean-source-isolation/`. No source compiler or test failure remains
+in this isolated unit. Ordinary integration, both fresh native references,
+hosted artifact retention and final delivery still remain.

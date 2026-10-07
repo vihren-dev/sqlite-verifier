@@ -73,6 +73,10 @@ See [CI and release procedure](docs/ci.md).
 
 ## Verify one migration
 
+The [checked Lean API reference](docs/api-reference.md) includes the public
+library walkthrough. Read the [CLI input and proof roles](docs/api-reference.md#cli-inputs-and-proof-roles)
+and run `bin/migration-check verify --help` for the required paths and options.
+
 Inside the development environment, after `just build`:
 
 ```sh
@@ -85,6 +89,12 @@ bin/migration-check verify --profile 3.51.0 \
   --proofs examples/add_column_then_table/Proofs.lean \
   --format json
 ```
+
+The approved requirements define the logical contract. The approved current
+interpretation defines the meaning of starting data and which starting databases
+are admitted. The migration, next interpretation and proofs are candidate inputs.
+The verification contract covers every model-conforming starting database that
+satisfies the approved admission condition under the selected profile and schema.
 
 Exit zero means the exact generated verification contract passed independent
 kernel replay and dependency checking. Human-format success is silent; JSON

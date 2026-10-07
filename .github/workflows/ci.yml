@@ -60,6 +60,11 @@ jobs:
           primary-key: nix-tests-v1-${{ matrix.system }}-${{ hashFiles('nix/*.nix', 'nix/flake.lock') }}-${{ github.sha }}
           restore-prefixes-first-match: nix-tests-v1-${{ matrix.system }}-${{ hashFiles('nix/*.nix', 'nix/flake.lock') }}-
           save: ${{ github.ref == 'refs/heads/main' && github.event_name != 'pull_request' }}
+      - name: Build checked API reference
+        if: steps.scope.outputs.scope != 'docs'
+        env:
+          REFERENCE_REVISION: ${{ github.sha }}
+        run: nix develop path:./nix --command just reference "$REFERENCE_REVISION"
       - name: Run checks in one pinned environment
         if: steps.scope.outputs.scope != 'docs'
         env:
@@ -69,6 +74,14 @@ jobs:
           python3 tools/check_resources.py
           nix develop path:./nix --command python3 tools/ci_checks.py \
             --system "$EXPECTED_SYSTEM" --scope "$CHECK_SCOPE" --mode "$BUILD_MODE"
+      - name: Retain checked API reference
+        if: always() && steps.scope.outputs.scope != 'docs'
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: api-reference-${{ matrix.system }}
+          path: build/api-reference/
+          if-no-files-found: error
+          retention-days: 14
       - name: Retain pytest reports and Nix test outputs
         if: always() && steps.scope.outputs.scope != 'docs'
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4

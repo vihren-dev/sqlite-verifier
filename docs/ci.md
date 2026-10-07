@@ -9,7 +9,13 @@ release tags and manual requests. `tests/ci_scope.py` routes documentation-only
 changes to link checks, ordinary changes to `just test-full`, and runtime/package
 changes to `just package`. Tags and manual requests always package.
 
-Each native job enters the pinned Nix environment once. `tools/ci_checks.py`
+Each native job builds the [checked API reference](api-reference.md) in the
+pinned Nix environment with the checkout's full commit hash for source links.
+CI retains `api-reference-SYSTEM` for 14 days, including when a later check
+fails. The reference checks authored Verso coverage and retains its inventory.
+Documentation dependencies stay outside the installed proof runtime.
+
+Each complete check invocation enters the pinned Nix environment once. `tools/ci_checks.py`
 checks resources, builds the runtime and
 invokes the selected recipe. Darwin first builds the identical `tests.bundle`
 target with sandboxing enabled and fallback disabled. Its output is linked at
