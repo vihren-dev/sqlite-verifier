@@ -1,0 +1,56 @@
+{
+  "sourceCommit": "9e3b44193981bae46dc9fdeedc66eca3f255f419",
+  "reviewedTimeoutTask": "7101799dd3043fa3d475ca94ffb3c321c0b4d327",
+  "validationSuiteLimitSeconds": 600,
+  "branchConfiguredSuiteLimitSeconds": 420,
+  "outerLimitSeconds": 900,
+  "exitCode": 0,
+  "modelOutput": "/nix/store/m0l8bxww097w76m4c81k4g7gmdjp3kya-sqlite-verifier-test-model-1",
+  "conformanceRoot": "/nix/store/3h1ww180anyrw23dhs7bpzswhkrv2l1s-sqlite-verifier-conformance",
+  "derivation": "/nix/store/bz64l7s4k3wagg3wnk5x4y147mvq1jq9-sqlite-verifier-test-model-1.drv",
+  "selectedSource": "/nix/store/xciha5j2sdd44v9f124llb6lp0va3858-source",
+  "selectedSourceFiles": 318,
+  "sourceVerifiedAfter": true,
+  "xml": {
+    "name": "pytest",
+    "errors": "0",
+    "failures": "0",
+    "skipped": "1",
+    "tests": "323",
+    "time": "484.735",
+    "timestamp": "2026-10-06T18:41:07.526479+00:00",
+    "hostname": "tzanko-mbp",
+    "sha256": "cc36c9329cd32f5c166b3107f63b52952c2888a111753b7d07f3f3b2f3160db6",
+    "bytes": 42113,
+    "skips": [
+      {
+        "type": "pytest.skip",
+        "message": "Run the pinned Nix upstream target for Tcl capture"
+      }
+    ]
+  },
+  "process": {
+    "command": [
+      "timeout",
+      "900",
+      "nix-build",
+      "/private/tmp/t05-model-600.nix",
+      "--out-link",
+      "build/t05-nix-model-600",
+      "--option",
+      "sandbox",
+      "true",
+      "--option",
+      "sandbox-fallback",
+      "false",
+      "--extra-experimental-features",
+      "nix-command flakes"
+    ],
+    "outerLimitSeconds": 900,
+    "validationSuiteLimitSeconds": 600,
+    "startedUtc": "2026-10-06T18:41:05.713024+00:00",
+    "finishedUtc": "2026-10-06T18:49:12.989397+00:00",
+    "elapsedMonotonicSeconds": 487.27657666699815,
+    "exitCode": 0
+  }
+}

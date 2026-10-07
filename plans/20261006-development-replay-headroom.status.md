@@ -537,3 +537,32 @@ authorized one Linux diagnostic below. No production change followed it.
   authorize the reviewed base and host leases before fresh acceptance.
   The previous valid Linux 39.570226821-second target miss and all raw
   evidence remain unchanged; the overall task stays IN PROGRESS.
+- 2026-10-07: The coordinator authorized integration of exact reviewed
+  executor publication `9e91e5259885e6f9612f144298674f44e1558bf5` into
+  reviewed T04 tip `3f68e648e930a9752ad0d01f5f3e1d02b352da54`.
+  Those are the two direct merge parents. The pending readiness review is
+  saved separately, then preserved once in the merged journal; its earlier
+  undescribed working copy is not an ancestor. The only conflict was the
+  journal. A shortest ordered merge retains both parent row sequences and
+  their recorded multiplicities: 110 T04 rows and 161 publication rows
+  merge into 207 rows, then the pending review gives 208. No row was edited.
+  Executor, exporter, pins, baselines and every other non-T04 file are exact
+  publication bytes. All frozen and workload inputs remain unchanged.
+- 2026-10-07: Integration checks are terminal. Session 78291 exited 0:
+  92 bounded snapshot, four-worker, tier, source-ownership and current
+  CI/import/mutation routing checks passed in 11.21 seconds. Session 72006
+  exited 0: 56 bounded storage/shard and real Nix dependency/budget checks
+  passed in 12.77 seconds; 75 unrelated cases were deselected. Neither
+  suite skipped a selected check. Their outer bounds are 90 seconds.
+  Real Nix evaluation confirms model 600/default 420 suite budgets and
+  worker/tier/executor source routing. The 120-second replay phase guard
+  remains intact. No full frozen replay, profile or performance phase ran.
+  Independent integration review is pending.
+- 2026-10-07: T15's owner confirmed its Darwin heavy work terminal and lease
+  released at 09:40 UTC. The coordinator authorized fresh exact-source
+  conformance runtime builds on both native platforms after clean integration
+  review, with the existing resource guard and 900-second build bounds.
+  Linux's build lease belongs to this task. Complete source/runtime identity
+  receipts must be retained; fresh-runtime readiness precedes any later
+  performance authorization. No build has started yet. T15, T18b and T07
+  code remains publication-exact. The overall task stays IN PROGRESS.

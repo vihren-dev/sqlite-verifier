@@ -1,5 +1,7 @@
 import SqliteVerifier.Demonstration
 
+set_option doc.verso true
+
 /-! An explicit failure contract protects the committed prefix's actual storage.
 This separate engineering policy permits exactly the expected third-statement error. -/
 
@@ -21,23 +23,27 @@ def prefixRepresentation : FailureRepresentation LogicalRows where
   schema := fun _ _ => nextSchema
   interpretation := fun _ _ => next
 
-/-- A modeled error is safe under this separate explicit policy for all old data. -/
+/-- The complete {name}`VerificationConditions` for {name}`failureScript` hold
+for every admitted starting database. The first two statements succeed; position
+two fails with table-exists and preserves the invoice projection. The proof uses
+the successful prefix certificate and the guarded schema-prefix composition law. -/
 theorem failureMigrationCorrect :
     VerificationConditions startSchema nextSchema failureScript (fun _ => True)
       failureRequirements current next prefixRepresentation := by
-  apply VerificationConditions.of_run (contract := failureRequirements)
-    (by decide +kernel) (by decide +kernel)
+  apply VerificationConditions.of_runSql (contract := failureRequirements)
     migrationCorrect.nonempty migrationCorrect.beforeSound
     migrationCorrect.afterSound
   · intro _ _
     exact migrationCorrect.afterSound
   · exact migrationCorrect.starting
+  · intro database _
+    exact ⟨by decide +kernel, supportedSqlFrom_schemaOnly (by simp [SchemaOnly, failureScript, script])⟩
   · intro database admitted
     obtain ⟨logical, read, _⟩ :=
       (migrationCorrect.beforeSound database (migrationCorrect.starting database admitted)).2
-    have obligations := migrationCorrect.outcomes database admitted _
-      (.extensions (by decide +kernel) (runFrom_executes script database 0))
-    cases executed : runFrom 0 script database with
+    have obligations := migrationCorrect.outcomes database admitted _ .evaluated
+    simp only [runSql] at obligations
+    cases executed : runSqlFrom 0 script { database := database } with
     | failure position reason result =>
       have impossible := obligations.1
       simp [executed, requirements, requiresSuccess] at impossible
@@ -49,9 +55,10 @@ theorem failureMigrationCorrect :
       have auditName : supportedTableName "audit" = true := by decide +kernel
       have auditColumns : supportedColumns [message] = true := by decide +kernel
       have messagePlain : message.plain = true := by decide +kernel
-      have failed : run failureScript database = .failure 2 (.tableExists "audit") result := by
-        simp only [run, failureScript, runFrom_append, executed]
-        simp [runFrom, script, step, auditName, auditColumns, messagePlain, present]
+      have failed : runSql failureScript database = .failure 2 (.tableExists "audit") result := by
+        simp only [runSql, failureScript]
+        rw [runSqlFrom_schemaOnly_append (initial := script) (by simp [SchemaOnly, script]), executed]
+        simp [runSqlFrom, advance, literalStep, SqlState.finish, script, step, auditName, auditColumns, messagePlain, present]
       rw [failed]
       refine ⟨trivial, ?_⟩
       intro original observed

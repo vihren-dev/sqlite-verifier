@@ -1,0 +1,59 @@
+{
+  "parents": [
+    "28556a43dd90bf2619b0588fd12e931f0101b14a",
+    "b91e5cb5b3e145bc9713cc5e2b88bd502aa9ad0a"
+  ],
+  "journal": {
+    "ownRows": 83,
+    "mainRows": 76,
+    "sharedInheritedOccurrences": 71,
+    "mergedRows": 88,
+    "everyParentRowOrderMultiplicityPreserved": true,
+    "pending285ReviewRetained": true,
+    "sha256": "08fb214b6ecbf05a3ba0623e24369fffc1d875898fc8e4373f86b37cf9cf1775"
+  },
+  "approvedFilesStillByteExact": 101,
+  "unchangedPreviousCurrentReceiptFiles": {
+    "reports/20261007-proof-exporter-integration/README.md": {
+      "bytes": 2951,
+      "sha256": "5e6c420e7e99358e44646790acbbadb2f92b6fcdeb168437b234150e9ad53353"
+    },
+    "reports/20261007-proof-exporter-integration/approved-files.json": {
+      "bytes": 11296,
+      "sha256": "4d35b9a72cbb08aa928a13fe5c91fd81bc7a426dcf308d18e992f5ba36a68958"
+    },
+    "reports/20261007-proof-exporter-integration/raw-current-inputs.json.gz": {
+      "bytes": 253695,
+      "sha256": "0e247c0e50471d313e0cbecc829d11b99d61378affbc180bf33d2b991fe03bff"
+    },
+    "reports/20261007-proof-exporter-integration/raw-sha256.json": {
+      "bytes": 943,
+      "sha256": "af2ddeec4e8a29c0583f9827151f4338548029ea8e063c7bbb7cabd26d261301"
+    },
+    "reports/20261007-proof-exporter-integration/source-identities.json": {
+      "bytes": 3925,
+      "sha256": "4029b28d05f561075e5cd2b191df3704174fb43e89cbe01d21ee8afb63723eea"
+    },
+    "reports/20261007-proof-exporter-integration/summary.json": {
+      "bytes": 6894,
+      "sha256": "d33bf5e4114a5a97acba20c9517facc203d0598e128d171b3e427068dbeaadec"
+    }
+  },
+  "incomingMainDocsExact": {
+    "docs/adr-0006-model-boundary-and-execution-levels.md": {
+      "bytes": 14887,
+      "sha256": "18d17327a9b13ee268d16fd62e36d93fc5d039e5f0e6db01c3f3570c534f7ee4"
+    },
+    "plans/20261006-model-architecture.status.md": {
+      "bytes": 5581,
+      "sha256": "3df1a95e75b75a1b1a2a72da62ff3362cde0bbd52c93fbd174eddf1ed968dc0e"
+    },
+    "plans/20261006-model-architecture.task.md": {
+      "bytes": 3224,
+      "sha256": "95ffc6acf3d33da6386cb3edb66b25b3865f8702f00b56edf02d2e7e106f831a"
+    }
+  },
+  "linksJUnitSha256": "dfafa5a80bb18b41a83c8265eae61cddb5fe4a86664cb2382d93d07f8ee15f92",
+  "sourceRuntimeTestInputChanges": false,
+  "nativeRebuildsOrGateReruns": false
+}

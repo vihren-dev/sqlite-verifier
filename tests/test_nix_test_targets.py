@@ -22,7 +22,7 @@ def expression(root: Path) -> str:
     in import (builtins.toPath {quote(ROOT / 'build-support/tests.nix')}) {{
       inherit pkgs; inherit (builds) leanToolchain leanRuntime parsers conformance;
       runtime = import (builtins.toPath {quote(ROOT / 'build-support/runtime.nix')}) {{
-        inherit pkgs; inherit (builds) leanToolchain leanRuntime parsers exporter;
+        inherit pkgs; inherit (builds) leanToolchain leanRuntime parsers;
         sources = builds.sources // {{ runtime = (import (builtins.toPath {quote(ROOT / 'build-support/sources.nix')}) {{
           inherit (pkgs) lib; root = /. + {quote(root)};
         }}).runtime; }};
@@ -72,6 +72,7 @@ def source_tree(tmp_path: Path) -> Path:
 
 @pytest.mark.parametrize('relative,affected', [
     ('tests/kernel_gate_test.py', {'kernel'}),
+    ('tests/single_executor_test.py', {'kernel'}),
     ('tests/kernel_gate/Proofs.lean', {'kernel'}),
     ('conformance/model_cases.py', {'model', 'upstream'}),
     ('conformance/replay_tiers.py', {'model', 'sample', 'upstream'}),

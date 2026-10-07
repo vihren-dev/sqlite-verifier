@@ -3,6 +3,8 @@ import AtuinFacts
 import AtuinWitness
 import HistoryDecodingChecks
 
+set_option doc.verso true
+
 /-! A closed preservation certificate for the supplied SQL over every admitted
 business history. Success and complete decoding are proved, not assumed. -/
 namespace Proofs
@@ -16,18 +18,20 @@ theorem mapping (schema : Schema) :
   obtain ⟨conforms, histories, observed⟩ := invariant
   exact ⟨conforms, histories, observed, HistoryMapping.observe_valid observed⟩
 
-/-- Every modeled outcome is successful and preserves the complete old business state. -/
+/-- The complete generated verification target holds for every admitted business
+history. The proof provides a populated starting witness, sound decoding, support
+and direct SQL execution. The successful ADD retains the entire old history
+projection; no execution outcome is excluded through an extra premise. -/
 theorem migrationCorrect : Generated.expected := by
   refine ⟨⟨_, AtuinWitness.populated_admitted⟩, mapping _, mapping _,
     unreachableFailures_sound Requirements.contract, ?_, ?_, ?_⟩
   · intro database admitted
     exact admitted
   · intro database admitted
-    exact ⟨by decide +kernel, supportedSqlFrom_extensions (by decide +kernel)⟩
+    exact ⟨by decide +kernel, supportedSqlFrom_schemaOnly (by simp [SchemaOnly, AtuinFacts.script_bound])⟩
   · intro database admitted outcome execution
     obtain ⟨history, present, columns, valid, executed, conforms⟩ := AtuinFacts.payload admitted.1
-    have same : run Generated.script database = outcome :=
-      (runSqlFrom_extensions (by decide +kernel)).symm.trans execution.result
+    have same : runSql Generated.script database = outcome := execution.result
     rw [executed] at same
     subst outcome
     refine ⟨True.intro, ?_⟩

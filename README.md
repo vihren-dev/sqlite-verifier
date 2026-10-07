@@ -97,7 +97,7 @@ module `Generated.lean`, and exact input/dependency hashes. It does not create a
 approval or a certificate. Once reviewed and protected by the caller,
 `--approved-baseline inputs.json` requires the same approved Lean source closure,
 including transitive dependencies. The baseline compares `approved/` Lean hashes and, when included, the
-`schema.sql` hash; the Atuin baseline protects both. Migration SQL and profile
+`schema.sql` hash; all shipped invoice and Atuin baselines protect both. Migration SQL and profile
 are bound to each invocation separately. Protect the
 baseline, trusted verifier installation, and any additional desired inputs in
 the calling project/CI.

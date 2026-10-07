@@ -6,17 +6,16 @@
 let
   sources = import ./sources.nix { inherit (pkgs) lib; };
   leanToolchain = import ./lean-toolchain.nix { inherit pkgs; };
-  lean4export = import ./lean4export.nix { inherit pkgs leanToolchain; };
+  lean4export = import ./lean4export.nix { inherit pkgs; };
   # lakefile.toml requires lean4export as a path dependency at build/lean4export.
   lakeDependencies = ''
     mkdir -p build
-    cp -R ${lean4export.src} build/lean4export
+    cp -R ${lean4export} build/lean4export
     chmod -R u+w build/lean4export
   '';
 in rec {
   inherit leanToolchain sources;
   sqlite3534 = native.sqlite3534;
-  inherit (lean4export) exporter;
   conformanceNative = import ./conformance-native.nix { inherit pkgs; };
   conformanceDocs = import ./conformance-docs.nix {
     inherit pkgs; inherit (conformanceNative) fixture upstream;
@@ -26,7 +25,7 @@ in rec {
   };
   developmentTests = pkgs.lib.removeAttrs tests [ "model" ];
   runtime = import ./runtime.nix {
-    inherit pkgs sources leanToolchain parsers leanRuntime exporter;
+    inherit pkgs sources leanToolchain parsers leanRuntime;
   };
   parsers = pkgs.stdenv.mkDerivation {
     pname = "sqlite-verifier-parsers";
@@ -78,12 +77,13 @@ in rec {
     buildPhase = ''
       export HOME="$TMPDIR"
       ${lakeDependencies}
-      lake build SqliteVerifier migration-proof-checker migration-bundle-checker
+      lake build SqliteVerifier migration-proof-checker migration-bundle-checker migration-proof-exporter
     '';
     installPhase = ''
       mkdir -p "$out/.lake/build/bin" "$out/.lake/build/lib"
       cp -R .lake/build/lib/lean "$out/.lake/build/lib/"
-      cp .lake/build/bin/migration-proof-checker .lake/build/bin/migration-bundle-checker "$out/.lake/build/bin/"
+      cp .lake/build/bin/migration-proof-checker .lake/build/bin/migration-bundle-checker \
+        .lake/build/bin/migration-proof-exporter "$out/.lake/build/bin/"
     '';
   };
   # Test-only model executable; the shipped verifier runtime keeps its existing commands.

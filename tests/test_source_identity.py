@@ -15,6 +15,8 @@ DYNAMIC: dict[str, set[str]] = {
     **{f"parser/input.{suffix}": {"parsers"}
        for suffix in ("py", "c", "h", "y", "json")},
     "SqliteVerifier/Model.lean": {"lean", "conformanceLean"}, "Root.lean": {"lean", "conformanceLean"},
+    "SqliteVerifier/ContractProofs.lean": {"lean", "conformanceLean"},
+    "SqliteVerifier/SqlProofs.lean": {"lean", "conformanceLean"},
     "VerifierConformance/Trace.lean": {"conformanceLean"},
     "migration_check/runtime.py": {"runtime"}, "tests/test_input.py": set(),
     "packaging/helper.py": set(), "tools/helper.py": set(),

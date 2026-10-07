@@ -22,6 +22,7 @@ from .compile import EXPECTED_SOURCE, compile_modules
 from .contract import compile_contract
 from .diagnostics import Rejection
 from .inputs import generated_inputs
+from .import_path import merged_search_path
 from .module_keys import contract_keys, module_keys
 from .runtime import Runtime
 from .source_closure import CompileError, Source, discover_sources, module_path, role_sources
@@ -29,6 +30,10 @@ from .stage_store import StageStore, runtime_identity
 
 EXPORT_ROOTS = ("Proofs.migrationCorrect", "Proofs.migrationViolated",
                 "NextInterpretation.next", "NextInterpretation.failures")
+"""Positive/refutation proofs and interpretation inputs required by the bundle checker."""
+
+PROTECTED_BASE_MODULE = "SqliteVerifier"
+"""Protected library that GateCore.baseModules always imports for the verification target."""
 
 
 def compile_candidates(*, order: tuple[str, ...], sources: Path, candidate: Path, trusted: Path,
@@ -56,18 +61,21 @@ def compile_candidates(*, order: tuple[str, ...], sources: Path, candidate: Path
 
 def export_bundle(*, runtime: Runtime, trusted: Path, candidate: Path, trusted_imports: set[str],
                   output: Path, timeout: float) -> None:
-    """Write the version-1 header line, then the library-omitted lean4export NDJSON."""
-    environment = {"LEAN_SYSROOT": str(runtime.sysroot), "PATH": os.environ.get("PATH", ""),
-                   "LEAN_PATH": os.pathsep.join(map(str, (runtime.sysroot / "lib/lean", runtime.library,
-                                                          trusted, candidate)))}
-    with output.open("w", encoding="utf-8") as stream:
+    """Use the header's trusted imports and protected base to omit exactly the checker library closure."""
+    roots = (runtime.sysroot / "lib/lean", runtime.library, trusted, candidate)
+    with merged_search_path(roots, candidate.parent) as paths, output.open("w", encoding="utf-8") as stream:
+        environment = {"LEAN_SYSROOT": str(runtime.sysroot), "PATH": os.environ.get("PATH", ""),
+                       "LEAN_PATH": os.pathsep.join(map(str, paths))}
         stream.write(json.dumps({"bundle": 1, "trusted_imports": sorted(trusted_imports)}) + "\n")
         stream.flush()
-        result = subprocess.run([str(runtime.exporter), "--skip-trusted", "--ignore-missing", "Proofs", "--",
+        omitted = sorted(trusted_imports | {PROTECTED_BASE_MODULE})
+        result = subprocess.run([str(runtime.exporter), *["--omit=" + module for module in omitted],
+                                 "--ignore-missing", "Proofs", "--",
                                  *EXPORT_ROOTS], env=environment, stdout=stream, stderr=subprocess.PIPE,
                                 text=True, timeout=timeout, check=False)
     if result.returncode:
-        raise Rejection("UNVERIFIED", f"lean4export failed: {result.stderr.strip()}")
+        raise Rejection("UNVERIFIED", f"Proof exporter {runtime.exporter} failed: {result.stderr.strip()}; "
+                        "check the candidate imports and proof declarations")
 
 
 def prepare(options: argparse.Namespace) -> dict[str, object]:
@@ -75,7 +83,7 @@ def prepare(options: argparse.Namespace) -> dict[str, object]:
     inputs = generated_inputs(options)
     runtime = Runtime.locate(inputs.profile.engine)
     if not runtime.exporter.is_file():
-        raise Rejection("INPUT_ERROR", "This runtime has no lean4export; rebuild with ADR 0003 support")
+        raise Rejection("INPUT_ERROR", f"Proof exporter is missing: {runtime.exporter}; run just build or reinstall")
     agent = options.workspace.resolve()
     agent.mkdir(parents=True, exist_ok=True)
     with TemporaryDirectory(prefix="prepare-", dir=agent) as temporary:
