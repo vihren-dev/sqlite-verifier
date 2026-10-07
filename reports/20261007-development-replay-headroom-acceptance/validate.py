@@ -9,11 +9,12 @@ import json
 from pathlib import Path
 from typing import TypeAlias, cast
 
+from receipt_policy import (FULL_DENOMINATOR, LEAN_VERSION_PREFIX, MODEL_CLASSIFICATION,
+                            PHASE_LIMIT, SELECTED_IDENTITIES, SOURCE_COMMIT, SOURCE_FILES, TARGET)
+
 Json: TypeAlias = None | bool | int | float | str | list["Json"] | dict[str, "Json"]
 ROOT = Path(__file__).resolve().parent
 REPO = ROOT.parent.parent
-SOURCE_COMMIT = "5d15607fdf78d0a209b539ca158939739b54d377"
-SELECTED_IDENTITIES, SOURCE_FILES, PHASE_LIMIT, TARGET = 184, 933, 120, 30
 FIELDS = (
     "corpusVersion", "casesSha256", "manifestSha256", "executionProfiles", "denominator",
     "selectedDenominator", "selectedNames", "selectedIdentities", "selectedIdentitiesSha256", "cases", "counts",
@@ -21,7 +22,7 @@ FIELDS = (
 
 
 def mapping(value: Json) -> dict[str, Json]:
-    """Require the named fields that bind each original observation."""
+    """Narrow JSON to an object so field checks can proceed; fail for other shapes."""
     assert isinstance(value, dict), value
     return value
 
@@ -77,9 +78,9 @@ def check_platform(platform: str, summary: dict[str, Json], source: dict[str, Js
         encoded = json.dumps(binding["selectedIdentities"], sort_keys=True, separators=(",", ":"), ensure_ascii=False).encode()
         assert sha(encoded) == binding["selectedIdentitiesSha256"]
     assert report["policy"] == original["policy"] and report["policySha256"] == original["policySha256"]
-    assert report["denominator"] == original["denominator"] == summary["fullDenominator"] == 4378
+    assert report["denominator"] == original["denominator"] == summary["fullDenominator"] == FULL_DENOMINATOR
     assert report["selectedDenominator"] == SELECTED_IDENTITIES
-    assert report["counts"] == original["counts"] == {"MODEL_UNSUPPORTED": SELECTED_IDENTITIES}
+    assert report["counts"] == original["counts"] == {MODEL_CLASSIFICATION: SELECTED_IDENTITIES}
     measurement = mapping(report["measurement"])
     seconds = number(measurement["seconds"])
     assert measurement == receipt["measurement"] and seconds == observed["phaseSeconds"]
@@ -108,7 +109,7 @@ def check_platform(platform: str, summary: dict[str, Json], source: dict[str, Js
     assert abs((ended[1] - started[1]).total_seconds() - outer) < 0.1
     before = document(f"{platform}/identity-before.json")
     assert before == document(f"{platform}/identity-after.json")
-    assert before["leanVersion"].startswith("Lean (version 4.34.1,")
+    assert before["leanVersion"].startswith(LEAN_VERSION_PREFIX)
     assert mapping(before["archive"])["sha256"] == source["archiveSha256"] == summary["archiveSha256"]
     assert mapping(before["archive"])["bytes"] == source["archiveBytes"] == summary["archiveBytes"]
     files = mapping(mapping(before["source"])["files"])

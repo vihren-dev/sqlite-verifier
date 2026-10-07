@@ -302,3 +302,12 @@ authorized one Linux diagnostic below. No production change followed it.
   receipts and the 120-second guard remain unchanged. Evidence review is
   pending. Linux performance acceptance and the overall task remain pending;
   no additional diagnostic or optimization is authorized in this unit.
+- 2026-10-07: Evidence commit `34588475becd13bbfa41e9620b3cc474058b9a64`
+  passed Claude review `20261007T082052Z-34588475`, session 31226 exit 0,
+  with zero must findings and three should findings. Named the retained
+  phase/target, denominator, model classification and Lean-version policies,
+  and corrected the JSON-object narrowing docstring. A small policy module
+  keeps the validator below the repository's 200-line limit. This refactor
+  changes no raw artifact, measurement or outcome. All three findings have
+  fixed journal resolutions. The bounded receipt and corruption checks pass
+  again in the pinned environment; refactor review is pending.
