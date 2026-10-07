@@ -1,0 +1,62 @@
+{
+  "sourceCommit": "9e3b44193981bae46dc9fdeedc66eca3f255f419",
+  "archiveSha256": "684a123180dbfed30324249fbcc42941f96a8c09ebba2d26d3b0f3034cb97689",
+  "helperSha256": "78aedf6a2a951cc718450d3eaf45e1c3604196d68fbbec0263c04ed737e0fffb",
+  "receiptArchiveSha256": "8cc1747a8aecc5cc36d72d3a3026dcf7354a6b3d3e19d3b23b153d3376b3710b",
+  "exitCode": 0,
+  "sourceUnchanged": true,
+  "verifiedTrackedRegularFiles": 881,
+  "instructionSymlink": "CLAUDE.md -> AGENTS.md",
+  "conformanceRoot": "/nix/store/ixl6nwa1nk8ah8138axkqkgian4a27bc-sqlite-verifier-conformance",
+  "modelOutput": "/nix/store/azynb6qjm59j0xjqn4h07rdrkc6arlak-sqlite-verifier-test-model-1",
+  "modelDerivation": "/nix/store/xba6cgp29zhaj4yp12izqpr1sbiricqx-sqlite-verifier-test-model-1.drv",
+  "suiteLimitSeconds": 420,
+  "outerLimitSeconds": 900,
+  "checks": {
+    "source/build/test-results/t05-mutation-targeted.xml": {
+      "name": "pytest",
+      "errors": "0",
+      "failures": "0",
+      "skipped": "0",
+      "tests": "5",
+      "time": "18.852",
+      "timestamp": "2026-10-06T18:29:09.444533+00:00",
+      "hostname": "vihren-demo",
+      "sha256": "750f239082c38531433c25c33758c49d4561a321551afbef9f74a57a5feac06c",
+      "bytes": 871,
+      "skips": []
+    },
+    "source/build/t05-nix-model/junit.xml": {
+      "name": "pytest",
+      "errors": "0",
+      "failures": "0",
+      "skipped": "1",
+      "tests": "323",
+      "time": "328.301",
+      "timestamp": "2026-10-06T18:29:29.824060+00:00",
+      "hostname": "localhost",
+      "sha256": "df3e4eb84537ca64580cd36710f7444e882b7b0d012b4355befde6d6f82ac0b8",
+      "bytes": 42063,
+      "skips": [
+        {
+          "type": "pytest.skip",
+          "message": "Run the pinned Nix upstream target for Tcl capture"
+        }
+      ]
+    }
+  },
+  "payloadHashes": {
+    "conformance-root.txt": "2a567dfae5814bfbdb81ae37eee6be614dac23e71534f359181d308965e81a66",
+    "model-output.txt": "5b9f3b17dbb1e540af8822c4933224261240e8a146f0a3458de59ac8227cb29b",
+    "model-derivation.txt": "08b82548d1a63a22f4c34e59020410af90b4bba66a3ecffc4291d8def04ba72c",
+    "receipt.sha256": "dcac74272c8f0b1dece34108a829007133c1f0766fcab4b88b353ec1668e01fc",
+    "source-before.log": "67e08c73b9afff646aff45a1da519f10bdca840f09e9940d51ed856691637431",
+    "source-after.log": "67e08c73b9afff646aff45a1da519f10bdca840f09e9940d51ed856691637431",
+    "driver.log": "e0640b1e046a165e50e1794cda73d0a5e6989fc7e51cde99fae0331034373797",
+    "source/build/t05-mutation-conformance-build.log": "105e0233aa7b4e8f66b02c3171aec79405870c3422b2c3229482ec01761fbfda",
+    "source/build/test-results/t05-mutation-targeted.xml": "750f239082c38531433c25c33758c49d4561a321551afbef9f74a57a5feac06c",
+    "source/build/t05-nix-model/junit.xml": "df3e4eb84537ca64580cd36710f7444e882b7b0d012b4355befde6d6f82ac0b8",
+    "source/build/t05-mutation-targeted.log": "d3f40528ea47022adc078d8d73a42e3a752736fc344eaf8c2b5ff9e7687de920",
+    "source/build/t05-model-full-linux.log": "1df24dc3ae1b27127da6d422b0d301edb05f6b2c239f9b994a5d006c6de2aeab"
+  }
+}

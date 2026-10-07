@@ -1,0 +1,9 @@
+{
+  "approved_instruction": "clean up space",
+  "removed_only": "/private/tmp/nix-shell.tUn6jh/pytest-of-tzankomatev/pytest-0",
+  "before_free_bytes": 9436016640,
+  "after_free_bytes": 12032352256,
+  "reclaimed_bytes": 2596335616,
+  "completed_utc": "2026-10-08T07:29:35.276111+00:00",
+  "other_paths_removed": false
+}

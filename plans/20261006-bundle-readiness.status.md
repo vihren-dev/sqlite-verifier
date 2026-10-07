@@ -292,3 +292,36 @@ No new campaign, launcher, benchmark or task was started after the hold.
   cleanup review row remains pending for the next journal-containing commit.
   No installed execution contract, integrated gate or performance acceptance is
   claimed; T06 remains IN PROGRESS.
+
+- 2026-10-08: Prepared current-main integration with accepted `d75fdc2b`.
+  The two conflicts are resolved. All feature source hashes remain exact,
+  and all three original journals remain ordered subsequences of 314 rows.
+  Integration checks have not run. The resource guard stopped validation
+  with 9.56 GiB free, below the required 10 GiB. No test, Nix build or
+  performance campaign started after that refusal. Targeted cleanup of one
+  completed 2.39 GiB pytest directory is proposed in
+  `build/20261008-t06-main-integration/cleanup-proposal.json`. The owner has
+  been asked for approval; no directory is removed. The pending integration
+  remains uncommitted until its checks can run.
+
+- 2026-10-08: The owner instructed cleanup of the proposed directory.
+  Removed only `/private/tmp/nix-shell.tUn6jh/pytest-of-tzankomatev/pytest-0`
+  after verifying its directory identity and absent pytest lock. The
+  cleanup receipt records 12,032,352,256 free bytes afterward, about
+  11.2 GiB. The resource guard passes. Repository files, retained evidence,
+  archives, the Nix store and all other temporary paths are untouched.
+  Ordinary integration validation resumes; actual timing remains held.
+
+- 2026-10-08: Current-main integration passes 137 bounded measurement
+  and attack-inventory checks in 6.17 seconds, eight actual Nix command
+  and dependency checks in 17.90 seconds, and complete ordinary source
+  acceptance with 507 tests and 35 subtests in 50.32 seconds. Actual
+  macOS Nix sandboxes pass all 65 bundle tests in 325.39 seconds and
+  all 28 kernel tests in 48.21 seconds. No failure, error or skip occurs.
+  Production Lean, application, examples, conformance and CI files match
+  accepted main. Original XML, console bytes, source hashes, all parent
+  journals and the authorized cleanup receipts are retained in
+  [the integration record](../reports/20261008-bundle-readiness-main-integration/README.md).
+  These are correctness checks, not performance evidence. Remaining
+  ordinary Nix acceptance, independent review, installed execution and
+  actual cold campaigns remain. T06 is not DONE.

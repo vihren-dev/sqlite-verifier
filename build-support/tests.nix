@@ -68,6 +68,7 @@ let
     "native_storage"
     "refresh_corpus" "requirement_cases" "requirement_coverage"
     "authored_cases" "authored_cases_queries" "authored_boundaries" "authored_review" "authored_report"
+    "authored_transactions" "transaction_evidence"
     "upstream_selection" "upstream_catalog" "upstream_sampling" "upstream_profiles" "upstream_functions" "upstream_result_values"
     "corpus_shards" "corpus_evidence" "corpus_acquisition" "freeze_corpus" "freeze_validation" "freeze_profiles" "workload" "workload_inputs"
     "upstream_assertions"
@@ -86,6 +87,7 @@ let
     (root + /reports/20261001-adr5-c4-bindings.json.gz)
     (root + /reports/20261001-adr5-c5-authored.json)
     (root + /reports/20261001-adr5-c5-authored-records.jsonl.gz)
+    (root + /reports/20261006-grouped-immediate-transactions)
     (root + /conformance/corpus-v5)
     (root + /conformance/corpus-v4)
     (root + /conformance/corpus-v3)
@@ -146,7 +148,6 @@ in {
   };
   bundle = suite "bundle" {
     inputs = [
-      (root + /reports/20261006-lean-4341-upgrade-darwin.json)
       (fs.fileFilter (file: file.hasExt "py") (root + /migration_check))
       (fs.fileFilter (file: file.hasExt "json") (root + /conformance/cases))
       (root + /tests/sql_fixtures.py)

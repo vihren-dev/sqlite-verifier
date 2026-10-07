@@ -47,7 +47,11 @@ def root_commands(roots: Path) -> list[list[str]]:
 
 
 def flake_input_paths(archive_json: str) -> list[str]:
-    """The store paths of the flake source and all its inputs, from `nix flake archive --json`."""
+    """The store paths of the flake source and all its inputs, from `nix flake archive --json`.
+
+    These paths become roots, so garbage collection keeps the pinned nixpkgs source that
+    the next run needs to evaluate the project, instead of downloading it again.
+    """
     pending, paths = [json.loads(archive_json)], []
     while pending:
         node = pending.pop()
@@ -74,6 +78,11 @@ def run(command: list[str], timeout: float, consequence: str = BEFORE_COLLECTION
     except subprocess.CalledProcessError as error:
         print(f"Command failed with exit code {error.returncode}: {' '.join(command)}\n"
               f"{(error.stderr or '').strip()}\n{consequence}", file=sys.stderr, flush=True)
+        raise
+    except subprocess.TimeoutExpired as error:
+        stderr = error.stderr.decode(errors="replace") if isinstance(error.stderr, bytes) else error.stderr
+        print(f"Command exceeded {timeout:g} seconds: {' '.join(command)}\n"
+              f"{(stderr or '').strip()}\n{consequence}", file=sys.stderr, flush=True)
         raise
     if result.stderr.strip():
         print(result.stderr.strip().splitlines()[-1], flush=True)

@@ -1,0 +1,17 @@
+{
+  "created": "2026-10-08",
+  "reason": "T06 resource guard requires at least 10 GiB before validation; 9.58 GiB is available.",
+  "delete_only": [
+    "/private/tmp/nix-shell.tUn6jh/pytest-of-tzankomatev/pytest-0"
+  ],
+  "allocated_bytes": 2569437184,
+  "allocated_gib": 2.392974853515625,
+  "directory_device": 16777242,
+  "directory_inode": 615275111,
+  "directory_modified": "2026-10-07T22:28:52.289578",
+  "is_symlink": false,
+  "pytest_lock_exists": false,
+  "contents": "Completed pytest temporary source copies for dependency invalidation checks.",
+  "excluded": "All workspace repositories, retained reports and test XML, build/dist archives, all other temporary paths, and the Nix store.",
+  "approval_required": true
+}
