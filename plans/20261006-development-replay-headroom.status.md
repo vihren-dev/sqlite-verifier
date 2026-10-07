@@ -822,3 +822,21 @@ authorized one Linux diagnostic below. No production change followed it.
   executable behavior is exactly the reviewed `2a42afdd` implementation.
   Linux validation, standalone timing on both platforms and publication
   remain required. No whole-phase speedup or under-30-second pass is claimed.
+
+- 2026-10-08: The exact reviewed source archive at `2006755a` transfers
+  to a fresh Linux directory. Its archive digest and all 1,223 source
+  entries verify. Actual hardened Linux suites pass 129 harness and 22
+  sample checks without failures or skips. The current compiled runtime
+  is valid and matches the unchanged Lean inputs.
+- 2026-10-08: One fresh standalone phase passes on each platform:
+  macOS 10.649971125 seconds and Linux 24.784056110 seconds, with the
+  unchanged 120-second guard. All 184 selected native comparisons pass,
+  all fixture paths are distinct and cleaned, complete bindings match
+  before and after, and all historical policy/profile/identity/verdict
+  fields agree. The model classifies all cases unsupported; no supported
+  agreement is claimed. Both receipts are valid and below 30 seconds.
+  Original bytes and a labeled after-only macOS storage clarification are
+  retained in [the new receipt](../reports/20261008-development-replay-parallel-acceptance/README.md).
+  Read-only checks pass and refuse all four independent mutations. Earlier
+  target misses remain unchanged. Independent review and normal delivery
+  remain required; T04c is not DONE.

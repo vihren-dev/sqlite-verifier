@@ -2,18 +2,14 @@
 
 Status: IN PROGRESS. Created 2026-10-06.
 
-The latest complete Linux measurement is in
-[the executor integration receipt](../reports/20261007-development-replay-linux-cap4/README.md).
-On reviewed production source `c3e8f518`, the phase took 33.707907737
-seconds. All 184 selected native comparisons pass, but the phase still
-misses the target below. The 120-second outer limit remains unchanged.
-The earlier [macOS receipt](../reports/20261007-development-replay-headroom-acceptance/README.md)
-took 21.434975333 seconds on its original source; it is not a measurement
-of the current production source. Earlier observations and diagnostics
-below remain historical evidence. This task is not DONE.
-The [parent/child CPU diagnostic](../reports/20261007-development-replay-linux-stages/README.md)
-records loading and worker-stage costs on its recorded source and runtime.
-Its instrumented result is separate from acceptance.
+Fresh standalone acceptance now passes the strict target on both platforms:
+10.649971125 seconds on macOS and 24.784056110 seconds on Linux, with
+reviewed loading source `2006755a`. Both retain complete source/runtime
+bindings, original reports, actual fixture paths and the unchanged
+120-second guard in [the new receipt](../reports/20261008-development-replay-parallel-acceptance/README.md).
+Independent evidence review, publication and normal delivery remain
+required. The earlier Linux misses and original macOS results below remain
+historical observations. This task is not DONE.
 
 The one-run measurement record is in
 [the dated receipt](../reports/20261006-development-replay-headroom/README.md).
