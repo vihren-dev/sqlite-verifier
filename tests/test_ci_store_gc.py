@@ -80,3 +80,4 @@ def test_failed_collection_reports_that_it_may_be_incomplete(tmp_path: Path,
         ci_store_gc.main()
     reported = capsys.readouterr().err
     assert "stopped early" in reported and "No store paths were removed" not in reported
+    assert "error: deletion interrupted" in reported and "run the workflow again" in reported
