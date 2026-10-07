@@ -728,3 +728,14 @@ authorized one Linux diagnostic below. No production change followed it.
   standalone Linux replay takes 33.707907737 seconds, so the under-30-second
   target remains unmet. The 120-second outer limit remains in force. No
   new timing run or task completion is claimed.
+
+- 2026-10-07: The missing review of Linux receipt `2c0de2ff` is now
+  recorded as `20261007T170405Z-2c0de2ff`: no mandatory findings and three
+  suggestions. The validator now names malformed JSON fields, describes
+  decompression and its precondition correctly, and names the filesystem and
+  cache-observation policies. Raw receipts, replay code and timing are unchanged.
+  The corrected validator passes and refuses all four independent mutations
+  under separate 60-second limits. A malformed-shape check confirms that the
+  diagnostic names its artifact and field. The validator stays at 162 lines.
+  All three findings have fixed journal resolutions. Independent review of
+  this correction remains required; no performance phase ran.
