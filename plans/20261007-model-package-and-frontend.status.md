@@ -411,3 +411,9 @@ Native installed evidence commit `1dd2df24` passes independent review
 values and byte counts also match after local verification. A draft PR will
 run complete Linux package checks while final macOS Nix suites finish.
 This publication does not request final owner approval or mark T10 done.
+
+
+Draft [PR56](https://github.com/vihren-dev/sqlite-verifier/pull/56) is published
+at `71d561ae`. Linux package CI run `37655729129` is queued. The PR retains
+all final owner gates and states that current acceptance is incomplete. The
+final macOS bundle suite runs first under the existing scheduling rule.
