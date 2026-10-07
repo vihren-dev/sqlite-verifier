@@ -42,11 +42,15 @@ def test_ci_modes_retain_fresh_checks(tmp_path: Path, mode: str, system: str) ->
         assert commands[-1] == ["just", "package"]
         if system == "aarch64-darwin":
             assert commands[-2][3] == "tests.bundle"
+        run_checks("infrastructure", mode, system, tmp_path)
+        assert commands[-1] == ["just", "test-full", "test-nix"]
+        run_checks("packaging", mode, system, tmp_path)
+        assert commands[-1] == ["just", "test-full", "runtime-package"]
         run_checks("test", mode, system, tmp_path)
     assert commands[-1] == ["just", "test-full"]
     bundle_commands = [command for command in commands if "tests.bundle" in command]
     if system == "aarch64-darwin":
-        assert len(bundle_commands) == 2
+        assert len(bundle_commands) == 4
         assert commands[-2] == bundle_commands[-1]
         assert bundle_commands[0] == bundle_commands[1] == [
             "nix-build", "build-support/default.nix", "-A", "tests.bundle",
@@ -66,6 +70,13 @@ def test_ci_modes_retain_fresh_checks(tmp_path: Path, mode: str, system: str) ->
         assert commands[0] == ["just", "setup"]
         assert "SQLITE_VERIFIER_UNIT_CHECKS" not in environments[-1]
     assert all(row["exit_code"] == 0 for row in json.loads((tmp_path / "build/ci-phases.json").read_text()))
+
+
+def test_unknown_scope_is_rejected(tmp_path: Path) -> None:
+    """A scope that tests/ci_scope.py does not produce fails before any command runs."""
+    with patch("tools.ci_checks.run_command") as run, pytest.raises(ValueError, match="Unknown CI scope"):
+        run_checks("docs", "build", "x86_64-linux", tmp_path)
+    run.assert_not_called()
 
 
 def test_bundle_policy_matches_existing_nix_test_recipes() -> None:
