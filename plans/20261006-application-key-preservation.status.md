@@ -175,8 +175,15 @@ The local `tasks/application-key-preservation` bookmark names the checked branch
 PR47 was normally delivered at `2e01c49a`; T05 remains separate.
 T05 remains open, with hosted run 37600117584 active and a separate protected
 baseline gate failure; this local evidence does not resolve that failure.
-Dependency repository delivery, required hosted native checks and T15 delivery
-remain pending. No PR or main write has run.
+Readiness commit `ddebc40b` passed review `20261007T101101Z-ddebc40b`
+with no findings. Its raw row is included in the next publication record.
+Draft [PR53](https://github.com/vihren-dev/sqlite-verifier/pull/53) is published
+and attached, stacked on `tasks/single-sql-executor`. Its initial head is
+`ddebc40b`; CI run `37612219181` has native Linux job `112761942116` and
+Darwin job `112761942431`. Both are in progress; neither is a pass.
+`build/t15-clean-metadata-integration/publication.json` retains the creation
+identity. Dependency repository delivery, hosted native checks and T15 delivery
+remain pending. No main write has run.
 
 The task specifies no additional native platform gate beyond its relevant
 source, example, ordinary and installed checks. Every command retains its bound.
