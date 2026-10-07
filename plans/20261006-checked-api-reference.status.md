@@ -700,3 +700,10 @@ Current-main publication integration `6ff39df6` passes independent review
 for publication in PR57 against accepted main `d75fdc2b`. Both prior native
 acceptance records and all tested input identities remain unchanged. Fresh
 publication CI remains required before normal merge. This task is not DONE.
+
+
+PR57 is ready for review at published head `693be9e3`. Final publication
+CI `37671670987` is live. Its native checks are not yet claimed as passing.
+All completed native acceptance and clean reviews are published. This
+local status checkpoint leaves the branch unchanged while CI runs.
+Normal delivery and task closeout remain pending.
