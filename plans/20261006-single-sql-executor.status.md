@@ -332,3 +332,13 @@ the stated recipes are complete. The task is not DONE.
   write; the corrected check confirmed the actual clean review. The isolated
   exact bundle receipt is a local pass, not proof of the hosted failure cause.
   Fresh hosted acceptance and exporter delivery remain required.
+- 2026-10-07: The scheduling integration passed independent review with no
+  findings. Jujutsu stopped the first push because the journal-only parent had
+  no description; no remote changed. Added its description and reviewed that
+  parent as `9fc40a76`, with no findings. The resulting integration `9e91e525`
+  has exactly the earlier checked tree and passes its own clean review
+  `20261007T092131Z-9e91e525`. Published only the existing PR #48 branch and
+  updated its body. Hosted CI `37600117584` is running, with Linux job
+  `112722153900` and Darwin job `112722154338`. Earlier failures and the
+  protected-baseline exception remain recorded. This local publication record
+  does not change the published source while those checks run.
