@@ -57,16 +57,22 @@ def flake_input_paths(archive_json: str) -> list[str]:
     return paths
 
 
-def run(command: list[str], timeout: float) -> str:
+BEFORE_COLLECTION = ("No store paths were removed. The cache is saved without garbage collection; "
+                     "fix the command and run the workflow again to shrink it.")
+"""What a failure means while roots are registered: the store is unchanged."""
+DURING_COLLECTION = ("Garbage collection stopped early: some unneeded paths may remain, so the saved "
+                     "cache can be larger. Every rooted path is kept.")
+"""What a failure of `nix-store --gc` itself means: the collection may be incomplete."""
+
+
+def run(command: list[str], timeout: float, consequence: str = BEFORE_COLLECTION) -> str:
     """Run one Nix command; a failure stops the tool so that nothing is collected without roots."""
     print("+", " ".join(command), flush=True)
     try:
         result = subprocess.run(command, check=True, capture_output=True, text=True, timeout=timeout)
     except subprocess.CalledProcessError as error:
         print(f"Command failed with exit code {error.returncode}: {' '.join(command)}\n"
-              f"{(error.stderr or '').strip()}\n"
-              "No store paths were removed. The cache is saved without garbage collection; "
-              "fix the command and run the workflow again to shrink it.", file=sys.stderr, flush=True)
+              f"{(error.stderr or '').strip()}\n{consequence}", file=sys.stderr, flush=True)
         raise
     if result.stderr.strip():
         print(result.stderr.strip().splitlines()[-1], flush=True)
@@ -82,7 +88,7 @@ def main() -> None:
     for index, path in enumerate(flake_input_paths(archive)):
         run(["nix-store", "--add-root", str(ROOTS / f"flake-input-{index}"), "--indirect",
              "--realise", path], timeout=FLAKE_TIMEOUT_SECONDS)
-    run(["nix-store", "--gc"], timeout=COLLECT_TIMEOUT_SECONDS)
+    run(["nix-store", "--gc"], timeout=COLLECT_TIMEOUT_SECONDS, consequence=DURING_COLLECTION)
 
 
 if __name__ == "__main__":

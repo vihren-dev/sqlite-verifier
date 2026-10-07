@@ -63,3 +63,20 @@ def test_garbage_collection_runs_last_and_only_after_all_roots(tmp_path: Path,
         ci_store_gc.main()
     assert calls[-1] == ["nix-store", "--gc"]
     assert any("--realise" in command and "/nix/store/a-source" in command for command in calls)
+
+
+def test_failed_collection_reports_that_it_may_be_incomplete(tmp_path: Path,
+                                                             capsys: pytest.CaptureFixture[str]) -> None:
+    """A failure of `nix-store --gc` does not claim that the store is unchanged."""
+    def fail_collection(command: list[str], **options: object) -> subprocess.CompletedProcess[str]:
+        """Succeed for every root command; fail the collection."""
+        if command[:2] == ["nix-store", "--gc"]:
+            raise subprocess.CalledProcessError(1, command, "", "error: deletion interrupted")
+        return subprocess.CompletedProcess(command, 0, "{}", "")
+
+    with patch.object(ci_store_gc, "ROOTS", tmp_path / "roots"), \
+         patch("tools.ci_store_gc.subprocess.run", side_effect=fail_collection), \
+         pytest.raises(subprocess.CalledProcessError):
+        ci_store_gc.main()
+    reported = capsys.readouterr().err
+    assert "stopped early" in reported and "No store paths were removed" not in reported
