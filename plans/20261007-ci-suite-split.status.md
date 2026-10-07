@@ -99,3 +99,13 @@ push changed only `plans/`, `reviews/`, `reports/` or documentation.
 - After the merge: the first `main` run checks both platforms with the new
   routing and saves `v2` caches for both. Then remove the deferred
   `nix-tests-v1` restore prefix.
+- 2026-10-07: PR #52 merged as `bfd5b7eb`. Merged `main` into the 12 active
+  lines of work (merge commits, owner decision; reviewed commits unchanged).
+  Conflicts: the review log (union of lines) and the suite definitions of the
+  T13, T17, T04c, T06, T07 and T18b work, which now place their new tests in
+  the `model`, `frozen`, `harness` or `upstream` suites. All 12 merges pass the
+  routing, ownership, frontend and evaluation checks, and their reviews found
+  no must. This follow-up fixes the review findings on `main`'s code: purpose
+  docstrings, a timed-out garbage-collection command, the docs-only `main`
+  push in the scope table, and a test that every working CI step is skipped
+  on macOS pull requests (it also added the guard to two artifact steps).

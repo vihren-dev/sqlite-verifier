@@ -15,11 +15,11 @@ request base:
 
 | Scope | Selected when | Recipes |
 | --- | --- | --- |
-| `docs` | only Markdown documentation changed | link checks, no build |
+| `docs` | only Markdown documentation changed, including on a `main` push | link checks, no build |
 | `test` | any other change | `just test-full` |
 | `infrastructure` | build definitions or shared test infrastructure changed | `just test-full test-nix` |
 | `packaging` | archive contents, installation or runtime discovery changed | `just test-full runtime-package` |
-| `package` | both of the above, `main` pushes, tags, manual and nightly runs | `just package` |
+| `package` | both of the above, other `main` pushes, tags, manual and nightly runs | `just package` |
 
 Each native job enters the pinned Nix environment once. `tools/ci_checks.py`
 checks resources, builds the runtime and
