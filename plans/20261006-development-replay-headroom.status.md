@@ -354,3 +354,12 @@ authorized one Linux diagnostic below. No production change followed it.
   `90ed5e5b` review row remain preserved. Diagnostic evidence review is
   pending. Linux's fresh target miss remains unchanged; the task is not DONE.
   No further diagnostic or optimization is started.
+- 2026-10-07: Diagnostic commit `2fc82988263d84cf3799f432d605a9cbf796cbfa`
+  passed Claude review `20261007T083225Z-2fc82988`, session 56130 exit 0,
+  with zero must findings and one should finding. Named the helper-identity
+  and measurement-only comparison exceptions, with their specific reasons.
+  All actual input identities and report semantics still compare exactly.
+  The reviewer inspected code only; its check launchers needed approval.
+  Author bounded checks are terminal successful and pass again after the fix.
+  The finding has a fixed journal resolution; refactor review is pending.
+  Raw evidence is unchanged.

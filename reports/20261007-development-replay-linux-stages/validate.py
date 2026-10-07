@@ -23,6 +23,10 @@ STAGE_CALLS = {"runtime_binding": 1, "load": 1, "bound_records": 1, "select": 1,
                "replay_native_cases": 1, "checked_replay": 2, "binding": 2}
 #: CPU of the observing parent and direct children reaped in each observed call.
 CPU_FIELDS = ("parentUserSeconds", "parentSystemSeconds", "childrenUserSeconds", "childrenSystemSeconds")
+#: New diagnostic observers replace the fresh capture helpers; every actual input stays fixed.
+IDENTITY_KEYS_ALLOWED_TO_DIFFER = {"helpers"}
+#: Instrumentation and a separate invocation produce a new duration, not new report semantics.
+REPORT_KEYS_ALLOWED_TO_DIFFER = {"measurement"}
 
 
 def mapping(value: Json) -> dict[str, Json]:
@@ -78,8 +82,8 @@ def validate() -> None:
     before, after = document("diagnostic/identity-before.json"), document("diagnostic/identity-after.json")
     assert before == after
     previous = decode(gzip.decompress((PREVIOUS / "linux/identity-before.json.gz").read_bytes()))
-    assert {key: value for key, value in before.items() if key != "helpers"} == {
-        key: value for key, value in previous.items() if key != "helpers"}
+    assert {key: value for key, value in before.items() if key not in IDENTITY_KEYS_ALLOWED_TO_DIFFER} == {
+        key: value for key, value in previous.items() if key not in IDENTITY_KEYS_ALLOWED_TO_DIFFER}
     assert mapping(before["runtime"])["root"] == summary["runtime"]
     helpers = mapping(mapping(before["helpers"])["files"])
     declared = mapping(document("helper-manifest.json")["helpers"])
@@ -95,8 +99,8 @@ def validate() -> None:
     assert preflight["identity"] == before
     report = document("diagnostic/report.json")
     prior_report = decode(gzip.decompress((PREVIOUS / "linux/report.json.gz").read_bytes()))
-    assert {key: value for key, value in report.items() if key != "measurement"} == {
-        key: value for key, value in prior_report.items() if key != "measurement"}
+    assert {key: value for key, value in report.items() if key not in REPORT_KEYS_ALLOWED_TO_DIFFER} == {
+        key: value for key, value in prior_report.items() if key not in REPORT_KEYS_ALLOWED_TO_DIFFER}
     assert report["selectedDenominator"] == summary["selectedIdentities"] == SELECTED_IDENTITIES
     assert report["denominator"] == summary["fullDenominator"]
     measurement = mapping(report["measurement"])
