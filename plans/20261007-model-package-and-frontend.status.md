@@ -417,3 +417,12 @@ Draft [PR56](https://github.com/vihren-dev/sqlite-verifier/pull/56) is published
 at `71d561ae`. Linux package CI run `37655729129` is queued. The PR retains
 all final owner gates and states that current acceptance is incomplete. The
 final macOS bundle suite runs first under the existing scheduling rule.
+
+
+All final macOS checks pass on the reviewed input identities: 509 tests
+across nine Nix suites; 373 source tests and 37 subtests; 102 Nix
+infrastructure checks; and 26 fresh installed package and Atuin checks.
+Original final XML, logs, node identities and output paths are retained in
+the native report. Linux package CI is still running. Local free space is
+below the 10 GiB threshold after these successful checks. No further
+expensive local run will start without resolving that resource guard.

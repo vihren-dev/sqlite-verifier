@@ -22,9 +22,25 @@ The original installed JUnit file and compressed console log are retained.
 `final-runtime.log.gz` records the runtime build. The receipt binds each raw
 file by SHA-256 and byte count; compressed logs decode to those original bytes.
 
-`source-corrected.xml` and `identities.xml` record the earlier checked model
-integration `e38bc101`: 373 source checks with 37 subtests, and 93 Nix identity
-checks. `review-correction.xml` records 19 checks after the comment correction
-in `380c9de2`. These files retain their original dates. The final nine-suite
-Nix run is still in progress. Linux acceptance and final owner review remain
-required. This report does not mark T10 complete.
+The final reviewed inputs pass all nine native Nix suites: Atuin 12, bundle
+48, CLI 15, frozen 145, harness 122, kernel 28, model 51, sample 12 and
+upstream 76. All 509 checks have zero failures, errors or skips. Each
+original JUnit file retains its timestamp and selected node identities. The
+receipt names the immutable outputs. The complete bundle suite ran before
+the other builders under the existing Darwin scheduling rule.
+
+The final source run passes 373 tests and 37 subtests in 44.03 seconds.
+The final Nix infrastructure run passes 102 checks in 118.40 seconds. Its
+checks include actual isolated model builds and dependency invalidation.
+Original XML and console bytes are retained. Earlier checked source and
+identity runs remain in `source-corrected.xml` and `identities.xml`; they
+are not substituted for these final results. `review-correction.xml`
+retains the 19 focused checks after the comment correction.
+
+`baseline-namespace-changes.json` lists the seven changed example source
+pins. The namespace change requires new source hashes. Pin sets and raw
+SQL pins are unchanged. Owner review remains required for these pins and
+the trust changes. Linux acceptance and final owner review are pending;
+this report does not mark T10 complete. The completed checks leave local
+free space below the required threshold for another expensive run. No
+automatic cleanup is performed.

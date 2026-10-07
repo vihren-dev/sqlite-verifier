@@ -68,6 +68,70 @@
     "review-correction.xml": {
       "sha256": "8b8c61a68cf7431b19551bbe8d812d579086d072e89509a69c589d7ae1d09957",
       "bytes": 2156
+    },
+    "final-source.xml": {
+      "sha256": "bff3acfed78658e5c9c174ac589cd21b69d759b7147ba215b57ae5134ae85567",
+      "bytes": 45162
+    },
+    "final-source.log": {
+      "sha256": "501dd4d8e0c1250aafb6b852189538c985ef26a044b79d3228139f1f612b455f",
+      "bytes": 36648
+    },
+    "final-nix.xml": {
+      "sha256": "de7e7beb705700ef0a17de23488b90687e648108bea20617a7cc4f5b91502c8c",
+      "bytes": 13392
+    },
+    "final-nix.log": {
+      "sha256": "5ae3eacb40e105cb7164ec10dc220a7079580a85db9778b55975372041c07f2a",
+      "bytes": 11159
+    },
+    "final-bundle.log": {
+      "sha256": "251754cf8c3686932e7ddcc7e485aaa3dd234344550a871cae0183bb7afa069b",
+      "bytes": 7016
+    },
+    "final-suites.log": {
+      "sha256": "d8c85d13e28290ab943882f2aff9150bb9f7f0d73f25a85cf365318d2d354637",
+      "bytes": 213917
+    },
+    "baseline-namespace-changes.json": {
+      "sha256": "12a111eec03a9b31e5e03fd21362df6596fb85f3c12ab55ffa039ed7b6f4f29a",
+      "bytes": 1692
+    },
+    "atuin-junit.xml": {
+      "sha256": "3c5cd1f8379226f0861df6d716a7566aad514ba2e9cf045fede0aa1b17a7d9e9",
+      "bytes": 1442
+    },
+    "bundle-junit.xml": {
+      "sha256": "6ae88b581c6205a7a76da40e8d41e9a181f9b7c93d5f213b215f19f7538e6680",
+      "bytes": 58069
+    },
+    "cli-junit.xml": {
+      "sha256": "e143111164e9de12c25f65658f89ec98b00fc026f099a945c3f956e1a637afb7",
+      "bytes": 1643
+    },
+    "frozen-junit.xml": {
+      "sha256": "e41b2ea801593e4a9fa7725d6e2ac5f2935c851705c2957216036a7811002571",
+      "bytes": 19299
+    },
+    "harness-junit.xml": {
+      "sha256": "256165aa0189de3a6cfc95aebcf6e48def50a0e0582bab6ab745d63681fd3339",
+      "bytes": 16360
+    },
+    "kernel-junit.xml": {
+      "sha256": "a33cac8e3f9228e903fc78e7f18aafd4ca91848dd7bfef37a123f6ddceb0c284",
+      "bytes": 3256
+    },
+    "model-junit.xml": {
+      "sha256": "b8082c4715c3c2ef396216b355a3e9d51428f3f977355a9bb91ff9f4eb4ec0bf",
+      "bytes": 5979
+    },
+    "sample-junit.xml": {
+      "sha256": "81324784a99e2e921feb5cd5400025a234b10d62ef472fbc1e017f1fabbe05db",
+      "bytes": 1883
+    },
+    "upstream-junit.xml": {
+      "sha256": "a88ddf1917bb63ace9768a8ff484b5ef5c0a2cd89b44532b80d85d41cd751677",
+      "bytes": 10697
     }
   },
   "component_sources": {
@@ -246,7 +310,156 @@
       }
     }
   },
-  "final_nix_suites_complete": false,
+  "final_nix_suites_complete": true,
   "linux_acceptance_complete": false,
-  "owner_review_complete": false
+  "owner_review_complete": false,
+  "nix_suites": {
+    "atuin": {
+      "output": "/nix/store/99f3898jk6d9nmfll96j2shp3ryygzz7-sqlite-verifier-test-atuin-1",
+      "junit": {
+        "name": "pytest",
+        "errors": "0",
+        "failures": "0",
+        "skipped": "0",
+        "tests": "12",
+        "time": "80.567",
+        "timestamp": "2026-10-07T17:04:49.317524+00:00",
+        "hostname": "tzanko-mbp"
+      },
+      "junit_file": "atuin-junit.xml"
+    },
+    "bundle": {
+      "output": "/nix/store/0lzyr3pmd71czxc0q46nffvimgnjnklw-sqlite-verifier-test-bundle-1",
+      "junit": {
+        "name": "pytest",
+        "errors": "0",
+        "failures": "0",
+        "skipped": "0",
+        "tests": "48",
+        "time": "260.862",
+        "timestamp": "2026-10-07T16:59:46.331007+00:00",
+        "hostname": "tzanko-mbp"
+      },
+      "junit_file": "bundle-junit.xml"
+    },
+    "cli": {
+      "output": "/nix/store/2fv7grhhvg95s93d3pzzyh5ixghyc5jc-sqlite-verifier-test-cli-1",
+      "junit": {
+        "name": "pytest",
+        "errors": "0",
+        "failures": "0",
+        "skipped": "0",
+        "tests": "15",
+        "time": "44.518",
+        "timestamp": "2026-10-07T17:06:28.202979+00:00",
+        "hostname": "tzanko-mbp"
+      },
+      "junit_file": "cli-junit.xml"
+    },
+    "frozen": {
+      "output": "/nix/store/4pzi5gagaiwjk9jijw50igqx3nlfv3qz-sqlite-verifier-test-frozen-1",
+      "junit": {
+        "name": "pytest",
+        "errors": "0",
+        "failures": "0",
+        "skipped": "0",
+        "tests": "145",
+        "time": "238.241",
+        "timestamp": "2026-10-07T17:07:13.309868+00:00",
+        "hostname": "tzanko-mbp"
+      },
+      "junit_file": "frozen-junit.xml"
+    },
+    "harness": {
+      "output": "/nix/store/4250105xyi5ci2mrixlivmwpzccz68yq-sqlite-verifier-test-harness-1",
+      "junit": {
+        "name": "pytest",
+        "errors": "0",
+        "failures": "0",
+        "skipped": "0",
+        "tests": "122",
+        "time": "2.309",
+        "timestamp": "2026-10-07T17:11:12.333599+00:00",
+        "hostname": "tzanko-mbp"
+      },
+      "junit_file": "harness-junit.xml"
+    },
+    "kernel": {
+      "output": "/nix/store/4v3mlmvbw11yhfjq1hqf1idkrdlf1fn3-sqlite-verifier-test-kernel-1",
+      "junit": {
+        "name": "pytest",
+        "errors": "0",
+        "failures": "0",
+        "skipped": "0",
+        "tests": "28",
+        "time": "37.990",
+        "timestamp": "2026-10-07T17:11:15.020572+00:00",
+        "hostname": "tzanko-mbp"
+      },
+      "junit_file": "kernel-junit.xml"
+    },
+    "model": {
+      "output": "/nix/store/np4kf07g60w2x67x8xyycaz8iczfw7fg-sqlite-verifier-test-model-1",
+      "junit": {
+        "name": "pytest",
+        "errors": "0",
+        "failures": "0",
+        "skipped": "0",
+        "tests": "51",
+        "time": "48.398",
+        "timestamp": "2026-10-07T17:11:53.418604+00:00",
+        "hostname": "tzanko-mbp"
+      },
+      "junit_file": "model-junit.xml"
+    },
+    "sample": {
+      "output": "/nix/store/0fyi3k3zsw33w11vsmr0dfrn88kc8kpx-sqlite-verifier-test-sample-1",
+      "junit": {
+        "name": "pytest",
+        "errors": "0",
+        "failures": "0",
+        "skipped": "0",
+        "tests": "12",
+        "time": "44.323",
+        "timestamp": "2026-10-07T17:12:42.291249+00:00",
+        "hostname": "tzanko-mbp"
+      },
+      "junit_file": "sample-junit.xml"
+    },
+    "upstream": {
+      "output": "/nix/store/9x4jjd5q4svb6ld6h33hz4z8kabsjsnd-sqlite-verifier-test-upstream-1",
+      "junit": {
+        "name": "pytest",
+        "errors": "0",
+        "failures": "0",
+        "skipped": "0",
+        "tests": "76",
+        "time": "3.889",
+        "timestamp": "2026-10-07T17:13:27.018536+00:00",
+        "hostname": "tzanko-mbp"
+      },
+      "junit_file": "upstream-junit.xml"
+    }
+  },
+  "final_source_junit": {
+    "name": "pytest",
+    "errors": "0",
+    "failures": "0",
+    "skipped": "0",
+    "tests": "410",
+    "time": "44.030",
+    "timestamp": "2026-10-07T20:13:54.883906+03:00",
+    "hostname": "tzanko-mbp"
+  },
+  "final_nix_junit": {
+    "name": "pytest",
+    "errors": "0",
+    "failures": "0",
+    "skipped": "0",
+    "tests": "102",
+    "time": "118.309",
+    "timestamp": "2026-10-07T20:14:39.128777+03:00",
+    "hostname": "tzanko-mbp"
+  },
+  "local_resource_guard_ready_for_another_expensive_run": false
 }
