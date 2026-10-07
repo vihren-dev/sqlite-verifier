@@ -529,3 +529,11 @@ authorized one Linux diagnostic below. No production change followed it.
   process IDs are retained and stopped. The finding has a fixed journal
   resolution; the test-only refactor review is pending. No performance run,
   source decoding change or new acceptance occurred.
+- 2026-10-07: Atomic-marker refactor
+  `bd784c77dbd0385ed92df5a971af0f79c53df4c6` passed Claude review
+  `20261007T094010Z-bd784c77`, session 89715 exit 0, with no findings.
+  The four-worker unit and its single fixed finding are checked and reviewed.
+  No test, build, native phase or profile remains live. The coordinator must
+  authorize the reviewed base and host leases before fresh acceptance.
+  The previous valid Linux 39.570226821-second target miss and all raw
+  evidence remain unchanged; the overall task stays IN PROGRESS.
