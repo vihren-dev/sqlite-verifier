@@ -8,11 +8,13 @@ Source: [issue #31](https://github.com/vihren-dev/sqlite-verifier/issues/31).
 
 ## Current checkpoint
 
-The owner-approved T10 card and accepted ADR define the package boundary.
-The first structural refactor separates model facts from application helpers.
-The standalone model package builds independently. The Python frontend now
-lives in `belay.sqlite`; its source and sandbox checks pass. Application model
-integration and the two trusted compiled roots remain incomplete.
+The standalone `Belay.Sqlite` model and `belay.sqlite` frontend are integrated
+with the application in commit `e38bc101`. The replaced paths are deleted.
+Both compiled library roots use the same resolution order for compilation,
+export and checking. Native macOS source, identity and all nine Nix suites
+pass. A fresh macOS archive is being built. Linux acceptance, fresh installed
+checks on both platforms and final owner review remain required. T07 stays
+paused until this task is delivered.
 
 The accepted ADR was delivered through
 [PR44](https://github.com/vihren-dev/sqlite-verifier/pull/44), normal merge
@@ -40,21 +42,22 @@ or receipts are not accepted inputs.
   [translation](../belay/sqlite/translate.py),
   [records](../belay/sqlite/structural.py) and
   [inputs](../migration_check/inputs.py) show the shared-record boundary.
-  Current type methods, profiles and values also emit Lean text; neutral errors
-  currently share application diagnostics. These edges need explicit ownership.
+  Frontend types and records now have no application dependency. Application
+  Lean emission lives in `migration_check/lean_inputs.py`. Shared refusal
+  classes live in the frontend.
 - [Source selection](../build-support/sources.nix),
   [Nix builds](../build-support/default.nix),
   [runtime assembly](../build-support/runtime.nix),
   [test targets](../build-support/tests.nix),
   [source identity checks](../tests/test_source_identity.py),
   [runtime fixtures](../tests/runtime_fixtures.py) and
-  [CI scope](../tests/ci_scope.py) assume one package root.
+  [CI scope](../tests/ci_scope.py) select the separate package and frontend.
 - [Runtime discovery](../migration_check/runtime.py),
   [source resolution](../migration_check/source_closure.py),
   [preparation](../migration_check/prepare.py),
   [stage identity](../migration_check/stage_store.py),
   [kernel gate](../ProofChecker.lean) and
-  [bundle gate](../BundleChecker.lean) need one consistent pair of installed
+  [bundle gate](../BundleChecker.lean) use the same ordered pair of installed
   library roots with exact module origins and unchanged stage isolation.
 
 ## Progress
@@ -383,3 +386,12 @@ trust-relevant change: import behavior, root selection and the verification
 formula are unchanged by this correction. The original seven mandatory
 owner flags remain pending. Final owner review includes the corrected
 comments. No owner gate is waived or marked complete.
+
+
+The completed macOS ordinary Nix evaluation selects 313 passing checks across
+Atuin (12), bundle (48), CLI (15), harness (122), kernel (28), sample (12) and
+upstream (76). The full model and frozen suites add 51 and 145 passing checks.
+All nine suites have zero failures, errors or skips. Original JUnit timestamps
+and immutable output paths are retained; cached outputs are not reported as
+new executions. The final runtime rebuild passes. Fresh archive and installed
+acceptance are still running and are not counted as passing.
