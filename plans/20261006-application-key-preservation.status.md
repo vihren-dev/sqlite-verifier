@@ -246,3 +246,17 @@ Their original timestamps, node identities and bytes remain retained in
 `build/t15-delivered-main-integration/ordinary.json` and the seven XML copies.
 The existing fresh offline archive and installed acceptance address the same
 unchanged runtime. Linux completion, final review and delivery remain pending.
+
+
+## Current hosted acceptance
+
+Linux job `112881040105` in run `37647223426` completes successfully at reviewed
+head `f3ea1d44`. All nine Nix suites pass, with 503 tests passing. Source checks
+pass 369 tests and 35 subtests, with two existing optional reviewer-tool skips.
+The macOS PR job skips execution and is not counted as a native pass.
+[The acceptance record](../reports/20261007-application-key-main-acceptance/README.md)
+retains the exact decoded console bytes, their hash, the current cached native
+macOS output bindings and original XML. Hosted counts are console-derived;
+original hosted XML remains in the workflow artifacts. No runtime input or
+feature file changes in this evidence checkpoint. Final owner review and
+normal delivery remain required. T15 remains IN PROGRESS.

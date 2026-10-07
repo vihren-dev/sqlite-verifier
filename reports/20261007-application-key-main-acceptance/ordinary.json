@@ -1,0 +1,1669 @@
+{
+  "head": "f3ea1d445167ba1d078f8777a8c3d944d2b7098b",
+  "runtime": "/nix/store/w9gq5ixswhvpv2hb08vlh2andqxxhip0-sqlite-verifier-runtime-1",
+  "command": [
+    "nix-build",
+    "build-support/default.nix",
+    "-A",
+    "developmentTests",
+    "--option",
+    "sandbox",
+    "true",
+    "--option",
+    "sandbox-fallback",
+    "false"
+  ],
+  "outerTimeoutSeconds": 1800,
+  "cachedOutputs": true,
+  "freshExecutionClaim": false,
+  "suites": {
+    "atuin": {
+      "output": "/nix/store/3shkcj5bv3kwzzvw5nqs2fb73l6r1vca-sqlite-verifier-test-atuin-1",
+      "originalJUnit": {
+        "name": "pytest",
+        "errors": "0",
+        "failures": "0",
+        "skipped": "0",
+        "tests": "12",
+        "time": "75.548",
+        "timestamp": "2026-10-07T12:28:17.890562+00:00",
+        "hostname": "tzanko-mbp"
+      },
+      "sha256": "eb2135b9e4bf34aed24efccd31a30e8400e60473aa22e24583320f2fb50a31a9",
+      "nodes": [
+        {
+          "classname": "tests.atuin_cli_test",
+          "name": "test_valid_migration_preserves_history",
+          "time": "14.924"
+        },
+        {
+          "classname": "tests.atuin_cli_test",
+          "name": "test_changed_sql_rejects_stale_proof",
+          "time": "10.479"
+        },
+        {
+          "classname": "tests.atuin_cli_test",
+          "name": "test_different_field_preserves_contract",
+          "time": "15.094"
+        },
+        {
+          "classname": "tests.atuin_cli_test",
+          "name": "test_omitted_original_primary_key",
+          "time": "0.548"
+        },
+        {
+          "classname": "tests.atuin_cli_test",
+          "name": "test_unsupported_default",
+          "time": "0.107"
+        },
+        {
+          "classname": "tests.atuin_cli_test",
+          "name": "test_drops_history",
+          "time": "10.320"
+        },
+        {
+          "classname": "tests.atuin_cli_test",
+          "name": "test_erases_commands",
+          "time": "10.751"
+        },
+        {
+          "classname": "tests.atuin_cli_test",
+          "name": "test_weakened_invariant",
+          "time": "10.527"
+        },
+        {
+          "classname": "tests.atuin_cli_test",
+          "name": "test_schema_approval_bytes_changed",
+          "time": "0.819"
+        },
+        {
+          "classname": "tests.atuin_cli_test",
+          "name": "test_approved_source_changed[HistoryModel]",
+          "time": "0.841"
+        },
+        {
+          "classname": "tests.atuin_cli_test",
+          "name": "test_approved_source_changed[HistoryDecoding]",
+          "time": "0.566"
+        },
+        {
+          "classname": "tests.atuin_cli_test",
+          "name": "test_approved_source_changed[HistoryMapping]",
+          "time": "0.538"
+        }
+      ]
+    },
+    "bundle": {
+      "output": "/nix/store/cq8vvkizxr9zqw99fs4fhm4hip56xcwg-sqlite-verifier-test-bundle-1",
+      "originalJUnit": {
+        "name": "pytest",
+        "errors": "0",
+        "failures": "0",
+        "skipped": "0",
+        "tests": "44",
+        "time": "251.155",
+        "timestamp": "2026-10-07T12:29:33.793655+00:00",
+        "hostname": "tzanko-mbp"
+      },
+      "sha256": "fc48cf785e4ae82c0ac4dad4757968a84d54efc033bce7d91fa4cb879a5165e9",
+      "nodes": [
+        {
+          "classname": "tests.bundle_test",
+          "name": "test_status_parity[positive]",
+          "time": "6.927"
+        },
+        {
+          "classname": "tests.bundle_test",
+          "name": "test_status_parity[refutation]",
+          "time": "6.644"
+        },
+        {
+          "classname": "tests.bundle_test",
+          "name": "test_status_parity[allowed_failure]",
+          "time": "6.511"
+        },
+        {
+          "classname": "tests.bundle_test",
+          "name": "test_status_parity[atuin]",
+          "time": "18.364"
+        },
+        {
+          "classname": "tests.bundle_test",
+          "name": "test_status_parity[application_keys]",
+          "time": "6.825"
+        },
+        {
+          "classname": "tests.bundle_test",
+          "name": "test_application_key_bundle_repeatability",
+          "time": "13.671"
+        },
+        {
+          "classname": "tests.bundle_test",
+          "name": "test_invalid_proof_rejected[sorry]",
+          "time": "6.745"
+        },
+        {
+          "classname": "tests.bundle_test",
+          "name": "test_invalid_proof_rejected[forbidden_axiom]",
+          "time": "6.726"
+        },
+        {
+          "classname": "tests.bundle_test",
+          "name": "test_invalid_proof_rejected[wrong_target]",
+          "time": "6.650"
+        },
+        {
+          "classname": "tests.bundle_test",
+          "name": "test_bundle_from_altered_contract_rejected",
+          "time": "6.397"
+        },
+        {
+          "classname": "tests.bundle_test",
+          "name": "test_bundle_bound_to_prepared_sql",
+          "time": "6.931"
+        },
+        {
+          "classname": "tests.bundle_test",
+          "name": "test_shared_interpretation_file",
+          "time": "6.679"
+        },
+        {
+          "classname": "tests.bundle_test",
+          "name": "test_sql_edit_reuses_modules_without_sql_inputs",
+          "time": "22.829"
+        },
+        {
+          "classname": "tests.proof_exporter_test",
+          "name": "test_current_native_export[small]",
+          "time": "13.723"
+        },
+        {
+          "classname": "tests.proof_exporter_test",
+          "name": "test_current_native_export[refutation]",
+          "time": "12.876"
+        },
+        {
+          "classname": "tests.proof_exporter_test",
+          "name": "test_current_native_export[atuin]",
+          "time": "35.791"
+        },
+        {
+          "classname": "tests.proof_exporter_test",
+          "name": "test_candidate_module_under_library_namespace",
+          "time": "6.869"
+        },
+        {
+          "classname": "tests.proof_exporter_test",
+          "name": "test_invalid_exporter_arguments[arguments0-omitted module is not imported]",
+          "time": "0.346"
+        },
+        {
+          "classname": "tests.proof_exporter_test",
+          "name": "test_invalid_exporter_arguments[arguments1-Lean name]",
+          "time": "0.027"
+        },
+        {
+          "classname": "tests.proof_exporter_test",
+          "name": "test_invalid_exporter_arguments[arguments2-unknown exporter option]",
+          "time": "0.026"
+        },
+        {
+          "classname": "tests.proof_exporter_test",
+          "name": "test_invalid_exporter_arguments[arguments3-no export module]",
+          "time": "0.026"
+        },
+        {
+          "classname": "tests.proof_exporter_test",
+          "name": "test_omissions_follow_transitive_module_origins",
+          "time": "1.601"
+        },
+        {
+          "classname": "tests.stage_reuse_test",
+          "name": "test_generated_stages_reused_approved_compiled_fresh",
+          "time": "8.223"
+        },
+        {
+          "classname": "tests.stage_reuse_test",
+          "name": "test_changed_sql_stores_new_stage",
+          "time": "8.529"
+        },
+        {
+          "classname": "tests.stage_reuse_test",
+          "name": "test_damaged_entry_falls_back_to_compilation",
+          "time": "9.043"
+        },
+        {
+          "classname": "tests.stage_reuse_test",
+          "name": "test_measurement_override_stores_approved_stage",
+          "time": "6.933"
+        },
+        {
+          "classname": "tests.generated_inputs_test",
+          "name": "test_constructed_declarations_match_emitter[add_column_then_table]",
+          "time": "1.388"
+        },
+        {
+          "classname": "tests.generated_inputs_test",
+          "name": "test_constructed_declarations_match_emitter[table_then_column]",
+          "time": "1.293"
+        },
+        {
+          "classname": "tests.generated_inputs_test",
+          "name": "test_constructed_declarations_match_emitter[refutation_unchanged_invoices]",
+          "time": "1.393"
+        },
+        {
+          "classname": "tests.generated_inputs_test",
+          "name": "test_constructed_declarations_match_emitter[allowed_failure]",
+          "time": "1.528"
+        },
+        {
+          "classname": "tests.generated_inputs_test",
+          "name": "test_constructed_declarations_match_emitter[atuin_3_46]",
+          "time": "1.464"
+        },
+        {
+          "classname": "tests.generated_inputs_test",
+          "name": "test_constructed_declarations_match_emitter[literal_writes_and_transactions]",
+          "time": "1.445"
+        },
+        {
+          "classname": "tests.generated_inputs_test",
+          "name": "test_constructed_declarations_match_emitter[rich_schema_nullable_add]",
+          "time": "1.489"
+        },
+        {
+          "classname": "tests.generated_inputs_test",
+          "name": "test_constructed_declarations_match_emitter[unchanged_schema]",
+          "time": "1.327"
+        },
+        {
+          "classname": "tests.generated_inputs_test",
+          "name": "test_constructed_declarations_match_emitter[unicode_names]",
+          "time": "1.295"
+        },
+        {
+          "classname": "tests.generated_inputs_test",
+          "name": "test_constructed_declarations_match_emitter[conformance_add_then_create]",
+          "time": "1.336"
+        },
+        {
+          "classname": "tests.generated_inputs_test",
+          "name": "test_constructed_declarations_match_emitter[conformance_missing_table_prefix]",
+          "time": "1.314"
+        },
+        {
+          "classname": "tests.generated_inputs_test",
+          "name": "test_constructed_declarations_match_emitter[conformance_retained_add_prefix]",
+          "time": "1.427"
+        },
+        {
+          "classname": "tests.generated_inputs_test",
+          "name": "test_constructed_declarations_match_emitter[conformance_retained_create_prefix]",
+          "time": "1.312"
+        },
+        {
+          "classname": "tests.generated_inputs_test",
+          "name": "test_tampered_record_is_rejected[changed_start_schema]",
+          "time": "1.377"
+        },
+        {
+          "classname": "tests.generated_inputs_test",
+          "name": "test_tampered_record_is_rejected[other_version]",
+          "time": "1.311"
+        },
+        {
+          "classname": "tests.generated_inputs_test",
+          "name": "test_tampered_record_is_rejected[missing_field]",
+          "time": "1.565"
+        },
+        {
+          "classname": "tests.generated_inputs_test",
+          "name": "test_tampered_record_is_rejected[extra_statement]",
+          "time": "1.371"
+        },
+        {
+          "classname": "tests.generated_inputs_test",
+          "name": "test_tampered_record_is_rejected[other_profile]",
+          "time": "1.502"
+        }
+      ]
+    },
+    "cli": {
+      "output": "/nix/store/gf9kmbc5hinvw5yy7fm9j045jj62hnd6-sqlite-verifier-test-cli-1",
+      "originalJUnit": {
+        "name": "pytest",
+        "errors": "0",
+        "failures": "0",
+        "skipped": "0",
+        "tests": "15",
+        "time": "38.160",
+        "timestamp": "2026-10-07T12:33:45.455906+00:00",
+        "hostname": "tzanko-mbp"
+      },
+      "sha256": "91190c4e4bdd7477553b5d88f217fc09cec12c206f32d29d27f4461a401db2a8",
+      "nodes": [
+        {
+          "classname": "tests.cli_test",
+          "name": "test_valid_migration_artifacts",
+          "time": "4.323"
+        },
+        {
+          "classname": "tests.cli_test",
+          "name": "test_reverse_migration_reuses_baseline",
+          "time": "4.130"
+        },
+        {
+          "classname": "tests.cli_test",
+          "name": "test_checked_refutation",
+          "time": "4.229"
+        },
+        {
+          "classname": "tests.cli_test",
+          "name": "test_allowed_failure",
+          "time": "4.246"
+        },
+        {
+          "classname": "tests.cli_test",
+          "name": "test_application_key_invoice_variant",
+          "time": "4.200"
+        },
+        {
+          "classname": "tests.cli_test",
+          "name": "test_protected_schema_precedes_invalid_proof",
+          "time": "0.308"
+        },
+        {
+          "classname": "tests.cli_test",
+          "name": "test_application_profile_rejected",
+          "time": "0.064"
+        },
+        {
+          "classname": "tests.cli_test",
+          "name": "test_invalid_migration[empty]",
+          "time": "0.101"
+        },
+        {
+          "classname": "tests.cli_test",
+          "name": "test_invalid_migration[malformed]",
+          "time": "0.100"
+        },
+        {
+          "classname": "tests.cli_test",
+          "name": "test_invalid_migration[unsupported_select]",
+          "time": "0.102"
+        },
+        {
+          "classname": "tests.cli_test",
+          "name": "test_invalid_migration[stale_proof]",
+          "time": "3.711"
+        },
+        {
+          "classname": "tests.cli_test",
+          "name": "test_unsupported_schema_view",
+          "time": "0.103"
+        },
+        {
+          "classname": "tests.cli_test",
+          "name": "test_extra_assumption_proof",
+          "time": "4.244"
+        },
+        {
+          "classname": "tests.cli_test",
+          "name": "test_weakened_next_interpretation",
+          "time": "3.491"
+        },
+        {
+          "classname": "tests.cli_test",
+          "name": "test_approved_transitive_dependency",
+          "time": "4.773"
+        }
+      ]
+    },
+    "harness": {
+      "output": "/nix/store/r1d64n95v2jcq2h7xda00a8g1a8gxk88-sqlite-verifier-test-harness-1",
+      "originalJUnit": {
+        "name": "pytest",
+        "errors": "0",
+        "failures": "0",
+        "skipped": "0",
+        "tests": "120",
+        "time": "2.211",
+        "timestamp": "2026-10-07T12:38:23.054328+00:00",
+        "hostname": "tzanko-mbp"
+      },
+      "sha256": "aceadb3339cc833b4a1d37735a41a4dde6c7ed0d5a8ba9e9578abae9f9fc0f0e",
+      "nodes": [
+        {
+          "classname": "tests.conformance_acquisition_test",
+          "name": "test_retained_routes_survive_future_policy_changes",
+          "time": "0.015"
+        },
+        {
+          "classname": "tests.conformance_acquisition_test",
+          "name": "test_load_rejects_unbound_accepted_evidence[identity]",
+          "time": "0.006"
+        },
+        {
+          "classname": "tests.conformance_acquisition_test",
+          "name": "test_load_rejects_unbound_accepted_evidence[source]",
+          "time": "0.006"
+        },
+        {
+          "classname": "tests.conformance_acquisition_test",
+          "name": "test_load_rejects_unbound_accepted_evidence[labels]",
+          "time": "0.006"
+        },
+        {
+          "classname": "tests.conformance_acquisition_test",
+          "name": "test_load_rejects_unbound_accepted_evidence[scope]",
+          "time": "0.006"
+        },
+        {
+          "classname": "tests.conformance_acquisition_test",
+          "name": "test_load_rejects_unbound_accepted_evidence[profile]",
+          "time": "0.006"
+        },
+        {
+          "classname": "tests.conformance_acquisition_test",
+          "name": "test_load_rejects_unbound_accepted_evidence[setup-clock]",
+          "time": "0.006"
+        },
+        {
+          "classname": "tests.conformance_acquisition_test",
+          "name": "test_load_rejects_unbound_accepted_evidence[event-clock]",
+          "time": "0.006"
+        },
+        {
+          "classname": "tests.conformance_acquisition_test",
+          "name": "test_load_rejects_unbound_accepted_evidence[file-clock]",
+          "time": "0.006"
+        },
+        {
+          "classname": "tests.conformance_acquisition_test",
+          "name": "test_load_rejects_unbound_accepted_evidence[precision]",
+          "time": "0.006"
+        },
+        {
+          "classname": "tests.conformance_acquisition_test",
+          "name": "test_load_rejects_unbound_accepted_evidence[precision-count]",
+          "time": "0.006"
+        },
+        {
+          "classname": "tests.conformance_acquisition_test",
+          "name": "test_load_rejects_unbound_accepted_evidence[record-precision]",
+          "time": "0.006"
+        },
+        {
+          "classname": "tests.conformance_acquisition_test",
+          "name": "test_load_rejects_unbound_accepted_evidence[file-precision]",
+          "time": "0.006"
+        },
+        {
+          "classname": "tests.conformance_acquisition_test",
+          "name": "test_load_rejects_unbound_accepted_evidence[completion]",
+          "time": "0.006"
+        },
+        {
+          "classname": "tests.conformance_acquisition_test",
+          "name": "test_load_rejects_unbound_accepted_evidence[occurrence]",
+          "time": "0.006"
+        },
+        {
+          "classname": "tests.conformance_acquisition_test",
+          "name": "test_load_rejects_unbound_accepted_evidence[accepted-instance]",
+          "time": "0.006"
+        },
+        {
+          "classname": "tests.conformance_acquisition_test",
+          "name": "test_load_rejects_unbound_accepted_evidence[duplicate-instance]",
+          "time": "0.006"
+        },
+        {
+          "classname": "tests.conformance_acquisition_test",
+          "name": "test_load_rejects_unbound_accepted_evidence[excluded-instance]",
+          "time": "0.006"
+        },
+        {
+          "classname": "tests.conformance_acquisition_test",
+          "name": "test_load_rejects_unbound_accepted_evidence[route]",
+          "time": "0.006"
+        },
+        {
+          "classname": "tests.conformance_acquisition_test",
+          "name": "test_load_rejects_unbound_accepted_evidence[route-version]",
+          "time": "0.006"
+        },
+        {
+          "classname": "tests.conformance_acquisition_test",
+          "name": "test_load_rejects_unbound_accepted_evidence[policy-version]",
+          "time": "0.006"
+        },
+        {
+          "classname": "tests.conformance_acquisition_test",
+          "name": "test_load_rejects_unbound_accepted_evidence[precision-version]",
+          "time": "0.006"
+        },
+        {
+          "classname": "tests.conformance_acquisition_test",
+          "name": "test_load_rejects_unbound_accepted_evidence[engine]",
+          "time": "0.006"
+        },
+        {
+          "classname": "tests.conformance_acquisition_test",
+          "name": "test_load_rejects_unbound_accepted_evidence[catalog]",
+          "time": "0.006"
+        },
+        {
+          "classname": "tests.conformance_acquisition_test",
+          "name": "test_load_rejects_unbound_accepted_evidence[count]",
+          "time": "0.006"
+        },
+        {
+          "classname": "tests.conformance_acquisition_test",
+          "name": "test_load_rejects_unbound_accepted_evidence[precision-link]",
+          "time": "0.006"
+        },
+        {
+          "classname": "tests.conformance_acquisition_test",
+          "name": "test_load_rejects_unbound_accepted_evidence[accepted-refusal]",
+          "time": "0.006"
+        },
+        {
+          "classname": "tests.conformance_acquisition_test",
+          "name": "test_load_rejects_unbound_accepted_evidence[missing-record]",
+          "time": "0.005"
+        },
+        {
+          "classname": "tests.conformance_acquisition_test",
+          "name": "test_load_rejects_unbound_accepted_evidence[acquisition-version]",
+          "time": "0.006"
+        },
+        {
+          "classname": "tests.conformance_acquisition_test",
+          "name": "test_load_rejects_unbound_accepted_evidence[reason-count]",
+          "time": "0.006"
+        },
+        {
+          "classname": "tests.conformance_acquisition_test",
+          "name": "test_load_rejects_unbound_accepted_evidence[nullvalue-missing]",
+          "time": "0.006"
+        },
+        {
+          "classname": "tests.conformance_acquisition_test",
+          "name": "test_load_rejects_unbound_accepted_evidence[nullvalue-unobserved]",
+          "time": "0.006"
+        },
+        {
+          "classname": "tests.conformance_acquisition_test",
+          "name": "test_load_rejects_unbound_accepted_evidence[nullvalue-count]",
+          "time": "0.006"
+        },
+        {
+          "classname": "tests.conformance_acquisition_test",
+          "name": "test_load_rejects_unbound_accepted_evidence[nullvalue-link]",
+          "time": "0.006"
+        },
+        {
+          "classname": "tests.conformance_acquisition_test",
+          "name": "test_v4_retains_historical_loader_contract",
+          "time": "0.006"
+        },
+        {
+          "classname": "tests.conformance_authored_boundaries_test",
+          "name": "test_explicit_catalog_native_replay_and_classification",
+          "time": "0.184"
+        },
+        {
+          "classname": "tests.conformance_authored_boundaries_test",
+          "name": "test_added_default_values_and_affinity",
+          "time": "0.001"
+        },
+        {
+          "classname": "tests.conformance_authored_boundaries_test",
+          "name": "test_not_null_add_depends_on_existing_rows",
+          "time": "0.000"
+        },
+        {
+          "classname": "tests.conformance_authored_boundaries_test",
+          "name": "test_rejected_add_forms_leave_schema_and_rows_unchanged",
+          "time": "0.000"
+        },
+        {
+          "classname": "tests.conformance_authored_boundaries_test",
+          "name": "test_native_valid_definitions_have_concrete_rows",
+          "time": "0.000"
+        },
+        {
+          "classname": "tests.conformance_authored_boundaries_test",
+          "name": "test_native_invalid_definitions_are_real_errors",
+          "time": "0.000"
+        },
+        {
+          "classname": "tests.conformance_authored_boundaries_test",
+          "name": "test_validity_boundaries_are_unsupported_without_profile_gate",
+          "time": "0.093"
+        },
+        {
+          "classname": "tests.conformance_authored_review_test",
+          "name": "test_deferred_foreign_key_commit_boundaries",
+          "time": "0.014"
+        },
+        {
+          "classname": "tests.conformance_authored_review_test",
+          "name": "test_cast_outputs_preserve_exact_real_bits",
+          "time": "0.000"
+        },
+        {
+          "classname": "tests.conformance_authored_review_test",
+          "name": "test_review_shard_load_and_fresh_replay",
+          "time": "0.028"
+        },
+        {
+          "classname": "tests.conformance_workload_test",
+          "name": "test_directory_commands_record_replay_and_combined_progress",
+          "time": "0.318"
+        },
+        {
+          "classname": "tests.conformance_workload_test",
+          "name": "test_changed_source_files_refuse_replay[workload.json]",
+          "time": "0.049"
+        },
+        {
+          "classname": "tests.conformance_workload_test",
+          "name": "test_changed_source_files_refuse_replay[profile.json]",
+          "time": "0.048"
+        },
+        {
+          "classname": "tests.conformance_workload_test",
+          "name": "test_changed_source_files_refuse_replay[schema.sql]",
+          "time": "0.048"
+        },
+        {
+          "classname": "tests.conformance_workload_test",
+          "name": "test_changed_source_files_refuse_replay[transaction.sql]",
+          "time": "0.046"
+        },
+        {
+          "classname": "tests.conformance_workload_test",
+          "name": "test_inventory_refuses_missing_or_unexecuted_inputs",
+          "time": "0.015"
+        },
+        {
+          "classname": "tests.conformance_workload_test",
+          "name": "test_inventory_refuses_malformed_parameters_and_escaping_paths",
+          "time": "0.004"
+        },
+        {
+          "classname": "tests.conformance_workload_test",
+          "name": "test_failed_last_statement_is_complete_evidence",
+          "time": "0.037"
+        },
+        {
+          "classname": "tests.conformance_workload_test",
+          "name": "test_setup_file_boundaries_and_executable_setup_binding",
+          "time": "0.097"
+        },
+        {
+          "classname": "tests.conformance_workload_test",
+          "name": "test_nul_sql_cannot_hide_unexecuted_input",
+          "time": "0.007"
+        },
+        {
+          "classname": "tests.conformance_workload_test",
+          "name": "test_retained_synthetic_corpus_matches_fresh_recording",
+          "time": "0.052"
+        },
+        {
+          "classname": "tests.conformance_workload_clock_test",
+          "name": "test_directory_controlled_clock_and_refused_extra_inputs",
+          "time": "0.089"
+        },
+        {
+          "classname": "tests.conformance_storage_test",
+          "name": "test_native_storage_round_trip[1]",
+          "time": "0.011"
+        },
+        {
+          "classname": "tests.conformance_storage_test",
+          "name": "test_native_storage_round_trip[2]",
+          "time": "0.011"
+        },
+        {
+          "classname": "tests.conformance_storage_test",
+          "name": "test_native_storage_round_trip[3]",
+          "time": "0.012"
+        },
+        {
+          "classname": "tests.conformance_storage_test",
+          "name": "test_native_storage_round_trip[4]",
+          "time": "0.025"
+        },
+        {
+          "classname": "tests.conformance_storage_test",
+          "name": "test_utf8_exact_size_boundary",
+          "time": "0.015"
+        },
+        {
+          "classname": "tests.conformance_storage_test",
+          "name": "test_logically_oversized_case_cannot_hide_behind_sharing",
+          "time": "0.040"
+        },
+        {
+          "classname": "tests.conformance_storage_test",
+          "name": "test_load_refuses_corrupt_shared_evidence[content]",
+          "time": "0.003"
+        },
+        {
+          "classname": "tests.conformance_storage_test",
+          "name": "test_load_refuses_corrupt_shared_evidence[missing]",
+          "time": "0.002"
+        },
+        {
+          "classname": "tests.conformance_storage_test",
+          "name": "test_load_refuses_corrupt_shared_evidence[reference]",
+          "time": "0.002"
+        },
+        {
+          "classname": "tests.conformance_storage_test",
+          "name": "test_load_refuses_corrupt_shared_evidence[version]",
+          "time": "0.002"
+        },
+        {
+          "classname": "tests.conformance_storage_test",
+          "name": "test_load_refuses_corrupt_shared_evidence[bool-version]",
+          "time": "0.002"
+        },
+        {
+          "classname": "tests.conformance_storage_test",
+          "name": "test_load_refuses_corrupt_shared_evidence[unused]",
+          "time": "0.003"
+        },
+        {
+          "classname": "tests.conformance_storage_test",
+          "name": "test_load_refuses_corrupt_shared_evidence[pool]",
+          "time": "0.002"
+        },
+        {
+          "classname": "tests.conformance_storage_test",
+          "name": "test_repeat_refresh_preserves_shared_parents_and_profiles",
+          "time": "0.009"
+        },
+        {
+          "classname": "tests.conformance_ordering_test",
+          "name": "test_native_ties_and_window_boundaries",
+          "time": "0.003"
+        },
+        {
+          "classname": "tests.conformance_ordering_test",
+          "name": "test_record_ordered_queries_and_cuts",
+          "time": "0.013"
+        },
+        {
+          "classname": "tests.conformance_ordering_test",
+          "name": "test_query_window_parameters_and_deterministic_write",
+          "time": "0.025"
+        },
+        {
+          "classname": "tests.conformance_ordering_test",
+          "name": "test_sqlite_identifier_spelling",
+          "time": "0.003"
+        },
+        {
+          "classname": "tests.conformance_ordering_test",
+          "name": "test_only_boundary_groups_may_be_partial",
+          "time": "0.002"
+        },
+        {
+          "classname": "tests.conformance_ordering_test",
+          "name": "test_nested_windows_are_not_silently_ordered",
+          "time": "0.003"
+        },
+        {
+          "classname": "tests.conformance_clock_test",
+          "name": "test_engine_clock_defaults_triggers_and_probes",
+          "time": "0.003"
+        },
+        {
+          "classname": "tests.conformance_profile_test",
+          "name": "test_profile_engine_settings_and_foreign_keys",
+          "time": "0.004"
+        },
+        {
+          "classname": "tests.conformance_profile_test",
+          "name": "test_recorded_profile_clock_and_fresh_replay",
+          "time": "0.125"
+        },
+        {
+          "classname": "tests.conformance_profile_test",
+          "name": "test_profile_selects_its_pinned_engine",
+          "time": "0.009"
+        },
+        {
+          "classname": "tests.conformance_profile_test",
+          "name": "test_fixed_clock_records_native_statement_boundaries",
+          "time": "0.014"
+        },
+        {
+          "classname": "tests.conformance_profile_test",
+          "name": "test_profile_equal_setting_writes_preserve_readback",
+          "time": "0.011"
+        },
+        {
+          "classname": "tests.conformance_driver_profiles_test",
+          "name": "test_explicit_native_conditions[False-False-False-False]",
+          "time": "0.007"
+        },
+        {
+          "classname": "tests.conformance_driver_profiles_test",
+          "name": "test_explicit_native_conditions[False-False-False-True]",
+          "time": "0.002"
+        },
+        {
+          "classname": "tests.conformance_driver_profiles_test",
+          "name": "test_explicit_native_conditions[False-False-True-False]",
+          "time": "0.002"
+        },
+        {
+          "classname": "tests.conformance_driver_profiles_test",
+          "name": "test_explicit_native_conditions[False-False-True-True]",
+          "time": "0.002"
+        },
+        {
+          "classname": "tests.conformance_driver_profiles_test",
+          "name": "test_explicit_native_conditions[False-True-False-False]",
+          "time": "0.002"
+        },
+        {
+          "classname": "tests.conformance_driver_profiles_test",
+          "name": "test_explicit_native_conditions[False-True-False-True]",
+          "time": "0.002"
+        },
+        {
+          "classname": "tests.conformance_driver_profiles_test",
+          "name": "test_explicit_native_conditions[False-True-True-False]",
+          "time": "0.003"
+        },
+        {
+          "classname": "tests.conformance_driver_profiles_test",
+          "name": "test_explicit_native_conditions[False-True-True-True]",
+          "time": "0.003"
+        },
+        {
+          "classname": "tests.conformance_driver_profiles_test",
+          "name": "test_explicit_native_conditions[True-False-False-False]",
+          "time": "0.003"
+        },
+        {
+          "classname": "tests.conformance_driver_profiles_test",
+          "name": "test_explicit_native_conditions[True-False-False-True]",
+          "time": "0.003"
+        },
+        {
+          "classname": "tests.conformance_driver_profiles_test",
+          "name": "test_explicit_native_conditions[True-False-True-False]",
+          "time": "0.003"
+        },
+        {
+          "classname": "tests.conformance_driver_profiles_test",
+          "name": "test_explicit_native_conditions[True-False-True-True]",
+          "time": "0.003"
+        },
+        {
+          "classname": "tests.conformance_driver_profiles_test",
+          "name": "test_explicit_native_conditions[True-True-False-False]",
+          "time": "0.002"
+        },
+        {
+          "classname": "tests.conformance_driver_profiles_test",
+          "name": "test_explicit_native_conditions[True-True-False-True]",
+          "time": "0.002"
+        },
+        {
+          "classname": "tests.conformance_driver_profiles_test",
+          "name": "test_explicit_native_conditions[True-True-True-False]",
+          "time": "0.003"
+        },
+        {
+          "classname": "tests.conformance_driver_profiles_test",
+          "name": "test_explicit_native_conditions[True-True-True-True]",
+          "time": "0.003"
+        },
+        {
+          "classname": "tests.conformance_driver_profiles_test",
+          "name": "test_transport_and_access_refuse_reinterpretation",
+          "time": "0.002"
+        },
+        {
+          "classname": "tests.conformance_driver_profiles_test",
+          "name": "test_trusted_schema_off_preserves_native_clock_and_cascades",
+          "time": "0.017"
+        },
+        {
+          "classname": "tests.conformance_readonly_workload_test",
+          "name": "test_readonly_directory_freeze_load_and_fresh_replay",
+          "time": "0.190"
+        },
+        {
+          "classname": "tests.conformance_readonly_workload_test",
+          "name": "test_readonly_reopen_and_environmental_error_boundary",
+          "time": "0.011"
+        },
+        {
+          "classname": "tests.conformance_context_test",
+          "name": "test_closed_auxiliary_read_prefix_recovers",
+          "time": "0.002"
+        },
+        {
+          "classname": "tests.conformance_context_test",
+          "name": "test_closed_reader_does_not_hide_uncommitted_difference",
+          "time": "0.004"
+        },
+        {
+          "classname": "tests.conformance_context_test",
+          "name": "test_reset_does_not_close_an_auxiliary_handle",
+          "time": "0.000"
+        },
+        {
+          "classname": "tests.conformance_context_test",
+          "name": "test_auxiliary_file_identity_is_required",
+          "time": "0.000"
+        },
+        {
+          "classname": "tests.conformance_context_test",
+          "name": "test_detached_memory_prefix_replays_main_state",
+          "time": "0.005"
+        },
+        {
+          "classname": "tests.conformance_requirement_coverage_test",
+          "name": "test_comparison_counts_aliases_once_and_retains_zeros",
+          "time": "0.000"
+        },
+        {
+          "classname": "tests.conformance_requirement_coverage_test",
+          "name": "test_unknown_or_ambiguous_tag_is_refused[R-unknown]",
+          "time": "0.000"
+        },
+        {
+          "classname": "tests.conformance_requirement_coverage_test",
+          "name": "test_unknown_or_ambiguous_tag_is_refused[R-00001]",
+          "time": "0.000"
+        },
+        {
+          "classname": "tests.conformance_requirement_coverage_test",
+          "name": "test_unknown_or_ambiguous_tag_is_refused[]",
+          "time": "0.000"
+        },
+        {
+          "classname": "tests.conformance_requirement_coverage_test",
+          "name": "test_inconsistent_inventory_is_refused[count]",
+          "time": "0.000"
+        },
+        {
+          "classname": "tests.conformance_requirement_coverage_test",
+          "name": "test_inconsistent_inventory_is_refused[duplicate]",
+          "time": "0.000"
+        },
+        {
+          "classname": "tests.conformance_requirement_coverage_test",
+          "name": "test_inconsistent_inventory_is_refused[boolean-count]",
+          "time": "0.000"
+        },
+        {
+          "classname": "tests.conformance_requirement_coverage_test",
+          "name": "test_obsolete_citations_retain_provenance_without_credit",
+          "time": "0.000"
+        },
+        {
+          "classname": "tests.conformance_requirement_coverage_test",
+          "name": "test_malformed_reference_cannot_be_retained_as_a_citation[False]",
+          "time": "0.000"
+        },
+        {
+          "classname": "tests.conformance_requirement_coverage_test",
+          "name": "test_malformed_reference_cannot_be_retained_as_a_citation[tag1]",
+          "time": "0.000"
+        },
+        {
+          "classname": "tests.conformance_requirement_coverage_test",
+          "name": "test_malformed_reference_cannot_be_retained_as_a_citation[]",
+          "time": "0.000"
+        },
+        {
+          "classname": "tests.conformance_requirement_coverage_test",
+          "name": "test_progress_uses_per_case_verdicts",
+          "time": "0.003"
+        }
+      ]
+    },
+    "kernel": {
+      "output": "/nix/store/8jvg261ryf68bvwdgm7xm3m785d7nnjl-sqlite-verifier-test-kernel-1",
+      "originalJUnit": {
+        "name": "pytest",
+        "errors": "0",
+        "failures": "0",
+        "skipped": "0",
+        "tests": "28",
+        "time": "46.714",
+        "timestamp": "2026-10-07T12:38:25.636477+00:00",
+        "hostname": "tzanko-mbp"
+      },
+      "sha256": "fce79f2ed45c738816b704ff1ecc9838c36a99babe402c23f90efba11abae6f3",
+      "nodes": [
+        {
+          "classname": "tests.kernel_gate_test",
+          "name": "test_missing_sysroot",
+          "time": "8.236"
+        },
+        {
+          "classname": "tests.kernel_gate_test",
+          "name": "test_relative_library_path",
+          "time": "0.029"
+        },
+        {
+          "classname": "tests.kernel_gate_test",
+          "name": "test_proof_attack[valid]",
+          "time": "1.084"
+        },
+        {
+          "classname": "tests.kernel_gate_test",
+          "name": "test_proof_attack[initializer_ignored]",
+          "time": "1.022"
+        },
+        {
+          "classname": "tests.kernel_gate_test",
+          "name": "test_proof_attack[forged_kernel_body]",
+          "time": "8.214"
+        },
+        {
+          "classname": "tests.kernel_gate_test",
+          "name": "test_proof_attack[wrong_theorem]",
+          "time": "1.078"
+        },
+        {
+          "classname": "tests.kernel_gate_test",
+          "name": "test_proof_attack[sorry]",
+          "time": "1.052"
+        },
+        {
+          "classname": "tests.kernel_gate_test",
+          "name": "test_proof_attack[transitive_axiom]",
+          "time": "1.025"
+        },
+        {
+          "classname": "tests.kernel_gate_test",
+          "name": "test_proof_attack[changed_protected_contract]",
+          "time": "2.440"
+        },
+        {
+          "classname": "tests.kernel_gate_test",
+          "name": "test_proof_attack[changed_protected_SQL]",
+          "time": "2.419"
+        },
+        {
+          "classname": "tests.kernel_gate_test",
+          "name": "test_proof_attack[changed_protected_schema]",
+          "time": "2.464"
+        },
+        {
+          "classname": "tests.kernel_gate_test",
+          "name": "test_proof_attack[changed_protected_profile]",
+          "time": "2.479"
+        },
+        {
+          "classname": "tests.kernel_gate_test",
+          "name": "test_proof_attack[unsafe_proof]",
+          "time": "0.937"
+        },
+        {
+          "classname": "tests.kernel_gate_test",
+          "name": "test_proof_attack[partial_proof]",
+          "time": "2.645"
+        },
+        {
+          "classname": "tests.kernel_gate_test",
+          "name": "test_approved_source_substitutes_schema",
+          "time": "0.834"
+        },
+        {
+          "classname": "tests.kernel_gate_test",
+          "name": "test_forged_convenience_target",
+          "time": "1.413"
+        },
+        {
+          "classname": "tests.kernel_gate_test",
+          "name": "test_changed_sealed_profile",
+          "time": "1.831"
+        },
+        {
+          "classname": "tests.kernel_gate_test",
+          "name": "test_checked_refutation",
+          "time": "2.181"
+        },
+        {
+          "classname": "tests.kernel_gate_test",
+          "name": "test_unfinished_refutation",
+          "time": "2.190"
+        },
+        {
+          "classname": "tests.single_executor_test",
+          "name": "test_retired_execution_declarations[run]",
+          "time": "0.366"
+        },
+        {
+          "classname": "tests.single_executor_test",
+          "name": "test_retired_execution_declarations[runFrom]",
+          "time": "0.383"
+        },
+        {
+          "classname": "tests.single_executor_test",
+          "name": "test_retired_execution_declarations[Executes]",
+          "time": "0.385"
+        },
+        {
+          "classname": "tests.single_executor_test",
+          "name": "test_retired_execution_declarations[runFrom_executes]",
+          "time": "0.383"
+        },
+        {
+          "classname": "tests.single_executor_test",
+          "name": "test_retired_execution_declarations[runFrom_append]",
+          "time": "0.361"
+        },
+        {
+          "classname": "tests.single_executor_test",
+          "name": "test_retired_execution_declarations[Statement.isExtension]",
+          "time": "0.356"
+        },
+        {
+          "classname": "tests.single_executor_test",
+          "name": "test_retired_execution_declarations[VerificationConditions.of_run]",
+          "time": "0.367"
+        },
+        {
+          "classname": "tests.single_executor_test",
+          "name": "test_retired_execution_declarations[VerificationConditions.congr_run]",
+          "time": "0.361"
+        },
+        {
+          "classname": "tests.single_executor_test",
+          "name": "test_retired_bridge_import",
+          "time": "0.133"
+        }
+      ]
+    },
+    "sample": {
+      "output": "/nix/store/j2ql2yhb4fg2xny7g6d5rgmak649r46s-sqlite-verifier-test-sample-1",
+      "originalJUnit": {
+        "name": "pytest",
+        "errors": "0",
+        "failures": "0",
+        "skipped": "0",
+        "tests": "12",
+        "time": "44.312",
+        "timestamp": "2026-10-07T12:40:00.609094+00:00",
+        "hostname": "tzanko-mbp"
+      },
+      "sha256": "c06059f4906dc49ccf8031402c08dd3bc88a66e9e47de743b07e36cddd69e752",
+      "nodes": [
+        {
+          "classname": "tests.conformance_tiers_test",
+          "name": "test_selection_is_bounded_stable_and_verdict_independent",
+          "time": "0.001"
+        },
+        {
+          "classname": "tests.conformance_tiers_test",
+          "name": "test_small_populations_and_invalid_membership",
+          "time": "0.000"
+        },
+        {
+          "classname": "tests.conformance_tiers_test",
+          "name": "test_failed_selected_cases_fail_the_tier[DISAGREE]",
+          "time": "0.000"
+        },
+        {
+          "classname": "tests.conformance_tiers_test",
+          "name": "test_failed_selected_cases_fail_the_tier[HARNESS_ERROR]",
+          "time": "0.000"
+        },
+        {
+          "classname": "tests.conformance_tiers_test",
+          "name": "test_replay_requires_an_exact_case_and_verdict_denominator[missing]",
+          "time": "0.000"
+        },
+        {
+          "classname": "tests.conformance_tiers_test",
+          "name": "test_replay_requires_an_exact_case_and_verdict_denominator[renamed]",
+          "time": "0.000"
+        },
+        {
+          "classname": "tests.conformance_tiers_test",
+          "name": "test_replay_requires_an_exact_case_and_verdict_denominator[counts]",
+          "time": "0.000"
+        },
+        {
+          "classname": "tests.conformance_tiers_test",
+          "name": "test_replay_requires_an_exact_case_and_verdict_denominator[unknown]",
+          "time": "0.000"
+        },
+        {
+          "classname": "tests.conformance_tiers_test",
+          "name": "test_unsupported_stays_explicit",
+          "time": "0.000"
+        },
+        {
+          "classname": "tests.conformance_tiers_test",
+          "name": "test_missing_runtime_fails_even_before_unsupported_replay[build/sqlite-parser]",
+          "time": "0.005"
+        },
+        {
+          "classname": "tests.conformance_tiers_test",
+          "name": "test_missing_runtime_fails_even_before_unsupported_replay[.lake/build/bin/conformance-runner]",
+          "time": "0.001"
+        },
+        {
+          "classname": "tests.conformance_sample_test",
+          "name": "test_frozen_cli_replays_every_authored_and_synthetic_case_within_bound",
+          "time": "44.223"
+        }
+      ]
+    },
+    "upstream": {
+      "output": "/nix/store/0h3bi2g1q5zljdr2hpxfqrszgr99jzs6-sqlite-verifier-test-upstream-1",
+      "originalJUnit": {
+        "name": "pytest",
+        "errors": "0",
+        "failures": "0",
+        "skipped": "0",
+        "tests": "76",
+        "time": "3.881",
+        "timestamp": "2026-10-07T12:40:45.315920+00:00",
+        "hostname": "tzanko-mbp"
+      },
+      "sha256": "2e68cb7abe6f4401d9c47705b17a851c842146d705f74b5c98df2269a3cd8c11",
+      "nodes": [
+        {
+          "classname": "tests.conformance_capture_test",
+          "name": "test_real_profile_capture_and_clock_change_refusal",
+          "time": "0.119"
+        },
+        {
+          "classname": "tests.conformance_capture_test",
+          "name": "test_real_helpers_and_context_recovery[upstream_helper_calls.test-accepted0]",
+          "time": "0.052"
+        },
+        {
+          "classname": "tests.conformance_capture_test",
+          "name": "test_real_helpers_and_context_recovery[upstream_context_calls.test-accepted1]",
+          "time": "0.049"
+        },
+        {
+          "classname": "tests.conformance_capture_test",
+          "name": "test_real_helpers_and_context_recovery[upstream_attachment_calls.test-accepted2]",
+          "time": "0.050"
+        },
+        {
+          "classname": "tests.conformance_capture_test",
+          "name": "test_real_helpers_and_context_recovery[upstream_nondeterminism_calls.test-accepted3]",
+          "time": "0.035"
+        },
+        {
+          "classname": "tests.conformance_capture_test",
+          "name": "test_real_method_aliases_and_untraced_context_refusals",
+          "time": "0.072"
+        },
+        {
+          "classname": "tests.conformance_capture_test",
+          "name": "test_size_exclusion_preserves_quota_and_native_evidence",
+          "time": "0.062"
+        },
+        {
+          "classname": "tests.conformance_sampling_test",
+          "name": "test_fixed_catalog_and_explicit_file_exclusions",
+          "time": "0.002"
+        },
+        {
+          "classname": "tests.conformance_sampling_test",
+          "name": "test_identity_sampling_ignores_native_acceptance",
+          "time": "0.001"
+        },
+        {
+          "classname": "tests.conformance_sampling_test",
+          "name": "test_real_uncapped_capture_and_prefix_sampling",
+          "time": "0.492"
+        },
+        {
+          "classname": "tests.conformance_streaming_test",
+          "name": "test_iterator_is_lazy_and_matches_list_wrapper",
+          "time": "0.001"
+        },
+        {
+          "classname": "tests.conformance_streaming_test",
+          "name": "test_cache_and_legacy_fallback_keep_identical_reasons",
+          "time": "0.000"
+        },
+        {
+          "classname": "tests.conformance_streaming_test",
+          "name": "test_reset_inside_assertion_discards_stale_binding_markers",
+          "time": "0.000"
+        },
+        {
+          "classname": "tests.conformance_streaming_test",
+          "name": "test_control_boundaries_copy_prefix_binding_reasons[control0]",
+          "time": "0.000"
+        },
+        {
+          "classname": "tests.conformance_streaming_test",
+          "name": "test_control_boundaries_copy_prefix_binding_reasons[control1]",
+          "time": "0.000"
+        },
+        {
+          "classname": "tests.conformance_streaming_test",
+          "name": "test_control_boundaries_copy_prefix_binding_reasons[control2]",
+          "time": "0.000"
+        },
+        {
+          "classname": "tests.conformance_streaming_test",
+          "name": "test_timeout_retains_completed_candidates_without_native_acquisition",
+          "time": "0.006"
+        },
+        {
+          "classname": "tests.conformance_capture_gap_test",
+          "name": "test_real_errors_and_external_control_lifetimes",
+          "time": "0.081"
+        },
+        {
+          "classname": "tests.conformance_capture_gap_test",
+          "name": "test_real_completion_marker_distinguishes_assertion_failure_from_abort[finish_test-1-True]",
+          "time": "0.032"
+        },
+        {
+          "classname": "tests.conformance_capture_gap_test",
+          "name": "test_real_completion_marker_distinguishes_assertion_failure_from_abort[exit 1-1-False]",
+          "time": "0.030"
+        },
+        {
+          "classname": "tests.conformance_capture_gap_test",
+          "name": "test_real_completion_marker_distinguishes_assertion_failure_from_abort[exit 0-0-False]",
+          "time": "0.028"
+        },
+        {
+          "classname": "tests.conformance_command_sources_test",
+          "name": "test_explain_retains_original_sql_source",
+          "time": "0.004"
+        },
+        {
+          "classname": "tests.conformance_command_sources_test",
+          "name": "test_comment_boundaries_keep_both_calls[SELECT 7 -- EOF]",
+          "time": "0.003"
+        },
+        {
+          "classname": "tests.conformance_command_sources_test",
+          "name": "test_comment_boundaries_keep_both_calls[SELECT 7 /*closed*/]",
+          "time": "0.004"
+        },
+        {
+          "classname": "tests.conformance_command_sources_test",
+          "name": "test_comment_boundaries_keep_both_calls[SELECT '--quoted /*text*/']",
+          "time": "0.003"
+        },
+        {
+          "classname": "tests.conformance_command_sources_test",
+          "name": "test_comment_boundaries_keep_both_calls[SELECT '\\xe9' -- EOF]",
+          "time": "0.003"
+        },
+        {
+          "classname": "tests.conformance_command_sources_test",
+          "name": "test_unterminated_comment_cannot_hide_a_call",
+          "time": "0.000"
+        },
+        {
+          "classname": "tests.conformance_command_sources_test",
+          "name": "test_real_tcl_source_observations",
+          "time": "0.051"
+        },
+        {
+          "classname": "tests.conformance_catalog_test",
+          "name": "test_catalog_accounts_for_all_pinned_feature_families",
+          "time": "0.022"
+        },
+        {
+          "classname": "tests.conformance_catalog_test",
+          "name": "test_changed_family_membership_is_refused[missing]",
+          "time": "0.062"
+        },
+        {
+          "classname": "tests.conformance_catalog_test",
+          "name": "test_changed_family_membership_is_refused[extra]",
+          "time": "0.027"
+        },
+        {
+          "classname": "tests.conformance_source_profiles_test",
+          "name": "test_real_unrelated_function_and_dependent_prefix",
+          "time": "0.064"
+        },
+        {
+          "classname": "tests.conformance_source_profiles_test",
+          "name": "test_real_source_profiles_and_changed_conditions",
+          "time": "0.100"
+        },
+        {
+          "classname": "tests.conformance_source_profiles_test",
+          "name": "test_profile_primitive_remains_explicit",
+          "time": "0.041"
+        },
+        {
+          "classname": "tests.conformance_foreign_key_recovery_test",
+          "name": "test_restoration_retains_database_dependencies",
+          "time": "0.092"
+        },
+        {
+          "classname": "tests.conformance_foreign_key_recovery_test",
+          "name": "test_transaction_setting_writes_are_actual_noops[False]",
+          "time": "0.041"
+        },
+        {
+          "classname": "tests.conformance_foreign_key_recovery_test",
+          "name": "test_transaction_setting_writes_are_actual_noops[True]",
+          "time": "0.041"
+        },
+        {
+          "classname": "tests.conformance_foreign_key_recovery_test",
+          "name": "test_reset_keeps_unretained_initialization_context[SELECT missing FROM leftover-reset_db failed]",
+          "time": "0.039"
+        },
+        {
+          "classname": "tests.conformance_foreign_key_recovery_test",
+          "name": "test_reset_keeps_unretained_initialization_context[-reset_db initialization SQL is not retained]",
+          "time": "0.038"
+        },
+        {
+          "classname": "tests.conformance_tcl_values_test",
+          "name": "test_round_trip_tcl_reals[123.5-123.5]",
+          "time": "0.000"
+        },
+        {
+          "classname": "tests.conformance_tcl_values_test",
+          "name": "test_round_trip_tcl_reals[1e+16-10000000000000000.0]",
+          "time": "0.000"
+        },
+        {
+          "classname": "tests.conformance_tcl_values_test",
+          "name": "test_round_trip_tcl_reals[1e-30-1e-30]",
+          "time": "0.000"
+        },
+        {
+          "classname": "tests.conformance_tcl_values_test",
+          "name": "test_round_trip_tcl_reals[-0.0--0.0]",
+          "time": "0.000"
+        },
+        {
+          "classname": "tests.conformance_tcl_values_test",
+          "name": "test_round_trip_tcl_reals[inf-Inf]",
+          "time": "0.000"
+        },
+        {
+          "classname": "tests.conformance_tcl_values_test",
+          "name": "test_round_trip_tcl_reals[-inf--Inf]",
+          "time": "0.000"
+        },
+        {
+          "classname": "tests.conformance_tcl_values_test",
+          "name": "test_round_trip_tcl_reals[1.0000000000000002-1.0000000000000002]",
+          "time": "0.000"
+        },
+        {
+          "classname": "tests.conformance_tcl_values_test",
+          "name": "test_changed_real_values_are_not_equivalent[1.0-1.0000001]",
+          "time": "0.000"
+        },
+        {
+          "classname": "tests.conformance_tcl_values_test",
+          "name": "test_changed_real_values_are_not_equivalent[-0.0-0.0]",
+          "time": "0.000"
+        },
+        {
+          "classname": "tests.conformance_tcl_values_test",
+          "name": "test_changed_real_values_are_not_equivalent[1.0-1]",
+          "time": "0.000"
+        },
+        {
+          "classname": "tests.conformance_tcl_values_test",
+          "name": "test_changed_real_values_are_not_equivalent[1.0-NaN]",
+          "time": "0.000"
+        },
+        {
+          "classname": "tests.conformance_tcl_values_test",
+          "name": "test_changed_real_values_are_not_equivalent[1.0-1_0.0]",
+          "time": "0.000"
+        },
+        {
+          "classname": "tests.conformance_tcl_values_test",
+          "name": "test_changed_real_values_are_not_equivalent[inf-1e999]",
+          "time": "0.000"
+        },
+        {
+          "classname": "tests.conformance_tcl_values_test",
+          "name": "test_changed_real_values_are_not_equivalent[0.0-1e-999]",
+          "time": "0.000"
+        },
+        {
+          "classname": "tests.conformance_tcl_values_test",
+          "name": "test_real_precision_requires_observed_shortest_round_trip[None]",
+          "time": "0.000"
+        },
+        {
+          "classname": "tests.conformance_tcl_values_test",
+          "name": "test_real_precision_requires_observed_shortest_round_trip[3]",
+          "time": "0.000"
+        },
+        {
+          "classname": "tests.conformance_tcl_values_test",
+          "name": "test_real_precision_requires_observed_shortest_round_trip[6]",
+          "time": "0.000"
+        },
+        {
+          "classname": "tests.conformance_tcl_values_test",
+          "name": "test_real_precision_requires_observed_shortest_round_trip[17]",
+          "time": "0.000"
+        },
+        {
+          "classname": "tests.conformance_tcl_values_test",
+          "name": "test_blob_bytes_and_helper_boundaries",
+          "time": "0.000"
+        },
+        {
+          "classname": "tests.conformance_tcl_values_test",
+          "name": "test_observed_null_marker_preserves_typed_values_and_helpers[]",
+          "time": "0.000"
+        },
+        {
+          "classname": "tests.conformance_tcl_values_test",
+          "name": "test_observed_null_marker_preserves_typed_values_and_helpers[NULL]",
+          "time": "0.000"
+        },
+        {
+          "classname": "tests.conformance_tcl_values_test",
+          "name": "test_observed_null_marker_preserves_typed_values_and_helpers[null]",
+          "time": "0.000"
+        },
+        {
+          "classname": "tests.conformance_tcl_values_test",
+          "name": "test_observed_null_marker_preserves_typed_values_and_helpers[N]",
+          "time": "0.000"
+        },
+        {
+          "classname": "tests.conformance_tcl_values_test",
+          "name": "test_pinned_tcl_real_blob_acquisition_and_negative_results",
+          "time": "0.077"
+        },
+        {
+          "classname": "tests.test_native_replay_storage",
+          "name": "test_explicit_storage_preserves_records_and_cleans_actual_files",
+          "time": "0.004"
+        },
+        {
+          "classname": "tests.test_native_replay_storage",
+          "name": "test_full_cli_retains_storage_and_unchanged_bindings",
+          "time": "0.216"
+        },
+        {
+          "classname": "tests.test_native_replay_storage",
+          "name": "test_full_cli_refuses_unspecified_or_invalid_storage[unspecified]",
+          "time": "0.066"
+        },
+        {
+          "classname": "tests.test_native_replay_storage",
+          "name": "test_full_cli_refuses_unspecified_or_invalid_storage[missing]",
+          "time": "0.069"
+        },
+        {
+          "classname": "tests.test_native_replay_storage",
+          "name": "test_full_cli_refuses_unspecified_or_invalid_storage[file]",
+          "time": "0.069"
+        },
+        {
+          "classname": "tests.test_native_replay_storage",
+          "name": "test_explicit_storage_refuses_insufficient_space_and_write_failure",
+          "time": "0.002"
+        },
+        {
+          "classname": "tests.test_native_replay_storage",
+          "name": "test_freezer_retains_a_separate_operational_receipt",
+          "time": "0.123"
+        },
+        {
+          "classname": "tests.test_native_replay_storage",
+          "name": "test_full_cli_cannot_write_the_report_inside_frozen_inputs",
+          "time": "0.066"
+        },
+        {
+          "classname": "tests.test_native_replay_storage",
+          "name": "test_full_cli_requires_native_check_for_a_storage_argument",
+          "time": "0.067"
+        },
+        {
+          "classname": "tests.test_native_replay_storage",
+          "name": "test_native_report_refuses_changed_input_bytes",
+          "time": "0.125"
+        },
+        {
+          "classname": "tests.test_native_replay_storage",
+          "name": "test_freezer_cli_requires_storage_and_names_its_separate_receipt[unspecified]",
+          "time": "0.116"
+        },
+        {
+          "classname": "tests.test_native_replay_storage",
+          "name": "test_freezer_cli_requires_storage_and_names_its_separate_receipt[missing]",
+          "time": "0.115"
+        },
+        {
+          "classname": "tests.test_native_replay_storage",
+          "name": "test_freezer_cli_requires_storage_and_names_its_separate_receipt[valid]",
+          "time": "0.803"
+        }
+      ]
+    }
+  },
+  "tests": 307
+}
