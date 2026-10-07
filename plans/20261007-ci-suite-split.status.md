@@ -82,3 +82,7 @@ push changed only `plans/`, `reviews/`, `reports/` or documentation.
   pass (bundle now 42 tests), `just test-source` and `just test-nix` (86) pass.
   The record-only push `0d42c506` started no CI run because the pull request
   had a merge conflict; the cache-reuse check is repeated after this merge.
+- 2026-10-07: CI run 37613806880 for the merge `b789e185` (full scope on
+  Linux): Linux passed in 11.8 min; macOS reported in 6 s. The saved `v2`
+  cache is 3.1 GB. GitHub evicted the 6.2 GB `main` Linux `v1` cache while the
+  total exceeded 10 GB; `main` saves a `v2` cache after the merge.
