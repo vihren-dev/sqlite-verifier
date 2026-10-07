@@ -27,6 +27,12 @@ ROOTS = Path("build/gc-roots")
 FLAGS = ["--extra-experimental-features", "nix-command flakes"]
 TARGETS = ["tests", "runtime", "conformance", "parsers"]
 """Attributes of build-support/default.nix whose build closures the next run needs."""
+ROOT_TIMEOUT_SECONDS = 600
+"""Evaluating the targets or entering the development shell; both are cached after the checks."""
+FLAKE_TIMEOUT_SECONDS = 300
+"""Listing or realising flake inputs, which are already in the store after the checks."""
+COLLECT_TIMEOUT_SECONDS = 900
+"""Deleting the unrooted paths of a restored store of several gigabytes."""
 
 
 def root_commands(roots: Path) -> list[list[str]]:
@@ -54,7 +60,14 @@ def flake_input_paths(archive_json: str) -> list[str]:
 def run(command: list[str], timeout: float) -> str:
     """Run one Nix command; a failure stops the tool so that nothing is collected without roots."""
     print("+", " ".join(command), flush=True)
-    result = subprocess.run(command, check=True, capture_output=True, text=True, timeout=timeout)
+    try:
+        result = subprocess.run(command, check=True, capture_output=True, text=True, timeout=timeout)
+    except subprocess.CalledProcessError as error:
+        print(f"Command failed with exit code {error.returncode}: {' '.join(command)}\n"
+              f"{(error.stderr or '').strip()}\n"
+              "No store paths were removed. The cache is saved without garbage collection; "
+              "fix the command and run the workflow again to shrink it.", file=sys.stderr, flush=True)
+        raise
     if result.stderr.strip():
         print(result.stderr.strip().splitlines()[-1], flush=True)
     return result.stdout
@@ -64,12 +77,12 @@ def main() -> None:
     """Register all roots first; collect garbage only after every root exists."""
     ROOTS.mkdir(parents=True, exist_ok=True)
     for command in root_commands(ROOTS):
-        run(command, timeout=600)
-    archive = run(["nix", *FLAGS, "flake", "archive", "--json", "path:./nix"], timeout=300)
+        run(command, timeout=ROOT_TIMEOUT_SECONDS)
+    archive = run(["nix", *FLAGS, "flake", "archive", "--json", "path:./nix"], timeout=FLAKE_TIMEOUT_SECONDS)
     for index, path in enumerate(flake_input_paths(archive)):
         run(["nix-store", "--add-root", str(ROOTS / f"flake-input-{index}"), "--indirect",
-             "--realise", path], timeout=300)
-    run(["nix-store", "--gc"], timeout=900)
+             "--realise", path], timeout=FLAKE_TIMEOUT_SECONDS)
+    run(["nix-store", "--gc"], timeout=COLLECT_TIMEOUT_SECONDS)
 
 
 if __name__ == "__main__":

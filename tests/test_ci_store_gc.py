@@ -31,7 +31,8 @@ def test_flake_input_paths_include_nested_inputs() -> None:
     assert sorted(flake_input_paths(json.dumps(archive))) == ["/nix/store/a-source", "/nix/store/b-source"]
 
 
-def test_garbage_collection_runs_last_and_only_after_all_roots(tmp_path: Path) -> None:
+def test_garbage_collection_runs_last_and_only_after_all_roots(tmp_path: Path,
+                                                               capsys: pytest.CaptureFixture[str]) -> None:
     """A failed root command stops the tool before `nix-store --gc` can run."""
     calls: list[list[str]] = []
 
@@ -39,7 +40,7 @@ def test_garbage_collection_runs_last_and_only_after_all_roots(tmp_path: Path) -
         """Record the command; fail the development shell root."""
         calls.append(command)
         if "develop" in command:
-            raise subprocess.CalledProcessError(1, command)
+            raise subprocess.CalledProcessError(1, command, "", "error: shell unavailable")
         return subprocess.CompletedProcess(command, 0, "{}", "")
 
     with patch.object(ci_store_gc, "ROOTS", tmp_path / "roots"), \
@@ -47,6 +48,8 @@ def test_garbage_collection_runs_last_and_only_after_all_roots(tmp_path: Path) -
          pytest.raises(subprocess.CalledProcessError):
         ci_store_gc.main()
     assert not any(command[:2] == ["nix-store", "--gc"] for command in calls)
+    reported = capsys.readouterr().err
+    assert "error: shell unavailable" in reported and "No store paths were removed" in reported
 
     calls.clear()
 

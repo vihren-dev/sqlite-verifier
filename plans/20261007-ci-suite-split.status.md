@@ -67,3 +67,7 @@ push changed only `plans/`, `reviews/`, `reports/` or documentation.
   Fix `0d8cf966` passes `--skip-git-repo-check`; its review passed. Review of
   `437ce97c` found one must (package submodule imports skipped by the frontend
   check) and three shoulds; all fixed in `023d9df8`, whose review passed.
+- 2026-10-07: Review of `d3d84c15`: no must; named the garbage-collection
+  timeouts and reported the failed command's diagnostic (fixed). Deferred: the
+  `nix-tests-v1` restore prefix stays until both platforms have saved `v2`
+  caches, so the first run does not start from an empty store; then remove it.
