@@ -109,3 +109,12 @@ push changed only `plans/`, `reviews/`, `reports/` or documentation.
   docstrings, a timed-out garbage-collection command, the docs-only `main`
   push in the scope table, and a test that every working CI step is skipped
   on macOS pull requests (it also added the guard to two artifact steps).
+- 2026-10-07: Full local checks of the eight merges that change code (all nine
+  suites, source tests, Nix host tests): #48 executor, T13 transactions, T15
+  application keys, #50 Tcl values, T06 and T18b pass. T04c fails only
+  `test_native_workers.py`, which needs `ps` inside the Nix sandbox; T07 fails
+  six Atuin cases on its unapproved `SchemaBinding.lean`. Both failures occur
+  identically on the unmerged branch tips (checked with `tests.sample` at
+  `2c0de2ff` and `tests.atuin` at `49c100e5`), so the branches own them.
+  Bookmarks and all workspace working copies now point to the merges; review
+  log conflicts in four working copies were resolved by union.
