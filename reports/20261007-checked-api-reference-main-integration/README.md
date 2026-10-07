@@ -23,3 +23,11 @@ CLI and inventory checks and 35 passing subtests. Twelve native or Nix checks
 are explicitly deselected. `receipt.json` binds the raw files and these
 counts. Local expensive checks remain on hold at the resource guard. Hosted
 reference artifacts, ordinary acceptance and normal delivery remain required.
+
+Read-only Nix queries verify that both native runtime derivation graphs
+exclude the reference generator and reference derivation. The exact macOS
+runtime output already exists and is valid. Its 53-path output closure
+contains neither the generator nor a reference artifact. No runtime build
+or garbage collection runs. The Linux record is a derivation check; an
+actual Linux output closure is not claimed. Both original query records
+and their hashes are retained.

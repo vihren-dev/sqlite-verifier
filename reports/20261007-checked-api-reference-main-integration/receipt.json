@@ -22,6 +22,15 @@
   "hosted_checks_complete": false,
   "raw_files": {
     "journal-preservation.json": "cdf2a1c4cfb5536739c27f4d22110147893dd9913fe47874e4dd52cb7de59908",
-    "bounded.xml": "676c6182c715e76a3c0df735a51c2a8a9104a5cc682db0bf32bc26fe4682ca81"
+    "bounded.xml": "676c6182c715e76a3c0df735a51c2a8a9104a5cc682db0bf32bc26fe4682ca81",
+    "runtime-dependency-metadata.json": "2adfc13703fd5f7a9dc2ff8a6f86e1b726cf6916b0929fca04928057b45a3cdd",
+    "linux-runtime-dependency-metadata.json": "f832907eb2d82e4536665af51e927a6fb2532b58c69a87a67a15cbb834c44ac2"
+  },
+  "runtime_dependency_evidence": {
+    "darwin_actual_output_closure_checked": true,
+    "darwin_runtime_output": "/nix/store/1py3lx3dgzgv38l75g30gwc12vpji7gi-sqlite-verifier-runtime-1",
+    "darwin_output_closure_count": 53,
+    "linux_derivation_closure_checked": true,
+    "linux_actual_output_closure_checked": false
   }
 }

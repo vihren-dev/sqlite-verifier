@@ -586,3 +586,14 @@ The current development set has seven Nix suites. The earlier six-suite
 readiness wording is historical. Original native reference receipts are
 retained, and no new local expensive acceptance is claimed. Hosted
 reference artifacts, ordinary checks and normal delivery remain required.
+
+
+Draft [PR57](https://github.com/vihren-dev/sqlite-verifier/pull/57) is
+published at `773827a1`. CI `37663864057` is live and generating the
+reference on both native platforms. Read-only metadata checks verify
+that both runtime derivation graphs exclude the generator and reference
+output. The existing exact macOS runtime output is valid, and its
+53-path output closure contains no generator or reference artifact. No
+local runtime build or garbage collection runs. Actual Linux output
+closure and ordinary local acceptance remain required. This evidence
+checkpoint does not move the published branch while CI is live.
