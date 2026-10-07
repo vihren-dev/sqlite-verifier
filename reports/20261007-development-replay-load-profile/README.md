@@ -86,16 +86,20 @@ functions, and every retained derived caller counter. The check passes.
 ## Conditional next snapshot unit
 
 The smallest candidate is a canonical reference-size fast path for an ordinary
-`dict` reference and ordinary `str` digest after the existing shape, digest and
-membership checks. A validated SHA-256 hex reference has fixed canonical JSON
-size, so bounded expansion could avoid serializing that small object for every
-occurrence. Other Python JSON subclasses retain the existing serializer path;
+`dict` reference, ordinary sole `snapshot` key, and ordinary ASCII alphanumeric
+`str` digest after the existing shape, digest and membership checks. The exact
+size is the canonical empty-reference size plus digest length: 79 bytes for a
+SHA-256 hex digest. Bounded expansion could avoid serializing that small object
+for every occurrence. Subclasses and values outside that exact proof retain
+the existing serializer path, including escaped or multibyte strings;
 the default unbounded primitive and all malformed, missing and unused-pool
 checks retain their behavior. Independent exact-size and subclass tests would
 be required before such a change.
 
-The source and recorded counts identify 24,880 reference-size serializations
-within 37,089 expander serializations. Their time is not separated from pool
+The source at `native_storage.py:94`, `:100` and `:114` and recorded counts
+identify 7,833 pool, 4,376 skeleton and 24,880 reference-size serializations
+within 37,089 expander serializations. The pstats caller is the function at
+`:69`. Reference time is not separated from pool
 and skeleton serialization; the whole caller cost is 2.292367 profiled
 seconds. That is not an expected saving. A shared normalization cache would
 add lifetime and memory policy, while its directly measured decode/encode

@@ -420,3 +420,14 @@ authorized one Linux diagnostic below. No production change followed it.
   normalization cache has unobserved duplicate ratio and adds memory/lifetime
   policy; no cache or new snapshot change is implemented. The coordinator
   chooses any next unit after evidence review. The task remains IN PROGRESS.
+- 2026-10-07: Load-profile commit `03da2afb8c047fe0a258a7f820491d9add384821`
+  passed Claude review `20261007T085929Z-03da2afb`, session 79488 exit 0,
+  with zero must findings and two should naming findings. Named the authorized
+  load function and invocation policy, and made the success message use the
+  named record-count policy. The reviewer read code only; its validator
+  launcher required approval. Author bounded validation is terminal successful.
+  Clarified the conditional proposal's actual plain key/string and ASCII
+  proof, subtype fallback, source call sites and unseparated cost. No snapshot
+  code changed. Both findings have fixed journal resolutions, and bounded validation passes
+  again. Refactor review is pending; all raw evidence and the Linux target miss
+  remain unchanged.

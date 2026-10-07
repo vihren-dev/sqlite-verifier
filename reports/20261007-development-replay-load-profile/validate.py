@@ -26,6 +26,10 @@ PHASE_LIMIT = 120
 UNCHANGED_IDENTITY_FIELDS = ("source", "python", "archive")
 #: Loading must not invoke native evidence, worker replay, or compiled-model execution.
 FORBIDDEN_FUNCTIONS = {"native_replay", "replay_native_cases", "record_sql", "compiled_many", "checked_replay"}
+#: The authorized parent function loads every frozen binding without replay or selection.
+AUTHORIZED_LOAD_FUNCTION = ("/conformance/corpus.py", "load")
+#: One profiled invocation is allowed; reading pstats never repeats it.
+AUTHORIZED_LOAD_INVOCATIONS = 1
 
 
 def mapping(value: Json) -> dict[str, Json]:
@@ -73,7 +77,7 @@ def validate() -> None:
         assert len(content) == expected["uncompressedBytes"], name
     receipt, result = document("diagnostic/receipt.json"), document("diagnostic/load-result.json")
     assert summary["sourceCommit"] == receipt["sourceCommit"] == SOURCE_COMMIT
-    assert summary["actualLoadInvocations"] == 1 and summary["completedExit"] == 0
+    assert summary["actualLoadInvocations"] == AUTHORIZED_LOAD_INVOCATIONS and summary["completedExit"] == 0
     assert summary["productionChanges"] is False and summary["newRuntimeBuild"] is False
     assert summary["nativeReplayOrModelExecution"] is False and summary["taskStatus"] == "IN PROGRESS"
     assert summary["diagnosticOnly"] is True and receipt["diagnosticOnly"] is True and result["diagnosticOnly"] is True
@@ -125,8 +129,8 @@ def validate() -> None:
         statistics = pstats.Stats(str(path))
     functions = cast(dict[FunctionKey, ProfileEntry], statistics.stats)
     assert statistics.total_tt == summary["profileTotalSeconds"]
-    load_keys = [key for key in functions if key[0].endswith("/conformance/corpus.py") and key[2] == "load"]
-    assert len(load_keys) == 1 and functions[load_keys[0]][:2] == (1, 1)
+    load_keys = [key for key in functions if key[0].endswith(AUTHORIZED_LOAD_FUNCTION[0]) and key[2] == AUTHORIZED_LOAD_FUNCTION[1]]
+    assert len(load_keys) == 1 and functions[load_keys[0]][:2] == (AUTHORIZED_LOAD_INVOCATIONS, AUTHORIZED_LOAD_INVOCATIONS)
     assert not any(key[2] in FORBIDDEN_FUNCTIONS for key in functions)
     callers = document("callers-derived.json")
     for name, fields in callers.items():
@@ -140,7 +144,7 @@ def validate() -> None:
         content = raw(name)
         assert sha(content) == mapping(fields)["sha256"] and len(content) == mapping(fields)["bytes"]
     assert document("transfer-preflight-failure.json")["loadStarted"] is False
-    print("One all-binding 4,376-record load, unchanged hashes/profiles and original pstats/callers pass.")
+    print(f"One all-binding {LOADED_RECORD_COUNT:,}-record load, unchanged hashes/profiles and original pstats/callers pass.")
 
 
 if __name__ == "__main__":
