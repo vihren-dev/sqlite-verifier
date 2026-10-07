@@ -404,3 +404,10 @@ against installed files. [The native record](../reports/20261007-model-package-d
 retains the original bytes and binds the component inputs and archive. The
 final comment correction changes suite input identities, so all affected Nix
 suites are being rerun. Linux acceptance and final owner review remain pending.
+
+
+Native installed evidence commit `1dd2df24` passes independent review
+`20261007T170054Z-1dd2df24` with no findings. Retained raw-file SHA-256
+values and byte counts also match after local verification. A draft PR will
+run complete Linux package checks while final macOS Nix suites finish.
+This publication does not request final owner approval or mark T10 done.
