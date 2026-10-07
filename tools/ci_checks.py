@@ -17,6 +17,9 @@ BUNDLE_FIRST_SYSTEM = "aarch64-darwin"
 """Darwin completes the bundle gate before the complete recipe starts other test builders."""
 BUNDLE_BUILD_LIMIT_SECONDS = 900
 """Retain the existing Nix build budget while the bundle pytest command keeps its 420-second limit."""
+NIX_TEST_BUILD_OPTIONS = ("--option", "sandbox", "true", "--option", "sandbox-fallback", "false",
+                          "--extra-experimental-features", "nix-command flakes")
+"""Use the complete test recipes' sandbox policy for the isolated bundle target."""
 
 
 def run_checks(scope: str, mode: str, system: str, root: Path) -> None:
@@ -74,9 +77,7 @@ def run_checks(scope: str, mode: str, system: str, root: Path) -> None:
     (root / "build/ci-environment.json").write_text(json.dumps(versions, indent=2) + "\n")
     if system == BUNDLE_FIRST_SYSTEM:
         run("bundle", ["nix-build", "build-support/default.nix", "-A", "tests.bundle",
-            "--out-link", "build/nix-tests-bundle", "--option", "sandbox", "true",
-            "--option", "sandbox-fallback", "false", "--extra-experimental-features",
-            "nix-command flakes"], BUNDLE_BUILD_LIMIT_SECONDS)
+            "--out-link", "build/nix-tests-bundle", *NIX_TEST_BUILD_OPTIONS], BUNDLE_BUILD_LIMIT_SECONDS)
     run("checks-" + scope, ["just", "test-full" if scope == "test" else scope], 1800)
 
 

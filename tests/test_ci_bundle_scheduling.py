@@ -1,7 +1,9 @@
 """A failed isolated bundle gate retains diagnostics and stops the complete native recipe."""
 
 import json
+import importlib.util
 from pathlib import Path
+import shutil
 import subprocess
 import sys
 from unittest.mock import patch
@@ -57,3 +59,18 @@ def test_bundle_failure_stops_complete_recipe_and_retains_artifacts(
         assert "bundle timeout stdout" in captured.err
     else:
         assert "bundle failure stdout" in captured.out and "bundle failure stderr" in captured.err
+
+
+def test_corrupt_receipt_names_the_failed_payload(tmp_path: Path) -> None:
+    """A changed archived identity cannot become a passing receipt and gives an actionable diagnostic."""
+    source = Path(__file__).resolve().parents[1] / "reports/20261007-darwin-bundle-scheduling"
+    spec = importlib.util.spec_from_file_location("bundle_evidence_validator", source / "validate.py")
+    assert spec is not None and spec.loader is not None
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    copied = tmp_path / "receipt"
+    shutil.copytree(source, copied)
+    path = copied / "identity-before.json.gz"
+    path.write_bytes(path.read_bytes()[:-1] + b"x")
+    with pytest.raises(ValueError, match=r"identity-before.json.gz digest differs.*Compare"):
+        module.validate(copied)

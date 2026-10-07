@@ -7,7 +7,7 @@ from unittest.mock import patch
 
 import pytest
 
-from tools.ci_checks import run_checks
+from tools.ci_checks import NIX_TEST_BUILD_OPTIONS, run_checks
 from tests.runtime_support import CommandResult, CommandTimeout
 
 pytestmark = [pytest.mark.unit, pytest.mark.environment]
@@ -16,7 +16,7 @@ pytestmark = [pytest.mark.unit, pytest.mark.environment]
 @pytest.mark.parametrize("mode", ["source", "build"])
 @pytest.mark.parametrize("system", ["aarch64-darwin", "x86_64-linux"])
 def test_ci_modes_retain_fresh_checks(tmp_path: Path, mode: str, system: str) -> None:
-    """Both modes keep host checks; only declared Nix mode supplies artifacts and cached build outputs."""
+    """Both modes retain complete host recipes and the selected native system's bundle schedule."""
     runtime = tmp_path / "runtime"
     (runtime / "build").mkdir(parents=True)
     original_bin = tmp_path / "original-bin"
@@ -47,10 +47,11 @@ def test_ci_modes_retain_fresh_checks(tmp_path: Path, mode: str, system: str) ->
     if system == "aarch64-darwin":
         assert len(bundle_commands) == 2
         assert commands[-2] == bundle_commands[-1]
+        assert NIX_TEST_BUILD_OPTIONS == ("--option", "sandbox", "true", "--option", "sandbox-fallback", "false",
+                                          "--extra-experimental-features", "nix-command flakes")
         assert bundle_commands[0] == bundle_commands[1] == [
             "nix-build", "build-support/default.nix", "-A", "tests.bundle",
-            "--out-link", "build/nix-tests-bundle", "--option", "sandbox", "true",
-            "--option", "sandbox-fallback", "false", "--extra-experimental-features", "nix-command flakes"]
+            "--out-link", "build/nix-tests-bundle", *NIX_TEST_BUILD_OPTIONS]
     else:
         assert bundle_commands == []
     if mode == "build":

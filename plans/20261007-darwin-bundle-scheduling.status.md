@@ -54,3 +54,11 @@ streams, JUnit, boundaries and identities are retained under
   The bounded read-only validator passed. Original receipt bytes are unchanged.
 - Independent review, latest-main metadata integration and new hosted acceptance
   remain pending. The isolated native reproduction was not repeated.
+- Review `20261007T090030Z-02f434b3` completed with no must findings and three
+  should findings. Named the hardened build options and retained counts, added
+  actionable receipt diagnostics, and checked that corrupted archived identity
+  bytes fail. The correction does not change a command, suite or receipt byte.
+- Correction checks passed: 16 tests and 28 subtests in 3.15 seconds; the
+  retained-evidence validator passed again. All three findings are recorded
+  fixed in the append-only journal. Correction review and publication remain
+  pending.
