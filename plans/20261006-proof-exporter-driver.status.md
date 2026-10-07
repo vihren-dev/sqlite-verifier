@@ -14,6 +14,12 @@ Source: [issue #29](https://github.com/vihren-dev/sqlite-verifier/issues/29).
 
 ## Progress
 
+- 2026-10-07: The scoped Darwin CI correction is tested in the host
+  coordinator and independently reviewed with no unresolved findings. It
+  completes the identical bundle target before the existing complete recipe;
+  all suite membership, guards and approved exporter bytes are unchanged.
+  Latest-main integration review and successful new hosted acceptance remain pending.
+
 - 2026-10-06: Preserved the replay-headroom workspace unchanged while its
   deadline specification question awaits owner feedback. Inspected the idle
   catalog workspace; it was clean after the reviewed catalog task. Started

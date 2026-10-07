@@ -1,0 +1,219 @@
+﻿2026-10-07T08:22:35.3932693Z Current runner version: '2.337.0'
+2026-10-07T08:22:35.3948080Z ##[group]Runner Image Provisioner
+2026-10-07T08:22:35.3948555Z Hosted Compute Agent
+2026-10-07T08:22:35.3948926Z Version: 20260901.588
+2026-10-07T08:22:35.3949268Z Commit: f88ec8081b781fac6c440065ac7ff9e710ce3d0b
+2026-10-07T08:22:35.3949671Z Build Date: 2026-09-01T19:56:44Z
+2026-10-07T08:22:35.3950049Z Worker ID: {b5ab3b9f-33c2-4f69-8e61-77b0c91faa9a}
+2026-10-07T08:22:35.3950426Z Azure Region: centralus
+2026-10-07T08:22:35.3950771Z ##[endgroup]
+2026-10-07T08:22:35.3951495Z ##[group]Operating System
+2026-10-07T08:22:35.3951828Z Ubuntu
+2026-10-07T08:22:35.3952112Z 22.04.5
+2026-10-07T08:22:35.3952504Z LTS
+2026-10-07T08:22:35.3952801Z ##[endgroup]
+2026-10-07T08:22:35.3953087Z ##[group]Runner Image
+2026-10-07T08:22:35.3953390Z Image: ubuntu-22.04
+2026-10-07T08:22:35.3953715Z Version: 20260927.309.1
+2026-10-07T08:22:35.3954375Z Included Software: https://github.com/actions/runner-images/blob/ubuntu22/20260927.309/images/ubuntu/Ubuntu2204-Readme.md
+2026-10-07T08:22:35.3955206Z Image Release: https://github.com/actions/runner-images/releases/tag/ubuntu22%2F20260927.309
+2026-10-07T08:22:35.3955714Z ##[endgroup]
+2026-10-07T08:22:35.3956336Z ##[group]GITHUB_TOKEN Permissions
+2026-10-07T08:22:35.3957519Z Contents: write
+2026-10-07T08:22:35.3957891Z Metadata: read
+2026-10-07T08:22:35.3958189Z ##[endgroup]
+2026-10-07T08:22:35.3959611Z Secret source: Actions
+2026-10-07T08:22:35.3960091Z Cache mode: write
+2026-10-07T08:22:35.3960524Z Prepare workflow directory
+2026-10-07T08:22:35.4174278Z Prepare all required actions
+2026-10-07T08:22:35.4203872Z Getting action download info
+2026-10-07T08:22:35.6614308Z Download action repository 'actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803' (SHA:d23441a48e516b6c34aea4fa41551a30e30af803)
+2026-10-07T08:22:35.7571258Z Download action repository 'actions/download-artifact@634f93cb2916e3fdff6788551b99b062d0335ce0' (SHA:634f93cb2916e3fdff6788551b99b062d0335ce0)
+2026-10-07T08:22:36.2345679Z Complete job name: Publish checked native archives
+2026-10-07T08:22:36.2739889Z ##[group]Run actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803
+2026-10-07T08:22:36.2740391Z with:
+2026-10-07T08:22:36.2740634Z   persist-credentials: false
+2026-10-07T08:22:36.2740928Z   repository: vihren-dev/sqlite-verifier
+2026-10-07T08:22:36.2743173Z   token: ***
+2026-10-07T08:22:36.2743405Z   ssh-strict: true
+2026-10-07T08:22:36.2743640Z   ssh-user: git
+2026-10-07T08:22:36.2743866Z   clean: true
+2026-10-07T08:22:36.2744105Z   sparse-checkout-cone-mode: true
+2026-10-07T08:22:36.2744388Z   fetch-depth: 1
+2026-10-07T08:22:36.2744620Z   fetch-tags: false
+2026-10-07T08:22:36.2744860Z   show-progress: true
+2026-10-07T08:22:36.2745102Z   lfs: false
+2026-10-07T08:22:36.2745327Z   submodules: false
+2026-10-07T08:22:36.2745575Z   set-safe-directory: true
+2026-10-07T08:22:36.2745848Z   allow-unsafe-pr-checkout: false
+2026-10-07T08:22:36.2746196Z ##[endgroup]
+2026-10-07T08:22:36.3347607Z Syncing repository: vihren-dev/sqlite-verifier
+2026-10-07T08:22:36.3349280Z ##[group]Getting Git version info
+2026-10-07T08:22:36.3349936Z Working directory is '/home/runner/work/sqlite-verifier/sqlite-verifier'
+2026-10-07T08:22:36.3350887Z [command]/usr/bin/git version
+2026-10-07T08:22:36.3378658Z git version 2.55.0
+2026-10-07T08:22:36.3392576Z ##[endgroup]
+2026-10-07T08:22:36.3408294Z Temporarily overriding HOME='/home/runner/work/_temp/c426a4b5-8178-4676-a694-0b8a5e844a9e' before making global git config changes
+2026-10-07T08:22:36.3409518Z Adding repository directory to the temporary git global config as a safe directory
+2026-10-07T08:22:36.3412596Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/sqlite-verifier/sqlite-verifier
+2026-10-07T08:22:36.3437471Z Deleting the contents of '/home/runner/work/sqlite-verifier/sqlite-verifier'
+2026-10-07T08:22:36.3440341Z ##[group]Determining repository object format
+2026-10-07T08:22:36.3441647Z ##[endgroup]
+2026-10-07T08:22:36.3442264Z ##[group]Initializing the repository
+2026-10-07T08:22:36.3444887Z [command]/usr/bin/git init /home/runner/work/sqlite-verifier/sqlite-verifier
+2026-10-07T08:22:36.3537408Z hint: Using 'master' as the name for the initial branch. This default branch name
+2026-10-07T08:22:36.3538496Z hint: will change to "main" in Git 3.0. To configure the initial branch name
+2026-10-07T08:22:36.3538987Z hint: to use in all of your new repositories, which will suppress this warning,
+2026-10-07T08:22:36.3539372Z hint: call:
+2026-10-07T08:22:36.3539584Z hint:
+2026-10-07T08:22:36.3539904Z hint: 	git config --global init.defaultBranch <name>
+2026-10-07T08:22:36.3540228Z hint:
+2026-10-07T08:22:36.3540525Z hint: Names commonly chosen instead of 'master' are 'main', 'trunk' and
+2026-10-07T08:22:36.3540998Z hint: 'development'. The just-created branch can be renamed via this command:
+2026-10-07T08:22:36.3541393Z hint:
+2026-10-07T08:22:36.3541609Z hint: 	git branch -m <name>
+2026-10-07T08:22:36.3541850Z hint:
+2026-10-07T08:22:36.3542172Z hint: Disable this message with "git config set advice.defaultBranchName false"
+2026-10-07T08:22:36.3543214Z Initialized empty Git repository in /home/runner/work/sqlite-verifier/sqlite-verifier/.git/
+2026-10-07T08:22:36.3545476Z [command]/usr/bin/git remote add origin https://github.com/vihren-dev/sqlite-verifier
+2026-10-07T08:22:36.3569175Z ##[endgroup]
+2026-10-07T08:22:36.3569863Z ##[group]Disabling automatic garbage collection
+2026-10-07T08:22:36.3571920Z [command]/usr/bin/git config --local gc.auto 0
+2026-10-07T08:22:36.3590496Z ##[endgroup]
+2026-10-07T08:22:36.3591089Z ##[group]Setting up auth
+2026-10-07T08:22:36.3591569Z Removing SSH command configuration
+2026-10-07T08:22:36.3595916Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-10-07T08:22:36.3621032Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-10-07T08:22:36.3802408Z Removing HTTP extra header
+2026-10-07T08:22:36.3809479Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-10-07T08:22:36.3840470Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-10-07T08:22:36.3943158Z Removing includeIf entries pointing to credentials config files
+2026-10-07T08:22:36.3948157Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-10-07T08:22:36.3966802Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-10-07T08:22:36.4071574Z [command]/usr/bin/git config --file /home/runner/work/_temp/git-credentials-48e4c190-f3f9-49d6-a06a-9d8c9a3bc7e5.config http.https://github.com/.extraheader AUTHORIZATION: basic ***
+2026-10-07T08:22:36.4093752Z [command]/usr/bin/git config --local includeIf.gitdir:/home/runner/work/sqlite-verifier/sqlite-verifier/.git.path /home/runner/work/_temp/git-credentials-48e4c190-f3f9-49d6-a06a-9d8c9a3bc7e5.config
+2026-10-07T08:22:36.4112658Z [command]/usr/bin/git config --local includeIf.gitdir:/home/runner/work/sqlite-verifier/sqlite-verifier/.git/worktrees/*.path /home/runner/work/_temp/git-credentials-48e4c190-f3f9-49d6-a06a-9d8c9a3bc7e5.config
+2026-10-07T08:22:36.4128583Z [command]/usr/bin/git config --local includeIf.gitdir:/github/workspace/.git.path /github/runner_temp/git-credentials-48e4c190-f3f9-49d6-a06a-9d8c9a3bc7e5.config
+2026-10-07T08:22:36.4146454Z [command]/usr/bin/git config --local includeIf.gitdir:/github/workspace/.git/worktrees/*.path /github/runner_temp/git-credentials-48e4c190-f3f9-49d6-a06a-9d8c9a3bc7e5.config
+2026-10-07T08:22:36.4166384Z ##[endgroup]
+2026-10-07T08:22:36.4166975Z ##[group]Fetching the repository
+2026-10-07T08:22:36.4172295Z [command]/usr/bin/git -c protocol.version=2 fetch --no-tags --prune --no-recurse-submodules --depth=1 origin +refs/tags/v0.1.2:refs/tags/v0.1.2
+2026-10-07T08:22:37.3508178Z From https://github.com/vihren-dev/sqlite-verifier
+2026-10-07T08:22:37.3509225Z  * [new tag]         v0.1.2     -> v0.1.2
+2026-10-07T08:22:37.3515479Z [command]/usr/bin/git tag --list v0.1.2
+2026-10-07T08:22:37.3529017Z v0.1.2
+2026-10-07T08:22:37.3533211Z [command]/usr/bin/git rev-parse refs/tags/v0.1.2^{commit}
+2026-10-07T08:22:37.3545763Z bc9e2dce58f755b608cf00e545162257b81ab51a
+2026-10-07T08:22:37.3547849Z ##[endgroup]
+2026-10-07T08:22:37.3548565Z ##[group]Determining the checkout info
+2026-10-07T08:22:37.3549387Z ##[endgroup]
+2026-10-07T08:22:37.3551569Z [command]/usr/bin/git sparse-checkout disable
+2026-10-07T08:22:37.3574378Z [command]/usr/bin/git config --local --unset-all extensions.worktreeConfig
+2026-10-07T08:22:37.3588584Z ##[group]Checking out the ref
+2026-10-07T08:22:37.3590455Z [command]/usr/bin/git checkout --progress --force refs/tags/v0.1.2
+2026-10-07T08:22:37.4723590Z Note: switching to 'refs/tags/v0.1.2'.
+2026-10-07T08:22:37.4724168Z 
+2026-10-07T08:22:37.4724622Z You are in 'detached HEAD' state. You can look around, make experimental
+2026-10-07T08:22:37.4725549Z changes and commit them, and you can discard any commits you make in this
+2026-10-07T08:22:37.4726394Z state without impacting any branches by switching back to a branch.
+2026-10-07T08:22:37.4726887Z 
+2026-10-07T08:22:37.4727242Z If you want to create a new branch to retain commits you create, you may
+2026-10-07T08:22:37.4728011Z do so (now or later) by using -c with the switch command. Example:
+2026-10-07T08:22:37.4728468Z 
+2026-10-07T08:22:37.4728672Z   git switch -c <new-branch-name>
+2026-10-07T08:22:37.4728965Z 
+2026-10-07T08:22:37.4729150Z Or undo this operation with:
+2026-10-07T08:22:37.4729447Z 
+2026-10-07T08:22:37.4729617Z   git switch -
+2026-10-07T08:22:37.4729803Z 
+2026-10-07T08:22:37.4730043Z Turn off this advice by setting config variable advice.detachedHead to false
+2026-10-07T08:22:37.4730407Z 
+2026-10-07T08:22:37.4730658Z HEAD is now at bc9e2dc Merge pull request #43 from vihren-dev/tasks/lean-4-34-1
+2026-10-07T08:22:37.4733780Z ##[endgroup]
+2026-10-07T08:22:37.4758471Z [command]/usr/bin/git log -1 --format=%H
+2026-10-07T08:22:37.4771541Z bc9e2dce58f755b608cf00e545162257b81ab51a
+2026-10-07T08:22:37.4779595Z ##[group]Removing auth
+2026-10-07T08:22:37.4780056Z Removing SSH command configuration
+2026-10-07T08:22:37.4780510Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-10-07T08:22:37.4796659Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-10-07T08:22:37.4892838Z Removing HTTP extra header
+2026-10-07T08:22:37.4894795Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-10-07T08:22:37.4909777Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-10-07T08:22:37.4999267Z Removing includeIf entries pointing to credentials config files
+2026-10-07T08:22:37.5000696Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-10-07T08:22:37.5011591Z includeif.gitdir:/home/runner/work/sqlite-verifier/sqlite-verifier/.git.path
+2026-10-07T08:22:37.5012526Z includeif.gitdir:/home/runner/work/sqlite-verifier/sqlite-verifier/.git/worktrees/*.path
+2026-10-07T08:22:37.5013109Z includeif.gitdir:/github/workspace/.git.path
+2026-10-07T08:22:37.5013503Z includeif.gitdir:/github/workspace/.git/worktrees/*.path
+2026-10-07T08:22:37.5016092Z [command]/usr/bin/git config --local --get-all includeif.gitdir:/home/runner/work/sqlite-verifier/sqlite-verifier/.git.path
+2026-10-07T08:22:37.5026274Z /home/runner/work/_temp/git-credentials-48e4c190-f3f9-49d6-a06a-9d8c9a3bc7e5.config
+2026-10-07T08:22:37.5031435Z [command]/usr/bin/git config --local --unset includeif.gitdir:/home/runner/work/sqlite-verifier/sqlite-verifier/.git.path /home/runner/work/_temp/git-credentials-48e4c190-f3f9-49d6-a06a-9d8c9a3bc7e5.config
+2026-10-07T08:22:37.5049484Z [command]/usr/bin/git config --local --get-all includeif.gitdir:/home/runner/work/sqlite-verifier/sqlite-verifier/.git/worktrees/*.path
+2026-10-07T08:22:37.5060605Z /home/runner/work/_temp/git-credentials-48e4c190-f3f9-49d6-a06a-9d8c9a3bc7e5.config
+2026-10-07T08:22:37.5065673Z [command]/usr/bin/git config --local --unset includeif.gitdir:/home/runner/work/sqlite-verifier/sqlite-verifier/.git/worktrees/*.path /home/runner/work/_temp/git-credentials-48e4c190-f3f9-49d6-a06a-9d8c9a3bc7e5.config
+2026-10-07T08:22:37.5084183Z [command]/usr/bin/git config --local --get-all includeif.gitdir:/github/workspace/.git.path
+2026-10-07T08:22:37.5128387Z /github/runner_temp/git-credentials-48e4c190-f3f9-49d6-a06a-9d8c9a3bc7e5.config
+2026-10-07T08:22:37.5134323Z [command]/usr/bin/git config --local --unset includeif.gitdir:/github/workspace/.git.path /github/runner_temp/git-credentials-48e4c190-f3f9-49d6-a06a-9d8c9a3bc7e5.config
+2026-10-07T08:22:37.5150252Z [command]/usr/bin/git config --local --get-all includeif.gitdir:/github/workspace/.git/worktrees/*.path
+2026-10-07T08:22:37.5160282Z /github/runner_temp/git-credentials-48e4c190-f3f9-49d6-a06a-9d8c9a3bc7e5.config
+2026-10-07T08:22:37.5164351Z [command]/usr/bin/git config --local --unset includeif.gitdir:/github/workspace/.git/worktrees/*.path /github/runner_temp/git-credentials-48e4c190-f3f9-49d6-a06a-9d8c9a3bc7e5.config
+2026-10-07T08:22:37.5181255Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-10-07T08:22:37.5271637Z Removing credentials config '/home/runner/work/_temp/git-credentials-48e4c190-f3f9-49d6-a06a-9d8c9a3bc7e5.config'
+2026-10-07T08:22:37.5278086Z ##[endgroup]
+2026-10-07T08:22:37.5414689Z ##[group]Run actions/download-artifact@634f93cb2916e3fdff6788551b99b062d0335ce0
+2026-10-07T08:22:37.5415146Z with:
+2026-10-07T08:22:37.5415386Z   pattern: runtime-*
+2026-10-07T08:22:37.5415661Z   path: release-assets
+2026-10-07T08:22:37.5415922Z   merge-multiple: true
+2026-10-07T08:22:37.5416203Z   repository: vihren-dev/sqlite-verifier
+2026-10-07T08:22:37.5416509Z   run-id: 37591468199
+2026-10-07T08:22:37.5416762Z ##[endgroup]
+2026-10-07T08:22:37.6352911Z (node:2109) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-10-07T08:22:37.6353957Z (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-10-07T08:22:37.8066374Z Found 6 artifact(s)
+2026-10-07T08:22:37.8067838Z Filtering artifacts by pattern 'runtime-*'
+2026-10-07T08:22:37.8079481Z Preparing to download the following artifacts:
+2026-10-07T08:22:37.8081824Z - runtime-aarch64-darwin (ID: 11469209010, Size: 1125751416, Expected Digest: sha256:1f4bad02e574c8e34eb0b0bb7b2714170972709462234ccaaf6275a2d16f2319)
+2026-10-07T08:22:37.8085209Z - runtime-x86_64-linux (ID: 11468548282, Size: 949180881, Expected Digest: sha256:ec75acecccdef60f806ccaec7e2b157fa6237357f09d4729ac873fbb1977de9c)
+2026-10-07T08:22:37.9976522Z Redirecting to blob download url: https://productionresultssa4.blob.core.windows.net/actions-results/b9f0a429-1baa-8d75-aafb-701a4e21ad40/workflow-job-run-f2c3007b-5a60-5a42-a080-796c1ae8c950/artifacts/756536d8b9cbe3671552de1ef2fc349c2967769d4eb8b4c12ae31f5fa07f461e.zip
+2026-10-07T08:22:37.9981242Z Starting download of artifact to: /home/runner/work/sqlite-verifier/sqlite-verifier/release-assets
+2026-10-07T08:22:38.0770134Z Redirecting to blob download url: https://productionresultssa4.blob.core.windows.net/actions-results/b9f0a429-1baa-8d75-aafb-701a4e21ad40/workflow-job-run-b9c352f6-7a63-5c71-9f1a-a8930e13083e/artifacts/7767e3b391a5e47cf62da84df86a04dd873195116d1ca22b6b525adf09ba9674.zip
+2026-10-07T08:22:38.0774280Z Starting download of artifact to: /home/runner/work/sqlite-verifier/sqlite-verifier/release-assets
+2026-10-07T08:22:38.1612526Z (node:2109) [DEP0005] DeprecationWarning: Buffer() is deprecated due to security and usability issues. Please use the Buffer.alloc(), Buffer.allocUnsafe(), or Buffer.from() methods instead.
+2026-10-07T08:22:55.8719334Z SHA256 digest of downloaded artifact is ec75acecccdef60f806ccaec7e2b157fa6237357f09d4729ac873fbb1977de9c
+2026-10-07T08:22:55.8776882Z Artifact download completed successfully.
+2026-10-07T08:23:08.9114163Z SHA256 digest of downloaded artifact is 1f4bad02e574c8e34eb0b0bb7b2714170972709462234ccaaf6275a2d16f2319
+2026-10-07T08:23:08.9114557Z Artifact download completed successfully.
+2026-10-07T08:23:08.9114856Z Total of 2 artifact(s) downloaded
+2026-10-07T08:23:08.9118256Z Download artifact has finished successfully
+2026-10-07T08:23:08.9867395Z ##[group]Run (cd release-assets && sha256sum --check ./*.sha256)
+2026-10-07T08:23:08.9867747Z [36;1m(cd release-assets && sha256sum --check ./*.sha256)[0m
+2026-10-07T08:23:08.9867951Z [36;1mflags=()[0m
+2026-10-07T08:23:08.9868146Z [36;1mif [[ "$RELEASE_TAG" == *-* ]]; then flags+=(--prerelease); fi[0m
+2026-10-07T08:23:08.9868513Z [36;1mgh release create "$RELEASE_TAG" "${flags[@]}" --verify-tag --title "SQLite verifier $RELEASE_TAG" \[0m
+2026-10-07T08:23:08.9868904Z [36;1m  --notes-file docs/release-notes.md release-assets/*.tar.gz release-assets/*.sha256[0m
+2026-10-07T08:23:09.0510199Z shell: /usr/bin/bash -e {0}
+2026-10-07T08:23:09.0510428Z env:
+2026-10-07T08:23:09.0512294Z   GH_TOKEN: ***
+2026-10-07T08:23:09.0512580Z   RELEASE_TAG: v0.1.2
+2026-10-07T08:23:09.0512742Z ##[endgroup]
+2026-10-07T08:23:11.2796545Z sqlite-verifier-aarch64-darwin.tar.gz: OK
+2026-10-07T08:23:13.0213872Z sqlite-verifier-x86_64-linux.tar.gz: OK
+2026-10-07T08:23:49.8841453Z https://github.com/vihren-dev/sqlite-verifier/releases/tag/v0.1.2
+2026-10-07T08:23:49.8920449Z Post job cleanup.
+2026-10-07T08:23:49.9414551Z [command]/usr/bin/git version
+2026-10-07T08:23:49.9426711Z git version 2.55.0
+2026-10-07T08:23:49.9450319Z Temporarily overriding HOME='/home/runner/work/_temp/1c1b0324-0d26-4d0b-890e-dfccdb09ca51' before making global git config changes
+2026-10-07T08:23:49.9451077Z Adding repository directory to the temporary git global config as a safe directory
+2026-10-07T08:23:49.9453752Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/sqlite-verifier/sqlite-verifier
+2026-10-07T08:23:49.9470621Z Removing SSH command configuration
+2026-10-07T08:23:49.9475097Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-10-07T08:23:49.9492593Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-10-07T08:23:49.9602089Z Removing HTTP extra header
+2026-10-07T08:23:49.9605860Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-10-07T08:23:49.9623517Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-10-07T08:23:49.9734919Z Removing includeIf entries pointing to credentials config files
+2026-10-07T08:23:49.9739616Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-10-07T08:23:49.9756960Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-10-07T08:23:50.0010797Z Cleaning up orphan processes
+2026-10-07T08:23:50.0144537Z ##[warning]Node.js 20 is deprecated. The following actions target Node.js 20 but are being forced to run on Node.js 24: actions/download-artifact@634f93cb2916e3fdff6788551b99b062d0335ce0. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/

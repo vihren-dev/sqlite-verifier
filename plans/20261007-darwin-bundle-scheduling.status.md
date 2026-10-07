@@ -68,5 +68,19 @@ streams, JUnit, boundaries and identities are retained under
   removed the redundant comparison with a copied literal.
 - The drift check initially tried to parse comments as shell commands and
   failed on a prose apostrophe. Restricted it to actual Nix command lines.
-  The final bounded suite passed 17 tests and 28 subtests in 3.15 seconds.
+  The final bounded suite passed 17 tests and 28 subtests in 3.14 seconds.
   Recorded the remaining finding fixed; final correction review remains pending.
+- Review `20261007T090723Z-6b9bc630` completed with no findings. Integrated
+  reviewed main `aeffab2558c01cce42a3a39208b21f84292d447c`, whose delta from
+  the previous base contains only documentation, plans, release receipts and
+  journal rows. The 13 incoming metadata files are exact; the CI document
+  combines both additions.
+- Preserved all 96 own journal rows and 80 main rows, with 76 shared exact
+  occurrences represented once: 100 rows retain both complete orders and
+  multiplicities, including the pending final correction review. All 101
+  approved exporter files and 31 checked CI/receipt files are unchanged.
+- Metadata-integration review and hosted acceptance remain pending. The task
+  is IN PROGRESS; no native reproduction or full gate was repeated.
+- Metadata link checks passed: two tests in 0.72 seconds. The read-only
+  receipt validator passed again; original raw payloads and command guards
+  remain unchanged.

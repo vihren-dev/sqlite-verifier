@@ -1,0 +1,47 @@
+{
+  "release": {
+    "tag": "v0.1.2",
+    "id": 405539733,
+    "url": "https://github.com/vihren-dev/sqlite-verifier/releases/tag/v0.1.2",
+    "publishedAt": "2026-10-07T08:23:49Z",
+    "draft": false,
+    "prerelease": false,
+    "commit": "bc9e2dce58f755b608cf00e545162257b81ab51a"
+  },
+  "workflow": {
+    "runId": 37591468199,
+    "linuxJob": 112693715520,
+    "darwinJob": 112693715743,
+    "publicationJob": 112699862906,
+    "allConclusions": "success"
+  },
+  "assets": [
+    {
+      "name": "sqlite-verifier-aarch64-darwin.tar.gz",
+      "size": 1125750944,
+      "sha256": "d7feb85ccd2fa8eb2083328f544ea980897c622a9bb4bc95159185a8e22eaf4b",
+      "archiveAssetId": 618062279,
+      "archiveUrl": "https://github.com/vihren-dev/sqlite-verifier/releases/download/v0.1.2/sqlite-verifier-aarch64-darwin.tar.gz",
+      "checksumAssetId": 618062273,
+      "checksumUrl": "https://github.com/vihren-dev/sqlite-verifier/releases/download/v0.1.2/sqlite-verifier-aarch64-darwin.tar.gz.sha256",
+      "checksumSha256": "c09892a05d27022839040abdbc7481b371f955eb15197a5684d5e86cbc5509bc"
+    },
+    {
+      "name": "sqlite-verifier-x86_64-linux.tar.gz",
+      "size": 949180419,
+      "sha256": "f9096dca9349df801aa8f53246e0bbfda2a8adef934a2c4882dd884ee4c3c2c9",
+      "archiveAssetId": 618062278,
+      "archiveUrl": "https://github.com/vihren-dev/sqlite-verifier/releases/download/v0.1.2/sqlite-verifier-x86_64-linux.tar.gz",
+      "checksumAssetId": 618062277,
+      "checksumUrl": "https://github.com/vihren-dev/sqlite-verifier/releases/download/v0.1.2/sqlite-verifier-x86_64-linux.tar.gz.sha256",
+      "checksumSha256": "17703e35f4c23965b9f7d0a9ba33e6167db6cde081cc10b5814d1624daf29600"
+    }
+  ],
+  "verification": {
+    "remoteTagMatchesCommit": true,
+    "checksumFilesMatchArchiveAssetDigests": true,
+    "checksumFilesMatchOwnAssetDigests": true,
+    "nativeArchivesDownloadedAgain": false,
+    "archiveBytesCheckedByPublicationWorkflow": true
+  }
+}

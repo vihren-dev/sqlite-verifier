@@ -106,11 +106,12 @@ Documentation routing does not authorize changed approved sources or manifests.
 ## Maintainer release
 
 From the primary checkout, after reviewed `main` CI is green and release notes
-are current, create a fresh release tag and transport it (use a hyphenated version for a prerelease):
+are current, choose an unused version tag that starts with `v`. Use a hyphen
+in the version for a prerelease. Replace `VERSION` in these commands with that tag:
 
 ```sh
-jj tag set v0.1.2 -r main
-git push origin refs/tags/v0.1.2
+jj tag set VERSION -r main
+git push origin refs/tags/VERSION
 ```
 
 The installed Jujutsu supports tag creation, but its push command transports
@@ -122,6 +123,13 @@ a fix. The owner accepted the Step 1 product on 2026-09-25. Stable v0.1.1 was
 published on 2026-09-28 after both complete platform jobs passed twice at `7a99c71f`;
 published checksum files match the archive asset digests. The failed v0.1.0 tag
 remains unchanged, and v0.1.0-rc.1 is an earlier engineering preview.
+
+Stable [v0.1.2](https://github.com/vihren-dev/sqlite-verifier/releases/tag/v0.1.2)
+was published on 2026-10-07 from reviewed merge `bc9e2dce`. Both native package
+jobs and checksum-verified publication passed in workflow `37591468199`.
+Its public checksum files match the uploaded archive asset digests. The
+[release record](../reports/20261007-lean-4341-release/README.md) retains the
+asset identities and verification scope. This tag remains unchanged.
 
 The manually dispatched `ADR 0003 P1 measurement` workflow
 (`.github/workflows/adr3-p1.yml`) runs the latency matrix on Linux and uploads its
