@@ -134,6 +134,20 @@ unrelated checks are deselected. Original JUnit files are retained under
 `build/t13-refreshed-suites-darwin/`. The review suggestion is recorded as
 fixed. Complete acceptance of the three refreshed suites remains required.
 
+Correction `2c9d7322` passes independent review with no findings
+(`20261007T134416Z-2c9d7322`). The complete native macOS Nix command is
+terminal exit 0: model passes all 51 checks in 63.900 seconds, frozen passes
+all 152 in 272.087 seconds, and harness passes all 126 in 2.385 seconds.
+There are no failures, errors or skips. Both transaction files execute in
+their actual targets: seven checks in frozen and six in harness. The
+1,200-second suite guard, 300-second per-test guard and hardened sandbox
+settings are unchanged; the overall local command has a 1,800-second guard.
+The [native record](../reports/20261007-grouped-immediate-transactions-native/README.md)
+retains the complete original log, all three XML files, source bindings and
+actual store outputs. No formatting failure occurs. The old failure's cause
+remains unexplained, and no old receipt is relabeled. Linux and hosted
+acceptance, independent evidence review and normal PR delivery remain required.
+
 ## Decisions waiting for the owner
 
 - None for the limited diagnostic. The owner authorized it on 2026-10-06.
