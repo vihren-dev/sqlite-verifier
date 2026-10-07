@@ -13,11 +13,13 @@ import pytest
 ROOT = Path(__file__).resolve().parents[1]
 GUARD = "env.PLATFORM_RUNS == 'true'"
 """The condition that limits a step to the platforms that check this event."""
+EXPLANATION_STEP = "Skip macOS checks on pull requests"
+"""The one step that runs on macOS pull requests; it only explains why nothing else runs."""
 pytestmark = [pytest.mark.unit]
 
 
 def check_job_steps() -> list[tuple[str, str]]:
-    """Name and condition of each step of the check job, read from the workflow text."""
+    """Name and condition of each step of the check job, so the tests can verify the platform guard."""
     text = (ROOT / ".github/workflows/ci.yml").read_text(encoding="utf-8")
     job = text[text.index("\n  check:\n"):text.index("\n  release:\n")]
     steps: list[tuple[str, str]] = []
@@ -42,6 +44,6 @@ def test_every_working_step_is_guarded() -> None:
     steps = check_job_steps()
     assert steps, "No steps found in the check job"
     unguarded = [name for name, condition in steps
-                 if GUARD not in condition and name != "Skip macOS checks on pull requests"]
+                 if GUARD not in condition and name != EXPLANATION_STEP]
     assert not unguarded, f"Steps that would run on macOS pull requests: {unguarded}"
-    assert dict(steps)["Skip macOS checks on pull requests"] == "env.PLATFORM_RUNS != 'true'"
+    assert dict(steps)[EXPLANATION_STEP] == "env.PLATFORM_RUNS != 'true'"
