@@ -639,3 +639,14 @@ authorized one Linux diagnostic below. No production change followed it.
   has a fixed append-only journal resolution. This is a documentation-only
   correction; all checked code and raw build evidence remain unchanged.
   Final documentation review is pending. No native job or phase is live.
+- 2026-10-07: Final evidence documentation
+  `1616b3f9687b4d25bb233c0b189d26439a8a4141` passed clean Claude review
+  `20261007T111918Z-1616b3f9`, session 29432 exit 0. All one must and six
+  should findings from the runtime evidence unit have fixed journal
+  resolutions. The complete public report and its bounded checks are
+  review-complete. Exact runtime readiness remains tied to reviewed
+  integrated source `c3e8f518`, the archive manifest and both full native
+  runtime identities. Native build leases are released. No runtime build
+  was repeated and no performance phase ran; the coordinator must authorize
+  any fresh phase after confirming reviewed source and host leases.
+  The overall task remains IN PROGRESS.
