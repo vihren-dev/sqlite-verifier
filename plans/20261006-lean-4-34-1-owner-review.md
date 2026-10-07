@@ -66,9 +66,13 @@ Owner acceptance and both hosted native gates are complete. Reviewed integration
 The Linux native checks in the earlier table ran on NixOS.
 
 The unused v0.1.2 tag now points to exact reviewed merge `bc9e2dce`.
-Release workflow `37591468199` is running. It repeats both package checks and
-verifies archive checksums before publication. A published release and its
-native archive digests remain pending.
+Release workflow `37591468199` passed both package checks and checksum-verified
+publication. [Stable v0.1.2](https://github.com/vihren-dev/sqlite-verifier/releases/tag/v0.1.2)
+is published. Both native archive digests match the downloaded public checksum
+files and uploaded asset identities. The
+[release evidence](../reports/20261007-lean-4341-release/README.md) retains the
+metadata, decoded publication log, checksums and exact verification scope.
+No T03 acceptance remains open.
 
 ## Owner disposition
 
