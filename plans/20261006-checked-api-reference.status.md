@@ -635,3 +635,12 @@ Timeout wording correction `f0123e17` passes independent review
 is ready for publication. The original CI source failure stays retained.
 New hosted acceptance will run against this corrected head; ordinary
 local checks remain incomplete at the resource guard.
+
+
+Corrected head `d7e5e950` is published in draft PR57. CI `37667476876`
+is in progress; no corrected hosted pass is claimed. Final independent
+review `20261007T183012Z-f0123e17` is clean. The owner approved the single
+T10 test-temp cleanup, and its removal leaves 15.824 GiB free. The retained
+T10 results are intact. The disk threshold is satisfied, and remaining
+ordinary local acceptance can resume after its normal resource preflight.
+This local status checkpoint does not move the branch while CI is running.
