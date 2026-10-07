@@ -61,7 +61,8 @@ def test_reviewer_environment_strips_session_markers() -> None:
 @pytest.mark.unit
 def test_reviewer_commands_are_read_only() -> None:
     """Codex runs in its read-only sandbox; Claude Code gets only reading tools."""
-    assert reviewer_command("codex") == ["codex", "exec", "--sandbox", "read-only", "--ephemeral", "-"]
+    assert reviewer_command("codex") == ["codex", "exec", "--sandbox", "read-only", "--ephemeral",
+                                         "--skip-git-repo-check", "-"]
     claude = reviewer_command("claude")
     assert claude[:3] == ["claude", "-p", "--allowedTools"]
     assert not any(tool.startswith(("Edit", "Write", "Bash(jj commit", "Bash(rm")) for tool in claude[3:])
