@@ -200,3 +200,20 @@ The real nine-suite command ownership check passes in 1.07 seconds, with a
 90-second outer limit. Authored Markdown file links resolve. Application
 integration, the frontend, trust roots, offline installation and both native
 final suites remain incomplete. This checkpoint awaits independent review.
+
+
+## Package review corrections
+
+Independent review `20261007T151915Z-46364462` has no mandatory findings and
+six suggestions. Model laws now describe SQLite behavior, restate the rollback
+assumption and result, and give proof sketches. The model record describes
+schemas and statements. An unsupported codec version reports the received
+version, the supported version and how to regenerate the inputs. The consumer
+checks that diagnostic. Checked Verso documentation compiles, and all three
+package tests pass in 16.27 seconds with a 120-second outer limit. The original
+five documentation and diagnostic suggestions are recorded as fixed.
+
+The source duplication suggestion is deferred to the next application
+integration unit. That unit must update all callers and delete the original
+model, laws and codec paths. No compatibility path is part of final T10
+acceptance. This correction awaits independent review.

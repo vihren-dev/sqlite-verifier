@@ -1,15 +1,20 @@
 import Belay.Sqlite.SqlExecution
 
-/-! ADR 0004 W5 laws use the same transitions as the verifier. -/
+set_option doc.verso true
+
+/-! SQLite model laws describe transaction rollback, statement failure and
+row preservation when a column is added. -/
 set_option maxHeartbeats 2000000
 namespace Belay.Sqlite.Conformance
 
-/-- A body excludes transaction control so its successful steps preserve the snapshot. -/
+/-- Classify statements that leave transaction control to their surrounding script. -/
 def nonControl : Statement → Bool
   | .beginTransaction | .commit | .rollback => false
-  | _ => true
+  | .createTable .. | .addColumn .. | .insert .. | .update .. => true
 
-/-- Every body statement succeeds, retaining its actual intermediate database. -/
+/-- Each statement in the body is non-control and succeeds at its position.
+The remaining body starts from its resulting database. An empty body requires
+nothing of the database. Use this predicate to state successful-body laws. -/
 inductive SuccessfulBody : Nat → List Statement → Database → Prop where
   | nil : SuccessfulBody position [] database
   | cons (ordinary : nonControl statement = true)
@@ -17,7 +22,12 @@ inductive SuccessfulBody : Nat → List Statement → Database → Prop where
       (tail : SuccessfulBody (position + 1) rest next) :
       SuccessfulBody position (statement :: rest) database
 
-/-- Successful ordinary bodies cannot change a transaction's original snapshot. -/
+/-- For any position, body, current database and original snapshot, if
+{name}`SuccessfulBody` holds, running the body followed by ROLLBACK with that
+snapshot returns success with exactly the original database.
+
+The proof inducts over the successful body. Each non-control step preserves
+the snapshot; the final ROLLBACK restores it. -/
 theorem body_rollback (success : SuccessfulBody position body database) :
     runSqlFrom position (body ++ [.rollback]) ⟨database, some original⟩ = .success original := by
   induction success with
@@ -25,12 +35,21 @@ theorem body_rollback (success : SuccessfulBody position body database) :
   | @cons statement database position next rest ordinary success tail ih =>
     cases statement <;> simp_all [nonControl, runSqlFrom, advance]
 
-/-- A successful transaction-free body followed by ROLLBACK restores the initial database. -/
+/-- For any body and database, if {name}`SuccessfulBody` holds at position 1,
+BEGIN followed by the body and ROLLBACK returns success with that database.
+
+The proof unfolds BEGIN and applies {name}`body_rollback` with the initial
+database as the transaction snapshot. -/
 theorem rollback (success : SuccessfulBody 1 body database) :
     runSql (.beginTransaction :: body ++ [.rollback]) database = .success database := by
   simpa [runSql, runSqlFrom, advance] using body_rollback (original := database) success
 
-/-- Literal execution either succeeds or fails with its input database intact. -/
+/-- For every statement, database and position, {name}`literalStep` either
+returns success with some database or returns a failure at that position with
+some reason and the unchanged input database.
+
+The proof splits on the statement and table lookup, then follows each
+validation branch. Each failure branch retains the input database. -/
 theorem literal_cases (statement : Statement) (database : Database) (position : Nat) :
     (∃ result, literalStep statement database position = .success result) ∨
     (∃ reason, literalStep statement database position = .failure position reason database) := by
@@ -52,7 +71,13 @@ theorem literal_cases (statement : Statement) (database : Database) (position : 
     all_goals simp
   | beginTransaction | commit | rollback => simp [literalStep, step]
 
-/-- Every halted statement leaves both the visible and committed databases unchanged. -/
+/-- For any position, statement, state and outcome, if {name}`advance` halts
+with that outcome, its visible database equals the state's current database.
+Its persisted database equals the saved snapshot when present, and otherwise
+the current database.
+
+The proof splits on the statement and snapshot. {name}`literal_cases` supplies
+the success and failure alternatives for ordinary statements. -/
 theorem statement_atomicity (halted : advance position statement state = .halt outcome) :
     outcome.database = state.database ∧
     outcome.persistedDatabase = state.snapshot.getD state.database := by
@@ -69,7 +94,13 @@ theorem statement_atomicity (halted : advance position statement state = .halt o
   all_goals rw [← halted]
   all_goals exact ⟨rfl, rfl⟩
 
-/-- A successful ADD's exact table transformation preserves rows and appends one NULL. -/
+/-- For any position, table name, column and states, if ADD COLUMN advances
+to the next state, some table exists at that name in the original state. The
+next database contains that table with the column appended. This table has
+the same row count and rowids, and each original row gains one NULL value.
+
+The proof follows the successful ADD branch and unfolds column extension
+and its row mapping. -/
 theorem add_column_shape
     (success : advance position (.addColumn name column) state = .next next) :
     ∃ table, state.database name = some table ∧

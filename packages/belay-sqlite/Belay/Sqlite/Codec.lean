@@ -39,8 +39,8 @@ deriving instance Lean.ToExpr for Statement
 deriving instance Lean.ToExpr for ExecutionProfile
 
 /-- A versioned profile, schema transition and script record. Use version 1;
-empty schemas and scripts remain ordinary model values. This transport does
-not define application declarations or establish verification conditions. -/
+empty schemas and scripts remain ordinary SQLite model values. The record
+transports the starting schema, resulting schema and ordered statements. -/
 structure GeneratedInputs where
   /-- The wire format version; supported records use 1. -/
   version : Nat
@@ -57,7 +57,8 @@ structure GeneratedInputs where
 /-- Decode a generated-inputs record, rejecting other versions. -/
 def decodeGeneratedInputs (json : Lean.Json) : Except String GeneratedInputs := do
   let inputs : GeneratedInputs ← Lean.fromJson? json
-  unless inputs.version == 1 do throw "unsupported generated-inputs version"
+  unless inputs.version == 1 do
+    throw s!"generated-inputs version {inputs.version} is unsupported; only version 1 is supported. Regenerate the inputs with a matching frontend."
   return inputs
 
 end Belay.Sqlite

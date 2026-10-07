@@ -66,7 +66,7 @@ def sample : GeneratedInputs := ⟨1, .sqlite351, [], [], []⟩
   | .error _ => false
 #eval match decodeGeneratedInputs (Lean.toJson { sample with version := 2 }) with
   | .ok _ => false
-  | .error _ => true
+  | .error message => message.contains "2" && message.contains "version 1" && message.contains "Regenerate"
 #eval match (Lean.fromJson? (Lean.toJson (256 : Nat)) : Except String UInt8) with
   | .ok _ => false
   | .error _ => true
