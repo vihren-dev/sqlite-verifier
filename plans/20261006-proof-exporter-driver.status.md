@@ -199,8 +199,14 @@ to the reviewed implementation.
   current/historical receipt bytes remain exact. Only docs/journal paths change;
   runtime/source selections and accepted test inputs are unchanged. No native
   rebuild, model, installed or performance rerun is needed for this refresh.
-- The two existing authored-link checks pass in 0.12 seconds. All seven prior
+- The two existing authored-link checks pass in 0.72 seconds. All six prior
   current integration receipt files are byte-exact against `28556a43`. The
   [refresh record](../reports/20261007-proof-exporter-integration/b91-refresh.json)
   retains incoming document and journal hashes plus the original link JUnit
   digest. Task remains IN PROGRESS pending refreshed publication/hosted checks.
+- Refresh `10ae1399` passed required Claude review with no findings
+  (`20261007T080853Z-10ae1399`). Corrected its unclassified receipt-count wording
+  to six prior receipt files and the recorded link-test duration to 0.72 seconds.
+  This status-only correction changes no source, runtime, input, journal or
+  receipt payload. The final raw refresh review stays preserved in the working
+  copy; the reviewed feature is ready for PR #47-only publication.
