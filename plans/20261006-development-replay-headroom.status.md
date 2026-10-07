@@ -566,3 +566,42 @@ authorized one Linux diagnostic below. No production change followed it.
   receipts must be retained; fresh-runtime readiness precedes any later
   performance authorization. No build has started yet. T15, T18b and T07
   code remains publication-exact. The overall task stays IN PROGRESS.
+- 2026-10-07: Integration commit
+  `c3e8f5186e2865b5cdc0ea5af1a9d0924531752a` passed clean Claude review
+  `20261007T094550Z-c3e8f518`, session 58187 exit 0. The reviewed archive
+  has SHA-256 `ee3aac147f2390dd28e47f31de7bff56451c08122a7634ecc75102ff994db292`,
+  72,294,400 bytes and 1,113 source entries. The actual source-only archive
+  uses the shared Git object store and excludes generated working trees.
+  Its full file/link manifest and both public build helpers are retained.
+- 2026-10-07: Both authorized pinned conformance build invocations are
+  terminal successful. Darwin session 74913 exited 0 at
+  `2026-10-07T09:48:52.259490+00:00`; runtime is
+  `/nix/store/3h1ww180anyrw23dhs7bpzswhkrv2l1s-sqlite-verifier-conformance`.
+  Linux session 34344 exited 0 at `2026-10-07T09:50:40.392353+00:00`;
+  runtime is `/nix/store/ixl6nwa1nk8ah8138axkqkgian4a27bc-sqlite-verifier-conformance`.
+  These fresh invocations reused already existing exact Nix outputs;
+  compilation from scratch is not claimed. The 17,897 Darwin and 17,936
+  Linux runtime file identities match before and after. Both use Lean
+  4.34.1 and Python 3.14.7. The resource guard passed on each host, and
+  each Nix build retained its 900-second group bound. A separate 1200-second
+  capture bound includes identity reads. No replay ran.
+- 2026-10-07: Linux transfer sessions 84265 and 10362 exited 0. Its existing
+  pinned-Python preflight 17138 exited 0 and checked all 1,113 source
+  entries and helper/archive identities. Original retrievals 31271 and
+  99928 exited 0; all 16 original artifact hashes and lengths match their
+  remote manifest. Complete source/helper/archive/Python/declared native
+  library identities match before and after both builds. Original UTC and
+  monotonic boundaries, host/filesystem/resource observations, commands and
+  streams remain intact in
+  [the build-only record](../reports/20261007-development-replay-executor-runtime/README.md).
+  All 47 raw gzip artifacts pass bounded read-only validation. Four
+  independent runtime/acceptance/build-bound/journal-order mutations are
+  refused, including mutations with matching replacement artifact hashes.
+- 2026-10-07: Both native build leases were released after actual terminal
+  outcomes. The coordinator took Darwin for its reference build, and T02
+  acknowledged Linux release for T18b reference acceptance. No T04 heavy
+  build, replay, profile or performance phase is live. The reviewed source
+  and exact runtimes are ready for later coordinator authorization; these
+  build receipts establish no under-30-second result. The prior valid Linux
+  target miss and every earlier raw receipt remain unchanged. Runtime
+  evidence review is pending, and the overall task stays IN PROGRESS.
