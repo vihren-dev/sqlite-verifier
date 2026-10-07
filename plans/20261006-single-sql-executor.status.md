@@ -363,3 +363,10 @@ the stated recipes are complete. The task is not DONE.
   its two suggestions: the guide now states 75 minutes and the test names
   its setup allowance. All 26 focused checks and 28 subtests pass again.
   Every owner-approved source and baseline file remains unchanged.
+- 2026-10-07: Final aggregate-budget correction `46bd04b5` passes independent
+  review `20261007T113253Z-46bd04b5` with no findings. Published only the
+  existing PR #48 branch and updated its body with the original cancellation
+  and exact new budget. Current CI `37615200892` is active on Linux job
+  `112771743045` and Darwin job `112771743430`. All 74 approved files remain
+  unchanged. The original failed and cancelled receipts and owner-approved
+  baseline exception remain intact. No new hosted completion is claimed.
