@@ -1,7 +1,8 @@
 """Attribute current `migration-check verify` wall time to SQL parsing, Lean processes and the gate.
 
 Usage: python3 experiments/adr-0003-latency/stage_timing.py [TRIALS]
-Prints one JSON line per trial. Refutations report their VIOLATED status.
+Prints one JSON line per trial. Refutations and refusals from the application
+or SQL frontend are recorded as statuses so the remaining trials can run.
 """
 
 from collections.abc import Callable, Sequence

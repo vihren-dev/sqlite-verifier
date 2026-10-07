@@ -280,3 +280,9 @@ The real frontend suite invalidation check passes in 2.21 seconds after its
 source fixture includes the new diagnostic inputs. Commands have 60- or
 90-second outer limits; trial subprocesses have a 10-second limit. The
 finding is recorded as fixed. This correction awaits independent review.
+
+
+Correction review `20261007T153345Z-d356a7b1` has no mandatory findings and
+one usage-text suggestion. The diagnostic now states that application and SQL
+frontend refusals are recorded as statuses so remaining trials can run. This
+text correction does not change execution. Its review remains required.
