@@ -456,3 +456,56 @@ still supplies diagnostic data to callers. Recorded the suggestion as fixed.
 All five actual incomplete-coverage fixtures and both link checks pass in
 22.50 seconds under 120 seconds. This correction changes no compiler helper,
 coverage classification, proof rule or reference layout.
+
+## Clean native acceptance on 2026-10-07
+
+Correction `2df58fd1` passed independent Claude review with no findings
+(`20261007T094526Z-2df58fd1`). Its exact source then passed fresh native
+reference builds on Darwin and Linux. Both outputs contain 21 public modules,
+323 rendered declarations, 1,167 HTML pages, 829,618 valid local links and 178
+corrected upstream links. The actual compiler inventory has 259 authored
+declarations, all checked, with zero documentation gaps and 942 explicit
+exclusions. These counts exclude T15 and T07. All module source digests and
+output dependency pins match the reviewed source.
+
+Darwin's first attempt stalled. The owner authorized cancellation of the
+verified process group; its terminal exit was 137. An ambient retry exited 127
+because `timeout` was unavailable, before Nix started. The authorized retry
+used the pinned Nix shell and unchanged 1,800-second build deadline, with a
+10-second forced cleanup guard. Its actual terminal exit was zero. Its console
+records a 5-minute 5-second reference build phase. No retry UTC or monotonic
+boundaries were captured; the source snapshots cover all attempts and are not
+a retry duration. All 968 captured tracked entries, including the documentation
+symlink, match before and after. The pending review journal was explicitly
+excluded from those snapshots.
+
+Linux used a fresh isolated directory and an exact public tracked archive.
+The output was invalid before the single build. The complete recipe exited
+zero after 418.351160823 seconds, within its 1,800-second bound; its console
+records a 6-minute 56-second build phase. All 969 tracked entries, including
+968 regular files, their executable bits and the documentation symlink, match
+before and after. Archive and capture helper hashes are unchanged. The native
+receipts retain the exact commands, resource guard, sandbox policy, source and
+output identities. A local audit first assumed an older Nix JSON layout; the
+corrected audit checked the host's actual version-4 derivation format. No build
+was repeated for that audit correction.
+
+Both generators emitted the same four previously recorded upstream Std.Time
+heartbeat warnings. Generation and complete link validation passed. The
+[clean native acceptance record](../reports/20261007-checked-api-reference-native/README.md)
+retains all original logs and metadata, including the failed Darwin attempts.
+The historical mixed-source receipt remains unchanged. Both native heavy slots
+are released. This evidence checkpoint changes no feature source or baseline.
+
+Status remains IN PROGRESS. Relevant ordinary source/development and Nix
+infrastructure checks still need the reviewed deadline/base integration.
+Both hosted native reference artifacts must then build and be retained from
+the published reviewed source, followed by normal PR delivery. This checkpoint
+does not claim those remaining checks or task completion.
+
+The evidence checks verify both archive hashes and all 40 original payload
+hashes against the retained files, matching native metadata, successful exit
+records, exact pins and the unchanged historical receipt. Both Markdown tests
+pass in 0.49 seconds under a 60-second bound. The pending clean `2df58fd1`
+review row is preserved exactly. The evidence unit now awaits independent
+review; no ordinary native check starts before that review is clean.

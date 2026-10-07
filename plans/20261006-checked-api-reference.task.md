@@ -2,10 +2,11 @@
 
 Status: IN PROGRESS. Created 2026-10-06.
 
-Historical implementation and native builds pass at mixed-source checkpoint
-`dac12b493dc5b64f5381b8a39fd6ac285b2d5c9b`. Clean isolation, new native reference
-builds and hosted artifact acceptance remain required. Historical receipts do
-not establish acceptance of the isolated source. See the status file.
+The clean implementation passes both native reference builds at
+`2df58fd1ca2cdfc01a822e5b36602f43140f0809`. Ordinary integration checks,
+hosted artifact acceptance and delivery remain required. The historical
+mixed-source checkpoint `dac12b493dc5b64f5381b8a39fd6ac285b2d5c9b` remains
+separate evidence. See the status file.
 
 ## Outcome
 
