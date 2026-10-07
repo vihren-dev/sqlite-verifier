@@ -289,3 +289,17 @@ Decisions waiting for the owner:
   output and full command fields on both platforms are exactly those already
   accepted natively, as recorded in the publication receipt. No further full
   gate is needed for this comment, journal and timeout-evidence integration.
+- Publication integration `16c2f576` passed required Claude review with no
+  findings (`20261007T063649Z-16c2f576`). Delivered and attached draft
+  [PR #50](https://github.com/vihren-dev/sqlite-verifier/pull/50) against `main`
+  on 2026-10-07. Its initial authoritative head is
+  `16c2f57662388caacf96e1775eb320480482737a`; no main or frozen PR branch changed.
+  The inherited journal-only unnamed ancestor was preserved under the
+  coordinator's explicit `--allow-empty-description` authorization; GitHub
+  protections were not overridden and no history was rewritten.
+- GitHub reports the draft unmergeable against later main metadata `6852f6fa`,
+  which the coordinator explicitly excluded while owner handling is pending.
+  No hosted workflow run was available immediately after creation. Native
+  acceptance and independent review have passed; normal hosted CI/merge handling
+  are still pending. T17 remains IN PROGRESS and is not DONE. The final raw
+  integration review row remains unchanged in the working copy for preservation.

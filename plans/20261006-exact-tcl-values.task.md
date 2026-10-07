@@ -1,6 +1,10 @@
 # Exact Tcl values and date-family acquisition
 
-Status: IN PROGRESS. Created 2026-10-06.
+Status: IN PROGRESS; native acceptance complete, draft PR delivered.
+Created 2026-10-06.
+
+Delivery: [PR #50](https://github.com/vihren-dev/sqlite-verifier/pull/50).
+Normal hosted CI and merge handling remain pending.
 
 ## Outcome
 
