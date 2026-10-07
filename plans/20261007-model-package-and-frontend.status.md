@@ -13,8 +13,8 @@ with the application. Replaced paths are deleted. Both compiled library
 roots use the same resolution order for compilation, export and checking.
 All required native macOS and Linux checks pass, including fresh installed
 archives. The Linux source run retains two optional reviewer-tool skips.
-Final acceptance evidence is being reviewed before publication. Final owner
-review and normal delivery remain required. T07 stays paused. Local free
+Final acceptance evidence passes independent review. Publication of the
+complete evidence and final owner review remain required before delivery. T07 stays paused. Local free
 space is below the guard threshold; targeted cleanup approval is pending.
 
 The accepted ADR was delivered through
@@ -447,3 +447,22 @@ Both native platforms now pass the required full suites, infrastructure
 checks and fresh installed archives. Final evidence review, publication and
 owner approval remain required. No task completion or baseline approval is
 claimed.
+
+
+Linux evidence `bb029cdd` passes independent review
+`20261007T172554Z-bb029cdd` with no findings. The exact ZIP inventory has
+18 members; all 18 original XML and JSON members are retained separately,
+and their hashes and sizes match. Final macOS and Linux acceptance are
+complete. The implementation is ready for final owner review after this
+evidence publication and the final head checks. T10 remains IN PROGRESS
+until owner approval and normal delivery.
+
+## Decisions waiting for the owner
+
+- Review the codec, exact gate artifact selection, trusted root ordering,
+  verification target, export omissions and checker invocation. Seven
+  mandatory flags remain recorded in `20261007T164606Z-e38bc101`.
+- Review the seven example source-pin changes for the model namespace.
+  Baseline enforcement and raw SQL pins are unchanged.
+- Approve the one completed test-temp directory in the separate cleanup
+  proposal before further expensive local work.
