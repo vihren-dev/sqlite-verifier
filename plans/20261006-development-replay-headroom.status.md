@@ -311,3 +311,18 @@ authorized one Linux diagnostic below. No production change followed it.
   changes no raw artifact, measurement or outcome. All three findings have
   fixed journal resolutions. The bounded receipt and corruption checks pass
   again in the pinned environment; refactor review is pending.
+- 2026-10-07: Refactor `90ed5e5b161e648cb1422d74f8b9c47a95154d11` passed
+  independent Claude review `20261007T082252Z-90ed5e5b`, session 68123 exit 0,
+  with no findings. The reviewer read the code; its attempted check launcher
+  was not approved. The author's bounded pinned receipt and four corruption
+  checks are terminal successful. The reviewed evidence unit is complete.
+  Linux's target miss remains unchanged, and the overall task is IN PROGRESS.
+- 2026-10-07: After the evidence review, the coordinator authorized one Linux
+  diagnostic of the exact measured source `5d15607f` and existing verified
+  runtime. It observes the report's seven existing top-level stage names,
+  including `replay_native_cases`, with monotonic wall time and both parent
+  and reaped direct-child CPU deltas. Child CPU may exceed wall time; a CPU
+  difference is not an I/O or fsync measurement. The helper preserves return
+  values and exceptions and has a spawn main guard. Bounded local pure-helper
+  preflight passes without invoking a report. The actual diagnostic is pending;
+  no production change, source rebuild or new acceptance phase is authorized.
