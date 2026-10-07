@@ -32,7 +32,9 @@ the other builders under the existing Darwin scheduling rule.
 The final source run passes 373 tests and 37 subtests in 44.03 seconds.
 The final Nix infrastructure run passes 102 checks in 118.40 seconds. Its
 checks include actual isolated model builds and dependency invalidation.
-Original XML and console bytes are retained. Earlier checked source and
+These durations come from the console. The receipt also preserves JUnit
+suite durations separately. Original XML and console bytes are retained.
+Earlier checked source and
 identity runs remain in `source-corrected.xml` and `identities.xml`; they
 are not substituted for these final results. `review-correction.xml`
 retains the 19 focused checks after the comment correction.

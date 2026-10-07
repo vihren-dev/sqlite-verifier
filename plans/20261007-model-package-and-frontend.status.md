@@ -9,12 +9,13 @@ Source: [issue #31](https://github.com/vihren-dev/sqlite-verifier/issues/31).
 ## Current checkpoint
 
 The standalone `Belay.Sqlite` model and `belay.sqlite` frontend are integrated
-with the application in commit `e38bc101`. The replaced paths are deleted.
-Both compiled library roots use the same resolution order for compilation,
-export and checking. Native macOS source, identity and all nine Nix suites
-pass. A fresh macOS archive is being built. Linux acceptance, fresh installed
-checks on both platforms and final owner review remain required. T07 stays
-paused until this task is delivered.
+with the application. Replaced paths are deleted. Both compiled library
+roots use the same resolution order for compilation, export and checking.
+All required native macOS and Linux checks pass, including fresh installed
+archives. The Linux source run retains two optional reviewer-tool skips.
+Final acceptance evidence is being reviewed before publication. Final owner
+review and normal delivery remain required. T07 stays paused. Local free
+space is below the guard threshold; targeted cleanup approval is pending.
 
 The accepted ADR was delivered through
 [PR44](https://github.com/vihren-dev/sqlite-verifier/pull/44), normal merge
@@ -426,3 +427,23 @@ Original final XML, logs, node identities and output paths are retained in
 the native report. Linux package CI is still running. Local free space is
 below the 10 GiB threshold after these successful checks. No further
 expensive local run will start without resolving that resource guard.
+
+
+Final macOS evidence `bab5fe2c` passes independent review
+`20261007T171937Z-bab5fe2c` with no findings. The Linux CI reports now
+verify 509 passing Nix suite checks, 102 Nix infrastructure checks and
+26 fresh installed checks. Its source XML records 371 passing tests,
+37 subtests and two optional reviewer-tool skips. Original Linux ZIP, XML
+and phase bytes are retained in [the Linux record](../reports/20261007-model-package-linux/README.md).
+The job is still saving its cache; a final conclusion is pending. The
+owner has been asked to approve one completed local test-temp directory
+for targeted cleanup. No files are deleted while that answer is pending.
+
+
+Linux CI `37655729129` is terminal successful, including cache retention
+and artifact uploads. All recorded phase exit codes are zero. The Linux
+evidence retains its original 18 artifact members and matching ZIP digest.
+Both native platforms now pass the required full suites, infrastructure
+checks and fresh installed archives. Final evidence review, publication and
+owner approval remain required. No task completion or baseline approval is
+claimed.

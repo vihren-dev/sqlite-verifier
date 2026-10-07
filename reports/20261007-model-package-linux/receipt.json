@@ -1,0 +1,292 @@
+{
+  "platform": "x86_64-linux",
+  "head_commit": "71d561ae9cb5be43975bee6868388acfdb07e175",
+  "workflow_run": 37655729129,
+  "job": 112910873523,
+  "checks_complete": true,
+  "workflow_job_terminal": true,
+  "artifact": {
+    "id": 11500301639,
+    "name": "case-reports-x86_64-linux",
+    "sha256": "48558e92147da3f84ec1e00751e4647050068e6c335d1ebe7c72c426deb3b013",
+    "bytes": 56687
+  },
+  "xml_suites": {
+    "nix-tests-full/junit.xml": [
+      {
+        "name": "pytest",
+        "errors": "0",
+        "failures": "0",
+        "skipped": "0",
+        "tests": "12",
+        "time": "132.132",
+        "timestamp": "2026-10-07T17:06:47.964166+00:00",
+        "hostname": "localhost"
+      }
+    ],
+    "nix-tests-full-2/junit.xml": [
+      {
+        "name": "pytest",
+        "errors": "0",
+        "failures": "0",
+        "skipped": "0",
+        "tests": "48",
+        "time": "311.481",
+        "timestamp": "2026-10-07T17:06:47.985646+00:00",
+        "hostname": "localhost"
+      }
+    ],
+    "nix-tests-full-3/junit.xml": [
+      {
+        "name": "pytest",
+        "errors": "0",
+        "failures": "0",
+        "skipped": "0",
+        "tests": "15",
+        "time": "67.718",
+        "timestamp": "2026-10-07T17:06:47.996855+00:00",
+        "hostname": "localhost"
+      }
+    ],
+    "nix-tests-full-4/junit.xml": [
+      {
+        "name": "pytest",
+        "errors": "0",
+        "failures": "0",
+        "skipped": "0",
+        "tests": "145",
+        "time": "225.285",
+        "timestamp": "2026-10-07T17:07:56.440782+00:00",
+        "hostname": "localhost"
+      }
+    ],
+    "nix-tests-full-5/junit.xml": [
+      {
+        "name": "pytest",
+        "errors": "0",
+        "failures": "0",
+        "skipped": "0",
+        "tests": "122",
+        "time": "5.568",
+        "timestamp": "2026-10-07T17:09:00.655827+00:00",
+        "hostname": "localhost"
+      }
+    ],
+    "nix-tests-full-6/junit.xml": [
+      {
+        "name": "pytest",
+        "errors": "0",
+        "failures": "0",
+        "skipped": "0",
+        "tests": "28",
+        "time": "59.065",
+        "timestamp": "2026-10-07T17:07:22.881167+00:00",
+        "hostname": "localhost"
+      }
+    ],
+    "nix-tests-full-7/junit.xml": [
+      {
+        "name": "pytest",
+        "errors": "0",
+        "failures": "0",
+        "skipped": "0",
+        "tests": "51",
+        "time": "82.302",
+        "timestamp": "2026-10-07T17:09:06.748956+00:00",
+        "hostname": "localhost"
+      }
+    ],
+    "nix-tests-full-8/junit.xml": [
+      {
+        "name": "pytest",
+        "errors": "0",
+        "failures": "0",
+        "skipped": "0",
+        "tests": "12",
+        "time": "100.926",
+        "timestamp": "2026-10-07T17:08:32.871935+00:00",
+        "hostname": "localhost"
+      }
+    ],
+    "nix-tests-full-9/junit.xml": [
+      {
+        "name": "pytest",
+        "errors": "0",
+        "failures": "0",
+        "skipped": "0",
+        "tests": "76",
+        "time": "9.685",
+        "timestamp": "2026-10-07T17:08:22.638270+00:00",
+        "hostname": "localhost"
+      }
+    ],
+    "test-results/installed.xml": [
+      {
+        "name": "pytest",
+        "errors": "0",
+        "failures": "0",
+        "skipped": "0",
+        "tests": "26",
+        "time": "125.266",
+        "timestamp": "2026-10-07T17:15:11.361922+00:00",
+        "hostname": "runnervmwvtoz"
+      }
+    ],
+    "test-results/nix.xml": [
+      {
+        "name": "pytest",
+        "errors": "0",
+        "failures": "0",
+        "skipped": "0",
+        "tests": "102",
+        "time": "107.573",
+        "timestamp": "2026-10-07T17:11:59.915392+00:00",
+        "hostname": "runnervmwvtoz"
+      }
+    ],
+    "test-results/source.xml": [
+      {
+        "name": "pytest",
+        "errors": "0",
+        "failures": "0",
+        "skipped": "2",
+        "tests": "410",
+        "time": "39.822",
+        "timestamp": "2026-10-07T17:06:06.238243+00:00",
+        "hostname": "runnervmwvtoz"
+      }
+    ]
+  },
+  "source_skips": [
+    {
+      "name": "test_installed_cli_has_reviewer_options[codex]",
+      "classname": "tests.test_review",
+      "attributes": {
+        "type": "pytest.skip",
+        "message": "codex is not installed"
+      },
+      "text": "/home/runner/work/sqlite-verifier/sqlite-verifier/tests/test_review.py:91: codex is not installed"
+    },
+    {
+      "name": "test_installed_cli_has_reviewer_options[claude]",
+      "classname": "tests.test_review",
+      "attributes": {
+        "type": "pytest.skip",
+        "message": "claude is not installed"
+      },
+      "text": "/home/runner/work/sqlite-verifier/sqlite-verifier/tests/test_review.py:91: claude is not installed"
+    }
+  ],
+  "raw_files": {
+    "original-ci-environment.json": {
+      "original_zip_member": "ci-environment.json",
+      "sha256": "57cf58d2a2aea02cce2e2dacc4aecd5ddf4ad5bad2f1069faf1b57bf7f5df895",
+      "bytes": 253
+    },
+    "original-ci-phases--checks-package--command-0000.json": {
+      "original_zip_member": "ci-phases/checks-package/command-0000.json",
+      "sha256": "d8987a83658daa888d84b01485abf1730c19bd937b9df5a7e8cd463407b274e3",
+      "bytes": 137331
+    },
+    "original-ci-phases--lake-version--command-0000.json": {
+      "original_zip_member": "ci-phases/lake-version/command-0000.json",
+      "sha256": "fdb5fc1048746e3005ebe411f8b8821082ca39be93435dbf2eabe8285fbd86bb",
+      "bytes": 292
+    },
+    "original-ci-phases--lean-version--command-0000.json": {
+      "original_zip_member": "ci-phases/lean-version/command-0000.json",
+      "sha256": "d7ec11401a1991ba45da0b22d92f1b4a4d24951e4d8b3b5005710cdc38e168c4",
+      "bytes": 345
+    },
+    "original-ci-phases--runtime--command-0000.json": {
+      "original_zip_member": "ci-phases/runtime/command-0000.json",
+      "sha256": "61f26ad4d2d5b9d71cd0cba667b2f28ce0ab49af60b5fc9b20587c2645952489",
+      "bytes": 13564
+    },
+    "original-ci-phases.json": {
+      "original_zip_member": "ci-phases.json",
+      "sha256": "005a99f52169d986342278548570b46dce0b1de816de55d93938e34d46678ab9",
+      "bytes": 918
+    },
+    "original-nix-tests-full--junit.xml": {
+      "original_zip_member": "nix-tests-full/junit.xml",
+      "sha256": "64d5473f9baafe613cf9a2c719bdb86e75e9119fc3162bea1236f1ad0c27bcf5",
+      "bytes": 1442
+    },
+    "original-nix-tests-full-2--junit.xml": {
+      "original_zip_member": "nix-tests-full-2/junit.xml",
+      "sha256": "7b375c8d2d961c2ee0058a424f7da564c2da54123994037b7a5971f4b12ebd8e",
+      "bytes": 58069
+    },
+    "original-nix-tests-full-3--junit.xml": {
+      "original_zip_member": "nix-tests-full-3/junit.xml",
+      "sha256": "87f5b022c4c720d1a38b2d9f0c18507c28ca9cf9efb62822b6548a7dde47c032",
+      "bytes": 1643
+    },
+    "original-nix-tests-full-4--junit.xml": {
+      "original_zip_member": "nix-tests-full-4/junit.xml",
+      "sha256": "1d13f7d8734e2ace961dfe82a209064dd2e05218e91e175a420c720fd8718ef4",
+      "bytes": 19298
+    },
+    "original-nix-tests-full-5--junit.xml": {
+      "original_zip_member": "nix-tests-full-5/junit.xml",
+      "sha256": "7ed9da45169e75e8fe832240ac79ee3fec79a0b9c0b75a8d7b320d7b5332a3df",
+      "bytes": 16359
+    },
+    "original-nix-tests-full-6--junit.xml": {
+      "original_zip_member": "nix-tests-full-6/junit.xml",
+      "sha256": "5f4c64b301d986e5f5be234808dac87ed914352d44681cac793252504988ddb1",
+      "bytes": 3255
+    },
+    "original-nix-tests-full-7--junit.xml": {
+      "original_zip_member": "nix-tests-full-7/junit.xml",
+      "sha256": "1d6107c7f974f7fc6b76a23f4f8996ce73878c9674cd1a8a4cd9ea98a3380fcd",
+      "bytes": 5981
+    },
+    "original-nix-tests-full-8--junit.xml": {
+      "original_zip_member": "nix-tests-full-8/junit.xml",
+      "sha256": "92152cd85adf13a8865291a8098d037902eb1fd3acd90cc568a3a51a355a1f0d",
+      "bytes": 1884
+    },
+    "original-nix-tests-full-9--junit.xml": {
+      "original_zip_member": "nix-tests-full-9/junit.xml",
+      "sha256": "f4e9fd50a68ccac79af516a5fba2aa1a0c33226659618adad4311bb26bc6b7fe",
+      "bytes": 10696
+    },
+    "original-test-results--installed.xml": {
+      "original_zip_member": "test-results/installed.xml",
+      "sha256": "1b9901acbf310e3f50e3456d376973c7da598886256b99f56e0d9ca3c579152a",
+      "bytes": 2967
+    },
+    "original-test-results--nix.xml": {
+      "original_zip_member": "test-results/nix.xml",
+      "sha256": "378a15da4742e49b21454ed9b0ff289a6917bb54616222c9b16be1081ad3c7af",
+      "bytes": 13395
+    },
+    "original-test-results--source.xml": {
+      "original_zip_member": "test-results/source.xml",
+      "sha256": "41d4be16f616270fed89a1ff53b88c91e8e78ea5371cade3382886ed40870310",
+      "bytes": 45521
+    }
+  },
+  "runtime_archive_artifact": {
+    "id": 11499372088,
+    "bytes": 928279852,
+    "digest": "sha256:361530c1e694d5927d4569cd12f484ad5d15b8e65115a003a04e45fb8c563cfb",
+    "expires_at": "2026-10-21T17:17:34Z"
+  },
+  "owner_review_complete": false,
+  "workflow_job_conclusion": "success",
+  "runtime": "/nix/store/cbrqi41dk1pm869gs85z0kj45ankkj4j-sqlite-verifier-runtime-1",
+  "nix_suite_outputs": [
+    "/nix/store/5k7097nm5qbycnk70sqnnlpp1jymyk8b-sqlite-verifier-test-model-1",
+    "/nix/store/baf0rn2ziwy044x920dwi7vj9hxwh5ps-sqlite-verifier-test-atuin-1",
+    "/nix/store/g8b9c2bjl3yjb165jina40arlgsgcsgv-sqlite-verifier-test-bundle-1",
+    "/nix/store/kg45s3l24yc4p57hsn34wrns2r9k57ph-sqlite-verifier-test-harness-1",
+    "/nix/store/n0n83dcgxmqwgsyw0zr2mkj49bwhnh3k-sqlite-verifier-test-upstream-1",
+    "/nix/store/q48r32pcfqk58dmzr5k6hv34gvfp3hbr-sqlite-verifier-test-frozen-1",
+    "/nix/store/sxxql85w1pmp2dmh95n32mm0794395vr-sqlite-verifier-test-sample-1",
+    "/nix/store/xw6psfgq7hxyif6k7m1kyakx67x50jx5-sqlite-verifier-test-cli-1",
+    "/nix/store/z545j7mvs2imr164x0166vxnxigpjzyz-sqlite-verifier-test-kernel-1"
+  ]
+}
