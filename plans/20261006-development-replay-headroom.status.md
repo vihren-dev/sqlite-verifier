@@ -763,3 +763,11 @@ authorized one Linux diagnostic below. No production change followed it.
   review `20261007T170819Z-fb0c0939` with no findings. The original Linux
   target miss and all raw artifacts remain unchanged. This completes the
   receipt review; further performance work remains necessary.
+
+- 2026-10-07: The task summary now names the latest complete Linux
+  measurement, 33.707907737 seconds on `c3e8f518`. The earlier macOS
+  receipt is qualified by its original source. The phase target, 120-second
+  guard and original measurements are unchanged. The retained load-only
+  profile measures stored-record serialization at 2.027926385 instrumented
+  seconds; this cost alone does not establish a way to close the remaining
+  gap. No production change or new timing run is claimed.

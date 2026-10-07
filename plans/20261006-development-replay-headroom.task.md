@@ -2,14 +2,17 @@
 
 Status: IN PROGRESS. Created 2026-10-06.
 
-Latest complete acceptance is in
-[the 2026-10-07 receipt](../reports/20261007-development-replay-headroom-acceptance/README.md).
-On reviewed publication-base source, macOS took 21.434975332995236 seconds
-and Linux took 39.57022682100069 seconds. Both retain complete bindings,
-timestamps and actual fixture paths. Linux still misses the target. Earlier
-observations below remain historical evidence; this task is not DONE.
-The later [parent/child CPU diagnostic](../reports/20261007-development-replay-linux-stages/README.md)
-records current loading and worker-stage costs on the same source/runtime.
+The latest complete Linux measurement is in
+[the executor integration receipt](../reports/20261007-development-replay-linux-cap4/README.md).
+On reviewed production source `c3e8f518`, the phase took 33.707907737
+seconds. All 184 selected native comparisons pass, but the phase still
+misses the target below. The 120-second outer limit remains unchanged.
+The earlier [macOS receipt](../reports/20261007-development-replay-headroom-acceptance/README.md)
+took 21.434975333 seconds on its original source; it is not a measurement
+of the current production source. Earlier observations and diagnostics
+below remain historical evidence. This task is not DONE.
+The [parent/child CPU diagnostic](../reports/20261007-development-replay-linux-stages/README.md)
+records loading and worker-stage costs on its recorded source and runtime.
 Its instrumented result is separate from acceptance.
 
 The one-run measurement record is in
