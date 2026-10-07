@@ -39,6 +39,10 @@ def test_ci_modes_retain_fresh_checks(tmp_path: Path, mode: str, system: str) ->
          patch.dict("os.environ", {"SQLITE_VERIFIER_SYSTEM": system, "PATH": str(original_bin), "CC": "clang"}, clear=True):
         run_checks("package", mode, system, tmp_path)
         assert commands[-1] == ["just", "package"]
+        run_checks("infrastructure", mode, system, tmp_path)
+        assert commands[-1] == ["just", "test-full", "test-nix"]
+        run_checks("packaging", mode, system, tmp_path)
+        assert commands[-1] == ["just", "test-full", "runtime-package"]
         run_checks("test", mode, system, tmp_path)
     assert commands[-1] == ["just", "test-full"]
     if mode == "build":
@@ -54,6 +58,13 @@ def test_ci_modes_retain_fresh_checks(tmp_path: Path, mode: str, system: str) ->
         assert commands[0] == ["just", "setup"]
         assert "SQLITE_VERIFIER_UNIT_CHECKS" not in environments[-1]
     assert all(row["exit_code"] == 0 for row in json.loads((tmp_path / "build/ci-phases.json").read_text()))
+
+
+def test_unknown_scope_is_rejected(tmp_path: Path) -> None:
+    """A scope that tests/ci_scope.py does not produce fails before any command runs."""
+    with patch("tools.ci_checks.run_command") as run, pytest.raises(ValueError, match="Unknown CI scope"):
+        run_checks("docs", "build", "x86_64-linux", tmp_path)
+    run.assert_not_called()
 
 
 def test_ci_failure_retains_phase_status(tmp_path: Path) -> None:

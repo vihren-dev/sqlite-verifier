@@ -16,37 +16,46 @@ class CiScopeTest(unittest.TestCase):
     """Keep documentation, verification and packaging scopes explicit and conservative."""
 
     def test_change_scopes(self) -> None:
-        """Unknown paths run full checks; runtime infrastructure and mixed changes package."""
-        examples = [(["README.md", "docs/ci.md"], "docs"),
+        """Unknown paths run the Nix targets; host checks run only for their own subjects."""
+        examples = [(["README.md", "docs/ci.md"], "docs"), (["plans/20261007-task.md"], "docs"),
                     (["docs/nested/guide.md"], "docs"), (["unknown/file.md"], "test"),
                     (["parser/upstream/README.md"], "package"),
                     (["SqliteVerifier/Preservation.lean"], "test"),
                     (["tests/coverage_test.py"], "test"), (["unknown/file"], "test"),
-                    (["packaging/install.py"], "package"), (["nix/flake.lock"], "package"),
-                    (["tools/check_resources.py"], "package"),
+                    (["migration_check/prepare.py"], "test"), (["tools/review.py"], "test"),
+                    (["packaging/install.py"], "packaging"), (["nix/flake.lock"], "package"),
+                    (["tools/check_resources.py"], "infrastructure"),
                     (["build-support/default.nix"], "package"),
-                    (["tests/test_toolchain_smoke.py"], "package"),
-                    (["tests/test_source_identity.py"], "package"),
-                    (["tests/test_nix_test_targets.py"], "package"),
-                    (["tests/environment_snapshot_test.py"], "package"),
-                    (["tests/test_runtime_package.py"], "package"),
-                    (["pytest.ini"], "package"), (["tests/conftest.py"], "package"), (["conftest.py"], "package"),
-                    (["tests/runtime_support.py"], "package"),
-                    (["tests/new_shared_helper.py"], "package"),
+                    (["build-support/tests.nix"], "infrastructure"),
+                    (["tests/test_toolchain_smoke.py"], "packaging"),
+                    (["tests/test_source_identity.py"], "infrastructure"),
+                    (["tests/test_nix_test_targets.py"], "infrastructure"),
+                    (["tests/environment_snapshot_test.py"], "infrastructure"),
+                    (["tests/test_runtime_package.py"], "infrastructure"),
+                    (["tests/nix_suites.json"], "infrastructure"),
+                    (["pytest.ini"], "infrastructure"), (["tests/conftest.py"], "infrastructure"),
+                    (["conftest.py"], "infrastructure"),
+                    (["tests/runtime_support.py"], "infrastructure"),
+                    (["tests/new_shared_helper.py"], "infrastructure"),
+                    (["tests/runtime_installation.py"], "package"),
                     (["tests/test_translation.py"], "test"),
-                    (["docs/install.md"], "package"),
+                    (["docs/install.md"], "packaging"),
                     (["README.md", "parser/main.c"], "package"),
-                    (["migration_check/runtime.py"], "package"),
-                    (["examples/atuin/Proofs.lean"], "package"),
+                    (["migration_check/runtime.py"], "packaging"),
+                    (["examples/atuin/Proofs.lean"], "test"),
+                    (["migration_check/runtime.py", "tests/nix_suites.json"], "package"),
                     ([".github/workflows/ci.yml"], "package"), ([], "package")]
         for paths, expected in examples:
             with self.subTest(paths=paths):
                 self.assertEqual(scope(paths, "pull_request", "refs/pull/2/merge"), expected)
 
-    def test_release_and_manual_runs_package(self) -> None:
-        """A documentation-only release still builds and installs both native archives."""
+    def test_full_runs(self) -> None:
+        """Releases, manual, scheduled and main runs check everything; main skips only docs."""
         self.assertEqual(scope(["README.md"], "push", "refs/tags/v1-rc.1"), "package")
         self.assertEqual(scope(["README.md"], "workflow_dispatch", "refs/heads/main"), "package")
+        self.assertEqual(scope([], "schedule", "refs/heads/main"), "package")
+        self.assertEqual(scope(["tests/test_translation.py"], "push", "refs/heads/main"), "package")
+        self.assertEqual(scope(["docs/ci.md"], "push", "refs/heads/main"), "docs")
 
     def test_real_diff_preserves_removed_runtime_paths(self) -> None:
         """Renaming runtime source to Markdown still packages, using the actual CI entrypoint."""

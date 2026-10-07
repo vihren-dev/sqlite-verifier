@@ -12,11 +12,19 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 from tools.check_resources import check_resources
 from tests.runtime_support import CommandTimeout, run_command
 
+SCOPE_RECIPES = {
+    "test": ["test-full"],
+    "infrastructure": ["test-full", "test-nix"],
+    "packaging": ["test-full", "runtime-package"],
+    "package": ["package"],
+}
+"""The `just` recipes for each scope of tests/ci_scope.py; one invocation runs shared dependencies once."""
+
 
 def run_checks(scope: str, mode: str, system: str, root: Path) -> None:
     """Use Nix build/test targets while installed acceptance stays fresh."""
-    if scope not in {"test", "package"} or mode not in {"source", "build"}:
-        raise ValueError("CI requires a complete test/package recipe and a supported build mode")
+    if scope not in SCOPE_RECIPES or mode not in {"source", "build"}:
+        raise ValueError(f"Unknown CI scope or build mode: {scope}, {mode}; use a scope from tests/ci_scope.py")
     check_resources(root)
     if os.environ.get("SQLITE_VERIFIER_SYSTEM") != system:
         raise ValueError("Pinned shell system differs from the selected native CI system")
@@ -66,13 +74,13 @@ def run_checks(scope: str, mode: str, system: str, root: Path) -> None:
                 "lean": run("lean-version", [lean, "--version"], 10, capture=True),
                 "lake": run("lake-version", [lake, "--version"], 10, capture=True)}
     (root / "build/ci-environment.json").write_text(json.dumps(versions, indent=2) + "\n")
-    run("checks-" + scope, ["just", "test-full" if scope == "test" else scope], 1800)
+    run("checks-" + scope, ["just", *SCOPE_RECIPES[scope]], 1800)
 
 
 def main() -> None:
-    """Accept only the existing complete recipes and the two native supported platforms."""
+    """Accept only the scopes of tests/ci_scope.py and the two native supported platforms."""
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--scope", choices=("test", "package"), required=True)
+    parser.add_argument("--scope", choices=tuple(SCOPE_RECIPES), required=True)
     parser.add_argument("--mode", choices=("source", "build"), default="source")
     parser.add_argument("--system", choices=("x86_64-linux", "aarch64-darwin"), required=True)
     parser.add_argument("--root", type=Path, default=Path.cwd())

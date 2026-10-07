@@ -32,3 +32,24 @@ push changed only `plans/`, `reviews/`, `reports/` or documentation.
 ## Progress
 
 - 2026-10-07: Task and status files created.
+- 2026-10-07: Split the `model` suite into `model` (8 files), `frozen` (10) and
+  `harness` (13); `conformance_command_sources_test.py` now runs only in
+  `upstream`. The conformance suites receive only the 12 frontend modules in
+  `tests/conformance_frontend.json`; `tests/test_conformance_frontend.py` checks
+  that list against the actual imports. Each Nix test has a 300-second limit
+  (`pytest-timeout`); the suite limit is a 1200-second hang guard.
+  `developmentTests` excludes `model` and `frozen`.
+- 2026-10-07: CI routing. `tests/ci_scope.py` selects `docs`, `test`,
+  `infrastructure`, `packaging` or `package`; `tools/ci_checks.py` maps each to
+  `just` recipes. Pull requests run on Linux; the macOS job reports without
+  checks. `main` pushes, tags, manual and nightly runs check both platforms.
+- 2026-10-07: Local validation on macOS. All nine Nix suites pass in the
+  sandbox (`nix-build -A tests`, 13.9 min sequentially): atuin 12, bundle 33,
+  cli 13, frozen 145, harness 120, kernel 19, model 51, sample 12, upstream 76.
+  The 481 Nix-owned test IDs are identical to the baseline. `just test-source`:
+  337 passed. `just test-nix`: 86 passed, including the new invalidation table.
+- 2026-10-07: Finding, outcome 4 blocked. GitHub holds one active cache entry:
+  the Linux store, 5.8 GB. The repository limit is 10 GB, so the Linux and
+  macOS stores evict each other, and a cache saved for each pull request push
+  would evict the `main` entry. Saving on pull requests is not implemented;
+  the owner decides between a smaller store, a binary cache or no change.

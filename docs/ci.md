@@ -4,20 +4,36 @@ CI uses Nix to cache builds and expensive hermetic pytest suites. The earlier
 [ADR 0001](adr-0001-pytest-and-nix-ci.md) unit-result receipts and coverage
 aggregation have been superseded by [Nix test targets](../build-support/README.md).
 
-`.github/workflows/ci.yml` checks Linux and macOS on pull requests, main pushes,
-release tags and manual requests. `tests/ci_scope.py` routes documentation-only
-changes to link checks, ordinary changes to `just test-full`, and runtime/package
-changes to `just package`. Tags and manual requests always package.
+`.github/workflows/ci.yml` checks pull requests on Linux. Pushes to `main`, release
+tags, manual requests and a nightly schedule check both Linux and macOS. On a pull
+request the macOS job reports success without running checks, because the
+repository ruleset requires a result from it; macOS changes are checked locally
+with `just test` and after the merge.
+
+`tests/ci_scope.py` selects the checks from the files that differ from the pull
+request base:
+
+| Scope | Selected when | Recipes |
+| --- | --- | --- |
+| `docs` | only Markdown documentation changed | link checks, no build |
+| `test` | any other change | `just test-full` |
+| `infrastructure` | build definitions or shared test infrastructure changed | `just test-full test-nix` |
+| `packaging` | archive contents, installation or runtime discovery changed | `just test-full runtime-package` |
+| `package` | both of the above, `main` pushes, tags, manual and nightly runs | `just package` |
 
 Each native job enters the pinned Nix environment once. `tools/ci_checks.py`
 checks resources, builds the runtime and
-invokes the selected recipe. `just test-full` builds seven independent Nix test targets
+invokes the selected recipe. `just test-full` builds nine independent Nix test targets
 with `nix-build -A tests`; the flake exposes the same derivations as
 `checks.<system>`:
 
 - `tests.kernel`: real Lean compilation and proof-checker replay attacks.
-- `tests.model`: production SQL translation, pinned native SQLite observations
-  and concrete Lean model assertions.
+- `tests.model`: production SQL translation and concrete Lean model assertions,
+  compared with pinned native SQLite on authored and generated cases.
+- `tests.frozen`: replay and classification of the frozen corpora (v1 to v5)
+  and checks of the retained evidence reports.
+- `tests.harness`: fast acquisition, storage, profile and workload checks of the
+  conformance harness.
 - `tests.sample`: all frozen v4 authored and synthetic cases plus a stable
   upstream sample, with fresh native replay and model classification within
   120 seconds.
@@ -31,25 +47,41 @@ Python/pytest, native tools, Lean artifacts and command determine its Nix identi
 Successful outputs retain pytest's JUnit XML. There is no Python cache validator or
 coverage-report gate. Nix sandboxing is enabled, with fallback disabled.
 
+Each target declares only the inputs that its tests read. The conformance targets
+(`model`, `frozen`, `harness`, `sample` and `upstream`) receive only the SQL frontend
+modules listed in `tests/conformance_frontend.json`, so a change to the verification
+application, for example `migration_check/prepare.py`, keeps their results.
+`tests/test_conformance_frontend.py` checks that list against the actual imports.
+Only `tests.frozen` (and the `sample` and `upstream` targets that read them) depend on
+the large frozen corpora and retained reports.
+
+Each test has a 300-second limit (`pytest-timeout`), so a hung test fails with its
+own name. Nix runs several targets at the same time, so a target's total time
+depends on the other targets; its 1200-second limit only guards against a hang
+outside a test.
+
 The remaining cheap source cases run in one pytest invocation. Cases marked
 `requires_nix` (source identities, test-target invalidation, environment snapshots,
-installer cache paths) run in `just test-nix`, which `just package` includes; CI
-routes changes to Nix, build, tooling, packaging and those test files to packaging. `just test-atuin` selects
+installer cache paths) run in `just test-nix`; CI selects it for changes to build
+definitions and shared test infrastructure. `just test-atuin` selects
 only the cached Atuin target. Tests use trusted repository fixtures; no production
 sandbox is supplied or tested. Nix daemon and installation tests run on the host.
 Cheap unit tests rerun normally. Direct `just test-cases FILE` always executes
 pytest, even if the corresponding Nix target is already cached.
 Development `just test` selects `developmentTests`, the same targets except
-`tests.model`. `tests/nix_suites.json` assigns test files to Nix and supplies the
+`tests.model` and `tests.frozen`. `tests/nix_suites.json` assigns test files to Nix and supplies the
 host `--source-checks` exclusion list. Source-owned conformance checks remain
-fresh. CI test scope and `just package` both retain the complete suite.
+fresh. Every scope from `test` up runs all Nix targets.
 
 The pinned cache-nix-action restores the Nix store using a platform/environment
-prefix and a commit-specific key. Only successful main jobs save caches. PRs and
-tags restore them. Nix, not the GitHub cache key, determines which outputs can be
-reused. An unrelated test edit can reuse kernel/model results; changing a declared
-input creates a different test derivation. No extra signing credentials, custom
-source fingerprinting in production CI, or checkout build caches are required.
+prefix and a commit-specific key. Only successful `main` and nightly jobs save
+caches. Pull requests and tags restore them. Nix, not the GitHub cache key,
+determines which outputs can be reused. An unrelated test edit can reuse kernel/model
+results; changing a declared input creates a different test derivation. No extra
+signing credentials, custom source fingerprinting in production CI, or checkout
+build caches are required. One saved store is about 6 GB, and GitHub keeps at most
+10 GB of caches for the repository, so the Linux and macOS caches can evict each
+other; an evicted platform then starts from an empty store.
 
 Host JUnit reports, cached Nix test outputs and CI phase diagnostics are
 retained for 14 days. Pytest's exit status decides success. Individual subprocess

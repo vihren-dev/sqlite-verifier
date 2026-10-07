@@ -24,7 +24,8 @@ in rec {
   tests = import ./tests.nix {
     inherit pkgs leanToolchain leanRuntime parsers runtime native conformance;
   };
-  developmentTests = pkgs.lib.removeAttrs tests [ "model" ];
+  # `just test` skips the slow model comparisons and the frozen evidence; `just test-full` runs them.
+  developmentTests = pkgs.lib.removeAttrs tests [ "model" "frozen" ];
   runtime = import ./runtime.nix {
     inherit pkgs sources leanToolchain parsers leanRuntime exporter;
   };
