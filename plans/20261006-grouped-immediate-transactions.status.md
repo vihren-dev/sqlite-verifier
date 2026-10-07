@@ -86,6 +86,31 @@ model target and independent review must establish current acceptance.
 Executor source, approved baselines, frozen corpora and all existing command
 limits must remain unchanged. The task remains incomplete.
 
+The clean feature now contains only the original transaction definitions,
+publisher, two test files, documentation and separate evidence. Model Nix
+inputs include both Python modules, both test files and the report directory.
+Six new invalidation checks change each of those inputs, including the binary
+shard, and inspect the actual derivation identities. They also confirm the
+existing seven-suite membership and all 420/600-second command limits.
+
+All 65 transaction, review, storage and shard checks pass in 2.02 seconds.
+All 24 historical authored, boundary, query and native checks pass in 8.74
+seconds. Both commands have 60-second limits. The seven real Nix checks pass
+in 11.77 seconds with a 90-second limit; 41 unrelated checks are deselected.
+Both documentation checks pass in 0.48 seconds with a 60-second limit.
+The resource guard passes before acceptance. The exact retained conformance
+runtime used for historical checks matches actual Nix evaluation of this
+clean source. No runtime build is claimed at this checkpoint.
+
+The [focused acceptance receipt](../reports/20261007-grouped-immediate-transactions-integration/README.md)
+retains all four original JUnit files, source bindings and scope qualifications.
+All 16 original evidence and diagnostic files remain byte-identical. The
+journal preserves all 169 base rows and 23 historical rows in order and with
+their original multiplicity, using 176 merged rows. Approved executor and
+baseline files, all frozen corpora and other existing base files are unchanged.
+This feature checkpoint awaits independent review. The complete model target
+remains required before current acceptance or task completion is reported.
+
 ## Decisions waiting for the owner
 
 - None for the limited diagnostic. The owner authorized it on 2026-10-06.

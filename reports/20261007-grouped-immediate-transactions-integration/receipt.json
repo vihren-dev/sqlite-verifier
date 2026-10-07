@@ -1,0 +1,74 @@
+{
+  "baseRevision": "46bd04b576436cf88d9a4e7b929ecaeede43d217",
+  "historicalSourceBookmark": "t13-mixed-history-acceptance",
+  "runtimeRoot": "/nix/store/3h1ww180anyrw23dhs7bpzswhkrv2l1s-sqlite-verifier-conformance",
+  "actualEvaluatedModelDerivation": "/nix/store/zpr04dikvwf4n37y7g15gfjdpfa9zy6v-sqlite-verifier-test-model-1.drv",
+  "runtimeIdentityMatchesActualCleanNixEvaluation": true,
+  "historicalEvidenceFilesByteIdentical": 16,
+  "storedCasesSha256": "5c803913c7e356255d0c1bd1d9ccaf328ffbbac8e86aadbe63580dc68cb6830a",
+  "existingBaseChanges": [
+    "build-support/tests.nix",
+    "reviews/log.jsonl",
+    "tests/nix_suites.json",
+    "tests/test_nix_test_targets.py"
+  ],
+  "allOtherExistingBaseFilesUnchanged": true,
+  "journal": {
+    "baseRows": 169,
+    "historicalRows": 23,
+    "mergedRows": 176,
+    "bothOrdersAndMultiplicityPreserved": true
+  },
+  "featureInputsSha256": {
+    "conformance/authored_transactions.py": "6cb0e43adff8b1644e177ef4061f44d9a302254a39f58657d5e9ccd9af28f6b7",
+    "conformance/transaction_evidence.py": "6f75324a099f92b9cf010b932acbea9070c4edccfc3cab335e760c3d5645996e",
+    "tests/conformance_authored_transactions_test.py": "4fa35a150fd709f8664f630c0d6737130ac5c817a2c6162e56136beb54d7ce26",
+    "tests/conformance_transaction_evidence_test.py": "5fbf94b0e833570ad9b14ce1114ef52d44ff298dc16c82da0576cf5fedf2e2c1",
+    "tests/nix_suites.json": "63760481c0bad4219c719b0f18afc17bb55fcae7111e6eb718e2e054b175b403",
+    "build-support/tests.nix": "1a6382619667abd4682af85c648442353ace5134867801d5b45210ccad9f3d7d",
+    "tests/test_nix_test_targets.py": "325dfdc4b59eb602e2bf1cc00f5c11b927bdc8a99bdbda048ef43ed6a32294ed"
+  },
+  "checks": [
+    {
+      "scope": "new transaction and existing review, storage and shard checks",
+      "commandLimitSeconds": 60,
+      "junit": "native-storage.xml",
+      "junitSha256": "e44728eb558953d8bd9d916a221ed4dfb5a249a612c168b8f48462e4220349c3",
+      "tests": 65,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "scope": "existing authored, boundary, query and native checks",
+      "commandLimitSeconds": 60,
+      "junit": "historical-native.xml",
+      "junitSha256": "4bd575dca25244f4a6da1c1ebaf679399fd43e860bd2f787eb7b398f7d4617b5",
+      "tests": 24,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "scope": "real suite membership and six transaction input invalidations",
+      "commandLimitSeconds": 90,
+      "junit": "nix-ownership.xml",
+      "junitSha256": "d06185a2f8fd89294779da65069cd8e4c7a3d8dd1a711b26c231fd01a65a51dd",
+      "tests": 7,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "scope": "authored local Markdown links",
+      "commandLimitSeconds": 60,
+      "junit": "docs.xml",
+      "junitSha256": "183e56ec141e89a03033e1e0a073d35d05a27dbf0106c28b11ebc5f18d596ee2",
+      "tests": 2,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    }
+  ],
+  "fullModelAcceptanceComplete": false
+}

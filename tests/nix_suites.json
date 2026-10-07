@@ -33,6 +33,8 @@
     "tests/conformance_authored_queries_test.py",
     "tests/conformance_authored_boundaries_test.py",
     "tests/conformance_authored_review_test.py",
+    "tests/conformance_authored_transactions_test.py",
+    "tests/conformance_transaction_evidence_test.py",
     "tests/conformance_shards_test.py",
     "tests/conformance_freeze_test.py",
     "tests/conformance_evidence_test.py",
