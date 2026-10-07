@@ -127,7 +127,8 @@ python3 -m conformance.refresh_corpus --base conformance/corpus-v2 \
 ```
 
 V3 retains v2's exact records and adds 164 newly selected upstream cases plus 23
-authored scenarios. `just conformance-corpus` replays fresh native observations;
+authored scenarios. `just conformance-corpus /path/to/native-storage` replays
+fresh native observations with [explicit file storage](conformance-progress.md#full-native-replay-storage);
 `just conformance-progress` reports [versioned progress](conformance-progress.md).
 The bounded frozen replay runs in `just test`; upstream re-extraction is an
 explicit separate target. The three original static fixtures remain historical

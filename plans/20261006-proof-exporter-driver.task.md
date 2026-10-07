@@ -64,6 +64,10 @@ where the existing bundle comparison requires them.
 
 T03 receipts are immutable baselines in
 `reports/20261006-lean-4341-upgrade-{darwin,linux}.json`. The reviewed upgrade
-revision is `6917e3c8`; native checks passed, while final owner review and
-release remain pending. This task may prepare dependent work but does not
-publish, merge or release it before that gate.
+revision is `6917e3c8`; its approved integration was merged through PR #43 as
+`bc9e2dce` on 2026-10-07. The owner approved PR #47 at exact reviewed head
+`07dc71b3` on the same date. The publication integration preserves that exporter,
+import-view, source-pin and baseline code. Main's accepted engine-settings
+caller changes have a separate current-input receipt; the historical native
+receipts keep their original source/runtime identities. Normal hosted checks
+and PR delivery remain required before merge. This task grants no release approval.

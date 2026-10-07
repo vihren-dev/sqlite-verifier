@@ -1,0 +1,45 @@
+{
+  "date": "2026-10-06",
+  "status": "DONE",
+  "pr": "https://github.com/vihren-dev/sqlite-verifier/pull/49",
+  "publishedHead": "b78834000049bfca9ad57bbc6d522827fe35b9ae",
+  "executedCheckout": "4056410cc327dffc6a457368ed2061199a0b8ade",
+  "run": 37512848112,
+  "url": "https://github.com/vihren-dev/sqlite-verifier/actions/runs/37512848112",
+  "conclusion": "success",
+  "createdAt": "2026-10-06T18:38:20Z",
+  "completedAt": "2026-10-06T19:04:16Z",
+  "jobs": [
+    {
+      "id": 112438177629,
+      "name": "Check (aarch64-darwin)",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 112438177974,
+      "name": "Check (x86_64-linux)",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 112449500307,
+      "name": "Publish checked native archives",
+      "status": "completed",
+      "conclusion": "skipped"
+    }
+  ],
+  "modelLimitSeconds": 600,
+  "otherSuiteLimitSeconds": 420,
+  "sourceFrozenPrsUnchanged": [
+    43,
+    44,
+    47,
+    48
+  ],
+  "pullRequestState": "merged",
+  "adoptedMainCommit": "d8faab74d80a58fa8ff194602f03018e1d6f3d25",
+  "adoptedRecipeGitBlob": "0977664bc1ee5b38ff71c84c604f2a94b72fd5a9",
+  "adoptedRecipeEqualsTested": true,
+  "mergeActor": "root coordinator; this receipt update performs no merge"
+}

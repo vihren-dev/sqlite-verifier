@@ -10,7 +10,7 @@ IGNORED_SETTINGS = {"journal_mode", "synchronous", "cache_size", "temp_store", "
 
 @dataclass(frozen=True)
 class ExecutionProfile:
-    """Immutable identity and conditions established before any case SQL executes."""
+    """Immutable case conditions; setup can replay FK changes before restoring them."""
 
     name: str
     version: int
