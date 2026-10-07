@@ -30,3 +30,9 @@ changing the repository. All 74 owner-approved source, pin and baseline files
 remain unchanged. Original job metadata, console bytes and the negative
 oracle are retained in [the report](../reports/20261007-hosted-complete-job-budget/README.md).
 Independent review and new hosted acceptance remain pending.
+
+Review `20261007T112717Z-91635dcd` returned zero must findings and two
+suggestions. Updated the CI guide to the actual 75-minute job limit and
+named the five-minute setup/artifact allowance in its test. Both suggestions
+are recorded as fixed. The same 26 tests and 28 subtests pass after these
+corrections; no individual deadline or approved source changes.

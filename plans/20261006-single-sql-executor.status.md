@@ -358,3 +358,8 @@ the stated recipes are complete. The task is not DONE.
   The negative oracle rejects the old guard. All 74 approved files remain
   unchanged. Original cancellation evidence is retained; a new hosted pass
   remains required before delivery.
+
+- 2026-10-07: The aggregate deadline review has no must findings. Corrected
+  its two suggestions: the guide now states 75 minutes and the test names
+  its setup allowance. All 26 focused checks and 28 subtests pass again.
+  Every owner-approved source and baseline file remains unchanged.

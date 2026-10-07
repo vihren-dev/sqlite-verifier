@@ -14,6 +14,9 @@ from tests.runtime_support import CommandResult, CommandTimeout
 
 pytestmark = [pytest.mark.unit, pytest.mark.environment]
 
+HOSTED_SETUP_AND_ARTIFACT_ALLOWANCE_SECONDS = 300
+"""Leave five minutes beyond complete phase limits for runner setup and artifact retention."""
+
 
 @pytest.mark.parametrize("scope", ["test", "package"])
 @pytest.mark.parametrize("mode", ["source", "build"])
@@ -37,8 +40,9 @@ def test_hosted_job_covers_sequential_phase_budgets(
     with patch("tools.ci_checks.check_resources"), patch("tools.ci_checks.run_command", side_effect=invoke), \
          patch.dict("os.environ", {"SQLITE_VERIFIER_SYSTEM": system}):
         run_checks(scope, mode, system, tmp_path)
-    assert sum(budgets) + 300 <= int(match.group(1)) * 60, \
-        f"Hosted job budget cannot cover {sum(budgets)} seconds of phases plus 300 seconds of setup and artifacts"
+    assert sum(budgets) + HOSTED_SETUP_AND_ARTIFACT_ALLOWANCE_SECONDS <= int(match.group(1)) * 60, \
+        f"Hosted job budget cannot cover {sum(budgets)} seconds of phases plus " \
+        f"{HOSTED_SETUP_AND_ARTIFACT_ALLOWANCE_SECONDS} seconds of setup and artifacts"
 
 
 @pytest.mark.parametrize("mode", ["source", "build"])
