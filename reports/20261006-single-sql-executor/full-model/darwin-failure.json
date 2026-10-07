@@ -1,0 +1,22 @@
+{
+  "sourceCommit": "83edc417eea4ff74da8f67aebbc0d43a0fc7b1c6",
+  "command": "timeout 900 nix-build build-support/default.nix -A tests.model --out-link build/t05-nix-model --option sandbox true --option sandbox-fallback false --extra-experimental-features nix-command flakes",
+  "suiteLimitSeconds": 420,
+  "outerLimitSeconds": 900,
+  "exitCode": 1,
+  "derivation": "/nix/store/jm2cxh55awywml9691qmyda6c4yaxmr1-sqlite-verifier-test-model-1.drv",
+  "conformanceRoot": "/nix/store/3h1ww180anyrw23dhs7bpzswhkrv2l1s-sqlite-verifier-conformance",
+  "logSha256": "2cfd27a5a3a2db683dabb7160bf1e124234cb7dc128e2c6534a0567d480aad54",
+  "logBytes": 33554,
+  "logCreatedUtc": "2026-10-06T18:25:01.131094+00:00",
+  "lastLogWriteUtc": "2026-10-06T18:32:03.956139+00:00",
+  "logWriteIntervalSeconds": 422.8250455856323,
+  "elapsedQualification": "Wall-clock file creation through last write; no monotonic process-start measurement was captured.",
+  "lastCase": "tests/conformance_progress_views_test.py::test_actual_frozen_partition_requirement_inventory_and_identities[5]",
+  "error": "boost::bad_format_string: format-string is ill-formed",
+  "junitProduced": false,
+  "pytestSummaryProduced": false,
+  "completedProgressLines": 315,
+  "skippedProgressLines": 1,
+  "hostNixVersion": "2.18.1"
+}

@@ -1,46 +1,59 @@
-import SqliteVerifier.Execution
+import SqliteVerifier.SqlProofs
+
+set_option doc.verso true
 
 /-! Derived extension lemmas concern arbitrary initial rows, including duplicate
 application values. They do not assume a fixed fixture or prove native refinement. -/
 
 namespace SqliteVerifier
 
-/-- Existing columns and cells remain, with only trailing NULL columns added. -/
+/-- There exists a list of trailing columns whose NULL extension of the before
+table equals the after table. This includes equality through an empty extension.
+Use it to preserve old cells and physical row identities. -/
 def TableExtends (before after : Table) : Prop :=
   ∃ columns, after = before.appendColumns columns
 
-/-- Every existing table is retained with its rows and old fields intact. -/
+/-- For every table name and table present before execution, there exists a table
+present after execution that satisfies {name}`TableExtends`. An empty before
+database imposes no requirement. New tables are allowed. -/
 def DatabaseExtends (before after : Database) : Prop :=
   ∀ name table, before name = some table →
     ∃ result, after name = some result ∧ TableExtends table result
 
-/-- Adding no columns is the identity, including all physical rowids. -/
+/-- For every table, appending no columns gives the same table, including its
+rows and properties. The proof unfolds the table and row operations. -/
 theorem Table.appendColumns_nil (table : Table) : table.appendColumns [] = table := by
   cases table
   simp [Table.appendColumns, Row.appendNulls]
 
-/-- Consecutive additions compose without changing earlier added or old cells. -/
+/-- For every table and two column lists, consecutive NULL extensions equal one
+extension by their concatenation. The proof distributes row mapping over append. -/
 theorem Table.appendColumns_append (table : Table) (first second : List Column) :
     (table.appendColumns first).appendColumns second = table.appendColumns (first ++ second) := by
   simp [Table.appendColumns, Row.appendNulls, List.map_map,
     List.append_assoc, Function.comp_def]
 
-/-- Table preservation is available independently of the script convenience. -/
+/-- Every table extends itself, witnessed by an empty list of appended columns. -/
 theorem TableExtends.refl (table : Table) : TableExtends table table :=
   ⟨[], table.appendColumns_nil.symm⟩
 
-/-- Structural preservation composes; no such assumption is imposed on user Q. -/
+/-- Whenever a before table extends to a middle table and that middle table
+extends to an after table, the before table extends to the after table. The proof
+concatenates the extension lists; it assumes nothing about application contracts. -/
 theorem TableExtends.trans (first : TableExtends before middle)
     (second : TableExtends middle after) : TableExtends before after := by
   obtain ⟨a, rfl⟩ := first
   obtain ⟨b, rfl⟩ := second
   exact ⟨a ++ b, before.appendColumns_append a b⟩
 
-/-- Unchanged databases satisfy preservation, including the empty database. -/
+/-- Every database extends itself: each present table is retained unchanged.
+This includes an empty database, where the table premise is always false. -/
 theorem DatabaseExtends.refl (database : Database) : DatabaseExtends database database :=
   fun _ table present => ⟨table, present, TableExtends.refl table⟩
 
-/-- Each intermediate state retains the previously established observations. -/
+/-- If a before database extends to a middle database and the middle extends to
+an after database, the before extends to the after. The proof retrieves each
+present intermediate table and composes its table extension witnesses. -/
 theorem DatabaseExtends.trans (first : DatabaseExtends before middle)
     (second : DatabaseExtends middle after) : DatabaseExtends before after := by
   intro name table present
@@ -48,7 +61,9 @@ theorem DatabaseExtends.trans (first : DatabaseExtends before middle)
   obtain ⟨result, present'', growth'⟩ := second name intermediate present'
   exact ⟨result, present'', growth.trans growth'⟩
 
-/-- Creating an actually absent table cannot replace protected stored data. -/
+/-- For every database and absent name, setting a table at that name extends the
+database. Existing tables at other names are unchanged; no condition is imposed
+on the new table. The proof separates equal and distinct names. -/
 theorem DatabaseExtends.create (database : Database) (name : String) (table : Table)
     (absent : database name = none) : DatabaseExtends database (database.set name table) := by
   intro other old present
@@ -57,7 +72,9 @@ theorem DatabaseExtends.create (database : Database) (name : String) (table : Ta
     simp [absent] at present
   · exact ⟨old, by simp [Database.set, same, present], TableExtends.refl old⟩
 
-/-- Updating the target's schema extends its cells and leaves other tables alone. -/
+/-- For every present table and any column list, setting its NULL extension at
+its existing name extends the database. Other tables are unchanged. The proof
+uses the supplied presence equality for the selected name. -/
 theorem DatabaseExtends.add (database : Database) (name : String) (table : Table)
     (columns : List Column) (present : database name = some table) :
     DatabaseExtends database (database.set name (table.appendColumns columns)) := by
@@ -69,7 +86,11 @@ theorem DatabaseExtends.add (database : Database) (name : String) (table : Table
     exact ⟨table.appendColumns columns, by simp [Database.set], ⟨columns, rfl⟩⟩
   · exact ⟨old, by simp [Database.set, same, oldPresent], TableExtends.refl old⟩
 
-/-- Both successful statements and modeled statement failures retain old data. -/
+/-- For every statement, database and position, the primitive {name}`step`
+result extends the input database. CREATE/ADD extend existing tables or retain
+errors; other constructors return an unchanged invalid-definition error. This
+is a primitive schema fact, not a preservation law for literal SQL writes.
+The proof follows the primitive branches and table-update witnesses. -/
 theorem step_extends (statement : Statement) (database : Database) (position : Nat) :
     DatabaseExtends database (step statement database position).database := by
   cases statement with
@@ -99,32 +120,49 @@ theorem step_extends (statement : Statement) (database : Database) (position : N
   | insert _ _ _ => exact DatabaseExtends.refl database
   | update _ _ _ _ _ => exact DatabaseExtends.refl database
 
-/-- A later error retains the already committed prefix and all original data. -/
-theorem runFrom_extends (script : List Statement) (database : Database) (position : Nat) :
-    DatabaseExtends database (runFrom position script database).database := by
+/-- For every script containing only CREATE/ADD, idle starting database and
+position, the computed SQL result extends the starting database. Invalid schema
+attempts and later errors retain the successful prefix. This makes no claim for
+data writes or transaction control. The proof inducts over the guarded schema
+transitions and composes their table preservation witnesses. -/
+theorem runSqlFrom_extends (guard : SchemaOnly script) :
+    DatabaseExtends database (runSqlFrom position script { database := database }).database := by
   induction script generalizing database position with
   | nil => exact DatabaseExtends.refl database
   | cons statement rest ih =>
+    have head : SchemaOnly [statement] := fun item member => by
+      simp only [List.mem_singleton] at member
+      subst item
+      exact guard statement (by simp)
+    have tail : SchemaOnly rest := fun item member => guard item (by simp [member])
     have first := step_extends statement database position
     cases h : step statement database position with
-    | failure index reason result => simpa [runFrom, h] using first
+    | failure index reason result => simpa [runSqlFrom, advance_schemaOnly head, h] using first
     | success result =>
       simp only [h, Outcome.database] at first
-      simpa [runFrom, h] using first.trans (ih result (position + 1))
-    | pending persisted visible error => simpa [runFrom, h] using first
+      simpa [runSqlFrom, advance_schemaOnly head, h] using first.trans (ih tail (database := result))
+    | pending persisted visible error => simpa [runSqlFrom, advance_schemaOnly head, h] using first
 
-/-- The reusable additive theorem holds for every initial database and outcome. -/
-theorem run_extends (script : List Statement) (database : Database) :
-    DatabaseExtends database (run script database).database :=
-  runFrom_extends script database 0
+/-- For every schema-only script and starting database, {name}`runSql` preserves
+all existing tables, rows and old fields, including failure prefixes. The guard
+excludes writes and transaction control. This is the idle, position-zero instance
+of {name}`runSqlFrom_extends`; it does not claim native refinement. -/
+theorem runSql_extends (guard : SchemaOnly script) (database : Database) :
+    DatabaseExtends database (runSql script database).database :=
+  runSqlFrom_extends guard
 
-/-- No row identity, multiplicity, or represented row order is lost. -/
+/-- For every table extension, the ordered list of after rowids equals the
+before list. The proof unfolds NULL extension; duplicate rowids are not excluded
+by this statement. -/
 theorem TableExtends.rowids (extension : TableExtends before after) :
     after.rows.map Row.rowid = before.rows.map Row.rowid := by
   obtain ⟨columns, rfl⟩ := extension
   simp [Table.appendColumns, Row.appendNulls, List.map_map, Function.comp_def]
 
-/-- Reading all original stored columns yields their exact previous values. -/
+/-- For every table extension whose before rows each have the before column
+width, taking that many values from every after row gives the exact ordered
+before value lists. With no rows the claim is vacuous. The proof unfolds NULL
+extension and uses the width assumption for each row. -/
 theorem TableExtends.oldValues (extension : TableExtends before after)
     (width : ∀ row ∈ before.rows, row.values.length = before.columns.length) :
     after.rows.map (fun row => row.values.take before.columns.length) =

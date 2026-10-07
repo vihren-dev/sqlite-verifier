@@ -29,7 +29,7 @@ jobs:
           - runner: macos-14
             system: aarch64-darwin
     runs-on: ${{ matrix.runner }}
-    timeout-minutes: 30
+    timeout-minutes: 75
     env:
       BUILD_MODE: build
       # Pull requests run on Linux only. The macOS job still reports, because the

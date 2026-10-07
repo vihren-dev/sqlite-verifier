@@ -1,5 +1,7 @@
 import SqliteVerifier.Library
 
+set_option doc.verso true
+
 /-! Engineering example: arbitrary stored amounts survive a column addition and
 new table. This is a complete VC proof, not a real-pilot acceptance claim. -/
 
@@ -32,24 +34,28 @@ def current : Interpretation LogicalRows := projectedInterpretation startSchema 
 /-- Resulting meaning reads the same protected projection from resulting storage. -/
 def next : Interpretation LogicalRows := projectedInterpretation nextSchema "invoices" ["amount"]
 
-/-- The schema constraints themselves admit the empty database witness. -/
+/-- The fixed {name}`startSchema` satisfies every {name}`Schema.Valid` condition.
+The proof checks its names, columns and properties. -/
 theorem start_valid : startSchema.Valid := by
   simp [Schema.Valid, startSchema]
   decide +kernel
-/-- The intermediate schema stays inside the documented subset. -/
+/-- The fixed {name}`middleSchema` satisfies every {name}`Schema.Valid` condition. -/
 theorem middle_valid : middleSchema.Valid := by
   simp [Schema.Valid, middleSchema]
   decide +kernel
-/-- The second table is distinct and has an admitted definition. -/
+/-- The fixed {name}`nextSchema` satisfies every {name}`Schema.Valid` condition. -/
 theorem next_valid : nextSchema.Valid := by
   simp [Schema.Valid, nextSchema]
   decide +kernel
 
-/-- Entire generated obligations are proved for arbitrary admissible initial rows. -/
+/-- The complete {name}`VerificationConditions` hold for the supplied schemas,
+script and preservation contract, for every admitted starting database. The proof
+constructs a starting witness and sound representations, proves support, then
+computes the two successful schema transitions and preserves the invoice projection. -/
 theorem migrationCorrect :
     VerificationConditions startSchema nextSchema script (fun _ => True)
       requirements current next unreachableFailures := by
-  apply VerificationConditions.of_run (by decide +kernel) (by decide +kernel)
+  apply VerificationConditions.of_runSql
   · exact ⟨startSchema.emptyDatabase, startSchema.emptyDatabase_conforms start_valid, trivial⟩
   · exact projectedInterpretation_sound requirements startSchema "invoices" ["amount"]
       (by intros; trivial)
@@ -63,6 +69,8 @@ theorem migrationCorrect :
     simp only [List.mem_singleton] at member
     subst name
     exact ⟨0, by simp [columns, amount]⟩
+  · intro database _
+    exact ⟨by decide +kernel, supportedSqlFrom_schemaOnly (by simp [SchemaOnly, script])⟩
   · intro database admitted
     obtain ⟨table, present, columns, valid⟩ := admitted.1.table (name := "invoices") (by rfl)
     have absent : database "audit" = none := by
@@ -103,7 +111,7 @@ theorem migrationCorrect :
           · have auditFalse : ("audit" == other) = false := beq_eq_false_iff_ne.mpr (Ne.symm audit)
             simp [Schema.lookupProperties, List.find?, middleSchema, nextSchema,
               audit, auditFalse, Ne.symm invoices])
-    have executed : run script database = .success
+    have executed : runSql script database = .success
         ((database.set "invoices" (table.appendColumns [note])).set "audit" { columns := [message], rows := [] }) := by
       have invoiceName : supportedTableName "invoices" = true := by decide +kernel
       have noteSupported : supportedColumn note = true := by decide +kernel
@@ -114,7 +122,7 @@ theorem migrationCorrect :
       have noDuplicate : table.columns.any (fun old => old.name == note.name) = false := by
         rw [columns]; decide +kernel
       have belowLimit : table.columns.length < maximumColumns := by rw [columns]; decide
-      simp [run, runFrom, script, step, present, absent, Database.set,
+      simp [runSql, runSqlFrom, advance, literalStep, SqlState.finish, script, step, present, absent, Database.set,
         invoiceName, noteSupported, auditName, auditColumns, messagePlain, notePlain, noDuplicate, Nat.not_le.mpr belowLimit]
     rw [executed]
     refine ⟨trivial, ?_⟩

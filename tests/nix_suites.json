@@ -12,7 +12,8 @@
     "tests/cli_test.py"
   ],
   "kernel": [
-    "tests/kernel_gate_test.py"
+    "tests/kernel_gate_test.py",
+    "tests/single_executor_test.py"
   ],
   "model": [
     "tests/conformance_model_test.py",

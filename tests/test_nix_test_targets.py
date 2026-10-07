@@ -73,6 +73,7 @@ def source_tree(tmp_path: Path) -> Path:
 
 @pytest.mark.parametrize('relative,affected', [
     ('tests/kernel_gate_test.py', {'kernel'}),
+    ('tests/single_executor_test.py', {'kernel'}),
     ('tests/kernel_gate/Proofs.lean', {'kernel'}),
     ('conformance/model_cases.py', {'model', 'frozen', 'harness', 'upstream'}),
     ('conformance/replay_tiers.py', {'model', 'frozen', 'harness', 'sample', 'upstream'}),
