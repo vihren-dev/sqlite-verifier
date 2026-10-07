@@ -518,3 +518,14 @@ authorized one Linux diagnostic below. No production change followed it.
   full binding validation and the production 120-second guard are unchanged.
   No build, native performance phase, profile, SSH or acceptance run occurred.
   Independent review is pending; the overall task remains IN PROGRESS.
+- 2026-10-07: Four-worker commit
+  `1726f972315c985b3f6965c4d0c6d7c4b8a319eb` passed Claude review
+  `20261007T093857Z-1726f972`, session 57114 exit 0, with zero must findings
+  and one should finding. Timeout markers now use atomic pending-file
+  replacement, matching the crash markers, so a group kill cannot expose
+  partial JSON to the test. The configured five-second timeout is unchanged.
+  Focused session 65065 exited 0: one group-timeout check passed in 5.67
+  seconds under a 20-second outer bound. All four actual identities and
+  process IDs are retained and stopped. The finding has a fixed journal
+  resolution; the test-only refactor review is pending. No performance run,
+  source decoding change or new acceptance occurred.

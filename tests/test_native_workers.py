@@ -155,8 +155,11 @@ def blocked_case(inputs: CaseInput) -> NativeReplayResult:
     """Finish real native replay, retain the worker group identity, then wait for the configured outer timeout."""
     result = native_workers._replay_case(inputs)
     assert result.failure is None
-    (inputs[2].parent / f"worker-{os.getpid()}.json").write_text(json.dumps(
+    marker = inputs[2].parent / f"worker-{os.getpid()}.json"
+    pending = marker.with_suffix(".pending")
+    pending.write_text(json.dumps(
         {"pid": os.getpid(), "group": os.getpgrp(), "name": inputs[0]["name"]}))
+    pending.replace(marker)
     time.sleep(60)
     return result
 
