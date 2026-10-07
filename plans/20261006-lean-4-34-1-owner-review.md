@@ -1,6 +1,6 @@
 # Lean 4.34.1 final owner review
 
-Created 2026-10-06. Status: AWAITING OWNER REVIEW.
+Created 2026-10-06. Status: APPROVED on 2026-10-07.
 Task: [runtime upgrade](20261006-lean-4-34-1-upgrade.task.md).
 Status: [acceptance record](20261006-lean-4-34-1-upgrade.status.md).
 
@@ -59,12 +59,21 @@ SHA-256. Historical corpus v1–v5 is unchanged.
 
 ## Remaining acceptance
 
-Owner acceptance of the replay chains and exporter pin remains open.
-Hosted CI must pass for the final revision on macOS 14 and Ubuntu 22.04.
-The Linux native checks above ran on NixOS. Publication of the prepared
-v0.1.2 release follows both gates. No tag or release is published yet.
+Owner acceptance and both hosted native gates are complete. Reviewed integration
+`be59f4d3` passes both native jobs and protected-baseline checks in CI
+`37584974988`. PR #43 merged normally as `bc9e2dce`. Main package run
+`37587787077` passes Darwin and Ubuntu package and installed acceptance.
+The Linux native checks in the earlier table ran on NixOS.
+
+The unused v0.1.2 tag now points to exact reviewed merge `bc9e2dce`.
+Release workflow `37591468199` is running. It repeats both package checks and
+verifies archive checksums before publication. A published release and its
+native archive digests remain pending.
 
 ## Owner disposition
 
-Pending. Record the owner's response here and resolve the three R8
-findings through `just review-resolve` after acceptance.
+The owner explicitly approved PR #43 in the implementation chat on 2026-10-07
+at reviewed head `6917e3c8153af78daa6ebfc01d1f95785768e5f8`. Approval covers
+both kernel replay chains and the exporter pin. All three R8 findings from
+`20261006T091345Z-e2703279` are resolved as fixed. Publication integration
+preserves all 71 approved Lean, pin, runtime-guard and baseline files.
