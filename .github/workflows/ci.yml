@@ -6,8 +6,8 @@ on:
     branches: [main]
     tags: ["v*"]
   workflow_dispatch:
-  # Nightly verifier checks run on both platforms. Pull requests run them on
-  # Linux and build the API reference on both platforms.
+  # Nightly checks and references run on both platforms. Pull requests run
+  # checks and build the reference on Linux only.
   schedule:
     - cron: "17 2 * * *"
 
@@ -30,22 +30,24 @@ jobs:
           - runner: macos-14
             system: aarch64-darwin
     runs-on: ${{ matrix.runner }}
-    # The native checks keep their limits; the reference adds a 30-minute phase.
-    timeout-minutes: 105
+    # The owner limits the complete job to 75 minutes; child limits remain unchanged.
+    timeout-minutes: 75
     env:
       BUILD_MODE: build
-      # Runtime checks run on Linux for pull requests. The checked reference
-      # builds on both native platforms for every non-documentation scope.
+      # Pull requests run checks and references on Linux. Other events retain
+      # both native platforms for every non-documentation scope.
       PLATFORM_RUNS: ${{ matrix.system == 'x86_64-linux' || github.event_name != 'pull_request' }}
     steps:
-      - name: Skip macOS runtime checks on pull requests
+      - name: Skip macOS checks on pull requests
         if: env.PLATFORM_RUNS != 'true'
-        run: echo "macOS runtime checks run on main, tags, manual and nightly runs; the API reference builds on both platforms."
+        run: echo "macOS checks and the API reference run on main, tags, manual and nightly runs; Linux checks this pull request."
       - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        if: env.PLATFORM_RUNS == 'true'
         with:
           persist-credentials: false
           fetch-depth: 0
       - name: Select complete checks for the changed inputs
+        if: env.PLATFORM_RUNS == 'true'
         id: scope
         run: python3 tests/ci_scope.py
       - name: Check documentation and CI routing
@@ -54,7 +56,7 @@ jobs:
           python3 tests/docs_test.py
           python3 -m unittest tests.test_ci_scope
       - uses: cachix/install-nix-action@13d8dd58da0234aa297dedd986986ccb8e7f3e24 # v31
-        if: steps.scope.outputs.scope != 'docs'
+        if: env.PLATFORM_RUNS == 'true' && steps.scope.outputs.scope != 'docs'
         with:
           enable_kvm: false
           set_as_trusted_user: false
@@ -64,7 +66,7 @@ jobs:
             keep-outputs = true
             keep-derivations = true
       - name: Restore Nix builds and test results
-        if: steps.scope.outputs.scope != 'docs'
+        if: env.PLATFORM_RUNS == 'true' && steps.scope.outputs.scope != 'docs'
         uses: nix-community/cache-nix-action@7df957e333c1e5da7721f60227dbba6d06080569 # v7
         env:
           # Failed Nix builds can leave unreadable transient locks; never archive them.
@@ -76,10 +78,10 @@ jobs:
           restore-prefixes-first-match: |
             nix-tests-v2-${{ matrix.system }}-${{ hashFiles('nix/*.nix', 'nix/flake.lock') }}-
             nix-tests-v1-${{ matrix.system }}-${{ hashFiles('nix/*.nix', 'nix/flake.lock') }}-
-          # Pull requests save too; a pull request's cache is visible only to its own later runs.
-          save: true
+          # Only accepted main and nightly runs publish caches. Other events restore them.
+          save: ${{ github.event_name == 'schedule' || (github.event_name == 'push' && github.ref == 'refs/heads/main') }}
       - name: Build checked API reference
-        if: steps.scope.outputs.scope != 'docs'
+        if: env.PLATFORM_RUNS == 'true' && steps.scope.outputs.scope != 'docs'
         env:
           REFERENCE_REVISION: ${{ github.sha }}
         run: nix develop path:./nix --command just reference "$REFERENCE_REVISION"
@@ -93,7 +95,7 @@ jobs:
           nix develop path:./nix --command python3 tools/ci_checks.py \
             --system "$EXPECTED_SYSTEM" --scope "$CHECK_SCOPE" --mode "$BUILD_MODE"
       - name: Retain checked API reference
-        if: always() && steps.scope.outputs.scope != 'docs'
+        if: always() && env.PLATFORM_RUNS == 'true' && steps.scope.outputs.scope != 'docs'
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
           name: api-reference-${{ matrix.system }}

@@ -14,16 +14,12 @@ from tests.runtime_support import CommandResult, CommandTimeout
 
 pytestmark = [pytest.mark.unit, pytest.mark.environment]
 
-HOSTED_SETUP_AND_ARTIFACT_ALLOWANCE_SECONDS = 300
-"""Leave five minutes beyond complete phase limits for runner setup and artifact retention."""
-
-
 @pytest.mark.parametrize("scope", ["test", "package"])
 @pytest.mark.parametrize("mode", ["source", "build"])
 @pytest.mark.parametrize("system", ["aarch64-darwin", "x86_64-linux"])
-def test_hosted_job_covers_sequential_phase_budgets(
+def test_hosted_job_keeps_owner_limit_and_child_deadlines(
         tmp_path: Path, scope: str, mode: str, system: str) -> None:
-    """A hosted job must allow the actual complete phase limits plus setup and artifact retention."""
+    """The 75-minute aggregate limit and individual child deadlines are separate bounds."""
     workflow = (Path(__file__).resolve().parents[1] / ".github/workflows/ci.yml").read_text()
     check_job = workflow.split("  check:\n", 1)[1].split("\n  publish:", 1)[0]
     match = re.search(r"(?m)^    timeout-minutes: ([1-9][0-9]*)$", check_job)
@@ -44,9 +40,10 @@ def test_hosted_job_covers_sequential_phase_budgets(
     reference = re.search(r"timeout ([1-9][0-9]*) nix-build [^\n]*-A apiReference", recipes)
     assert reference is not None, "Reference phase has no bounded recipe"
     reference_limit = int(reference.group(1))
-    assert sum(budgets) + reference_limit + HOSTED_SETUP_AND_ARTIFACT_ALLOWANCE_SECONDS <= int(match.group(1)) * 60, \
-        f"Hosted job budget cannot cover {sum(budgets) + reference_limit} seconds of phases plus " \
-        f"{HOSTED_SETUP_AND_ARTIFACT_ALLOWANCE_SECONDS} seconds of setup and artifacts"
+    assert int(match.group(1)) == 75
+    assert reference_limit == 1800
+    assert all(0 < timeout <= 75 * 60 for timeout in budgets)
+
 
 
 @pytest.mark.parametrize("mode", ["source", "build"])

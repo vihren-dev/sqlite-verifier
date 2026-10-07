@@ -715,3 +715,21 @@ review rejected the normal merge because protected main requires explicit
 approval of PR57. The owner has been asked to approve this exact head.
 No alternate merge or branch change is attempted. T18b remains IN PROGRESS
 until the approval and normal delivery.
+
+- 2026-10-08: The owner approves PR #57 with explicit CI changes. Reference
+  builds now follow the Linux-only PR schedule and both native platforms
+  for main, tags and nightly runs. The complete job limit returns to
+  75 minutes; the 30-minute reference limit and other child limits stay
+  unchanged. Cache writes are restricted to main pushes and nightly runs.
+  The macOS skip test checks every working step, including reference
+  setup and retention. The old test that summed all child deadlines is
+  replaced by separate checks of the owner limit and unchanged reference
+  bound. Historical acceptance remains bound to its original workflow.
+  Fresh requested-change checks, review and normal delivery remain.
+
+- 2026-10-08: The requested reference/platform, cache-write and deadline
+  changes pass all 27 focused checks and 35 subtests in 3.22 seconds
+  under the pinned environment. Accepted main remains `d75fdc2b`, already
+  an ancestor of this branch. No production, library or reference-generator
+  input changes. Owner approval replaces the earlier held-merge decision;
+  fresh hosted CI and normal merge remain required after independent review.

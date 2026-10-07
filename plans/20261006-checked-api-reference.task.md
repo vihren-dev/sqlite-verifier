@@ -24,7 +24,9 @@ The formulas, runtime behavior and verification statuses remain unchanged.
 
 A checked module walkthrough shows how to use the library. CLI help explains
 user knowledge that does not belong to a Lean declaration. The README links
-to the reference and CLI help. The reference builds under Lean 4.34.1 in CI
+to the reference and CLI help. Pull requests build the reference on Linux. Main, tags and nightly builds
+run on both platforms. The complete CI job has a 75-minute limit, and caches
+are saved only on main and nightly runs. The reference builds under Lean 4.34.1 in CI
 from an exact Nix-pinned doc-gen4 and dependency closure. Hosting is not part
 of this task. Documentation dependencies belong to the development and
 reference build, rather than the installed proof runtime.
