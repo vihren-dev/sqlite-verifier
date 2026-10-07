@@ -260,3 +260,12 @@ macOS output bindings and original XML. Hosted counts are console-derived;
 original hosted XML remains in the workflow artifacts. No runtime input or
 feature file changes in this evidence checkpoint. Final owner review and
 normal delivery remain required. T15 remains IN PROGRESS.
+
+
+Evidence commit `6e86c4ad` passes independent review with no findings
+(`20261007T162448Z-6e86c4ad`) and is published. Current-head Linux CI
+`37652109859` completes successfully, including report retention and store
+collection. Its macOS job skips execution. PR #53 is marked ready for review.
+The final owner review request names this exact head. The published branch
+will remain unchanged while that review is pending unless the owner requests
+a correction. T15 is not DONE before final approval and normal delivery.
