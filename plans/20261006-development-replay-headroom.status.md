@@ -192,3 +192,9 @@ authorized one Linux diagnostic below. No production change followed it.
   or development replay phase ran. Independent review is pending. Frozen
   evidence, native SQL/profiles, selection and the 120-second guard are
   unchanged. No performance acceptance or timing savings are claimed.
+- 2026-10-07: Snapshot reconstruction commit
+  `c8001b457d20c9787418a7a038cb991f185346ae` passed independent Claude review
+  `20261007T064212Z-c8001b45` with no findings. This checked unit is complete.
+  The raw review row is retained in the append-only journal. Native concurrency,
+  integrated checks and both-platform performance acceptance remain pending;
+  the overall task remains IN PROGRESS. No benchmark, SSH or PR operation ran.
