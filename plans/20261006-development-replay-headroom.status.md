@@ -771,3 +771,39 @@ authorized one Linux diagnostic below. No production change followed it.
   profile measures stored-record serialization at 2.027926385 instrumented
   seconds; this cost alone does not establish a way to close the remaining
   gap. No production change or new timing run is claimed.
+
+- 2026-10-07: The bounded macOS loading feasibility diagnostic completes
+  once. Unchanged shard validation takes 12.911504042 seconds serially
+  and 7.974502375 seconds with four spawned processes, including transport.
+  All 109 shard digests and 4,376 ordered records match. Frozen bytes and
+  manifest hashes match before and after. This is a loading-only observation
+  in that order, with unknown cache residency; it is not Linux or whole-phase
+  acceptance. Source hashes were observed after the run, not before import.
+  The optional host memory query was denied by the sandbox. The resource
+  guard passes. The existing task now specifies bounded development loading
+  and unchanged validation, with a serial default and caller-owned executor.
+- 2026-10-07: Implemented ordered shard validation through an optional
+  standard executor. The development helper uses four spawned processes,
+  finishes them before native replay, and retains full binding checks before
+  selection. Size-limit exceptions preserve their measured integers during
+  transport. New tests belong to the harness suite; the shared worker module
+  belongs to the explicit harness/model/frozen and sample Nix inputs.
+  Nine real thread/spawn tests pass in 1.01 seconds. The wider bounded command
+  passes 127 tests but one routing fixture stops because the invocation names
+  absent `build/conformance`; this is not a passing result. Real Nix harness
+  and sample validation is running. No replay target or task completion is
+  claimed. An accidental status overwrite was restored from `a276953d`,
+  preserving all prior progress entries.
+
+- 2026-10-07: Corrected bounded integration passes all 128 checks in
+  7.75 seconds with the existing verified runtime. Real hardened macOS
+  Nix suites pass 129 harness checks in 2.703 seconds and 22 sample checks
+  in 30.213 seconds, without failures or skips. All 53 selected frontend
+  and Nix ownership checks pass in 81.21 seconds. The two new real source
+  invalidation cases verify the loading helper and harness test owners.
+  Original diagnostic bytes, the failed invocation, corrected XML and
+  native suite outputs are retained in
+  [the loading record](../reports/20261007-development-replay-parallel-loading/README.md).
+  All source files remain below 200 lines. Independent source review and
+  standalone acceptance on both platforms remain required. The Linux
+  33.707907737-second miss remains unchanged.

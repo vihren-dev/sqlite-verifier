@@ -69,7 +69,7 @@ let
     "refresh_corpus" "requirement_cases" "requirement_coverage"
     "authored_cases" "authored_cases_queries" "authored_boundaries" "authored_review" "authored_report"
     "upstream_selection" "upstream_catalog" "upstream_sampling" "upstream_profiles" "upstream_functions" "upstream_result_values"
-    "corpus_shards" "corpus_evidence" "corpus_acquisition" "freeze_corpus" "freeze_validation" "freeze_profiles" "workload" "workload_inputs"
+    "corpus_shards" "corpus_workers" "corpus_evidence" "corpus_acquisition" "freeze_corpus" "freeze_validation" "freeze_profiles" "workload" "workload_inputs"
     "upstream_assertions"
     "upstream_helpers"
     "native_fixture" "import_fixture" "schema"
@@ -99,7 +99,7 @@ in {
       (root + /conformance/corpus-v5)
       (root + /conformance/synthetic-workload)
     ] ++ map (name: root + "/conformance/${name}.py") [
-      "replay_tiers" "native_workers" "corpus" "corpus_shards" "corpus_evidence" "corpus_acquisition" "case_format"
+      "replay_tiers" "native_workers" "corpus" "corpus_shards" "corpus_workers" "corpus_evidence" "corpus_acquisition" "case_format"
       "workload" "workload_inputs" "execution_profile" "native_replay" "model_check"
       "native_record" "native_acquisition" "native_connection" "native_library" "native_clock" "native_storage"
       "native_probe" "native_ordering" "query_window" "native_metadata" "native_statements"

@@ -16,8 +16,14 @@ class CaseSizeLimit(ValueError):
     """Retain measured exclusion size separately from the human-readable reason."""
 
     def __init__(self, byte_count: int, limit: int) -> None:
+        """Keep both measured integers so process transport can reconstruct the same refusal."""
         self.byte_count = byte_count
+        self.limit = limit
         super().__init__(f"case size limit: {byte_count} bytes exceeds {limit} bytes")
+
+    def __reduce__(self) -> tuple[type["CaseSizeLimit"], tuple[int, int]]:
+        """Preserve the measured size and limit when a loading worker reports this refusal."""
+        return type(self), (self.byte_count, self.limit)
 
 
 def serialized(value: Json) -> bytes:

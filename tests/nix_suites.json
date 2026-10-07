@@ -44,6 +44,7 @@
     "tests/conformance_workload_test.py",
     "tests/conformance_workload_clock_test.py",
     "tests/conformance_storage_test.py",
+    "tests/conformance_loading_workers_test.py",
     "tests/conformance_ordering_test.py",
     "tests/conformance_clock_test.py",
     "tests/conformance_profile_test.py",

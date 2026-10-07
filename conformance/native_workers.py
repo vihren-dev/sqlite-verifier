@@ -9,7 +9,7 @@ from tempfile import TemporaryDirectory
 from typing import TypeAlias
 
 from conformance.case_format import Json
-from conformance.corpus import native_replay
+from conformance.corpus import load, native_replay
 from conformance.execution_profile import ExecutionProfile
 from conformance.native_connection import NativeError
 
@@ -28,6 +28,16 @@ class NativeReplayResult:
     paths: tuple[Path, ...]
     failure: Exception | None
     native_code: int | None = None
+
+
+def load_development_corpus(directory: Path) -> tuple[dict[str, Json], list[dict[str, Json]]]:
+    """Validate every shard in at most four spawned processes before any development replay.
+
+    The caller's outer timeout bounds the shared process group. The context
+    finishes loading workers before native workers or model execution starts.
+    """
+    with ProcessPoolExecutor(max_workers=NATIVE_WORKER_LIMIT, mp_context=get_context("spawn")) as executor:
+        return load(directory, executor=executor)
 
 
 def _replay_case(inputs: CaseInput) -> NativeReplayResult:

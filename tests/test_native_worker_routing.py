@@ -57,7 +57,7 @@ def test_cli_and_report_forward_real_storage_and_fixture_paths(
     storage, output = tmp_path / "selected files", tmp_path / "report.json"
     storage.mkdir()
     monkeypatch.setattr(replay_tiers, "AUTHORED_COUNTS_BY_VERSION", {5: 2})
-    monkeypatch.setattr(replay_tiers, "load", load_fixture)
+    monkeypatch.setattr(replay_tiers, "load_development_corpus", load_fixture)
     monkeypatch.setattr(replay_tiers, "bound_records", bound_fixture)
     monkeypatch.setattr(replay_tiers, "report", audited_report)
     monkeypatch.setattr(sys, "argv", ["replay_tiers", "--corpus", str(generic), "--synthetic", str(synthetic),

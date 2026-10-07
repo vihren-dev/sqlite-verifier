@@ -2,6 +2,7 @@
 
 import argparse
 from collections import Counter, defaultdict
+from concurrent.futures import Executor
 import gzip
 import hashlib
 import json
@@ -15,12 +16,12 @@ from conformance.execution_profile import ExecutionProfile, recorded_profile, va
 from conformance.native_storage import expanded_record
 
 
-def load(directory: Path) -> tuple[dict[str, Json], list[dict[str, Json]]]:
-    """Bind the case denominator to a version and exact uncompressed content digest."""
+def load(directory: Path, *, executor: Executor | None = None) -> tuple[dict[str, Json], list[dict[str, Json]]]:
+    """Bind every case to exact content, serially by default or with a caller-owned shard executor."""
     manifest = json.loads((directory / "manifest.json").read_text())
     if isinstance(manifest, dict) and ("shards" in manifest or "shardStorageVersion" in manifest):
         from conformance.corpus_shards import load as load_shards
-        return manifest, load_shards(directory, manifest)
+        return manifest, load_shards(directory, manifest, executor=executor)
     payload = gzip.decompress((directory / "cases.jsonl.gz").read_bytes())
     if hashlib.sha256(payload).hexdigest() != manifest["casesSha256"]:
         raise ValueError("Corpus digest mismatch")

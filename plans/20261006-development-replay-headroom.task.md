@@ -66,6 +66,19 @@ frozen-input, Python and helper hashes. Its instrumented load duration is
 separate from acceptance and timing comparisons. The helper uses a main guard
 and a name that cannot shadow Python's `profile` module. It invokes no native
 replay or model execution, and retains the same process-group guard.
+A bounded loading feasibility check compares the existing shard validator
+with the same validator in at most four spawned processes. All frozen shard
+digests, returned records and order remain exact. It records separate serial
+and parallel durations, input/output hashes and process overhead. This
+diagnostic runs no native or model replay and does not establish acceptance.
+The development report may validate independent shards in at most four
+spawned loading processes. Every shard, snapshot, size, profile and global
+binding check remains mandatory before selection. Returned records, nested
+mutable independence and failures retain input order. The library loader
+keeps its serial default and can use a caller-supplied standard executor.
+Native replay starts after loading workers finish. Harness tests exercise
+real spawned loading, corrupt earlier payloads with later metadata failures,
+size-limit exception transport and independently mutable snapshots.
 
 Bounded tests preserve mandatory membership, stable identity ranking,
 exact result counts and all frozen bindings. Digest, snapshot, profile,

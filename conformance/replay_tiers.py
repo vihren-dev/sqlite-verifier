@@ -9,8 +9,8 @@ from pathlib import Path
 from time import monotonic
 
 from conformance.case_format import Json
-from conformance.corpus import load, replay
-from conformance.native_workers import replay_native_cases
+from conformance.corpus import replay
+from conformance.native_workers import load_development_corpus, replay_native_cases
 from conformance.native_storage import serialized
 from conformance.workload import bound_records
 
@@ -113,7 +113,7 @@ def report(generic: Path, synthetic: Path, runtime: Path, *, temporary_root: Pat
     """
     started = monotonic()
     runtime_identity = runtime_binding(runtime)
-    generic_manifest, records = load(generic)
+    generic_manifest, records = load_development_corpus(generic)
     synthetic_corpus = synthetic / "corpus"
     synthetic_manifest, synthetic_records = bound_records(synthetic, synthetic_corpus)
     authored_count = AUTHORED_COUNTS_BY_VERSION.get(generic_manifest["corpusVersion"])
