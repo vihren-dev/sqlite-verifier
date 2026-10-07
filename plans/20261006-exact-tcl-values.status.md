@@ -303,3 +303,13 @@ Decisions waiting for the owner:
   acceptance and independent review have passed; normal hosted CI/merge handling
   are still pending. T17 remains IN PROGRESS and is not DONE. The final raw
   integration review row remains unchanged in the working copy for preservation.
+- The coordinator corrected the publication integration restriction: inheriting
+  existing main metadata through this reviewable feature PR does not decide the
+  owner's pending retain/revert question. Merged named main `6852f6fa` into the
+  feature branch without modifying main or its metadata. All 11 incoming plan
+  and evidence files remain byte-exact. The journal retains 82 own rows and 57
+  main rows as 89 distinct exact rows, with both full orders preserved and 46
+  unique reviews. The pending `16c2f576` review row is included unchanged.
+  Both platforms' complete accepted model/upstream source, derivation, output
+  and rendered command identities are still exact. This metadata-only merge
+  resolves the publication conflict and leaves the owner question pending.

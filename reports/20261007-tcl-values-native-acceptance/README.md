@@ -67,3 +67,12 @@ records that both platforms' complete model/upstream source, derivation, output
 and rendered command identities still equal those accepted above.
 [publication-checks.json](publication-checks.json) records the bounded checks
 and original compressed JUnit digests. No additional runtime change was needed.
+
+The coordinator later corrected the metadata restriction for PR #50: inheriting
+current main `6852f6fa` in a reviewable feature PR preserves that existing state
+while the owner's retain/revert question remains pending. All 11 incoming plan
+and evidence files remain byte-exact, and both journal orders are preserved
+(82 own rows, 57 incoming rows, 89 distinct rows, 46 unique reviews). Both
+platforms' complete accepted target identities remain unchanged after this
+metadata-only merge. [publication-main-metadata.json](publication-main-metadata.json)
+records those checks. Main and frozen PR branches were not modified.

@@ -1,6 +1,6 @@
 # Hosted model-suite deadline evidence
 
-Created 2026-10-06. Status: awaiting the new hosted check.
+Created 2026-10-06. Status: DONE; both required hosted checks passed.
 Audience: reviewers and the team.
 
 ## Observed failure
@@ -53,11 +53,15 @@ local diagnostic investigates that error.
 
 Only `tests.model` receives a 600-second deadline. This is approximately twice
 the measured 300.70-second macOS completion and adds 180 seconds beyond the
-failed limit. The other six suites retain 420 seconds. The enclosing Nix
+failed limit. The later, separate local PR #48 observation takes 484.735
+seconds under only the reviewed 600-second model invocation. That leaves
+115.265 seconds within the proposed limit and shows actual work above 420
+seconds. Its distinct source and unchanged branch limit are recorded below.
+The other six suites retain 420 seconds. The enclosing Nix
 command retains its 900-second bound and CI retains its 30-minute bound.
 Every file, accepted generated case, report flag and failure status remains.
-This is a bounded headroom proposal, not a measured upper bound or a claim
-that 600 seconds has already passed. Actual hosted completion is required.
+The limit is not a measured upper bound. Both required hosted whole jobs now
+pass for the reviewed published source, as recorded below.
 
 The real Nix-rendered command check verifies complete ordered file ownership,
 the two deadline policies and unchanged full-report arguments. CI routing
@@ -81,3 +85,48 @@ This temporary acceptance uses hosted Linux plus retained local Darwin.
 Hosted macOS completion remains outstanding for T03, and its separate owner
 review and release gates remain in force. The passing PR #47 exporter source
 does not replace a complete hosted result for the frozen T03 source.
+
+## Current timeout-task acceptance
+
+[PR #49](https://github.com/vihren-dev/sqlite-verifier/pull/49) publishes reviewed
+tip `b7883400`. [Linux job](https://github.com/vihren-dev/sqlite-verifier/actions/runs/37512848112/job/112438177974)
+completed successfully. It executed merge `4056410c` with the reviewed
+600-second policy. Its fresh model builder completed 322 passed and one Tcl
+skip in 177.33 seconds. The retained original XML contains 323 unique cases
+from all 32 owned model files. [The Linux receipt](acceptance/linux/receipt.json)
+binds the executed source, recipe blob, runtime, exact case identity digest,
+original ten-report ZIP and decoded log. The ZIP matches GitHub's digest.
+Other Nix suites can reuse their source-bound successful outputs.
+
+The [qualified local PR #48 evidence](acceptance/pr48-darwin-qualified.json)
+records a separate mutation-corrected source, `9e3b4419`, with 322 passes and
+one Tcl skip of 323 model cases under only the reviewed 600-second invocation
+override in 484.735 JUnit
+seconds. Its earlier configured-420 checkpoint `83edc417` failed without JUnit
+after a 422.825-second file-write interval and a Nix formatting error. These
+are different source checkpoints; the record retains that distinction and
+the original receipt hashes. It does not turn PR #48's configured 420-second
+check into a pass. It provides additional observed work above 420 seconds.
+
+[PR #49 macOS](https://github.com/vihren-dev/sqlite-verifier/actions/runs/37512848112/job/112438177629)
+also completed successfully. Its fresh model builder has 322 passes and the
+same Tcl skip of 323 cases in 411.41 seconds (original JUnit: 411.368). The
+ordered case identity digest exactly matches Linux and represents all 32
+owned files. Its 124.65-second v5 progress and 51.66-second review-corpus calls
+show the same substantial historical work as the earlier jobs. The passing
+suite has only 8.59 seconds within the former 420-second limit and 188.59
+seconds within 600 seconds; the separate local PR #48 observation remains
+the longer measured suite at 484.735 seconds.
+
+[The Darwin receipt](acceptance/darwin/receipt.json) binds the original ten-report
+ZIP, its GitHub digest, decoded log, actual runtime, executed merge and recipe.
+Both downloaded archives match GitHub digests, and all 20 original XML reports
+have zero failures/errors. The entire [CI run](acceptance/completion.json) is
+successful, including infrastructure and installed acceptance on both hosts.
+Both use Lean 4.33.0 from the main-based published source; this receipt does
+not replace the separate frozen T03 source's platform or owner gates.
+
+The timeout task is DONE. PR #49 is merged at main `d8faab74`. The adopted
+recipe has the exact tested Git blob, as recorded in the completion receipt.
+This receipt update does not merge, repush or change any frozen PR branch.
+Release was skipped, and the earlier configured-budget failures remain retained.
