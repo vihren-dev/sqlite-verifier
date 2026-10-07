@@ -1,6 +1,6 @@
 # ADR 0006: SQLite model boundary and execution levels
 
-Date: 2026-10-06. Status: PROPOSED; final owner acceptance is required.
+Date: 2026-10-06. Status: ACCEPTED on 2026-10-07.
 Audience: designers and reviewers.
 Sources: [#23](https://github.com/vihren-dev/sqlite-verifier/issues/23),
 [#31](https://github.com/vihren-dev/sqlite-verifier/issues/31).
@@ -74,7 +74,12 @@ table-shape change in [#15](https://github.com/vihren-dev/sqlite-verifier/issues
 can replace column/property comparisons and remove obsolete descriptions.
 It is not a prerequisite of the package split.
 
-The Python frontend becomes the separate package `belay_sqlite`. It owns pinned
+The separate Python frontend uses the import package `belay.sqlite`. Its parent
+`belay/` directory is a namespace package: it has no `__init__.py`. At the initial
+package split, `belay/` contains exactly one entry, the `sqlite/` subdirectory.
+All frontend modules live under `belay/sqlite/`.
+
+The frontend owns pinned
 parser invocation, normalized structural types, supported-subset translation
 and structural record encoding. It takes explicit parser/profile inputs and
 imports no CLI, runtime discovery, contracts, baseline code or Lean compiler.
@@ -222,4 +227,6 @@ Passing this ADR's review is not evidence that those future checks already pass.
 The separate package adds one dependency and explicit runtime roots, while
 removing accidental application imports from reusable model consumers. It
 requires build/runtime/exporter changes together with the namespace move.
-The owner accepts this ADR before those dependent implementations begin.
+The owner accepted this ADR on 2026-10-07 with the Python namespace layout above.
+Package and execution implementation remains gated to its separate tasks and
+unstarted by this ADR update.

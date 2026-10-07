@@ -1,18 +1,21 @@
 # SQLite model boundary and execution architecture
 
-Created 2026-10-06. Status: AWAITING OWNER ACCEPTANCE.
+Created 2026-10-06. Status: IN PROGRESS; accepted decision delivery is pending.
 Status file: [status](20261006-model-architecture.status.md).
-ADR: [proposed decision](../docs/adr-0006-model-boundary-and-execution-levels.md).
+ADR: [accepted decision](../docs/adr-0006-model-boundary-and-execution-levels.md).
 Sources: public [issue #23](https://github.com/vihren-dev/sqlite-verifier/issues/23)
 and [issue #31](https://github.com/vihren-dev/sqlite-verifier/issues/31).
 
 ## Observable behavior when done
 
-A public ADR is ready for owner acceptance. It specifies a separate Lake
+A public ADR records the decision accepted by the owner on 2026-10-07. It
+specifies a separate Lake
 package for `Belay.Sqlite`, required by the root application as a path
 dependency. An isolated model build rejects application imports. The core
 model has no `Lean` dependency; its separate structural codec can use `Lean`.
-A separate Python SQL frontend produces structural records, while generation
+A separate Python SQL frontend uses `belay.sqlite`, with a namespace directory
+`belay/` that has no `__init__.py` and contains only `sqlite/` initially. It
+produces structural records, while generation
 of application declarations stays outside it.
 
 The ADR assigns semantic levels and exhaustive schema, data and transaction
@@ -32,8 +35,11 @@ not add SQL features, change CLI names or claim new conformance coverage.
 Check the architecture against the current Lake configuration, import graph,
 execution relations, structural record codecs, Nix source sets and runtime
 installation paths. Every local source reference resolves. The independent
-review follows `docs/review-checklist.md`. The ADR remains proposed until the
-owner accepts it; this task remains awaiting acceptance after review passes.
+review follows `docs/review-checklist.md`. The namespace contract and accepted
+date match the owner's change to PR44. The updated accepted ADR is delivered on
+that pull request after current main integration and validation. This task
+remains IN PROGRESS until delivery; package/execution implementation remains
+gated and unstarted.
 No build is claimed as proof of a future package boundary.
 
 ## Relevant code and constraints
