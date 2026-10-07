@@ -375,3 +375,11 @@ sentences. The relative-root test override is named `application_library`,
 because it replaces only that root. All 19 kernel tests pass in 35.11 seconds
 with a 120-second outer limit. This text and fixture correction changes no
 production execution or verification formula. It awaits independent review.
+
+
+Correction review `20261007T164902Z-380c9de2` reports no code finding and two
+R8 flags on comments only. Those findings are rejected as adding no new
+trust-relevant change: import behavior, root selection and the verification
+formula are unchanged by this correction. The original seven mandatory
+owner flags remain pending. Final owner review includes the corrected
+comments. No owner gate is waived or marked complete.
