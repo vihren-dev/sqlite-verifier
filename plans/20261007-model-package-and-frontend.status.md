@@ -1,0 +1,190 @@
+# Status: T10 model package and SQL frontend
+
+Created 2026-10-07. Status: IN PROGRESS.
+Audience: team and reviewers.
+Task: [task](20261007-model-package-and-frontend.task.md).
+Specification: [accepted ADR 0006](../docs/adr-0006-model-boundary-and-execution-levels.md).
+Source: [issue #31](https://github.com/vihren-dev/sqlite-verifier/issues/31).
+
+## Current checkpoint
+
+The owner-approved T10 card and the accepted ADR define the package boundary.
+This checkpoint contains outcome and acceptance files only. No package scaffold,
+frontend move, proof change, runtime change or build is included.
+
+The accepted ADR was delivered through
+[PR44](https://github.com/vihren-dev/sqlite-verifier/pull/44), normal merge
+`b91e5cb5b3e145bc9713cc5e2b88bd502aa9ad0a`. Implementation remains held for
+repository delivery of the approved exporter in
+[PR47](https://github.com/vihren-dev/sqlite-verifier/pull/47) and approved single
+executor in [PR48](https://github.com/vihren-dev/sqlite-verifier/pull/48).
+Owner approval does not replace hosted integration or delivery checks. The
+implementation base will be delivered, reviewed main. Held T07, T15 and T18b
+source or receipts are not accepted inputs.
+
+## Relevant specifications and source
+
+- ADR 0006 was accepted on 2026-10-07 with `Belay.Sqlite`, Lake package
+  `belaySqlite` at `packages/belay-sqlite/`, a separate codec and Python import
+  `belay.sqlite`. The parent `belay/` has no initializer and only its `sqlite/`
+  child initially. The leaf initializer and other distributions' namespace
+  portions remain outside that parent-layout restriction.
+- [Lake configuration](../lakefile.toml), [model](../SqliteVerifier/Model.lean),
+  [library](../SqliteVerifier/Library.lean),
+  [nullable projection](../SqliteVerifier/NullableProjection.lean),
+  [codec](../StructuralCodec.lean) and
+  [conformance laws](../VerifierConformance/Laws.lean) show current ownership
+  edges. Both schema lookups are structural dependencies of `Conforms`.
+- [Frontend types and emission](../migration_check/sql_model.py),
+  [parser](../migration_check/sql_tree.py),
+  [translation](../migration_check/translate.py),
+  [records](../migration_check/structural.py) and
+  [inputs](../migration_check/inputs.py) show the shared-record boundary.
+  Current type methods, profiles and values also emit Lean text; neutral errors
+  currently share application diagnostics. These edges need explicit ownership.
+- [Source selection](../build-support/sources.nix),
+  [Nix builds](../build-support/default.nix),
+  [runtime assembly](../build-support/runtime.nix),
+  [test targets](../build-support/tests.nix),
+  [source identity checks](../tests/test_source_identity.py),
+  [runtime fixtures](../tests/runtime_fixtures.py) and
+  [CI scope](../tests/ci_scope.py) assume one package root.
+- [Runtime discovery](../migration_check/runtime.py),
+  [source resolution](../migration_check/source_closure.py),
+  [preparation](../migration_check/prepare.py),
+  [stage identity](../migration_check/stage_store.py),
+  [kernel gate](../ProofChecker.lean) and
+  [bundle gate](../BundleChecker.lean) need one consistent pair of installed
+  library roots with exact module origins and unchanged stage isolation.
+
+## Progress
+
+- 2026-10-07: read the workspace and repository rules, accepted ADR0006, public
+  issue #31, its empty comment list and the approved T10 card. The broad naming
+  proposals in the issue are bounded by the accepted ADR and deferred #27/#28.
+- Inspected architecture source at readiness commit
+  `9458fc52d7d79f4b003e4535f77cf002eb43c7c2`, based on reviewed main
+  `bc9e2dce58f755b608cf00e545162257b81ab51a`. The existing exact raw readiness
+  review row remains pending in `reviews/log.jsonl` and is outside this
+  plans-only checkpoint. The T09 bookmark is not changed.
+- Read approved exporter source
+  `07dc71b323808ac03991407e75dd4e74031924cb`, including `ProofExporter.lean`,
+  `migration_check/import_path.py`, source discovery, preparation and runtime
+  identity. Its exact-origin omission and split package-directory handling
+  must extend to model modules without granting trust by namespace.
+- Read approved executor source
+  `45ac63b2e07d6677c12187adafa1cdc96dc155d6`, including SQL execution, contract,
+  preservation and the mutation harness. `runSqlFrom`, `runSql`,
+  `SupportedSql` and `ProfileExecutes` supply the migration baseline. The
+  deleted `ExtensionExecution` module is not a package-move input.
+- Drafted the task's observable ownership, frontend, Nix, runtime, trust and
+  preservation outcomes. Its acceptance requires actual isolated builds,
+  forbidden-import failures, generated-input parity, attack checks, replay and
+  fresh native installed archives on both supported platforms with configured
+  bounds. Synthetic checks and inherited receipts do not establish completion.
+- Bounded planning validation passed: 67 local references resolve, both files
+  stay below 200 lines, required acceptance outcomes are present and no numbered
+  implementation sequence or package scaffold exists. Only the two new plan
+  files enter the checked commit. Repository rules exempt plans-only commits
+  from independent review; no implementation test or build is claimed.
+
+## Read-only ownership audit
+
+The audit uses accepted ADR0006 and approved executor source `45ac63b2`, with
+exporter source `07dc71b3`. Fifty declarations were inventoried across the six
+mixed Lean files and the adjacent `SqlProofs` and `ContractProofs` files.
+The smallest ownership split is:
+
+| Current module | Model declarations | Application declarations |
+| --- | --- | --- |
+| `Library` | `Covers`, `Schema.emptyDatabase_conforms`, `Conforms.table`, `Table.Valid.appendColumns`, `Conforms.set`, `Database.set_comm`, `TableExtends.covers`, `TableExtends.project` | `LogicalRows`, `observeTable`, `projectedInterpretation`, `unreachableFailures` and both interpretation/failure soundness wrappers |
+| `LiteralPreservation` | All eight declarations: row replacement, rowid maximum/freshness, inserted-table validity, key uniqueness, constraints and comparison readiness | None |
+| `SchemaExtension` | `Schema.appendAt`, `Schema.lookup_appendAt`, `Schema.properties_appendAt`, `Conforms.appendAt` | None |
+| `SchemaPreservation` | `Conforms.properties`, both structural `TableExtends` facts, `Table.KeysValid`, `TableExtends.keysValid`, `TableExtends.columnInvariant` | None; predicate parameters use the structural projection type instead of `LogicalRows` |
+| `NullableProjection` | `nullExtension`, `Table.project_newNullable`, using the structural projection type | `NullableView`, `observeNullable` |
+| `Laws` | `nonControl`, `SuccessfulBody`, `body_rollback`, `rollback`, `literal_cases`, `statement_atomicity`, `add_column_shape` | None; runner and observation transport stay test-owned |
+| `SqlProofs` | Its four SQL-only guard and composition declarations | None |
+| `ContractProofs` | None | Both `VerificationConditions` helpers and `violates_required_schema` |
+
+`Schema.lookup` and `Schema.lookupProperties` stay with `Conforms` in the
+model. The current `Laws` file does not use its `NullableProjection` import.
+Removing that edge and extracting the structural nullable theorem avoids a
+contract dependency without changing a formula. Existing row-width, freshness,
+support and idle-state hypotheses remain intact. T11 owns executor categories.
+
+The 12 audited Python boundary files are byte-identical in architecture source
+and approved executor source. Their concrete dependency edges are:
+
+- Frontend-owned code comprises parser trees and invocation, translation,
+  schema syntax, schema translation, literal DML, admission, raw model types,
+  schema transition, literal parsing, profile selection and structural records.
+- `sql_model` mixes those raw types with `.lean()` methods, `lean_string`,
+  `lean_names`, `schema_inputs` and `sql_inputs`. `sql_values.lean_value` and
+  `ExecutionProfile.lean` are emission edges. Application `Generated` emission
+  stays outside the frontend; a small shared literal transport helper, if
+  required by both consumers, must also be independent of application policy.
+- `structural.generated_inputs_wire` currently derives a profile wire tag by
+  stripping the dot from `profile.lean()`. Structural encoding must use the
+  existing wire tag directly, independent of Lean generation. Schema emission
+  preserves declaration-order indexes; native conformance uses canonical order.
+- `sql_model` imports `sql_values`, which imports parser trees. The raw
+  `SqlValue` type can reside with raw model types instead of bringing parser
+  I/O into type and record imports. Existing lazy translator imports also need
+  care when emission and validation acquire different owners.
+- Frontend errors need their SQL status and source-span payload independent
+  of `migration_check.diagnostics`. Application boundaries preserve the same
+  external refusal statuses; application proof/runtime errors remain there.
+  A frontend import or alias of the application exception would retain the edge.
+- `sql_inputs` currently performs migration and write admission as a side
+  effect. `native_replay` and `native_trace` discard its generated text. Their
+  replacements must call the same frontend admission directly, before model
+  comparison or native execution. Moving emission must not remove these checks.
+- `inputs.generated_inputs` remains application orchestration: it consumes
+  argparse options, discovers the runtime, hashes source SQL, rejects an empty
+  migration and combines Lean emission with the same structural record.
+  Conformance's `model_assertions` needs only inert string quoting, not this
+  application generator. Its proof/observation transport remains test-owned.
+
+Critical Lean callers include the invoice interpretation/proof roles, Atuin's
+`AtuinFacts` and `AtuinWitness`, demonstrations, conformance outputs/JSON/laws,
+codec consumers and both gates. Python callers include `case_format`, replay,
+native tracing, metadata, generated programs, state-machine tests and all
+frontend/generation/parity fixtures. Source extraction in mutation/coverage
+harnesses, axiom-output assertions in `conformance_laws_test`, Nix input lists,
+runtime roots and CI scope also embed old paths or names. A retained conformance
+adapter with its own `table_wire` responsibility is not an old frontend alias.
+
+The read-only inventory and byte comparisons passed under 15-second bounds.
+No implementation check, build or native run was performed. No specification
+contradiction was found; the accepted ADR already resolves lookup ownership and
+the broad naming proposals. This findings checkpoint changes only this status
+file. T09's completed plans, feature bookmark and raw review row stay unchanged.
+
+## Remaining acceptance and open issues
+
+No T10 implementation acceptance has run. Dependency delivery, source migration,
+both native platform gates, independent implementation reviews, R8 final owner
+review and repository delivery remain. T10 and #31 are not DONE.
+
+#23's later execution restructuring, #15's table shape, #18's validity changes
+and the deferred #27/#28 renames remain separate work. There is no new owner
+design question in this planning checkpoint. Any later environment blocker or
+specification contradiction must be reported under the workspace rules.
+
+## Delivered implementation base
+
+All dependency PRs are normally merged. PR #48 delivers reviewed executor
+source as main `eb061e7655b10b9de03e43bd321f5b76bf1e7183`; its tree exactly
+matches checked head `b8eb25dd`. The old architecture workspace and its audit
+remain at `t10-planning-audit-20261007`. This workspace starts directly from
+the delivered main and restores only this task and status. No held feature
+history is merged. The accepted nine-suite layout and frontend import checks
+are part of the new base.
+
+The dependency hold is released. The first structural refactor separates the
+model facts currently reached through `Library` from contract-specific
+interpretations. The existing signatures and proof bodies remain the baseline.
+Structural nullable projection also needs its model dependency rather than
+the application `LogicalRows` alias. Actual compiler checks and a neutral
+model-only consumer must verify the separation before its commit. No package
+or frontend implementation is claimed at this planning checkpoint.
