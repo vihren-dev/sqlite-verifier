@@ -1,0 +1,26 @@
+{
+  "release-api.json": {
+    "bytes": 12378,
+    "sha256": "146ced147ef58683fd392e844ee6966d3cd674fb9ddaed5ad8fb62cf51354dd7"
+  },
+  "workflow-api.json": {
+    "bytes": 12896,
+    "sha256": "3474b838387af2191cfdc73fd7e1e39745324e69e577638e4fe57261ba2abe2f"
+  },
+  "verified-release.json": {
+    "bytes": 1957,
+    "sha256": "eddfe7173620d95f3c2b2d39fe6f1c3e8175276845aed543d0ecd8f06c0426b7"
+  },
+  "publication-job.log": {
+    "bytes": 20283,
+    "sha256": "08deb40b1a28c5fcfcf9c6990962178d720773f71328d84dc607f0dfa2511309"
+  },
+  "sqlite-verifier-aarch64-darwin.tar.gz.sha256": {
+    "bytes": 104,
+    "sha256": "c09892a05d27022839040abdbc7481b371f955eb15197a5684d5e86cbc5509bc"
+  },
+  "sqlite-verifier-x86_64-linux.tar.gz.sha256": {
+    "bytes": 102,
+    "sha256": "17703e35f4c23965b9f7d0a9ba33e6167db6cde081cc10b5814d1624daf29600"
+  }
+}

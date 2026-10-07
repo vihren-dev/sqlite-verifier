@@ -1,6 +1,6 @@
 # Status: SQLite model boundary and execution architecture
 
-Created 2026-10-06. Status: IN PROGRESS; accepted decision delivery is pending.
+Created 2026-10-06. Status: DONE on 2026-10-07.
 Task: [task](20261006-model-architecture.task.md).
 ADR: [accepted decision](../docs/adr-0006-model-boundary-and-execution-levels.md).
 Sources: public issues #23 and #31, including #23's boundary comment.
@@ -78,3 +78,42 @@ Relevant files: `lakefile.toml`, `SqliteVerifier.lean`,
   This checkpoint is ready for the authorized task-branch push and PR44 metadata
   update. Final repository delivery remains pending; this task is IN PROGRESS.
   No code/package scaffold, T10 start or other branch change is included.
+- The published readiness head
+  `9458fc52d7d79f4b003e4535f77cf002eb43c7c2` passed independent Claude review
+  `20261007T074454Z-9458fc52` with no findings. Its final exact raw review row
+  remains pending and byte-unchanged outside this plans-only closeout commit.
+- PR44 was normally merged on 2026-10-07 at 08:03:17 UTC as
+  `b91e5cb5b3e145bc9713cc5e2b88bd502aa9ad0a`, delivering the accepted ADR and
+  its namespace amendment. The delivered decision uses `Belay.Sqlite` and
+  `belay.sqlite`; the Python parent has no initializer and only its `sqlite/`
+  child initially. The Lean package boundary and existing CLI names are retained.
+  T09 is DONE. Issues #23 and #31 remain open for their implementation work.
+
+## Delivery evidence
+
+[PR44](https://github.com/vihren-dev/sqlite-verifier/pull/44) records exact head
+`9458fc52d7d79f4b003e4535f77cf002eb43c7c2` and the normal merge above. All six
+check records completed on that head:
+
+| Check | Exact job | Result |
+| --- | --- | --- |
+| Native Linux CI | [112687010262](https://github.com/vihren-dev/sqlite-verifier/actions/runs/37589402854/job/112687010262) | Success |
+| Native Darwin CI | [112687010509](https://github.com/vihren-dev/sqlite-verifier/actions/runs/37589402854/job/112687010509) | Success |
+| Protected approved baseline | [112687002597](https://github.com/vihren-dev/sqlite-verifier/actions/runs/37589400426/job/112687002597) | Success |
+| Protected approved baseline | [112687154521](https://github.com/vihren-dev/sqlite-verifier/actions/runs/37589448416/job/112687154521) | Success |
+| Protected approved baseline | [112687236998](https://github.com/vihren-dev/sqlite-verifier/actions/runs/37589473664/job/112687236998) | Success |
+| Release publication | [112692345849](https://github.com/vihren-dev/sqlite-verifier/actions/runs/37589402854/job/112692345849) | Skipped on the PR; no release claimed |
+
+The coordinator retained the raw check response at
+`/private/tmp/pr44-9458-check-runs.json`, SHA-256
+`56a4206e38b7bcfce1d4378c2c88082f044d3a3f5d3c82e7f383b9baa8201ddf`.
+The summary above preserves the exact head, results and public job references
+in this plan record; the temporary raw response is not a permanent repository
+artifact. Earlier local namespace fixtures remain limited to that contract.
+
+T10 planning commit `2c61f0414407d89f9f984a7d65fd6a69d6083283` remains unchanged.
+T10 implementation acceptance has not run, and its code stays held for PR47
+and PR48 repository delivery. This closeout changes only T09's task and status;
+the feature bookmark, source and review journal remain unchanged. Its planning
+references and evidence checks pass under a 15-second bound. Plans-only commits
+are exempt from independent review under the repository instructions.
