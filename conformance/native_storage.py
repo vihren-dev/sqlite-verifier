@@ -30,7 +30,11 @@ SNAPSHOT_REFERENCE_BASE_BYTES = len(serialized({"snapshot": ""}))
 
 
 def _reference_byte_count(reference: dict[str, Json], digest: Json) -> int:
-    """Count proven plain references without encoding, retaining JSON behavior for all other inputs."""
+    """Avoid repeated encoding while bounded expansion measures every snapshot reference.
+
+    The caller supplies the validated reference value. Plain ASCII alphanumeric
+    references have a proven byte count; every other input retains JSON encoding.
+    """
     if type(reference) is dict and len(reference) == 1:
         key = next(iter(reference))
         if (type(key) is str and key == "snapshot" and type(digest) is str

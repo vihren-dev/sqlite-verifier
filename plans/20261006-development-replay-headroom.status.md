@@ -461,3 +461,11 @@ authorized one Linux diagnostic below. No production change followed it.
   speed claim: the entire old 2.292-second expander serialization caller also
   includes pool and skeleton work. Independent review is pending. The task
   remains IN PROGRESS.
+- 2026-10-07: Reference-size commit
+  `3bd80539a8f4af9623fc4d900238dedd0e3ae45a` passed Claude review
+  `20261007T091451Z-3bd80539`, session 54105 exit 0, with zero must findings
+  and one should docstring finding. Added the bounded-expansion motivation
+  and the validated-value caller context to the helper docstring. The body
+  and all recorded checks remain unchanged. The author final suite passed
+  111 tests in 3.09 seconds, plus the five bounded binding refusals. Finding
+  has a fixed journal resolution; refactor review is pending. No performance phase ran.
