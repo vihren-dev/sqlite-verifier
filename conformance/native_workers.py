@@ -52,6 +52,7 @@ def replay_native_cases(records: list[dict[str, Json]], *, profile: ExecutionPro
     after a worker crash. Full native replay keeps its unchanged serial API.
     """
     first_failure: NativeReplayResult | None = None
+    completed = 0
     with TemporaryDirectory(prefix="native-workers-", dir=temporary_root) as directory:
         with ProcessPoolExecutor(max_workers=NATIVE_WORKER_LIMIT, mp_context=get_context("spawn")) as executor:
             try:
@@ -63,9 +64,12 @@ def replay_native_cases(records: list[dict[str, Json]], *, profile: ExecutionPro
                         fixture_paths.extend(result.paths)
                     if first_failure is None and result.failure is not None:
                         first_failure = result
+                    completed += 1
             except BrokenProcessPool as error:
                 if first_failure is None:
-                    raise RuntimeError("Native replay worker exited before returning evidence; inspect the case and runtime") from error
+                    name = records[completed]["name"]
+                    raise RuntimeError(f"Native replay worker exited before returning evidence; first case without a result: {name!r}. "
+                        "Replay this case with conformance.corpus.native_replay to inspect the failure") from error
     if first_failure is not None:
         if first_failure.native_code is not None:
             raise NativeError(first_failure.native_code, str(first_failure.failure))

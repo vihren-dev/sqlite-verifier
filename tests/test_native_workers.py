@@ -127,8 +127,10 @@ def test_crashed_worker_fails_closed_and_removes_files(
         monkeypatch: pytest.MonkeyPatch) -> None:
     """An abruptly exited worker cannot pass the tier or leave its private file tree behind."""
     monkeypatch.setattr(native_workers, "_replay_case", crashed_case)
-    with pytest.raises(RuntimeError, match="exited before returning evidence"):
+    with pytest.raises(RuntimeError, match="exited before returning evidence") as failure:
         replay_native_cases(clock_cases[1], temporary_root=tmp_path)
+    assert "first case without a result: 'clock-0'" in str(failure.value)
+    assert "conformance.corpus.native_replay" in str(failure.value)
     assert not list(tmp_path.glob("native-workers-*"))
 
 

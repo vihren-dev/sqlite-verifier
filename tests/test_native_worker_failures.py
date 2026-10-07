@@ -36,3 +36,21 @@ def test_later_pool_crash_retains_earlier_input_failure(
     if native_code is not None:
         assert isinstance(reported.value, NativeError) and reported.value.code == native_code
     assert not list(tmp_path.glob("native-workers-*"))
+
+
+def test_crash_message_names_the_first_input_without_a_result(
+        tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    """A completed successful prefix makes the diagnostic name the next input and the serial replay API."""
+    def results() -> Iterator[NativeReplayResult]:
+        """Retain the successful prefix before an abrupt later worker failure."""
+        yield NativeReplayResult("first", (), None)
+        raise BrokenProcessPool("later worker crashed")
+
+    pool = MagicMock()
+    pool.__enter__.return_value = pool
+    pool.map.return_value = results()
+    monkeypatch.setattr(native_workers, "ProcessPoolExecutor", MagicMock(return_value=pool))
+    with pytest.raises(RuntimeError) as failure:
+        replay_native_cases([{"name": "first"}, {"name": "later"}], temporary_root=tmp_path)
+    assert "first case without a result: 'later'" in str(failure.value)
+    assert "conformance.corpus.native_replay" in str(failure.value)
