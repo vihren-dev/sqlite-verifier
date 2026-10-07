@@ -12,6 +12,7 @@ from validate import validate
 
 def check_mutations(source: Path) -> None:
     """Alter private receipt copies so the oracle exercises fields beyond compressed-byte integrity."""
+    validate(source)
     for defect in ("runtime", "acceptance", "build-bound", "journal-order"):
         with TemporaryDirectory(prefix="runtime-receipt-mutation-") as directory:
             root = Path(directory) / "receipt"

@@ -17,17 +17,17 @@
     "gzipSha256": "47c2cf0d15bb8e1b8e9c9edf5d3ad7b9af250dda7aa656ba5949b8c0080b2256",
     "gzipBytes": 97
   },
-  "darwin/build/command-0000.json.gz": {
-    "rawSha256": "518590533a211f2a177db427a3051e51efd9a076b14d1ff45dfad69bb9f9b8b8",
-    "rawBytes": 364,
-    "gzipSha256": "9e393c77732a3be78b1def0521afadd1eca261ca177f5fbad799f6c714f83f83",
-    "gzipBytes": 251
-  },
   "darwin/capture-start.json.gz": {
     "rawSha256": "0fec6d5eb999895691b7850a62741a6aa1c12674bcb445bd5f6a7919589b8118",
     "rawBytes": 81,
     "gzipSha256": "702f7c3fe56e9e43b6bc020a950ad1cf6dc262962e46286dcaa7e10d274bb1e7",
     "gzipBytes": 96
+  },
+  "darwin/commands/command-0000.json.gz": {
+    "rawSha256": "518590533a211f2a177db427a3051e51efd9a076b14d1ff45dfad69bb9f9b8b8",
+    "rawBytes": 364,
+    "gzipSha256": "9e393c77732a3be78b1def0521afadd1eca261ca177f5fbad799f6c714f83f83",
+    "gzipBytes": 251
   },
   "darwin/conditions-after.json.gz": {
     "rawSha256": "ebdc4c62dadb32dc45fbe16fd90d1e7d03a537edaa45c761308c0e803e670be1",
@@ -179,17 +179,17 @@
     "gzipSha256": "5e4984acdba4fe57a7da1f81a041544bede957942b6024c93b9b4ff4e6b1729e",
     "gzipBytes": 98
   },
-  "linux/linux/build/command-0000.json.gz": {
-    "rawSha256": "fdad65236e4a036fdb341f003538575244daffe2d49a1ab02cf926c611e1d479",
-    "rawBytes": 468,
-    "gzipSha256": "0b0497d7e23ea5adc0a847ff0811ae9851819f46b0bd3604aac86c9b9142274f",
-    "gzipBytes": 318
-  },
   "linux/linux/capture-start.json.gz": {
     "rawSha256": "4242fe655adc8cff6ca26983ca2752108db671d9c0302cb68d641eeb86205588",
     "rawBytes": 82,
     "gzipSha256": "faac9de03afd1d8a909321f3a79d0c7390385876cc894979fc7dc6b23541a93c",
     "gzipBytes": 97
+  },
+  "linux/linux/commands/command-0000.json.gz": {
+    "rawSha256": "fdad65236e4a036fdb341f003538575244daffe2d49a1ab02cf926c611e1d479",
+    "rawBytes": 468,
+    "gzipSha256": "0b0497d7e23ea5adc0a847ff0811ae9851819f46b0bd3604aac86c9b9142274f",
+    "gzipBytes": 318
   },
   "linux/linux/conditions-after.json.gz": {
     "rawSha256": "dffe758c3e43980b63d5c4521ddd7b947d88f1f5e42166423da935d04f955cb7",

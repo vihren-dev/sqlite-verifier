@@ -605,3 +605,18 @@ authorized one Linux diagnostic below. No production change followed it.
   build receipts establish no under-30-second result. The prior valid Linux
   target miss and every earlier raw receipt remain unchanged. Runtime
   evidence review is pending, and the overall task stays IN PROGRESS.
+- 2026-10-07: Runtime evidence commit
+  `2f43315b3c33fd1fc65dfed43c9d319220f018a4` received Claude review
+  `20261007T111133Z-2f43315b`, session 18494 exit 1: one must and three
+  should findings. The two original build-command gzip copies matched the
+  generated `build/` ignore rule and were missing from that commit. They
+  now use tracked archival `commands/` directories with byte-identical
+  originals and unchanged hashes. The original Linux manifest still uses
+  its real remote names. All 47 raw gzip files are confirmed tracked.
+  The mutation oracle now validates its unchanged source first, the exact
+  authorized build command is a named policy, and every assertion names
+  its artifact/field, expected condition and next diagnostic action.
+  Both bounded read-only checks pass after these corrections. All four
+  findings have fixed append-only journal resolutions. The refactor's
+  public-archive checks and independent review must pass before handoff.
+  Neither runtime build was repeated; no replay or performance phase ran.

@@ -48,6 +48,10 @@ establish runtime readiness; T04 remains **IN PROGRESS**, and its prior
 valid Linux target miss remains unchanged.
 
 `raw-sha256.json` binds all 47 gzip artifacts to their exact original bytes.
+Original build-command files use archival `commands/` directories so the
+repository's generated `build/` ignore rule cannot exclude them. Linux's
+original manifest keeps the remote directory names; validation maps only
+that command's archival path and retains its exact original bytes.
 Run the bounded read-only checks from the repository:
 
 ```sh
