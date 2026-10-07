@@ -1,0 +1,16 @@
+{
+  "original_base": "eb061e7655b10b9de03e43bd321f5b76bf1e7183",
+  "restored_paths": [
+    "plans/20260924-step-1-formal.status.md",
+    "plans/20260929-adr4-conformance-prototype.task.md",
+    "plans/20260929-adr4-w5-laws.status.md",
+    "plans/20260929-adr4-w5-laws.task.md",
+    "plans/20260930-adr3-p3-generated-inputs.status.md",
+    "plans/20260930-adr5-reference-corpus.status.md",
+    "plans/20260930-adr5-reference-corpus.task.md",
+    "plans/20261006-checked-api-reference.status.md",
+    "plans/20261006-model-architecture.status.md",
+    "plans/20261006-model-architecture.task.md"
+  ],
+  "final_main_check_pending": true
+}

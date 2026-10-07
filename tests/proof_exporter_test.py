@@ -116,24 +116,26 @@ def test_current_native_export(name: str, runtime_root: Path, example_factory: C
         "bundleSha256": hashlib.sha256(payloads[0]).hexdigest(), "checks": reports}, sort_keys=True))
 
 
-def test_candidate_module_under_library_namespace(runtime_root: Path,
+@pytest.mark.parametrize("module", ["SqliteVerifier.Candidate", "Belay.Sqlite.Candidate",
+                                    "belay.Sqlite.Candidate"])
+def test_candidate_module_under_library_namespace(module: str, runtime_root: Path,
         example_factory: Callable[[str], Path], tmp_path: Path,
         command_runner: Callable[..., CommandResult]) -> None:
-    """A used caller-owned declaration under SqliteVerifier must survive omission and kernel replay."""
+    """Caller modules survive kernel replay, including differently cased package names on macOS."""
     examples = example_factory(".")
     candidate = examples / "add_column_then_table"
-    helper = candidate / "SqliteVerifier/Candidate.lean"
-    helper.parent.mkdir()
-    helper.write_text("""import Generated
+    helper = candidate / (module.replace(".", "/") + ".lean")
+    helper.parent.mkdir(parents=True)
+    helper.write_text(f"""import Generated
 import SqliteVerifier.Demonstration
-namespace SqliteVerifier.Candidate
+namespace {module}
 /-- The caller-owned helper establishes this example's complete migration target. -/
 theorem checked : Generated.expected := SqliteVerifier.Demonstration.migrationCorrect
-end SqliteVerifier.Candidate
+end {module}
 """)
-    (candidate / "Proofs.lean").write_text("""import SqliteVerifier.Candidate
+    (candidate / "Proofs.lean").write_text(f"""import {module}
 /-- This proof requires the caller-owned library-like module to be exported. -/
-theorem Proofs.migrationCorrect : Generated.expected := SqliteVerifier.Candidate.checked
+theorem Proofs.migrationCorrect : Generated.expected := {module}.checked
 """)
     _bundle, report = prepare_check(runtime_root, examples, tmp_path, *CASES["small"], command_runner)
     assert report["status"] == "VERIFIED", report

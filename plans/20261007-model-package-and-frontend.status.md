@@ -11,11 +11,13 @@ Source: [issue #31](https://github.com/vihren-dev/sqlite-verifier/issues/31).
 The standalone `Belay.Sqlite` model and `belay.sqlite` frontend are integrated
 with the application. Replaced paths are deleted. Both compiled library
 roots use the same resolution order for compilation, export and checking.
-All required native macOS and Linux checks pass, including fresh installed
-archives. The Linux source run retains two optional reviewer-tool skips.
-Final acceptance evidence passes independent review. Publication of the
-complete evidence and final owner review remain required before delivery. T07 stays paused. Local free
-space is below the guard threshold; targeted cleanup approval is pending.
+The original native macOS and Linux checks pass at their recorded sources,
+including fresh installed archives. The Linux source run retains two optional
+reviewer-tool skips. The owner's new review requests add a macOS casing fix,
+passing targeted checks and a historical-plan link exemption. Full acceptance
+at the final integrated head remains required. The owner will review that head
+after PRs #57, #53, #50 and #59 are delivered and integrated. T07 stays paused.
+Authorized cleanup is complete, and the resource guard passes before this work.
 
 The accepted ADR was delivered through
 [PR44](https://github.com/vihren-dev/sqlite-verifier/pull/44), normal merge
@@ -483,3 +485,26 @@ The cleanup reclaimed about 1.8 GiB; the measured free space afterward is
 `build/t10-model-integration-darwin/cleanup-receipt.json`. The disk threshold
 is satisfied. Main now includes delivered T13, so PR56 requires integration
 before merge. Its current owner-review head remains unchanged.
+# Owner review changes, 2026-10-08
+
+The owner requests a differently cased caller-module test on macOS and an
+exemption for historical plan links. Added actual caller proof tests under
+`SqliteVerifier.Candidate`, `Belay.Sqlite.Candidate` and
+`belay.Sqlite.Candidate`. The lowercase package failed on the prior runtime:
+Lean selected the installed package directory and missed the caller module.
+The import-path helper now groups directory names according to the destination
+filesystem's case behavior and preserves first-root precedence for collisions.
+
+A freshly built immutable macOS runtime passes all 18 selected documentation,
+import-path, real compiler, caller replay, current example and exporter boundary
+checks. Original failed and successful logs, XML, source hashes and runtime
+identity are in `reports/20261008-model-package-owner-review-changes/`.
+Restored 10 historical plan records from accepted base `eb061e76`; maintained
+documentation still rejects broken local links. Historical records will be
+checked again against final integrated main. No earlier acceptance receipt is
+rebound to this change.
+
+Decisions waiting for the owner:
+
+- Review PR #56 after PRs #57, #53, #50 and #59 are integrated and checks pass.
+  Protected source pins and trust changes still require that final review.

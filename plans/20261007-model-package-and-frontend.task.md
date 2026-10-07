@@ -120,6 +120,11 @@ state and behavior. Sources remain below 200 lines, with complete Python types.
   artifacts. Old runtime cache identities are refused or rebuilt. Every existing
   kernel attack and generated-input parity check remains effective, including
   changed starting schema, script, profile and forged generated declarations.
+- A caller under differently cased `belay.Sqlite` passes actual preparation,
+  export and kernel replay on macOS. Filesystem-aware package merging retains
+  first-root precedence for colliding artifacts. Historical plan records keep
+  their original source paths and are exempt from current-document link checks;
+  broken links in maintained documentation still fail.
 - On native `aarch64-darwin` and `x86_64-linux`, build a fresh runtime archive and
   run actual installed acceptance with `--runtime-variant installed` and
   `--runtime-archive`, without substituting a development runtime root. Poison

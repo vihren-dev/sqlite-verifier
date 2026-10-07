@@ -55,8 +55,8 @@ repository delivery of the approved exporter and executor changes in PR47/48.
 ## Relevant code and constraints
 
 `lakefile.toml` currently groups model and application libraries in one package.
-`packages/belay-sqlite/Belay/Sqlite/SqlExecution.lean` owns `ProfileExecutes` and the current
-connection/script behavior. `packages/belay-sqlite/Belay/Sqlite/Codec.lean` imports `Lean`.
+`SqliteVerifier/SqlExecution.lean` owns `ProfileExecutes` and the current
+connection/script behavior. `StructuralCodec.lean` imports `Lean`.
 `build-support/sources.nix`, `default.nix` and `runtime.nix` select, build and
 install artifacts. `migration_check/runtime.py`, `source_closure.py`,
 `prepare.py` and `bundle.py` resolve trusted modules and proof inputs.

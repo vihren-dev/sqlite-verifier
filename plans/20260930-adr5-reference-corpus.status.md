@@ -24,7 +24,7 @@ retained and do not establish disk performance or crash durability.
 
 ## Sources and package records
 
-`packages/belay-sqlite/Belay/Sqlite/Codec.lean`, `VerifierConformance/{Case,Trace,Json}.lean`,
+`StructuralCodec.lean`, `VerifierConformance/{Case,Trace,Json}.lean`,
 `conformance/{native_connection,native_record,native_replay,corpus}.py`,
 `build-support/tests.nix`, and the frozen v3 manifest are the initial sources.
 C0: [outputs and parameters](20260930-adr5-c0-outputs.task.md),

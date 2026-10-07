@@ -34,7 +34,7 @@ state platform, input counts and elapsed time without claiming universal refinem
 
 ## Constraints and existing code
 
-Reuse packages/belay-sqlite/Belay/Sqlite/SqlExecution.lean admission and transitions; Execution.lean's
+Reuse SqliteVerifier/SqlExecution.lean admission and transitions; Execution.lean's
 step is a legacy DDL helper. Database remains function-valued; observations use
 finite names including fixture, statement and native schema names.
 conformance/model_cases.py supplies existing fixtures; model_check.py and

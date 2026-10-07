@@ -18,7 +18,7 @@ Relevant sources: `BundleChecker.lean`, `GateCore.lean`,
   `build-support/README.md`. Nix targets atuin 12, bundle 15, cli 13, model 56,
   kernel 19; host 284; Nix infrastructure 58 (in the updated dev shell).
 - 2026-09-30: Task and status created. Lean 4.33 supports `deriving ToExpr`.
-- 2026-09-30: DONE. `packages/belay-sqlite/Belay/Sqlite/Codec.lean` holds the shared JSON codecs and derived
+- 2026-09-30: DONE. `StructuralCodec.lean` holds the shared JSON codecs and derived
   `ToExpr` instances (the conformance library imports it; `SqliteVerifier` still
   does not import `Lean`). `migration_check/structural.py` holds the encoders,
   re-exported by `conformance/case_format.py`. `BundleChecker` takes the frontend's

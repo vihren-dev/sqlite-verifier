@@ -9,10 +9,9 @@ ROOT = Path(__file__).resolve().parents[1]
 
 
 def broken_links(root: Path) -> list[str]:
-    """Validate file destinations, leaving external URLs and section anchors to human review."""
+    """Check current documentation; historical plans retain links to their original source layout."""
     errors: list[str] = []
-    paths = [*root.glob("*.md"), *root.glob("docs/**/*.md"), *root.glob("plans/**/*.md"),
-             *root.glob("examples/**/*.md")]
+    paths = [*root.glob("*.md"), *root.glob("docs/**/*.md"), *root.glob("examples/**/*.md")]
     for path in paths:
         for match in re.finditer(r"\[[^\]]*\]\(([^)]+)\)", path.read_text()):
             target = match[1].split(' "', 1)[0].strip("<>")
@@ -35,11 +34,21 @@ def test_broken_links_detects_missing_local_files(tmp_path: Path) -> None:
 
 
 def test_local_markdown_links() -> None:
-    """Every authored local Markdown destination resolves to an existing file."""
+    """Current documentation links resolve while historical plan records keep their original paths."""
     assert broken_links(ROOT) == []
+
+
+def test_historical_plan_links_are_exempt(tmp_path: Path) -> None:
+    """A removed historical source path is allowed in plans but still rejected in current docs."""
+    (tmp_path / "plans").mkdir()
+    (tmp_path / "plans/historical.status.md").write_text("[old source](../removed.lean)")
+    assert broken_links(tmp_path) == []
+    (tmp_path / "docs").mkdir()
+    (tmp_path / "docs/guide.md").write_text("[source](../removed.lean)")
+    assert broken_links(tmp_path) == ["docs/guide.md: missing ../removed.lean"]
 
 
 if __name__ == "__main__":
     failures = broken_links(ROOT)
-    print("\n".join(failures) or "Authored Markdown local file links resolve; external URLs/anchors are not checked.")
+    print("\n".join(failures) or "Current documentation links resolve; historical plans, external URLs and anchors are not checked.")
     sys.exit(1 if failures else 0)

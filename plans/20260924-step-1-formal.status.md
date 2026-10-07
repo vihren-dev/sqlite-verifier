@@ -10,7 +10,7 @@ Base revision: `2eb0b74a`; toolchain: Lean `leanprover/lean4:v4.33.0`.
 
 ## Checked unit: stored model and ordered execution
 
-- `packages/belay-sqlite/Belay/Sqlite/Model.lean` represents ordinary nullable columns, actual signed
+- `SqliteVerifier/Model.lean` represents ordinary nullable columns, actual signed
   64-bit rowids, arbitrary tagged stored values, finite exact schemas, and rows.
   Type declarations in this first subset are INTEGER, REAL, TEXT, BLOB, NUMERIC.
   No primary key, NOT NULL, other constraints, defaults, indexes, triggers, or

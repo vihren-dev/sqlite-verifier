@@ -36,7 +36,7 @@ product repository; a synthetic workload proves only the core mechanism.
 
 ## Constraints and relevant sources
 
-Reuse `packages/belay-sqlite/Belay/Sqlite/Codec.lean` and `migration_check/structural.py` from ADR 0003 P3.
+Reuse `StructuralCodec.lean` and `migration_check/structural.py` from ADR 0003 P3.
 `VerifierConformance/Case.lean` remains the comparison authority. Native evidence
 is translator-independent in `conformance/native_record.py`; the current adapter
 is `conformance/native_replay.py`. `conformance/upstream_pilot.py` and its Tcl

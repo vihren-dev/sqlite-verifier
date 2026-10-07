@@ -51,6 +51,25 @@ def test_distinct_packages_need_no_merged_directory(tmp_path: Path) -> None:
     assert set(tmp_path.iterdir()) == before
 
 
+def test_package_case_follows_filesystem_without_changing_precedence(tmp_path: Path) -> None:
+    """Case aliases merge on macOS volumes; distinct packages retain their roots on sensitive volumes."""
+    library, candidate = tmp_path / "library", tmp_path / "candidate"
+    artifact(library, "Model/Core.olean", "trusted-core")
+    artifact(library, "Model.olean", "trusted-base")
+    artifact(candidate, "model/Core.olean", "candidate-substitution")
+    artifact(candidate, "model.olean", "candidate-base-substitution")
+    artifact(candidate, "model/User.olean", "candidate-sibling")
+    with merged_search_path([library, candidate], tmp_path) as paths:
+        if (library / "model").exists():
+            assert paths[1:] == (library, candidate)
+            assert (paths[0] / "model/Core.olean").read_text() == "trusted-core"
+            assert (paths[0] / "model.olean").read_text() == "trusted-base"
+            assert (paths[0] / "model/User.olean").read_text() == "candidate-sibling"
+        else:
+            assert paths == (library, candidate)
+            assert (candidate / "model/Core.olean").read_text() == "candidate-substitution"
+
+
 @pytest.mark.integration
 @pytest.mark.requires_lean("compiler")
 def test_real_lean_keeps_trusted_definition_in_split_package(tmp_path: Path, lean_sysroot: Path) -> None:
