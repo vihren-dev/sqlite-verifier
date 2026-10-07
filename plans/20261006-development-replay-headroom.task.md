@@ -52,6 +52,13 @@ Snapshot reconstruction matches an independent canonical JSON oracle for
 scalar values, signed zero, escaped text, caller-owned JSON subclasses and
 reused nested mutable objects. Canonical JSON decoding occurs once per
 validated pool entry; every occurrence still has an independent mutable tree.
+Independent development cases may replay in two spawned worker processes.
+Every SQL statement, profile, controlled clock and durability setting retains
+its meaning. Failures and fixture paths retain input order; native exception
+codes survive transport. Normal failures and worker crashes clean private file
+trees and fail the tier. Configured outer timeouts stop the complete worker
+process group at the unchanged bound. Actual-native checks compare serial
+evidence, isolate UTC clocks from a non-UTC parent and retain failure paths.
 Storage audit checks exercise actual native fixtures. Relevant corpus,
 tier and Nix target checks retain the owner-approved 120-second phase bound
 from `06a1e297`; the separate acceptance target remains less than 30 seconds.
@@ -69,6 +76,13 @@ Nix target; `build-support/tests.nix` binds that target's inputs.
 Canonical JSON remains authoritative for snapshot hashes, logical byte counts
 and normalization. Any internal binary copies are generated only from decoded
 canonical JSON in the current invocation. External binary data is not an input.
+`native_workers.py` supplies only the development helper; `corpus.native_replay`
+remains the flexible serial primitive for full replay and library callers.
+Worker processes inherit the configured timeout's process group. Both real
+tier CLI tests use `tests.runtime_support.run_command` to stop that group.
+The sample and model Nix inputs include the worker module. Each native case
+uses its own ordinary SQLite fixture beneath a parent-owned private directory;
+the helper also supports explicit storage and actual fixture-path auditing.
 
 The full-corpus storage evidence in
 `reports/20261006-native-replay-storage/` is immutable historical evidence.

@@ -17,6 +17,15 @@ Current v5 uses 184 development cases. Retained direct measurements pass on
 with identical selected identities under the then-current 60-second phase bound.
 The owner raised the current bound to 120 seconds on 2026-10-06; the separate
 development headroom target remains less than 30 seconds on both platforms.
+The development tier replays independent native cases with two spawned
+processes. Each case retains its exact SQL, profile, controlled clocks and
+ordinary SQLite files. The serial `corpus.native_replay` primitive remains
+available for full replay and library callers. Supply `--temporary-root PATH`
+to select development fixture storage. The development `report` helper accepts
+the same storage input and an optional `fixture_paths` list for actual paths,
+including failed cases. Worker failures fail the tier in input order; its CLI
+tests stop the entire process group on timeout. These changes do not establish
+the separate less-than-30-second acceptance target.
 Hosted [CI validation](../plans/20261006-adr5-hosted-validation.md) passes on
 ubuntu-22.04 and macos-14, including the v5 sample and full model/upstream checks.
 

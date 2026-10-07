@@ -55,6 +55,7 @@ def source_tree(tmp_path: Path) -> Path:
     ('tests/kernel_gate/Proofs.lean', {'kernel'}),
     ('conformance/model_cases.py', {'model', 'upstream'}),
     ('conformance/replay_tiers.py', {'model', 'sample', 'upstream'}),
+    ('conformance/native_workers.py', {'model', 'sample', 'upstream'}),
     ('conformance/corpus-v5/manifest.json', {'model', 'sample'}),
     ('conformance/corpus-v4/manifest.json', {'model'}),
     ('conformance/corpus-v3/manifest.json', {'model'}),

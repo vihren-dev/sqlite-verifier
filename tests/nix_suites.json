@@ -59,6 +59,8 @@
   ],
   "sample": [
     "tests/conformance_tiers_test.py",
+    "tests/test_native_workers.py",
+    "tests/test_native_worker_failures.py",
     "tests/conformance_sample_test.py"
   ]
 }

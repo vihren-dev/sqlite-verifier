@@ -198,3 +198,19 @@ authorized one Linux diagnostic below. No production change followed it.
   The raw review row is retained in the append-only journal. Native concurrency,
   integrated checks and both-platform performance acceptance remain pending;
   the overall task remains IN PROGRESS. No benchmark, SSH or PR operation ran.
+- 2026-10-07: The coordinator authorized the isolated development worker unit
+  from the retained native I/O-wait diagnostic. Two spawned stdlib workers
+  call the unchanged serial primitive for independent cases. Ordered results
+  retain all returned fixture paths and the first input failure; native errors
+  preserve their code through a pickle-safe envelope. Parent-owned private
+  file trees remove crash remnants after worker shutdown. The real tier CLI
+  tests now use the existing process-group timeout harness at the unchanged
+  120-second bound. Added actual-native equivalence, clock/TZ, failure-path,
+  native-code, abrupt-crash and outer-group termination checks. Relevant Nix
+  source/test ownership includes the helper. All 21 final worker, failure-order,
+  tier and ownership checks pass in 7.47 seconds; all eight selected binding,
+  ownership and Nix dependency checks pass in 21.22 seconds. Each suite has a
+  60-second outer bound. An earlier input failure retains precedence when a
+  later worker crashes. The two real
+  tier CLI phase tests were updated but have not run in this unit. Independent
+  review is pending. No timing phase, broader gate, build, SSH or PR ran.

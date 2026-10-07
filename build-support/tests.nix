@@ -41,7 +41,7 @@ in {
       (root + /conformance/corpus-v5)
       (root + /conformance/synthetic-workload)
     ] ++ map (name: root + "/conformance/${name}.py") [
-      "replay_tiers" "corpus" "corpus_shards" "corpus_evidence" "corpus_acquisition" "case_format"
+      "replay_tiers" "native_workers" "corpus" "corpus_shards" "corpus_evidence" "corpus_acquisition" "case_format"
       "workload" "workload_inputs" "execution_profile" "native_replay" "model_check"
       "native_record" "native_acquisition" "native_connection" "native_library" "native_clock" "native_storage"
       "native_probe" "native_ordering" "query_window" "native_metadata" "native_statements"
@@ -123,7 +123,7 @@ in {
       (root + /nix/flake.lock)
       (root + /build-support/conformance-native.nix)
     ] ++ map (name: root + "/conformance/${name}.py") [
-      "model_assertions" "model_cases" "model_check" "replay_tiers"
+      "model_assertions" "model_cases" "model_check" "replay_tiers" "native_workers"
       "execution_profile" "native_acquisition"
       "native_storage"
       "refresh_corpus" "requirement_cases" "requirement_coverage"

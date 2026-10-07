@@ -9,7 +9,8 @@ from pathlib import Path
 from time import monotonic
 
 from conformance.case_format import Json
-from conformance.corpus import load, native_replay, replay
+from conformance.corpus import load, replay
+from conformance.native_workers import replay_native_cases
 from conformance.native_storage import serialized
 from conformance.workload import bound_records
 
@@ -103,8 +104,13 @@ def runtime_binding(runtime: Path) -> dict[str, Json]:
     return result
 
 
-def report(generic: Path, synthetic: Path, runtime: Path) -> dict[str, Json]:
-    """Time fresh loading, exact-profile native replay and current-model classification together."""
+def report(generic: Path, synthetic: Path, runtime: Path, *, temporary_root: Path | None = None,
+           fixture_paths: list[Path] | None = None) -> dict[str, Json]:
+    """Time fresh loading, exact-profile native replay and current-model classification together.
+
+    Optional storage and path auditing retain actual ordinary fixtures from the
+    independent development workers, including paths from failed comparisons.
+    """
     started = monotonic()
     runtime_identity = runtime_binding(runtime)
     generic_manifest, records = load(generic)
@@ -117,8 +123,7 @@ def report(generic: Path, synthetic: Path, runtime: Path) -> dict[str, Json]:
             or len(synthetic_records) != 2):
         raise ValueError("Tier requires v4/v5 authored membership and two synthetic v4 cases")
     selected = select(records)
-    native_replay(selected)
-    native_replay(synthetic_records)
+    replay_native_cases(selected + synthetic_records, temporary_root=temporary_root, fixture_paths=fixture_paths)
     generic_result = checked_replay(selected, runtime)
     synthetic_result = checked_replay(synthetic_records, runtime)
     result: dict[str, Json] = {"reportVersion": 1, "tier": "development-sample", "runtime": runtime_identity,
@@ -142,9 +147,10 @@ def main() -> None:
     parser.add_argument("--corpus", type=Path, default=Path("conformance/corpus-v5"))
     parser.add_argument("--synthetic", type=Path, default=Path("conformance/synthetic-workload"))
     parser.add_argument("--runtime-root", type=Path, default=Path("build/conformance"))
+    parser.add_argument("--temporary-root", type=Path, help="Directory for ordinary native case files")
     parser.add_argument("--output", type=Path, required=True)
     args = parser.parse_args()
-    result = report(args.corpus, args.synthetic, args.runtime_root.resolve())
+    result = report(args.corpus, args.synthetic, args.runtime_root.resolve(), temporary_root=args.temporary_root)
     args.output.parent.mkdir(parents=True, exist_ok=True)
     args.output.write_text(json.dumps(result, indent=2) + "\n")
     print(json.dumps({key: result[key] for key in ("selectedDenominator", "counts", "measurement")}))
