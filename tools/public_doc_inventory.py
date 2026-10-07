@@ -15,13 +15,18 @@ COMPILER_TIMEOUT_SECONDS = 60
 
 
 def inventory(root: Path, entry: str, lean: Path, output: Path) -> dict[str, object]:
-    """Compile only the development helper and query the already built public import closure."""
+    """Use the selected compiler and its sysroot to query the built public import closure."""
     output.parent.mkdir(parents=True, exist_ok=True)
     work = output.parent / "public-doc-helper"
     work.mkdir(exist_ok=True)
     tools = Path(__file__).resolve().parent
     helper = work / "PublicDocSyntax.olean"
     environment = dict(os.environ)
+    environment.pop("LEAN_SYSROOT", None)
+    prefix = subprocess.run([str(lean), "--print-prefix"], cwd=tools, env=environment,
+                            capture_output=True, text=True, check=True,
+                            timeout=COMPILER_TIMEOUT_SECONDS)
+    environment["LEAN_SYSROOT"] = prefix.stdout.strip()
     subprocess.run([str(lean), "-o", str(helper), str(tools / "PublicDocSyntax.lean")],
                    cwd=tools, env=environment, check=True, timeout=COMPILER_TIMEOUT_SECONDS)
     environment["LEAN_PATH"] = str(work) + os.pathsep + environment.get("LEAN_PATH", "")

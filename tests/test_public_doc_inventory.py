@@ -78,8 +78,15 @@ def test_invalid_documentation_array_identifies_its_source(tmp_path: Path, damag
         module_coverage(raw)
 
 
-def test_complete_authored_coverage_excludes_generated_constants(tmp_path: Path, runtime_root: Path) -> None:
-    """All authored roles are checked, including grouped fields and misleading names; generated helpers are explained."""
+def test_complete_authored_coverage_excludes_generated_constants(tmp_path: Path, runtime_root: Path,
+        monkeypatch: pytest.MonkeyPatch) -> None:
+    """The selected compiler gives complete coverage even when ambient lean fails; generated helpers are explained."""
+    ambient = tmp_path / "ambient compiler"
+    ambient.mkdir()
+    (ambient / "lean").write_text("#!/bin/sh\nexit 255\n")
+    (ambient / "lean").chmod(0o755)
+    monkeypatch.setenv("PATH", str(ambient) + os.pathsep + os.environ.get("PATH", ""))
+    monkeypatch.delenv("LEAN_SYSROOT", raising=False)
     report = fixture_report(tmp_path, runtime_root, FIXTURE.read_text())
     assert report["complete"] is True
     authored = {text(row["name"], "authored name"): row for row in rows(report, "authored")}

@@ -597,3 +597,27 @@ output. The existing exact macOS runtime output is valid, and its
 local runtime build or garbage collection runs. Actual Linux output
 closure and ordinary local acceptance remain required. This evidence
 checkpoint does not move the published branch while CI is live.
+
+
+CI `37663864057` builds both native references successfully. The Linux
+source step then fails nine real inventory checks: `findSysroot` invokes
+ambient `lean`, which exits 255, although the explicit runtime compiler
+is valid. This is an invocation bug, not reference acceptance or a
+missing compiler. Original Linux source results report nine failures,
+399 passes, two optional reviewer-tool skips and 35 subtests.
+
+The inventory wrapper now queries the chosen compiler for its prefix
+and supplies that sysroot to both helper calls. The existing positive
+compiler fixture places a failing `lean` first on PATH. It must still
+produce the complete actual inventory. Full affected compiler fixtures
+remain required before commit; the failed hosted run is retained.
+
+
+The compiler sysroot fix passes all 12 affected checks in 39.61 seconds
+under a 120-second limit. The strengthened positive fixture clears any
+inherited sysroot and puts a failing `lean` first on PATH; it passes in
+3.63 seconds under a 90-second limit. [The correction record](../reports/20261007-reference-compiler-sysroot/README.md)
+retains the original Linux failure, both hosted reference receipts and
+the new local XML. Both hosted reference ZIP hashes match their artifact
+digests. Corrected hosted source acceptance remains required. No Nix
+or runtime build ran locally. Independent review is pending.
