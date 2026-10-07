@@ -286,3 +286,20 @@ Correction review `20261007T153345Z-d356a7b1` has no mandatory findings and
 one usage-text suggestion. The diagnostic now states that application and SQL
 frontend refusals are recorded as statuses so remaining trials can run. This
 text correction does not change execution. Its review remains required.
+
+
+## Complete frontend bundle acceptance
+
+Usage-text correction `e932980a` passes independent review with no findings
+(`20261007T153603Z-e932980a`). The complete hardened bundle suite now passes
+all 44 checks in 224.192 seconds, including both newly owned
+latency diagnostic refusals. The suite retains its 1,200-second limit and
+300-second per-test limit. The outer build command has a 1,500-second limit.
+No failures, errors or skips occur. Original XML is in
+`build/t10-frontend-bundle/junit.xml`, and the original build log is in
+`build/t10-standalone-model-darwin/frontend-bundle.log`. The actual output is
+`/nix/store/qb7hh56dmsanp1zrzl8g1h582xzh3gvs-sqlite-verifier-test-bundle-1`.
+
+The source move and its caller corrections are committed and reviewed.
+Model caller migration, removal of duplicate Lean paths, installed trusted
+roots and both native final archives remain incomplete. T10 is IN PROGRESS.
