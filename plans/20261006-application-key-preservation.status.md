@@ -157,11 +157,20 @@ copying does not turn old mixed-history receipts into clean-runtime acceptance.
 ## Remaining acceptance
 
 The clean base's local compiler, source, ordinary, example and fresh-archive
-installed checks pass. The acceptance checkpoint's independent review remains
-required. These receipts do not establish acceptance of a later integration.
+installed checks pass. Acceptance checkpoint `f81a666b` passed independent review
+`20261007T094341Z-f81a666b`, with no findings. Its raw row is preserved.
+These receipts do not establish acceptance of a later integration.
 
-The coordinator requires reviewed T05 CI/release metadata at `9e91e525` before
-T15 publication, with a bounded routing check and independent integration review.
+Reviewed T05 CI/release metadata at `9e91e525` is being integrated before
+T15 publication. Only the raw journal needed conflict resolution. Both complete
+raw parent orders, including the pending acceptance review, are preserved; no
+undescribed working-copy change is a merge ancestor. The T15 feature and runtime
+inputs stay unchanged. The 17 CI routing/scheduling/ownership checks and 28
+subtests pass in 2.97 seconds under a 90-second outer bound. Their XML and
+commands are in `build/t15-clean-metadata-integration/`; no native build or replay
+was selected. The diff from `9e91e525` remains the exact 18 T15 paths, with no
+deletions or held T07/T18b code. Independent integration review remains required.
+PR47 was normally delivered at `2e01c49a`; T05 remains separate.
 T05 remains open, with hosted run 37600117584 active and a separate protected
 baseline gate failure; this local evidence does not resolve that failure.
 Dependency repository delivery, required hosted native checks and T15 delivery

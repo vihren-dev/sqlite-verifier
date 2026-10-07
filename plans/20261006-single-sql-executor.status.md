@@ -12,7 +12,7 @@ remain retained. The complete model now passes natively on both hosts under
 explicit recipes: Linux at the branch's 420-second budget, and Darwin through
 the separately reviewed model-only 600-second validation invocation. The earlier
 Darwin 420-second failure remains retained. Earlier PR #48 head `45ac63b2`
-used 420 seconds. Published integration `4111dea0` now adopts the reviewed
+used 420 seconds. Published integration `8e10a593` now adopts the reviewed
 600-second model policy from merged main; the other six suites retain 420.
 
 Integration includes approved exporter source `07dc71b3` and its checked
@@ -296,3 +296,39 @@ the stated recipes are complete. The task is not DONE.
   native test run. At published head `4111dea0`, protected job `112692365150`
   fails exactly because `examples/approved/baseline.json` changed. That expected
   failure remains separate from the running native jobs and the owner approval.
+- 2026-10-07: ADR refresh `8e10a593` passed independent review
+  `20261007T081309Z-8e10a593` with no findings. Verified that incoming receipt
+  `b91-refresh.json` was covered by clean exporter review
+  `20261007T080853Z-10ae1399`; its exact pending row is retained here.
+  An initial journal-only lookup did not find that still-uncommitted exporter
+  row; reading its task workspace confirmed the review and reviewed file.
+  Published only the existing PR #48 feature branch. Current head is
+  `8e10a593bf830c272bf6b5e6af525d943ce90212`; fresh CI `37592618106` is running.
+  No source, timeout, baseline guard, main ref or earlier receipt changed.
+- 2026-10-07: Current hosted run `37592618106` is terminal on both platforms.
+  Linux job `112697692784` passes, with 42 bundle cases in 334.95 seconds,
+  322 model passes and one existing skip in 323.07 seconds, and 76 upstream
+  cases in 11.11 seconds. Darwin job `112697693167` fails because the bundle
+  builder exhausts its unchanged 420-second budget. It collected 42 tests and
+  completed 20 before stopping during the stage-reuse case. The stateful
+  mutation case passes. No assertion or individual child timeout is reported.
+  The unfinished model build is not evidence of a model timeout or a pass.
+  The exporter has the same Darwin bundle failure; an isolated exact builder
+  is being tested before any scheduling change. Merge remains held for this
+  acceptance failure and the already-approved baseline exception.
+- 2026-10-07: Integrated exporter head `eec6d08e`, which includes main
+  `aeffab25` and the reviewed Darwin bundle schedule. Darwin now builds the
+  complete bundle target before the complete recipe starts the other suites.
+  Linux scheduling, all seven targets and their budgets are unchanged. All
+  74 approved source, pin and baseline files remain byte-identical to
+  `45ac63b2`. Both journal orders and repeated rows survive: 149 executor rows
+  and 100 exporter rows combine into 160 rows. The exact final clean exporter
+  review row is also retained. All 17 focused scheduling, failure-retention,
+  routing and documentation checks pass, with 28 subtests, in 3.21 seconds
+  under a 120-second bound. The first invocation named a nonexistent test
+  file and ran no tests; the corrected invocation has complete JUnit at
+  `build/test-results/t05-scheduling-integration.xml`. An initial supplemental
+  review assertion used the wrong journal field name and stopped before any
+  write; the corrected check confirmed the actual clean review. The isolated
+  exact bundle receipt is a local pass, not proof of the hosted failure cause.
+  Fresh hosted acceptance and exporter delivery remain required.
