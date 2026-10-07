@@ -273,3 +273,9 @@ Decisions waiting for the owner:
 - The native full acceptance hold is resolved. T17 remains IN PROGRESS until
   the evidence checkpoint receives its required independent review and normal
   PR delivery. No protected baseline or frozen PR43/44/47/48 was changed.
+- Evidence checkpoint `ab54aa98` passed required independent Claude review
+  `20261007T063326Z-ab54aa98` with no findings. The recorded raw-payload digest
+  verification was performed independently on the original artifacts; that
+  reviewer did not execute a separate decompression/digest check. Native
+  acceptance and evidence are ready for normal PR delivery. T17 remains
+  IN PROGRESS until delivered; no additional integrated gate is currently needed.
