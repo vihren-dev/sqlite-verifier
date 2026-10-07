@@ -81,3 +81,18 @@ def test_failed_collection_reports_that_it_may_be_incomplete(tmp_path: Path,
     reported = capsys.readouterr().err
     assert "stopped early" in reported and "No store paths were removed" not in reported
     assert "error: deletion interrupted" in reported and "run the workflow again" in reported
+
+
+def test_timed_out_command_reports_its_diagnostic(tmp_path: Path, capsys: pytest.CaptureFixture[str]) -> None:
+    """A hung Nix command fails with its name, its output and the next action."""
+    def time_out(command: list[str], **options: object) -> subprocess.CompletedProcess[str]:
+        """Exceed the limit while registering the first root."""
+        raise subprocess.TimeoutExpired(command, 600, stderr=b"evaluating derivations")
+
+    with patch.object(ci_store_gc, "ROOTS", tmp_path / "roots"), \
+         patch("tools.ci_store_gc.subprocess.run", side_effect=time_out), \
+         pytest.raises(subprocess.TimeoutExpired):
+        ci_store_gc.main()
+    reported = capsys.readouterr().err
+    assert "exceeded 600 seconds" in reported and "evaluating derivations" in reported
+    assert "No store paths were removed" in reported
