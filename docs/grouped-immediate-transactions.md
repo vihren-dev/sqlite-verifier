@@ -46,6 +46,7 @@ loads the resulting shard and replays it through new connections. An existing
 output directory is refused. The tests compare the retained records with fresh
 acquisition, check concrete state/output boundaries, and reject an altered
 transaction flag or committed snapshot. Stored pool corruption and unbound
-shard changes fail before replay. The Nix model target owns both test files and
-their source/evidence inputs. Native statement execution has a five-second
+shard changes fail before replay. The Nix harness target owns acquisition checks;
+the frozen target owns the retained evidence checks and report inputs.
+Native statement execution has a five-second
 deadline; the example commands have a 60-second limit.

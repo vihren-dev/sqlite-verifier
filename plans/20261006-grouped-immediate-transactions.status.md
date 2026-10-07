@@ -111,6 +111,29 @@ baseline files, all frozen corpora and other existing base files are unchanged.
 This feature checkpoint awaits independent review. The complete model target
 remains required before current acceptance or task completion is reported.
 
+## Refreshed suite layout, 2026-10-07
+
+The owner refreshed this branch with accepted main and the new conformance
+suites at `11cd184a`. Feature commit `ba334830` remains unchanged. Its review
+has no must findings and one wording suggestion. The corpus version description
+now says that version 1 is this corpus's first version; the separate directory
+and evidence kind keep it apart from historical corpora.
+
+The acquisition tests are assigned to `harness`; retained transaction evidence
+tests and inputs are assigned to `frozen`. The refreshed invalidation checks
+already match those assignments and the shared helper inputs. The frontend
+import closure check must pass for all five conformance suites. Complete
+acceptance now uses `model`, `frozen` and `harness` together, with their actual
+1,200-second suite limits and 300-second per-test limits. Earlier seven-suite
+and 420/600-second records describe their original source only.
+
+All 22 focused transaction, frontend and documentation checks pass in 1.68
+seconds with a 60-second command limit. All seven actual Nix membership and
+transaction input checks pass in 12.78 seconds with a 90-second limit; 46
+unrelated checks are deselected. Original JUnit files are retained under
+`build/t13-refreshed-suites-darwin/`. The review suggestion is recorded as
+fixed. Complete acceptance of the three refreshed suites remains required.
+
 ## Decisions waiting for the owner
 
 - None for the limited diagnostic. The owner authorized it on 2026-10-06.

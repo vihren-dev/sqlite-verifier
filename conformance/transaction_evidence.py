@@ -16,7 +16,7 @@ SOURCE_NAME = "authored-immediate-transactions"
 PART_NAME = "boundary-interaction"
 """Group these cases by interactions between transaction boundaries."""
 CORPUS_VERSION = 1
-"""Keep these additions in a separate version-1 corpus to preserve historical evidence."""
+"""Mark the first version of this new corpus; its directory and kind separate it from frozen corpora."""
 EVIDENCE_KIND = "grouped-immediate-transactions"
 """Distinguish this evidence from the historical conformance corpora."""
 
