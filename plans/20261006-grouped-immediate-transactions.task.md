@@ -1,6 +1,6 @@
 # Native evidence for grouped immediate transactions
 
-Created 2026-10-06. Status: IN PROGRESS.
+Created 2026-10-06. Status: DONE. Completed 2026-10-07.
 Status file: [status](20261006-grouped-immediate-transactions.status.md).
 Source: public [issue #36](https://github.com/vihren-dev/sqlite-verifier/issues/36).
 
@@ -55,3 +55,11 @@ Savepoints and additional schema forms may remain production-model unsupported.
 The profile's immediate label must agree with actual BEGIN SQL. Statement-level
 ABORT differs from rollback of the outer transaction. Deferred foreign-key
 COMMIT failure leaves pending data visible only to the writer.
+
+## Delivery
+
+[PR55](https://github.com/vihren-dev/sqlite-verifier/pull/55) merged normally
+as `923b7cee` after current-head Linux CI and retained native macOS
+acceptance. The fetched merge tree exactly matches tested head `c26e0257`.
+All five groups and all 13 new checks are delivered. Historical definitions
+and frozen corpus bytes remain unchanged.

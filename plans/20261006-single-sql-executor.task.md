@@ -1,6 +1,6 @@
 # One SQL executor and generated approved schema
 
-Created 2026-10-06. Status: IN PROGRESS.
+Created 2026-10-06. Status: DONE on 2026-10-07.
 Status: [execution record](20261006-single-sql-executor.status.md).
 Sources: public issues [#21](https://github.com/vihren-dev/sqlite-verifier/issues/21)
 and [#13](https://github.com/vihren-dev/sqlite-verifier/issues/13).

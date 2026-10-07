@@ -1,6 +1,6 @@
 # Proof exporter driver
 
-Status: IN PROGRESS. Created 2026-10-06.
+Status: DONE. Created 2026-10-06. Completed 2026-10-07.
 
 ## Outcome
 
@@ -69,5 +69,6 @@ revision is `6917e3c8`; its approved integration was merged through PR #43 as
 `07dc71b3` on the same date. The publication integration preserves that exporter,
 import-view, source-pin and baseline code. Main's accepted engine-settings
 caller changes have a separate current-input receipt; the historical native
-receipts keep their original source/runtime identities. Normal hosted checks
-and PR delivery remain required before merge. This task grants no release approval.
+receipts keep their original source/runtime identities. Both final native jobs pass in CI `37598926394` at `eec6d08e`. PR #47
+merged normally as `2e01c49a`, with no tree difference from that tested
+head. Delivery is complete. This task grants no release approval.

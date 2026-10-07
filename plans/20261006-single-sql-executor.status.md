@@ -1,34 +1,31 @@
 # One SQL executor implementation status
 
-Created 2026-10-06. Status: IN PROGRESS.
+Created 2026-10-06. Status: DONE on 2026-10-07.
 Task: [observable outcomes](20261006-single-sql-executor.task.md).
 Sources: public issues #21 and #13.
 
 ## Current state
 
-The executor implementation and requested mutation-harness correction are
-checked and independently reviewed. Prior native ordinary/installed acceptances
-remain retained. The complete model now passes natively on both hosts under
-explicit recipes: Linux at the branch's 420-second budget, and Darwin through
-the separately reviewed model-only 600-second validation invocation. The earlier
-Darwin 420-second failure remains retained. Earlier PR #48 head `45ac63b2`
-used 420 seconds. Published integration `8e10a593` now adopts the reviewed
-600-second model policy from merged main; the other six suites retain 420.
+PR #48 merged normally as `eb061e76` on 2026-10-07. The final reviewed
+head `b8eb25dd` passes Linux CI `37635846254`, and the merged tree exactly
+matches that tested head. The macOS PR job skips execution; retained full
+native macOS checks supply its acceptance. Earlier failed and cancelled
+runs retain their original meaning.
 
-Integration includes approved exporter source `07dc71b3` and its checked
-publication record `555b9a74`, checked root documentation `db69c816` and
-reviewed main `b91e5cb5`. Final source correction is `9e3b4419`.
-Both hosted native checks pass at PR #48 head `45ac63b2`. The separate timeout
-task is delivered in PR #49. The owner approved PR #48 on 2026-10-07, including
-the target file and proposed protected baselines. The exporter owner approval
-is also recorded. Publication integration, the recorded baseline exception,
-merge and release remain pending. The protected-baseline failure remains an
-expected failure; its guard is unchanged. T05 is not DONE.
+The owner approved the executor, target file and exact proposed protected
+baselines. All 74 approved files remain unchanged through the final
+integration. The final target-file finding is resolved. The protected
+baseline guard remains a failure; the recorded approval supplies its
+required exception. The implementation, mutation correction and integration
+reviews are complete. Issues #21 and #13 are closed as completed.
+T05 is DONE. This task grants no release approval.
 
-Relevant definitions and callers are listed in the task file. The removed
-executor's unconditional preservation law relied on treating data statements
-as errors. Its replacement has an explicit CREATE/ADD guard and idle starting
-state. The generated starting-schema pattern now matches the Atuin example.
+The removed executor's unconditional preservation law treated data
+statements as errors. Its replacement states the CREATE/ADD guard and idle
+starting state. Generated starting schemas match the approved Atuin
+pattern. Relevant definitions and callers are listed in the task file.
+The historical progress log below retains source identities, exact native
+checks and the separate timeout corrections.
 
 ## Progress
 
@@ -404,3 +401,30 @@ the stated recipes are complete. The task is not DONE.
   120-second command limit; 46 unrelated Nix checks are deselected. Original
   XML is retained at `build/t05-main54-integration/checks.xml`. Integration
   review, normal feature publication and delivery remain required.
+
+- 2026-10-07: Integration `b8eb25dd` passes independent review with no
+  findings (`20261007T141813Z-b8eb25dd`). Normally published only the existing
+  feature branch and updated PR #48's body. GitHub now reports the PR as
+  mergeable against main `98b90975`. Fresh CI `37635846254` has actual Linux
+  checks running in job `112841729038`. Its macOS job only skips execution
+  and is not counted as acceptance. No new native completion is claimed.
+  Original failures, completed native evidence and
+  the owner-approved protected-baseline exception remain unchanged. This
+  local publication record changes no code or test input while CI runs.
+
+- 2026-10-07: Fresh Linux job `112841729038` completes all pinned checks,
+  store retention and required artifact uploads successfully. Its macOS PR
+  job only skips execution; the retained actual local model and installed
+  checks and complete hosted run at `46bd04b5` remain the macOS evidence.
+  Verified the reviewed head `b8eb25dd` and current main `98b90975`, then
+  merged PR #48 normally with the expected head and recorded owner approval.
+  GitHub returns merge `eb061e7655b10b9de03e43bd321f5b76bf1e7183`.
+  Fetched main and verified its tree is exactly the tested published head:
+  zero changed files. All 74 owner-approved files remain unchanged. The
+  expected baseline failure stays recorded; no guard or force option is used.
+  T05 is DONE. The earlier failed and cancelled runs remain failures.
+
+- 2026-10-07: Corrected the stale current-state section, which still
+  said merge was pending despite the DONE header and recorded delivery.
+  Verified the final PR48 head, successful CI and zero merge-tree difference.
+  No source, baseline, review journal or historical evidence changes.
