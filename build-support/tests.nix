@@ -94,6 +94,7 @@ in {
   };
   bundle = suite "bundle" {
     inputs = [
+      (root + /reports/20261006-lean-4341-upgrade-darwin.json)
       (fs.fileFilter (file: file.hasExt "py") (root + /migration_check))
       (fs.fileFilter (file: file.hasExt "json") (root + /conformance/cases))
       (root + /tests/sql_fixtures.py)

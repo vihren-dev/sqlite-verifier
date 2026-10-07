@@ -1,0 +1,154 @@
+{
+  "platform": "Linux-7.1.5-x86_64-with-glibc2.42",
+  "machine": "x86_64",
+  "python": "/nix/store/jm7jvgi26icvnm2c5cx9iliixlvplgrp-python3-3.14.7-env/bin/python3",
+  "runtime": "/nix/store/la6glkdjla3lp9flpja0rqa0mjd3fmjr-sqlite-verifier-runtime-1",
+  "lean": "Lean (version 4.34.1, x86_64-unknown-linux-gnu, commit 5045d0056413266e57c625dcd7c365b10e377c52, Release)",
+  "junit": {
+    "source/build/test-results/source.xml": {
+      "sha256": "a084617e4de7d695bcffb3f54d73a75f8ef5879865be26c7565c49fea20e7a65",
+      "suites": [
+        {
+          "tests": "353",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "2",
+          "time": "23.067"
+        }
+      ]
+    },
+    "source/build/test-results/nix.xml": {
+      "sha256": "6eb16d86ad20b082e690e21e909769f38a6bc0e4de61f1c63dfacd81006d9338",
+      "suites": [
+        {
+          "tests": "68",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0",
+          "time": "74.279"
+        }
+      ]
+    },
+    "source/build/test-results/installed.xml": {
+      "sha256": "e0aae27877fa2139110af73cccb63cdc8ef880e286217950e8cdde13815680c9",
+      "suites": [
+        {
+          "tests": "21",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0",
+          "time": "105.874"
+        }
+      ]
+    },
+    "validation/exporter-installed.xml": {
+      "sha256": "ce90c4a3dd9a53b471ed5341b49fd1b4072f287f0c9f2633f7364b5d6a1ec443",
+      "suites": [
+        {
+          "tests": "9",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0",
+          "time": "35.759"
+        }
+      ]
+    },
+    "atuin": {
+      "path": "/nix/store/nzvxq21s3crz6w0f1584vj2xs85qq55d-sqlite-verifier-test-atuin-1/junit.xml",
+      "sha256": "68433e134dfb3cf623064d51c00279ca80debcfe031a03e367bdb7a2a08cdac6",
+      "suites": [
+        {
+          "tests": "12",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0",
+          "time": "103.152"
+        }
+      ]
+    },
+    "bundle": {
+      "path": "/nix/store/ap17mpz56wz7i0rw0kjjqhc5lynnhn1c-sqlite-verifier-test-bundle-1/junit.xml",
+      "sha256": "a65d4ee2bee45498fd456b1d39c95b7686730d62ecd4841a4834a12dbc5f694c",
+      "suites": [
+        {
+          "tests": "42",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0",
+          "time": "179.546"
+        }
+      ]
+    },
+    "cli": {
+      "path": "/nix/store/n1vs8y7jbalrswam08p470129mq6mgp7-sqlite-verifier-test-cli-1/junit.xml",
+      "sha256": "5cb04bcd879102e362e48fe84e20c885d32b735e5b62cdc5744695828a86d818",
+      "suites": [
+        {
+          "tests": "13",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0",
+          "time": "39.165"
+        }
+      ]
+    },
+    "kernel": {
+      "path": "/nix/store/p1vl408mm6xv5rq1w812q7hljn5mrjb6-sqlite-verifier-test-kernel-1/junit.xml",
+      "sha256": "276fc95a8289259931f9e7fe827d25b287412036c1123b8bea1325a2e7ffd3ac",
+      "suites": [
+        {
+          "tests": "19",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0",
+          "time": "42.017"
+        }
+      ]
+    },
+    "sample": {
+      "path": "/nix/store/bmp4d9assr1vz2x71qi2a36qm1k5iqi1-sqlite-verifier-test-sample-1/junit.xml",
+      "sha256": "689f894bff4446b360c90dd19a3f582a8efde1613a77c48b4f34d7f0f871476d",
+      "suites": [
+        {
+          "tests": "12",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0",
+          "time": "93.252"
+        }
+      ]
+    },
+    "upstream": {
+      "path": "/nix/store/m0jrzpq9zzirxhzv2lrfmzmhk40gv6w6-sqlite-verifier-test-upstream-1/junit.xml",
+      "sha256": "bb71d7ed28bc7e1795ecd00e7a52ed094475562f7541aae7b8919c960530c62e",
+      "suites": [
+        {
+          "tests": "58",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0",
+          "time": "5.437"
+        }
+      ]
+    }
+  },
+  "executablesSha256": {
+    "migration-proof-exporter": "869d90ffc815fb86e667ccb9070eb996f1b4fe579e4c7945694ec41be0bf81ba",
+    "migration-bundle-checker": "1b6221d0706823efc7e63267cab7b68b914dd207d83e11c557a6b0905226a549",
+    "migration-proof-checker": "862638bac483154e4d2f01723144c44e16b38a5f41e4197b8b953d0897ec361c"
+  },
+  "archive": {
+    "bytes": 928841533,
+    "sha256": "bb55ea1f25d4b7dd58cb7b4d73f7cf7eea96f63496c3dd9ca6f6ad244b55ecd9"
+  },
+  "status": "passed",
+  "sourceRevision": "5a18b5bfc21abdf7caf38a2f12682a4a8cdd39cd",
+  "retainedJUnit": {
+    "path": "reports/20261006-proof-exporter-driver/linux-junit.json.gz",
+    "sha256": "f433c321779766338e24d1761bf6f4ee3cec4d2f9b05adc4fefb8066e1647d81",
+    "uncompressedSha256": "4090aad0f3778d34a6f556d1501da0eb23879e08456d9908a15a7dca94b56a03",
+    "format": "gzip-json-map-receipt-key-to-original-xml"
+  },
+  "acceptanceState": "Native development, exact-byte/origin and installed checks passed; final owner review pending",
+  "performanceClaim": "No exporter speed comparison is made."
+}

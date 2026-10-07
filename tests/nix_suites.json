@@ -16,6 +16,7 @@
   ],
   "bundle": [
     "tests/bundle_test.py",
+    "tests/proof_exporter_test.py",
     "tests/stage_reuse_test.py",
     "tests/generated_inputs_test.py"
   ],

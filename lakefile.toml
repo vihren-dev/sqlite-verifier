@@ -2,7 +2,7 @@ name = "sqliteVerifier"
 version = "0.1.0"
 defaultTargets = ["SqliteVerifier"]
 
-# Populated from the pinned, patched source in build-support/lean4export.nix.
+# Populated from the pinned upstream source in build-support/lean4export.nix.
 [[require]]
 name = "lean4export"
 path = "build/lean4export"
@@ -23,6 +23,10 @@ root = "ProofChecker"
 [[lean_exe]]
 name = "migration-bundle-checker"
 root = "BundleChecker"
+
+[[lean_exe]]
+name = "migration-proof-exporter"
+root = "ProofExporter"
 
 [[lean_lib]]
 name = "VerifierConformance"
