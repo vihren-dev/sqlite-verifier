@@ -11,7 +11,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 from tools.public_doc_coverage import coverage_report, mapping, position, sequence
 
 COMPILER_TIMEOUT_SECONDS = 60
-"""Bound both helper compilation and the source/metadata query independently."""
+"""Bound each compiler call: prefix query, helper compilation and metadata query."""
 
 
 def inventory(root: Path, entry: str, lean: Path, output: Path) -> dict[str, object]:

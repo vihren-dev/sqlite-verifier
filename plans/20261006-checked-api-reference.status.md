@@ -621,3 +621,10 @@ retains the original Linux failure, both hosted reference receipts and
 the new local XML. Both hosted reference ZIP hashes match their artifact
 digests. Corrected hosted source acceptance remains required. No Nix
 or runtime build ran locally. Independent review is pending.
+
+
+Sysroot fix `cc78a7ef` passes independent review
+`20261007T182933Z-cc78a7ef` without a mandatory finding. Its one
+description suggestion is fixed: the shared timeout bounds each of the
+three compiler calls, including prefix lookup. The tested code is unchanged.
+Correction review remains required before publication.
