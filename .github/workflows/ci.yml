@@ -6,7 +6,8 @@ on:
     branches: [main]
     tags: ["v*"]
   workflow_dispatch:
-  # Nightly full run on both platforms; pull requests check only Linux.
+  # Nightly checks and references run on both platforms. Pull requests run
+  # checks and build the reference on Linux only.
   schedule:
     - cron: "17 2 * * *"
 
@@ -29,16 +30,17 @@ jobs:
           - runner: macos-14
             system: aarch64-darwin
     runs-on: ${{ matrix.runner }}
-    timeout-minutes: 30
+    # The owner limits the complete job to 75 minutes; child limits remain unchanged.
+    timeout-minutes: 75
     env:
       BUILD_MODE: build
-      # Pull requests run on Linux only. The macOS job still reports, because the
-      # repository ruleset requires it; it checks on main, tags, manual and nightly runs.
+      # Pull requests run checks and references on Linux. Other events retain
+      # both native platforms for every non-documentation scope.
       PLATFORM_RUNS: ${{ matrix.system == 'x86_64-linux' || github.event_name != 'pull_request' }}
     steps:
       - name: Skip macOS checks on pull requests
         if: env.PLATFORM_RUNS != 'true'
-        run: echo "macOS checks run on main, release tags, manual runs and nightly; Linux checks this pull request."
+        run: echo "macOS checks and the API reference run on main, tags, manual and nightly runs; Linux checks this pull request."
       - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
         if: env.PLATFORM_RUNS == 'true'
         with:
@@ -76,8 +78,13 @@ jobs:
           restore-prefixes-first-match: |
             nix-tests-v2-${{ matrix.system }}-${{ hashFiles('nix/*.nix', 'nix/flake.lock') }}-
             nix-tests-v1-${{ matrix.system }}-${{ hashFiles('nix/*.nix', 'nix/flake.lock') }}-
-          # Pull requests save too; a pull request's cache is visible only to its own later runs.
-          save: true
+          # Only accepted main and nightly runs publish caches. Other events restore them.
+          save: ${{ github.event_name == 'schedule' || (github.event_name == 'push' && github.ref == 'refs/heads/main') }}
+      - name: Build checked API reference
+        if: env.PLATFORM_RUNS == 'true' && steps.scope.outputs.scope != 'docs'
+        env:
+          REFERENCE_REVISION: ${{ github.sha }}
+        run: nix develop path:./nix --command just reference "$REFERENCE_REVISION"
       - name: Run checks in one pinned environment
         if: env.PLATFORM_RUNS == 'true' && steps.scope.outputs.scope != 'docs'
         env:
@@ -87,6 +94,14 @@ jobs:
           python3 tools/check_resources.py
           nix develop path:./nix --command python3 tools/ci_checks.py \
             --system "$EXPECTED_SYSTEM" --scope "$CHECK_SCOPE" --mode "$BUILD_MODE"
+      - name: Retain checked API reference
+        if: always() && env.PLATFORM_RUNS == 'true' && steps.scope.outputs.scope != 'docs'
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: api-reference-${{ matrix.system }}
+          path: build/api-reference/
+          if-no-files-found: error
+          retention-days: 14
       - name: Keep only the store paths that this commit needs
         if: always() && env.PLATFORM_RUNS == 'true' && steps.scope.outputs.scope != 'docs'
         # A failure only leaves the saved cache larger; it never changes a check result.
@@ -115,7 +130,7 @@ jobs:
           if-no-files-found: warn
           retention-days: 14
       - name: Retain development source snapshot
-        if: steps.scope.outputs.scope == 'package'
+        if: env.PLATFORM_RUNS == 'true' && steps.scope.outputs.scope == 'package'
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
           name: development-source-${{ matrix.system }}
@@ -123,7 +138,7 @@ jobs:
           if-no-files-found: error
           retention-days: 14
       - name: Retain checked native runtime
-        if: steps.scope.outputs.scope == 'package' || steps.scope.outputs.scope == 'packaging'
+        if: env.PLATFORM_RUNS == 'true' && (steps.scope.outputs.scope == 'package' || steps.scope.outputs.scope == 'packaging')
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
           name: runtime-${{ matrix.system }}

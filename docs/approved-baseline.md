@@ -17,8 +17,8 @@ helpers; original files are not reread for compilation. A mismatch returns
 discovery still precedes comparison, so invalid or missing dependencies can fail
 first. Matching baselines still require full compilation and the independent kernel
 gate; omitting the baseline skips only this optional approval check. An optional
-`schema.sql` SHA-256 entry also pins the exact authored starting SQL bytes. The Atuin example uses that entry to bind its interpretation
-to its schema without maintaining a second schema declaration in Lean. Baselines
+`schema.sql` SHA-256 entry also pins the exact authored starting SQL bytes. The shipped invoice and Atuin examples use that entry to bind their interpretations
+to their schemas without maintaining a second schema declaration in Lean. Baselines
 without this entry continue to protect reusable requirements across supplied
 schemas. An `--artifacts` `inputs.json` export is inspectable evidence, not an
 approval: copying it over a baseline does not authorize new requirements.

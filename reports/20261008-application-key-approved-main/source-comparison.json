@@ -1,0 +1,13 @@
+{
+  "SqliteVerifier/ApplicationKeyDemonstration.lean": true,
+  "SqliteVerifier/ApplicationKeyPreservation.lean": true,
+  "SqliteVerifier/ApplicationKeys.lean": true,
+  "SqliteVerifier.lean": false,
+  "examples/application_keys/add_column_then_table/NextInterpretation.lean": true,
+  "examples/application_keys/add_column_then_table/Proofs.lean": true,
+  "examples/application_keys/approved/Interpretation.lean": true,
+  "examples/application_keys/approved/Requirements.lean": true,
+  "tests/bundle_test.py": true,
+  "tests/cli_test.py": true,
+  "tests/test_application_keys.py": true
+}

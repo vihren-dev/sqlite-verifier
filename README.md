@@ -73,6 +73,10 @@ See [CI and release procedure](docs/ci.md).
 
 ## Verify one migration
 
+The [checked Lean API reference](docs/api-reference.md) includes the public
+library walkthrough. Read the [CLI input and proof roles](docs/api-reference.md#cli-inputs-and-proof-roles)
+and run `bin/migration-check verify --help` for the required paths and options.
+
 Inside the development environment, after `just build`:
 
 ```sh
@@ -86,6 +90,12 @@ bin/migration-check verify --profile 3.51.0 \
   --format json
 ```
 
+The approved requirements define the logical contract. The approved current
+interpretation defines the meaning of starting data and which starting databases
+are admitted. The migration, next interpretation and proofs are candidate inputs.
+The verification contract covers every model-conforming starting database that
+satisfies the approved admission condition under the selected profile and schema.
+
 Exit zero means the exact generated verification contract passed independent
 kernel replay and dependency checking. Human-format success is silent; JSON
 reports `VERIFIED`. `VIOLATED` requires a checked negative theorem. Missing,
@@ -97,7 +107,7 @@ module `Generated.lean`, and exact input/dependency hashes. It does not create a
 approval or a certificate. Once reviewed and protected by the caller,
 `--approved-baseline inputs.json` requires the same approved Lean source closure,
 including transitive dependencies. The baseline compares `approved/` Lean hashes and, when included, the
-`schema.sql` hash; the Atuin baseline protects both. Migration SQL and profile
+`schema.sql` hash; all shipped invoice and Atuin baselines protect both. Migration SQL and profile
 are bound to each invocation separately. Protect the
 baseline, trusted verifier installation, and any additional desired inputs in
 the calling project/CI.

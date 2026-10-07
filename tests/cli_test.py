@@ -49,10 +49,12 @@ def invoke(runtime_root: Path, approved: Path, candidate: Path,
     return verify
 
 
-def test_valid_migration_artifacts(invoke: Callable[..., dict[str, object]], tmp_path: Path) -> None:
+def test_valid_migration_artifacts(invoke: Callable[..., dict[str, object]], tmp_path: Path,
+                                  approved: Path) -> None:
     """A valid migration produces exactly the four sealed source/input artifacts."""
     artifacts = tmp_path / "artifacts"
-    invoke("VERIFIED", extra=("--artifacts", str(artifacts)))
+    invoke("VERIFIED", extra=("--artifacts", str(artifacts),
+                             "--approved-baseline", str(approved / "baseline.json")))
     assert {path.name for path in artifacts.iterdir()} == {"SchemaInputs.lean", "SqlInputs.lean", "Generated.lean", "inputs.json"}
     assert "def startSchema" in (artifacts / "SchemaInputs.lean").read_text()
     assert "def startSchema" not in (artifacts / "SqlInputs.lean").read_text()
@@ -68,15 +70,37 @@ def test_reverse_migration_reuses_baseline(invoke: Callable[..., dict[str, objec
            extra=("--approved-baseline", str(approved / "baseline.json")))
 
 
-def test_checked_refutation(invoke: Callable[..., dict[str, object]], example_factory: Callable[[str], Path]) -> None:
+def test_checked_refutation(invoke: Callable[..., dict[str, object]], example_factory: Callable[[str], Path],
+                            approved: Path) -> None:
     """A checked counterargument returns VIOLATED with a nonzero process status."""
-    invoke("VIOLATED", alternative=example_factory("missing_required_column"))
+    invoke("VIOLATED", alternative=example_factory("missing_required_column"),
+           extra=("--approved-baseline", str(approved / "baseline.json")))
 
 
 def test_allowed_failure(invoke: Callable[..., dict[str, object]], example_factory: Callable[[str], Path]) -> None:
     """An explicitly allowed execution failure satisfies its own approved contract."""
     case = example_factory("allowed_failure")
-    invoke("VERIFIED", alternative=case, contract=case / "approved")
+    invoke("VERIFIED", alternative=case, contract=case / "approved",
+           extra=("--approved-baseline", str(case / "approved/baseline.json")))
+
+
+def test_application_key_invoice_variant(invoke: Callable[..., dict[str, object]],
+        example_factory: Callable[[str], Path]) -> None:
+    """The key-based invoice certificate verifies the actual authored schema extension."""
+    examples = example_factory("application_keys")
+    invoke("VERIFIED", contract=examples / "approved",
+           alternative=examples / "add_column_then_table")
+
+
+@pytest.mark.approval
+def test_protected_schema_precedes_invalid_proof(invoke: Callable[..., dict[str, object]],
+        approved: Path, candidate: Path) -> None:
+    """Changed SQL bytes reject before an invalid proof, even when the schema meaning is unchanged."""
+    schema = approved / "schema.sql"
+    schema.write_bytes(schema.read_bytes() + b"\n-- unapproved schema source change\n")
+    (candidate / "Proofs.lean").write_text("import Generated\ndef invalidProof : Nat := false\n")
+    report = invoke("INPUT_ERROR", extra=("--approved-baseline", str(approved / "baseline.json")))
+    assert "schema.sql" in report["message"], report
 
 
 def test_application_profile_rejected(invoke: Callable[..., dict[str, object]], tmp_path: Path) -> None:

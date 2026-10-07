@@ -1,0 +1,25 @@
+{
+  "inputs": [
+    {
+      "name": "feature-journal.jsonl",
+      "rows": 208,
+      "sha256": "a06c1520fde2bfe6347e1054dcac35f9368f077a610fe25e2e1197477bcf583f",
+      "ordered_subsequence": true
+    },
+    {
+      "name": "main-journal.jsonl",
+      "rows": 252,
+      "sha256": "04919d484214d863441539102bfa4292a1f84bbcfee56035a31f791a850aa8a2",
+      "ordered_subsequence": true
+    },
+    {
+      "name": "pending-journal.jsonl",
+      "rows": 209,
+      "sha256": "bbd188098f108f0686cd38f127a3d27b4a2c04f5a5ee6a87672e19d094ccd24d",
+      "ordered_subsequence": true
+    }
+  ],
+  "merged_rows": 294,
+  "merged_sha256": "513f50c8726cd124cdad2e416870fd131546fe6a3c70269e4af882fe426a4069",
+  "duplicates_preserved": true
+}

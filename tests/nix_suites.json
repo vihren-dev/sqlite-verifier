@@ -12,7 +12,8 @@
     "tests/cli_test.py"
   ],
   "kernel": [
-    "tests/kernel_gate_test.py"
+    "tests/kernel_gate_test.py",
+    "tests/single_executor_test.py"
   ],
   "model": [
     "tests/conformance_model_test.py",
@@ -34,7 +35,8 @@
     "tests/conformance_freeze_test.py",
     "tests/conformance_shards_test.py",
     "tests/conformance_evidence_test.py",
-    "tests/conformance_fidelity_test.py"
+    "tests/conformance_fidelity_test.py",
+    "tests/conformance_transaction_evidence_test.py"
   ],
   "harness": [
     "tests/conformance_acquisition_test.py",
@@ -49,7 +51,8 @@
     "tests/conformance_driver_profiles_test.py",
     "tests/conformance_readonly_workload_test.py",
     "tests/conformance_context_test.py",
-    "tests/conformance_requirement_coverage_test.py"
+    "tests/conformance_requirement_coverage_test.py",
+    "tests/conformance_authored_transactions_test.py"
   ],
   "sample": [
     "tests/conformance_tiers_test.py",

@@ -261,8 +261,9 @@ evaluator. The trace folds `advance` (`SqlExecution.lean`) over the script from
 `{ database := initial }`, exactly as `runSqlFrom` does. After each `.next state`
 it records `state.database` as connection-visible and `state.snapshot` as the
 committed state when a transaction is open. A `.halt outcome` ends the trace with
-`outcome.database` and `outcome.persistedDatabase`. The legacy `step`/`run`
-helpers in `Execution.lean` cover only schema extensions and are not used. A
+`outcome.database` and `outcome.persistedDatabase`. `runSqlFrom` and `runSql`
+are the sole script semantics. Their schema statements call the primitive `step`
+in `Execution.lean` through `literalStep`; no second script evaluator is used. A
 theorem in W1 states that the trace's final observation equals the observation of
 `runSql` on the same input, so tier 2 cases and the verifier describe the same
 execution.

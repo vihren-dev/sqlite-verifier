@@ -58,11 +58,13 @@ described as identical inputs. Relevant short native/Tcl tests and the pinned
 upstream suite pass with timeouts. Long acquisition and full-model runs wait for
 host coordination. Independent review outcomes remain in the append-only journal.
 
-The full Nix model target passes on native Darwin and Linux with the same
-ordered 32 modules, complete reporting and the reviewed model-only 600-second
-deadline. The six other target deadlines remain 420 seconds. Native acceptance
-retains exact public source/helper hashes and original JUnit, including the
-direct Tcl checks owned by the pinned upstream target.
+The current nine-suite Nix layout passes on native Darwin and Linux, with
+complete source, model, frozen, harness and pinned upstream selection. Every
+suite retains its configured deadline and per-test timeouts. Historical
+32-module and 600-second receipts remain bound to their original recipe;
+they are not descriptions of the current suite layout. New acceptance retains
+exact source/helper hashes and original JUnit, including direct Tcl checks
+owned by the upstream suite.
 
 ## Constraints and relevant code
 

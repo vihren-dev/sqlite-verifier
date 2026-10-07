@@ -313,3 +313,37 @@ Decisions waiting for the owner:
   Both platforms' complete accepted model/upstream source, derivation, output
   and rendered command identities are still exact. This metadata-only merge
   resolves the publication conflict and leaves the owner question pending.
+
+- 2026-10-08: The owner approves PR #50 and requests current-main
+  integration and green checks before normal merge. Integrated delivered
+  main `1198867a`, including the API reference and application-key helpers.
+  All original feature source bindings remain unchanged except the
+  combined Nix invalidation test. That test preserves main's transaction
+  inputs and the feature's extracted freeze-capture ownership. All three
+  original journals remain ordered subsequences of 353 rows, including
+  repeated rows. The current complete nine-suite acceptance recipe is
+  running. The task records current suite deadlines separately from
+  historical 32-module receipts. No new acceptance or merge is claimed.
+
+- 2026-10-08: The first integrated acceptance run failed during harness
+  collection. The transaction tests added on main imported `decode_rows`
+  from `conformance.native_replay`, but T17 moved that function to
+  `conformance.native_bindings`. Updated the test import to its current
+  module. Other maintained callers already use the current module. The
+  failed log is retained in
+  `build/20261008-t17-approved-main-integration/full-acceptance.log`.
+  The complete acceptance recipe is running again; passing acceptance
+  remains unconfirmed.
+
+  Decisions waiting for the owner: None. PR #50 is approved, subject to
+  passing integrated checks and normal merge.
+
+- 2026-10-08: The corrected complete macOS acceptance command exits zero.
+  All nine Nix suites pass 558 tests without failures, errors or skips.
+  Source checks pass 412 tests and 35 subtests; infrastructure checks pass
+  98 tests. Original timestamps distinguish reused outputs from newly
+  built outputs. Raw logs, JUnit files, parent journals and source hashes
+  are retained in `reports/20261008-tcl-values-approved-main/`.
+  Independent review and fresh hosted Linux checks remain before merge.
+
+  Decisions waiting for the owner: None. The existing approval applies.

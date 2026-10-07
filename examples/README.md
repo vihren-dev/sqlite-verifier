@@ -25,8 +25,11 @@ fixed autocommit profile; they do not assume whole-file rollback or crash safety
 For each candidate provide `approved/Requirements.lean`, `approved/schema.sql`,
 `approved/Interpretation.lean`, and that candidate's `migration.sql`,
 `NextInterpretation.lean`, and `Proofs.lean`, with profile `3.51.0`.
-The verifier generates `SqlInputs.lean` and `Generated.lean`; these are not user
-inputs. Approved modules import no generated or candidate module.
+The verifier generates sealed `SchemaInputs.lean`, `SqlInputs.lean` and
+`Generated.lean`; these are not user inputs. The approved interpretation imports
+only `SchemaInputs` from these modules and uses `Generated.startSchema`. Its
+protected baseline pins `schema.sql` and the complete approved Lean closure.
+Approved modules cannot import the migration, result schema or candidate sources.
 
 The public proof implementations are `SqliteVerifier/Demonstration.lean` and
 `SqliteVerifier/ReverseDemonstration.lean`. The named projection, coverage,
@@ -39,3 +42,12 @@ Both earlier changes remain committed, the fourth statement is skipped, and the
 failed outcome reads the same protected invoice projection from resulting storage.
 This demonstrates the general failure contract; it does not weaken or replace
 the successful-applicability requirements shared by the other three examples.
+Its separate protected baseline also pins the source schema and generated-schema
+interpretation. For candidates that use `examples/approved`, supply its
+`baseline.json` with `--approved-baseline`, including a checked refutation.
+Supply `examples/allowed_failure/approved/baseline.json` for `allowed_failure`.
+
+The [application-key variant](application_keys/README.md) uses complete records
+without physical rowids and compares them with permutation. Its logical key
+policy requires defined, distinct, non-NULL keys. This separate engineering
+example explains how to choose the flexible interpretation and contract helpers.

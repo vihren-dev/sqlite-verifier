@@ -1,0 +1,133 @@
+{
+  "head": "d7e5e950d6d78610c0eb1f55729eb008e2175ad2",
+  "merge_source": "ca7280a84c752e06938a94230c64fc430a79d324",
+  "workflow": 37667476876,
+  "workflow_conclusion": "success",
+  "linux_job": 112950288092,
+  "linux_job_conclusion": "success",
+  "darwin_job": 112950287824,
+  "darwin_job_conclusion": "success",
+  "linux_runtime": "/nix/store/r7j59p1zj9b5jrny9jzfrfaabm38ga8p-sqlite-verifier-runtime-1",
+  "source_passed": 408,
+  "source_subtests_passed": 35,
+  "source_optional_reviewer_skips": 2,
+  "nix_suite_checks": 513,
+  "nix_infrastructure_checks": 95,
+  "fresh_installed_checks": 24,
+  "reference_authored_items": 259,
+  "reference_local_links": 829618,
+  "actual_linux_output_closure_checked": false,
+  "artifacts": {
+    "case_reports": {
+      "id": 11505530454,
+      "bytes": 60493,
+      "sha256": "8928bcc9bc5e873e867b738857330d632235d5f40404344c149c341c57ae3e86"
+    },
+    "reference": {
+      "id": 11504866562,
+      "bytes": 8408395,
+      "sha256": "2333b542d39befb36e0a5fa451ccaf8b7a560b22011a055a53b681b27586de17"
+    },
+    "job_log": {
+      "stored_sha256": "630cb8785a56a0166fc1f0b3e08bba44a090c1ac03b383b2f9026da058b1a508",
+      "original_sha256": "c4b2ff677932ef9031b322af944c9d126bb9428eafab0aa3800853387864194e",
+      "original_bytes": 312321
+    },
+    "linux-public-doc-inventory.json.gz": {
+      "sha256": "183a745dbf17aee35c4dd995d7ff3ee67633fc00350eb919866d32354c826416",
+      "original_sha256": "8aa149dab99ede4e1af3f70d7fcc82fbccfc9405dbbd3bfbc943a08d6ff208d3",
+      "original_bytes": 582928
+    },
+    "linux-reference-check.json": {
+      "sha256": "2e6247be144f1d1fc4e0005fe213fa58e78247cc1f0aa8efd9a36524d00f8300",
+      "original_sha256": "2e6247be144f1d1fc4e0005fe213fa58e78247cc1f0aa8efd9a36524d00f8300",
+      "original_bytes": 195
+    }
+  },
+  "xml_counts": {
+    "nix-tests-full/junit.xml": {
+      "tests": 12,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "seconds": "162.702"
+    },
+    "nix-tests-full-2/junit.xml": {
+      "tests": 42,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "seconds": "355.383"
+    },
+    "nix-tests-full-3/junit.xml": {
+      "tests": 14,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "seconds": "73.617"
+    },
+    "nix-tests-full-4/junit.xml": {
+      "tests": 152,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "seconds": "271.807"
+    },
+    "nix-tests-full-5/junit.xml": {
+      "tests": 126,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "seconds": "5.552"
+    },
+    "nix-tests-full-6/junit.xml": {
+      "tests": 28,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "seconds": "67.667"
+    },
+    "nix-tests-full-7/junit.xml": {
+      "tests": 51,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "seconds": "93.594"
+    },
+    "nix-tests-full-8/junit.xml": {
+      "tests": 12,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "seconds": "121.928"
+    },
+    "nix-tests-full-9/junit.xml": {
+      "tests": 76,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "seconds": "9.136"
+    },
+    "test-results/installed.xml": {
+      "tests": 24,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "seconds": "141.574"
+    },
+    "test-results/nix.xml": {
+      "tests": 95,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "seconds": "133.735"
+    },
+    "test-results/source.xml": {
+      "tests": 445,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 2,
+      "seconds": "68.603"
+    }
+  }
+}
