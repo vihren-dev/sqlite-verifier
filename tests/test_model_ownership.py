@@ -17,6 +17,10 @@ MODEL_ROOTS = ("SqliteVerifier.SchemaExtension", "SqliteVerifier.SchemaPreservat
 APPLICATION_MODULES = {"SqliteVerifier.Contract", "SqliteVerifier.ContractProofs",
                        "SqliteVerifier.Library", "SqliteVerifier.NullableProjection"}
 """These modules supply logical contracts or application observations, not model facts."""
+ALLOWED_EXTERNAL_IMPORT_ROOTS = {"Init", "Std"}
+"""The core model uses foundational libraries without the Lean compiler API."""
+PROJECT_MODULE_PREFIXES = ("SqliteVerifier.", "VerifierConformance.")
+"""Follow current local model modules until the package namespace migration replaces their paths."""
 pytestmark = [pytest.mark.integration, pytest.mark.requires_lean("compiler")]
 
 
@@ -35,10 +39,10 @@ def model_closure() -> list[str]:
         source = ROOT / (module.replace(".", "/") + ".lean")
         for line in re.findall(r"(?m)^import (.+)$", source.read_text()):
             for dependency in line.split():
-                if dependency.startswith(("SqliteVerifier.", "VerifierConformance.")):
+                if dependency.startswith(PROJECT_MODULE_PREFIXES):
                     visit(dependency)
                 else:
-                    assert dependency.split(".")[0] in {"Init", "Std"}, (module, dependency)
+                    assert dependency.split(".")[0] in ALLOWED_EXTERNAL_IMPORT_ROOTS, (module, dependency)
         active.remove(module)
         ordered.append(module)
 

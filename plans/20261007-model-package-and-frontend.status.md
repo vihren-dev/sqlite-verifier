@@ -177,13 +177,10 @@ the delivered main and restores only this task and status. No held feature
 history is merged. The accepted nine-suite layout and frontend import checks
 are part of the new base.
 
-The dependency hold is released. The first structural refactor separates the
-model facts currently reached through `Library` from contract-specific
-interpretations. The existing signatures and proof bodies remain the baseline.
-Structural nullable projection also needs its model dependency rather than
-the application `LogicalRows` alias. Actual compiler checks and a neutral
-model-only consumer must verify the separation before its commit. No package
-or frontend implementation is claimed at this planning checkpoint.
+The dependency hold is released. Structural model facts are separated from
+contract-specific interpretations, with existing signatures and proof bodies
+as the baseline. Nullable projection uses model types rather than the
+application row alias. Package/frontend implementation remains incomplete.
 
 The first source unit moves eight structural declarations to `ModelFacts`
 and NULL projection to `ModelProjection`. Model preservation/extension helpers
@@ -196,4 +193,7 @@ fails despite adjacent real source/artifacts. The hardened native application
 build passes all 66 jobs under a 900-second limit, producing
 `/nix/store/qh7qnknc536ndan68lrw4a53ipg1l8xz-sqlite-verifier-lean-runtime-1`.
 Original XML and log are retained under `build/t10-structural-ownership-darwin/`.
-The resource guard passes. Independent review of this unit remains required.
+The resource guard passes. Review `20261007T145948Z-e4a725f6` has no must findings.
+Named import roots and project prefixes fix its policy-literal suggestion.
+Both actual compiler checks pass in 7.65 seconds with a 120-second guard.
+Independent correction review remains required.
