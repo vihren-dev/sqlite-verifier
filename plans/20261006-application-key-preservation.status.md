@@ -169,7 +169,9 @@ inputs stay unchanged. The 17 CI routing/scheduling/ownership checks and 28
 subtests pass in 2.97 seconds under a 90-second outer bound. Their XML and
 commands are in `build/t15-clean-metadata-integration/`; no native build or replay
 was selected. The diff from `9e91e525` remains the exact 18 T15 paths, with no
-deletions or held T07/T18b code. Independent integration review remains required.
+deletions or held T07/T18b code. Integration checkpoint `95c227f4` passed
+review `20261007T094902Z-95c227f4`, with no findings. Its raw row is retained.
+The local `tasks/application-key-preservation` bookmark names the checked branch.
 PR47 was normally delivered at `2e01c49a`; T05 remains separate.
 T05 remains open, with hosted run 37600117584 active and a separate protected
 baseline gate failure; this local evidence does not resolve that failure.

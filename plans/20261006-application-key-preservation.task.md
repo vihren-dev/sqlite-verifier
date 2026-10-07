@@ -92,5 +92,6 @@ installed checks now pass and bind checked source `d2d33a6b`. The status file
 records the exact inputs, runtime, archive and original receipts. T05 owner
 approval is recorded; reviewed CI/release metadata integration, repository
 delivery, required hosted checks and T15 delivery remain required. The
-acceptance and integration checkpoints require independent review. This task
-remains IN PROGRESS; old receipts stay separate from the new checks.
+acceptance and integration checkpoints have independent reviews with no
+findings. This task remains IN PROGRESS; old receipts stay separate from the new
+checks, and required hosted CI and repository delivery remain pending.
