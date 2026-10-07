@@ -650,3 +650,36 @@ authorized one Linux diagnostic below. No production change followed it.
   was repeated and no performance phase ran; the coordinator must authorize
   any fresh phase after confirming reviewed source and host leases.
   The overall task remains IN PROGRESS.
+- 2026-10-07: The coordinator authorized one fresh Linux phase on exact
+  compiled source `c3e8f518` and exact runtime `ixl6nwa1nk8ah8138axkqkgian4a27bc`.
+  The Linux reference job was terminal. Resource guard and full-source/helper
+  checks passed; actual host activity showed no native project co-runner.
+  Persistent service activity is retained and zero background load is not
+  claimed. The reviewed driver changes only its source-label literal;
+  report invocation, comparison fields, ordinary storage and the 120-second
+  process-group guard remain byte-identical. No source changed during the phase.
+- 2026-10-07: Sole Linux phase session 42003 is terminal exit 0 with a valid
+  complete receipt and target miss: 33.707907736999914 report seconds and
+  34.524907143 outer report seconds. Actual UTC boundaries are
+  `2026-10-07T11:28:50.300534+00:00` through
+  `2026-10-07T11:29:24.825432+00:00`; monotonic nanoseconds are
+  432175900820075 and 432210425727218. Full denominator 4378 and all 184
+  selected identities/profiles/cases/verdicts match historical v5. Every
+  native comparison passed; all model results remain `MODEL_UNSUPPORTED`,
+  which establishes no supported-model agreement. All 184 unique actual
+  fixture paths were returned in input order and cleaned. Ordinary ext4
+  storage on `/dev/md127` retains device 2431 and `rw,noatime` before/after.
+- 2026-10-07: Full source/runtime/helper/archive/Python/native-library
+  identities match before and after, and applicable fields match the reviewed
+  exact-source runtime build. All 13 retrieved original hashes and lengths
+  match the remote manifest. The complete report, streams, paths, actual
+  clocks, host/filesystem observations, source manifest and label-only helper
+  diff are preserved in
+  [the single-phase record](../reports/20261007-development-replay-linux-cap4/README.md).
+  All 20 raw gzip artifacts are tracked and pass bounded read-only validation.
+  An unchanged valid miss precedes four independent target/guard/path/library
+  mutation checks; each mutation is refused. Independent evidence review
+  is pending. No profile, stage diagnostic, cold campaign or phase rerun ran.
+  Cache residency remains unobserved and no causal speedup claim is made.
+  Linux's heavy lease is released. Darwin had no T04 phase; the coordinator
+  must decide any next unit after this receipt is reviewed. T04 remains IN PROGRESS.
