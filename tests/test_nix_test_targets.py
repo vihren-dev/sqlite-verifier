@@ -41,22 +41,23 @@ def identities(root: Path) -> dict[str, str]:
 
 
 def test_bounded_commands_keep_complete_suite_ownership() -> None:
-    """The real Nix command retains every file and full reporting under the model's larger budget."""
+    """The real Nix command runs every owned file with a per-test limit and full reporting."""
     result = run_command(['nix-instantiate', '--eval', '--strict', '--json',
         '--extra-experimental-features', 'nix-command flakes', '--expr',
         f'builtins.mapAttrs (_: test: test.installPhase) ({expression(ROOT)})'], cwd=ROOT, timeout=30)
     assert result.returncode == 0, result.diagnostic()
     scripts = json.loads(result.stdout)
     ownership = json.loads((ROOT / 'tests/nix_suites.json').read_text())
-    assert set(scripts) == set(ownership) == {'atuin', 'bundle', 'cli', 'kernel', 'model', 'sample', 'upstream'}
+    assert set(scripts) == set(ownership) == {'atuin', 'bundle', 'cli', 'kernel', 'model', 'frozen',
+                                               'harness', 'sample', 'upstream'}
     for name, script in scripts.items():
         command = shlex.split(next(line for line in script.replace('\\\n', ' ').splitlines()
                                   if line.strip().startswith('timeout ')))
-        assert command[:5] == ['timeout', '600' if name == 'model' else '420', 'python3', '-m', 'pytest']
+        assert command[:5] == ['timeout', '1200', 'python3', '-m', 'pytest']
         runtime_index = command.index('--runtime-root')
         assert command[5:runtime_index] == ownership[name], (name, command)
-        assert command[runtime_index + 2:] == ['-p', 'no:cacheprovider', '--junitxml',
-            '$out/junit.xml', '-v', '--durations=10'], (name, command)
+        assert command[runtime_index + 2:] == ['-p', 'no:cacheprovider', '-p', 'pytest_timeout', '--timeout=300',
+            '--junitxml', '$out/junit.xml', '-v', '--durations=10'], (name, command)
 
 
 @pytest.fixture
@@ -74,35 +75,40 @@ def source_tree(tmp_path: Path) -> Path:
     ('tests/kernel_gate_test.py', {'kernel'}),
     ('tests/single_executor_test.py', {'kernel'}),
     ('tests/kernel_gate/Proofs.lean', {'kernel'}),
-    ('conformance/model_cases.py', {'model', 'upstream'}),
-    ('conformance/replay_tiers.py', {'model', 'sample', 'upstream'}),
-    ('conformance/corpus-v5/manifest.json', {'model', 'sample'}),
-    ('conformance/corpus-v4/manifest.json', {'model', 'upstream'}),
-    ('conformance/corpus-v3/manifest.json', {'model', 'upstream'}),
-    ('conformance/corpus-v2/manifest.json', {'model', 'upstream'}),
-    ('conformance/corpus-v1/manifest.json', {'model', 'upstream'}),
-    ('conformance/requirements-3.51.0.json', {'model', 'upstream'}),
+    ('conformance/model_cases.py', {'model', 'frozen', 'harness', 'upstream'}),
+    ('conformance/replay_tiers.py', {'model', 'frozen', 'harness', 'sample', 'upstream'}),
+    ('conformance/corpus-v5/manifest.json', {'frozen', 'sample'}),
+    ('conformance/corpus-v4/manifest.json', {'frozen', 'upstream'}),
+    ('conformance/corpus-v3/manifest.json', {'frozen', 'upstream'}),
+    ('conformance/corpus-v2/manifest.json', {'frozen', 'upstream'}),
+    ('conformance/corpus-v1/manifest.json', {'frozen', 'upstream'}),
+    ('reports/20261001-adr5-c4-fidelity.json', {'frozen'}),
+    ('conformance/requirements-3.51.0.json', {'model', 'frozen', 'harness', 'upstream'}),
     ('tools/__init__.py', {'upstream'}),
     ('tools/check_resources.py', {'upstream'}),
     ('nix/flake.nix', {'upstream'}),
-    ('nix/flake.lock', {'model', 'upstream'}),
-    ('nix/sqlite.nix', {'model', 'upstream'}),
-    ('build-support/conformance-native.nix', {'model', 'upstream'}),
-    ('conformance/synthetic-workload/workload.json', {'model', 'sample'}),
-    ('conformance/progress.py', {'model', 'upstream'}),
+    ('nix/flake.lock', {'model', 'frozen', 'harness', 'upstream'}),
+    ('nix/sqlite.nix', {'model', 'frozen', 'harness', 'upstream'}),
+    ('build-support/conformance-native.nix', {'model', 'frozen', 'harness', 'upstream'}),
+    ('conformance/synthetic-workload/workload.json', {'model', 'frozen', 'harness', 'sample'}),
+    ('conformance/progress.py', {'model', 'frozen', 'harness', 'upstream'}),
     ('tests/conformance_sample_test.py', {'sample'}),
-    ('tests/conformance_tier_bindings_test.py', {'model'}),
-    ('tests/conformance_freeze_test.py', {'model', 'upstream'}),
+    ('tests/conformance_tier_bindings_test.py', {'frozen'}),
+    ('tests/conformance_authored_test.py', {'frozen'}),
+    ('tests/conformance_storage_test.py', {'harness'}),
+    ('tests/conformance_freeze_test.py', {'frozen', 'upstream'}),
+    ('tests/conformance_command_sources_test.py', {'upstream'}),
     ('tests/test_native_replay_storage.py', {'upstream'}),
     ('tests/conformance_foreign_key_recovery_test.py', {'upstream'}),
-    ('conformance/cases/add_then_create.json', {'model', 'bundle'}),
-    ('conformance/native_trace.py', {'model', 'sample', 'upstream'}),
-    ('conformance/native_acquisition.py', {'model', 'sample', 'upstream'}),
-    ('conformance/case_format.py', {'model', 'sample', 'upstream'}),
-    ('VerifierConformance/Trace.lean', {'model'}),
+    ('conformance/cases/add_then_create.json', {'model', 'frozen', 'harness', 'bundle'}),
+    ('conformance/native_trace.py', {'model', 'frozen', 'harness', 'sample', 'upstream'}),
+    ('conformance/native_acquisition.py', {'model', 'frozen', 'harness', 'sample', 'upstream'}),
+    ('conformance/case_format.py', {'model', 'frozen', 'harness', 'sample', 'upstream'}),
+    ('VerifierConformance/Trace.lean', {'model', 'frozen', 'harness'}),
     ('tests/conformance_pipeline_test.py', {'model'}),
-    ('migration_check/translate.py', {'model', 'sample', 'upstream', 'atuin', 'cli', 'bundle'}),
-    ('conftest.py', {'kernel', 'model', 'sample', 'upstream', 'atuin', 'cli', 'bundle'}),
+    ('migration_check/translate.py', {'model', 'frozen', 'harness', 'sample', 'upstream', 'atuin', 'cli', 'bundle'}),
+    ('migration_check/prepare.py', {'atuin', 'cli', 'bundle'}),
+    ('conftest.py', {'kernel', 'model', 'frozen', 'harness', 'sample', 'upstream', 'atuin', 'cli', 'bundle'}),
     ('tests/atuin_cli_test.py', {'atuin'}),
     ('tests/cli_test.py', {'cli'}),
     ('tests/bundle_test.py', {'bundle'}),
@@ -160,5 +166,5 @@ def test_flake_checks_reuse_existing_targets(system: str, flake_source: Path) ->
     assert flake.returncode == 0, flake.diagnostic()
     assert legacy.returncode == 0, legacy.diagnostic()
     checks = json.loads(flake.stdout)
-    assert set(checks) == {'atuin', 'bundle', 'cli', 'kernel', 'model', 'sample', 'upstream'}
+    assert set(checks) == set(json.loads((ROOT / 'tests/nix_suites.json').read_text()))
     assert checks == json.loads(legacy.stdout)
