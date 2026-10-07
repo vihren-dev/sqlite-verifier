@@ -66,3 +66,15 @@ Relevant files: `lakefile.toml`, `SqliteVerifier.lean`,
   `bc9e2dce58f755b608cf00e545162257b81ab51a`. Only the journal conflicted.
   Its 71 main rows and 61 accepted-task rows are retained as 75 distinct rows,
   with both complete parent orders preserved. Main source is unchanged.
+- Integration `cd5af3d9be05efd96b173984732017c5f48608f7` passed independent
+  review `20261007T073851Z-cd5af3d9` with no findings. A separate read-only
+  adversarial audit found no namespace overconstraint: the parent initializer
+  rule leaves the leaf choice open, and the initial source directory rule does
+  not restrict other distributions' namespace portions. Temporary fixtures do
+  not claim implementation or full packaging validation.
+- All 16 local references still resolve after the reviewed-main merge. The PR
+  diff contains exactly the ADR, its task/status files and the append-only
+  journal. Validation receipt: `build/t09-reviewed-main-integration-validation.json`.
+  This checkpoint is ready for the authorized task-branch push and PR44 metadata
+  update. Final repository delivery remains pending; this task is IN PROGRESS.
+  No code/package scaffold, T10 start or other branch change is included.
