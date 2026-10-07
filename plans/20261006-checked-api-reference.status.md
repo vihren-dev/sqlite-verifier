@@ -628,3 +628,10 @@ Sysroot fix `cc78a7ef` passes independent review
 description suggestion is fixed: the shared timeout bounds each of the
 three compiler calls, including prefix lookup. The tested code is unchanged.
 Correction review remains required before publication.
+
+
+Timeout wording correction `f0123e17` passes independent review
+`20261007T183012Z-f0123e17` with no findings. The tested sysroot fix
+is ready for publication. The original CI source failure stays retained.
+New hosted acceptance will run against this corrected head; ordinary
+local checks remain incomplete at the resource guard.
