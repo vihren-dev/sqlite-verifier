@@ -193,3 +193,19 @@ pending; T05's separately approved baseline drift still requires its maintainer
 exception. No main write or merge has run. No publication-metadata loop follows
 the last reviewed push. The task specifies no additional local native platform
 gate, and held T07/T18b code remains excluded.
+
+
+## Dependency delivery and current PR target
+
+PR #48 is delivered by normal merge `eb061e76`. The owner-approved executor
+and protected-baseline decision are complete. PR #53 now targets main and
+remains a draft. Its refreshed head is `5b090513`, which includes main's
+accepted suite split. Earlier suite counts and 420/600-second limits above
+describe their recorded source; they are not current acceptance claims.
+
+T15 still needs integration with current main, including the accepted CI
+follow-up, followed by bounded source and ownership checks and fresh hosted
+results. The retained local feature and fresh installed-archive receipts remain
+bound to their original source and runtime. They will not be relabeled after
+integration. Final owner review and normal PR delivery remain required.
+No new native build or timing campaign starts in this status checkpoint.
