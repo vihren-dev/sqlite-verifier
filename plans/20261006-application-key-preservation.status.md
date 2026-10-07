@@ -231,3 +231,18 @@ actual command-budget checks pass, with 35 subtests, in 4.81 seconds under a
 records remain in `build/t15-delivered-main-integration/`. This integration
 awaits independent review. Normal feature-branch publication and current-head
 hosted checks remain required, followed by final owner review and delivery.
+
+
+Integration `f3ea1d44` passes independent review with no findings
+(`20261007T154402Z-f3ea1d44`) and is published to PR #53. Current-head CI
+`37647223426` is running on Linux. Its macOS PR job skips validation and is
+not counted as a native pass.
+
+The current hardened `developmentTests` evaluation returns all seven native
+macOS outputs. Their original XML reports 307 passing checks with no failures,
+errors or skips: Atuin 12, bundle 44, CLI 15, harness 120, kernel 28, sample 12
+and upstream 76. These are matching cached outputs, not fresh executions.
+Their original timestamps, node identities and bytes remain retained in
+`build/t15-delivered-main-integration/ordinary.json` and the seven XML copies.
+The existing fresh offline archive and installed acceptance address the same
+unchanged runtime. Linux completion, final review and delivery remain pending.
