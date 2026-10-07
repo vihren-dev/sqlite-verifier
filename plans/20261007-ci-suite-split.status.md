@@ -71,3 +71,7 @@ push changed only `plans/`, `reviews/`, `reports/` or documentation.
   timeouts and reported the failed command's diagnostic (fixed). Deferred: the
   `nix-tests-v1` restore prefix stays until both platforms have saved `v2`
   caches, so the first run does not start from an empty store; then remove it.
+- 2026-10-07: Draft PR #52. First CI run (37602407809, full `package` scope on
+  Linux because the workflow changed): Linux passed in 14.6 min; the macOS job
+  reported success in 5 s without checks. It restored the 6.1 GB `v1` cache;
+  garbage collection took 5 s, and the saved `v2` cache is 3.2 GB.
