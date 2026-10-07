@@ -209,3 +209,25 @@ results. The retained local feature and fresh installed-archive receipts remain
 bound to their original source and runtime. They will not be relabeled after
 integration. Final owner review and normal PR delivery remain required.
 No new native build or timing campaign starts in this status checkpoint.
+
+
+## Integration with delivered main
+
+The integration includes exact main `eb061e76`, with the accepted executor,
+nine-suite layout, complete hosted job guard and CI follow-up. Only the review
+journal conflicts. The left, incoming and pending journals have 217, 239 and
+218 rows. All three remain ordered subsequences of the 282-row result,
+including repeated rows. No journal line is edited or removed.
+
+All 16 feature files and 106 original runtime inputs have their accepted
+SHA-256 digests. Actual Nix evaluation returns exactly the originally accepted
+runtime `/nix/store/w9gq5ixswhvpv2hb08vlh2andqxxhip0-sqlite-verifier-runtime-1`.
+The retained native and fresh installed-archive evidence therefore still
+addresses this unchanged runtime. No native build or replay is repeated.
+
+All 42 CI routing, workflow, store collection, ownership, frontend import and
+actual command-budget checks pass, with 35 subtests, in 4.81 seconds under a
+120-second outer limit. Original XML, journal preservation and source digest
+records remain in `build/t15-delivered-main-integration/`. This integration
+awaits independent review. Normal feature-branch publication and current-head
+hosted checks remain required, followed by final owner review and delivery.

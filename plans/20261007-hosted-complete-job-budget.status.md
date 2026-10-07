@@ -36,3 +36,10 @@ suggestions. Updated the CI guide to the actual 75-minute job limit and
 named the five-minute setup/artifact allowance in its test. Both suggestions
 are recorded as fixed. The same 26 tests and 28 subtests pass after these
 corrections; no individual deadline or approved source changes.
+
+Correction `46bd04b5` passes independent review
+`20261007T113253Z-46bd04b5` with no findings. Published only the existing
+PR #48 branch. Fresh CI `37615200892` is active on Linux job `112771743045`
+and Darwin job `112771743430`. No complete hosted pass is claimed yet.
+The deliberate approved-baseline failure remains separate. This local record
+does not change the published source while those checks run.
