@@ -2,6 +2,13 @@
 
 Status: IN PROGRESS. Created 2026-10-06.
 
+Latest complete acceptance is in
+[the 2026-10-07 receipt](../reports/20261007-development-replay-headroom-acceptance/README.md).
+On reviewed publication-base source, macOS took 21.434975332995236 seconds
+and Linux took 39.57022682100069 seconds. Both retain complete bindings,
+timestamps and actual fixture paths. Linux still misses the target. Earlier
+observations below remain historical evidence; this task is not DONE.
+
 The one-run measurement record is in
 [the dated receipt](../reports/20261006-development-replay-headroom/README.md).
 Linux took 49.70655691897264 seconds and misses the target below. The macOS
@@ -37,6 +44,9 @@ case verdicts, explicit storage conditions and fresh phase timings. They
 are uncached invocations and pass the less-than-30-second target.
 The unchanged 184 identities and their verdicts match retained v5 evidence.
 Historical v4 replay keeps its 100-case membership.
+Bounded receipt checks distinguish a valid measurement from a speed-target
+pass. They refuse corrupted selected identities, native-library hashes,
+duplicate actual fixture paths and a target flag that hides a Linux miss.
 
 Bounded tests preserve mandatory membership, stable identity ranking,
 exact result counts and all frozen bindings. Digest, snapshot, profile,
@@ -90,3 +100,9 @@ Its full native and whole-command timings are separate from this selected
 development phase. Fresh profiling selects optimizations; dropping binding
 checks, caching a prior success, changing SQL or weakening native evidence
 does not satisfy this task. Timing runs use an idle host.
+Fresh receipts retain host load and OS-cache qualifications. Full identity
+reads occur outside phase timing; cache residency is not claimed. A filesystem
+observation made after a phase is labeled after-only, and does not replace
+its original before/after observations. Missing failed-preflight timestamps
+or traceback bytes remain explicit limitations. No unchanged phase restarts
+follow an observation failure or target miss.

@@ -2,6 +2,13 @@
 
 Status: IN PROGRESS. Created 2026-10-06.
 
+Latest result: the complete 2026-10-07 fresh receipts on reviewed publication
+source are valid on both platforms. Darwin took 21.434975332995236 seconds;
+Linux took 39.57022682100069 seconds and still misses the target below
+30 seconds. Evidence is retained in
+[the new acceptance record](../reports/20261007-development-replay-headroom-acceptance/README.md).
+The task is not DONE. No phase was rerun after the Linux miss.
+
 Task: [development replay headroom](20261006-development-replay-headroom.task.md).
 Source: [issue #33](https://github.com/vihren-dev/sqlite-verifier/issues/33).
 
@@ -242,3 +249,56 @@ authorized one Linux diagnostic below. No production change followed it.
   This is routing evidence; exact-source runtime builds and fresh acceptance
   are still pending. Merge review is pending. T02 released Darwin after its
   terminal runtime/input checks; no acceptance phase has started.
+- 2026-10-07: Merge `5d15607fdf78d0a209b539ca158939739b54d377` passed
+  independent Claude review `20261007T074749Z-5d15607f` with no findings.
+  Review session 71502 is terminal, exit 0. Its exact pending journal row is
+  preserved with this evidence unit. The reviewed source-only public archive
+  has SHA-256 `86b96911dae99a77ef8158c8ac53c548b69896744de904365545ded78bc4f422`.
+  Each host checked its 933 regular source files and `CLAUDE.md` symlink.
+- 2026-10-07: Source archive, Darwin metadata and Linux ambient-Python
+  preflight failures invoked no phase. Retained their recorded failures and
+  explicit missing-original-timestamp limits. The metadata failure retains
+  its recorded message, not an original complete traceback. Corrected setup
+  used the shared Git object store, resolved devices and the existing pinned
+  Linux Python. The successful metadata checks preceded either phase.
+- 2026-10-07: Own exact-source conformance runtime builds are terminal on
+  both platforms: Darwin session 89656 and Linux session 81189, exit 0.
+  They use Lean 4.34.1 and Python 3.14.7. Darwin runtime is
+  `/nix/store/2w1dv3hhnrcjrcm7qp43jpdbxsgvr6wl-sqlite-verifier-conformance`;
+  Linux runtime is
+  `/nix/store/rhinzr7jq41azsh6s8i8dmndi7idnv3k-sqlite-verifier-conformance`.
+  Full before/after identities match for all source, runtime, helper, archive,
+  Python and every used native-library byte. Actual runtime manifests retain
+  17,886 Darwin and 17,925 Linux regular-file hashes.
+- 2026-10-07: T02 released Darwin after terminal cheap runtime/input checks.
+  The coordinator reserved both heavy slots. The one fresh Darwin capture,
+  session 81440, finished with exit 0: phase 21.434975332995236 seconds,
+  outer call 22.19781625. The one fresh Linux capture, session 22014, finished
+  with exit 0: phase 39.57022682100069 seconds, outer call 40.432509126.
+  Linux still misses less than 30 seconds. The unchanged process-group guard
+  is 120 seconds. Complete reports match every historical selected identity,
+  profile and verdict, with full denominator 4378 and all 184 selected native
+  comparisons passing. All 184 classifications are `MODEL_UNSUPPORTED`.
+  No profile instrumentation, unchanged restart or timing rerun occurred.
+- 2026-10-07: The public capture helper's main guard prevents spawned workers
+  from restarting the observer. It calls the real report directly with
+  explicit ordinary storage and actual fixture-path auditing. Both receipts
+  retain UTC and monotonic boundaries, all 184 unique ordered `case.db` paths,
+  private roots, cleanup, machine/load/memory/capacity and original streams.
+  Linux observed ext4 `/dev/md127`, `rw,noatime`. Darwin's original GNU `df`
+  described the sealed snapshot through a firmlink; an explicitly after-only
+  native reconciliation identifies writable APFS Data and matches actual
+  device 16777242 retained before and after. Original observations remain
+  unchanged. Full identity reads occur outside phase timing; OS caches were
+  not flushed and residency was not observed. No zero-load claim is made.
+- 2026-10-07: Retained all 37 raw artifacts as exact gzip bytes with compressed
+  and original SHA-256 manifests. Linux retrieval session 67302 is terminal;
+  all 14 retrieved original artifact digests match the independent remote
+  inventory, which also found cleaned storage. The new bounded validator and
+  four independent identity/native-hash/fixture/target corruption checks pass
+  within their 15-second bounds without replay or builds. A separate read-only
+  T02 audit confirmed the complete Darwin binding, archive, fixture and
+  filesystem qualifications. Frozen v1-v5, SQL/profiles, selection, previous
+  receipts and the 120-second guard remain unchanged. Evidence review is
+  pending. Linux performance acceptance and the overall task remain pending;
+  no additional diagnostic or optimization is authorized in this unit.
