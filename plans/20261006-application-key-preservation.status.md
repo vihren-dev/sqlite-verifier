@@ -76,11 +76,37 @@ copying does not turn old mixed-history receipts into clean-runtime acceptance.
   original working copy under its local bookmark before changing the workspace.
   Saved 17 selected source/journal files and seven original receipt identities.
   Established the clean base and updated this task/status before copying code.
+- The clean-base planning checkpoint passed its path, receipt and journal checks
+  and was committed as `a97e1303`. Copied the 14 reviewed T15 source, example
+  and test files without changing their bytes. The public entry changes only
+  three imports. The diff from the approved base has exactly the 18 inventoried
+  paths and no held documentation tooling or deleted accepted evidence.
+- Preserved the approved base's 147 raw review rows and the mixed tree's 131
+  rows as 183 rows, retaining both complete parent orders. Receipt:
+  `build/t15-publication-source-20261007/journal-merge.json`. The original
+  bookmark, prior source snapshot and seven checked receipt identities remain
+  unchanged. Every approved-base file outside the T15 paths remains unchanged.
+- Compiled all three helper/certificate modules and the clean public entry with
+  the actual pinned compiler, each with a 30-second bound. Each returned zero.
+  Dependency sources match the approved base in the retained immutable runtime;
+  a private overlay contains the freshly compiled T15 modules. This is scoped
+  source evidence, not a new Nix assembly or installed runtime. Commands, logs
+  and source identities: `build/t15-clean-source-validation/`.
+- The real kernel/domain test passes (one test). The three exact source/example
+  nodes pass in 27.77 seconds: direct verification, bundle parity and independent
+  preparation repeatability. Original XML: `key-domain.xml` and `examples.xml`
+  in that directory. The outer example bound is 420 seconds; direct, preparation
+  and bundle commands retain 90-, 180- and 120-second bounds. All reviewed source
+  hashes and prior receipt hashes still match. No performance claim is made.
+- The coordinator held fresh Nix assembly, ordinary and installed gates while
+  auditing new hosted bundle-suite timeout failures on PR47/48. Those failures
+  remain failures. No suite guard changed, and no heavy job is running. The
+  clean source unit proceeds only to its required independent review.
 
 ## Remaining acceptance
 
-The clean source unit needs bounded compiler, source and example checks and
-independent review. Fresh runtime assembly, ordinary integration and installed
+The clean source unit's bounded compiler and example checks pass; independent
+review remains. Fresh runtime assembly, ordinary integration and installed
 acceptance require coordinated native leases; no full model or installed
 campaign runs before the clean unit is reviewed. The three installed T15 nodes
 need explicit selection because the standard package/Atuin selection omits

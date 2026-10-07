@@ -84,6 +84,14 @@ def test_allowed_failure(invoke: Callable[..., dict[str, object]], example_facto
            extra=("--approved-baseline", str(case / "approved/baseline.json")))
 
 
+def test_application_key_invoice_variant(invoke: Callable[..., dict[str, object]],
+        example_factory: Callable[[str], Path]) -> None:
+    """The key-based invoice certificate verifies the actual authored schema extension."""
+    examples = example_factory("application_keys")
+    invoke("VERIFIED", contract=examples / "approved",
+           alternative=examples / "add_column_then_table")
+
+
 @pytest.mark.approval
 def test_protected_schema_precedes_invalid_proof(invoke: Callable[..., dict[str, object]],
         approved: Path, candidate: Path) -> None:
