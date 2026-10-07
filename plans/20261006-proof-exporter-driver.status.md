@@ -18,7 +18,8 @@ Source: [issue #29](https://github.com/vihren-dev/sqlite-verifier/issues/29).
   coordinator and independently reviewed with no unresolved findings. It
   completes the identical bundle target before the existing complete recipe;
   all suite membership, guards and approved exporter bytes are unchanged.
-  Latest-main integration review and successful new hosted acceptance remain pending.
+  Latest-main integration review is complete. The checked source is ready for
+  PR47 publication; successful new hosted acceptance remains pending.
 
 - 2026-10-06: Preserved the replay-headroom workspace unchanged while its
   deadline specification question awaits owner feedback. Inspected the idle

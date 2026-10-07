@@ -81,6 +81,10 @@ streams, JUnit, boundaries and identities are retained under
   approved exporter files and 31 checked CI/receipt files are unchanged.
 - Metadata-integration review and hosted acceptance remain pending. The task
   is IN PROGRESS; no native reproduction or full gate was repeated.
-- Metadata link checks passed: two tests in 0.72 seconds. The read-only
+- Metadata link checks passed: two tests in 0.63 seconds. The read-only
   receipt validator passed again; original raw payloads and command guards
   remain unchanged.
+- Integration review `20261007T090958Z-dad0781e` completed with no findings.
+  All journal lines parse as JSON. The checked source is ready for normal
+  PR47 publication and new complete hosted acceptance. No main write, merge
+  or changed suite deadline is authorized by this readiness record.
