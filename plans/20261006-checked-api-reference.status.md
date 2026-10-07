@@ -666,3 +666,14 @@ verify against their original hash bindings, including decompressed bytes.
 The local acceptance and inventory checks are complete. Corrected Linux CI
 `37667476876` is still running, and its result remains unclaimed. This
 status checkpoint leaves the published branch unchanged.
+
+
+Corrected CI `37667476876` is terminal successful on both hosted platforms.
+Linux passes 513 checks across all nine Nix suites, 95 Nix infrastructure
+checks and 24 fresh installed checks. Its source suite passes 408 tests and
+35 subtests, with two explicit optional reviewer-tool skips. Both native
+reference ZIP digests verify, with 259 authored items and 829,618 local links
+at actual CI merge source `ca7280a8`. All 18 original Linux case artifacts,
+phase records and decoded job bytes are retained and hash-verified in the
+final acceptance report. The original Linux failure remains unchanged.
+Independent evidence review and publication remain required.

@@ -41,4 +41,18 @@ The separate macOS Nix infrastructure command terminates with exit zero:
 95 checks pass in 122.51 seconds under its existing 600-second limit.
 Original XML and the complete compressed output are retained. This verifies
 actual input ownership, dependency invalidation and source boundaries.
-Hosted Linux acceptance remains in progress. T18b remains IN PROGRESS.
+Corrected CI `37667476876` is terminal successful. Linux passes all nine
+Nix suites with 513 checks, 95 Nix infrastructure checks and 24 fresh
+installed-package checks. Source checks pass 408 tests and 35 subtests;
+two optional reviewer-tool checks are explicitly skipped. Its reference
+checks all 259 authored items and 829,618 links at the same actual merge
+source `ca7280a8`. Both reference ZIPs match their workflow digests.
+
+The original Linux case ZIP, all 18 original members and decoded job log
+are retained. All recorded phase exit codes are zero. The runtime is the
+exact output evaluated in the earlier Linux dependency graph. The installed
+archive is fresh; its acceptance does not substitute for an actual Linux
+output-closure query, which is still not claimed. The original failed run
+remains a failure. `linux-receipt.json` and `linux-original-members.json`
+bind the terminal results and original bytes. Independent evidence review
+and publication remain required; T18b remains IN PROGRESS.

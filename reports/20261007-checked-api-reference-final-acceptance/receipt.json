@@ -152,7 +152,7 @@
   },
   "nix_infrastructure_session": 81134,
   "nix_infrastructure_terminal": true,
-  "linux_hosted_terminal": false,
+  "linux_hosted_terminal": true,
   "nix_infrastructure_exit": 0,
   "nix_infrastructure_checks": 95,
   "nix_infrastructure_seconds": "122.508",
@@ -171,5 +171,7 @@
     "tools/PublicDocSyntax.lean": "121ffd2bc28edde2afb96190929765dca21dda4cef6f6da01cab07ed8359d729",
     "tools/public_doc_coverage.py": "f1fa2f2785ea5820d849b21cd4cf3f2021902c4133ddff3a58748bcb58a98279",
     "tests/test_public_doc_inventory.py": "6e17543d5e7e4ec7df5506abc1de940857287c7515a1d0ecd341925ea4403c2b"
-  }
+  },
+  "linux_hosted_conclusion": "success",
+  "linux_evidence": "linux-receipt.json"
 }
