@@ -31,4 +31,4 @@ The [publication integration](integration.json) uses reviewed executor head
 `b8eb25dd`. All eight native source inputs and the three actual Nix output
 identities remain unchanged. All 42 inherited CI, frontend, link and transaction
 ownership checks pass with 35 subtests. The journal preserves all three
-original histories, including the pending native evidence review, in order.
+original histories, including the native evidence review row, in order.

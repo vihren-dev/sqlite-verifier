@@ -166,6 +166,14 @@ This integration awaits independent review. Draft publication will use a new
 branch on the reviewed executor, preserving the old transaction branch.
 Linux and hosted acceptance and normal delivery remain required.
 
+Integration `c0dd08fd` passes independent review with no findings
+(`20261007T143152Z-c0dd08fd`). Clarified that the preserved review was an
+uncommitted journal row, rather than an unfinished review. PR #48 is now
+normally merged as `eb061e76`, with exactly the reviewed executor tree.
+The draft transaction PR can target accepted main directly. The old feature
+branch and historical evidence remain preserved. Publication and Linux
+acceptance remain required; this task is not DONE.
+
 ## Decisions waiting for the owner
 
 - None for the limited diagnostic. The owner authorized it on 2026-10-06.
