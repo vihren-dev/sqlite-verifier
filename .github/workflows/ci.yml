@@ -6,13 +6,16 @@ on:
     branches: [main]
     tags: ["v*"]
   workflow_dispatch:
+  # Nightly full run on both platforms; pull requests check only Linux.
+  schedule:
+    - cron: "17 2 * * *"
 
 permissions:
   contents: read
 
 concurrency:
-  group: ${{ github.workflow }}-${{ (startsWith(github.ref, 'refs/tags/') || github.event_name == 'workflow_dispatch') && github.run_id || github.ref }}
-  cancel-in-progress: ${{ !startsWith(github.ref, 'refs/tags/') && github.event_name != 'workflow_dispatch' }}
+  group: ${{ github.workflow }}-${{ (startsWith(github.ref, 'refs/tags/') || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule') && github.run_id || github.ref }}
+  cancel-in-progress: ${{ !startsWith(github.ref, 'refs/tags/') && github.event_name != 'workflow_dispatch' && github.event_name != 'schedule' }}
 
 jobs:
   check:
@@ -29,39 +32,54 @@ jobs:
     timeout-minutes: 75
     env:
       BUILD_MODE: build
+      # Pull requests run on Linux only. The macOS job still reports, because the
+      # repository ruleset requires it; it checks on main, tags, manual and nightly runs.
+      PLATFORM_RUNS: ${{ matrix.system == 'x86_64-linux' || github.event_name != 'pull_request' }}
     steps:
+      - name: Skip macOS checks on pull requests
+        if: env.PLATFORM_RUNS != 'true'
+        run: echo "macOS checks run on main, release tags, manual runs and nightly; Linux checks this pull request."
       - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        if: env.PLATFORM_RUNS == 'true'
         with:
           persist-credentials: false
           fetch-depth: 0
       - name: Select complete checks for the changed inputs
+        if: env.PLATFORM_RUNS == 'true'
         id: scope
         run: python3 tests/ci_scope.py
       - name: Check documentation and CI routing
-        if: steps.scope.outputs.scope == 'docs'
+        if: env.PLATFORM_RUNS == 'true' && steps.scope.outputs.scope == 'docs'
         run: |
           python3 tests/docs_test.py
           python3 -m unittest tests.test_ci_scope
       - uses: cachix/install-nix-action@13d8dd58da0234aa297dedd986986ccb8e7f3e24 # v31
-        if: steps.scope.outputs.scope != 'docs'
+        if: env.PLATFORM_RUNS == 'true' && steps.scope.outputs.scope != 'docs'
         with:
           enable_kvm: false
           set_as_trusted_user: false
           extra_nix_config: |
             sandbox = true
             sandbox-fallback = false
+            keep-outputs = true
+            keep-derivations = true
       - name: Restore Nix builds and test results
-        if: steps.scope.outputs.scope != 'docs'
+        if: env.PLATFORM_RUNS == 'true' && steps.scope.outputs.scope != 'docs'
         uses: nix-community/cache-nix-action@7df957e333c1e5da7721f60227dbba6d06080569 # v7
         env:
           # Failed Nix builds can leave unreadable transient locks; never archive them.
           TAR_OPTIONS: --no-wildcards-match-slash --exclude=nix/store/*.lock
         with:
-          primary-key: nix-tests-v1-${{ matrix.system }}-${{ hashFiles('nix/*.nix', 'nix/flake.lock') }}-${{ github.sha }}
-          restore-prefixes-first-match: nix-tests-v1-${{ matrix.system }}-${{ hashFiles('nix/*.nix', 'nix/flake.lock') }}-
-          save: ${{ github.ref == 'refs/heads/main' && github.event_name != 'pull_request' }}
+          # The key covers every file except task records, so a push that changes only
+          # plans/ or reviews/ restores the exact store of the previous push and saves nothing.
+          primary-key: nix-tests-v2-${{ matrix.system }}-${{ hashFiles('nix/*.nix', 'nix/flake.lock') }}-${{ hashFiles('**', '!.git/**', '!plans/**', '!reviews/**') }}
+          restore-prefixes-first-match: |
+            nix-tests-v2-${{ matrix.system }}-${{ hashFiles('nix/*.nix', 'nix/flake.lock') }}-
+            nix-tests-v1-${{ matrix.system }}-${{ hashFiles('nix/*.nix', 'nix/flake.lock') }}-
+          # Pull requests save too; a pull request's cache is visible only to its own later runs.
+          save: true
       - name: Run checks in one pinned environment
-        if: steps.scope.outputs.scope != 'docs'
+        if: env.PLATFORM_RUNS == 'true' && steps.scope.outputs.scope != 'docs'
         env:
           CHECK_SCOPE: ${{ steps.scope.outputs.scope }}
           EXPECTED_SYSTEM: ${{ matrix.system }}
@@ -69,8 +87,13 @@ jobs:
           python3 tools/check_resources.py
           nix develop path:./nix --command python3 tools/ci_checks.py \
             --system "$EXPECTED_SYSTEM" --scope "$CHECK_SCOPE" --mode "$BUILD_MODE"
+      - name: Keep only the store paths that this commit needs
+        if: always() && env.PLATFORM_RUNS == 'true' && steps.scope.outputs.scope != 'docs'
+        # A failure only leaves the saved cache larger; it never changes a check result.
+        continue-on-error: true
+        run: nix develop path:./nix --command python3 tools/ci_store_gc.py
       - name: Retain pytest reports and Nix test outputs
-        if: always() && steps.scope.outputs.scope != 'docs'
+        if: always() && env.PLATFORM_RUNS == 'true' && steps.scope.outputs.scope != 'docs'
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
           name: case-reports-${{ matrix.system }}
@@ -83,7 +106,7 @@ jobs:
           if-no-files-found: warn
           retention-days: 14
       - name: Retain proof runtime closure
-        if: always() && steps.scope.outputs.scope != 'docs'
+        if: always() && env.PLATFORM_RUNS == 'true' && steps.scope.outputs.scope != 'docs'
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
           name: runtime-closure-${{ matrix.system }}
@@ -100,7 +123,7 @@ jobs:
           if-no-files-found: error
           retention-days: 14
       - name: Retain checked native runtime
-        if: steps.scope.outputs.scope == 'package'
+        if: steps.scope.outputs.scope == 'package' || steps.scope.outputs.scope == 'packaging'
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
           name: runtime-${{ matrix.system }}

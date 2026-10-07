@@ -9,10 +9,17 @@ let
     "pytest.ini" "conftest.py" "tests/__init__.py" "tests/runtime_support.py" "tests/runtime_fixtures.py"
     "tests/runtime_installation.py"
   ];
-  python = name: pkgs.python3.withPackages (ps: [ ps.pytest ] ++ pkgs.lib.optional (name == "model") ps.hypothesis);
-  # The full model budget is twice the measured hosted macOS completion.
-  # Evidence and the unchanged coverage are in reports/20261006-hosted-model-timeout/README.md.
-  suiteTimeoutSeconds = { default = 420; model = 600; };
+  python = name: pkgs.python3.withPackages (ps: [ ps.pytest ps.pytest-timeout ]
+    ++ pkgs.lib.optional (name == "model") ps.hypothesis);
+  # Each test has its own limit, so a hang fails with the name of the test. Nix runs suites
+  # in parallel, so the suite limit only guards against a hang outside a test and must not
+  # depend on how many suites share the CPU (reports/20261006-hosted-model-timeout/README.md).
+  testTimeoutSeconds = 300;
+  suiteTimeoutSeconds = 1200;
+  # The conformance suites use only the SQL frontend, not the verification application.
+  # tests/test_conformance_frontend.py checks this list against the actual imports.
+  frontend = map (name: root + "/migration_check/${name}.py")
+    (builtins.fromJSON (builtins.readFile (root + /tests/conformance_frontend.json)));
   leanRoot = pkgs.runCommand "sqlite-verifier-test-lean" {} ''
     mkdir -p "$out"
     ln -s ${leanToolchain} "$out/lean"
@@ -23,7 +30,6 @@ let
       files = (builtins.fromJSON (builtins.readFile (root + /tests/nix_suites.json))).${name};
       file = builtins.head files;
       extraFiles = builtins.tail files;
-      timeoutSeconds = suiteTimeoutSeconds.${name} or suiteTimeoutSeconds.default;
     in pkgs.stdenvNoCC.mkDerivation ({
       pname = "sqlite-verifier-test-${name}";
       version = "1";
@@ -34,14 +40,63 @@ let
       installPhase = ''
         export HOME="$TMPDIR"
         export PYTEST_DISABLE_PLUGIN_AUTOLOAD=1
-        timeout ${toString timeoutSeconds} python3 -m pytest ${file} ${pkgs.lib.concatStringsSep " " extraFiles} --runtime-root ${runtime} \
-          -p no:cacheprovider --junitxml "$out/junit.xml" -v --durations=10
+        timeout ${toString suiteTimeoutSeconds} python3 -m pytest ${file} ${pkgs.lib.concatStringsSep " " extraFiles} --runtime-root ${runtime} \
+          -p no:cacheprovider -p pytest_timeout --timeout=${toString testTimeoutSeconds} \
+          --junitxml "$out/junit.xml" -v --durations=10
       '';
     } // environment);
+  # Inputs shared by the three suites that the old single model suite contained.
+  modelInputs = frontend ++ [
+    (fs.fileFilter (file: file.hasExt "json") (root + /conformance/cases))
+    (root + /SqliteVerifier/SqlExecution.lean)
+    (root + /SqliteVerifier/Execution.lean) (root + /SqliteVerifier/LiteralData.lean)
+    (root + /VerifierConformance/Trace.lean)
+    (root + /VerifierConformance/Outputs.lean)
+    (root + /VerifierConformance/Case.lean)
+    (root + /VerifierConformance/Laws.lean)
+    (root + /conformance/requirements-3.51.0.json)
+    (root + /conformance/regressions)
+    (root + /conformance/synthetic-workload)
+    (root + /conformance/upstream_proxy.tcl)
+    (root + /conformance/upstream_external.tcl)
+    (root + /nix/sqlite.nix)
+    (root + /nix/flake.lock)
+    (root + /build-support/conformance-native.nix)
+  ] ++ map (name: root + "/conformance/${name}.py") [
+    "model_assertions" "model_cases" "model_check" "replay_tiers"
+    "execution_profile" "native_acquisition"
+    "native_storage"
+    "refresh_corpus" "requirement_cases" "requirement_coverage"
+    "authored_cases" "authored_cases_queries" "authored_boundaries" "authored_review" "authored_report"
+    "authored_transactions" "transaction_evidence"
+    "upstream_selection" "upstream_catalog" "upstream_sampling" "upstream_profiles" "upstream_functions" "upstream_result_values"
+    "corpus_shards" "corpus_evidence" "corpus_acquisition" "freeze_corpus" "freeze_validation" "freeze_profiles" "workload" "workload_inputs"
+    "upstream_assertions"
+    "upstream_helpers"
+    "native_fixture" "import_fixture" "schema"
+    "case_format" "native_connection" "native_library" "native_clock" "native_probe" "native_ordering" "query_window" "native_metadata" "native_record" "native_statements" "native_replay" "upstream_pilot" "upstream_fidelity" "corpus" "generated_program" "mutation_check" "state_machine" "regressions" "progress" "measure_coverage" "native_trace" "pipeline"
+  ];
+  # Frozen corpora and retained reports: large, rarely changed, read only by the frozen suite.
+  frozenData = [
+    (root + /conformance/corpus-v1)
+    (root + /reports/20260929-adr4-corpus-v2-progress.json)
+    (root + /reports/20261001-adr5-c4-fidelity.json)
+    (root + /reports/20261001-adr5-c4-causes.json.gz)
+    (root + /reports/20261001-adr5-c4-traces.json.gz)
+    (root + /reports/20261001-adr5-c4-mechanical.json.gz)
+    (root + /reports/20261001-adr5-c4-bindings.json.gz)
+    (root + /reports/20261001-adr5-c5-authored.json)
+    (root + /reports/20261001-adr5-c5-authored-records.jsonl.gz)
+    (root + /reports/20261006-grouped-immediate-transactions)
+    (root + /conformance/corpus-v5)
+    (root + /conformance/corpus-v4)
+    (root + /conformance/corpus-v3)
+    (root + /conformance/corpus-v2)
+  ];
+  modelTools = [ native.sqlite native.sqlite346 native.sqlite3534 ];
 in {
   sample = suite "sample" {
-    inputs = [
-      (fs.fileFilter (file: file.hasExt "py") (root + /migration_check))
+    inputs = frontend ++ [
       (root + /conformance/corpus-v5)
       (root + /conformance/synthetic-workload)
     ] ++ map (name: root + "/conformance/${name}.py") [
@@ -56,9 +111,8 @@ in {
     tools = [ native.sqlite ];
   };
   upstream = suite "upstream" {
-    inputs = [
+    inputs = frontend ++ [
       (fs.fileFilter (file: file.hasExt "py" || file.hasExt "tcl") (root + /conformance))
-      (fs.fileFilter (file: file.hasExt "py") (root + /migration_check))
       (root + /tests/conformance_freeze_test.py)
       (root + /conformance/requirements-3.51.0.json)
       (root + /conformance/corpus-v1)
@@ -109,51 +163,18 @@ in {
     runtime = leanRoot;
   };
   model = suite "model" {
-    inputs = [
-      (fs.fileFilter (file: file.hasExt "py") (root + /migration_check))
-      (fs.fileFilter (file: file.hasExt "json") (root + /conformance/cases))
-      (root + /SqliteVerifier/SqlExecution.lean)
-      (root + /SqliteVerifier/Execution.lean) (root + /SqliteVerifier/LiteralData.lean)
-      (root + /VerifierConformance/Trace.lean)
-      (root + /VerifierConformance/Outputs.lean)
-      (root + /VerifierConformance/Case.lean)
-      (root + /VerifierConformance/Laws.lean)
-      (root + /conformance/corpus-v1)
-      (root + /reports/20260929-adr4-corpus-v2-progress.json)
-      (root + /reports/20261001-adr5-c4-fidelity.json)
-      (root + /reports/20261001-adr5-c4-causes.json.gz)
-      (root + /reports/20261001-adr5-c4-traces.json.gz)
-      (root + /reports/20261001-adr5-c4-mechanical.json.gz)
-      (root + /reports/20261001-adr5-c4-bindings.json.gz)
-      (root + /reports/20261001-adr5-c5-authored.json)
-      (root + /reports/20261001-adr5-c5-authored-records.jsonl.gz)
-      (root + /reports/20261006-grouped-immediate-transactions)
-      (root + /conformance/corpus-v5)
-      (root + /conformance/corpus-v4)
-      (root + /conformance/corpus-v3)
-      (root + /conformance/corpus-v2) (root + /conformance/requirements-3.51.0.json)
-      (root + /conformance/regressions)
-      (root + /conformance/synthetic-workload)
-      (root + /conformance/upstream_proxy.tcl)
-      (root + /conformance/upstream_external.tcl)
-      (root + /nix/sqlite.nix)
-      (root + /nix/flake.lock)
-      (root + /build-support/conformance-native.nix)
-    ] ++ map (name: root + "/conformance/${name}.py") [
-      "model_assertions" "model_cases" "model_check" "replay_tiers"
-      "execution_profile" "native_acquisition"
-      "native_storage"
-      "refresh_corpus" "requirement_cases" "requirement_coverage"
-      "authored_cases" "authored_cases_queries" "authored_boundaries" "authored_review" "authored_report"
-      "authored_transactions" "transaction_evidence"
-      "upstream_selection" "upstream_catalog" "upstream_sampling" "upstream_profiles" "upstream_functions" "upstream_result_values"
-      "corpus_shards" "corpus_evidence" "corpus_acquisition" "freeze_corpus" "freeze_validation" "freeze_profiles" "workload" "workload_inputs"
-      "upstream_assertions"
-      "upstream_helpers"
-      "native_fixture" "import_fixture" "schema"
-      "case_format" "native_connection" "native_library" "native_clock" "native_probe" "native_ordering" "query_window" "native_metadata" "native_record" "native_statements" "native_replay" "upstream_pilot" "upstream_fidelity" "corpus" "generated_program" "mutation_check" "state_machine" "regressions" "progress" "measure_coverage" "native_trace" "pipeline"
-    ];
+    inputs = modelInputs;
     runtime = conformance;
-    tools = [ native.sqlite native.sqlite346 native.sqlite3534 ];
+    tools = modelTools;
+  };
+  frozen = suite "frozen" {
+    inputs = modelInputs ++ frozenData;
+    runtime = conformance;
+    tools = modelTools;
+  };
+  harness = suite "harness" {
+    inputs = modelInputs;
+    runtime = conformance;
+    tools = modelTools;
   };
 }
