@@ -509,3 +509,11 @@ records, exact pins and the unchanged historical receipt. Both Markdown tests
 pass in 0.49 seconds under a 60-second bound. The pending clean `2df58fd1`
 review row is preserved exactly. The evidence unit now awaits independent
 review; no ordinary native check starts before that review is clean.
+
+Evidence `1090de7b` passed independent Claude review with no findings
+(`20261007T113845Z-1090de7b`). The reviewer could inspect the metadata but could
+not run archive tools under its command allowlist. The implementer's separate
+checks verified every archive and original payload against the retained files.
+Clarified spaces around status codes and the executor revision in the derived
+JSON summary. All original logs, metadata payloads and archive bytes remain
+unchanged. This wording correction awaits review. No heavy check has started.

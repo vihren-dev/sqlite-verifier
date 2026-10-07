@@ -1,7 +1,7 @@
 {
   "source_revision": "2df58fd1ca2cdfc01a822e5b36602f43140f0809",
   "source_tree": "374f1bb50c19b81c91f859bda5205a890f30d32d",
-  "scope": "Clean T18b source over reviewed executor9e91e525; T15 and T07 modules/examples are excluded. Historical mixed-source receipts remain unchanged.",
+  "scope": "Clean T18b source over reviewed executor 9e91e525; T15 and T07 modules/examples are excluded. Historical mixed-source receipts remain unchanged.",
   "reference": {
     "public_modules": 21,
     "public_declarations": 323,
@@ -33,7 +33,7 @@
         "path": "CLAUDE.md",
         "target": "AGENTS.md"
       },
-      "qualification": "Actual retry terminal exit0 reported by parent; original output retained. Retry UTC and monotonic boundaries were not captured. Original stalled137 and ambient127 attempts are retained separately."
+      "qualification": "Actual retry terminal exit 0 reported by parent; original output retained. Retry UTC and monotonic boundaries were not captured. Original stalled 137 and ambient 127 attempts are retained separately."
     },
     "x86_64-linux": {
       "artifact": "/nix/store/gcvsljvadiy8in9xpbwafs6kayyfk9qk-sqlite-verifier-api-reference-2df58fd1ca2c",
