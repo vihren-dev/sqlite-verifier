@@ -316,3 +316,19 @@ the stated recipes are complete. The task is not DONE.
   The exporter has the same Darwin bundle failure; an isolated exact builder
   is being tested before any scheduling change. Merge remains held for this
   acceptance failure and the already-approved baseline exception.
+- 2026-10-07: Integrated exporter head `eec6d08e`, which includes main
+  `aeffab25` and the reviewed Darwin bundle schedule. Darwin now builds the
+  complete bundle target before the complete recipe starts the other suites.
+  Linux scheduling, all seven targets and their budgets are unchanged. All
+  74 approved source, pin and baseline files remain byte-identical to
+  `45ac63b2`. Both journal orders and repeated rows survive: 149 executor rows
+  and 100 exporter rows combine into 160 rows. The exact final clean exporter
+  review row is also retained. All 17 focused scheduling, failure-retention,
+  routing and documentation checks pass, with 28 subtests, in 3.21 seconds
+  under a 120-second bound. The first invocation named a nonexistent test
+  file and ran no tests; the corrected invocation has complete JUnit at
+  `build/test-results/t05-scheduling-integration.xml`. An initial supplemental
+  review assertion used the wrong journal field name and stopped before any
+  write; the corrected check confirmed the actual clean review. The isolated
+  exact bundle receipt is a local pass, not proof of the hosted failure cause.
+  Fresh hosted acceptance and exporter delivery remain required.
