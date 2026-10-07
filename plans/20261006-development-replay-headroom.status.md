@@ -2,12 +2,21 @@
 
 Status: IN PROGRESS. Created 2026-10-06.
 
-Latest result: the complete 2026-10-07 fresh receipts on reviewed publication
-source are valid on both platforms. Darwin took 21.434975332995236 seconds;
-Linux took 39.57022682100069 seconds and still misses the target below
-30 seconds. Evidence is retained in
-[the new acceptance record](../reports/20261007-development-replay-headroom-acceptance/README.md).
-The task is not DONE. No phase was rerun after the Linux miss.
+The latest complete Linux replay takes 33.707907737 seconds on reviewed
+production source `c3e8f518`. All 184 selected native comparisons pass and the
+receipt is valid. The target remains below 30 seconds on both platforms.
+The 120-second phase limit remains unchanged.
+
+The retained earlier macOS replay takes 21.434975333 seconds on its original
+source. It is not a fresh measurement of the current production source.
+[The latest Linux record](../reports/20261007-development-replay-linux-cap4/README.md)
+retains the target miss. Its corrected validator passes independent review.
+The requested sandbox test fix also passes on both native platforms and
+needs no `ps` command. No performance phase is running. The task is not DONE.
+
+Decisions waiting for the owner:
+
+- None at this checkpoint.
 
 Task: [development replay headroom](20261006-development-replay-headroom.task.md).
 Source: [issue #33](https://github.com/vihren-dev/sqlite-verifier/issues/33).
@@ -749,3 +758,8 @@ authorized one Linux diagnostic below. No production change followed it.
   behavior, evidence or acceptance limit changes. The validator and all four
   mutation checks pass again under separate 60-second limits. Exact diagnostic
   paths were checked at each narrowing call. Independent review remains required.
+
+- 2026-10-07: Receipt diagnostic correction `fb0c0939` passes independent
+  review `20261007T170819Z-fb0c0939` with no findings. The original Linux
+  target miss and all raw artifacts remain unchanged. This completes the
+  receipt review; further performance work remains necessary.
