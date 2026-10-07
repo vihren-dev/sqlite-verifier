@@ -86,3 +86,16 @@ push changed only `plans/`, `reviews/`, `reports/` or documentation.
   Linux): Linux passed in 11.8 min; macOS reported in 6 s. The saved `v2`
   cache is 3.1 GB. GitHub evicted the 6.2 GB `main` Linux `v1` cache while the
   total exceeded 10 GB; `main` saves a `v2` cache after the merge.
+- 2026-10-07: Record-only push `f341ddd5` (run 37615204689): the cache key
+  matched exactly, the 3.1 GB restore took 83 s, the runtime check took 15 s,
+  no test suite was rebuilt and no cache was saved. Linux took 7.2 min because
+  this pull request changes the workflow and therefore runs the full `package`
+  scope (host Nix tests and installed acceptance, about 5 min). A record-only
+  push in the `test` scope is expected to take about 3 min.
+
+## Remaining acceptance
+
+- Owner merge of PR #52.
+- After the merge: the first `main` run checks both platforms with the new
+  routing and saves `v2` caches for both. Then remove the deferred
+  `nix-tests-v1` restore prefix.
