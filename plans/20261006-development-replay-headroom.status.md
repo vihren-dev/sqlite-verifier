@@ -721,3 +721,10 @@ authorized one Linux diagnostic below. No production change followed it.
   retained in the sandbox record. Both platforms now verify the requested
   removal of the `ps` dependency. This does not establish the performance
   target. Independent review of the Linux evidence remains required.
+
+- 2026-10-07: Linux sandbox evidence is committed in `c74e7a6d`.
+  Independent review `20261007T141450Z-c74e7a6d` has no findings. The
+  sandbox test dependency fix passes on both native platforms. The last
+  standalone Linux replay takes 33.707907737 seconds, so the under-30-second
+  target remains unmet. The 120-second outer limit remains in force. No
+  new timing run or task completion is claimed.
