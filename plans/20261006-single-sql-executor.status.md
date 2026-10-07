@@ -15,8 +15,9 @@ Darwin 420-second failure remains retained. Published PR #48 head `45ac63b2`
 uses 420 seconds. The checked publication integration now adopts the reviewed
 600-second model policy from merged main; the other six suites retain 420.
 
-Integration includes reviewed exporter `07dc71b3`, checked root documentation
-`db69c816` and main `29d2ed7a`. Final source correction is `9e3b4419`.
+Integration includes approved exporter source `07dc71b3` and its checked
+publication record `28556a43`, checked root documentation `db69c816` and
+reviewed main `bc9e2dce`. Final source correction is `9e3b4419`.
 Both hosted native checks pass at PR #48 head `45ac63b2`. The separate timeout
 task is delivered in PR #49. The owner approved PR #48 on 2026-10-07, including
 the target file and proposed protected baselines. The exporter owner approval
@@ -265,3 +266,15 @@ the stated recipes are complete. The task is not DONE.
   model evidence remain separate from this publication integration. Recorded
   the already-given exporter approval in this combined journal; no guard or
   proof source changed.
+- 2026-10-07: Main integration `4313281b` passed independent review
+  `20261007T075223Z-4313281b` with no findings. Integrated the checked exporter
+  publication record `28556a43`; its approved source is unchanged. The only
+  conflict was the journal. Both parent orders and repeated-row counts survive:
+  129 executor rows and 82 exporter rows combine into 140 exact rows. All
+  74 approved source, pin and baseline files remain unchanged. This integration
+  adds exporter acceptance records; it changes no runtime source or guard.
+  All seven source-boundary and actual Nix-routing checks pass in 9.35 seconds
+  under a 120-second bound. Original JUnit is
+  `build/test-results/t05-exporter-integration-routing.xml`. The previous
+  complete native model and installed results remain historical acceptance
+  for the unchanged implementation; hosted integration is still pending.

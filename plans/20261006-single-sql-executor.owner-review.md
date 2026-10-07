@@ -40,8 +40,8 @@ the failed check is not a pass.
 
 Checked migration `26fbe6fc` and correction `0eb80129` have source, ordinary,
 compiler, focused native/model and real Nix input-identity checks. The correction
-has independent review with no findings. The earlier R8 owner marker is deferred
-to this review, without approval.
+has independent review with no findings. The earlier R8 owner marker was deferred
+until the explicit approval recorded above; it is now resolved.
 Schema checkpoint `1432aec5` and native evidence checkpoint `9bee3dd0` each
 passed required independent review with no findings. Every implementation
 should finding is fixed. Payload and exact XML/helper/source hashes were checked
@@ -69,8 +69,9 @@ still depended on a deleted docstring. The requested correction now has clean in
 on each host and complete native model validation: 322 passed and one existing
 Tcl-capture skip per host. Linux used the unchanged 420-second budget (328.30
 seconds); Darwin used the separately reviewed 600-second validation recipe
-(484.74 seconds). PR48 still configures 420 seconds; the timeout-task source is
-not merged here. The earlier Darwin configured-budget failure, exact invocation,
+(484.74 seconds). Published head `45ac63b2` used 420 seconds. The checked
+publication integration includes main's reviewed 600-second model limit;
+the other six suites retain 420 seconds. The earlier Darwin configured-budget failure, exact invocation,
 file order, source hashes and original XML/logs remain retained in `full-model/`.
 Both hosted native checks now pass, and PR #49 delivers the timeout correction.
 Final R8 owner approval is recorded above. Publication integration, the expected
