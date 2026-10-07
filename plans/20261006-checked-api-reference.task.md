@@ -2,6 +2,11 @@
 
 Status: IN PROGRESS. Created 2026-10-06.
 
+Historical implementation and native builds pass at mixed-source checkpoint
+`dac12b493dc5b64f5381b8a39fd6ac285b2d5c9b`. Clean isolation, new native reference
+builds and hosted artifact acceptance remain required. Historical receipts do
+not establish acceptance of the isolated source. See the status file.
+
 ## Outcome
 
 The public Lean library has documentation that Lean checks when it compiles
@@ -69,4 +74,3 @@ sandbox. Source links must identify actual repository paths and revisions.
 The verified upstream doc-gen4 tag `v4.34.1` resolves to commit
 `953c8992d174b4e56955e01e101d46668c68f2bb`. Its own manifest determines the
 dependency revisions; no dependency branch tip is used as a pin.
-
