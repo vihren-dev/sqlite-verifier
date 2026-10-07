@@ -431,3 +431,33 @@ authorized one Linux diagnostic below. No production change followed it.
   code changed. Both findings have fixed journal resolutions, and bounded validation passes
   again. Refactor review is pending; all raw evidence and the Linux target miss
   remain unchanged.
+- 2026-10-07: Load-profile refactor
+  `1b21245d91f01ad0f1ee21588ccb266fe88834df` passed Claude review
+  `20261007T090220Z-1b21245d`, session 29114 exit 0, with no findings.
+  Both prior naming findings have fixed journal resolutions. The reviewed
+  load-only evidence unit is complete; its exact clean row is preserved here.
+  The coordinator authorized the minimal reference-size fast path after this
+  review, without another acceptance phase or profile run.
+- 2026-10-07: Bounded expansion now counts a reference without encoding only
+  for an ordinary dict, ordinary sole `snapshot` key and ordinary ASCII
+  alphanumeric string. The canonical empty-reference length plus string
+  length is exact; SHA-256 references are 79 bytes. Every subtype or other
+  shape retains the serializer, without an extra subtype iteration. Pool
+  digest/shape/reference/membership/unused checks and their order, canonical
+  stored/logical limits, JSON normalization, internal marshal-v2 copies,
+  independent nested mutable trees and the unbounded default remain intact.
+  Independent canonical size and exact/one-byte-short/negative-delta oracles
+  include mapping subclasses whose rendering adds escaped Unicode metadata
+  and an iteration-sensitive subtype, plus actual shortcut/fallback observation.
+- 2026-10-07: All 111 bounded reference, snapshot, storage, shard, tier and
+  ownership checks pass in the final suite. Five bounded frozen-binding
+  refusal tests pass in 17.64 seconds with the existing pinned runtime.
+  Both suites have 60-second bounds. The first combined command omitted that
+  runtime path: 108 checks passed and six stopped at setup; no missing
+  environment remained after using the already verified path. The historical
+  full-phase test was then excluded explicitly; no acceptance/profile phase
+  ran. The source-owned test needs no new Nix input module. Frozen corpora
+  and all prior raw receipts are unchanged. This small CPU unit makes no
+  speed claim: the entire old 2.292-second expander serialization caller also
+  includes pool and skeleton work. Independent review is pending. The task
+  remains IN PROGRESS.

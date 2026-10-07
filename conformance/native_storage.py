@@ -25,6 +25,20 @@ def serialized(value: Json) -> bytes:
     return json.dumps(value, ensure_ascii=False, sort_keys=True, separators=(",", ":")).encode()
 
 
+SNAPSHOT_REFERENCE_BASE_BYTES = len(serialized({"snapshot": ""}))
+"""Canonical punctuation and key bytes; plain ASCII alphanumeric digest characters add one byte each."""
+
+
+def _reference_byte_count(reference: dict[str, Json], digest: Json) -> int:
+    """Count proven plain references without encoding, retaining JSON behavior for all other inputs."""
+    if type(reference) is dict and len(reference) == 1:
+        key = next(iter(reference))
+        if (type(key) is str and key == "snapshot" and type(digest) is str
+                and digest.isascii() and digest.isalnum()):
+            return SNAPSHOT_REFERENCE_BASE_BYTES + len(digest)
+    return len(serialized(reference))
+
+
 def check_size(byte_count: int, limit: int = CASE_BYTE_LIMIT) -> None:
     """Accept the exact limit and report an oversized logical case before sharing."""
     if type(byte_count) is not int or byte_count < 0 or type(limit) is not int or limit < 1:
@@ -111,7 +125,7 @@ def expanded_record(value: Json, *, byte_limit: int | None = None) -> dict[str, 
                 raise ValueError("Missing native snapshot reference")
             copied[field] = marshal.loads(snapshot_copies[digest])
             if byte_limit is not None:
-                expanded_byte_count += len(validated_snapshot_json[digest]) - len(serialized(reference))
+                expanded_byte_count += len(validated_snapshot_json[digest]) - _reference_byte_count(reference, digest)
             used.add(digest)
         restored.append(copied)
     if used != set(snapshots):

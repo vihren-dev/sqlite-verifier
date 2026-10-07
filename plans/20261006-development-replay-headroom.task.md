@@ -74,6 +74,13 @@ snapshots, escaped/multibyte metadata, nested independent mutations and
 malformed or unused pools retain their checks. The default expansion
 primitive remains unbounded; shard loading enforces both stored and logical
 case limits before selecting any replay cases.
+Reference-size counting may skip JSON encoding only when an ordinary mapping,
+ordinary sole key and ordinary ASCII alphanumeric string prove exact canonical
+size as the fixed key/punctuation bytes plus string length. Mapping, key and
+string subclasses and escaped/multibyte/other shapes retain the existing
+serializer path. Independent canonical JSON oracles check those cases, exact
+and one-byte-short limits, negative empty-snapshot deltas and preserved subtype
+rendering. Validation order and the default unbounded primitive remain intact.
 Snapshot reconstruction matches an independent canonical JSON oracle for
 scalar values, signed zero, escaped text, caller-owned JSON subclasses and
 reused nested mutable objects. Canonical JSON decoding occurs once per
