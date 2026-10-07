@@ -815,3 +815,10 @@ authorized one Linux diagnostic below. No production change followed it.
   An executable-AST comparison confirms that the correction changes no
   behavior. All original source bindings and acceptance bytes remain
   unchanged. Correction review remains required.
+
+- 2026-10-07: Worker-policy correction `2006755a` passes independent
+  review `20261007T193508Z-2006755a` with no findings. The earlier finding
+  has a fixed resolution. Parallel loading is committed and checked; its
+  executable behavior is exactly the reviewed `2a42afdd` implementation.
+  Linux validation, standalone timing on both platforms and publication
+  remain required. No whole-phase speedup or under-30-second pass is claimed.
