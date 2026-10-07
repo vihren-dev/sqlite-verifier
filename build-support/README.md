@@ -42,21 +42,23 @@ evaluating Linux derivations on Darwin does not validate Linux execution.
 The [upgrade status](../plans/20261006-lean-4-34-1-upgrade.status.md) records
 the actual verification evidence.
 
-`tests.kernel`, `tests.model`, `tests.sample`, `tests.upstream`, `tests.atuin`,
-`tests.cli` and `tests.bundle` are independent pytest derivations declared in
-`tests.nix`. `tests/nix_suites.json` gives their test-file ownership and also
+`tests.kernel`, `tests.model`, `tests.frozen`, `tests.harness`, `tests.sample`,
+`tests.upstream`, `tests.atuin`, `tests.cli` and `tests.bundle` are independent
+pytest derivations declared in `tests.nix`. `tests/nix_suites.json` gives their test-file ownership and also
 drives the host `--source-checks` exclusions. Kernel inputs are the test/Lean fixtures, shared pytest support,
-pinned Python/pytest and Lean toolchain/library/checker. Model inputs add its
-explicit conformance helpers, Python translator sources, parsers and pinned
-SQLite. Kernel/model targets exclude unrelated tests, examples and documentation. Atuin,
+pinned Python/pytest and Lean toolchain/library/checker. The model, frozen and
+harness inputs add their explicit conformance helpers, the SQL frontend modules
+in `tests/conformance_frontend.json`, parsers and pinned SQLite; only frozen adds
+the frozen corpora and retained reports. Kernel and conformance targets exclude
+unrelated tests, examples and documentation. Atuin,
 CLI and bundle each add their test files and the complete runtime (including Python
 implementation and examples); bundle also adds the Python sources its stage-reuse
 cases import. Changes to those runtime inputs invalidate all three. Changes to
-shared pytest support invalidate all seven. Nix owns all result reuse.
+shared pytest support invalidate all nine. Nix owns all result reuse.
 The sample owns the frozen v4 and synthetic inputs plus their shared replay and
 validation helpers. Full-only historical evidence and tests do not invalidate it.
-`developmentTests` selects every target except `tests.model`; the full target set
-remains in CI and packaging.
+`developmentTests` selects every target except `tests.model` and `tests.frozen`;
+the full target set remains in CI and packaging.
 
 `lean4export.nix` fetches lean4export at tag `v4.34.0` as a fixed-output source and
 applies `lean4export-skip-trusted.patch`. The Lean runtime copies that source to
@@ -83,7 +85,7 @@ Flake equivalence tests stage a temporary Git source boundary so the real Nix 2.
 subdirectory-flake command also works from a dedicated Jujutsu workspace without
 a colocated `.git`. The project itself continues to use Jujutsu.
 
-Run all seven checks through the flake:
+Run all nine checks through the flake:
 
 ```sh
 nix flake check ./nix -L \
