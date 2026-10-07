@@ -677,3 +677,19 @@ at actual CI merge source `ca7280a8`. All 18 original Linux case artifacts,
 phase records and decoded job bytes are retained and hash-verified in the
 final acceptance report. The original Linux failure remains unchanged.
 Independent evidence review and publication remain required.
+
+
+Linux evidence `5507904b` passes independent review
+`20261007T190107Z-5507904b` with no findings. Corrected hosted acceptance
+is complete on both platforms. Documentation closeout PR58 merged normally
+as `d75fdc2b`; this publication integrates those completed task records.
+All 13 tested source and build-input bindings remain unchanged. Reference
+Lean sources, compiler and generator pins, runtime inputs, baselines and
+frozen corpora retain their accepted bytes. The task is ready for normal
+review and delivery after final publication checks. No completion or new
+release approval is claimed before delivery.
+
+Both authored-link checks pass in 0.48 seconds under a 60-second bound.
+The incoming main and evidence-parent journals remain ordered subsequences
+of the current journal, including repeated rows. All original native and
+Linux member hashes verify. Final publication review remains required.
