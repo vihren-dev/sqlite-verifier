@@ -56,6 +56,13 @@ helper. It preserves original returns and exceptions, complete binding/path
 evidence and the configured process-group bound. Its result is diagnostic
 evidence. Summed parallel CPU can exceed wall time; differences between wall
 and CPU do not measure I/O or fsync time.
+A load-only cProfile diagnostic calls `conformance.corpus.load` once for all
+frozen v5 bindings. It retains original pstats, per-function/caller views,
+loaded count/profiles/identities, original streams and before/after source,
+frozen-input, Python and helper hashes. Its instrumented load duration is
+separate from acceptance and timing comparisons. The helper uses a main guard
+and a name that cannot shadow Python's `profile` module. It invokes no native
+replay or model execution, and retains the same process-group guard.
 
 Bounded tests preserve mandatory membership, stable identity ranking,
 exact result counts and all frozen bindings. Digest, snapshot, profile,

@@ -375,3 +375,48 @@ authorized one Linux diagnostic below. No production change followed it.
   source, not predicted savings. The coordinator will select any further
   bounded unit; no additional phase or optimization has started. The overall
   task remains IN PROGRESS.
+- 2026-10-07: Final stage status/journal checkpoint
+  `ec0434a9480e1c24111cea47c3c420fa6c7283af` passed Claude review
+  `20261007T083517Z-ec0434a9`, session 20288 exit 0, with no findings.
+  The coordinator then authorized one Linux load-only cProfile diagnostic of
+  exact measured source `5d15607f`, existing pinned Python and all frozen v5
+  bindings. It invokes `corpus.load` once, with no native replay, model
+  execution, runtime build or source optimization. Original profile/caller
+  artifacts and loaded identity/profile evidence will be retained under the
+  unchanged 120-second process-group bound. The actual load is pending.
+- 2026-10-07: Public main-guard helper is named `t04c_load_profile.py` and
+  cannot shadow Python's `profile` module. Local AST/helper checks precede
+  transfer. One transfer used an incorrect temporary-directory name and
+  failed with exit 255 before any load. Its original tool output and missing
+  original-timestamp limit are retained. The corrected helper transfer is
+  terminal successful. Successful preflight compares full source, frozen
+  inputs, archive and pinned Python with the fresh Linux receipt. No report,
+  native replay or model call has run in this unit.
+- 2026-10-07: The single load-only cProfile diagnostic is terminal: session
+  98256, exit 0, 4,376 v5 records loaded once with all bindings. It records
+  24.757685188 instrumented seconds and 24.688395 parent CPU seconds. These
+  are not acceptance or a timing comparison. `expanded_record` has
+  10.542457637 cumulative seconds, including 5.270413991 self seconds not
+  attributed to an operation. Its canonical pool decoding is 1.074232140,
+  serialization 2.292366976, marshal copies 1.482483149 and marshal encoding
+  0.267605387 profiled seconds. Stored-record JSON decoding is 5.265636404.
+  Full fidelity/acquisition verification remains mandatory and active.
+- 2026-10-07: All source, frozen v5, archive, pinned Python and helper hashes
+  match before/after and their previous applicable identities. All 122 frozen
+  files match the prior complete source manifest. Actual names, count, parts,
+  native versions and complete observed/declared profile bindings are retained.
+  No native replay, model execution, runtime build or source change occurred.
+  Original pstats, full listings/callers, actual UTC/monotonic boundaries,
+  full host conditions and original streams are retained in
+  [the load-only record](../reports/20261007-development-replay-load-profile/README.md).
+  All 24 raw artifact hashes and all 16 retrieved original hashes pass the
+  bounded read-only validator. It confirms one profiled corpus load and no
+  native/model replay calls, without another load. Evidence review is pending.
+- 2026-10-07: The narrow proposed snapshot unit would use fixed canonical
+  reference size only for ordinary dict/str inputs after existing validation,
+  with the existing serializer fallback for subclasses. All pool/refusal and
+  normalization/independence contracts remain required. The reference-only
+  time is not isolated, so no saving or acceptance forecast is made. A shared
+  normalization cache has unobserved duplicate ratio and adds memory/lifetime
+  policy; no cache or new snapshot change is implemented. The coordinator
+  chooses any next unit after evidence review. The task remains IN PROGRESS.
