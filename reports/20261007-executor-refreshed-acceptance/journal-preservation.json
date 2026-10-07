@@ -1,0 +1,12 @@
+{
+  "refreshedHead": "935e42db8554d3cd8d9dd8d25822e2045d83ad0d",
+  "priorReviewedTip": "0855f9565c5187a1a963d2fe104e1b59ea789f86",
+  "refreshedRows": 176,
+  "priorRows": 170,
+  "repairedRows": 211,
+  "bothOriginalOrdersAndMultiplicityPreserved": true,
+  "journalSha256": "ead6c000e26c538d974d48adabf2a54c4d48db0209eccfdf045fdb2f4dc433d4",
+  "pendingReviewSource": "e28dafdea7a9986818a9b5eaa8326b39016264a4",
+  "pendingReviewRestored": "20261007T113814Z-0855f956",
+  "priorWorkingCopyRows": 171
+}

@@ -370,3 +370,20 @@ the stated recipes are complete. The task is not DONE.
   `112771743045` and Darwin job `112771743430`. All 74 approved files remain
   unchanged. The original failed and cancelled receipts and owner-approved
   baseline exception remain intact. No new hosted completion is claimed.
+
+- 2026-10-07: CI `37615200892` is now complete. Both actual native jobs at
+  `46bd04b5` pass the complete pinned checks and all artifact retention steps.
+  The owner refreshed the branch with accepted main and split suites at
+  `935e42db`. Current run `37628447150` passes actual Linux execution; macOS
+  runs only the PR skip step and is not counted as acceptance. All 74 approved
+  source, pin and baseline files remain byte-identical. The new suite limits
+  come from the accepted main change and do not rewrite prior receipts.
+- 2026-10-07: The refreshed merge omitted 15 original committed review rows
+  and changed their order. Restored both complete histories without editing
+  or deleting existing rows, and recovered the pending clean `0855f956`
+  review from its retained working-copy revision. The merged journal has
+  211 rows before this repair's review. The
+  [refreshed acceptance record](../reports/20261007-executor-refreshed-acceptance/README.md)
+  retains actual job responses, the approved source manifest and preservation
+  checks. This repair changes only review and acceptance records and this
+  status. Independent review, normal publication and delivery remain required.
