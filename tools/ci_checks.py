@@ -1,4 +1,4 @@
-"""Run the same fresh host gates with either checkout builds or explicit Nix artifacts."""
+"""Run complete native gates with Darwin's bundle before concurrent suite builds."""
 
 import argparse
 import json
@@ -13,8 +13,14 @@ from tools.check_resources import check_resources
 from tests.runtime_support import CommandTimeout, run_command
 
 
+BUNDLE_FIRST_SYSTEM = "aarch64-darwin"
+"""Darwin completes the bundle gate before the complete recipe starts other test builders."""
+BUNDLE_BUILD_LIMIT_SECONDS = 900
+"""Retain the existing Nix build budget while the bundle pytest command keeps its 420-second limit."""
+
+
 def run_checks(scope: str, mode: str, system: str, root: Path) -> None:
-    """Use Nix build/test targets while installed acceptance stays fresh."""
+    """Use all complete gates and isolate Darwin's bundle phase from model and upstream builders."""
     if scope not in {"test", "package"} or mode not in {"source", "build"}:
         raise ValueError("CI requires a complete test/package recipe and a supported build mode")
     check_resources(root)
@@ -66,6 +72,11 @@ def run_checks(scope: str, mode: str, system: str, root: Path) -> None:
                 "lean": run("lean-version", [lean, "--version"], 10, capture=True),
                 "lake": run("lake-version", [lake, "--version"], 10, capture=True)}
     (root / "build/ci-environment.json").write_text(json.dumps(versions, indent=2) + "\n")
+    if system == BUNDLE_FIRST_SYSTEM:
+        run("bundle", ["nix-build", "build-support/default.nix", "-A", "tests.bundle",
+            "--out-link", "build/nix-tests-bundle", "--option", "sandbox", "true",
+            "--option", "sandbox-fallback", "false", "--extra-experimental-features",
+            "nix-command flakes"], BUNDLE_BUILD_LIMIT_SECONDS)
     run("checks-" + scope, ["just", "test-full" if scope == "test" else scope], 1800)
 
 

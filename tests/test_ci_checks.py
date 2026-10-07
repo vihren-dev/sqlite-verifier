@@ -39,8 +39,20 @@ def test_ci_modes_retain_fresh_checks(tmp_path: Path, mode: str, system: str) ->
          patch.dict("os.environ", {"SQLITE_VERIFIER_SYSTEM": system, "PATH": str(original_bin), "CC": "clang"}, clear=True):
         run_checks("package", mode, system, tmp_path)
         assert commands[-1] == ["just", "package"]
+        if system == "aarch64-darwin":
+            assert commands[-2][3] == "tests.bundle"
         run_checks("test", mode, system, tmp_path)
     assert commands[-1] == ["just", "test-full"]
+    bundle_commands = [command for command in commands if "tests.bundle" in command]
+    if system == "aarch64-darwin":
+        assert len(bundle_commands) == 2
+        assert commands[-2] == bundle_commands[-1]
+        assert bundle_commands[0] == bundle_commands[1] == [
+            "nix-build", "build-support/default.nix", "-A", "tests.bundle",
+            "--out-link", "build/nix-tests-bundle", "--option", "sandbox", "true",
+            "--option", "sandbox-fallback", "false", "--extra-experimental-features", "nix-command flakes"]
+    else:
+        assert bundle_commands == []
     if mode == "build":
         assert commands[0][3] == "runtime"
         assert environments[-1]["SQLITE_VERIFIER_RUNTIME_ROOT"] == str(runtime)

@@ -41,3 +41,16 @@ streams, JUnit, boundaries and identities are retained under
   implementation commit.
 - Implementation, bounded checks, independent review and new hosted
   acceptance remain pending. No publication occurred in this preparation unit.
+- Added the Darwin-only sequential `tests.bundle` prebuild before the complete
+  recipe. Its output uses the existing `build/nix-tests*` artifact path. Linux
+  scheduling, all seven complete targets and every suite guard are unchanged.
+- Bounded scheduling, real failure/timeout artifact retention, CI routing and
+  documentation checks: 15 passed and 28 subtests passed in 3.19 seconds.
+  The actual rendered Nix ownership/guard check passed in 1.69 seconds.
+  An earlier incorrect test-name selection collected no tests; it was corrected
+  before the check. No empty selection is counted as a pass.
+- Retained all twelve isolated originals and their original digest manifest,
+  the metadata helper and both complete hosted failure logs as 16 gzip payloads.
+  The bounded read-only validator passed. Original receipt bytes are unchanged.
+- Independent review, latest-main metadata integration and new hosted acceptance
+  remain pending. The isolated native reproduction was not repeated.
