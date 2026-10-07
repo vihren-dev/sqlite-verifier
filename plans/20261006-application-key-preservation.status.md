@@ -14,7 +14,7 @@ The clean publication base is the approved T05 implementation at
 `8e10a593bf830c272bf6b5e6af525d943ce90212`. Owner approval of T05 is recorded
 in [PR48](https://github.com/vihren-dev/sqlite-verifier/pull/48); hosted integration
 and repository delivery remain pending. T15 has no additional owner design
-question. A PR waits for dependency delivery or explicit stacked publication.
+question. Draft PR53 is stacked while dependency delivery remains pending.
 This task is not DONE and does not authorize a verification-path cutover.
 
 ## Preserved mixed-history evidence
@@ -154,37 +154,42 @@ copying does not turn old mixed-history receipts into clean-runtime acceptance.
   `installed-receipt.json` bind this evidence to checked source `d2d33a6b`
   over approved base `8e10a593`. No performance result is claimed.
 
-## Remaining acceptance
+## Current integration and remaining acceptance
 
-The clean base's local compiler, source, ordinary, example and fresh-archive
-installed checks pass. Acceptance checkpoint `f81a666b` passed independent review
-`20261007T094341Z-f81a666b`, with no findings. Its raw row is preserved.
-These receipts do not establish acceptance of a later integration.
+The clean source's compiler, source, ordinary, example and fresh-archive installed
+checks pass. Acceptance checkpoint `f81a666b` passed review
+`20261007T094341Z-f81a666b`; metadata integration `95c227f4` passed review
+`20261007T094902Z-95c227f4`. Both have no findings. The 17 routing checks and
+28 subtests passed in 2.97 seconds, without a native build or replay.
 
-Reviewed T05 CI/release metadata at `9e91e525` is being integrated before
-T15 publication. Only the raw journal needed conflict resolution. Both complete
-raw parent orders, including the pending acceptance review, are preserved; no
-undescribed working-copy change is a merge ancestor. The T15 feature and runtime
-inputs stay unchanged. The 17 CI routing/scheduling/ownership checks and 28
-subtests pass in 2.97 seconds under a 90-second outer bound. Their XML and
-commands are in `build/t15-clean-metadata-integration/`; no native build or replay
-was selected. The diff from `9e91e525` remains the exact 18 T15 paths, with no
-deletions or held T07/T18b code. Integration checkpoint `95c227f4` passed
-review `20261007T094902Z-95c227f4`, with no findings. Its raw row is retained.
-The local `tasks/application-key-preservation` bookmark names the checked branch.
-PR47 was normally delivered at `2e01c49a`; T05 remains separate.
-T05 remains open, with hosted run 37600117584 active and a separate protected
-baseline gate failure; this local evidence does not resolve that failure.
-Readiness commit `ddebc40b` passed review `20261007T101101Z-ddebc40b`
-with no findings. Its raw row is included in the next publication record.
-Draft [PR53](https://github.com/vihren-dev/sqlite-verifier/pull/53) is published
-and attached, stacked on `tasks/single-sql-executor`. Its initial head is
-`ddebc40b`; CI run `37612219181` has native Linux job `112761942116` and
-Darwin job `112761942431`. Both are in progress; neither is a pass.
-`build/t15-clean-metadata-integration/publication.json` retains the creation
-identity. Dependency repository delivery, hosted native checks and T15 delivery
-remain pending. No main write has run.
+Draft [PR53](https://github.com/vihren-dev/sqlite-verifier/pull/53) is attached,
+stacked on `tasks/single-sql-executor`. The published head `7f8c5b3c` passed
+review `20261007T111901Z-7f8c5b3c`. Its raw row is preserved in this next commit.
+Initial head `ddebc40b` triggered run `37612219181`; published `7f8c5b3c`
+triggered run `37613635726`. These are initial run identities, not pass claims.
+Earlier publication details remain in `build/t15-clean-metadata-integration/`.
 
-The task specifies no additional native platform gate beyond its relevant
-source, example, ordinary and installed checks. Every command retains its bound.
-The clean source excludes held T07/T18b code and authorizes no path cutover.
+The coordinator authorized exact reviewed T05 head
+`46bd04b576436cf88d9a4e7b929ecaeede43d217` as the new metadata parent.
+The complete hosted job now has 75 minutes; each suite and command cap remains
+unchanged. The prior T05 Darwin job in run `37600117584` was cancelled after
+1,824 seconds by its former overall guard. Its 42-case bundle pass did not make
+that job a pass. New base run `37615200892` was active at this checkpoint:
+Linux job `112771743045` and Darwin job `112771743430`. No result is claimed.
+
+Only the raw journal required merge conflict resolution. Both parent row orders
+and the pending review are retained, without an undescribed merge ancestor.
+The exact 18 T15 paths, all 106 authored runtime inputs and original acceptance
+bytes remain unchanged. The 26 routing, actual Nix membership and inner-budget checks pass, with 28
+subtests, in 3.69 seconds under a 90-second outer bound. Six suites retain
+420 seconds and the model retains 600 seconds. Commands and evidence are in
+`build/t15-job-budget-integration/`. Commit review is required before push.
+No new native phase or changed proof, runtime, gate or baseline is included.
+
+Feature acceptance remains bound to `8e10a593` plus `d2d33a6b`. The 75-minute
+job guard does not extend any inner cap or claim new feature acceptance.
+Dependency repository delivery, hosted native checks and T15 delivery remain
+pending; T05's separately approved baseline drift still requires its maintainer
+exception. No main write or merge has run. No publication-metadata loop follows
+the last reviewed push. The task specifies no additional local native platform
+gate, and held T07/T18b code remains excluded.

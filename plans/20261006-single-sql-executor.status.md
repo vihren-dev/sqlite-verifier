@@ -332,3 +332,34 @@ the stated recipes are complete. The task is not DONE.
   write; the corrected check confirmed the actual clean review. The isolated
   exact bundle receipt is a local pass, not proof of the hosted failure cause.
   Fresh hosted acceptance and exporter delivery remain required.
+- 2026-10-07: The scheduling integration passed independent review with no
+  findings. Jujutsu stopped the first push because the journal-only parent had
+  no description; no remote changed. Added its description and reviewed that
+  parent as `9fc40a76`, with no findings. The resulting integration `9e91e525`
+  has exactly the earlier checked tree and passes its own clean review
+  `20261007T092131Z-9e91e525`. Published only the existing PR #48 branch and
+  updated its body. Hosted CI `37600117584` is running, with Linux job
+  `112722153900` and Darwin job `112722154338`. Earlier failures and the
+  protected-baseline exception remain recorded. This local publication record
+  does not change the published source while those checks run.
+- 2026-10-07: The current Darwin job is terminal cancelled, not a pass. Its
+  authoritative timestamps span 1824 seconds and match the workflow's
+  30-minute job guard. The separate bundle passes all 42 cases in 376.21
+  seconds before the later complete recipe is cancelled. Linux passes.
+  PR #47 has merged normally as `2e01c49a`; PR #48 is retargeted to main.
+  Their base trees are identical. No replacement native run exists at the
+  unchanged head. Prepared the separate complete-job budget task before any
+  workflow edit; individual suite budgets and approved source remain intact.
+
+- 2026-10-07: The aggregate CI repair changes only the overall job guard to
+  75 minutes. The declared sequential commands can use 3620 seconds; the old
+  job limit allowed only 1800. All 26 bounded checks and 28 subtests pass,
+  including actual Nix suite ownership and unchanged individual budgets.
+  The negative oracle rejects the old guard. All 74 approved files remain
+  unchanged. Original cancellation evidence is retained; a new hosted pass
+  remains required before delivery.
+
+- 2026-10-07: The aggregate deadline review has no must findings. Corrected
+  its two suggestions: the guide now states 75 minutes and the test names
+  its setup allowance. All 26 focused checks and 28 subtests pass again.
+  Every owner-approved source and baseline file remains unchanged.

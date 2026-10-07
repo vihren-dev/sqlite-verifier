@@ -67,7 +67,9 @@ source fingerprinting in production CI, or checkout build caches are required.
 Host JUnit reports, cached Nix test outputs and CI phase diagnostics are
 retained for 14 days. Pytest's exit status decides success. Individual subprocess
 and whole-command deadlines remain bounded (a timed-out test command's process
-group is killed); the job limit is 30 minutes.
+group is killed). The hosted job limit is 75 minutes. It covers the sequential
+runtime, Darwin bundle and complete-check phase budgets, plus setup and artifact
+retention. Individual suite and command limits remain unchanged.
 Superseded ordinary runs are cancelled; release/manual runs are not.
 
 The matrix follows GitHub's documented native runner architectures:
