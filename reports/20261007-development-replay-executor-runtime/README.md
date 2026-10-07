@@ -52,6 +52,10 @@ Original build-command files use archival `commands/` directories so the
 repository's generated `build/` ignore rule cannot exclude them. Linux's
 original manifest keeps the remote directory names; validation maps only
 that command's archival path and retains its exact original bytes.
+`public-archive-validation.json` records the separate clean public-archive
+check of revision `77883deb`: both scripts passed with 47 tracked gzip
+artifacts. This derived result is outside the raw build-artifact manifest;
+`validate.py` does not check it.
 Run the bounded read-only checks from the repository:
 
 ```sh

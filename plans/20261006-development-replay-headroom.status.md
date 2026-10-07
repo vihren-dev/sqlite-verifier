@@ -630,3 +630,12 @@ authorized one Linux diagnostic below. No production change followed it.
   Git archive of the refactor contains all 47 raw gzip artifacts, and both
   scripts pass there with empty error streams. Its original check result
   is retained in the report. The final naming refactor review is pending.
+- 2026-10-07: Naming refactor
+  `54e3f0907c5992dc4c68b030039b1e1b388c6139` received Claude review
+  `20261007T111746Z-54e3f090`, session 78439 exit 0, with no must findings
+  and one should evidence-documentation finding. The report now identifies
+  the separate public-archive validation result and states that the raw
+  build-artifact validator does not check this derived result. The finding
+  has a fixed append-only journal resolution. This is a documentation-only
+  correction; all checked code and raw build evidence remain unchanged.
+  Final documentation review is pending. No native job or phase is live.
