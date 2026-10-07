@@ -33,7 +33,7 @@ def test_sealed_source_compilation(compilation_case: CompilationFixture, proof_c
     assert not (project.trusted / "lakefile.olean").exists()
     assert "approved/SchemaInputs.lean" not in project.hashes
     assert project.hashes["generated/SchemaInputs.lean"] == hashlib.sha256(schema_inputs(()).encode()).hexdigest()
-    checked = command_runner([str(proof_checker), str(case.library), str(project.trusted), str(project.candidate)],
+    checked = command_runner([str(proof_checker), *map(str, case.libraries), str(project.trusted), str(project.candidate)],
                              cwd=case.root, timeout=30,
                              environment={**os.environ, "LEAN_SYSROOT": str(case.sysroot)})
     assert checked.returncode == 0, checked.diagnostic()
@@ -58,7 +58,7 @@ def test_selected_generated_role(tmp_path: Path) -> None:
     workspace = tmp_path / "workspace"
     workspace.mkdir()
     with pytest.raises(ValueError, match="reserved"):
-        compile_project(sysroot=tmp_path, library=tmp_path, requirements=tmp_path / "SchemaInputs.lean",
+        compile_project(sysroot=tmp_path, libraries=(tmp_path, tmp_path), requirements=tmp_path / "SchemaInputs.lean",
             interpretation=tmp_path / "Interpretation.lean", next_interpretation=tmp_path / "NextInterpretation.lean",
             proofs=tmp_path / "Proofs.lean", schema_inputs=schema_inputs(()), sql_inputs="", workspace=workspace)
 
@@ -108,7 +108,7 @@ def test_compiler_output_symlink(tmp_path: Path) -> None:
 
     with patch("migration_check.compile.lean_process", emit_link), pytest.raises(CompileError) as rejected:
         compile_modules(order=("Requirements",), sources=tmp_path, destination=destination,
-                        previous=(), sysroot=tmp_path, library=tmp_path, workspace=tmp_path)
+                        previous=(), sysroot=tmp_path, libraries=(tmp_path, tmp_path), workspace=tmp_path)
     assert rejected.value.phase == "artifact"
 
 

@@ -33,7 +33,7 @@ def verify_bundle(options: argparse.Namespace) -> dict[str, object]:
         workspace = Path(temporary).resolve()
         try:
             contract = compile_contract(
-                sysroot=runtime.sysroot, library=runtime.library, requirements=options.requirements,
+                sysroot=runtime.sysroot, libraries=runtime.libraries, requirements=options.requirements,
                 interpretation=options.interpretation, schema_inputs=inputs.schema_source,
                 sql_inputs=inputs.sql_source, workspace=workspace, store=StageStore.configured(),
                 approved_baseline=options.approved_baseline, schema_hash=inputs.schema_hash,
@@ -46,7 +46,7 @@ def verify_bundle(options: argparse.Namespace) -> dict[str, object]:
         output = workspace / "gate-output"
         output.mkdir()
         checked = run_process(
-            [str(runtime.bundle_checker), str(runtime.library), str(contract.trusted), str(snapshot),
+            [str(runtime.bundle_checker), *map(str, runtime.libraries), str(contract.trusted), str(snapshot),
              str(generated)],
             write_root=output, environment={"LEAN_SYSROOT": str(runtime.sysroot)}, timeout=30)
     if checked.returncode == 2:

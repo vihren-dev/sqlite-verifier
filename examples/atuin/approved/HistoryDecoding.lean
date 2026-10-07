@@ -5,7 +5,7 @@ import HistoryModel
 reject the entire observation. Optional fields use the valid TEXT/NULL subdomain
 of upstream decoding; no row is filtered out or replacement-decoded. -/
 namespace HistoryDecoding
-open SqliteVerifier HistoryModel
+open Belay.Sqlite SqliteVerifier HistoryModel
 
 /-- Decode TEXT strictly; invalid UTF-8 and other storage classes are not strings. -/
 def text : Value → Option String

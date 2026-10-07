@@ -1,17 +1,21 @@
 # Invoke with nix-build build-support/default.nix -A TARGET (flakes enabled).
-{ system ? builtins.currentSystem
+{ root ? ../.
+, system ? builtins.currentSystem
 , pkgs ? import ./locked-nixpkgs.nix { inherit system; }
 , native ? import ../nix/sqlite.nix { inherit pkgs; }
 }:
 let
-  sources = import ./sources.nix { inherit (pkgs) lib; };
+  sources = import ./sources.nix { inherit (pkgs) lib; inherit root; };
   leanToolchain = import ./lean-toolchain.nix { inherit pkgs; };
   lean4export = import ./lean4export.nix { inherit pkgs; };
   # lakefile.toml requires lean4export as a path dependency at build/lean4export.
-  lakeDependencies = ''
+  lakeDependencies = model: ''
     mkdir -p build
     cp -R ${lean4export} build/lean4export
     chmod -R u+w build/lean4export
+    mkdir -p packages
+    cp -R ${model} packages/belay-sqlite
+    chmod -R u+w packages/belay-sqlite
   '';
 in rec {
   inherit leanToolchain sources;
@@ -25,12 +29,12 @@ in rec {
     inherit pkgs; inherit (conformanceNative) fixture upstream;
   };
   tests = import ./tests.nix {
-    inherit pkgs leanToolchain leanRuntime parsers runtime native conformance;
+    inherit pkgs leanToolchain leanRuntime parsers runtime native conformance modelPackage root;
   };
   # `just test` skips the slow model comparisons and the frozen evidence; `just test-full` runs them.
   developmentTests = pkgs.lib.removeAttrs tests [ "model" "frozen" ];
   runtime = import ./runtime.nix {
-    inherit pkgs sources leanToolchain parsers leanRuntime;
+    inherit pkgs sources leanToolchain parsers leanRuntime modelPackage;
   };
   parsers = pkgs.stdenv.mkDerivation {
     pname = "sqlite-verifier-parsers";
@@ -81,8 +85,8 @@ in rec {
     dontConfigure = true;
     buildPhase = ''
       export HOME="$TMPDIR"
-      ${lakeDependencies}
-      lake build SqliteVerifier migration-proof-checker migration-bundle-checker migration-proof-exporter
+      ${lakeDependencies modelPackage}
+      lake build SqliteVerifier EngineeringExamples migration-proof-checker migration-bundle-checker migration-proof-exporter
     '';
     installPhase = ''
       mkdir -p "$out/.lake/build/bin" "$out/.lake/build/lib"
@@ -104,14 +108,23 @@ in rec {
     mkdir -p "$out"
     ln -s ${leanToolchain} "$out/lean"
     ln -s ${conformanceRuntime}/.lake "$out/.lake"
+    mkdir -p "$out/packages"
+    ln -s ${modelPackage} "$out/packages/belay-sqlite"
     ln -s ${parsers}/build "$out/build"
   '';
   conformanceCoverage = conformanceRuntime.overrideAttrs (old: {
     pname = "sqlite-verifier-conformance-coverage";
-    postPatch = ''${pkgs.python3}/bin/python3 ${../conformance/instrument_model.py} .'';
+    postPatch = ''
+      mkdir -p packages
+      cp -R ${sources.model} packages/belay-sqlite
+      chmod -R u+w packages/belay-sqlite
+      ${pkgs.python3}/bin/python3 ${../conformance/instrument_model.py} .
+    '';
     buildPhase = ''
       export HOME="$TMPDIR"
-      ${lakeDependencies}
+      mkdir -p build
+      cp -R ${lean4export} build/lean4export
+      chmod -R u+w build/lean4export
       lake build conformance-runner
     '';
     installPhase = ''

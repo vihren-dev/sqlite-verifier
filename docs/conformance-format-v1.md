@@ -1,7 +1,7 @@
 # Conformance case format v1
 
 ADR 0004's test-only `conformance-runner` accepts one JSON object per line and
-returns one result per line. `StructuralCodec.lean` owns the codecs for schema
+returns one result per line. `packages/belay-sqlite/Belay/Sqlite/Codec.lean` owns the codecs for schema
 declarations, statements, values and profiles; `VerifierConformance/Json.lean` adds
 the conformance case and observation records. The Python encoders are in
 `belay/sqlite/structural.py`, re-exported by `conformance/case_format.py`.

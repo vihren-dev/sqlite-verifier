@@ -1,9 +1,11 @@
 import SqliteVerifier.ContractProofs
-import SqliteVerifier.ModelFacts
+import Belay.Sqlite.ModelFacts
 
 set_option doc.verso true
 
 /-! Application interpretations use structural model facts and retain flexible logical contracts. -/
+
+open Belay.Sqlite
 
 namespace SqliteVerifier
 

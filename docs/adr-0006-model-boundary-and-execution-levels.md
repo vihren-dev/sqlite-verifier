@@ -16,8 +16,8 @@ but model lemmas in `Library`, `LiteralPreservation`, `SchemaExtension` and
 through `NullableProjection`. SQL translation and application Lean generation
 share normalized types in [sql_model.py](../belay/sqlite/sql_model.py).
 
-[Execution](../SqliteVerifier/Execution.lean) and
-[SqlExecution](../SqliteVerifier/SqlExecution.lean) dispatch through `advance`,
+[Execution](../packages/belay-sqlite/Belay/Sqlite/Execution.lean) and
+[SqlExecution](../packages/belay-sqlite/Belay/Sqlite/SqlExecution.lean) dispatch through `advance`,
 `literalStep` and `step`. Their catch-all cases let an added constructor escape
 an explicit domain or effect decision. Positions travel through every level,
 and data atomicity and constraints are tied to literal writes.
@@ -40,7 +40,7 @@ lemmas. Its transitive dependencies may use `Init` and `Std`, but not `Lean`
 or application modules. A separate `Belay.Sqlite.Codec` library in the same
 package may import `Lean` and the core. The core never imports the codec.
 The codec contains the model-value/statement/profile transport currently in
-[StructuralCodec.lean](../StructuralCodec.lean). Construction of the application's
+[packages/belay-sqlite/Belay/Sqlite/Codec.lean](../packages/belay-sqlite/Belay/Sqlite/Codec.lean). Construction of the application's
 `Generated` declarations stays with the application, using those codecs.
 
 | Owner | Contents |

@@ -5,6 +5,8 @@ set_option doc.verso true
 /-! Engineering example: arbitrary stored amounts survive a column addition and
 new table. This is a complete VC proof, not a real-pilot acceptance claim. -/
 
+open Belay.Sqlite
+
 namespace SqliteVerifier.Demonstration
 
 /-- The field whose values and row identities are protected by the requirements. -/

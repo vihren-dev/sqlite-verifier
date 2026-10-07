@@ -16,9 +16,9 @@ DYNAMIC: dict[str, set[str]] = {
     "packages/belay-sqlite/Belay/Sqlite/Codec.lean": {"model"},
     **{f"parser/input.{suffix}": {"parsers"}
        for suffix in ("py", "c", "h", "y", "json")},
-    "SqliteVerifier/Model.lean": {"lean", "conformanceLean"}, "Root.lean": {"lean", "conformanceLean"},
+    "SqliteVerifier/Contract.lean": {"lean", "conformanceLean"}, "Root.lean": {"lean", "conformanceLean"},
     "SqliteVerifier/ContractProofs.lean": {"lean", "conformanceLean"},
-    "SqliteVerifier/SqlProofs.lean": {"lean", "conformanceLean"},
+    "SqliteVerifier/Library.lean": {"lean", "conformanceLean"},
     "VerifierConformance/Trace.lean": {"conformanceLean"},
     "belay/sqlite/sql_model.py": {"runtime"},
     "migration_check/runtime.py": {"runtime"}, "tests/test_input.py": set(),
@@ -136,3 +136,31 @@ def test_unselected_file_invariance(identity_tree: tuple[Path, dict[str, str]], 
     (root / relative).parent.mkdir(parents=True, exist_ok=True)
     (root / relative).write_text("unselected input")
     assert identities(root) == baseline
+
+
+def test_model_dependency_invalidates_application_artifacts(
+        identity_tree: tuple[Path, dict[str, str]]) -> None:
+    """The actual Nix entrypoint binds model inputs into application and runtime derivations."""
+    root, _ = identity_tree
+    def derivations() -> dict[str, str]:
+        """Evaluate the production dependency graph with a private source root, without building it."""
+        literal = json.dumps(str(root)).replace('${', '\\${')
+        expression = ('let builds = import ./build-support/default.nix { root = /. + ' + literal + '; }; '
+                      'in builtins.mapAttrs (_: value: value.drvPath) { '
+                      'inherit (builds) modelPackage leanRuntime conformanceRuntime runtime; }')
+        result = run_command(['nix-instantiate','--eval','--strict','--json',
+            '--extra-experimental-features','nix-command flakes','--expr',expression],cwd=ROOT,timeout=30)
+        assert result.returncode == 0, result.diagnostic()
+        return json.loads(result.stdout)
+    before = derivations()
+    application = root / 'SqliteVerifier/Contract.lean'
+    original = application.read_bytes()
+    application.write_bytes(original+b'\napplication-only change\n')
+    changed = derivations()
+    assert changed['modelPackage'] == before['modelPackage']
+    assert all(changed[name] != before[name] for name in ('leanRuntime','conformanceRuntime','runtime'))
+    application.write_bytes(original)
+    model = root / 'packages/belay-sqlite/Belay/Sqlite/Model.lean'
+    model.write_bytes(model.read_bytes()+b'\nmodel change\n')
+    changed = derivations()
+    assert all(changed[name] != before[name] for name in before)

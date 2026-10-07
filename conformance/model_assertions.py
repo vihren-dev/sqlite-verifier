@@ -15,10 +15,10 @@ def assertions(term: str, encoded: str, *, expected: bool = True, failure: str |
     """Embed the runner's decoded structural case, never a separate comparison implementation."""
     preserved = "" if failure is None else (
         "theorem preservedFailure : (observeOutcome fixture.names "
-        "(SqliteVerifier.runSql fixture.script (databaseOf fixture.initial))).error = " + failure +
+        "(Belay.Sqlite.runSql fixture.script (databaseOf fixture.initial))).error = " + failure +
         " := by decide +kernel\n#print axioms preservedFailure\n")
     return ("import VerifierConformance.Json\n"
-            "open SqliteVerifier.Conformance\n"
+            "open Belay.Sqlite.Conformance\n"
             "set_option maxRecDepth 100000\nset_option maxHeartbeats 30000000\n"
             "def fixture : Case :=\n" + indent(term, "  ") + "\n" +
             f"#guard match Lean.Json.parse {quoted_string(encoded)} with\n"

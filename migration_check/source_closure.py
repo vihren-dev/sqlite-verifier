@@ -75,10 +75,10 @@ def module_path(name: str) -> Path:
     return Path(*components)
 
 
-def lean_process(sysroot: Path, library: Path, search: Sequence[Path], source: Path,
+def lean_process(sysroot: Path, libraries: tuple[Path, Path], search: Sequence[Path], source: Path,
                  output: Path, arguments: Sequence[str], phase: str, timeout: float = 30) -> str:
     """Run only the pinned executable, with explicit paths and no ambient project settings."""
-    with merged_search_path([sysroot / "lib/lean", library, *search], output) as paths:
+    with merged_search_path([sysroot / "lib/lean", *libraries, *search], output) as paths:
         result = run_process(
             [str(sysroot / "bin/lean"), *arguments, str(source)],
             write_root=output,
@@ -90,10 +90,10 @@ def lean_process(sysroot: Path, library: Path, search: Sequence[Path], source: P
     return result.stdout
 
 
-def imports(source: Path, sysroot: Path, library: Path, workspace: Path) -> tuple[str, ...]:
+def imports(source: Path, sysroot: Path, libraries: tuple[Path, Path], workspace: Path) -> tuple[str, ...]:
     """Read official dependency JSON without importing modules or executing their code."""
     with TemporaryDirectory(prefix="header-", dir=workspace) as temporary:
-        text = lean_process(sysroot, library, [], source, Path(temporary).resolve(),
+        text = lean_process(sysroot, libraries, [], source, Path(temporary).resolve(),
                             ["--deps-json"], "dependencies", timeout=5)
     parsed: object = json.loads(text)
     if not isinstance(parsed, dict) or not isinstance(parsed.get("imports"), list):
@@ -117,15 +117,15 @@ def imports(source: Path, sysroot: Path, library: Path, workspace: Path) -> tupl
 
 def discover_sources(*, initial: dict[str, Source], roots: Sequence[Path],
                      excluded: set[Path], forbidden: set[str], available: set[str],
-                     directory: Path, sysroot: Path, library: Path,
+                     directory: Path, sysroot: Path, libraries: tuple[Path, Path],
                      workspace: Path, external: set[str] | None = None,
                      imports_out: dict[str, tuple[str, ...]] | None = None) -> tuple[dict[str, Source], tuple[str, ...]]:
     """Snapshot only reachable local sources and reject ambiguous or cyclic dependencies.
 
     When given, `external` collects imports resolved from the pinned sysroot or
-    verifier library; exported bundles name these trusted modules instead of
+    verifier libraries; exported bundles name these trusted modules instead of
     repeating their declarations. When given, `imports_out` receives each
-    discovered module's complete import list, including contract and library
+    discovered module's complete import list, including contract and libraries
     modules, for dependency-aware rebuilds.
     """
     sources = dict(initial)
@@ -144,7 +144,7 @@ def discover_sources(*, initial: dict[str, Source], roots: Sequence[Path],
         snapshot = directory / relative.with_suffix(relative.suffix + ".lean")
         snapshot.parent.mkdir(parents=True, exist_ok=True)
         snapshot.write_bytes(sources[name].contents)
-        dependencies = imports(snapshot, sysroot, library, workspace)
+        dependencies = imports(snapshot, sysroot, libraries, workspace)
         if imports_out is not None:
             imports_out[name] = dependencies
         graph[name] = set()
@@ -155,7 +155,7 @@ def discover_sources(*, initial: dict[str, Source], roots: Sequence[Path],
             if dep_path.parts[0].casefold() in forbidden_folded:
                 raise ValueError(f"Protected source {name} imports reserved module {dependency}")
             if any((base / dep_path).with_suffix(
-                    dep_path.suffix + ".olean").is_file() for base in (sysroot / "lib/lean", library)):
+                    dep_path.suffix + ".olean").is_file() for base in (sysroot / "lib/lean", *libraries)):
                 if external is not None:
                     external.add(dependency)
                 continue

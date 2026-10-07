@@ -1,9 +1,11 @@
 import SqliteVerifier.Library
-import SqliteVerifier.ModelProjection
+import Belay.Sqlite.ModelProjection
 
 set_option doc.verso true
 
 /-! Application observations combine old fields with an optional nullable-field projection. -/
+
+open Belay.Sqlite
 
 namespace SqliteVerifier
 

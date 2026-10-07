@@ -63,7 +63,7 @@ def prove(term: str, runtime: Path, destination: Path, *, case: dict[str, Json],
     """Kernel-check the runner's decoded closed term, keeping native code out of the proof."""
     destination.write_text(assertions(term, json.dumps(case, ensure_ascii=False), expected=expected, failure=failure))
     checked = subprocess.run([str(runtime / "lean/bin/lean"), str(destination)],
-                             env={**os.environ, "LEAN_PATH": str(runtime / ".lake/build/lib/lean")},
+                             env={**os.environ, "LEAN_PATH": os.pathsep.join(str(runtime / path) for path in (".lake/build/lib/lean", "packages/belay-sqlite/.lake/build/lib/lean"))},
                              capture_output=True, text=True, timeout=120)
     if checked.returncode:
         raise AssertionError(checked.stdout + checked.stderr)

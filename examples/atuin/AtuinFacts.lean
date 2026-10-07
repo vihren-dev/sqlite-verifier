@@ -5,7 +5,7 @@ set_option doc.verso true
 /-! Candidate-specific schema facts and arbitrary-row ADD correctness.
 Changing the added column changes these candidate proofs, never approved meaning. -/
 namespace AtuinFacts
-open SqliteVerifier
+open Belay.Sqlite SqliteVerifier
 
 /-- The proposed nullable field is a candidate choice, outside the approved contract. -/
 def added : Column := { name := "shell", affinity := .text }

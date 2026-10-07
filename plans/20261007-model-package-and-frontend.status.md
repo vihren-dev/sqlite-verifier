@@ -29,11 +29,11 @@ or receipts are not accepted inputs.
   `belay.sqlite`. The parent `belay/` has no initializer and only its `sqlite/`
   child initially. The leaf initializer and other distributions' namespace
   portions remain outside that parent-layout restriction.
-- [Lake configuration](../lakefile.toml), [model](../SqliteVerifier/Model.lean),
+- [Lake configuration](../lakefile.toml), [model](../packages/belay-sqlite/Belay/Sqlite/Model.lean),
   [library](../SqliteVerifier/Library.lean),
   [nullable projection](../SqliteVerifier/NullableProjection.lean),
-  [codec](../StructuralCodec.lean) and
-  [conformance laws](../VerifierConformance/Laws.lean) show current ownership
+  [codec](../packages/belay-sqlite/Belay/Sqlite/Codec.lean) and
+  [conformance laws](../packages/belay-sqlite/Belay/Sqlite/Laws.lean) show current ownership
   edges. Both schema lookups are structural dependencies of `Conforms`.
 - [Frontend types and emission](../belay/sqlite/sql_model.py),
   [parser](../belay/sqlite/sql_tree.py),
@@ -303,3 +303,57 @@ No failures, errors or skips occur. Original XML is in
 The source move and its caller corrections are committed and reviewed.
 Model caller migration, removal of duplicate Lean paths, installed trusted
 roots and both native final archives remain incomplete. T10 is IN PROGRESS.
+
+
+## Application model integration checkpoint
+
+The root Lake package requires `belaySqlite` at `packages/belay-sqlite`.
+All old model, law and codec implementation paths are deleted. Current
+application, example, conformance and test callers use `Belay.Sqlite`.
+The production application root imports contract and interpretation helpers;
+engineering examples have a separate Lake library dependency.
+
+Nix builds the model independently, supplies that artifact to the application
+at its declared package path and installs both compiled roots. Runtime discovery,
+source staging, dependency resolution, export and cache identities use the
+ordered sysroot, application and model roots. Both gates refuse missing or
+colliding installed modules. Lean's explicit artifact-map API resolves the
+first actual module file in that order, including caller-owned modules under
+an installed namespace. Such declarations still require kernel replay.
+
+All 373 source checks and 37 subtests pass in 46.23 seconds. All 93 actual Nix
+source, derivation-dependency and suite identity checks pass in 106.61 seconds.
+The full hardened model suite passes all 51 tests in 51.161 seconds; harness
+passes all 122 in 2.221 seconds. All 41 kernel, generated-input and root checks
+pass in 67.74 seconds. Separate namespace/refusal checks pass five tests in
+12.85 seconds. Logs and original XML remain in `build/t10-model-integration-darwin`.
+The complete bundle and CLI suites are checked before this unit's commit.
+
+Seven approved-example source pins change for the explicit namespace move.
+Their pin sets and raw SQL pins are unchanged. Final owner review covers those
+source pins, the codec replacement and the changed gate/import boundary.
+The review checklist follows the moved paths and retains its existing rules.
+Frozen corpora, historical reports and the retained regression proof remain
+byte-identical. The regression test reacquires its exact frozen case and
+kernel-checks current emission instead of rewriting historical evidence.
+
+Both native final suite sets and fresh installed archives remain incomplete.
+Two new installed checks cover a neutral model/codec/application consumer and
+an independent `belay.sqlite` import from the poisoned unrelated directory.
+T10 remains IN PROGRESS. Independent review follows the checked source commit;
+final owner review follows complete native acceptance.
+
+
+The final hardened native model, frozen and harness suites pass 51, 145 and
+122 tests in 55.717, 244.315 and 2.319 seconds, respectively. Bundle and CLI
+pass 48 and 15 tests in 259.717 and 43.388 seconds. No failures, errors or
+skips occur. The reporter now binds frontend hashes from `belay/sqlite`.
+The initial frozen failure and initial old-root fixture failures remain in
+their original logs; they are not relabeled. The final receipt and original
+XML copies are in `build/t10-model-integration-darwin/checked-integration.json`.
+
+All changed source files are below 200 lines. Authored Markdown links resolve.
+No frozen corpus, historical report or retained regression artifact changes.
+This complete source integration is ready for its independent commit review.
+The remaining ordinary suites, both native final archives and final owner
+review are still required; no release or delivery claim is made.

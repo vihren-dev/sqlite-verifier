@@ -7,7 +7,8 @@
     "tests/proof_exporter_test.py",
     "tests/stage_reuse_test.py",
     "tests/generated_inputs_test.py",
-    "tests/test_latency_frontend.py"
+    "tests/test_latency_frontend.py",
+    "tests/model_roots_test.py"
   ],
   "cli": [
     "tests/cli_test.py"

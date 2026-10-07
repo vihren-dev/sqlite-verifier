@@ -19,6 +19,8 @@ def artifact(root: Path, relative: str, contents: str) -> Path:
 def test_split_package_keeps_trusted_precedence_and_candidate_siblings(tmp_path: Path) -> None:
     """A candidate collision cannot replace the first root, while its distinct sibling remains reachable."""
     library, candidate = tmp_path / "library", tmp_path / "candidate"
+    model = tmp_path / "model"
+    model.mkdir()
     trusted = artifact(library, "Model/Core.olean", "trusted-core")
     base = artifact(library, "Model.olean", "trusted-base")
     artifact(candidate, "Model/Core.olean", "candidate-substitution")
@@ -39,6 +41,8 @@ def test_split_package_keeps_trusted_precedence_and_candidate_siblings(tmp_path:
 def test_distinct_packages_need_no_merged_directory(tmp_path: Path) -> None:
     """Unsplit roots preserve their original search path and allocate no overlay."""
     library, candidate = tmp_path / "library", tmp_path / "candidate"
+    model = tmp_path / "model"
+    model.mkdir()
     artifact(library, "Model/Core.olean", "trusted")
     artifact(candidate, "Application/User.olean", "candidate")
     before = set(tmp_path.iterdir())
@@ -52,11 +56,13 @@ def test_distinct_packages_need_no_merged_directory(tmp_path: Path) -> None:
 def test_real_lean_keeps_trusted_definition_in_split_package(tmp_path: Path, lean_sysroot: Path) -> None:
     """A sibling theorem compiles against the first root's value despite a conflicting candidate module."""
     library, candidate = tmp_path / "library", tmp_path / "candidate"
+    model = tmp_path / "model"
+    model.mkdir()
     for directory, value in ((library, 7), (candidate, 99)):
         source = artifact(directory, "Model/Core.lean", f"def Model.value : Nat := {value}\n")
-        lean_process(lean_sysroot, directory, [], source, directory,
+        lean_process(lean_sysroot, (directory, model), [], source, directory,
             ["-R", str(directory), "-o", str(source.with_suffix(".olean"))], "fixture", timeout=10)
     source = artifact(candidate, "Model/User.lean", "import Model.Core\nexample : Model.value = 7 := rfl\n")
-    lean_process(lean_sysroot, library, [candidate], source, candidate,
+    lean_process(lean_sysroot, (library, model), [candidate], source, candidate,
         ["-R", str(candidate), "-o", str(source.with_suffix(".olean"))], "collision", timeout=10)
     assert source.with_suffix(".olean").is_file()

@@ -20,7 +20,7 @@ class CiScopeTest(unittest.TestCase):
         examples = [(["README.md", "docs/ci.md"], "docs"), (["plans/20261007-task.md"], "docs"),
                     (["docs/nested/guide.md"], "docs"), (["unknown/file.md"], "test"),
                     (["parser/upstream/README.md"], "package"),
-                    (["SqliteVerifier/Preservation.lean"], "test"),
+                    (["packages/belay-sqlite/Belay/Sqlite/Preservation.lean"], "packaging"),
                     (["tests/coverage_test.py"], "test"), (["unknown/file"], "test"),
                     (["migration_check/prepare.py"], "test"), (["tools/review.py"], "test"),
                     (["belay/sqlite/sql_model.py"], "packaging"),

@@ -1,5 +1,5 @@
 # Independent pytest targets: Nix owns isolation, dependency identity and reuse.
-{ pkgs, leanToolchain, leanRuntime, parsers, runtime, conformance ? runtime, root ? ../.
+{ pkgs, leanToolchain, leanRuntime, parsers, runtime, modelPackage, conformance ? runtime, root ? ../.
 , native ? import ../nix/sqlite.nix { inherit pkgs; }
 , conformanceNative ? import ./conformance-native.nix { inherit pkgs; }
 }:
@@ -24,6 +24,8 @@ let
     mkdir -p "$out"
     ln -s ${leanToolchain} "$out/lean"
     ln -s ${leanRuntime}/.lake "$out/.lake"
+    mkdir -p "$out/packages"
+    ln -s ${modelPackage} "$out/packages/belay-sqlite"
   '';
   suite = name: { inputs, runtime, tools ? [], environment ? {} }:
     let
@@ -48,12 +50,12 @@ let
   # Inputs shared by the three suites that the old single model suite contained.
   modelInputs = frontend ++ [
     (fs.fileFilter (file: file.hasExt "json") (root + /conformance/cases))
-    (root + /SqliteVerifier/SqlExecution.lean)
-    (root + /SqliteVerifier/Execution.lean) (root + /SqliteVerifier/LiteralData.lean)
+    (root + /packages/belay-sqlite/Belay/Sqlite/SqlExecution.lean)
+    (root + /packages/belay-sqlite/Belay/Sqlite/Execution.lean) (root + /packages/belay-sqlite/Belay/Sqlite/LiteralData.lean)
     (root + /VerifierConformance/Trace.lean)
     (root + /VerifierConformance/Outputs.lean)
     (root + /VerifierConformance/Case.lean)
-    (root + /VerifierConformance/Laws.lean)
+    (root + /packages/belay-sqlite/Belay/Sqlite/Laws.lean)
     (root + /conformance/requirements-3.51.0.json)
     (root + /conformance/regressions)
     (root + /conformance/synthetic-workload)

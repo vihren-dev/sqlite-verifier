@@ -1,5 +1,5 @@
 import GateCore
-import StructuralCodec
+import Belay.Sqlite.Codec
 import Export.Parse
 
 /-! ADR 0003 data path: check an exported proof bundle without compiling candidate source.
@@ -47,18 +47,18 @@ def definition (env : Environment) (name : Name) (type value : Expr) : ConstantI
 
 The record's starting schema must equal the compiled `Generated.startSchema`, so the
 constructed declarations describe the same request as the contract's inputs. -/
-def generatedDeclarations (env : Environment) (inputs : SqliteVerifier.GeneratedInputs) :
+def generatedDeclarations (env : Environment) (inputs : Belay.Sqlite.GeneratedInputs) :
     IO (Std.HashMap Name ConstantInfo) := do
   let start ← closedConstant env `Generated.startSchema
   unless ← kernelResult (Kernel.isDefEq env {} start (toExpr inputs.schema)) do
     throw <| IO.userError "generated inputs do not match the compiled starting schema"
-  let schema := mkConst `SqliteVerifier.Schema
-  let script := mkApp (mkConst ``List [levelZero]) (mkConst `SqliteVerifier.Statement)
+  let schema := mkConst `Belay.Sqlite.Schema
+  let script := mkApp (mkConst ``List [levelZero]) (mkConst `Belay.Sqlite.Statement)
   return Std.HashMap.ofList [
     (`Generated.nextSchema, definition env `Generated.nextSchema schema (toExpr inputs.nextSchema)),
     (`Generated.script, definition env `Generated.script script (toExpr inputs.script)),
     (`Generated.profile, definition env `Generated.profile
-      (mkConst `SqliteVerifier.ExecutionProfile) (toExpr inputs.profile))]
+      (mkConst `Belay.Sqlite.ExecutionProfile) (toExpr inputs.profile))]
 
 /-- Same type and definitionally equal value: elaborated and constructed literals differ
 structurally (numerals, `nextSchema := startSchema`) but must denote the same data. -/
@@ -89,9 +89,9 @@ def exportedAdditions (trusted : Environment) (exported : Export.ExportedEnv) :
   return fresh
 
 /-- Read and decode the frontend's structural record. -/
-def readGenerated (path : System.FilePath) : IO SqliteVerifier.GeneratedInputs := do
+def readGenerated (path : System.FilePath) : IO Belay.Sqlite.GeneratedInputs := do
   let json ← IO.ofExcept (Json.parse (← IO.FS.readFile path))
-  IO.ofExcept (SqliteVerifier.decodeGeneratedInputs json)
+  IO.ofExcept (Belay.Sqlite.decodeGeneratedInputs json)
 
 /-- Read the version-1 header: `{"bundle": 1, "trusted_imports": ["Mod", ...]}`. -/
 def readHeader (line : String) : IO (Array Name) := do
@@ -103,24 +103,24 @@ def readHeader (line : String) : IO (Array Name) := do
   return modules.map String.toName
 
 /-- Import the trusted base and the compiled starting schema, returning the import state. -/
-def schemaEnvironment (library trusted : System.FilePath) (external : NameSet) :
+def schemaEnvironment (library model trusted : System.FilePath) (external : NameSet) :
     IO (Environment × ImportState) := do
-  let sysroot ← requireDirectories [library, trusted]
-  let builtin ← getBuiltinSearchPath sysroot
+  discard <| requireDirectories [trusted]
+  let libraries ← requireLibraryRoots library model
   -- Trusted modules resolve only from the sysroot and verifier library.
-  searchPathRef.set (builtin ++ [library])
+  searchPathRef.set (libraries)
   let (base, state) ← importData (baseModules external) default
-  searchPathRef.set (builtin ++ [library, trusted])
+  searchPathRef.set (libraries ++ [trusted])
   let (inputs, state) ← importData #[`SchemaInputs] state
   return (Environment.ofKernelEnv (← base.toKernelEnv.replay (← additions base inputs)), state)
 
 /-- Check one bundle against the pinned library, the compiled contract and the
 generated inputs constructed from the frontend's record. -/
-def checkBundle (library trusted bundle generated : System.FilePath) : IO UInt32 := do
+def checkBundle (library model trusted bundle generated : System.FilePath) : IO UInt32 := do
   let stream := IO.FS.Stream.ofHandle (← IO.FS.Handle.mk bundle .read)
   let claimed ← readHeader (← stream.getLine)
   let contract ← trustedImports [trusted] [`SchemaInputs, `Requirements, `Interpretation]
-  let (schemaEnv, state) ← schemaEnvironment library trusted (claimed.foldl (·.insert ·) contract)
+  let (schemaEnv, state) ← schemaEnvironment library model trusted (claimed.foldl (·.insert ·) contract)
   let inputEnv := Environment.ofKernelEnv
     (← schemaEnv.toKernelEnv.replay (← generatedDeclarations schemaEnv (← readGenerated generated)))
   let (approved, _) ← importData #[`Requirements, `Interpretation] state
@@ -131,9 +131,9 @@ def checkBundle (library trusted bundle generated : System.FilePath) : IO UInt32
 
 /-- Test mode (ADR 0003 assumption A5): the constructed declarations must agree with
 `SqlInputs.olean` compiled from today's emitter for the same request. -/
-def checkParity (library trusted generated : System.FilePath) : IO UInt32 := do
+def checkParity (library model trusted generated : System.FilePath) : IO UInt32 := do
   let contract ← trustedImports [trusted] [`SchemaInputs, `SqlInputs]
-  let (schemaEnv, state) ← schemaEnvironment library trusted contract
+  let (schemaEnv, state) ← schemaEnvironment library model trusted contract
   let constructed ← generatedDeclarations schemaEnv (← readGenerated generated)
   let (compiled, _) ← importData #[`SqlInputs] state
   for name in generatedNames do
@@ -150,9 +150,9 @@ def checkParity (library trusted generated : System.FilePath) : IO UInt32 := do
 def main (arguments : List String) : IO UInt32 := do
   try
     match arguments with
-    | ["--parity", library, trusted, generated] => checkParity library trusted generated
-    | [library, trusted, bundle, generated] => checkBundle library trusted bundle generated
-    | _ => throw (IO.userError "usage: migration-bundle-checker LIBRARY TRUSTED BUNDLE GENERATED_JSON")
+    | ["--parity", library, model, trusted, generated] => checkParity library model trusted generated
+    | [library, model, trusted, bundle, generated] => checkBundle library model trusted bundle generated
+    | _ => throw (IO.userError "usage: migration-bundle-checker APPLICATION_LIBRARY MODEL_LIBRARY TRUSTED BUNDLE GENERATED_JSON")
   catch error =>
     IO.eprintln s!"bundle checker rejected: {error}"
     return 1

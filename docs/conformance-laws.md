@@ -1,6 +1,6 @@
 # General conformance laws
 
-ADR 0004 W5 is implemented in `VerifierConformance/Laws.lean`, outside the
+ADR 0004 W5 is implemented in `packages/belay-sqlite/Belay/Sqlite/Laws.lean`, outside the
 production library. `rollback` proves that BEGIN, a transaction-free successful
 body, and ROLLBACK restore the initial database. `SuccessfulBody` records success
 of each production literal/DDL transition and excludes transaction controls.

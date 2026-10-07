@@ -8,6 +8,7 @@ from collections.abc import Callable
 import hashlib
 import json
 from pathlib import Path
+import os
 
 import pytest
 
@@ -138,9 +139,10 @@ theorem Proofs.migrationCorrect : Generated.expected := SqliteVerifier.Candidate
     assert report["status"] == "VERIFIED", report
 
 
+
 @pytest.mark.parametrize("arguments,diagnostic", [
-    (["--omit=Missing", "SqliteVerifier", "--", "SqliteVerifier.Schema"], "omitted module is not imported"),
-    (["--omit=", "SqliteVerifier", "--", "SqliteVerifier.Schema"], "Lean name"),
+    (["--omit=Missing", "SqliteVerifier", "--", "Belay.Sqlite.Schema"], "omitted module is not imported"),
+    (["--omit=", "SqliteVerifier", "--", "Belay.Sqlite.Schema"], "Lean name"),
     (["--skip-trusted", "SqliteVerifier"], "unknown exporter option"),
     ([], "no export module"),
 ])
@@ -149,7 +151,8 @@ def test_invalid_exporter_arguments(runtime_root: Path, tmp_path: Path,
     """An absent omission module or invalid request fails before producing a successful export."""
     result = command_runner([str(runtime_root / ".lake/build/bin/migration-proof-exporter"), *arguments],
         cwd=tmp_path, timeout=30, environment={"LEAN_SYSROOT": str(runtime_root / "lean"),
-            "LEAN_PATH": str(runtime_root / ".lake/build/lib/lean")})
+            "LEAN_PATH": os.pathsep.join(str(runtime_root / path) for path in
+                (".lake/build/lib/lean", "packages/belay-sqlite/.lake/build/lib/lean"))})
     assert result.returncode != 0 and diagnostic in result.stderr, result.diagnostic()
 
 
@@ -158,6 +161,7 @@ def test_omissions_follow_transitive_module_origins(runtime_root: Path, lean_sys
     """Trusted imports omit transitive declarations even in unrelated namespaces, while siblings export."""
     library, candidate = tmp_path / "library", tmp_path / "candidate"
     library.mkdir()
+    (tmp_path / "model").mkdir()
     candidate.mkdir()
     modules = [(library, "Trusted/Base", "def OtherNamespace.base : Nat := 7\n"),
         (library, "Trusted/Root", "import Trusted.Base\ndef OtherNamespace.root : Nat := OtherNamespace.base\n"),
@@ -167,7 +171,7 @@ def test_omissions_follow_transitive_module_origins(runtime_root: Path, lean_sys
         source = directory / (module + ".lean")
         source.parent.mkdir(exist_ok=True)
         source.write_text(contents)
-        lean_process(lean_sysroot, library, [candidate], source, directory,
+        lean_process(lean_sysroot, (library, tmp_path / "model"), [candidate], source, directory,
             ["-R", str(directory), "-o", str(source.with_suffix(".olean"))], "fixture", timeout=10)
     with merged_search_path([library, candidate], tmp_path) as paths:
         result = command_runner([str(runtime_root / ".lake/build/bin/migration-proof-exporter"),

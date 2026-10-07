@@ -20,7 +20,11 @@ the grammar before Nix compiles and links the C sources.
 
 `parsers/build/` retains both executables, Lemon tools and generated grammar for
 fresh host coverage. `leanRuntime/.lake/build/` contains the current Lean library
-and checker. `runtime/` assembles those outputs, source/module membership,
+and checkers. `modelPackage` builds `Belay.Sqlite` and its separate codec with
+no application inputs. The application requires it at `packages/belay-sqlite`.
+`EngineeringExamples` is a separate dependency for the shipped examples; the
+production application root excludes demonstrations.
+`runtime/` assembles those outputs, source/module membership,
 examples, the `belay.sqlite` namespace frontend and the Python CLI.
 The frontend takes explicit parser and profile inputs. It has no dependency on
 the verification application. Application Lean emission lives in

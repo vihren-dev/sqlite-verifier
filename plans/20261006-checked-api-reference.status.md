@@ -41,7 +41,7 @@ Relevant sources: `SqliteVerifier.lean`, `SqliteVerifier/*.lean`,
   (`20261006T142821Z-edf68e1c`). The reference build uses an isolated Jujutsu
   workspace; this workspace owns public declaration documentation.
 - 2026-10-06: Added checked Verso documentation to every authored declaration,
-  constructor and field in `SqliteVerifier/Declarations.lean`, with exact
+  constructor and field in `packages/belay-sqlite/Belay/Sqlite/Declarations.lean`, with exact
   descriptions of type-spelling compatibility and the plain-column predicate.
   Checked examples retain the field defaults and BIGINT spelling. The module
   compiles without documentation warnings and remains below 200 lines.
@@ -62,7 +62,7 @@ Relevant sources: `SqliteVerifier.lean`, `SqliteVerifier/*.lean`,
   restriction reported as a failure belongs to the planned validity/domain
   separation; this documentation unit does not change those formulas.
 - 2026-10-06: Added checked documentation to every authored declaration,
-  constructor and field in `SqliteVerifier/Model.lean`. Proposition statements
+  constructor and field in `packages/belay-sqlite/Belay/Sqlite/Model.lean`. Proposition statements
   now state each conjunct and quantify stored rows, schema entries and table
   lookups, including their empty/absent cases. Lookup and projection docs
   describe the first match and missing-cell behavior exactly. The model module

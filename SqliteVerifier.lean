@@ -1,18 +1,7 @@
-import SqliteVerifier.Model
-import SqliteVerifier.Execution
-import SqliteVerifier.Preservation
+import Belay.Sqlite
 import SqliteVerifier.Contract
+import SqliteVerifier.ContractProofs
 import SqliteVerifier.Library
-import SqliteVerifier.Examples
-import SqliteVerifier.Demonstration
-import SqliteVerifier.ReverseDemonstration
-import SqliteVerifier.FailureDemonstration
-import SqliteVerifier.SchemaPreservation
-import SqliteVerifier.SchemaExamples
-import SqliteVerifier.SqlExecution
-import SqliteVerifier.SqlExamples
-import SqliteVerifier.SchemaExtension
 import SqliteVerifier.NullableProjection
-import SqliteVerifier.LiteralPreservation
 
-/-! Public entry point for the restricted SQLite model and reusable proofs. -/
+/-! Application contracts and interpretations over the independent SQLite model. -/

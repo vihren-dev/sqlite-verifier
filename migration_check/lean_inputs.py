@@ -55,7 +55,7 @@ def statement_lean(statement: Statement) -> str:
 def schema_inputs(schema: tuple[Table, ...]) -> str:
     """Expose only parsed starting schema to the sealed approved interpretation stage."""
     start = ", ".join(table_lean(table) for table in schema)
-    return ("import SqliteVerifier\n\nnamespace Generated\nopen SqliteVerifier\n"
+    return ("import SqliteVerifier\n\nnamespace Generated\nopen Belay.Sqlite\n"
             f"def startSchema : Schema := [{start}]\nend Generated\n")
 
 
@@ -66,7 +66,7 @@ def sql_inputs(schema: tuple[Table, ...], script: tuple[Statement, ...],
     result, _ = transition(schema, script)
     after = "startSchema" if result == schema else "[" + ", ".join(table_lean(table) for table in result) + "]"
     commands = ", ".join(statement_lean(statement) for statement in script)
-    return ("import SchemaInputs\n\nnamespace Generated\nopen SqliteVerifier\n"
+    return ("import SchemaInputs\n\nnamespace Generated\nopen Belay.Sqlite\n"
             f"def nextSchema : Schema := {after}\n"
             f"def script : List Statement := [{commands}]\n"
             f"def profile : ExecutionProfile := {'.' + execution_profile.wire_tag}\nend Generated\n")

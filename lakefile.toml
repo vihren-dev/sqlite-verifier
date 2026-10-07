@@ -7,14 +7,26 @@ defaultTargets = ["SqliteVerifier"]
 name = "lean4export"
 path = "build/lean4export"
 
+[[require]]
+name = "belaySqlite"
+path = "packages/belay-sqlite"
+
 [[lean_lib]]
 name = "SqliteVerifier"
+roots = []
+globs = ["SqliteVerifier", "SqliteVerifier.Contract", "SqliteVerifier.ContractProofs", "SqliteVerifier.Library", "SqliteVerifier.NullableProjection"]
+
+# Shipped engineering examples have their own dependency; the production root excludes them.
+[[lean_lib]]
+name = "EngineeringExamples"
+roots = []
+globs = ["SqliteVerifier.Examples", "SqliteVerifier.Demonstration", "SqliteVerifier.ReverseDemonstration", "SqliteVerifier.FailureDemonstration", "SqliteVerifier.SchemaExamples", "SqliteVerifier.SqlExamples"]
+
+[[lean_lib]]
+name = "GatePaths"
 
 [[lean_lib]]
 name = "GateCore"
-
-[[lean_lib]]
-name = "StructuralCodec"
 
 [[lean_exe]]
 name = "migration-proof-checker"
@@ -30,7 +42,7 @@ root = "ProofExporter"
 
 [[lean_lib]]
 name = "VerifierConformance"
-roots = ["VerifierConformance.Trace", "VerifierConformance.Outputs", "VerifierConformance.Case", "VerifierConformance.Json", "VerifierConformance.Laws"]
+roots = ["VerifierConformance.Trace", "VerifierConformance.Outputs", "VerifierConformance.Case", "VerifierConformance.Json"]
 
 [[lean_exe]]
 name = "conformance-runner"

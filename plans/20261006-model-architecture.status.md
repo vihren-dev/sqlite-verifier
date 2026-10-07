@@ -5,8 +5,8 @@ Task: [task](20261006-model-architecture.task.md).
 ADR: [accepted decision](../docs/adr-0006-model-boundary-and-execution-levels.md).
 Sources: public issues #23 and #31, including #23's boundary comment.
 Relevant files: `lakefile.toml`, `SqliteVerifier.lean`,
-`SqliteVerifier/Model.lean`, `SqliteVerifier/SqlExecution.lean`,
-`StructuralCodec.lean`, `build-support/{sources,default,runtime}.nix`,
+`packages/belay-sqlite/Belay/Sqlite/Model.lean`, `packages/belay-sqlite/Belay/Sqlite/SqlExecution.lean`,
+`packages/belay-sqlite/Belay/Sqlite/Codec.lean`, `build-support/{sources,default,runtime}.nix`,
 `migration_check/{runtime,source_closure,prepare,bundle,sql_model,structural}.py`.
 
 ## Progress

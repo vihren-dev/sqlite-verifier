@@ -1,3 +1,4 @@
+import GatePaths
 import Lean.Replay
 import Lean.Util.FoldConsts
 
@@ -51,7 +52,8 @@ compares and replays declarations; no plugins, extensions or initializers execut
 def importData (modules : Array Name) (state : ImportState) :
     IO (Environment × ImportState) := withImporting do
   let imports := modules.map fun name => { module := name : Import }
-  let (_, state) ← (importModulesCore (globalLevel := .private) imports).run state
+  let artifacts ← explicitArtifacts (← searchPathRef.get)
+  let (_, state) ← (importModulesCore (globalLevel := .private) imports artifacts).run state
   let environment ← finalizeImport state imports {} 0
     (leakEnv := false) (loadExts := false) (level := .private)
   return (environment, state)
@@ -135,13 +137,5 @@ def checkTarget (checked : Environment) (positive : Bool) : IO UInt32 := do
     throw <| IO.userError "proof does not establish the reconstructed verification target"
   return if positive then 0 else 2
 
-/-- Require the pinned sysroot and absolute existing directories for every trusted root. -/
-def requireDirectories (directories : List System.FilePath) : IO System.FilePath := do
-  let some sysroot ← IO.getEnv "LEAN_SYSROOT"
-    | throw <| IO.userError "LEAN_SYSROOT must identify the pinned trusted Lean installation"
-  for directory in System.FilePath.mk sysroot :: directories do
-    unless directory.isAbsolute && (← directory.isDir) do
-      throw <| IO.userError s!"expected absolute existing directory: {directory}"
-  return sysroot
 
 end ProofChecker
