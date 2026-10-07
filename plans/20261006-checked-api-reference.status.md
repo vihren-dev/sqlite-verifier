@@ -707,3 +707,11 @@ CI `37671670987` is live. Its native checks are not yet claimed as passing.
 All completed native acceptance and clean reviews are published. This
 local status checkpoint leaves the branch unchanged while CI runs.
 Normal delivery and task closeout remain pending.
+
+
+Final-head CI `37671670987` is terminal successful on both hosted
+platforms at `693be9e3`. PR57 is ready and mergeable. Automatic approval
+review rejected the normal merge because protected main requires explicit
+approval of PR57. The owner has been asked to approve this exact head.
+No alternate merge or branch change is attempted. T18b remains IN PROGRESS
+until the approval and normal delivery.
