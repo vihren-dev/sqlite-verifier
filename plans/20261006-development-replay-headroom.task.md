@@ -85,7 +85,7 @@ Snapshot reconstruction matches an independent canonical JSON oracle for
 scalar values, signed zero, escaped text, caller-owned JSON subclasses and
 reused nested mutable objects. Canonical JSON decoding occurs once per
 validated pool entry; every occurrence still has an independent mutable tree.
-Independent development cases may replay in two spawned worker processes.
+Independent development cases may replay in at most four spawned worker processes.
 Every SQL statement, profile, controlled clock and durability setting retains
 its meaning. Failures and fixture paths retain input order; native exception
 codes survive transport. Normal failures and worker crashes clean private file

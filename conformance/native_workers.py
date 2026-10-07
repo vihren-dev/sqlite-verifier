@@ -13,8 +13,8 @@ from conformance.corpus import native_replay
 from conformance.execution_profile import ExecutionProfile
 from conformance.native_connection import NativeError
 
-NATIVE_WORKER_LIMIT = 2
-"""At most two development cases execute concurrently, each in a spawned process with its own timezone."""
+NATIVE_WORKER_LIMIT = 4
+"""At most four development cases overlap native wait, each in a spawned process with its own timezone."""
 
 CaseInput: TypeAlias = tuple[dict[str, Json], ExecutionProfile | None, Path]
 """Each independent case retains its exact inputs and uses private ordinary files below the selected root."""

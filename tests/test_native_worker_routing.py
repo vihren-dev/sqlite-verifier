@@ -21,13 +21,13 @@ pytestmark = [pytest.mark.integration, pytest.mark.conformance,
 def test_cli_and_report_forward_real_storage_and_fixture_paths(
         clock_cases: tuple[ExecutionProfile, list[dict[str, Json]]], tmp_path: Path,
         runtime_root: Path, monkeypatch: pytest.MonkeyPatch) -> None:
-    """Three real native cases expose dropped CLI storage or report audit arguments without a frozen timing run."""
+    """Four real native cases expose dropped CLI storage or report audit arguments without a frozen timing run."""
     _profile, cases = clock_cases
     generic, synthetic = tmp_path / "generic", tmp_path / "synthetic"
-    records = [{**deepcopy(cases[0]), "part": "boundary-interaction"}]
+    records = [{**deepcopy(case), "part": "boundary-interaction"} for case in cases[:2]]
     synthetic_records = [{**deepcopy(case), "name": f"synthetic-{index}", "part": "synthetic"}
-                         for index, case in enumerate(cases)]
-    manifest: dict[str, Json] = {"corpusVersion": 5, "recordedCases": 1,
+                         for index, case in enumerate(cases[2:])]
+    manifest: dict[str, Json] = {"corpusVersion": 5, "recordedCases": 2,
         "casesSha256": hashlib.sha256(serialized(records)).hexdigest(),
         "executionProfiles": [cases[0]["profile"]]}
     synthetic_manifest: dict[str, Json] = {**manifest, "corpusVersion": 4, "recordedCases": 2,
@@ -56,7 +56,7 @@ def test_cli_and_report_forward_real_storage_and_fixture_paths(
 
     storage, output = tmp_path / "selected files", tmp_path / "report.json"
     storage.mkdir()
-    monkeypatch.setattr(replay_tiers, "AUTHORED_COUNTS_BY_VERSION", {5: 1})
+    monkeypatch.setattr(replay_tiers, "AUTHORED_COUNTS_BY_VERSION", {5: 2})
     monkeypatch.setattr(replay_tiers, "load", load_fixture)
     monkeypatch.setattr(replay_tiers, "bound_records", bound_fixture)
     monkeypatch.setattr(replay_tiers, "report", audited_report)
@@ -64,7 +64,7 @@ def test_cli_and_report_forward_real_storage_and_fixture_paths(
         "--runtime-root", str(runtime_root), "--temporary-root", str(storage), "--output", str(output)])
     replay_tiers.main()
     result = json.loads(output.read_text())
-    assert result["selectedDenominator"] == 3 and result["counts"] == {"MODEL_UNSUPPORTED": 3}
-    assert len(paths) == 3 and len(set(paths)) == 3
+    assert result["selectedDenominator"] == 4 and result["counts"] == {"MODEL_UNSUPPORTED": 4}
+    assert len(paths) == 4 and len(set(paths)) == 4
     assert all(path.is_relative_to(storage) and path.name == "case.db" and not path.exists() for path in paths)
     assert list(storage.iterdir()) == []

@@ -469,3 +469,52 @@ authorized one Linux diagnostic below. No production change followed it.
   and all recorded checks remain unchanged. The author final suite passed
   111 tests in 3.09 seconds, plus the five bounded binding refusals. Finding
   has a fixed journal resolution; refactor review is pending. No performance phase ran.
+- 2026-10-07: Reference-size refactor
+  `368c27c101a0ec99654e6028f192d0ba74dc47ec` passed Claude review
+  `20261007T092019Z-368c27c1`, session 4319 exit 0, with no findings.
+  The previous docstring finding has a fixed journal resolution. The checked
+  source and all recorded tests remain unchanged.
+- 2026-10-07: Read-only retained-profile inspection finds one fidelity
+  verification call at 5.087972811 cumulative seconds. Its acquisition call
+  is 3.130879275 seconds, with 153,764 required source-instance precision
+  and NULL-display checks. The repeated refusal scan is 0.720105865 seconds;
+  it does not support a material removal of the remaining target gap.
+  A loading worker would need ordered unexpanded JSON transport and parent
+  validation; the existing native worker helper does not provide that API.
+  No new profile, phase, decoding optimization or loading helper was started.
+- 2026-10-07: The coordinator authorized one fixed development-only native
+  cap of four on both platforms. The earlier two-worker task wording was our
+  implementation checkpoint; the approved semantics require a named small
+  bound, the unchanged 120-second process-group guard and the under-30-second
+  target. The task now permits at most four before source changes start.
+  Retained Linux stage metadata records eight logical CPUs, 62.58 GiB total
+  and 58.89 GiB available RAM, load averages 0.564/0.325/0.275, and 34.9 GiB
+  free on ordinary ext4. No worker RSS, device contention or speedup was
+  observed. The 17.867-second native wall and 5.532-second reaped-child CPU
+  values do not identify the wait cause. Four workers are a hypothesis.
+  Tiny actual-native clocks, path/order, failure/crash and timeout fixtures
+  must exercise four workers. Serial replay, full loading and all acquisition
+  and fidelity checks remain unchanged. No acceptance run is authorized yet.
+- 2026-10-07: The common development helper now has fixed cap four; its
+  executor, serial primitive, ordered exception/path envelope and lifecycle
+  are unchanged. Four distinct tiny controlled clocks retain serial native
+  evidence and the parent's non-UTC timezone. Mixed failures still report
+  the first input while returning paths from the other completed cases.
+  Atomic markers confirm four actual workers started before the open-file
+  crash check; the private file tree is removed. The configured timeout
+  check confirms all four case identities and process IDs in one group,
+  then confirms every worker stopped. Ordered crash-envelope tests preserve
+  three completed path results and the original first failure.
+  The real CLI/report fixture has two authored and the required two synthetic
+  cases; it returns four actual cleaned file paths.
+- 2026-10-07: Bounded regression session 75347 exited 0: 23 worker, routing,
+  tier and source-ownership checks passed in 7.87 seconds. Three separate
+  Tcl-capture checks skipped because they require the pinned upstream target;
+  none of the worker checks skipped. After making crash markers atomic,
+  session 81035 exited 0 with four focused crash/order checks passing in
+  0.88 seconds. Outer bounds are 60 and 30 seconds; each configured native
+  group-timeout fixture retains its five-second bound. Source files stay
+  below 200 lines. Frozen corpora, prior receipts, selection, SQL, profiles,
+  full binding validation and the production 120-second guard are unchanged.
+  No build, native performance phase, profile, SSH or acceptance run occurred.
+  Independent review is pending; the overall task remains IN PROGRESS.

@@ -21,12 +21,16 @@ from conformance.native_workers import CaseInput, NativeReplayResult, replay_nat
 from tests.runtime_support import CommandTimeout, run_command
 
 ROOT = Path(__file__).resolve().parents[1]
+WORKER_CLOCKS = (1700000000000, 1800000000000, 1900000000000, 2000000000000)
+"""Four distinct supported clocks expose cross-process clock or timezone contamination."""
+WORKER_START_LIMIT_SECONDS = 3
+"""Bound worker startup and post-timeout disappearance checks in the tiny native fixtures."""
 pytestmark = [pytest.mark.integration, pytest.mark.conformance, pytest.mark.requires_native("sqlite3")]
 
 
 @pytest.fixture
 def clock_cases(tmp_path: Path) -> tuple[ExecutionProfile, list[dict[str, Json]]]:
-    """Acquire two independent clocks with defaults, triggers, a transaction and UTC local-time SQL."""
+    """Acquire four independent clocks with defaults, triggers, a transaction and UTC local-time SQL."""
     connection = Connection(load_library(library_path()), tmp_path / "measure.db")
     try:
         profile = measured_profile(connection, name="worker-clock", clock="unix-milliseconds-v1",
@@ -38,7 +42,7 @@ def clock_cases(tmp_path: Path) -> tuple[ExecutionProfile, list[dict[str, Json]]
     sql = "BEGIN IMMEDIATE; INSERT INTO t DEFAULT VALUES; SELECT stamp,datetime('now','localtime') FROM audit; COMMIT;"
     records = [record_sql(setup, sql, name=f"clock-{number}", outputs=True, profile=profile,
         setup_clock=clock, clock_values=[clock + offset * 1000 for offset in range(4)])
-        for number, clock in enumerate((1700000000000, 1800000000000))]
+        for number, clock in enumerate(WORKER_CLOCKS)]
     return profile, records
 
 
@@ -47,6 +51,7 @@ def test_real_serial_equivalence_clocks_paths_and_cleanup(
         monkeypatch: pytest.MonkeyPatch) -> None:
     """Distinct spawned clocks match serial evidence while preserving the parent's non-UTC timezone and inputs."""
     profile, records = clock_cases
+    assert native_workers.NATIVE_WORKER_LIMIT == len(records) == len(WORKER_CLOCKS)
     before = serialized(records)
     roots = [tmp_path / "serial", tmp_path / "workers"]
     for root in roots:
@@ -87,7 +92,8 @@ def test_input_order_and_actual_paths_survive_failures(
     with pytest.raises(ValueError, match="Native replay changed") as parallel:
         replay_native_cases(broken, temporary_root=tmp_path, fixture_paths=paths)
     assert str(parallel.value) == str(serial.value)
-    assert len(paths) == 1 and paths[0].is_relative_to(tmp_path) and not paths[0].parent.exists()
+    assert len(paths) == len(records) - 1 and len(set(paths)) == len(paths)
+    assert all(path.is_relative_to(tmp_path) and not path.parent.exists() for path in paths)
     assert not list(tmp_path.glob("native-workers-*"))
 
 
@@ -116,7 +122,15 @@ def test_native_error_code_and_failure_path_survive_process_transport(tmp_path: 
 
 
 def crashed_case(inputs: CaseInput) -> NativeReplayResult:
-    """Leave one real open SQLite file before an abrupt crash to exercise parent-owned cleanup."""
+    """Start all four workers before a real open-file crash exercises parent-owned cleanup."""
+    marker = inputs[2].parent / f"crash-worker-{os.getpid()}.json"
+    pending = marker.with_suffix(".pending")
+    pending.write_text(json.dumps({"pid": os.getpid(), "name": inputs[0]["name"]}))
+    pending.replace(marker)
+    deadline = time.monotonic() + WORKER_START_LIMIT_SECONDS
+    while len(list(inputs[2].parent.glob("crash-worker-*.json"))) < len(WORKER_CLOCKS):
+        assert time.monotonic() < deadline, "Four native crash workers did not start within the fixture bound"
+        time.sleep(0.02)
     connection = Connection(load_library(library_path()), inputs[2] / f"crash-{os.getpid()}.db")
     connection.execute_script("CREATE TABLE t(v); INSERT INTO t VALUES(1);")
     os._exit(7)
@@ -131,6 +145,9 @@ def test_crashed_worker_fails_closed_and_removes_files(
         replay_native_cases(clock_cases[1], temporary_root=tmp_path)
     assert "first case without a result: 'clock-0'" in str(failure.value)
     assert "conformance.corpus.native_replay" in str(failure.value)
+    workers = [json.loads(path.read_text()) for path in tmp_path.glob("crash-worker-*.json")]
+    assert len(workers) == len(WORKER_CLOCKS) and len({worker["pid"] for worker in workers}) == len(workers)
+    assert {worker["name"] for worker in workers} == {record["name"] for record in clock_cases[1]}
     assert not list(tmp_path.glob("native-workers-*"))
 
 
@@ -139,14 +156,14 @@ def blocked_case(inputs: CaseInput) -> NativeReplayResult:
     result = native_workers._replay_case(inputs)
     assert result.failure is None
     (inputs[2].parent / f"worker-{os.getpid()}.json").write_text(json.dumps(
-        {"pid": os.getpid(), "group": os.getpgrp()}))
+        {"pid": os.getpid(), "group": os.getpgrp(), "name": inputs[0]["name"]}))
     time.sleep(60)
     return result
 
 
 def test_configured_timeout_stops_the_spawned_worker_group(
         clock_cases: tuple[ExecutionProfile, list[dict[str, Json]]], tmp_path: Path) -> None:
-    """The same outer harness used by the real CLI kills both spawned workers without escaped processes."""
+    """The same outer harness used by the real CLI kills all four spawned workers without escaped processes."""
     source, driver, storage = tmp_path / "cases.json", tmp_path / "driver.py", tmp_path / "storage"
     source.write_bytes(serialized(clock_cases[1]))
     storage.mkdir()
@@ -167,8 +184,9 @@ if __name__ == "__main__":
     assert len(workers) == native_workers.NATIVE_WORKER_LIMIT
     assert len({worker["pid"] for worker in workers}) == len(workers)
     assert len({worker["group"] for worker in workers}) == 1
+    assert {worker["name"] for worker in workers} == {record["name"] for record in clock_cases[1]}
     for worker in workers:
-        deadline = time.monotonic() + 3
+        deadline = time.monotonic() + WORKER_START_LIMIT_SECONDS
         while True:
             state = run_command(["ps", "-p", str(worker["pid"]), "-o", "stat="], cwd=ROOT, timeout=2)
             if state.returncode or state.stdout.lstrip().startswith("Z"):
