@@ -37,9 +37,9 @@ class KernelCase:
                              cwd=directory, environment=self.environment, timeout=30)
         assert result.returncode == 0, result.diagnostic()
 
-    def check(self, *, environment: dict[str, str] | None = None, libraries: str | None = None) -> CommandResult:
+    def check(self, *, environment: dict[str, str] | None = None, application_library: str | None = None) -> CommandResult:
         """Replay the private artifacts; the test deadline does not change production limits."""
-        result = self.runner([str(self.checker), libraries or str(self.libraries[0]), str(self.libraries[1]), str(self.root / "trusted"),
+        result = self.runner([str(self.checker), application_library or str(self.libraries[0]), str(self.libraries[1]), str(self.root / "trusted"),
                               str(self.root / "candidate")], cwd=self.root, timeout=60,
                              environment=self.environment if environment is None else environment)
         assert "CANDIDATE_INITIALIZER_RAN" not in result.stdout + result.stderr, result.diagnostic()
@@ -95,8 +95,8 @@ def test_missing_sysroot(kernel: KernelCase) -> None:
 
 
 def test_relative_library_path(kernel: KernelCase) -> None:
-    """A relative libraries path cannot redirect the checker's trusted imports."""
-    result = kernel.check(libraries=".")
+    """A relative application library path cannot redirect the checker's trusted imports."""
+    result = kernel.check(application_library=".")
     assert result.returncode != 0 and "absolute existing directory" in result.stderr, result.diagnostic()
 
 

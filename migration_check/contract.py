@@ -20,7 +20,7 @@ APPROVED_FORBIDDEN = frozenset({"NextInterpretation", "Generated", "Proofs", "Sq
 
 @dataclass(frozen=True)
 class Contract:
-    """A snapshotted approved closure, its compile order and its trusted-libraries imports."""
+    """A snapshotted approved closure, its compile order and its imports from the trusted libraries."""
 
     sources: dict[str, Source]
     order: tuple[str, ...]

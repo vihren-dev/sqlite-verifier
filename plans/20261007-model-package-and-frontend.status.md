@@ -357,3 +357,21 @@ No frozen corpus, historical report or retained regression artifact changes.
 This complete source integration is ready for its independent commit review.
 The remaining ordinary suites, both native final archives and final owner
 review are still required; no release or delivery claim is made.
+
+
+## Integration review and text correction
+
+Independent review `20261007T164606Z-e38bc101` reports seven mandatory R8
+owner-review flags and three text suggestions. It reports no code defect.
+The seven flags cover root ordering and collision refusal, exact import
+artifacts, source and bundle gates, the model types used by the contract,
+export omissions and bundle invocation. They are recorded as deferred to the
+explicit final owner gate after both native archive checks. The owner already
+authorized tasks that need this final review; no design decision is pending.
+
+The three suggestions are fixed. Gate comments describe the sysroot,
+application library and model library. Compiler/cache docstrings use plain
+sentences. The relative-root test override is named `application_library`,
+because it replaces only that root. All 19 kernel tests pass in 35.11 seconds
+with a 120-second outer limit. This text and fixture correction changes no
+production execution or verification formula. It awaits independent review.

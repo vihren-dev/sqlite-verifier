@@ -61,7 +61,7 @@ def importData (modules : Array Name) (state : ImportState) :
 /-- Trusted-library modules imported by the user modules reachable from `roots`.
 
 User modules are those whose `.olean` lies in one of `userDirs`; every other import
-is a trusted module and must later resolve from the sysroot or verifier library.
+is a trusted module and must later resolve from the sysroot, application library or model library.
 Importing only these (plus `SqliteVerifier`) instead of all of `Lean` keeps the
 gate's fixed cost low. A missing trusted module is not unsound: `additions` would
 treat its declarations as fresh and replay them. -/

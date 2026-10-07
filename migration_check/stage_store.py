@@ -53,7 +53,7 @@ def valid_manifest(manifest: object, required: tuple[str, ...]) -> dict[str, str
 
 
 def stage_key(stage: str, modules: dict[str, bytes], previous: tuple[str, ...], identity: tuple[str, ...]) -> str:
-    """Identify a stage by its exact sources, preceding stages and toolchain/libraries identity."""
+    """Identify a stage by its exact sources, preceding stages and toolchain and library identity."""
     return digest({"format": FORMAT, "stage": stage, "previous": list(previous), "identity": list(identity),
                    "modules": {name: hashlib.sha256(source).hexdigest() for name, source in modules.items()}})
 

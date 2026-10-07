@@ -6,7 +6,7 @@ import Export.Parse
 
 A bundle is one file: a JSON header line, then a lean4export NDJSON export. The
 header names the trusted-library modules the export references but omits. The
-checker imports those only from the sysroot and verifier library, imports the
+checker imports those only from the sysroot, application library and model library, imports the
 verifier-compiled starting schema and contract, constructs the generated SQL
 declarations from the frontend's structural record (`generatedDeclarations`),
 requires every exported declaration that repeats a trusted one to match it, replays
@@ -107,7 +107,7 @@ def schemaEnvironment (library model trusted : System.FilePath) (external : Name
     IO (Environment × ImportState) := do
   discard <| requireDirectories [trusted]
   let libraries ← requireLibraryRoots library model
-  -- Trusted modules resolve only from the sysroot and verifier library.
+  -- Trusted modules resolve only from the sysroot, application library and model library.
   searchPathRef.set (libraries)
   let (base, state) ← importData (baseModules external) default
   searchPathRef.set (libraries ++ [trusted])
