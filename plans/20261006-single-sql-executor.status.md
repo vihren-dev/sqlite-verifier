@@ -11,8 +11,9 @@ checked and independently reviewed. Prior native ordinary/installed acceptances
 remain retained. The complete model now passes natively on both hosts under
 explicit recipes: Linux at the branch's 420-second budget, and Darwin through
 the separately reviewed model-only 600-second validation invocation. The earlier
-Darwin 420-second failure remains retained. PR48 still configures 420 seconds;
-no timeout-task source has been merged into it.
+Darwin 420-second failure remains retained. Published PR #48 head `45ac63b2`
+uses 420 seconds. The checked publication integration now adopts the reviewed
+600-second model policy from merged main; the other six suites retain 420.
 
 Integration includes reviewed exporter `07dc71b3`, checked root documentation
 `db69c816` and main `29d2ed7a`. Final source correction is `9e3b4419`.
@@ -252,3 +253,15 @@ the stated recipes are complete. The task is not DONE.
   checks pass; the deliberate protected-baseline failure remains recorded.
   Integration will preserve the approved executor and proof sources. No guard,
   expected failure or frozen checkpoint is changed to manufacture a pass.
+- 2026-10-07: Integrated reviewed main `bc9e2dce`. The only conflict was the
+  journal; all 71 main and 104 task rows survive in their original orders,
+  with 126 combined rows before approval resolutions. All 74 approved Lean,
+  exporter, runtime-pin, mutation-source and baseline files remain byte-exact
+  `45ac63b2`; all three proposed baselines are unchanged. The retired exporter
+  patch remains absent. No Python runtime source changed in this integration.
+  All seven focused source-boundary and actual Nix-routing checks pass in
+  8.00 seconds under 120 seconds, covering both platforms and full suite
+  ownership. The current published head and its historical complete local
+  model evidence remain separate from this publication integration. Recorded
+  the already-given exporter approval in this combined journal; no guard or
+  proof source changed.
