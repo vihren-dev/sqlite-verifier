@@ -6,8 +6,8 @@ aggregation have been superseded by [Nix test targets](../build-support/README.m
 
 `.github/workflows/ci.yml` runs the verifier checks on Linux for pull requests.
 Pushes to `main`, release tags, manual requests and the nightly schedule run
-those checks on both native platforms. On pull requests, macOS skips the
-verifier checks and builds the API reference for non-documentation scopes.
+those checks on both native platforms. On pull requests, macOS skips both the
+verifier checks and the API reference build.
 Local macOS `just test` results remain required for verifier acceptance.
 
 `tests/ci_scope.py` selects the checks from the files that differ from the pull

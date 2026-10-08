@@ -14,6 +14,10 @@ from tests.runtime_support import CommandResult, CommandTimeout
 
 pytestmark = [pytest.mark.unit, pytest.mark.environment]
 
+OWNER_JOB_LIMIT_MINUTES = 75
+"""Owner feedback of 2026-10-08 restores the aggregate job ceiling; child deadlines stay independent."""
+
+
 @pytest.mark.parametrize("scope", ["test", "package"])
 @pytest.mark.parametrize("mode", ["source", "build"])
 @pytest.mark.parametrize("system", ["aarch64-darwin", "x86_64-linux"])
@@ -40,9 +44,9 @@ def test_hosted_job_keeps_owner_limit_and_child_deadlines(
     reference = re.search(r"timeout ([1-9][0-9]*) nix-build [^\n]*-A apiReference", recipes)
     assert reference is not None, "Reference phase has no bounded recipe"
     reference_limit = int(reference.group(1))
-    assert int(match.group(1)) == 75
+    assert int(match.group(1)) == OWNER_JOB_LIMIT_MINUTES
     assert reference_limit == 1800
-    assert all(0 < timeout <= 75 * 60 for timeout in budgets)
+    assert all(0 < timeout <= OWNER_JOB_LIMIT_MINUTES * 60 for timeout in budgets)
 
 
 

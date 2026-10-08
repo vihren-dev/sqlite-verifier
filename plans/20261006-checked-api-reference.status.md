@@ -733,3 +733,10 @@ until the approval and normal delivery.
   an ancestor of this branch. No production, library or reference-generator
   input changes. Owner approval replaces the earlier held-merge decision;
   fresh hosted CI and normal merge remain required after independent review.
+
+- 2026-10-08: Owner CI change `ad028eaa` has no mandatory review
+  finding. Both suggestions are fixed: the overview now states that
+  macOS skips checks and reference builds on PRs, and the owner job
+  ceiling has a named constant with its reason. All 27 focused tests
+  and 35 subtests pass in 3.19 seconds. Both findings have fixed
+  resolutions. Correction review and current-head CI remain required.
