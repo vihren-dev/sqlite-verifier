@@ -591,3 +591,23 @@ Decisions waiting for the owner:
 
 - Review trusted package selection with the other changes at the final
   integrated PR #56 head. The existing feedback permits continued correction.
+# Held after resumed review rounds, 2026-10-08
+
+Review `20261008T112928Z-6d05ea7b` retains the owner trust gate and identifies
+a further mixed-filesystem trap. A case-insensitive merged workspace can
+answer a casing that a case-sensitive original root would not answer, changing
+the selected origin. The docstring also needs to say that agreement is required
+among roots containing the particular package family. Both findings remain
+unresolved. The two resumed review rounds found different defects, so source
+changes are stopped again under the repository rule.
+
+The owner has been asked whether to continue with per-spelling views based
+on original root lookup, requiring a case-sensitive workspace only when the
+chosen filesystem cannot represent distinct views, or hold that policy for
+final review. The 13 focused passing checks do not certify the newly identified
+configuration. PR #56 remains unpublished at this correction and unmerged.
+
+Decisions waiting for the owner:
+
+- Feedback on that correction and workspace compatibility rule.
+- Final review of the fully integrated PR #56 head before protected changes merge.
