@@ -28,7 +28,8 @@ source. No performance phase is running. T04c is not DONE.
 
 Decisions waiting for the owner:
 
-- None at this checkpoint.
+- Approve normal merge of PR #59 at reviewed head `51ac28b0`, or hold it.
+  All required checks pass; explicit authorization is still required.
 
 Task: [development replay headroom](20261006-development-replay-headroom.task.md).
 Source: [issue #33](https://github.com/vihren-dev/sqlite-verifier/issues/33).
@@ -947,3 +948,13 @@ authorized one Linux diagnostic below. No production change followed it.
   test and build inputs remain unchanged. The branch is ready to publish
   these records and enter final PR review. Current publication-head CI
   and normal delivery remain required. T04c is not DONE.
+
+- 2026-10-08: Final reviewed head `51ac28b0` is published and PR #59
+  is ready for review. Final-head CI `37745675503` succeeds, and the
+  protected approved-baseline check succeeds. The macOS job skips
+  execution under the PR schedule; local native records supply acceptance.
+  Automatic approval review rejects normal merge because the owner has
+  not explicitly authorized this specific PR to change protected main.
+  The owner is asked to approve the exact reviewed head. No merge or
+  alternate publication is attempted. The branch is unchanged, and
+  T04c remains IN PROGRESS until normal delivery.
