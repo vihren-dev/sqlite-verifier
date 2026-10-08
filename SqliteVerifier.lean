@@ -14,6 +14,9 @@ import SqliteVerifier.SqlExamples
 import SqliteVerifier.SchemaExtension
 import SqliteVerifier.NullableProjection
 import SqliteVerifier.LiteralPreservation
+import SqliteVerifier.ApplicationKeys
+import SqliteVerifier.ApplicationKeyPreservation
+import SqliteVerifier.ApplicationKeyDemonstration
 
 set_option doc.verso true
 

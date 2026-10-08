@@ -1,0 +1,29 @@
+{
+  "head": "f3ea1d445167ba1d078f8777a8c3d944d2b7098b",
+  "run": 37647223426,
+  "linuxJob": 112881040105,
+  "linuxConclusion": "success",
+  "macosPRChecksExecuted": false,
+  "logEncoding": "decoded job log, re-encoded as UTF-8",
+  "logBytes": 244501,
+  "logSha256": "202d1f8f0e17eaf135951be75a8c2a3682132484575d253697447f6a5147ae5e",
+  "nixCounts": {
+    "atuin": 12,
+    "bundle": 44,
+    "cli": 15,
+    "harness": 120,
+    "kernel": 28,
+    "sample": 12,
+    "upstream": 76,
+    "model": 51,
+    "frozen": 145
+  },
+  "source": {
+    "passed": 369,
+    "skippedOptionalReviewerTools": 2,
+    "subtests": 35
+  },
+  "countsConsoleDerived": true,
+  "hostedJUnitRemainsInWorkflowArtifacts": true,
+  "localDarwinCachedCurrentChecks": 307
+}
