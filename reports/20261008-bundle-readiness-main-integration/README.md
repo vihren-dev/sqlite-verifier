@@ -1,6 +1,6 @@
 # Bundle readiness integration checks
 
-Created 2026-10-08. Audience: team and reviewers.
+Created 2026-10-08. Audience: team.
 Task: [T06](../../plans/20261006-bundle-readiness.task.md).
 
 Integration combines the existing T06 change with accepted main `d75fdc2b`.
@@ -34,5 +34,7 @@ No repository, retained acceptance archive or Nix store path was removed.
 
 Synthetic observations and test durations are not cold-run performance
 evidence. The actual campaigns still wait for the accepted documentation
-runtime and coordinated idle hosts. Independent integration review and remaining ordinary Nix acceptance
-are still required. T06 remains IN PROGRESS.
+runtime and coordinated idle hosts. Integration review `20261008T073925Z-849bceae` has no findings. The
+reviewer did not run hash commands; author checks independently verify
+every artifact hash and the decompressed console log. Remaining ordinary
+Nix acceptance is running. T06 remains IN PROGRESS.

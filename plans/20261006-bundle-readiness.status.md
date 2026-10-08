@@ -325,3 +325,10 @@ No new campaign, launcher, benchmark or task was started after the hold.
   These are correctness checks, not performance evidence. Remaining
   ordinary Nix acceptance, independent review, installed execution and
   actual cold campaigns remain. T06 is not DONE.
+
+- 2026-10-08: Checked integration `849bceae` passes independent review
+  `20261008T073925Z-849bceae` with no findings. The reviewer could not
+  run hashing commands. Author checks verify every retained artifact hash
+  and the original decompressed native-gate log. The acceptance record
+  now identifies the team as its sole audience. Remaining seven-suite
+  ordinary Nix acceptance is running. The actual cold campaign is held.
