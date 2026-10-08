@@ -11,8 +11,9 @@ Created 2026-10-08. Status: IN PROGRESS.
    the log, and its Linux job ran for 8.5 minutes.
 2. **The review log stays append-only.** Every CI run checks that each line of
    the log is a valid review record, and that every line of the base commit is
-   still present, unchanged and in the same order. Lines from a merge can be
-   between them. Nothing checks this rule today.
+   still present and unchanged. Merges of main into a branch reorder lines, so
+   the review statistics take the latest outcome of a finding by its date, not
+   by its line. Nothing checks this rule today.
 3. **The API reference is reused when the Lean sources do not change.** The
    expensive reference build (Lean build, doc-gen4 and the link check) does not
    depend on the commit hash. It produces source links with a fixed
@@ -35,9 +36,11 @@ are unchanged.
   scope of that file. Other `.jsonl` files and files under `reviews/` that are
   not the log give `test`.
 - A test of the review-log check, with temporary logs: it accepts appended
-  lines and lines from a merge between the base lines. It refuses a changed,
-  removed or reordered base line, a line that is not a review record, and a log
-  without a base when the base has one.
+  lines, lines from a merge between the base lines, and reordered lines. It
+  refuses a changed or removed base line, a line that is not a review record,
+  and an empty log when the base has lines.
+- `tests/test_review_stats.py`: a newer resolution that comes before an older
+  one in the log still gives the finding's outcome.
 - `tests/test_api_reference.py`: the placeholder step replaces every
   placeholder link with the commit hash. It refuses a placeholder that remains,
   a source link with another hash, and a revision that is not a full commit
@@ -60,8 +63,10 @@ are unchanged.
 - `tools/review_log.py` reads and parses records. The review tools write the
   log; tests always use temporary logs through `SQLITE_VERIFIER_REVIEW_LOG`.
   The log is append-only by the rule in `AGENTS.md`. Merges of main into a
-  branch can put main's lines between the branch's lines, so the check uses
-  order, not a prefix.
+  branch reorder lines, and can keep one copy of a line that both sides
+  contain, so the check requires presence, not a position or a count.
+  `tools/review_stats.py::latest_outcomes` took the last line as the latest
+  outcome, so it uses the resolution date instead.
 - `build-support/api-reference.nix` passes `revision` to the derivation, and
   `tools/api_reference.py` puts it in each source link
   (`SOURCE_REPOSITORY/blob/REVISION/PATH#L…`). The derivation therefore changes

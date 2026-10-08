@@ -7,6 +7,7 @@ one of the two reviewers ever reports it. The report only suggests; the owner de
 
 from collections.abc import Mapping, Sequence
 from dataclasses import dataclass, field
+from datetime import datetime
 import sys
 
 from tools.review_log import CHECKLIST, OUTCOMES, Rule, in_scope, log_path, parse_rules, read, record_findings
@@ -42,10 +43,26 @@ class RuleStats:
         return self.must + self.should
 
 
+def resolution_order(item: tuple[int, Mapping[str, object]]) -> tuple[bool, float, int]:
+    """Sort key of one resolution: its date, then its line. A record without a readable date
+    comes before dated records and keeps its line order."""
+    index, record = item
+    date = record.get("date")
+    try:
+        moment = datetime.fromisoformat(date) if isinstance(date, str) else None
+    except ValueError:
+        moment = None
+    return (moment is not None, moment.timestamp() if moment is not None else 0.0, index)
+
+
 def latest_outcomes(records: Sequence[Mapping[str, object]]) -> dict[str, str]:
-    """The last recorded outcome of each finding; a later resolution replaces an earlier one."""
-    return {str(record["finding"]): str(record["outcome"]) for record in records
-            if record.get("kind") == "resolution"}
+    """The latest outcome of each finding, by the date of its resolutions; for equal dates, a
+    later line replaces an earlier one. Workspaces merge the log by joining lines in any order,
+    so the line order alone does not tell which resolution came last."""
+    resolutions = [(index, record) for index, record in enumerate(records)
+                   if record.get("kind") == "resolution"]
+    return {str(record["finding"]): str(record["outcome"])
+            for _, record in sorted(resolutions, key=resolution_order)}
 
 
 def collect(records: Sequence[Mapping[str, object]], rules: Mapping[str, Rule]) -> dict[str, RuleStats]:

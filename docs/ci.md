@@ -15,11 +15,16 @@ request base:
 
 | Scope | Selected when | Recipes |
 | --- | --- | --- |
-| `docs` | only Markdown documentation changed, including on a `main` push | link checks, no build |
+| `docs` | only Markdown documentation and the review log changed, including on a `main` push | link checks, no build |
 | `test` | any other change | `just test-full` |
 | `infrastructure` | build definitions or shared test infrastructure changed | `just test-full test-nix` |
 | `packaging` | archive contents, installation or runtime discovery changed | `just test-full runtime-package` |
 | `package` | both of the above, other `main` pushes, tags, manual and nightly runs | `just package` |
+
+Every scope checks the review log with `tools/review_log_check.py`. Each line
+must be a review or resolution record, and each line of the base commit must be
+present and unchanged. Merges may reorder lines; the review statistics use the
+date of a resolution, not its line.
 
 Linux builds the [checked API reference](api-reference.md) for pull requests.
 Main, tags, manual and nightly runs build it on both native platforms for

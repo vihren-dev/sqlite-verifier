@@ -24,3 +24,17 @@ Relevant files: `tests/ci_scope.py`, `tests/test_ci_scope.py`,
 ## Progress
 
 - 2026-10-08: task and status files created.
+- 2026-10-08: commit `318b7fdb`. The review log joins documentation in the
+  `docs` scope (`tests/ci_scope.py::RECORD_FILES`). `tools/review_log_check.py`
+  checks the log in every scope. A first rule that required the base lines in
+  order failed on 6 of the 267 parent and child pairs of main's history. All 6
+  are merges of main into a task branch; they reordered lines and lost none.
+  The rule therefore requires presence only; all 267 pairs pass it.
+- 2026-10-08: review `20261008T130640Z-318b7fdb` found that the review
+  statistics took the last line as a finding's latest outcome, which a reorder
+  can change (R11, must), and that `docs/ci.md` still described a
+  Markdown-only `docs` scope (R13, should). The commit also had the old task
+  text, because a scripted edit of the plan failed before the commit.
+  `latest_outcomes` now uses the resolution date, with the line only for equal
+  dates. `docs/ci.md` describes the scope and the log check. The task text
+  describes the presence rule.
