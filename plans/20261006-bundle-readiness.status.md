@@ -351,3 +351,11 @@ No new campaign, launcher, benchmark or task was started after the hold.
   checked branch is ready for draft publication and hosted Linux
   correctness validation. Installed execution and the actual cold
   campaigns remain open. No cutover or task completion is claimed.
+
+- 2026-10-08: Publication checkpoint `ab38b0dc` passes independent review
+  `20261008T075555Z-ab38b0dc` with no findings. The branch is pushed
+  normally, preserving one old empty checkpoint without rewriting its
+  history. Draft PR #60 is created at that exact reviewed head and
+  attached to this chat. Hosted Linux CI `37746829608` is queued.
+  No hosted pass, installed execution, cold campaign, cutover or task
+  completion is claimed. T06 remains IN PROGRESS.
