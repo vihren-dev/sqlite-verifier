@@ -3,13 +3,13 @@
 from pathlib import Path
 import json
 import shutil
-import subprocess
 import sys
 
 import pytest
 
 from conformance import replay_tiers
 from conformance.case_format import Json
+from tests.runtime_support import run_command
 
 ROOT = Path(__file__).resolve().parents[1]
 GENERIC = ROOT / "conformance/corpus-v4"
@@ -49,10 +49,11 @@ def test_changed_synthetic_source_fails_bound_input_loading(tmp_path: Path, runt
 
 def test_native_mismatch_fails_the_tier(monkeypatch: pytest.MonkeyPatch, runtime_root: Path) -> None:
     """Fresh SQLite observation drift must propagate before model classification can pass."""
-    def changed_native(records: list[dict[str, Json]]) -> None:
+    def changed_native(records: list[dict[str, Json]], *, temporary_root: Path | None = None,
+                       fixture_paths: list[Path] | None = None) -> None:
         """Stand in for the observable retained-versus-fresh native failure."""
         raise ValueError("Native replay changed: selected-case")
-    monkeypatch.setattr(replay_tiers, "native_replay", changed_native)
+    monkeypatch.setattr(replay_tiers, "replay_native_cases", changed_native)
     with pytest.raises(ValueError, match="Native replay changed"):
         replay_tiers.report(GENERIC, SYNTHETIC, runtime_root)
 
@@ -60,9 +61,9 @@ def test_native_mismatch_fails_the_tier(monkeypatch: pytest.MonkeyPatch, runtime
 def test_legacy_v4_tier_still_replays_its_original_sample(tmp_path: Path, runtime_root: Path) -> None:
     """Explicit historical input preserves its 100 selected cases without replaying all 1,264 natively."""
     output = tmp_path / "legacy-tier.json"
-    child = subprocess.run([sys.executable, "-m", "conformance.replay_tiers", "--corpus", str(GENERIC),
+    child = run_command([sys.executable, "-m", "conformance.replay_tiers", "--corpus", str(GENERIC),
         "--synthetic", str(SYNTHETIC), "--runtime-root", str(runtime_root), "--output", str(output)],
-        cwd=ROOT, capture_output=True, text=True, timeout=replay_tiers.PHASE_LIMIT_SECONDS)
+        cwd=ROOT, timeout=replay_tiers.PHASE_LIMIT_SECONDS)
     assert child.returncode == 0, child.stdout + child.stderr
     result = json.loads(output.read_text())
     assert result["generic"]["corpusVersion"] == 4

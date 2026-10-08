@@ -18,7 +18,7 @@ from conformance.case_format import Json
 from conformance.corpus import load
 import conformance.freeze_corpus as finalizer
 import conformance.native_replay_report as execution
-from tests.conformance_freeze_test import capture
+from tests.conformance_freeze_capture import capture
 
 ROOT = Path(__file__).resolve().parents[1]
 pytestmark = [pytest.mark.integration, pytest.mark.conformance, pytest.mark.requires_native('sqlite3')]

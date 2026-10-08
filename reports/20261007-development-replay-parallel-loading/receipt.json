@@ -1,0 +1,106 @@
+{
+  "diagnostic_session": 85819,
+  "diagnostic_exit": 0,
+  "scope": "unchanged per-shard validation; not full loader or replay acceptance",
+  "source_observation": "after-only; no pre-import binding",
+  "memory_observation": "optional sysctl query denied by sandbox",
+  "cache_residency": "not observed",
+  "bounded_wrong_runtime_session": 33563,
+  "bounded_wrong_runtime_exit": 1,
+  "bounded_corrected_session": 95408,
+  "bounded_corrected_exit": 0,
+  "native_suites_session": 13787,
+  "native_suites_exit": 0,
+  "suites": {
+    "harness": {
+      "output": "/nix/store/38p4nmg2f06k4gs94s5qmjs4ll4g5mnm-sqlite-verifier-test-harness-1",
+      "name": "pytest",
+      "errors": "0",
+      "failures": "0",
+      "skipped": "0",
+      "tests": "129",
+      "time": "2.703",
+      "timestamp": "2026-10-07T19:23:59.181411+00:00",
+      "hostname": "tzanko-mbp"
+    },
+    "sample": {
+      "output": "/nix/store/0gjbnh8cj7b03s14hhc2xgxdb41sc7sb-sqlite-verifier-test-sample-1",
+      "name": "pytest",
+      "errors": "0",
+      "failures": "0",
+      "skipped": "0",
+      "tests": "22",
+      "time": "30.213",
+      "timestamp": "2026-10-07T19:24:02.288415+00:00",
+      "hostname": "tzanko-mbp"
+    }
+  },
+  "artifacts": {
+    "t04c_load_feasibility.py.gz": {
+      "original_sha256": "1ac6209ae20e9f08dada06d07abf1eaf18f692bdb31121df8794f6e228ca221c",
+      "original_bytes": 2897,
+      "sha256": "0406027f30e129bcf8e9ba0e8b2f96214e50901ef19a65ec188d34c0bc4a0b1c"
+    },
+    "result.json.gz": {
+      "original_sha256": "e80f9952975ea60709d3184caf1d7c94f0eeb7b72cea2ce4e953cbe52d8e3d0c",
+      "original_bytes": 18825,
+      "sha256": "8059b7cdcfe74442151f8ceb04507313fa81d744515ede90bc62fba511fb3ca0"
+    },
+    "source-observation.json.gz": {
+      "original_sha256": "08bee1ab5ec364d79674ed11b12e9a88e4827a381260b91c259ee3adf3ff3b51",
+      "original_bytes": 718,
+      "sha256": "2df6c7fca2f4eecf13d37614afd8e890947e0cd2037fd6d9fcfd98b0d4600121"
+    },
+    "run.log.gz": {
+      "original_sha256": "e091fe77df5594ac0ea6e2bcdbf19d48f7eac811c614f4c535c1975344f7370d",
+      "original_bytes": 598,
+      "sha256": "4d3f8bae0bf399c9761c609257db64687ae050c34a598d43ccdbedd76d371c09"
+    },
+    "native-suites.log.gz": {
+      "original_sha256": "9519ce19227ff7cdb4666f8a60f61cf24355796fb6856d78c3309d4f93b79f5b",
+      "original_bytes": 21314,
+      "sha256": "baab0dfd08b04e77d19ad2c12efaa7f1151a28b72077abe1b44d06c6eca418a2"
+    },
+    "loading-workers.xml": {
+      "sha256": "af3a9f81aaefda9c8a9dfc18f7fd444c6099f06eef2dc768253e5dfbb8b465aa",
+      "bytes": 1465
+    },
+    "bounded-integration.xml": {
+      "sha256": "04981b1c0fb284c3df3d990b660025c67e086a938150cc16d9836b1b5b948204",
+      "bytes": 18312
+    },
+    "bounded-integration-corrected.xml": {
+      "sha256": "546fc77a72700db0b367198b24c732526adba24342705a4fcbb8f4b8f3803662",
+      "bytes": 17267
+    },
+    "input-ownership.xml": {
+      "sha256": "d61ff0770af19158acf2a3bcba2eda81f10b33e303351759c7cf48d2dd73c684",
+      "bytes": 7725
+    },
+    "harness.xml": {
+      "sha256": "ac386adce1b03671fe716314f90417c287fb7ce0f479258656ae64fda4e1aef8",
+      "bytes": 17329
+    },
+    "sample.xml": {
+      "sha256": "86a074b64a350d1dd6b09ab106c5907e56e0ae85aee547a66101efb9f9b0be03",
+      "bytes": 3167
+    },
+    "new-input-invalidation.xml": {
+      "sha256": "ba06d96a59714610a3ae8d5268c954117278b3b21b97fb0f76ecb7347b9d89da",
+      "bytes": 543
+    }
+  },
+  "source_bindings": {
+    "conformance/corpus.py": "e228e69d035e59b2b975aab985a018e0eed6edd53a7c1e1976eb534f47a86e2b",
+    "conformance/corpus_shards.py": "e3559d0ef2c18e74d5b26e3731028a0ee30e4d8c000cbbd9dccff43750f0c0c2",
+    "conformance/corpus_workers.py": "3b9e41974bdc1ff38e2f6bdd2667ad7a483ee312fffacf3b10c9ae6ad659348c",
+    "conformance/native_storage.py": "327902c97d365f21737f99cf2bf7f973414ba1e210ba5fb4a224d1dd0e612edf",
+    "conformance/native_workers.py": "ddb8c9919b702b5172d7bf689feac549ffcb13f7406c1a27863c571bdacf9541",
+    "conformance/replay_tiers.py": "88bca080bc9e27b1215f3c5a1b26c0c8e1a1879e1d6faab6a225d48370ff2d45",
+    "build-support/tests.nix": "2df383cfdf3b0ae0b187648d86042f00f7cf9c322882f4becffa94ca67d1b87f",
+    "tests/nix_suites.json": "d61a51d2e5e1a9a601fe539119dde5fddbd4eb8e2928dfe67c58a7e4f8629683",
+    "tests/conformance_loading_workers_test.py": "63370c5f32ec403ed9355fa25fdab81a6d91e552d89ccbf816ba1bc22c7e7370",
+    "tests/test_native_worker_routing.py": "6ddd2632659468301c2716389abbbaf79145207af36cfdfcd823c298104559e1",
+    "tests/test_nix_test_targets.py": "cdba4a0008dedb87c49d1c56dd306bedc08419d1ca49bd0b64f2a60f40d94d81"
+  }
+}

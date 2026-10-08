@@ -71,31 +71,67 @@ def test_package_case_follows_filesystem_without_changing_precedence(tmp_path: P
             assert (candidate / "model/Core.olean").read_text() == "candidate-substitution"
 
 
-@pytest.mark.parametrize("insensitive_roots", [{"library", "candidate"}, {"library"}, {"candidate"}],
-                         ids=["equivalent", "candidate-sensitive", "trusted-sensitive"])
+@pytest.mark.parametrize("insensitive_roots", [{"library", "candidate"}, {"library"}, {"candidate"}, set()],
+                         ids=["equivalent", "candidate-sensitive", "trusted-sensitive", "sensitive"])
 @pytest.mark.parametrize("candidate_name", ["Model", "model"])
-def test_original_root_case_modes_control_alias_merging(tmp_path: Path,
+def test_views_preserve_each_original_spelling(tmp_path: Path,
         monkeypatch: pytest.MonkeyPatch, insensitive_roots: set[str], candidate_name: str) -> None:
-    """Equivalent roots expose aliases; matching spellings retain siblings even across mixed volumes."""
+    """Mixed volumes retain the first resolving origin and each spelling's missing siblings."""
     library, candidate = tmp_path / "library", tmp_path / "candidate"
-    artifact(library, "Model/Core.olean", "trusted-core")
-    artifact(candidate, f"{candidate_name}/Core.olean", "candidate-substitution")
-    artifact(candidate, f"{candidate_name}/User.olean", "candidate-sibling")
-    def root_ignores_case(directory: Path) -> bool:
-        """Supply explicit original-volume case modes independently of the test host."""
-        return directory.parent.name in insensitive_roots
+    core = artifact(library, "Model/Core.olean", "trusted-core")
+    replacement = artifact(candidate, f"{candidate_name}/Core.olean", "candidate-core")
+    sibling = artifact(candidate, f"{candidate_name}/User.olean", "candidate-sibling")
+    canonical = {library: "Model", candidate: candidate_name}
 
-    monkeypatch.setattr(import_path, "ignores_package_case", root_ignores_case)
+    def original_lookup(root: Path, spelling: str) -> Path | None:
+        """Model each original volume independently of the host's filesystem."""
+        name = canonical[root]
+        if spelling == name or (root.name in insensitive_roots and spelling.casefold() == name.casefold()):
+            return root / name
+        return None
+
+    monkeypatch.setattr(import_path, "package_directory", original_lookup)
     for roots in ((library, candidate), (candidate, library)):
-        with merged_search_path(roots, tmp_path) as paths:
-            if insensitive_roots == {"library", "candidate"} or candidate_name == "Model":
-                assert paths[1:] == roots
-                assert (paths[0] / "Model").samefile(paths[0] / candidate_name)
-                expected = "trusted-core" if roots[0] == library else "candidate-substitution"
-                assert (paths[0] / f"{candidate_name}/Core.olean").read_text() == expected
-                assert (paths[0] / f"{candidate_name}/User.olean").read_text() == "candidate-sibling"
+        views = {name: import_path.package_view(roots, name, ()) for name in ("Model", "model", "mODEL")}
+        for spelling, view in views.items():
+            resolving = [root for root in roots if original_lookup(root, spelling) is not None]
+            if resolving:
+                expected = core if resolving[0] == library else replacement
+                assert view[Path(spelling) / "Core.olean"].samefile(expected)
             else:
-                assert paths == roots
+                assert not view
+            supplied = original_lookup(candidate, spelling) is not None
+            assert (Path(spelling) / "User.olean" in view) == supplied
+            if supplied:
+                assert view[Path(spelling) / "User.olean"].samefile(sibling)
+        import_path.compatible_views(views, ignores_case=False)
+        if insensitive_roots == {"library", "candidate"} or (
+                roots[0] == candidate and "candidate" in insensitive_roots):
+            import_path.compatible_views(views, ignores_case=True)
+        else:
+            with pytest.raises(ValueError, match="case-sensitive workspace"):
+                import_path.compatible_views(views, ignores_case=True)
+
+
+@pytest.mark.parametrize("difference", ["origin", "missing-sibling"])
+def test_workspace_rejects_distinct_views(tmp_path: Path, difference: str) -> None:
+    """An insensitive workspace cannot silently replace an origin or expose a missing sibling."""
+    trusted = artifact(tmp_path / "library", "Core.olean", "trusted")
+    candidate = artifact(tmp_path / "candidate", "Core.olean", "candidate")
+    views = {"Model": {Path("Model/Core.olean"): trusted}, "model": {}}
+    if difference == "origin":
+        views["model"][Path("model/Core.olean")] = candidate
+    import_path.compatible_views(views, ignores_case=False)
+    with pytest.raises(ValueError, match="case-sensitive workspace"):
+        import_path.compatible_views(views, ignores_case=True)
+
+
+@pytest.mark.parametrize("requested", [Path("/absolute"), Path("../escape"), Path("Model/../escape")])
+def test_requested_module_cannot_escape_roots(tmp_path: Path, requested: Path) -> None:
+    """Invalid requested paths fail before any workspace is created."""
+    with pytest.raises(ValueError, match="relative names"):
+        with merged_search_path([], tmp_path, requested=[requested]):
+            pytest.fail("Unsafe module path was accepted")
 
 
 @pytest.mark.integration

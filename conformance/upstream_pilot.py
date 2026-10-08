@@ -16,7 +16,8 @@ from conformance.native_record import record_sql
 from conformance.native_connection import SOURCE_ID
 from conformance.upstream_fidelity import check_results, minimize_prefix
 from conformance.upstream_selection import candidate_reasons
-from conformance.upstream_assertions import assertions, iter_assertions, result_precision_evidence, result_nullvalue_evidence
+from conformance.upstream_assertions import assertions, iter_assertions
+from conformance.upstream_display import result_precision_evidence, result_nullvalue_evidence
 from conformance.upstream_helpers import readonly_spans, join_commands
 from conformance.execution_profile import ExecutionProfile, profile_from_wire
 from conformance.corpus import native_replay
@@ -25,20 +26,9 @@ from conformance.upstream_catalog import CATALOG_VERSION, catalog_patterns, excl
 from conformance.upstream_sampling import EXPRESSION_COHORTS, SamplingCohort, sampling_policy, select_candidates
 from conformance.upstream_profiles import capture_conditions, capture_environment, catalog_profiles, precision_observation, profile_for_source, source_profile_policy, tcl_precision_policy
 from conformance.freeze_validation import extractor_hashes
-
-
-def evidence(source: str, line: int) -> list[dict[str, Json]]:
-    """Retain the nearest EVIDENCE-OF comment block; ambiguous blocks get no automatic credit."""
-    lines = source.splitlines()[:max(0, line - 1)]
-    references: list[dict[str, Json]] = []
-    for index in reversed(range(len(lines))):
-        text = lines[index].strip()
-        if references and text and not text.startswith("#"):
-            break
-        found = re.search(r"EVIDENCE-OF: (R-\d{5}-\d{5})", text)
-        if found:
-            references.insert(0, {"id": found[1], "line": index + 1})
-    return references
+from conformance.upstream_evidence import evidence
+from conformance.upstream_bindings import recorded_calls
+from conformance.upstream_binding_policy import binding_policy
 
 
 def pilot(fixture: Path, upstream: Path, output: Path, limit: int | None, patterns: tuple[str, ...] = ("alter*.test",),
@@ -119,13 +109,15 @@ def pilot(fixture: Path, upstream: Path, output: Path, limit: int | None, patter
                             name=f"{file.stem}:{candidate['id']}:{occurrence}", setup_helpers=candidate["prefixHelpers"],
                             migration_readonly_spans=readonly_spans(candidate["commands"], candidate["helpers"]),
                             auxiliary_replay=any(helper.startswith("aux:") for helper in candidate["helpers"]),
-                            outputs=selected_profile is not None, profile=selected_profile,
+                            outputs=True, profile=selected_profile, tcl_calls=recorded_calls(candidate),
                             setup_clock=selected_clock, clock_values=selected_clock)
+                        size_evidence["tclCallsSha256"] = hashlib.sha256(serialized(record["sourceCalls"])).hexdigest()
                         check_results(record, candidate)
                         record = minimize_prefix(record)
                         native_replay([record])
                         record["upstream"] = {"file": file.name, "id": candidate["id"],
                             "occurrence": occurrence, "expectedTcl": candidate["expectedTcl"], "sourceSha256": base["sha256"],
+                            "tclCallsSha256": size_evidence["tclCallsSha256"],
                             "fileRequirementReferences": sorted(set(re.findall(r"R-\d{5}-\d{5}", source)))}
                         if precision is not None:
                             record["upstream"]["tclDisplayPrecision"] = precision
@@ -153,9 +145,10 @@ def pilot(fixture: Path, upstream: Path, output: Path, limit: int | None, patter
                 **({"excludedFile": timeout_reason, "timedOut": True} if timeout_reason else {})})
     payload = b"".join(serialized(case) + b"\n" for case in corpus)
     (output / "cases.jsonl.gz").write_bytes(gzip.compress(payload, mtime=0))
-    result: dict[str, Json] = {"corpusVersion": 1, "sourceRelease": "3.51.0", "perFileLimit": limit, "patterns": list(patterns),
+    result: dict[str, Json] = {"corpusVersion": 2, "sourceRelease": "3.51.0", "perFileLimit": limit, "patterns": list(patterns),
         "sourceId": SOURCE_ID, "sourceArchiveSha256": "5330719b8b80bf563991ff7a373052943f5357aae76cd1f3367eab845d3a75b7",
         "extractorSha256": extractor_hashes(Path(__file__).parent),
+        "tclBindingPolicy": binding_policy(),
         "files": report, "recordedCases": len(corpus), "casesSha256": hashlib.sha256(payload).hexdigest(),
         "sourceCatalogVersion": CATALOG_VERSION, "sourceCatalog": source_catalog(), "sourceFamilyPolicy": family_policy(),
         "fileExclusionPolicy": exclusion_policy(),

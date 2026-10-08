@@ -14,13 +14,13 @@ path = "packages/belay-sqlite"
 [[lean_lib]]
 name = "SqliteVerifier"
 roots = []
-globs = ["SqliteVerifier", "SqliteVerifier.Contract", "SqliteVerifier.ContractProofs", "SqliteVerifier.Library", "SqliteVerifier.NullableProjection"]
+globs = ["SqliteVerifier", "SqliteVerifier.Contract", "SqliteVerifier.ContractProofs", "SqliteVerifier.Library", "SqliteVerifier.NullableProjection", "SqliteVerifier.ApplicationKeys", "SqliteVerifier.ApplicationKeyPreservation"]
 
 # Shipped engineering examples have their own dependency; the production root excludes them.
 [[lean_lib]]
 name = "EngineeringExamples"
 roots = []
-globs = ["SqliteVerifier.Examples", "SqliteVerifier.Demonstration", "SqliteVerifier.ReverseDemonstration", "SqliteVerifier.FailureDemonstration", "SqliteVerifier.SchemaExamples", "SqliteVerifier.SqlExamples"]
+globs = ["SqliteVerifier.Examples", "SqliteVerifier.Demonstration", "SqliteVerifier.ReverseDemonstration", "SqliteVerifier.FailureDemonstration", "SqliteVerifier.SchemaExamples", "SqliteVerifier.SqlExamples", "SqliteVerifier.ApplicationKeyDemonstration"]
 
 [[lean_lib]]
 name = "GatePaths"

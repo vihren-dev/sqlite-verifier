@@ -1,0 +1,44 @@
+[
+  {
+    "phase": "runtime",
+    "command": [
+      "nix-build",
+      "build-support/default.nix",
+      "-A",
+      "runtime",
+      "--no-out-link",
+      "--extra-experimental-features",
+      "nix-command flakes"
+    ],
+    "exit_code": 0,
+    "elapsed_seconds": 83.48928644099999
+  },
+  {
+    "phase": "lean-version",
+    "command": [
+      "/nix/store/zfjrlz8kda2pxvp8dc4mn1i8hbb5qsys-sqlite-verifier-runtime-1/lean/bin/lean",
+      "--version"
+    ],
+    "exit_code": 0,
+    "elapsed_seconds": 0.05273147999992034
+  },
+  {
+    "phase": "lake-version",
+    "command": [
+      "/nix/store/zfjrlz8kda2pxvp8dc4mn1i8hbb5qsys-sqlite-verifier-runtime-1/lean/bin/lake",
+      "--version"
+    ],
+    "exit_code": 0,
+    "elapsed_seconds": 0.056004702999985057
+  },
+  {
+    "phase": "checks-infrastructure",
+    "command": [
+      "just",
+      "test-full",
+      "test-nix"
+    ],
+    "exit_code": 0,
+    "elapsed_seconds": 567.015831382
+  }
+]

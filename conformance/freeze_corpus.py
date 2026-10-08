@@ -122,6 +122,7 @@ def freeze(directory: Path, output: Path, *, upstream: Path, fidelity_ledger: Pa
         "sourceFamilyPolicy": report["sourceFamilyPolicy"],
         "sourceExecutionProfilePolicy": report["sourceExecutionProfilePolicy"],
         "tclDisplayPrecisionPolicy": report["tclDisplayPrecisionPolicy"],
+        "tclBindingPolicy": report["tclBindingPolicy"],
         "sourceFiles": {file["file"]: file["sha256"] for file in report["files"]},
         "fileExclusionPolicy": report["fileExclusionPolicy"],
         "expressionSamplingPolicy": report["expressionSamplingPolicy"],

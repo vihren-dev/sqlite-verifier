@@ -126,8 +126,11 @@ state and behavior. Sources remain below 200 lines, with complete Python types.
   their original source paths and are exempt from current-document link checks;
   broken links in maintained documentation still fail.
   Deterministic original-root checks cover both root orders and matching or
-  different package spellings. Different spellings on mixed filesystem case
-  modes retain original search paths; matching spellings retain sibling merging.
+  different package spellings. Each spelling on mixed filesystem case modes preserves the file origins
+  selected by the original roots. Matching spellings retain sibling merging.
+  A case-insensitive workspace may combine equivalent views only. If distinct
+  origins or missing siblings cannot coexist there, the diagnostic requests
+  a case-sensitive workspace. This follows the owner-approved correction.
 - On native `aarch64-darwin` and `x86_64-linux`, build a fresh runtime archive and
   run actual installed acceptance with `--runtime-variant installed` and
   `--runtime-archive`, without substituting a development runtime root. Poison

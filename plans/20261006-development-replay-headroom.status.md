@@ -1,0 +1,988 @@
+# Development replay headroom status
+
+Status: IN PROGRESS. Created 2026-10-06.
+
+Fresh standalone acceptance passes on reviewed source `2006755a`:
+10.649971125 seconds on macOS and 24.784056110 seconds on Linux.
+Both are below the 30-second target under the unchanged 120-second limit.
+All 184 native comparisons pass, fixtures are cleaned, and complete source
+and runtime bindings remain exact before and after each phase. The model
+classifies every selected case unsupported; no supported agreement is claimed.
+[Original receipts](../reports/20261008-development-replay-parallel-acceptance/README.md)
+and the exact retrieved Linux archive are retained. Evidence correction
+`584f4c8e` passes independent review with no findings.
+
+Both native harness and sample suites pass. The sandbox timeout test uses
+file locks and needs no `ps`. Current-main integration `886de497` preserves
+the six measured production files and delivered transaction code. It passes
+136 bounded tests and 11 actual Nix ownership checks. Integration review
+`20261008T071836Z-886de497` has no findings. Publication and normal delivery
+remain required. [Draft PR #59](https://github.com/vihren-dev/sqlite-verifier/pull/59)
+publishes reviewed head `d264bba3`. CI `37743066830` succeeds. Hosted
+Linux passes all nine Nix suites with 532 checks, 99 infrastructure checks
+and 417 source tests with 35 subtests and two optional reviewer-tool skips.
+The macOS PR job skips execution; retained local native records supply
+macOS acceptance. The actual CI merge tree equals the reviewed head. No timing rerun is claimed.
+The original 33.707907737-second Linux miss remains retained on its original
+source. No performance phase is running. T04c is not DONE.
+
+Decisions waiting for the owner:
+
+- Approve normal merge of PR #59 at reviewed head `51ac28b0`, or hold it.
+  All required checks pass; explicit authorization is still required.
+
+Task: [development replay headroom](20261006-development-replay-headroom.task.md).
+Source: [issue #33](https://github.com/vihren-dev/sqlite-verifier/issues/33).
+
+## Progress
+
+- 2026-10-06: Created workspace `replay-headroom` from reviewed T04b tip
+  `06442f62`. The old storage workspace and its pending review journal
+  remain unchanged. Read the issue, which has no comments, the approved
+  task outcome, storage evidence, tier, loading and native-model boundary.
+- 2026-10-06: Policy version 1 selects all 69 authored v5 cases, all two
+  synthetic cases, one case per nonempty upstream source, and eight
+  additional identities. Loading verifies every case and all acquisition
+  and fidelity evidence before selection. No selected SQL or frozen bytes
+  have changed. Requested an idle local host slot for fresh profiling.
+- 2026-10-06: The current phase guard is 120 seconds, while historical
+  receipts and documentation describe 60 seconds. The speed target is
+  separately less than 30 seconds. No deadline has been raised.
+- 2026-10-06: Reported the deadline discrepancy to the coordinator, who
+  requested owner feedback. Changes to the guard remain pending. The
+  coordinator authorized read-only profiling with the guard unchanged.
+- 2026-10-06: One bounded diagnostic ran on the idle local host using the
+  retained pinned Python 3.12.8 and conformance runtime, with explicit
+  ordinary-file storage. It passed all 184 native comparisons and reported
+  184 `MODEL_UNSUPPORTED`. The instrumented phase took 72.44 seconds:
+  generic loading 65.84, synthetic loading 0.03, native replay 4.22, model
+  classification 1.61, runtime binding 0.10, and selection 0.06. These are
+  profiler timings, not acceptance measurements. Its 120-second process
+  bound was unchanged. Local artifacts are in `build/headroom-profile/`.
+- 2026-10-06: Profiling attributes 49.96 cumulative seconds to independent
+  snapshot `deepcopy` operations in `native_storage.expanded_record`, with
+  about 218 million total function calls. Loading's JSON decoding took
+  6.01 seconds and canonical serialization 5.73 seconds. The existing
+  validated snapshot bytes can support independent JSON reconstruction
+  through the standard library. Requested coordinator feedback before
+  this isolated change while the deadline question remains pending.
+- 2026-10-06: The diagnostic process is terminal with exit code 0. Released
+  the reserved local host slot to the Tcl task. No code or frozen evidence
+  changed during profiling.
+
+- 2026-10-06: The owner confirmed the 120-second phase limit in commit
+  `06a1e29795de6580a14fcfceb1eddaed232177d9` and ADR 0005. The earlier
+  discrepancy/feedback entries above are historical; no deadline decision
+  remains pending. The separate target remains less than 30 seconds on both
+  platforms. Corrected both stale current-deadline claims in
+  `docs/conformance-progress.md`, preserving the historical measured bounds.
+- 2026-10-06: Each snapshot now serializes once for digest validation; each
+  occurrence uses standard-library JSON reconstruction from those same bytes.
+  Every pool digest, reference shape, missing-reference and unused-pool check
+  remains active. New nested-mutation checks preserve independent schema,
+  column, row and typed-cell byte structures, including NUL/non-ASCII text,
+  BLOB bytes, integer bounds, REAL signed-zero bits and NULL. All 21 focused
+  transport/native-storage regressions pass in 0.30 seconds (60-second suite
+  bound), including fresh native round trips for acquisition versions 1–4.
+  Frozen v1–v5 have no working diff. No measurement or speed claim is made.
+- After the implementation checkpoint, heavy benchmark validation was held
+  until the coordinator released an idle host after PR48 full-model runs.
+  Reviewed PR43/44/47 were not changed.
+
+## Validation
+
+Complete: 21 focused snapshot/storage regressions and unchanged frozen paths.
+Complete: checkpoint `912b3a0e99cc0bb40977e7963e7feb9fa57facb7` passed
+independent review `20261006T182926Z-912b3a0e` with no findings. The reviewer
+checked both expansion callers and the approved owner deadline decision.
+Complete: one fresh phase on each platform with matching historical selected
+identities, profiles and verdicts. macOS took 23.699742582997715 seconds;
+Linux took 49.70655691897264 seconds. Linux misses the less-than-30-second
+acceptance target. The macOS phase is qualified by the ancillary retention
+defect below. The approved process bound remains 120 seconds.
+Pending: relevant integrated checks and Linux performance acceptance.
+This task is not DONE. The earlier measurement turn held further optimization
+and reruns while PR48 final validation took priority. The coordinator later
+authorized one Linux diagnostic below. No production change followed it.
+
+- 2026-10-06: Recorded the no-findings implementation review and preserved its
+  exact raw journal line in this status checkpoint. Benchmark remains held
+  pending the coordinator's idle-host release after PR48 full-model work.
+- 2026-10-06: The coordinator released each idle host for one fresh phase on
+  reviewed source `82f2d178`. macOS session 35032 completed the original phase
+  in 23.699742582997715 seconds, with all 184 identities and verdicts matched.
+  Its report was written before ancillary summary serialization failed on
+  `PosixPath` entries (command exit 1). Outer timestamps, individual fixture
+  paths and in-process before/after manifests were lost. The retained
+  after-only hashes and recovery summary do not reconstruct those fields.
+- 2026-10-06: Linux session 49695 completed with exit 0 using the exact public
+  commit archive, own pinned Nix conformance runtime and ordinary ext4 files.
+  Its phase took 49.70655691897264 seconds (outer call 50.392677217), missing
+  the target. All 184 fixture paths, source/runtime/corpus/Python hashes and
+  outer timestamps are retained. All 835 regular source checks and the
+  `CLAUDE.md` symlink passed before/after. Both host slots were released.
+- 2026-10-06: Retained both raw reports, exact helpers, logs, hash manifests
+  and the earlier instrumented diagnostic in
+  [the dated measurement record](../reports/20261006-development-replay-headroom/README.md).
+  Bounded receipt validation passed without replay or builds. An independent
+  read-only audit confirmed both policies, full denominator 4378, selected
+  denominator 184 and every historical identity/profile/verdict field.
+  Frozen v1–v5 bytes are unchanged. This commit preserves the pending raw
+  `82f2d178` independent-review journal line. No speed acceptance is claimed
+  for Linux, and the task remains IN PROGRESS.
+- 2026-10-06: Receipt commit `0aca8aef80da5befbfe550a8820dc5262bf4ab7c`
+  passed independent review `20261006T185111Z-0aca8aef` with zero must findings
+  and one should finding. Named the validator's fixed selection count, phase
+  guard and archived source count, as requested. Receipt validation passed
+  again within 15 seconds; no native phase or build was run. Recorded the
+  finding as fixed and preserved its raw review/resolution journal lines.
+- 2026-10-06: Refactor commit `1af6f15b9ff2a6b9c22bf8f12dd5a3d9c5377b8a`
+  passed independent review `20261006T185207Z-1af6f15b` with no findings.
+  The two one-run receipts and qualified outcome are committed on local
+  bookmark `t04c-replay-headroom`. This status checkpoint preserves the
+  refactor's exact raw review line. Relevant integrated ordinary/Nix checks
+  remain pending; Linux under-30-second acceptance remains unmet. No further
+  optimization or measurement was run. Task status remains IN PROGRESS.
+- 2026-10-06: The coordinator continued this active task with one bounded
+  Linux diagnostic. Its first helper setup failed because `profile.py`
+  shadowed the standard library during cProfile import, before any report or
+  SQLite fixture execution. Preserved that failure, corrected the filename
+  in a fresh directory, and used the retained source/runtime/storage checks.
+- 2026-10-06: The one actual diagnostic, session 60672, completed with exit 0
+  under the unchanged 120-second bound. Its instrumented phase was
+  53.62880020798184 seconds: loading 27.8925 seconds (27.8196 parent CPU),
+  native replay 24.9686 (5.5615 parent CPU), classification 0.3676. The large
+  native non-CPU gap supports an I/O-wait hypothesis; fsync was not measured
+  directly. Canonical size serialization was 6.157 profiled seconds combined;
+  snapshot reconstruction JSON decoding was 7.971. These are diagnostic costs,
+  not acceptance timings or proof that a size-accounting change meets 30.
+- 2026-10-06: Retained all 27 raw setup/diagnostic artifacts in
+  [the Linux diagnostic](../reports/20261006-development-replay-linux-profile/README.md).
+  Both bounded receipt validators pass. All 835 source checks, 265 before/
+  after identities and 184 fixture/profile/verdict comparisons match. The
+  prior 22 raw artifacts, frozen bytes and final pending journal line remain
+  preserved. Linux heavy slot released; no production change, full-model gate,
+  additional actual phase or benchmark campaign ran. Task remains IN PROGRESS.
+- 2026-10-06: Diagnostic commit `db970e10a31f0077fd8cb32e3b323dd8a7aff318`
+  passed review `20261006T191103Z-db970e10` with zero must findings and three
+  should findings. Named the evidence validator's unchanged fields, observer
+  hash exceptions, observed filesystem and preflight markers. All three are
+  recorded as fixed. Both bounded receipt validators pass; this refactor
+  changes no production code, raw evidence or measured result.
+- 2026-10-06: Refactor `d4c2e2445054deaf1ec7f71773279b8851180181`
+  passed independent review `20261006T191308Z-d4c2e244` with no findings.
+  This status checkpoint preserves its exact raw journal line. The diagnostic
+  and its limits are committed on `t04c-replay-headroom`. The coordinator has
+  the measured costs and the conditional exact-size candidate. No additional
+  production change or native execution was started; the task is not DONE.
+- 2026-10-06: The coordinator authorized the measured exact-size CPU candidate.
+  `expanded_record` now accepts an optional logical byte limit. It counts
+  canonical reference-skeleton bytes and each validated snapshot replacement,
+  including negative deltas and every repeated occurrence. All digest,
+  reference, missing and unused-pool checks still precede logical-size refusal;
+  each occurrence still reconstructs an independent mutable JSON tree. The
+  default primitive remains unbounded. `payload_records` keeps its stored-size
+  check and requests this logical limit instead of serializing the complete
+  reconstructed record again. No framework or alternate expansion path was
+  added.
+- 2026-10-06: All 84 focused snapshot, storage, shard and tier checks pass in
+  0.87 seconds under a 60-second suite bound, with existing pinned native and
+  conformance paths. Independent serialization oracles cover exact and +1
+  limits, escaped/multibyte metadata, repeated/empty snapshots and nested
+  mutations. Tiny limits cannot hide malformed/unused pools. A logically
+  oversized unselected case with small shared storage still fails complete
+  shard loading with its exact byte count. Frozen bytes, profiles, SQL,
+  selection, both historical receipt sets and the 120-second guard are
+  unchanged. The pending final raw diagnostic-review line is preserved.
+- This is a partial CPU change. The previous diagnostic's native replay was
+  about 25 seconds, with about 19.4 seconds outside parent CPU, and stored-case
+  parsing was 5.411 profiled seconds. Those are prior observations, not new
+  measurements of this code. This unit does not establish under-30-second
+  acceptance. No new phase, native-I/O change, full-model gate or timing
+  campaign ran; integrated checks and Linux performance acceptance remain
+  pending. Task status is IN PROGRESS.
+- 2026-10-06: Exact-size commit `16f2deecfd9cec5bc6fa86e3fce7caf138a98061`
+  passed independent review `20261006T192320Z-16f2deec` with no findings. The
+  reviewer confirmed canonical byte equivalence, validation order, both size
+  checks, primitive flexibility and the independent oracle coverage. This
+  status checkpoint preserves the exact raw review line. No new timing or
+  native-I/O work followed the checked partial CPU change.
+- 2026-10-07: The coordinator authorized the isolated snapshot reconstruction
+  candidate. Each validated snapshot's canonical JSON is decoded once, then
+  converted to an internal marshal version-2 copy. Every occurrence reconstructs
+  a fresh tree from those internal bytes. Canonical JSON still determines hashes,
+  exact sizes and normalization; external binary data is not an input. Digest,
+  reference, missing/unused-pool checks and the unbounded default remain intact.
+  Added independent JSON-oracle, scalar, nested-alias and subclass-normalization
+  checks plus a deterministic once-per-pool decoding check. All 89 focused
+  reconstruction, snapshot, native storage, shard and tier checks pass in
+  1.64 seconds under a 60-second suite bound in the pinned Nix environment.
+  The native checks use existing pinned SQLite and conformance paths. No build
+  or development replay phase ran. Independent review is pending. Frozen
+  evidence, native SQL/profiles, selection and the 120-second guard are
+  unchanged. No performance acceptance or timing savings are claimed.
+- 2026-10-07: Snapshot reconstruction commit
+  `c8001b457d20c9787418a7a038cb991f185346ae` passed independent Claude review
+  `20261007T064212Z-c8001b45` with no findings. This checked unit is complete.
+  The raw review row is retained in the append-only journal. Native concurrency,
+  integrated checks and both-platform performance acceptance remain pending;
+  the overall task remains IN PROGRESS. No benchmark, SSH or PR operation ran.
+- 2026-10-07: The coordinator authorized the isolated development worker unit
+  from the retained native I/O-wait diagnostic. Two spawned stdlib workers
+  call the unchanged serial primitive for independent cases. Ordered results
+  retain all returned fixture paths and the first input failure; native errors
+  preserve their code through a pickle-safe envelope. Parent-owned private
+  file trees remove crash remnants after worker shutdown. The real tier CLI
+  tests now use the existing process-group timeout harness at the unchanged
+  120-second bound. Added actual-native equivalence, clock/TZ, failure-path,
+  native-code, abrupt-crash and outer-group termination checks. Relevant Nix
+  source/test ownership includes the helper. All 21 final worker, failure-order,
+  tier and ownership checks pass in 7.47 seconds; all eight selected binding,
+  ownership and Nix dependency checks pass in 21.22 seconds. Each suite has a
+  60-second outer bound. An earlier input failure retains precedence when a
+  later worker crashes. The two real
+  tier CLI phase tests were updated but have not run in this unit. Independent
+  review is pending. No timing phase, broader gate, build, SSH or PR ran.
+- 2026-10-07: Worker commit `efcc16a43225515a713b997483c11a78fee7ab33`
+  completed Claude review `20261007T073101Z-efcc16a4` with zero must findings
+  and two should findings. Added real three-case CLI/report forwarding coverage
+  for selected file storage and actual path auditing. The crash diagnostic now
+  names the first case without a result and directs serial replay. Added
+  successful-prefix diagnostic coverage. All 23 selected worker, routing,
+  failure-order, tier and ownership checks pass in 7.64 seconds under a
+  60-second suite bound. Both findings are fixed; refactor review is pending.
+  No frozen development timing run or broader gate started.
+- 2026-10-07: Refactor `96715fffc44de0ed332727ce466cc688e1ac818a` passed
+  independent Claude review `20261007T073545Z-96715fff` with no findings.
+  The worker unit is checked and reviewed. The earlier two should findings
+  have fixed resolutions in the preserved append-only journal. This checkpoint
+  records the completed unit; integrated gates and both-platform timing
+  acceptance remain pending. The overall task remains IN PROGRESS. No
+  benchmark, broader gate, build, SSH or PR operation ran in this unit.
+- 2026-10-07: The coordinator authorized publication-base integration from
+  reviewed main `bc9e2dce58f755b608cf00e545162257b81ab51a` before acceptance.
+  The only merge conflict was the append-only journal. Its resolution preserves
+  all 90 exact rows from both histories, including the pending worker review.
+  Worker/snapshot code, frozen v1-v5 and prior T04c receipts have no diff from
+  the reviewed task tip. Main's Lean 4.34.1, runtime, FK acquisition and owned
+  suite routing are inherited. The development guard remains 120 seconds.
+  All 53 selected routing, snapshot, worker and ownership checks pass in
+  8.69 seconds under a 60-second bound with an existing Lean 4.34.1 runtime.
+  This is routing evidence; exact-source runtime builds and fresh acceptance
+  are still pending. Merge review is pending. T02 released Darwin after its
+  terminal runtime/input checks; no acceptance phase has started.
+- 2026-10-07: Merge `5d15607fdf78d0a209b539ca158939739b54d377` passed
+  independent Claude review `20261007T074749Z-5d15607f` with no findings.
+  Review session 71502 is terminal, exit 0. Its exact pending journal row is
+  preserved with this evidence unit. The reviewed source-only public archive
+  has SHA-256 `86b96911dae99a77ef8158c8ac53c548b69896744de904365545ded78bc4f422`.
+  Each host checked its 933 regular source files and `CLAUDE.md` symlink.
+- 2026-10-07: Source archive, Darwin metadata and Linux ambient-Python
+  preflight failures invoked no phase. Retained their recorded failures and
+  explicit missing-original-timestamp limits. The metadata failure retains
+  its recorded message, not an original complete traceback. Corrected setup
+  used the shared Git object store, resolved devices and the existing pinned
+  Linux Python. The successful metadata checks preceded either phase.
+- 2026-10-07: Own exact-source conformance runtime builds are terminal on
+  both platforms: Darwin session 89656 and Linux session 81189, exit 0.
+  They use Lean 4.34.1 and Python 3.14.7. Darwin runtime is
+  `/nix/store/2w1dv3hhnrcjrcm7qp43jpdbxsgvr6wl-sqlite-verifier-conformance`;
+  Linux runtime is
+  `/nix/store/rhinzr7jq41azsh6s8i8dmndi7idnv3k-sqlite-verifier-conformance`.
+  Full before/after identities match for all source, runtime, helper, archive,
+  Python and every used native-library byte. Actual runtime manifests retain
+  17,886 Darwin and 17,925 Linux regular-file hashes.
+- 2026-10-07: T02 released Darwin after terminal cheap runtime/input checks.
+  The coordinator reserved both heavy slots. The one fresh Darwin capture,
+  session 81440, finished with exit 0: phase 21.434975332995236 seconds,
+  outer call 22.19781625. The one fresh Linux capture, session 22014, finished
+  with exit 0: phase 39.57022682100069 seconds, outer call 40.432509126.
+  Linux still misses less than 30 seconds. The unchanged process-group guard
+  is 120 seconds. Complete reports match every historical selected identity,
+  profile and verdict, with full denominator 4378 and all 184 selected native
+  comparisons passing. All 184 classifications are `MODEL_UNSUPPORTED`.
+  No profile instrumentation, unchanged restart or timing rerun occurred.
+- 2026-10-07: The public capture helper's main guard prevents spawned workers
+  from restarting the observer. It calls the real report directly with
+  explicit ordinary storage and actual fixture-path auditing. Both receipts
+  retain UTC and monotonic boundaries, all 184 unique ordered `case.db` paths,
+  private roots, cleanup, machine/load/memory/capacity and original streams.
+  Linux observed ext4 `/dev/md127`, `rw,noatime`. Darwin's original GNU `df`
+  described the sealed snapshot through a firmlink; an explicitly after-only
+  native reconciliation identifies writable APFS Data and matches actual
+  device 16777242 retained before and after. Original observations remain
+  unchanged. Full identity reads occur outside phase timing; OS caches were
+  not flushed and residency was not observed. No zero-load claim is made.
+- 2026-10-07: Retained all 37 raw artifacts as exact gzip bytes with compressed
+  and original SHA-256 manifests. Linux retrieval session 67302 is terminal;
+  all 14 retrieved original artifact digests match the independent remote
+  inventory, which also found cleaned storage. The new bounded validator and
+  four independent identity/native-hash/fixture/target corruption checks pass
+  within their 15-second bounds without replay or builds. A separate read-only
+  T02 audit confirmed the complete Darwin binding, archive, fixture and
+  filesystem qualifications. Frozen v1-v5, SQL/profiles, selection, previous
+  receipts and the 120-second guard remain unchanged. Evidence review is
+  pending. Linux performance acceptance and the overall task remain pending;
+  no additional diagnostic or optimization is authorized in this unit.
+- 2026-10-07: Evidence commit `34588475becd13bbfa41e9620b3cc474058b9a64`
+  passed Claude review `20261007T082052Z-34588475`, session 31226 exit 0,
+  with zero must findings and three should findings. Named the retained
+  phase/target, denominator, model classification and Lean-version policies,
+  and corrected the JSON-object narrowing docstring. A small policy module
+  keeps the validator below the repository's 200-line limit. This refactor
+  changes no raw artifact, measurement or outcome. All three findings have
+  fixed journal resolutions. The bounded receipt and corruption checks pass
+  again in the pinned environment; refactor review is pending.
+- 2026-10-07: Refactor `90ed5e5b161e648cb1422d74f8b9c47a95154d11` passed
+  independent Claude review `20261007T082252Z-90ed5e5b`, session 68123 exit 0,
+  with no findings. The reviewer read the code; its attempted check launcher
+  was not approved. The author's bounded pinned receipt and four corruption
+  checks are terminal successful. The reviewed evidence unit is complete.
+  Linux's target miss remains unchanged, and the overall task is IN PROGRESS.
+- 2026-10-07: After the evidence review, the coordinator authorized one Linux
+  diagnostic of the exact measured source `5d15607f` and existing verified
+  runtime. It observes the report's seven existing top-level stage names,
+  including `replay_native_cases`, with monotonic wall time and both parent
+  and reaped direct-child CPU deltas. Child CPU may exceed wall time; a CPU
+  difference is not an I/O or fsync measurement. The helper preserves return
+  values and exceptions and has a spawn main guard. Bounded local pure-helper
+  preflight passes without invoking a report. The actual diagnostic is pending;
+  no production change, source rebuild or new acceptance phase is authorized.
+- 2026-10-07: The single authorized Linux stage diagnostic is terminal:
+  session 81515, exit 0, valid receipt. Its instrumented phase took
+  39.26042659499217 seconds; outer call 40.081648631. The unchanged bound is
+  120 seconds. All seven existing stage names retain original results and
+  exceptions. Loading took 20.791746283 seconds with 20.736654 parent CPU;
+  `replay_native_cases` took 17.867181973 seconds with 0.333035 parent CPU
+  and 5.532435 reaped direct-child CPU. Classification took 0.258761494
+  seconds. These are actual diagnostic counters, not acceptance or direct
+  fsync/I/O accounting. No per-function current loading costs were observed.
+- 2026-10-07: The complete source, runtime, archive, Python, Lean and native
+  identities match both before/after and the fresh Linux receipt. The same
+  4378 full denominator and all 184 selected identities, profiles, SQL,
+  native comparisons and current-model verdicts remain unchanged. The
+  observer uses the existing verified runtime and explicit pinned Python;
+  no source rebuild, production change or phase restart occurred. The new
+  ext4 ordinary-file root, all 184 unique actual paths, cleanup, original
+  streams, UTC/monotonic boundaries and full host conditions are retained.
+- 2026-10-07: Retained all 20 diagnostic raw artifacts and exact public
+  helpers in
+  [the stage record](../reports/20261007-development-replay-linux-stages/README.md).
+  Retrieval session 78288 is terminal, and all 13 original hashes match the
+  independent remote inventory. Bounded read-only validation and two stage/
+  child-counter corruption checks pass in the pinned environment within
+  15-second bounds. The pure helper preflight also preserves return and
+  exception behavior. Prior receipts, frozen evidence and the pending clean
+  `90ed5e5b` review row remain preserved. Diagnostic evidence review is
+  pending. Linux's fresh target miss remains unchanged; the task is not DONE.
+  No further diagnostic or optimization is started.
+- 2026-10-07: Diagnostic commit `2fc82988263d84cf3799f432d605a9cbf796cbfa`
+  passed Claude review `20261007T083225Z-2fc82988`, session 56130 exit 0,
+  with zero must findings and one should finding. Named the helper-identity
+  and measurement-only comparison exceptions, with their specific reasons.
+  All actual input identities and report semantics still compare exactly.
+  The reviewer inspected code only; its check launchers needed approval.
+  Author bounded checks are terminal successful and pass again after the fix.
+  The finding has a fixed journal resolution; refactor review is pending.
+  Raw evidence is unchanged.
+- 2026-10-07: Refactor `546dfeb9fd9179787f8f33c1cae03147ac7d1f66` passed
+  independent Claude review `20261007T083357Z-546dfeb9`, session 88498 exit 0,
+  with no findings. The prior should finding has a fixed journal resolution.
+  This checkpoint preserves the exact clean review row. The diagnostic
+  evidence unit is complete. No native/build/measurement job remains live.
+  Both fresh platform receipts and the single Linux stage diagnostic are
+  retained without changing the target miss. Loading's current stage CPU is
+  observed; its current per-function costs and native wait causes remain
+  unobserved. Older per-function profile costs are hypotheses on different
+  source, not predicted savings. The coordinator will select any further
+  bounded unit; no additional phase or optimization has started. The overall
+  task remains IN PROGRESS.
+- 2026-10-07: Final stage status/journal checkpoint
+  `ec0434a9480e1c24111cea47c3c420fa6c7283af` passed Claude review
+  `20261007T083517Z-ec0434a9`, session 20288 exit 0, with no findings.
+  The coordinator then authorized one Linux load-only cProfile diagnostic of
+  exact measured source `5d15607f`, existing pinned Python and all frozen v5
+  bindings. It invokes `corpus.load` once, with no native replay, model
+  execution, runtime build or source optimization. Original profile/caller
+  artifacts and loaded identity/profile evidence will be retained under the
+  unchanged 120-second process-group bound. The actual load is pending.
+- 2026-10-07: Public main-guard helper is named `t04c_load_profile.py` and
+  cannot shadow Python's `profile` module. Local AST/helper checks precede
+  transfer. One transfer used an incorrect temporary-directory name and
+  failed with exit 255 before any load. Its original tool output and missing
+  original-timestamp limit are retained. The corrected helper transfer is
+  terminal successful. Successful preflight compares full source, frozen
+  inputs, archive and pinned Python with the fresh Linux receipt. No report,
+  native replay or model call has run in this unit.
+- 2026-10-07: The single load-only cProfile diagnostic is terminal: session
+  98256, exit 0, 4,376 v5 records loaded once with all bindings. It records
+  24.757685188 instrumented seconds and 24.688395 parent CPU seconds. These
+  are not acceptance or a timing comparison. `expanded_record` has
+  10.542457637 cumulative seconds, including 5.270413991 self seconds not
+  attributed to an operation. Its canonical pool decoding is 1.074232140,
+  serialization 2.292366976, marshal copies 1.482483149 and marshal encoding
+  0.267605387 profiled seconds. Stored-record JSON decoding is 5.265636404.
+  Full fidelity/acquisition verification remains mandatory and active.
+- 2026-10-07: All source, frozen v5, archive, pinned Python and helper hashes
+  match before/after and their previous applicable identities. All 122 frozen
+  files match the prior complete source manifest. Actual names, count, parts,
+  native versions and complete observed/declared profile bindings are retained.
+  No native replay, model execution, runtime build or source change occurred.
+  Original pstats, full listings/callers, actual UTC/monotonic boundaries,
+  full host conditions and original streams are retained in
+  [the load-only record](../reports/20261007-development-replay-load-profile/README.md).
+  All 24 raw artifact hashes and all 16 retrieved original hashes pass the
+  bounded read-only validator. It confirms one profiled corpus load and no
+  native/model replay calls, without another load. Evidence review is pending.
+- 2026-10-07: The narrow proposed snapshot unit would use fixed canonical
+  reference size only for ordinary dict/str inputs after existing validation,
+  with the existing serializer fallback for subclasses. All pool/refusal and
+  normalization/independence contracts remain required. The reference-only
+  time is not isolated, so no saving or acceptance forecast is made. A shared
+  normalization cache has unobserved duplicate ratio and adds memory/lifetime
+  policy; no cache or new snapshot change is implemented. The coordinator
+  chooses any next unit after evidence review. The task remains IN PROGRESS.
+- 2026-10-07: Load-profile commit `03da2afb8c047fe0a258a7f820491d9add384821`
+  passed Claude review `20261007T085929Z-03da2afb`, session 79488 exit 0,
+  with zero must findings and two should naming findings. Named the authorized
+  load function and invocation policy, and made the success message use the
+  named record-count policy. The reviewer read code only; its validator
+  launcher required approval. Author bounded validation is terminal successful.
+  Clarified the conditional proposal's actual plain key/string and ASCII
+  proof, subtype fallback, source call sites and unseparated cost. No snapshot
+  code changed. Both findings have fixed journal resolutions, and bounded validation passes
+  again. Refactor review is pending; all raw evidence and the Linux target miss
+  remain unchanged.
+- 2026-10-07: Load-profile refactor
+  `1b21245d91f01ad0f1ee21588ccb266fe88834df` passed Claude review
+  `20261007T090220Z-1b21245d`, session 29114 exit 0, with no findings.
+  Both prior naming findings have fixed journal resolutions. The reviewed
+  load-only evidence unit is complete; its exact clean row is preserved here.
+  The coordinator authorized the minimal reference-size fast path after this
+  review, without another acceptance phase or profile run.
+- 2026-10-07: Bounded expansion now counts a reference without encoding only
+  for an ordinary dict, ordinary sole `snapshot` key and ordinary ASCII
+  alphanumeric string. The canonical empty-reference length plus string
+  length is exact; SHA-256 references are 79 bytes. Every subtype or other
+  shape retains the serializer, without an extra subtype iteration. Pool
+  digest/shape/reference/membership/unused checks and their order, canonical
+  stored/logical limits, JSON normalization, internal marshal-v2 copies,
+  independent nested mutable trees and the unbounded default remain intact.
+  Independent canonical size and exact/one-byte-short/negative-delta oracles
+  include mapping subclasses whose rendering adds escaped Unicode metadata
+  and an iteration-sensitive subtype, plus actual shortcut/fallback observation.
+- 2026-10-07: All 111 bounded reference, snapshot, storage, shard, tier and
+  ownership checks pass in the final suite. Five bounded frozen-binding
+  refusal tests pass in 17.64 seconds with the existing pinned runtime.
+  Both suites have 60-second bounds. The first combined command omitted that
+  runtime path: 108 checks passed and six stopped at setup; no missing
+  environment remained after using the already verified path. The historical
+  full-phase test was then excluded explicitly; no acceptance/profile phase
+  ran. The source-owned test needs no new Nix input module. Frozen corpora
+  and all prior raw receipts are unchanged. This small CPU unit makes no
+  speed claim: the entire old 2.292-second expander serialization caller also
+  includes pool and skeleton work. Independent review is pending. The task
+  remains IN PROGRESS.
+- 2026-10-07: Reference-size commit
+  `3bd80539a8f4af9623fc4d900238dedd0e3ae45a` passed Claude review
+  `20261007T091451Z-3bd80539`, session 54105 exit 0, with zero must findings
+  and one should docstring finding. Added the bounded-expansion motivation
+  and the validated-value caller context to the helper docstring. The body
+  and all recorded checks remain unchanged. The author final suite passed
+  111 tests in 3.09 seconds, plus the five bounded binding refusals. Finding
+  has a fixed journal resolution; refactor review is pending. No performance phase ran.
+- 2026-10-07: Reference-size refactor
+  `368c27c101a0ec99654e6028f192d0ba74dc47ec` passed Claude review
+  `20261007T092019Z-368c27c1`, session 4319 exit 0, with no findings.
+  The previous docstring finding has a fixed journal resolution. The checked
+  source and all recorded tests remain unchanged.
+- 2026-10-07: Read-only retained-profile inspection finds one fidelity
+  verification call at 5.087972811 cumulative seconds. Its acquisition call
+  is 3.130879275 seconds, with 153,764 required source-instance precision
+  and NULL-display checks. The repeated refusal scan is 0.720105865 seconds;
+  it does not support a material removal of the remaining target gap.
+  A loading worker would need ordered unexpanded JSON transport and parent
+  validation; the existing native worker helper does not provide that API.
+  No new profile, phase, decoding optimization or loading helper was started.
+- 2026-10-07: The coordinator authorized one fixed development-only native
+  cap of four on both platforms. The earlier two-worker task wording was our
+  implementation checkpoint; the approved semantics require a named small
+  bound, the unchanged 120-second process-group guard and the under-30-second
+  target. The task now permits at most four before source changes start.
+  Retained Linux stage metadata records eight logical CPUs, 62.58 GiB total
+  and 58.89 GiB available RAM, load averages 0.564/0.325/0.275, and 34.9 GiB
+  free on ordinary ext4. No worker RSS, device contention or speedup was
+  observed. The 17.867-second native wall and 5.532-second reaped-child CPU
+  values do not identify the wait cause. Four workers are a hypothesis.
+  Tiny actual-native clocks, path/order, failure/crash and timeout fixtures
+  must exercise four workers. Serial replay, full loading and all acquisition
+  and fidelity checks remain unchanged. No acceptance run is authorized yet.
+- 2026-10-07: The common development helper now has fixed cap four; its
+  executor, serial primitive, ordered exception/path envelope and lifecycle
+  are unchanged. Four distinct tiny controlled clocks retain serial native
+  evidence and the parent's non-UTC timezone. Mixed failures still report
+  the first input while returning paths from the other completed cases.
+  Atomic markers confirm four actual workers started before the open-file
+  crash check; the private file tree is removed. The configured timeout
+  check confirms all four case identities and process IDs in one group,
+  then confirms every worker stopped. Ordered crash-envelope tests preserve
+  three completed path results and the original first failure.
+  The real CLI/report fixture has two authored and the required two synthetic
+  cases; it returns four actual cleaned file paths.
+- 2026-10-07: Bounded regression session 75347 exited 0: 23 worker, routing,
+  tier and source-ownership checks passed in 7.87 seconds. Three separate
+  Tcl-capture checks skipped because they require the pinned upstream target;
+  none of the worker checks skipped. After making crash markers atomic,
+  session 81035 exited 0 with four focused crash/order checks passing in
+  0.88 seconds. Outer bounds are 60 and 30 seconds; each configured native
+  group-timeout fixture retains its five-second bound. Source files stay
+  below 200 lines. Frozen corpora, prior receipts, selection, SQL, profiles,
+  full binding validation and the production 120-second guard are unchanged.
+  No build, native performance phase, profile, SSH or acceptance run occurred.
+  Independent review is pending; the overall task remains IN PROGRESS.
+- 2026-10-07: Four-worker commit
+  `1726f972315c985b3f6965c4d0c6d7c4b8a319eb` passed Claude review
+  `20261007T093857Z-1726f972`, session 57114 exit 0, with zero must findings
+  and one should finding. Timeout markers now use atomic pending-file
+  replacement, matching the crash markers, so a group kill cannot expose
+  partial JSON to the test. The configured five-second timeout is unchanged.
+  Focused session 65065 exited 0: one group-timeout check passed in 5.67
+  seconds under a 20-second outer bound. All four actual identities and
+  process IDs are retained and stopped. The finding has a fixed journal
+  resolution; the test-only refactor review is pending. No performance run,
+  source decoding change or new acceptance occurred.
+- 2026-10-07: Atomic-marker refactor
+  `bd784c77dbd0385ed92df5a971af0f79c53df4c6` passed Claude review
+  `20261007T094010Z-bd784c77`, session 89715 exit 0, with no findings.
+  The four-worker unit and its single fixed finding are checked and reviewed.
+  No test, build, native phase or profile remains live. The coordinator must
+  authorize the reviewed base and host leases before fresh acceptance.
+  The previous valid Linux 39.570226821-second target miss and all raw
+  evidence remain unchanged; the overall task stays IN PROGRESS.
+- 2026-10-07: The coordinator authorized integration of exact reviewed
+  executor publication `9e91e5259885e6f9612f144298674f44e1558bf5` into
+  reviewed T04 tip `3f68e648e930a9752ad0d01f5f3e1d02b352da54`.
+  Those are the two direct merge parents. The pending readiness review is
+  saved separately, then preserved once in the merged journal; its earlier
+  undescribed working copy is not an ancestor. The only conflict was the
+  journal. A shortest ordered merge retains both parent row sequences and
+  their recorded multiplicities: 110 T04 rows and 161 publication rows
+  merge into 207 rows, then the pending review gives 208. No row was edited.
+  Executor, exporter, pins, baselines and every other non-T04 file are exact
+  publication bytes. All frozen and workload inputs remain unchanged.
+- 2026-10-07: Integration checks are terminal. Session 78291 exited 0:
+  92 bounded snapshot, four-worker, tier, source-ownership and current
+  CI/import/mutation routing checks passed in 11.21 seconds. Session 72006
+  exited 0: 56 bounded storage/shard and real Nix dependency/budget checks
+  passed in 12.77 seconds; 75 unrelated cases were deselected. Neither
+  suite skipped a selected check. Their outer bounds are 90 seconds.
+  Real Nix evaluation confirms model 600/default 420 suite budgets and
+  worker/tier/executor source routing. The 120-second replay phase guard
+  remains intact. No full frozen replay, profile or performance phase ran.
+  Independent integration review is pending.
+- 2026-10-07: T15's owner confirmed its Darwin heavy work terminal and lease
+  released at 09:40 UTC. The coordinator authorized fresh exact-source
+  conformance runtime builds on both native platforms after clean integration
+  review, with the existing resource guard and 900-second build bounds.
+  Linux's build lease belongs to this task. Complete source/runtime identity
+  receipts must be retained; fresh-runtime readiness precedes any later
+  performance authorization. No build has started yet. T15, T18b and T07
+  code remains publication-exact. The overall task stays IN PROGRESS.
+- 2026-10-07: Integration commit
+  `c3e8f5186e2865b5cdc0ea5af1a9d0924531752a` passed clean Claude review
+  `20261007T094550Z-c3e8f518`, session 58187 exit 0. The reviewed archive
+  has SHA-256 `ee3aac147f2390dd28e47f31de7bff56451c08122a7634ecc75102ff994db292`,
+  72,294,400 bytes and 1,113 source entries. The actual source-only archive
+  uses the shared Git object store and excludes generated working trees.
+  Its full file/link manifest and both public build helpers are retained.
+- 2026-10-07: Both authorized pinned conformance build invocations are
+  terminal successful. Darwin session 74913 exited 0 at
+  `2026-10-07T09:48:52.259490+00:00`; runtime is
+  `/nix/store/3h1ww180anyrw23dhs7bpzswhkrv2l1s-sqlite-verifier-conformance`.
+  Linux session 34344 exited 0 at `2026-10-07T09:50:40.392353+00:00`;
+  runtime is `/nix/store/ixl6nwa1nk8ah8138axkqkgian4a27bc-sqlite-verifier-conformance`.
+  These fresh invocations reused already existing exact Nix outputs;
+  compilation from scratch is not claimed. The 17,897 Darwin and 17,936
+  Linux runtime file identities match before and after. Both use Lean
+  4.34.1 and Python 3.14.7. The resource guard passed on each host, and
+  each Nix build retained its 900-second group bound. A separate 1200-second
+  capture bound includes identity reads. No replay ran.
+- 2026-10-07: Linux transfer sessions 84265 and 10362 exited 0. Its existing
+  pinned-Python preflight 17138 exited 0 and checked all 1,113 source
+  entries and helper/archive identities. Original retrievals 31271 and
+  99928 exited 0; all 16 original artifact hashes and lengths match their
+  remote manifest. Complete source/helper/archive/Python/declared native
+  library identities match before and after both builds. Original UTC and
+  monotonic boundaries, host/filesystem/resource observations, commands and
+  streams remain intact in
+  [the build-only record](../reports/20261007-development-replay-executor-runtime/README.md).
+  All 47 raw gzip artifacts pass bounded read-only validation. Four
+  independent runtime/acceptance/build-bound/journal-order mutations are
+  refused, including mutations with matching replacement artifact hashes.
+- 2026-10-07: Both native build leases were released after actual terminal
+  outcomes. The coordinator took Darwin for its reference build, and T02
+  acknowledged Linux release for T18b reference acceptance. No T04 heavy
+  build, replay, profile or performance phase is live. The reviewed source
+  and exact runtimes are ready for later coordinator authorization; these
+  build receipts establish no under-30-second result. The prior valid Linux
+  target miss and every earlier raw receipt remain unchanged. Runtime
+  evidence review is pending, and the overall task stays IN PROGRESS.
+- 2026-10-07: Runtime evidence commit
+  `2f43315b3c33fd1fc65dfed43c9d319220f018a4` received Claude review
+  `20261007T111133Z-2f43315b`, session 18494 exit 1: one must and three
+  should findings. The two original build-command gzip copies matched the
+  generated `build/` ignore rule and were missing from that commit. They
+  now use tracked archival `commands/` directories with byte-identical
+  originals and unchanged hashes. The original Linux manifest still uses
+  its real remote names. All 47 raw gzip files are confirmed tracked.
+  The mutation oracle now validates its unchanged source first, the exact
+  authorized build command is a named policy, and every assertion names
+  its artifact/field, expected condition and next diagnostic action.
+  Both bounded read-only checks pass after these corrections. All four
+  findings have fixed append-only journal resolutions. The refactor's
+  public-archive checks and independent review must pass before handoff.
+  Neither runtime build was repeated; no replay or performance phase ran.
+- 2026-10-07: Artifact refactor
+  `77883debecf72fece4e7602799595f3ce584a0fb` received Claude review
+  `20261007T111602Z-77883deb`, session 87355 exit 0, with no must findings
+  and two should naming findings. The archival name mapping is now a named
+  policy that explains the ignore-rule boundary, and journal diagnostic
+  counts come from their policy constants. Both findings have fixed journal
+  resolutions; both bounded read-only checks still pass. A clean public
+  Git archive of the refactor contains all 47 raw gzip artifacts, and both
+  scripts pass there with empty error streams. Its original check result
+  is retained in the report. The final naming refactor review is pending.
+- 2026-10-07: Naming refactor
+  `54e3f0907c5992dc4c68b030039b1e1b388c6139` received Claude review
+  `20261007T111746Z-54e3f090`, session 78439 exit 0, with no must findings
+  and one should evidence-documentation finding. The report now identifies
+  the separate public-archive validation result and states that the raw
+  build-artifact validator does not check this derived result. The finding
+  has a fixed append-only journal resolution. This is a documentation-only
+  correction; all checked code and raw build evidence remain unchanged.
+  Final documentation review is pending. No native job or phase is live.
+- 2026-10-07: Final evidence documentation
+  `1616b3f9687b4d25bb233c0b189d26439a8a4141` passed clean Claude review
+  `20261007T111918Z-1616b3f9`, session 29432 exit 0. All one must and six
+  should findings from the runtime evidence unit have fixed journal
+  resolutions. The complete public report and its bounded checks are
+  review-complete. Exact runtime readiness remains tied to reviewed
+  integrated source `c3e8f518`, the archive manifest and both full native
+  runtime identities. Native build leases are released. No runtime build
+  was repeated and no performance phase ran; the coordinator must authorize
+  any fresh phase after confirming reviewed source and host leases.
+  The overall task remains IN PROGRESS.
+- 2026-10-07: The coordinator authorized one fresh Linux phase on exact
+  compiled source `c3e8f518` and exact runtime `ixl6nwa1nk8ah8138axkqkgian4a27bc`.
+  The Linux reference job was terminal. Resource guard and full-source/helper
+  checks passed; actual host activity showed no native project co-runner.
+  Persistent service activity is retained and zero background load is not
+  claimed. The reviewed driver changes only its source-label literal;
+  report invocation, comparison fields, ordinary storage and the 120-second
+  process-group guard remain byte-identical. No source changed during the phase.
+- 2026-10-07: Sole Linux phase session 42003 is terminal exit 0 with a valid
+  complete receipt and target miss: 33.707907736999914 report seconds and
+  34.524907143 outer report seconds. Actual UTC boundaries are
+  `2026-10-07T11:28:50.300534+00:00` through
+  `2026-10-07T11:29:24.825432+00:00`; monotonic nanoseconds are
+  432175900820075 and 432210425727218. Full denominator 4378 and all 184
+  selected identities/profiles/cases/verdicts match historical v5. Every
+  native comparison passed; all model results remain `MODEL_UNSUPPORTED`,
+  which establishes no supported-model agreement. All 184 unique actual
+  fixture paths were returned in input order and cleaned. Ordinary ext4
+  storage on `/dev/md127` retains device 2431 and `rw,noatime` before/after.
+- 2026-10-07: Full source/runtime/helper/archive/Python/native-library
+  identities match before and after, and applicable fields match the reviewed
+  exact-source runtime build. All 13 retrieved original hashes and lengths
+  match the remote manifest. The complete report, streams, paths, actual
+  clocks, host/filesystem observations, source manifest and label-only helper
+  diff are preserved in
+  [the single-phase record](../reports/20261007-development-replay-linux-cap4/README.md).
+  All 20 raw gzip artifacts are tracked and pass bounded read-only validation.
+  An unchanged valid miss precedes four independent target/guard/path/library
+  mutation checks; each mutation is refused. Independent evidence review
+  is pending. No profile, stage diagnostic, cold campaign or phase rerun ran.
+  Cache residency remains unobserved and no causal speedup claim is made.
+  Linux's heavy lease is released. Darwin had no T04 phase; the coordinator
+  must decide any next unit after this receipt is reviewed. T04 remains IN PROGRESS.
+
+- 2026-10-07: The owner refreshed the branch with accepted main and requested
+  a fix for the sandboxed worker test's dependency on `ps`. The timeout fixture
+  now holds a file lock before it publishes its PID marker. After the actual
+  outer timeout, the test requires that each worker's kernel lock is released.
+  This checks terminated workers, including unreaped zombies, without a host
+  process-list command. The three-second disappearance bound and five-second
+  process-group timeout remain unchanged. Worker fixtures move to a small test
+  module that is an explicit sample input. No production replay code, phase
+  limit, fixture case, performance receipt or frozen corpus changes. Bounded
+  native, frontend and real Nix input checks remain required before commit.
+
+- 2026-10-07: All 13 native-worker and frontend checks pass in 6.86 seconds
+  under a 30-second command limit. The real Nix command and fixture ownership
+  checks pass; after confirming the worker files belong to `sample`, its
+  corrected dependency check passes in 2.38 seconds. The first 120-case
+  `harness` run did not contain worker tests and does not establish this fix.
+  The actual `tests.sample` target then passes all 22 checks in 40.40 seconds
+  inside the hardened macOS sandbox, including four real spawned workers and
+  their configured timeout. The original XML, log and source bindings are in
+  [the sandbox record](../reports/20261007-development-replay-sandbox-workers/README.md).
+  The resource guard passes. No production source, frozen corpus or previous
+  receipt changes. Independent review remains required. This is sandbox
+  acceptance for the test dependency fix, not standalone performance acceptance.
+
+- 2026-10-07: The sandbox fix `fda5b133` passes independent review with no
+  findings (`20261007T134905Z-fda5b133`). Automatic approval review initially
+  rejected copying the source archive to Linux. The owner explicitly approved
+  the exact 40 MB archive and isolated destination. The transfer then completed;
+  its original SHA-256 matches before extraction and after validation. Resource
+  and process checks pass before the Linux build; no native project co-runner
+  is observed, without claiming that all background activity is absent.
+  The exact `tests.sample` Linux target passes all 22 checks in 66.937 seconds
+  with no failures, errors or skips. All four source inputs match the reviewed
+  macOS inputs. Original XML and log hashes are checked after retrieval and
+  retained in the sandbox record. Both platforms now verify the requested
+  removal of the `ps` dependency. This does not establish the performance
+  target. Independent review of the Linux evidence remains required.
+
+- 2026-10-07: Linux sandbox evidence is committed in `c74e7a6d`.
+  Independent review `20261007T141450Z-c74e7a6d` has no findings. The
+  sandbox test dependency fix passes on both native platforms. The last
+  standalone Linux replay takes 33.707907737 seconds, so the under-30-second
+  target remains unmet. The 120-second outer limit remains in force. No
+  new timing run or task completion is claimed.
+
+- 2026-10-07: The missing review of Linux receipt `2c0de2ff` is now
+  recorded as `20261007T170405Z-2c0de2ff`: no mandatory findings and three
+  suggestions. The validator now names malformed JSON fields, describes
+  decompression and its precondition correctly, and names the filesystem and
+  cache-observation policies. Raw receipts, replay code and timing are unchanged.
+  The corrected validator passes and refuses all four independent mutations
+  under separate 60-second limits. A malformed-shape check confirms that the
+  diagnostic names its artifact and field. The validator stays at 162 lines.
+  All three findings have fixed journal resolutions. Independent review of
+  this correction remains required; no performance phase ran.
+
+- 2026-10-07: Correction review `20261007T170611Z-75f1c382` finds no
+  mandatory issue. Its two diagnostic suggestions identify imprecise parent
+  field names; each JSON narrowing now names its exact artifact and field.
+  The suggested additional string-format test is rejected because this
+  reversible diagnostic correction is already checked manually and the
+  existing mutation checks verify the meaningful receipt refusals. No replay
+  behavior, evidence or acceptance limit changes. The validator and all four
+  mutation checks pass again under separate 60-second limits. Exact diagnostic
+  paths were checked at each narrowing call. Independent review remains required.
+
+- 2026-10-07: Receipt diagnostic correction `fb0c0939` passes independent
+  review `20261007T170819Z-fb0c0939` with no findings. The original Linux
+  target miss and all raw artifacts remain unchanged. This completes the
+  receipt review; further performance work remains necessary.
+
+- 2026-10-07: The task summary now names the latest complete Linux
+  measurement, 33.707907737 seconds on `c3e8f518`. The earlier macOS
+  receipt is qualified by its original source. The phase target, 120-second
+  guard and original measurements are unchanged. The retained load-only
+  profile measures stored-record serialization at 2.027926385 instrumented
+  seconds; this cost alone does not establish a way to close the remaining
+  gap. No production change or new timing run is claimed.
+
+- 2026-10-07: The bounded macOS loading feasibility diagnostic completes
+  once. Unchanged shard validation takes 12.911504042 seconds serially
+  and 7.974502375 seconds with four spawned processes, including transport.
+  All 109 shard digests and 4,376 ordered records match. Frozen bytes and
+  manifest hashes match before and after. This is a loading-only observation
+  in that order, with unknown cache residency; it is not Linux or whole-phase
+  acceptance. Source hashes were observed after the run, not before import.
+  The optional host memory query was denied by the sandbox. The resource
+  guard passes. The existing task now specifies bounded development loading
+  and unchanged validation, with a serial default and caller-owned executor.
+- 2026-10-07: Implemented ordered shard validation through an optional
+  standard executor. The development helper uses four spawned processes,
+  finishes them before native replay, and retains full binding checks before
+  selection. Size-limit exceptions preserve their measured integers during
+  transport. New tests belong to the harness suite; the shared worker module
+  belongs to the explicit harness/model/frozen and sample Nix inputs.
+  Nine real thread/spawn tests pass in 1.01 seconds. The wider bounded command
+  passes 127 tests but one routing fixture stops because the invocation names
+  absent `build/conformance`; this is not a passing result. Real Nix harness
+  and sample validation is running. No replay target or task completion is
+  claimed. An accidental status overwrite was restored from `a276953d`,
+  preserving all prior progress entries.
+
+- 2026-10-07: Corrected bounded integration passes all 128 checks in
+  7.75 seconds with the existing verified runtime. Real hardened macOS
+  Nix suites pass 129 harness checks in 2.703 seconds and 22 sample checks
+  in 30.213 seconds, without failures or skips. All 53 selected frontend
+  and Nix ownership checks pass in 81.21 seconds. The two new real source
+  invalidation cases verify the loading helper and harness test owners.
+  Original diagnostic bytes, the failed invocation, corrected XML and
+  native suite outputs are retained in
+  [the loading record](../reports/20261007-development-replay-parallel-loading/README.md).
+  All source files remain below 200 lines. Independent source review and
+  standalone acceptance on both platforms remain required. The Linux
+  33.707907737-second miss remains unchanged.
+
+- 2026-10-07: Parallel loading commit `2a42afdd` passes independent
+  review `20261007T193300Z-2a42afdd` with no mandatory defect. Its one
+  documentation suggestion is fixed: the named four-process limit applies
+  to each loading or native replay phase, and the phases do not overlap.
+  An executable-AST comparison confirms that the correction changes no
+  behavior. All original source bindings and acceptance bytes remain
+  unchanged. Correction review remains required.
+
+- 2026-10-07: Worker-policy correction `2006755a` passes independent
+  review `20261007T193508Z-2006755a` with no findings. The earlier finding
+  has a fixed resolution. Parallel loading is committed and checked; its
+  executable behavior is exactly the reviewed `2a42afdd` implementation.
+  Linux validation, standalone timing on both platforms and publication
+  remain required. No whole-phase speedup or under-30-second pass is claimed.
+
+- 2026-10-08: The exact reviewed source archive at `2006755a` transfers
+  to a fresh Linux directory. Its archive digest and all 1,223 source
+  entries verify. Actual hardened Linux suites pass 129 harness and 22
+  sample checks without failures or skips. The current compiled runtime
+  is valid and matches the unchanged Lean inputs.
+- 2026-10-08: One fresh standalone phase passes on each platform:
+  macOS 10.649971125 seconds and Linux 24.784056110 seconds, with the
+  unchanged 120-second guard. All 184 selected native comparisons pass,
+  all fixture paths are distinct and cleaned, complete bindings match
+  before and after, and all historical policy/profile/identity/verdict
+  fields agree. The model classifies all cases unsupported; no supported
+  agreement is claimed. Both receipts are valid and below 30 seconds.
+  Original bytes and a labeled after-only macOS storage clarification are
+  retained in [the new receipt](../reports/20261008-development-replay-parallel-acceptance/README.md).
+  Read-only checks pass and refuse all four independent mutations. Earlier
+  target misses remain unchanged. Independent review and normal delivery
+  remain required; T04c is not DONE.
+
+- 2026-10-08: Acceptance evidence `d6e2e0bb` passes independent review
+  `20261008T070348Z-d6e2e0bb` with no mandatory defect and three
+  suggestions. The retained mutation script reproduces four semantic
+  refusals plus summary drift. The validator checks each summary field
+  against original receipts and retains the exact retrieved Linux archive.
+  The JSON reader now states its caller verification precondition. All
+  checks pass without replay. All three findings are recorded as fixed.
+  Original measurements and all 34 individually retained raw artifacts
+  remain unchanged. Correction review remains required.
+
+- 2026-10-08: Correction review `20261008T070801Z-4d40ca38` finds
+  one mandatory omission: Jujutsu did not snapshot the new 2.1 MiB Linux
+  archive under its default 1 MiB guard. The exact archive is now added
+  with a one-command limit of its known 2,167,232-byte size. No persistent
+  configuration changes. Named phase and target policies and precise
+  summary file/field diagnostics fix the two wording suggestions. The
+  original bytes, observations and measurement values remain unchanged.
+  Read-only validation and all five corruption checks pass. All findings
+  are recorded as fixed; correction review remains required.
+
+- 2026-10-08: Evidence fix `584f4c8e` passes independent review
+  `20261008T070929Z-584f4c8e` with no findings. The exact archive is
+  tracked, and read-only validation and all five mutations pass. Current
+  integration includes accepted main `d75fdc2b`, preserving delivered
+  transaction code, evidence and Nix ownership. Both parent journals and
+  the pending review journal remain ordered subsequences of 328 rows,
+  including duplicates. All six tested production files and frozen v1-v5
+  bytes are unchanged. Integration checks and review remain required.
+
+- 2026-10-08: Current-main integration passes 136 bounded tests with one
+  deselection in 9.04 seconds, and 11 actual Nix ownership checks with
+  46 deselections in 26.94 seconds. Original XML, source comparison and
+  preserved journals are retained in [the integration record](../reports/20261008-development-replay-main-integration/README.md).
+  The standalone receipt validator and all five corruption checks pass.
+  No timing rerun is claimed. The six measured production files and all
+  delivered transaction files remain unchanged. Integration review and
+  publication remain required.
+
+- 2026-10-08: Integration `886de497` passes independent review
+  `20261008T071836Z-886de497` with no findings. Task and status summaries
+  now identify both fresh passing timings, retaining all earlier misses in
+  the progress history. The progress document now describes four workers
+  per phase and links the measured acceptance. All 40 local documentation
+  links resolve, and the receipt validator passes. Publication remains.
+
+- 2026-10-08: Documentation correction `0bf3ff21` passes independent
+  review `20261008T071906Z-0bf3ff21` with no findings. Fresh final macOS
+  Nix sandboxes pass 135 harness checks in 3.82 seconds and 22 sample
+  checks in 37.26 seconds, without skips or failures. Original XML and
+  console bytes are retained in the integration record. Suite durations
+  remain separate from standalone replay timings. No feature changes.
+  Final evidence review and normal publication remain required.
+
+- 2026-10-08: Final native evidence `2cb71575` passes independent review
+  `20261008T072053Z-2cb71575` with no findings. The reviewer did not
+  hash the artifacts or decompress the log. Author checks independently
+  verify every manifest SHA-256, the original decompressed log SHA-256
+  and all six measured production bindings. No Lean, frontend or frozen
+  corpus file differs from accepted main. The checked change is ready
+  for publication; hosted CI and normal delivery remain required.
+
+- 2026-10-08: Publication checkpoint `d264bba3` passes independent review
+  `20261008T072141Z-d264bba3` with no findings. The branch is pushed
+  normally, and draft PR #59 is created at that exact head. The PR is
+  attached to this chat. Hosted CI `37743066830` is confirmed in progress.
+  No hosted pass, normal merge or DONE state is claimed.
+
+- 2026-10-08: Hosted CI `37743066830` completes successfully for published
+  head `d264bba3`. The actual merge source `4d492b4b` has zero changed
+  files against that head. All nine Linux Nix suites pass 532 tests,
+  infrastructure passes 99 tests, and source checks pass 417 tests and
+  35 subtests with two explicit optional reviewer-tool skips. The macOS
+  PR job skips execution. No new installed or timing acceptance is claimed.
+  The exact artifact ZIP matches GitHub's digest; all 17 original members,
+  decoded job log and tree comparison are retained in
+  [the hosted record](../reports/20261008-development-replay-hosted-acceptance/README.md).
+  All artifact hashes verify. Hosted evidence review and normal delivery
+  remain required. T04c is not DONE.
+
+- 2026-10-08: Hosted evidence `627b9cae` has no mandatory review finding.
+  Its one wording suggestion is fixed: the acceptance record identifies
+  the team as its sole audience. The reviewer could not run hash commands;
+  author checks independently verify every stored artifact hash. Required
+  PR checks report successful Linux, macOS schedule and protected-baseline
+  jobs; publication is skipped as expected. No native macOS PR execution
+  is claimed. The correction review and normal delivery remain required.
+
+- 2026-10-08: Hosted evidence correction `2490d87d` passes independent
+  review `20261008T074529Z-2490d87d` with no findings. Author checks
+  verify all artifact hashes and check states. All changes since tested
+  head `d264bba3` are task, review or acceptance records; production,
+  test and build inputs remain unchanged. The branch is ready to publish
+  these records and enter final PR review. Current publication-head CI
+  and normal delivery remain required. T04c is not DONE.
+
+- 2026-10-08: Final reviewed head `51ac28b0` is published and PR #59
+  is ready for review. Final-head CI `37745675503` succeeds, and the
+  protected approved-baseline check succeeds. The macOS job skips
+  execution under the PR schedule; local native records supply acceptance.
+  Automatic approval review rejects normal merge because the owner has
+  not explicitly authorized this specific PR to change protected main.
+  The owner is asked to approve the exact reviewed head. No merge or
+  alternate publication is attempted. The branch is unchanged, and
+  T04c remains IN PROGRESS until normal delivery.
+# Approved delivery integration, 2026-10-08
+
+The owner approves PR #59 when ready and requests accepted main integration
+before normal merge. PRs #57, #53 and #50 are delivered. Integrated their main
+head `c1dea71b` without rewriting the reviewed feature commits. Resolved the
+corpus-shard conflict by retaining bounded snapshot expansion and T17's
+recording validation. All three original review journals remain ordered
+subsequences, including repeated rows. Original journals and checks are saved
+under `build/20261008-approved-main-integration/`.
+
+Complete macOS acceptance exits zero: all nine suites pass 577 tests with
+no failures, errors or skips. Source checks pass 461 tests and 35 subtests;
+infrastructure checks pass all 102 tests. Original receipts and source hashes
+are retained in `reports/20261008-development-replay-approved-integration/`.
+No new standalone timing result is claimed. Integrated loading and native helpers changed,
+so fresh standalone acceptance on both platforms remains required. The
+120-second outer guard and strict under-30-second target are unchanged.
+
+Decisions waiting for the owner: None. The approved normal merge waits for
+the integrated checks and required reviews.
+
+- 2026-10-08: Integration `31679691` passes independent review
+  `20261008T110432Z-31679691` with no findings. Its conflict resolution
+  preserves both bounded expansion and recording validation. This
+  publication record retains the raw review row. Hosted Linux and fresh
+  standalone timing on both platforms remain before approved normal merge.
+
+  Decisions waiting for the owner: None.

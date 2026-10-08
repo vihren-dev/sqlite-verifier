@@ -1,0 +1,44 @@
+{
+  "case": "date5:date5-jd2460369.5:0",
+  "file": "date5.test",
+  "occurrence": 0,
+  "sourceSha256": "8d551acf63936427e69fbc331d26451a9bfbb54fdb84a497092b67dc72e00623",
+  "changedParameter": "$::jd",
+  "original": {
+    "text": {
+      "bytes": [
+        50,
+        52,
+        54,
+        48,
+        51,
+        54,
+        57,
+        46,
+        53
+      ]
+    }
+  },
+  "changed": {
+    "text": {
+      "bytes": [
+        50,
+        52,
+        54,
+        48,
+        51,
+        55,
+        48,
+        46,
+        53
+      ]
+    }
+  },
+  "coherentInputCopies": true,
+  "sourceCallDigestRecomputed": true,
+  "originalExpectedResult": [
+    "2024-02-29"
+  ],
+  "freshReplayRefused": true,
+  "error": "Native fidelity difference for date5:date5-jd2460369.5:0: assertion results differ from Tcl execution. Exclude this source assertion; its recorded results differ."
+}

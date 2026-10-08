@@ -1,0 +1,38 @@
+{
+  "acceptedRevision": "970e89ff1e6999bed12afe1d28d3d703d218b5ac",
+  "publicationParents": [
+    "a01c61d9759271c726a3aae3f76984267f85422a",
+    "d8faab74d80a58fa8ff194602f03018e1d6f3d25"
+  ],
+  "allNativeAcceptedTargetFieldsUnchanged": true,
+  "targets": {
+    "aarch64-darwin": {
+      "model": {
+        "drv": "/nix/store/7rdhy9qbdmj3nfwzmrrbyq6bqhi7hzgw-sqlite-verifier-test-model-1.drv",
+        "installPhase": "export HOME=\"$TMPDIR\"\nexport PYTEST_DISABLE_PLUGIN_AUTOLOAD=1\ntimeout 600 python3 -m pytest tests/conformance_model_test.py tests/conformance_authored_test.py tests/conformance_authored_queries_test.py tests/conformance_authored_boundaries_test.py tests/conformance_authored_review_test.py tests/conformance_shards_test.py tests/conformance_freeze_test.py tests/conformance_evidence_test.py tests/conformance_acquisition_test.py tests/conformance_command_sources_test.py tests/conformance_workload_test.py tests/conformance_workload_clock_test.py tests/conformance_requirement_coverage_test.py tests/conformance_fidelity_test.py tests/conformance_storage_test.py tests/conformance_trace_test.py tests/conformance_ordering_test.py tests/conformance_clock_test.py tests/conformance_profile_test.py tests/conformance_driver_profiles_test.py tests/conformance_readonly_workload_test.py tests/conformance_context_test.py tests/conformance_pipeline_test.py tests/conformance_mutation_test.py tests/conformance_laws_test.py tests/conformance_record_test.py tests/conformance_dqs_test.py tests/conformance_upstream_test.py tests/conformance_generation_test.py tests/conformance_coverage_test.py tests/conformance_progress_views_test.py tests/conformance_tier_bindings_test.py --runtime-root /nix/store/2pm5l48v8lk5v3p1yqbc3hx3jj1w2ylr-sqlite-verifier-conformance \\\n  -p no:cacheprovider --junitxml \"$out/junit.xml\" -v --durations=10\n",
+        "output": "/nix/store/lbnmjcr3ly8agayl5b6pnlgvzy7qbisw-sqlite-verifier-test-model-1",
+        "src": "/nix/store/0nisxnakcabi6wkk71z862nkxwm2qjlm-source"
+      },
+      "upstream": {
+        "drv": "/nix/store/k5vywzbhd1zmwdayc9nm4sb5djzc1lmp-sqlite-verifier-test-upstream-1.drv",
+        "installPhase": "export HOME=\"$TMPDIR\"\nexport PYTEST_DISABLE_PLUGIN_AUTOLOAD=1\ntimeout 420 python3 -m pytest tests/conformance_capture_test.py tests/conformance_sampling_test.py tests/conformance_streaming_test.py tests/conformance_capture_gap_test.py tests/conformance_command_sources_test.py tests/conformance_catalog_test.py tests/conformance_source_profiles_test.py tests/conformance_foreign_key_recovery_test.py tests/conformance_tcl_values_test.py tests/conformance_tcl_precision_test.py tests/conformance_tcl_bindings_test.py tests/conformance_native_bindings_test.py tests/conformance_tcl_binding_policy_test.py tests/test_native_replay_storage.py --runtime-root /nix/store/2pm5l48v8lk5v3p1yqbc3hx3jj1w2ylr-sqlite-verifier-conformance \\\n  -p no:cacheprovider --junitxml \"$out/junit.xml\" -v --durations=10\n",
+        "output": "/nix/store/bvxkw4a5qz1qxf8lp37kf77n1dihmb54-sqlite-verifier-test-upstream-1",
+        "src": "/nix/store/3a6xabbhjsdxjx3500rls19jkaw4d20l-source"
+      }
+    },
+    "x86_64-linux": {
+      "model": {
+        "drv": "/nix/store/0llmxl3rx755gjjb5bbipayqwswpjj0g-sqlite-verifier-test-model-1.drv",
+        "installPhase": "export HOME=\"$TMPDIR\"\nexport PYTEST_DISABLE_PLUGIN_AUTOLOAD=1\ntimeout 600 python3 -m pytest tests/conformance_model_test.py tests/conformance_authored_test.py tests/conformance_authored_queries_test.py tests/conformance_authored_boundaries_test.py tests/conformance_authored_review_test.py tests/conformance_shards_test.py tests/conformance_freeze_test.py tests/conformance_evidence_test.py tests/conformance_acquisition_test.py tests/conformance_command_sources_test.py tests/conformance_workload_test.py tests/conformance_workload_clock_test.py tests/conformance_requirement_coverage_test.py tests/conformance_fidelity_test.py tests/conformance_storage_test.py tests/conformance_trace_test.py tests/conformance_ordering_test.py tests/conformance_clock_test.py tests/conformance_profile_test.py tests/conformance_driver_profiles_test.py tests/conformance_readonly_workload_test.py tests/conformance_context_test.py tests/conformance_pipeline_test.py tests/conformance_mutation_test.py tests/conformance_laws_test.py tests/conformance_record_test.py tests/conformance_dqs_test.py tests/conformance_upstream_test.py tests/conformance_generation_test.py tests/conformance_coverage_test.py tests/conformance_progress_views_test.py tests/conformance_tier_bindings_test.py --runtime-root /nix/store/f2xi9qgf5fil1n5r18w0n7fndrg1nfzz-sqlite-verifier-conformance \\\n  -p no:cacheprovider --junitxml \"$out/junit.xml\" -v --durations=10\n",
+        "output": "/nix/store/6nggq1pb5lnx3w9p64fh29w6wrzvkmsp-sqlite-verifier-test-model-1",
+        "src": "/nix/store/0nisxnakcabi6wkk71z862nkxwm2qjlm-source"
+      },
+      "upstream": {
+        "drv": "/nix/store/7lfg8n5lwkzg0fqwmn5gvpc30dn4pssz-sqlite-verifier-test-upstream-1.drv",
+        "installPhase": "export HOME=\"$TMPDIR\"\nexport PYTEST_DISABLE_PLUGIN_AUTOLOAD=1\ntimeout 420 python3 -m pytest tests/conformance_capture_test.py tests/conformance_sampling_test.py tests/conformance_streaming_test.py tests/conformance_capture_gap_test.py tests/conformance_command_sources_test.py tests/conformance_catalog_test.py tests/conformance_source_profiles_test.py tests/conformance_foreign_key_recovery_test.py tests/conformance_tcl_values_test.py tests/conformance_tcl_precision_test.py tests/conformance_tcl_bindings_test.py tests/conformance_native_bindings_test.py tests/conformance_tcl_binding_policy_test.py tests/test_native_replay_storage.py --runtime-root /nix/store/f2xi9qgf5fil1n5r18w0n7fndrg1nfzz-sqlite-verifier-conformance \\\n  -p no:cacheprovider --junitxml \"$out/junit.xml\" -v --durations=10\n",
+        "output": "/nix/store/f228lw41lyr160jvs69mcjxjn4m5k340-sqlite-verifier-test-upstream-1",
+        "src": "/nix/store/3a6xabbhjsdxjx3500rls19jkaw4d20l-source"
+      }
+    }
+  }
+}

@@ -63,7 +63,10 @@ def export_bundle(*, runtime: Runtime, trusted: Path, candidate: Path, trusted_i
                   output: Path, timeout: float) -> None:
     """Use the header's trusted imports and protected base to omit exactly the checker library closure."""
     roots = (runtime.sysroot / "lib/lean", *runtime.libraries, trusted, candidate)
-    with merged_search_path(roots, candidate.parent) as paths, output.open("w", encoding="utf-8") as stream:
+    requested = [module_path(name) for name in trusted_imports | {PROTECTED_BASE_MODULE}]
+    requested.extend(path.relative_to(root).with_suffix("") for root in (trusted, candidate)
+                     for path in root.rglob("*.olean"))
+    with merged_search_path(roots, candidate.parent, requested=requested) as paths, output.open("w", encoding="utf-8") as stream:
         environment = {"LEAN_SYSROOT": str(runtime.sysroot), "PATH": os.environ.get("PATH", ""),
                        "LEAN_PATH": os.pathsep.join(map(str, paths))}
         stream.write(json.dumps({"bundle": 1, "trusted_imports": sorted(trusted_imports)}) + "\n")

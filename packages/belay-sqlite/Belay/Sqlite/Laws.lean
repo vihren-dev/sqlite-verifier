@@ -16,7 +16,9 @@ def nonControl : Statement → Bool
 The remaining body starts from its resulting database. An empty body requires
 nothing of the database. Use this predicate to state successful-body laws. -/
 inductive SuccessfulBody : Nat → List Statement → Database → Prop where
+  /-- Every position and database admit an empty successful body; no statement premise is required. -/
   | nil : SuccessfulBody position [] database
+  /-- A non-control statement that succeeds, followed by a successful tail, forms a successful body. -/
   | cons (ordinary : nonControl statement = true)
       (success : literalStep statement database position = .success next)
       (tail : SuccessfulBody (position + 1) rest next) :

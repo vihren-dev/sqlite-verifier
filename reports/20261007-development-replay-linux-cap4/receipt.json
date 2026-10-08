@@ -1,0 +1,36 @@
+{
+  "kind": "one-fresh-linux-development-phase",
+  "taskStatus": "IN PROGRESS",
+  "handle": 42003,
+  "exitCode": 0,
+  "sourceCommit": "c3e8f5186e2865b5cdc0ea5af1a9d0924531752a",
+  "runtime": "/nix/store/ixl6nwa1nk8ah8138axkqkgian4a27bc-sqlite-verifier-conformance",
+  "evidenceValid": true,
+  "underTarget": false,
+  "targetSecondsExclusive": 30,
+  "phaseLimitSeconds": 120,
+  "phaseSeconds": 33.707907736999914,
+  "outerPhaseSeconds": 34.524907143,
+  "fullDenominator": 4378,
+  "selectedIdentities": 184,
+  "modelCounts": {
+    "MODEL_UNSUPPORTED": 184
+  },
+  "sourceEntries": 1113,
+  "runtimeFiles": 17936,
+  "rawArtifacts": 20,
+  "started": {
+    "group": 397270,
+    "monotonicNs": 432175900820075,
+    "pid": 397270,
+    "utc": "2026-10-07T11:28:50.300534+00:00"
+  },
+  "ended": {
+    "monotonicNs": 432210425727218,
+    "utc": "2026-10-07T11:29:24.825432+00:00"
+  },
+  "storageRoot": "/var/tmp/sqlite-verifier-t04c-executor-runtime-20261007.axs5nwGM/linux-cap4-acceptance/native-storage",
+  "storageDevice": 2431,
+  "fixturesCleaned": true,
+  "qualification": "Target missed. No replay/diagnostic/profile rerun. Cache residency is unobserved; no causal speedup or supported-agreement claim."
+}

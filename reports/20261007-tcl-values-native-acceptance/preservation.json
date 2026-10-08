@@ -1,0 +1,59 @@
+{
+  "comparedRevisions": [
+    "496ca5b63246593d8f18c528c79a10baf899e6d9",
+    "970e89ff1e6999bed12afe1d28d3d703d218b5ac"
+  ],
+  "manifestMethod": "sorted path + NUL + file SHA256 hex + newline",
+  "groups": {
+    "corpus-v1": {
+      "files": 2,
+      "pathContentManifestSha256": "557886697cbea6a9f1e3d20e1b56771d5fd4376c7507c89660bed8af712f9005",
+      "bytesUnchanged": true
+    },
+    "corpus-v2": {
+      "files": 2,
+      "pathContentManifestSha256": "6d6ffaaf776218d9a0aeb8e47a50a476888c925fee5b99ce9f9bd4a8750d6466",
+      "bytesUnchanged": true
+    },
+    "corpus-v3": {
+      "files": 3,
+      "pathContentManifestSha256": "ee8ec34a4f165501d805049b647cf8a834d2be383781092326a5d753e88f25cc",
+      "bytesUnchanged": true
+    },
+    "corpus-v4": {
+      "files": 33,
+      "pathContentManifestSha256": "5f41979386242db277903eef933193d3c23404277b27a6efeeab9af42b721b53",
+      "bytesUnchanged": true
+    },
+    "corpus-v5": {
+      "files": 122,
+      "pathContentManifestSha256": "f4c94f770fac504885df28b59254a15ebbbc07966f3ea79a1d47b033ed08be1c",
+      "bytesUnchanged": true
+    },
+    "date-codec-evidence": {
+      "files": 31,
+      "pathContentManifestSha256": "c62f68ee9cac51963361848774a8122f7fa6c71541c72f5fd7a0e6bcc5e55445",
+      "bytesUnchanged": true
+    },
+    "integration-receipts": {
+      "files": 9,
+      "pathContentManifestSha256": "518cfa70b29d9d38cd9871ecd6da96af5fe4a09044530db8a648a87cd83607e2",
+      "bytesUnchanged": true
+    }
+  },
+  "priorJournal": {
+    "rows": 73,
+    "bytes": 57214,
+    "sha256": "8539cdf2745a11a72f93088aab7b89d7eb08136a0ffed555bb78188a6c30b423",
+    "exactPrefixPreserved": true
+  },
+  "tipJournal": {
+    "rows": 76,
+    "bytes": 59990,
+    "sha256": "a3063fa87fc177bb317dce5621dee70f4042a5528e392e4cc806b389f18a7d0d"
+  },
+  "suiteOwnership": {
+    "bytesUnchanged": true,
+    "sha256": "0168cb55d913958029e35947e6ff9071d94623ba99dea532eb87020bdbc5ba00"
+  }
+}

@@ -622,3 +622,83 @@ implementation or acceptance is claimed in this entry.
 Decisions waiting for the owner:
 
 - Review the fully integrated PR #56 head after its corrections and checks.
+# All approved deliveries integrated locally, 2026-10-08
+
+The owner approves PR #59 after its reported Linux timing miss. It merges
+normally as `f90ac395`. Integrated that accepted main, containing PRs #57,
+#53, #50 and #59, into this workspace without rewriting feature commits.
+Resolved the barrel, suite and journal conflicts. Incoming application-key
+helpers and both harness memberships remain. Original journals and order
+checks are saved under `build/20261008-all-approved-deliveries-integration/`.
+Every historical plan already matches accepted main; only this task and status
+remain branch-owned records.
+
+This merged workspace is not yet compiled or accepted. Incoming application
+helpers still need checking against the moved model. The authorized per-spelling
+resolver correction and workspace compatibility tests remain to be implemented.
+The public PR remains at `0e8c57a2`; no owner approval of a new head is claimed.
+T07 remains paused until T10 is delivered.
+
+Decisions waiting for the owner:
+
+- Final review after this integrated head and the requested corrections pass
+  their required native and installed checks.
+# Resource guard hold, 2026-10-08
+
+Started the authorized per-spelling correction. The staged implementation
+resolves package directories in each original root, preserves first-file
+precedence, and rejects case-insensitive workspaces that would combine distinct
+origins or missing siblings. Compiler import spellings come from Lean's official
+dependency JSON; export also retains compiled and trusted module spellings.
+The new source is uncommitted and unverified. Tests and incoming model helpers
+still require updates and validation.
+
+The resource guard fails at 8.94 GiB available. Stopped local coding and builds.
+Standing cleanup removes eight old test directories, and GC reports 701.22 MiB
+freed, but the guard remains below 10 GiB. A four-link proposal for obsolete
+intermediate runtimes is in
+`build/20261008-obsolete-runtime-cleanup-proposal/proposal.json`.
+The latest runtime and every acceptance receipt are excluded from cleanup.
+
+Decisions waiting for the owner:
+
+- Targeted approval for the four obsolete active-workspace runtime links and GC.
+- Final review of the integrated PR #56 head after required checks pass.
+
+# Correction resumed, 2026-10-08
+
+The approved test and Nix cleanup clears the resource guard. The focused resolver suite passes all 17 cases on macOS, including actual Lean compilation. Deterministic tests cover both original root orders, mixed filesystem case rules, conflicting origins and missing siblings. Updated the incoming application-key modules to open the moved model namespace. Full integrated source, native and installed validation remain required.
+
+Decisions waiting for the owner:
+
+- Final review of the integrated PR #56 head after all required checks pass.
+
+The fresh integrated macOS runtime build passes. Incoming application-key modules now have explicit Lake targets and explicit references to their extension theorems. The public barrel uses the moved model imports and checked documentation names. Full source validation is running against `build/t10-integrated-spelling-runtime`; no full-suite pass or final owner review is claimed yet.
+
+The full source run finishes with 461 passes and one incoming fixture setup error. Updated the application-key test to the two-library fixture and moved namespace; the 18 focused application-key and resolver cases then pass against the fresh runtime. The full native suite build is running. The failed source run is retained without alteration; a clean full source run remains required.
+
+The clean source rerun passes all 462 selected cases. Updated the task acceptance text to the owner-approved per-spelling policy; historical plan files remain unchanged. The incoming reference and documentation builders now receive the separate model package. Model module pages retain repository source paths. Twenty focused documentation tests pass. The native suites and real documentation inventory are running; these later documentation edits still need final full source validation.
+
+The integrated documentation inventory now passes: all 290 authored declarations have checked documentation, with no missing or unclassified declarations. The first inventory run exposed two missing SuccessfulBody constructor docstrings; both are now checked. The fresh runtime also includes the corrected application-key example database namespace. Earlier native application-key failures are retained; focused actual bundle and differently cased caller tests are running against the corrected runtime. The original native run is still live and remains a failing run until its terminal result is retained.
+
+All five focused actual bundle regressions pass against the corrected runtime, including callers under SqliteVerifier, Belay.Sqlite and differently cased belay.Sqlite. The first native run terminates with two application-key failures and 67 bundle passes; Nix cancels other pending targets after that failure. The corrected full native run is now running with independent targets retained on failure. No aborted suite is counted as passing.
+
+Final source validation passes all 463 selected cases against the corrected runtime. The five actual bundle and caller-casing regressions also pass. The full native rerun and real API reference build remain live. The API reference uses source snapshot `3e5e4a10a5cbbf3c20b3e8d6ceb96ea51f1a8624`; this is a local validation snapshot, not a reviewed publication head. No Linux, installed or independent-review pass is claimed for the integrated correction yet.
+
+All 115 Nix infrastructure cases pass. The real macOS API reference passes validation for 29 public modules, 436 generated declaration entries, 1,176 HTML pages and 830,957 local links. Its source identity is the retained local snapshot, not a final publication. Built the fresh macOS offline archive; actual installed acceptance is running. Linux verifies the transferred source archive hash and passes its resource guard using pinned Python from Nix. Fresh Linux runtime, documentation and all native suites are running from that immutable extraction.
+
+Actual macOS offline installed acceptance passes all 26 package and Atuin tests. The corrected native suite run remains live on macOS and Linux. No complete native pass is claimed until each command terminates and its suite receipts are inspected.
+
+Both native platforms pass all 605 tests across the nine suites. Each JUnit receipt has zero failures, errors and skips. The first corrected macOS aggregate command reaches its 900-second outer limit after six suites pass; its terminal exit 124 is retained. A second invocation reuses those six exact Nix outputs and completes the remaining model, sample and upstream suites without changing any per-test or suite limit. All nine final receipts are verified. Linux source, infrastructure and actual offline installed acceptance are now running.
+
+# Main integration resumed, 2026-10-09
+
+Retained and verified the Linux acceptance archive against its independent SHA-256. Linux source checks pass 461 tests with two explicit optional reviewer-tool skips; infrastructure passes 115 tests and actual installed acceptance passes 26 tests. Integrated accepted main `2954eb7a` through PR #68. Resolved the cached API reference builder and model package page handling under ADR 0009. The base reference uses the cached core and no second inventory; the separate public documentation gate retains both source roots. Preserved the exact order and repetitions of all three prior review journals. Affected checks are running. Earlier 605-test native and archive receipts remain bound to their original snapshot and are not relabeled as results for this integration.
+
+Decisions waiting for the owner:
+
+- Final review after the integrated corrected head is committed, independently reviewed and published with required checks.
+
+The merged source suite passes all 474 tests. The 32 affected reference, CI and journal tests pass. The real cached reference base builds with both public package namespaces. Evaluated Nix output paths prove that the runtime and every one of the nine passed native suites are unchanged by this documentation/CI integration. Infrastructure revalidation is running before commit.
+
+Infrastructure revalidation passes all 115 tests. Retained complete original platform receipts and verified the evidence manifest. This integration is ready for its commit and independent review; final owner review and fresh hosted checks remain pending. The acceptance record separates the original two-platform implementation checks from the later documentation/CI integration and its exact unchanged native output identities.

@@ -1,0 +1,34 @@
+{
+  "parents": [
+    "a01c61d9759271c726a3aae3f76984267f85422a",
+    "d8faab74d80a58fa8ff194602f03018e1d6f3d25"
+  ],
+  "checks": {
+    "routing": {
+      "passed": 3,
+      "seconds": 8.74,
+      "rawSha256": "0394ce051a97342390ff1e119fe108a61ce798c185609ad122f10365ec28fbaa",
+      "rawBytes": 626,
+      "compressedSha256": "38af5664819461f4013507702c164c2b93816189075c7094a866b923945144c9"
+    },
+    "ci": {
+      "passed": 6,
+      "seconds": 0.58,
+      "rawSha256": "716defb5e12e2af046d05efcae24765b69f8bfec02a3559b17965189e109f7ca",
+      "rawBytes": 944,
+      "compressedSha256": "4f1961bf89afdf08baff6078860d94061281ef6981b8febe7449de3857503d6a"
+    }
+  },
+  "mergedJournal": {
+    "ownRows": 79,
+    "incomingRows": 50,
+    "mergedExactDistinctRows": 81,
+    "uniqueReviewIds": 40,
+    "bothFullOrdersPreserved": true,
+    "ownJournalExactPrefixPreserved": true,
+    "sha256": "e32a805fdf5f50f3ae2991ccd99f9e95bddd1b38c0878631910a7d1bbde6268f"
+  },
+  "acceptedNativeTargetIdentitiesUnchanged": true,
+  "otherCodeChanges": false,
+  "excludedMainMetadata": "6852f6fa"
+}

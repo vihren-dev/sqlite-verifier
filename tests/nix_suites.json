@@ -8,7 +8,8 @@
     "tests/stage_reuse_test.py",
     "tests/generated_inputs_test.py",
     "tests/test_latency_frontend.py",
-    "tests/model_roots_test.py"
+    "tests/model_roots_test.py",
+    "tests/test_import_path.py"
   ],
   "cli": [
     "tests/cli_test.py"
@@ -37,7 +38,8 @@
     "tests/conformance_freeze_test.py",
     "tests/conformance_shards_test.py",
     "tests/conformance_evidence_test.py",
-    "tests/conformance_fidelity_test.py"
+    "tests/conformance_fidelity_test.py",
+    "tests/conformance_transaction_evidence_test.py"
   ],
   "harness": [
     "tests/conformance_acquisition_test.py",
@@ -46,6 +48,7 @@
     "tests/conformance_workload_test.py",
     "tests/conformance_workload_clock_test.py",
     "tests/conformance_storage_test.py",
+    "tests/conformance_loading_workers_test.py",
     "tests/conformance_ordering_test.py",
     "tests/conformance_clock_test.py",
     "tests/conformance_profile_test.py",
@@ -53,10 +56,14 @@
     "tests/conformance_readonly_workload_test.py",
     "tests/conformance_context_test.py",
     "tests/conformance_requirement_coverage_test.py",
-    "tests/conformance_frontend_boundary_test.py"
+    "tests/conformance_frontend_boundary_test.py",
+    "tests/conformance_authored_transactions_test.py"
   ],
   "sample": [
     "tests/conformance_tiers_test.py",
+    "tests/test_native_workers.py",
+    "tests/test_native_worker_failures.py",
+    "tests/test_native_worker_routing.py",
     "tests/conformance_sample_test.py"
   ],
   "upstream": [
@@ -69,6 +76,10 @@
     "tests/conformance_source_profiles_test.py",
     "tests/conformance_foreign_key_recovery_test.py",
     "tests/conformance_tcl_values_test.py",
+    "tests/conformance_tcl_precision_test.py",
+    "tests/conformance_tcl_bindings_test.py",
+    "tests/conformance_native_bindings_test.py",
+    "tests/conformance_tcl_binding_policy_test.py",
     "tests/test_native_replay_storage.py"
   ]
 }

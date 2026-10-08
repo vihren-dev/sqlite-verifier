@@ -1,6 +1,7 @@
 """Resolve Lean source imports with the pinned compiler's header parser."""
 
 from collections.abc import Sequence
+from contextlib import nullcontext
 from dataclasses import dataclass
 from graphlib import TopologicalSorter
 import json
@@ -78,7 +79,12 @@ def module_path(name: str) -> Path:
 def lean_process(sysroot: Path, libraries: tuple[Path, Path], search: Sequence[Path], source: Path,
                  output: Path, arguments: Sequence[str], phase: str, timeout: float = 30) -> str:
     """Run only the pinned executable, with explicit paths and no ambient project settings."""
-    with merged_search_path([sysroot / "lib/lean", *libraries, *search], output) as paths:
+    roots = (sysroot / "lib/lean", *libraries, *search)
+    dependency_header = "--deps-json" in arguments
+    requested = () if dependency_header else tuple(module_path(name)
+        for name in imports(source, sysroot, libraries, output))
+    view = nullcontext(roots) if dependency_header else merged_search_path(roots, output, requested=requested)
+    with view as paths:
         result = run_process(
             [str(sysroot / "bin/lean"), *arguments, str(source)],
             write_root=output,

@@ -1,0 +1,125 @@
+{
+  "archiveBytes": 59648000,
+  "archiveSha256": "86b96911dae99a77ef8158c8ac53c548b69896744de904365545ded78bc4f422",
+  "evidenceValid": true,
+  "format": "t04c-complete-dual-platform-v1",
+  "fullDenominator": 4378,
+  "handles": {
+    "darwinBuild": 89656,
+    "darwinCapture": 81440,
+    "darwinPreflight": 54219,
+    "linuxBuild": 81189,
+    "linuxCapture": 22014,
+    "linuxPreflight": 7377,
+    "linuxRetrieval": 67302,
+    "linuxSourceChecks": 68247,
+    "linuxTransfer": 75414,
+    "mergeReview": 71502
+  },
+  "phaseLimitSeconds": 120,
+  "platforms": {
+    "darwin": {
+      "ended": {
+        "monotonicNs": 34354941251708,
+        "utc": "2026-10-07T08:02:47.048556+00:00"
+      },
+      "evidenceValid": true,
+      "historicalReceiptSha256": "928f96927343fd1dc8d4e2a899aaefe2583c2035d8b48631838eae8f7894a4b4",
+      "loadAfter": [
+        5.2236328125,
+        5.34716796875,
+        4.87744140625
+      ],
+      "loadBefore": [
+        6.08349609375,
+        5.521484375,
+        4.921875
+      ],
+      "nativeLibraries": {
+        "3.51.0": {
+          "path": "/nix/store/snlk5qqf7gbjk465rrwzxsn14mx3znh0-sqlite-verifier-native-3.51.0/lib/libsqlite3.3.51.0.dylib",
+          "sha256": "f0a5f8a3a2728278700f3dccf2e122b89f3187986af2462b22a8c8bb7229c414"
+        }
+      },
+      "outerPhaseSeconds": 22.19781625,
+      "phaseSeconds": 21.434975332995236,
+      "python": {
+        "path": "/nix/store/7xgkr19ify5wzfj8mafjqhywzvsmgqaq-python3-3.14.7-env/bin/python3.14",
+        "sha256": "14bfa4a81a883fee6bfd962d9c0e8a0c4b43b528de58785d648c3ea8dd5a301e",
+        "version": "3.14.7 (main, Aug  5 2026, 10:29:49) [Clang 21.1.8 ]"
+      },
+      "runtime": "/nix/store/2w1dv3hhnrcjrcm7qp43jpdbxsgvr6wl-sqlite-verifier-conformance",
+      "runtimeFiles": 17886,
+      "started": {
+        "group": 58692,
+        "monotonicNs": 34332743435458,
+        "pid": 58692,
+        "utc": "2026-10-07T08:02:24.849652+00:00"
+      },
+      "storageDevice": 16777242,
+      "storageRoot": "/Users/tzankomatev/work/sqlite-verifier-headroom/build/20261007-t04c-acceptance/darwin/native-storage",
+      "underTarget": true
+    },
+    "linux": {
+      "ended": {
+        "monotonicNs": 420457332295919,
+        "utc": "2026-10-07T08:13:31.731999+00:00"
+      },
+      "evidenceValid": true,
+      "historicalReceiptSha256": "d968ed55a1f43c6a9f7735de7ddcb7ea4643e5a5050bfeb75d9c669b61b83aa6",
+      "loadAfter": [
+        1.220703125,
+        0.45263671875,
+        0.28466796875
+      ],
+      "loadBefore": [
+        0.39990234375,
+        0.2021484375,
+        0.19873046875
+      ],
+      "nativeLibraries": {
+        "3.51.0": {
+          "path": "/nix/store/af83s1zssaf4sgkjjsqz0hs5sjf5s4lk-sqlite-verifier-native-3.51.0/lib/libsqlite3.so.3.51.0",
+          "sha256": "a8244e2eceb4fde2af23e260dd50958b3986993afcb6b2e9fc8a0541b6558b3e"
+        }
+      },
+      "outerPhaseSeconds": 40.432509126,
+      "phaseSeconds": 39.57022682100069,
+      "python": {
+        "path": "/nix/store/jm7jvgi26icvnm2c5cx9iliixlvplgrp-python3-3.14.7-env/bin/python3.14",
+        "sha256": "f5cce9ecc914b0c2eee78056c1c816aa02ae4c73c0aaf958eb5e0bb9281f34ea",
+        "version": "3.14.7 (main, Aug  5 2026, 10:29:49) [GCC 15.3.0]"
+      },
+      "runtime": "/nix/store/rhinzr7jq41azsh6s8i8dmndi7idnv3k-sqlite-verifier-conformance",
+      "runtimeFiles": 17925,
+      "started": {
+        "group": 360402,
+        "monotonicNs": 420416899786793,
+        "pid": 360402,
+        "utc": "2026-10-07T08:12:51.299500+00:00"
+      },
+      "storageDevice": 2431,
+      "storageRoot": "/var/tmp/sqlite-verifier-t04c-20261007.4yNihbCP/linux/native-storage",
+      "underTarget": false
+    }
+  },
+  "qualifications": [
+    "Darwin original GNU df described the sealed system snapshot through a firmlink. An explicitly after-only native reconciliation identifies APFS Data and matches actual device numbers retained before and after.",
+    "Failed source/archive, metadata and Linux bootstrap preflights invoked no phase. Their retained summaries identify missing original timestamps. The metadata failure has its recorded message, not an original full traceback.",
+    "Full identity reads preceded each phase; OS file caches were not flushed and residency was not observed. Each report was freshly computed once.",
+    "No per-stage timing or process CPU/wait instrumentation ran in either fresh phase. The report phase duration and outer call duration are separate observations."
+  ],
+  "rawArtifacts": 37,
+  "regularSourceFileCount": 933,
+  "remoteRoot": "/var/tmp/sqlite-verifier-t04c-20261007.4yNihbCP",
+  "retainedMonotonicNs": 35132848826708,
+  "retainedUtc": "2026-10-07T08:15:44.956086+00:00",
+  "selectedIdentities": 184,
+  "sourceCommit": "5d15607fdf78d0a209b539ca158939739b54d377",
+  "sourceSymlinks": {
+    "CLAUDE.md": "AGENTS.md"
+  },
+  "targetMet": false,
+  "targetSecondsExclusive": 30,
+  "taskStatus": "IN PROGRESS"
+}

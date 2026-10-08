@@ -12,6 +12,23 @@ are fetched. Lean is exactly 4.34.1; neither Elan nor a nixpkgs Lean version is
 used. Linux binaries use the pinned loader via autoPatchelf. Darwin upstream
 binaries already use bundled-relative/platform loaders.
 
+`docGen4` builds the exact doc-gen4 v4.34.1 manifest closure.
+`apiReferenceCore` builds the doc-gen4 database for Lean's `Init` and `Std`
+from the toolchain and doc-gen4 only. `apiReferenceBase` adds the public Lean
+library to a copy of it and writes the HTML reference, with a placeholder in
+its source links, so it does not change with the commit.
+`apiReference` copies it and puts the required `referenceRevision` full commit
+hash into the source links. `just reference HASH`
+runs it in a sandbox and links the output at `build/api-reference`. These
+targets are separate from `runtime` and its installed closure. See the
+[API reference guide](../docs/api-reference.md).
+
+Reference generation corrects links to recursors that doc-gen4 omits to the
+existing parent-type anchors. It also corrects the Lean 4.34.1 TacticsExtra
+docstring's `Init/Tactic.html` link to `Init/Tactics.html`. The remaining
+missing pages and anchors fail validation. The standard `#top` fragment,
+named anchors and raw/decoded HTML IDs remain valid targets.
+
 `just parser` builds the `parsers` target and links its executables and grammar
 directories into the checkout’s `build/`. Nix owns all parser build reuse; there
 is no separate local builder or content-stamp cache. The derivation verifies
@@ -66,6 +83,13 @@ The sample owns the frozen v4 and synthetic inputs plus their shared replay and
 validation helpers. Full-only historical evidence and tests do not invalidate it.
 `developmentTests` selects every target except `tests.model` and `tests.frozen`;
 the full target set remains in CI and packaging.
+
+`publicDocumentation` checks the compiled public import closure against its
+source parser and original compiler references. Every authored public
+declaration, constructor and field must have direct checked Verso documentation.
+Missing, ordinary and unclassified documentation fail this development target.
+`just test`, `just test-full` and reference generation run this gate. Its
+inventory tools stay outside the installed proof runtime.
 
 `lean4export.nix` fetches unpatched lean4export at tag `v4.34.0` as a fixed-output source.
 The Lean runtime copies that source to

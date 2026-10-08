@@ -1,13 +1,14 @@
 # Proof exporter driver status
 
-Status: IN PROGRESS. Created 2026-10-06.
+Status: DONE. Created 2026-10-06. Completed 2026-10-07.
 
-Technical acceptance and independent reviews are complete. The owner approved
-PR #47 at reviewed head `07dc71b3` on 2026-10-07. Both export-path review
-findings are resolved. The approved Lean upgrade is merged. Integrated hosted
-acceptance remains failing on Darwin's whole bundle-suite deadline; merge and
-release remain pending. The bounded correction is described in
-[the Darwin CI task](20261007-darwin-bundle-scheduling.task.md).
+PR #47 merged normally as `2e01c49a` on 2026-10-07. Both final native
+jobs pass in CI `37598926394` at reviewed head `eec6d08e`. The merged
+tree exactly matches that tested head. The owner approved the exporter
+and trusted-import changes at `07dc71b3`; all 101 approved files and
+original receipt bytes remain unchanged. Both export-path owner findings
+are resolved. Earlier failed hosted runs remain historical failures.
+Delivery is complete; this task grants no release approval.
 
 Task: [proof exporter driver](20261006-proof-exporter-driver.task.md).
 Source: [issue #29](https://github.com/vihren-dev/sqlite-verifier/issues/29).
@@ -219,3 +220,12 @@ to the reviewed implementation.
   This status-only correction changes no source, runtime, input, journal or
   receipt payload. The final raw refresh review stays preserved in the working
   copy; the reviewed feature is ready for PR #47-only publication.
+
+- 2026-10-07: Verified GitHub reports PR47 merged as `2e01c49a`, and
+  both exact-head native CI jobs succeed in run `37598926394`. Jujutsu
+  reports no tree difference between the merge and tested head `eec6d08e`.
+  Retained native and installed acceptance covers the three byte-identical
+  baselines, submitted declarations under library-like namespaces, trusted
+  origins, malformed omissions and split package resolution. The obsolete
+  exporter patch remains absent on main. The task and status are DONE.
+  Issue #29 is closed as completed. No source or baseline changes.

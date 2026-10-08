@@ -12,7 +12,7 @@ from conformance.query_window import Token
 from conformance.native_connection import SOURCE_ID
 from conformance.upstream_assertions import assertions, iter_assertions
 from conformance.upstream_selection import candidate_reasons
-import conformance.upstream_selection as selection
+import conformance.upstream_bindings as binding_observer
 import conformance.upstream_pilot as upstream_pilot
 
 pytestmark = [pytest.mark.unit, pytest.mark.conformance]
@@ -37,14 +37,14 @@ def test_iterator_is_lazy_and_matches_list_wrapper(monkeypatch: pytest.MonkeyPat
                        ("sql", "db", f"SELECT :value{index}", "0", "eval"),
                        ("result", "db", "0", str(index)), ("end", f"loop-{index}")])
     parsed: list[str] = []
-    original = selection.tokens
+    original = binding_observer.tokens
 
     def observed_tokens(command: str) -> list[Token]:
         """Count command scans to rule out repeated scans of full candidate prefixes."""
         parsed.append(command)
         return original(command)
 
-    monkeypatch.setattr(selection, "tokens", observed_tokens)
+    monkeypatch.setattr(binding_observer, "tokens", observed_tokens)
     iterator = iter_assertions(encoded(events))
     first = next(iterator)
     before = deepcopy(first)
@@ -57,23 +57,18 @@ def test_iterator_is_lazy_and_matches_list_wrapper(monkeypatch: pytest.MonkeyPat
                                                "implicit Tcl parameter binding: :value0"]
 
 
-def test_cache_and_legacy_fallback_keep_identical_reasons(monkeypatch: pytest.MonkeyPatch) -> None:
-    """An explicit empty cache is authoritative; missing caches retain the older scan."""
+def test_cached_observations_are_required_and_authoritative() -> None:
+    """Every current candidate carries observed refusals; deleting them never restores a token-only guess."""
     events = [("reset",), ("sql", "db", "SELECT '$literal' /* :comment */", "0", "eval"),
               ("result", "db", "0", "$literal"), ("begin", "bound", "12"),
               ("sql", "db", "SELECT @value", "0", "onecolumn"), ("result", "db", "0", "12"),
               ("end", "bound")]
     candidate = assertions(encoded(events))[0]
-    historical = deepcopy(candidate)
-    del historical["implicitBindingReasons"]
-    assert reasons(candidate) == reasons(historical) == ["implicit Tcl parameter binding: @value"]
-
-    def unexpected_scan(command: str) -> list[Token]:
-        """Cached selection must not invoke the fallback lexer."""
-        raise AssertionError(f"Unexpected prefix rescan: {command}")
-
-    monkeypatch.setattr(selection, "tokens", unexpected_scan)
     assert reasons(candidate) == ["implicit Tcl parameter binding: @value"]
+    incomplete = deepcopy(candidate)
+    del incomplete["implicitBindingReasons"]
+    with pytest.raises(KeyError, match="implicitBindingReasons"):
+        reasons(incomplete)
     candidate["implicitBindingReasons"] = []
     assert reasons(candidate) == []
 
@@ -107,10 +102,8 @@ def test_control_boundaries_copy_prefix_binding_reasons(control: list[tuple[str,
     candidate = assertions(encoded(events))[0]
     assert candidate["prefix"][0] == "SELECT $before"
     assert candidate["commands"] == ["SELECT @after"]
-    historical = deepcopy(candidate)
-    del historical["implicitBindingReasons"]
-    assert reasons(candidate) == reasons(historical) == ["implicit Tcl parameter binding: $before",
-                                                       "implicit Tcl parameter binding: @after"]
+    assert reasons(candidate) == ["implicit Tcl parameter binding: $before",
+                                  "implicit Tcl parameter binding: @after"]
 
 
 def test_timeout_retains_completed_candidates_without_native_acquisition(

@@ -7,7 +7,7 @@ import shutil
 import pytest
 
 from conformance.corpus import load, native_replay
-from conformance.native_replay import decode_rows
+from conformance.native_bindings import decode_rows
 from conformance.workload import bound_records, record
 
 ROOT = Path(__file__).resolve().parents[1]

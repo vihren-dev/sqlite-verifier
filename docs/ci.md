@@ -4,24 +4,43 @@ CI uses Nix to cache builds and expensive hermetic pytest suites. The earlier
 [ADR 0001](adr-0001-pytest-and-nix-ci.md) unit-result receipts and coverage
 aggregation have been superseded by [Nix test targets](../build-support/README.md).
 
-`.github/workflows/ci.yml` checks pull requests on Linux. Pushes to `main`, release
-tags, manual requests and a nightly schedule check both Linux and macOS. On a pull
-request the macOS job reports success without running checks, because the
-repository ruleset requires a result from it; macOS changes are checked locally
-with `just test` and after the merge.
+`.github/workflows/ci.yml` runs the verifier checks on Linux for pull requests.
+Pushes to `main`, release tags, manual requests and the nightly schedule run
+those checks on both native platforms. On pull requests, macOS skips both the
+verifier checks and the API reference build.
+Local macOS `just test` results remain required for verifier acceptance.
 
 `tests/ci_scope.py` selects the checks from the files that differ from the pull
 request base:
 
 | Scope | Selected when | Recipes |
 | --- | --- | --- |
-| `docs` | only Markdown documentation changed, including on a `main` push | link checks, no build |
+| `docs` | only Markdown documentation and the review log changed, including on a `main` push | link checks, no build |
 | `test` | any other change | `just test-full` |
 | `infrastructure` | build definitions or shared test infrastructure changed | `just test-full test-nix` |
 | `packaging` | archive contents, installation or runtime discovery changed | `just test-full runtime-package` |
 | `package` | both of the above, other `main` pushes, tags, manual and nightly runs | `just package` |
 
-Each native job enters the pinned Nix environment once. `tools/ci_checks.py`
+Every scope checks the review log with `tools/review_log_check.py`. Each line
+must be a review or resolution record, and each line of the base commit must be
+present and unchanged. Merges may reorder lines; the review statistics use the
+date of a resolution, not its line.
+
+Linux builds the [checked API reference](api-reference.md) for pull requests.
+Main, tags, manual and nightly runs build it on both native platforms for
+non-documentation scopes. They use the
+pinned Nix environment with the checkout's full commit hash for source links.
+Only the last, cheap step uses that hash. The expensive base build does not, and
+`tools/ci_store_gc.py` keeps it in the saved cache, so a run whose Lean sources
+match the cache reuses it.
+CI retains `api-reference-SYSTEM` for 14 days, including when a later check
+fails. `just documentation-inventory` checks authored Verso coverage.
+Documentation dependencies stay outside the installed proof runtime.
+The complete job has a 75-minute limit. The reference phase keeps its
+30-minute limit. Individual compiler, suite and installer deadlines remain
+unchanged; a job that reaches its aggregate limit fails.
+
+Each complete check invocation enters the pinned Nix environment once. `tools/ci_checks.py`
 checks resources, builds the runtime and
 invokes the selected recipe. Darwin first builds the identical `tests.bundle`
 target with sandboxing enabled and fallback disabled. Its output is linked at
@@ -84,19 +103,40 @@ Development `just test` selects `developmentTests`, the same targets except
 host `--source-checks` exclusion list. Source-owned conformance checks remain
 fresh. Every scope from `test` up runs all Nix targets.
 
-The pinned cache-nix-action restores the Nix store and saves it again after the
-checks, on every run. The cache key is the platform, the Nix pins and a hash of
+The pinned cache-nix-action restores the Nix store on every applicable run.
+Only main pushes and nightly runs save caches after their checks. The cache key is the platform, the Nix pins and a hash of
 every file except `plans/` and `reviews/`. A push that changes only task records
 therefore restores the exact store of the earlier push, finds every Nix target
-cached and saves nothing. Any other push restores the newest store with the same
-platform and pins: first the pull request's own, then the one from `main`. A pull
-request's cache is visible only to its own later runs. Nix, not the GitHub cache
+cached and saves nothing. Other runs restore the newest visible matching store for their platform and pins.
+Pull requests, tags and manual runs do not save caches. Nix, not the GitHub cache
 key, determines which outputs can be reused; changing a declared input creates a
-different test derivation. No extra signing credentials are required.
+different test derivation.
+
+The check job also substitutes from the publicly readable Vihren Attic cache,
+`https://cache.vihren.dev/sqlite-verifier`, trusting only its signing key
+`sqlite-verifier:XgeRqTIGBEw3VP8GPrzSvdU+5t1lJz7uEMhIG1lh7QE=` in addition to
+cache.nixos.org. Reads need no credentials, so fork pull requests use it too.
+`connect-timeout = 5` and `fallback = true` make an unreachable cache or a failed
+download fall back to a local build; substitution fallback is unrelated to
+`sandbox-fallback`, which stays disabled.
+
+After both native checks of a `main` push or nightly run pass, the
+`publish-nix-store` job restores, per platform, exactly the store that the check
+job saved and uploads its paths with the pinned Attic client; Attic skips paths
+that cache.nixos.org already provides. Only that job uses the `attic-publish`
+environment, which deploys only from `main` and holds `ATTIC_WRITE_TOKEN`; pull
+request, tag and manual jobs never receive the token. The job may fail or reach
+its 60-minute limit without failing the workflow, and it changes no check
+result. A missing saved store uploads nothing. The cache, its token rotation and
+server operation are maintained in the devops repository
+(`docs/vihren-demo/attic-ops.md`). An earlier attempt uploaded inside the check
+job and was rolled back ([record](../plans/20260929-attic-ci.status.md)).
 
 Before the save, `tools/ci_store_gc.py` registers garbage-collector roots for the
-test targets, runtimes, parsers, development shell and flake inputs of the current
-commit, and removes every other store path. Nix keeps the outputs of rooted
+test targets, runtimes, parsers, base API reference (`apiReferenceBase`),
+development shell and flake inputs of the current commit, and removes every other
+store path. The base API reference and its doc-gen4 build input add about 53 MB
+compressed for each platform. Nix keeps the outputs of rooted
 derivations' build inputs (`keep-outputs`). Without this step the store kept every
 older commit's outputs and grew to 5.8 GB for Linux, while one commit needs about
 1.4 GB compressed; GitHub keeps at most 10 GB of caches for a repository, so the
@@ -106,9 +146,9 @@ later run and cannot change a result. The step may fail without failing the job.
 Host JUnit reports, cached Nix test outputs and CI phase diagnostics are
 retained for 14 days. Pytest's exit status decides success. Individual subprocess
 and whole-command deadlines remain bounded (a timed-out test command's process
-group is killed). The hosted job limit is 75 minutes. It covers the sequential
-runtime, Darwin bundle and complete-check phase budgets, plus setup and artifact
-retention. Individual suite and command limits remain unchanged.
+group is killed). The hosted job limit is 75 minutes, including the reference phase, runtime,
+Darwin bundle, complete checks, setup and artifact retention. Child limits
+are individual upper bounds; their sum is not a promised job duration. Individual suite and command limits remain unchanged.
 Superseded ordinary runs are cancelled; release/manual runs are not.
 
 The matrix follows GitHub's documented native runner architectures:
