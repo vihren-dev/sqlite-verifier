@@ -1,6 +1,6 @@
 # ADR 0008: Statement syntax and name resolution in Lean
 
-Date: 2026-10-08. Status: PROPOSED.
+Date: 2026-10-08. Status: ACCEPTED on 2026-10-08.
 Audience: designers and reviewers.
 Related: [ADR 0005](adr-0005-conformance-corpus-scale.md),
 [ADR 0006](adr-0006-model-boundary-and-execution-levels.md),

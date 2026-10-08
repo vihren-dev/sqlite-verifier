@@ -1,6 +1,6 @@
 # ADR 0007: SQLite parser as one in-process library for all grammars
 
-Date: 2026-10-07. Revised: 2026-10-08. Status: PROPOSED.
+Date: 2026-10-07. Revised: 2026-10-08. Status: ACCEPTED on 2026-10-08.
 Audience: designers and reviewers.
 Related: [SQLite syntax boundary](sqlite-parser.md),
 [trust boundary](trust-boundary.md),
