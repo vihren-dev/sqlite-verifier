@@ -892,3 +892,11 @@ authorized one Linux diagnostic below. No production change followed it.
   the progress history. The progress document now describes four workers
   per phase and links the measured acceptance. All 40 local documentation
   links resolve, and the receipt validator passes. Publication remains.
+
+- 2026-10-08: Documentation correction `0bf3ff21` passes independent
+  review `20261008T071906Z-0bf3ff21` with no findings. Fresh final macOS
+  Nix sandboxes pass 135 harness checks in 3.82 seconds and 22 sample
+  checks in 37.26 seconds, without skips or failures. Original XML and
+  console bytes are retained in the integration record. Suite durations
+  remain separate from standalone replay timings. No feature changes.
+  Final evidence review and normal publication remain required.

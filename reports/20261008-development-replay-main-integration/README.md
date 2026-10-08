@@ -18,5 +18,12 @@ The standalone receipt validator and all five corruption checks also pass.
 No timing phase runs for this integration. The passing standalone phases
 remain bound to their original reviewed source, `2006755a`.
 
-Independent integration review and publication remain required. T04c is
+Integration review `20261008T071836Z-886de497` has no findings.
+Fresh final macOS Nix sandbox execution passes 135 harness checks in
+3.82 seconds and 22 sample checks in 37.26 seconds, without skips or failures.
+Original XML and the complete console log are retained. The exact outputs are
+`/nix/store/73gsfgxfpph44bk4gvvqknnfvi584cza-sqlite-verifier-test-harness-1`
+and `/nix/store/9fqsb2glgy0k7d6s9zz3jrpyhp792yvl-sqlite-verifier-test-sample-1`.
+These are suite durations, separate from standalone replay acceptance.
+Independent final-evidence review and publication remain required. T04c is
 IN PROGRESS.
