@@ -167,8 +167,160 @@ has a proof sketch. A rule whose definition is already the documented rule
 needs no separate proof. An example is the affinity function, which states
 SQLite's documented substring rules directly.
 
-Conformance cases check the rules against native SQLite. The proofs check
-`resolve` against the rules.
+The section "How `resolve` is tested" tells how the rules are checked against
+SQLite.
+
+### Execution profile
+
+`resolve` takes the execution profile as an input. It reads these fields:
+
+- **Release and source id.** They select the rules of that release, and they
+  must agree with the parser dialect of ADR 0007.
+- **Effective limits.** SQLite has run-time limits for each connection
+  (`sqlite3_limit`). A compile-time option sets the highest value, and the
+  connection can lower it. The value that applies is the current value of the
+  connection. The profile records these limits:
+
+  | Limit | Value recorded for 3.51.0 | Checked by |
+  | --- | --- | --- |
+  | Columns in a table, an index or a result list | 2,000 | `resolve` |
+  | Expression depth | 1,000 | `resolve` |
+  | Terms in a compound `SELECT` | 500 | `resolve` |
+  | Function arguments | 1,000 | `resolve` |
+  | Highest parameter number | 32,766 | `resolve` |
+  | Length of a text or blob value | 1,000,000,000 | execution semantics |
+  | Trigger depth | 1,000 | execution semantics |
+
+- **Double-quoted strings.** The `DQS_DML` and `DQS_DDL` settings decide if a
+  double-quoted name that matches no column becomes a string literal.
+
+No limit is a constant in Lean or Python. Today, 2,000 columns is a constant in
+`SqliteVerifier/Model.lean` and in four Python files, and the native recorder
+forces the column limit of each connection to 2,000. All of these are removed.
+Model validity, such as the column count of a valid table, uses the limit of
+the profile.
+
+SQLite checks the expression depth in its parser actions. The parser library of
+ADR 0007 replaces those actions, so `resolve` enforces this limit.
+
+**Measurement.** The native recorder reads each limit of the connection with
+`sqlite3_limit(db, id, -1)` and records it in the profile, next to the
+settings that it records today. A profile for an application is measured on a
+connection that the application configures, as ADR 0005 requires. If the
+application lowers a limit, its profile shows the lower value.
+
+**Frozen records.** Profiles in frozen records have no limits field. Their
+recorder kept every limit at the compile-time value, and set the column limit
+to 2,000, which is also the default. A reader therefore takes the limits of an
+old profile from the `SQLITE_MAX_*` values in its recorded compile options. No
+frozen record changes.
+
+**In Lean.** `ExecutionProfile` becomes a structure with the release, the
+source id, the limits and the double-quoted-string settings. It replaces the
+enumeration with one constructor for each release. The generated inputs
+contain the profile as a literal. For `verify`, a release version on the
+command line selects SQLite's documented defaults for that release, until a
+user can give a measured profile.
+
+The other recorded settings, such as foreign keys, recursive triggers, the
+transaction mode and the clock, belong to the execution semantics. Their place
+in the structure is part of a later decision.
+
+### How `resolve` is tested
+
+`resolve` is checked in two ways. Each way covers a different question.
+
+| Question | Method |
+| --- | --- |
+| Do the rules say what SQLite documents and does? | Review of the specification against the documentation, and the conformance suite |
+| Does `resolve` follow the rules, for all inputs? | Lean proofs |
+
+**Specification with documentation references.**
+
+- Each rule of the specification has a docstring with the documentation page of
+  the pinned release that it implements. Where the documentation has a
+  requirement identifier, such as `R-12345-67890`, the docstring names it. The
+  identifiers are in the requirement inventory of the corpus.
+- Where the documentation does not state the behavior, the docstring names the
+  function in the pinned SQLite source that decides it. Each such rule needs at
+  least one conformance case, because no document can confirm it.
+- A reviewer checks each rule against its reference. This review is the only
+  check that the rule says what SQLite documents.
+
+**Conformance suite.** The suite runs each case through the mapping, `resolve`
+and the execution semantics, and compares the observations with native SQLite.
+SQLite does not show its resolution result, so the suite compares its effects:
+
+- **Prepare errors.** The result code, the error position and the error kind.
+  Almost all prepare errors have the same result code, `SQLITE_ERROR`, so the
+  kind is necessary. Each error kind in Lean names the SQLite message format
+  that it corresponds to, such as `no such table: %s`, and the comparison
+  matches the recorded message against that format.
+- **Error phase.** The case format records if an error came from
+  `sqlite3_prepare_v2` or from `sqlite3_step`. Today the recorder does not
+  record this. A prepare error must agree with `resolve`. A step error must
+  agree with the execution semantics. For example, adding a `NOT NULL` column
+  without a default fails only when the table has rows, so SQLite reports it
+  when the statement runs.
+- **Catalog.** After each statement, the catalog of `resolve` is compared with
+  `sqlite_schema`, `PRAGMA table_xinfo` and the index lists: object kinds,
+  names as written, declared type text, defaults and keys.
+- **Result columns.** The result column names, and the declared type of each
+  result column from `sqlite3_column_decltype`. In builds with
+  `SQLITE_ENABLE_COLUMN_METADATA`, also the origin table and column.
+- **Stored rows.** Exact storage classes and values. These show column order,
+  defaults, affinity and numeric literal conversion.
+
+Errors, the catalog and the result columns check `resolve` almost alone.
+Stored rows also depend on the execution semantics.
+
+**Coverage rule.** An authored shard contains, for each condition of each
+rule:
+
+- at least one case where the condition applies;
+- a neighbor case where it just does not apply, for example a name that
+  differs only outside ASCII, or one column below a limit;
+- cases where two errors apply at once, to record which error SQLite reports.
+
+Each case names the requirement identifiers that it covers, so the requirement
+matrix of the progress report shows the coverage of each rule. Cases from the
+upstream Tcl tests that cover the same rules are further evidence.
+
+**Limits.** Limit cases are recorded under profiles with lowered limits, for
+example 5 columns or text of 100 bytes. A model that uses a constant instead of
+the profile value then fails. The suite needs no table with 2,000 columns and
+no value of one gigabyte. One case for each limit is also recorded at the
+default value, to show that a lowered limit and the compile-time limit give the
+same result.
+
+**Mutants.** Changed copies of `resolve` check that the suite tests each rule.
+Each of these mutants must make at least one case disagree:
+
+- fold non-ASCII letters too;
+- change the order of the affinity rules;
+- make `INTEGER PRIMARY KEY DESC` an alias for the rowid;
+- keep the catalog after `ROLLBACK`;
+- permit a table and an index with the same name;
+- use 2,000 columns instead of the profile limit;
+- remove one prepare-error condition at a time.
+
+A mutant that no case kills shows a missing case.
+
+**Current coverage.** The current corpora have 4,466 distinct cases. 380 of
+them end in an error. Most of those errors are in features after the first
+scope, such as `ALTER TABLE ... RENAME`, JSON functions and aggregates. For the
+first scope, the compared cases contain no case for these conditions:
+
+- `CREATE TABLE` for a table that exists;
+- a duplicate column in `ADD COLUMN`;
+- a table with the name of an index;
+- more columns than the limit;
+- an ambiguous column name in a query;
+- `COMMIT` or `ROLLBACK` with no active transaction;
+- two errors in one statement.
+
+Errors in the setup of upstream cases are not counted. The model does not
+compare setup. The authored shard closes these gaps.
 
 ### Scope of the first implementation
 
@@ -226,7 +378,11 @@ about 50 lines. It depends only on `propext`, `Classical.choice` and
   the execution semantics. A difference from native SQLite can come from
   either, and both are Lean code.
 - **Owner review.** The verification target, the gates and the generated
-  inputs change. Review condition R8 applies to each such commit.
+  inputs change. Model validity depends on the profile limits. Review
+  condition R8 applies to each such commit.
+- **Recorder and formats.** The recorder no longer forces the column limit. The
+  profile format gets a limits field, and the case format gets the error phase.
+  Both get new versions. Frozen records stay readable.
 - **Time.** Resolution adds milliseconds to each `verify`. The kernel time is
   spent on the agent's proof.
 - **Trust boundary.** It names resolution as part of the compiled gate. The
@@ -267,9 +423,12 @@ theorem larger, and the proof does not use them.
 
 ## Not decided here
 
-- **Execution profile structure.** `resolve` takes the profile as an input. A
-  structure with settings, such as foreign keys and double-quoted strings,
-  replaces the current enumeration in a later decision.
+- **Other profile settings.** This ADR decides the profile fields that
+  `resolve` reads. The place of foreign keys, recursive triggers, the
+  transaction mode and the clock in the structure is a later decision, with
+  the execution semantics that use them.
+- **Measured profiles for `verify`.** How a user gives a measured profile to
+  `verify`, instead of a release version, is a later decision.
 - **Triggers and foreign-key actions.** Their execution semantics, as nested
   writes, need their own decision.
 - **SQLite result codes.** A mapping from model errors to primary and extended
