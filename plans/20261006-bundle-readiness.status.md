@@ -1,6 +1,6 @@
 # Bundle readiness status
 
-Status: IN PROGRESS. Harness validation has resumed; performance trials remain held.
+Status: IN PROGRESS. Ordinary macOS correctness checks pass; performance trials remain held.
 Created 2026-10-06.
 
 Task: [bundle attack parity and cold-run measurement](20261006-bundle-readiness.task.md).
@@ -342,3 +342,12 @@ No new campaign, launcher, benchmark or task was started after the hold.
   Complete console bytes and exact output/execution metadata are retained.
   Evidence review, Linux correctness acceptance, installed execution and
   actual cold campaigns remain required. T06 is not DONE.
+
+- 2026-10-08: Ordinary acceptance evidence `e9dcc4c3` passes independent
+  review `20261008T075219Z-e9dcc4c3` with no findings. Source, counts
+  and original XML timestamps are checked. The reviewer could not run
+  hashing commands; author checks verify every artifact and decompressed
+  console hash. No production file differs from accepted main. The
+  checked branch is ready for draft publication and hosted Linux
+  correctness validation. Installed execution and the actual cold
+  campaigns remain open. No cutover or task completion is claimed.

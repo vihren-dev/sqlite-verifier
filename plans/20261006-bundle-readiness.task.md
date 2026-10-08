@@ -1,6 +1,6 @@
 # Bundle attack parity and cold-run measurement
 
-Status: IN PROGRESS. Harness validation has resumed; performance trials remain held.
+Status: IN PROGRESS. Ordinary macOS correctness checks pass; performance trials remain held.
 Created 2026-10-06.
 
 ## Outcome
@@ -123,6 +123,8 @@ within the scopes listed in the status file. The campaign writer has bounded
 persistence tests with synthetic observations; separate real-child tests cover
 subprocess boundaries. The named-case launcher has bounded configuration and
 synthetic writer checks. Its installed-runtime execution contract is not yet
-accepted. Ordinary integrated/Nix infrastructure checks and actual macOS/Linux performance trials
-remain incomplete. Work continues on the existing harness; performance trials
+accepted. Ordinary macOS source and seven-suite Nix acceptance pass, with
+separate fresh and cached results. Targeted Nix dependency checks pass. Linux
+correctness acceptance, remaining infrastructure and installed checks, and
+actual macOS/Linux performance trials remain incomplete. Work continues on the existing harness; performance trials
 remain held and this task is not DONE.
