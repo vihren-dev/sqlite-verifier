@@ -1,0 +1,10 @@
+{
+  "all_original_ordered_subsequences": true,
+  "original_rows": {
+    "feature-journal.jsonl": 283,
+    "main-journal.jsonl": 308,
+    "pending-journal.jsonl": 284
+  },
+  "result_rows": 319,
+  "result_sha256": "2cf74ce7ee0076aacba137bd081ab865b0ad3c2b3f0f40f0e76b4230f4645605"
+}

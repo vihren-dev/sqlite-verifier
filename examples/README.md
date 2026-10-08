@@ -43,5 +43,11 @@ failed outcome reads the same protected invoice projection from resulting storag
 This demonstrates the general failure contract; it does not weaken or replace
 the successful-applicability requirements shared by the other three examples.
 Its separate protected baseline also pins the source schema and generated-schema
-interpretation. Use the applicable `approved/baseline.json` with
-`--approved-baseline` for every candidate, including a checked refutation.
+interpretation. For candidates that use `examples/approved`, supply its
+`baseline.json` with `--approved-baseline`, including a checked refutation.
+Supply `examples/allowed_failure/approved/baseline.json` for `allowed_failure`.
+
+The [application-key variant](application_keys/README.md) uses complete records
+without physical rowids and compares them with permutation. Its logical key
+policy requires defined, distinct, non-NULL keys. This separate engineering
+example explains how to choose the flexible interpretation and contract helpers.

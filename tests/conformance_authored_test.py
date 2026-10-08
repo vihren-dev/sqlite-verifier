@@ -12,7 +12,8 @@ from conformance.authored_cases import records
 from conformance.case_format import Json
 from conformance.corpus import native_replay, replay
 from conformance.execution_profile import validate_manifest_profiles
-from conformance.native_replay import decode_rows, output_wire
+from conformance.native_bindings import decode_rows
+from conformance.native_replay import output_wire
 from conformance.native_storage import CASE_BYTE_LIMIT, expanded_record, serialized, shared_record
 from conformance.requirement_cases import definitions as requirement_definitions
 from conformance.requirement_coverage import comparison

@@ -1,0 +1,27 @@
+{
+  "sourceRevision": "fda5b1338b4a43cfa9677df63734d0447bf8ac7b",
+  "system": "x86_64-linux",
+  "target": "tests.sample",
+  "output": "/nix/store/x2m3l97751vsfab2jnsnrj0hm3a2jbkg-sqlite-verifier-test-sample-1",
+  "checks": {
+    "tests": 22,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "junitSeconds": 66.937,
+  "junitSha256": "bd9f79600c3abda48750dc0e842dc3169cddc65d5c7e3c5147242c561453b65d",
+  "logSha256": "7abf59219edf21ce41d1e8f6b27b9005f3a4a353c9942e62ab122f34f0fcf2b1",
+  "sourceSha256": {
+    "tests/test_native_workers.py": "98c49786da4921c25fc328c3ad4ab29fd375fafb88365be2b86beab70a6a4b27",
+    "tests/native_worker_fixtures.py": "7f1196b7218e07d77548583be59e405e2be7d861a60f840858ac07d230eed1af",
+    "tests/test_nix_test_targets.py": "48e6a794e1e7dd205d0d6a4a383f32563662e5627dc2e36fdd6b702fee6c092b",
+    "build-support/tests.nix": "43b536cea3cd501277af586383623456f16069a284cf29135395b6a43f6a169b"
+  },
+  "sourceMatchesReviewedDarwinInputs": true,
+  "archiveSha256": "e101c24f5d01fda212f57b7da4f88e3ca06bd837bd7c529616d53a55792f1c05",
+  "sandbox": true,
+  "sandboxFallback": false,
+  "phaseLimitSeconds": 120,
+  "standalonePerformanceAcceptanceClaimed": false
+}

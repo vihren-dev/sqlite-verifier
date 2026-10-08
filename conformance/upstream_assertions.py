@@ -4,7 +4,7 @@ from collections.abc import Iterator
 from io import StringIO
 
 from conformance.case_format import Json
-from conformance.upstream_selection import implicit_binding_reasons
+from conformance.upstream_bindings import observation, capture, binding_reasons
 from conformance.upstream_functions import function_references, schema_function_references
 from conformance.query_window import ASCII_UPPER
 
@@ -24,6 +24,7 @@ def iter_assertions(events: str) -> Iterator[dict[str, Json]]:
     generation = 0
     auxiliary_databases: dict[str, tuple[str, int]] = {}
     attached = False
+    bindings: list[Json] = []
     implicit_bindings: set[str] = set()
     functions: dict[str, set[str]] = {}
     definitions: set[str] = set()
@@ -41,11 +42,12 @@ def iter_assertions(events: str) -> Iterator[dict[str, Json]]:
             if auxiliary_connections:
                 excluded.add("multiple connections")
             helpers = []
+            bindings.clear()
             implicit_bindings.clear()
             database, closed = args[0] if args else "", False
             if active is not None:
                 active.update(prefix=[], prefixCodes=[], prefixResults=[], prefixPrecisions=[], prefixNullValues=[], prefixHelpers=[], commands=[], codes=[], results=[], precisions=[], nullValues=[], helpers=[],
-                              implicitBindingReasons=[])
+                              implicitBindingReasons=[], prefixBindingObservations=[], bindingObservations=[])
         elif kind == "close":
             functions.pop(args[0], None)
             if args[0] == "db":
@@ -88,10 +90,11 @@ def iter_assertions(events: str) -> Iterator[dict[str, Json]]:
                 precisions.append(None)
                 null_values.append(None)
                 helpers.append("eval")
+                bindings.append(None)
                 # A connection operation is a capture boundary, never model SQL.
                 if active is not None:
                     active.update(prefix=list(prefix), prefixCodes=list(codes), prefixResults=list(expected), prefixPrecisions=list(precisions), prefixNullValues=list(null_values), prefixHelpers=list(helpers),
-                                  commands=[], codes=[], results=[], precisions=[], nullValues=[], helpers=[], implicitBindingReasons=sorted(implicit_bindings))
+                                  commands=[], codes=[], results=[], precisions=[], nullValues=[], helpers=[], prefixBindingObservations=list(bindings), bindingObservations=[])
 
         elif kind in {"exclude", "persistent-exclude"}:
             excluded.add(args[0])
@@ -112,12 +115,12 @@ def iter_assertions(events: str) -> Iterator[dict[str, Json]]:
                 if previous and active is not None:
                     active.update(prefix=list(prefix), prefixCodes=list(codes), prefixResults=list(expected), prefixPrecisions=list(precisions),
                         prefixNullValues=list(null_values), prefixHelpers=list(helpers), commands=[], codes=[], results=[], precisions=[], nullValues=[], helpers=[],
-                        implicitBindingReasons=sorted(implicit_bindings))
+                        prefixBindingObservations=list(bindings), bindingObservations=[])
         elif kind == "begin":
             active = {"id": args[0], "line": int(args[2]) if len(args) > 2 else 0, "expectedTcl": args[1], "prefix": list(prefix),
                       "prefixCodes": list(codes), "prefixResults": list(expected), "prefixPrecisions": list(precisions), "prefixNullValues": list(null_values), "prefixHelpers": list(helpers),
                       "commands": [], "codes": [], "results": [], "precisions": [], "nullValues": [], "helpers": [], "failed": False,
-                      "implicitBindingReasons": sorted(implicit_bindings)}
+                      "prefixBindingObservations": list(bindings), "bindingObservations": []}
         elif kind == "sql":
             if function_references(args[1]) & functions.get(args[0], set()):
                 excluded.add("application callback: function")
@@ -132,12 +135,18 @@ def iter_assertions(events: str) -> Iterator[dict[str, Json]]:
                 excluded.add("auxiliary database differs from primary")
             prefix.append(args[1])
             helpers.append(helper)
-            implicit_bindings.update(implicit_binding_reasons(args[1]))
+            bindings.append(observation(args[0], args[1]))
             if active is not None:
                 active["commands"].append(args[1])
                 active["helpers"].append(helper)
-                active["implicitBindingReasons"] = sorted(implicit_bindings)
+                active["bindingObservations"].append(bindings[-1])
+        elif kind in {"binding", "bindings-complete"}:
+            if not bindings or not isinstance(bindings[-1], dict):
+                raise ValueError("Tcl parameter observation has no SQL call")
+            capture(bindings[-1], kind, args)
         elif kind == "result":
+            if bindings and isinstance(bindings[-1], dict):
+                implicit_bindings.update(binding_reasons(bindings[-1]["sql"], bindings[-1], helpers[-1]))
             codes.append(int(args[1]))
             expected.append(args[2:])
             precisions.append(None)
@@ -162,6 +171,7 @@ def iter_assertions(events: str) -> Iterator[dict[str, Json]]:
             active["failed"] = True
         elif kind == "end" and active is not None:
             active["exclusions"] = sorted(excluded)
+            active["implicitBindingReasons"] = sorted(implicit_bindings)
             yield active
             active = None
 
@@ -170,23 +180,3 @@ def assertions(events: str) -> list[dict[str, Json]]:
     """Preserve the list API for callers that need all traced assertions together."""
     return list(iter_assertions(events))
 
-
-def result_evidence(candidate: dict[str, Json], field: str, prefix_field: str) -> dict[str, Json]:
-    """Summarize actual successful-call metadata while excluding connection controls."""
-    observed: list[int | str | None] = []
-    for commands, codes, metadata in (("prefix", "prefixCodes", prefix_field), ("commands", "codes", field)):
-        observed.extend(value for command, code, value in
-                        zip(candidate[commands], candidate[codes], candidate[metadata], strict=True)
-                        if isinstance(command, str) and code == 0)
-    return {"values": sorted(set(observed), key=lambda value: (value is not None, value)),
-            "successfulCalls": len(observed)}
-
-
-def result_precision_evidence(candidate: dict[str, Json]) -> dict[str, Json]:
-    """Retain the measured precision independently of stored native REAL bits."""
-    return result_evidence(candidate, "precisions", "prefixPrecisions")
-
-
-def result_nullvalue_evidence(candidate: dict[str, Json]) -> dict[str, Json]:
-    """Retain measured Tcl NULL display strings independently of native NULL cells."""
-    return result_evidence(candidate, "nullValues", "prefixNullValues")

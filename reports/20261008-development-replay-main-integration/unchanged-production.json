@@ -1,0 +1,13 @@
+{
+  "checked_source_sha256": {
+    "conformance/corpus.py": "e228e69d035e59b2b975aab985a018e0eed6edd53a7c1e1976eb534f47a86e2b",
+    "conformance/corpus_shards.py": "e3559d0ef2c18e74d5b26e3731028a0ee30e4d8c000cbbd9dccff43750f0c0c2",
+    "conformance/corpus_workers.py": "3b9e41974bdc1ff38e2f6bdd2667ad7a483ee312fffacf3b10c9ae6ad659348c",
+    "conformance/native_storage.py": "327902c97d365f21737f99cf2bf7f973414ba1e210ba5fb4a224d1dd0e612edf",
+    "conformance/native_workers.py": "67b00d8a1949907b4cb9b203db5a7db0383b70bad227b5b48e8644a6db57e9b5",
+    "conformance/replay_tiers.py": "88bca080bc9e27b1215f3c5a1b26c0c8e1a1879e1d6faab6a225d48370ff2d45"
+  },
+  "delivered_transaction_files_preserved": true,
+  "frozen_bytes_unchanged": true,
+  "main": "d75fdc2bf4cd84448d99fd82594927fe4d0ab5ca"
+}

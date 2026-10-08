@@ -1,0 +1,68 @@
+{
+  "format": "t04c-measurement-retention-v1",
+  "status": "IN PROGRESS; less-than-30-second acceptance is not met on Linux",
+  "sourceCommit": "82f2d1786cd732b4b89f813680506ca631239887",
+  "implementationCommit": "912b3a0e99cc0bb40977e7963e7feb9fa57facb7",
+  "approvedDeadlineCommit": "06a1e29795de6580a14fcfceb1eddaed232177d9",
+  "phaseLimitSeconds": 120,
+  "acceptanceTargetSecondsExclusive": 30,
+  "leanToolchainSourcePin": "leanprover/lean4:v4.33.0",
+  "selectedIdentities": 184,
+  "counts": {
+    "MODEL_UNSUPPORTED": 184
+  },
+  "historicalReceiptSha256": {
+    "darwin": "928f96927343fd1dc8d4e2a899aaefe2583c2035d8b48631838eae8f7894a4b4",
+    "linux": "d968ed55a1f43c6a9f7735de7ddcb7ea4643e5a5050bfeb75d9c669b61b83aa6"
+  },
+  "darwin": {
+    "processSession": 35032,
+    "processExit": 1,
+    "phaseCompleted": true,
+    "phaseSeconds": 23.699742582997715,
+    "outerStartedMonotonicNs": null,
+    "outerEndedMonotonicNs": null,
+    "actualFixturePaths": null,
+    "pythonInvocation": "/nix/store/ihl93nc0q06szsl5lgbqgjnvislvghjs-python3-3.12.8-env/bin/python3",
+    "runtime": "/nix/store/2pm5l48v8lk5v3p1yqbc3hx3jj1w2ylr-sqlite-verifier-conformance",
+    "retainedHashScope": "after-only code/corpus/native-library/parser/model hashes in summary-recovered.json",
+    "limitation": "Report and assertions completed before ancillary PosixPath summary serialization failed. Outer timestamps, individual fixture paths and in-process before/after manifests were not serialized. No facts were reconstructed and no phase was rerun.",
+    "preflight": "The first invocation failed during import because PYTHONPATH omitted the checkout. It executed no report or fixture phase. The measured invocation set PYTHONPATH to the checkout.",
+    "pythonExecutableHash": null,
+    "loadAverage": null,
+    "pythonIdentityLimit": "The pinned invocation path was known, but the original driver did not collect a Python executable hash."
+  },
+  "linux": {
+    "processSession": 49695,
+    "processExit": 0,
+    "phaseCompleted": true,
+    "phaseSeconds": 49.70655691897264,
+    "outerPhaseSeconds": 50.392677217,
+    "remoteRoot": "/var/tmp/sqlite-verifier-headroom.j1WL5z",
+    "runtime": "/nix/store/f2xi9qgf5fil1n5r18w0n7fndrg1nfzz-sqlite-verifier-conformance",
+    "pythonInvocation": "/nix/store/jm7jvgi26icvnm2c5cx9iliixlvplgrp-python3-3.14.7-env/bin/python3",
+    "sourceArchiveSha256": "8a81b8598d2f194ef5b73d51fc5b2857b8e1155b43c54a59411178cbbc260957",
+    "sourceArchiveBytes": 58019840,
+    "archiveCommand": "git --git-dir=/Users/tzankomatev/work/sqlite-verifier/.git archive --format=tar 82f2d1786cd732b4b89f813680506ca631239887",
+    "sourceFileCount": 835,
+    "sourceSymlink": {
+      "path": "CLAUDE.md",
+      "target": "AGENTS.md",
+      "beforeAndAfterChecked": true
+    },
+    "filesystemObservation": {
+      "target": "/",
+      "type": "ext4",
+      "source": "/dev/md127",
+      "options": "rw,noatime"
+    },
+    "runtimeHashesObservedAfter": {
+      "parser": "140f411164d841ed6826d63756e6ae25550309ae7a7e940eac9ed53def9f0bed",
+      "compiledModel": "e09d1ae315f24a5ff4634fff077e007ccc449e78f2c8aeaf766895406691d9d8"
+    },
+    "retainedHashScope": "all 835 transferred regular source files checked before/after; full selected code/corpus/Python/native/runtime manifests retained before/after",
+    "leanBinaryVersionInvocation": "not retained; the source toolchain pin and exact compiled runtime hashes are retained"
+  },
+  "comparisonLimit": "Historical receipts establish matching corpus/profile/selection/verdict identities. Their times and the cProfile diagnostic are not paired before/after speed measurements.",
+  "leases": "Darwin and Linux slots released after their terminal process; no further optimization or phase run authorized in this turn."
+}

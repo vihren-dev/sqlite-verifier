@@ -35,6 +35,12 @@ conformance-build:
     mkdir -p build
     timeout 900 nix-build build-support/default.nix -A conformance --out-link build/conformance --extra-experimental-features 'nix-command flakes'
 
+# Build the checked library reference from an exact source commit, without hosting it.
+[positional-arguments]
+reference revision: resources
+    mkdir -p build
+    timeout 1800 nix-build build-support/default.nix -A apiReference --argstr referenceRevision "$1" --out-link build/api-reference --option sandbox true --option sandbox-fallback false --extra-experimental-features 'nix-command flakes'
+
 # Record live prototype evidence; W3 remains an owner decision after reviewing it.
 [positional-arguments]
 conformance *args: conformance-build
@@ -50,12 +56,17 @@ smoke:
     timeout --foreground 15 python3 -m pytest tests/test_toolchain_smoke.py --runtime-root "${SQLITE_VERIFIER_RUNTIME_ROOT:-$PWD}"
 
 # Fresh development replay includes every authored/synthetic case and a stable upstream sample.
-test: build test-source
+test: build documentation-inventory test-source
     timeout 900 nix-build build-support/default.nix -A developmentTests --out-link build/nix-tests --option sandbox true --option sandbox-fallback false --extra-experimental-features 'nix-command flakes'
 
 # CI and package checks retain all full model, kernel and historical evidence checks.
-test-full: build test-source
+test-full: build documentation-inventory test-source
     timeout 900 nix-build build-support/default.nix -A tests --out-link build/nix-tests-full --option sandbox true --option sandbox-fallback false --extra-experimental-features 'nix-command flakes'
+
+# Check every authored public declaration, constructor and field in the compiled import closure.
+documentation-inventory: resources
+    mkdir -p build
+    timeout 900 nix-build build-support/default.nix -A publicDocumentation --out-link build/public-documentation --option sandbox true --option sandbox-fallback false --extra-experimental-features 'nix-command flakes'
 
 # Test ownership is shared with Nix; all source-owned checks run on the host.
 test-source:

@@ -1,0 +1,10 @@
+{
+  "artifact_id": 11534939064,
+  "run_id": 37743066830,
+  "head": "d264bba3551f6f37eacb8c283a806fccf8695f90",
+  "bytes": 65752,
+  "sha256": "91e3b3135a3ae5557172640521d8627ce0c0d7fa2a8b4cdabf343338efd662ee",
+  "metadata_digest_matches": true,
+  "client": "system curl with unchanged default TLS verification",
+  "first_client_failure": "Ambient Python urllib lacked a configured issuer trust chain; no bytes accepted and no TLS verification disabled."
+}

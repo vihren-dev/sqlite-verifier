@@ -1,0 +1,95 @@
+{
+  "originals/ci-environment.json": {
+    "bytes": 253,
+    "sha256": "57cf58d2a2aea02cce2e2dacc4aecd5ddf4ad5bad2f1069faf1b57bf7f5df895"
+  },
+  "originals/ci-phases/checks-infrastructure/command-0000.json": {
+    "bytes": 166020,
+    "sha256": "523eff2948bd670236e9294a3b7edc341501e1f9c4ff1c2557ff35244cc79947"
+  },
+  "originals/ci-phases/lake-version/command-0000.json": {
+    "bytes": 292,
+    "sha256": "8349d3a5fd4ffd34857cc9e6f97054249c32b3845f4cba7a28050086959039c4"
+  },
+  "originals/ci-phases/lean-version/command-0000.json": {
+    "bytes": 345,
+    "sha256": "1ba1d7c6792c24ad99591181414974884cfaf2a10d33433d4e73810dab38e010"
+  },
+  "originals/ci-phases/runtime/command-0000.json": {
+    "bytes": 42473,
+    "sha256": "2ec350484ae1bd88f0bcb930584d2e0e022a7637ec3aad480436a293977e027a"
+  },
+  "originals/ci-phases.json": {
+    "bytes": 944,
+    "sha256": "d9d2ec7df448fcb43feba1e24e1fb0f75721126afb37c5bf4aad810b54e22978"
+  },
+  "originals/nix-tests-full/junit.xml": {
+    "bytes": 1442,
+    "sha256": "e8b9c7012f0b933e657d0930b1503ccbc09f198a6a3eaa3c39e906258df6cf17"
+  },
+  "originals/nix-tests-full-2/junit.xml": {
+    "bytes": 79822,
+    "sha256": "d00beffefe4c9254ad66d267c31ec7e3d668f528a84f8957ee8f6bc6b26c5c63"
+  },
+  "originals/nix-tests-full-3/junit.xml": {
+    "bytes": 1539,
+    "sha256": "3e429a1c0ec03dc596a12fa88c6b9278f3c89e696bbd3a96c4abf69803a34d1c"
+  },
+  "originals/nix-tests-full-4/junit.xml": {
+    "bytes": 20331,
+    "sha256": "287af9098159063b66443e5e40a0a5db9994c82888b0a045ddbd3e9891baa817"
+  },
+  "originals/nix-tests-full-5/junit.xml": {
+    "bytes": 18245,
+    "sha256": "a34f0359d5484f3477dbd191706f84ddc72a909abe31ff174ddd9ca2d7d54fd2"
+  },
+  "originals/nix-tests-full-6/junit.xml": {
+    "bytes": 3255,
+    "sha256": "ae49ae21411dfb9529c9d949c672e2d65ca5bcf97616a006945b9df354417d44"
+  },
+  "originals/nix-tests-full-7/junit.xml": {
+    "bytes": 5982,
+    "sha256": "d321bf94b7226c05533a8204a01621793c8b9b245dbbb2cf83fd7917ce34f9bd"
+  },
+  "originals/nix-tests-full-8/junit.xml": {
+    "bytes": 3166,
+    "sha256": "1c455ba281471457d419f73a2a5299d63af805f55083d62b8d15cbd3d5fcd5a7"
+  },
+  "originals/nix-tests-full-9/junit.xml": {
+    "bytes": 10697,
+    "sha256": "747183fbcf550e21be7a6d022a58fc3ff57dfb73661e563a2b653ab8bcb02e8d"
+  },
+  "originals/test-results/nix.xml": {
+    "bytes": 13301,
+    "sha256": "1a45eda686fc98b6abd006cb330b84a991ee072722ffb780a1b0fc9c3fb54631"
+  },
+  "originals/test-results/source.xml": {
+    "bytes": 52226,
+    "sha256": "97a29cb6ba605a441acb8f27c95a63edb0d188ab93f6924dc0523c2fbd4abe5c"
+  },
+  "case-reports-x86_64-linux.zip": {
+    "bytes": 65752,
+    "sha256": "91e3b3135a3ae5557172640521d8627ce0c0d7fa2a8b4cdabf343338efd662ee"
+  },
+  "retrieval.json": {
+    "bytes": 455,
+    "sha256": "6927b9f076418766c98bc2399f1bdf10f0f663cb407469f04f69d0428dd290f2"
+  },
+  "linux-job-decoded.log.gz": {
+    "bytes": 61457,
+    "sha256": "7ac7f055776e55ec6680eb3c18880f790c58372a36879f9dc2d4d255625648a8",
+    "original_sha256": "43f309a9967edf281eb3d1148586a80ec4ba8d46e5410a69e6bdb635e9d2c149"
+  },
+  "summary.json": {
+    "bytes": 1988,
+    "sha256": "8de89dd0765b7afb13c01a28ace3f0c1c47eb4b4a70513cfdaad0c4f5de79275"
+  },
+  "ci-tree-comparison.json": {
+    "bytes": 907,
+    "sha256": "634f559bd9263aa66855ed5871cef7679b74a6262b7b46f1ffaaa9bfb5e0943f"
+  },
+  "required-checks.json": {
+    "bytes": 689,
+    "sha256": "1de24117cf17c137447cc1d206aa6df97aa8cf8af314f36c635a83b64eec475e"
+  }
+}

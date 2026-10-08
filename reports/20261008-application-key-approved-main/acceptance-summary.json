@@ -1,0 +1,65 @@
+{
+  "main": "a38d00012eb847773460ef09f049dbd342c01991",
+  "runtime": "/nix/store/hyyvqd49sbkd2cxjjmdc6m76ns9dh5m8-sqlite-verifier-runtime-1",
+  "ordinary_suites": {
+    "atuin": {
+      "output": "/nix/store/ic2ha49169blplb29lyanr7b8rx0jcjl-sqlite-verifier-test-atuin-1",
+      "tests": 12,
+      "xml_timestamp": "2026-10-08T09:17:01.908637+00:00",
+      "xml_time_seconds": 80.484
+    },
+    "bundle": {
+      "output": "/nix/store/596ydg93cwjixb0lqz7jl4bb39w69mr4-sqlite-verifier-test-bundle-1",
+      "tests": 44,
+      "xml_timestamp": "2026-10-08T09:18:22.875143+00:00",
+      "xml_time_seconds": 266.421
+    },
+    "cli": {
+      "output": "/nix/store/7vlvmslai1rd3yqk8m1zcqxg7fwigk2m-sqlite-verifier-test-cli-1",
+      "tests": 15,
+      "xml_timestamp": "2026-10-08T09:22:49.806731+00:00",
+      "xml_time_seconds": 48.001
+    },
+    "harness": {
+      "output": "/nix/store/wn01p7yw28ay74p2nl95zcapahcxpf0k-sqlite-verifier-test-harness-1",
+      "tests": 126,
+      "xml_timestamp": "2026-10-08T09:23:38.397275+00:00",
+      "xml_time_seconds": 2.686
+    },
+    "kernel": {
+      "output": "/nix/store/r1w2ikdyj5m25pv8fjz8hx4g9ampp0d3-sqlite-verifier-test-kernel-1",
+      "tests": 28,
+      "xml_timestamp": "2026-10-08T09:24:32.432801+00:00",
+      "xml_time_seconds": 49.016
+    },
+    "sample": {
+      "output": "/nix/store/48bbga1x3r59sd61z7fyrv939k6li5xd-sqlite-verifier-test-sample-1",
+      "tests": 12,
+      "xml_timestamp": "2026-10-08T09:23:41.682894+00:00",
+      "xml_time_seconds": 50.314
+    },
+    "upstream": {
+      "output": "/nix/store/gypqyvaagxr2il4w8vrxmz0z6knayx5y-sqlite-verifier-test-upstream-1",
+      "tests": 76,
+      "xml_timestamp": "2026-10-08T09:25:21.934233+00:00",
+      "xml_time_seconds": 4.611
+    }
+  },
+  "ordinary_tests": 313,
+  "source_tests": 412,
+  "source_subtests": 35,
+  "source_deselections": 95,
+  "installed_common_tests": 24,
+  "installed_feature_tests": 3,
+  "archive": {
+    "path": "dist/sqlite-verifier-aarch64-darwin.tar.gz",
+    "bytes": 1113672983,
+    "sha256": "66aa7b0b99b986849d98aa1fa80721894012f42a346fcfa60a670f745508b84f"
+  },
+  "actual_installed_root": "/private/tmp/nix-shell.pIIjmT/pytest-of-tzankomatev/pytest-0/runtime package % # \u00fc 0/installed verifier % # \u00fc",
+  "installed_root_lake": "/nix/store/nvxxjmicm78vn7sc3aii0hjsikl94msj-sqlite-verifier-runtime-1/.lake",
+  "infrastructure_tests": 95,
+  "infrastructure_deselected": 928,
+  "public_documentation_checked": 281,
+  "barrel_preserves_both_parent_imports": true
+}

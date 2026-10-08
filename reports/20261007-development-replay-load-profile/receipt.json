@@ -1,0 +1,446 @@
+{
+  "actualLoadInvocations": 1,
+  "casesSha256": "663e38016b574c8436c2bb0d53ff9e356fde51b458c1640a4a99553f11fe98b4",
+  "completedExit": 0,
+  "completedSession": 98256,
+  "corpusVersion": 5,
+  "diagnosticOnly": true,
+  "ended": {
+    "monotonicNs": 422558369558915,
+    "utc": "2026-10-07T08:48:32.769268+00:00"
+  },
+  "format": "t04c-load-profile-retention-v1",
+  "instrumentedLoadSeconds": 24.757685188,
+  "interpretation": "Instrumented load-only function/caller costs, not acceptance or a timing comparison. Snapshot self time is not attributed to a line or operation. Cumulative caller costs overlap and are not additive.",
+  "kind": "instrumented-load-only",
+  "loadedRecordCount": 4376,
+  "nativeReplayOrModelExecution": false,
+  "newRuntimeBuild": false,
+  "parentSystemSeconds": 0.835809,
+  "parentUserSeconds": 23.852586,
+  "phaseLimitSeconds": 120,
+  "preflightSession": 33562,
+  "productionChanges": false,
+  "profileTotalSeconds": 24.64460195200001,
+  "rawArtifacts": 24,
+  "retainedMonotonicNs": 37507776872625,
+  "retainedUtc": "2026-10-07T08:55:19.891171+00:00",
+  "retrievalSession": 20746,
+  "sourceCommit": "5d15607fdf78d0a209b539ca158939739b54d377",
+  "started": {
+    "group": 377716,
+    "monotonicNs": 422533611873727,
+    "pid": 377716,
+    "utc": "2026-10-07T08:48:08.011588+00:00"
+  },
+  "taskStatus": "IN PROGRESS",
+  "topCumulative": [
+    {
+      "cumulativeSeconds": 24.757437372000002,
+      "file": "/var/tmp/sqlite-verifier-t04c-20261007.4yNihbCP/source/conformance/corpus.py",
+      "function": "load",
+      "line": 18,
+      "primitiveCalls": 1,
+      "selfSeconds": 0.000314684,
+      "totalCalls": 1
+    },
+    {
+      "cumulativeSeconds": 24.755542883,
+      "file": "/var/tmp/sqlite-verifier-t04c-20261007.4yNihbCP/source/conformance/corpus_shards.py",
+      "function": "load",
+      "line": 97,
+      "primitiveCalls": 1,
+      "selfSeconds": 0.219688245,
+      "totalCalls": 1
+    },
+    {
+      "cumulativeSeconds": 18.728997085,
+      "file": "/var/tmp/sqlite-verifier-t04c-20261007.4yNihbCP/source/conformance/corpus_shards.py",
+      "function": "payload_records",
+      "line": 64,
+      "primitiveCalls": 109,
+      "selfSeconds": 0.042081128,
+      "totalCalls": 109
+    },
+    {
+      "cumulativeSeconds": 10.542457637,
+      "file": "/var/tmp/sqlite-verifier-t04c-20261007.4yNihbCP/source/conformance/native_storage.py",
+      "function": "expanded_record",
+      "line": 69,
+      "primitiveCalls": 4376,
+      "selfSeconds": 5.270413991000001,
+      "totalCalls": 4376
+    },
+    {
+      "cumulativeSeconds": 6.928518427,
+      "file": "/nix/store/jm7jvgi26icvnm2c5cx9iliixlvplgrp-python3-3.14.7-env/lib/python3.14/json/__init__.py",
+      "function": "loads",
+      "line": 304,
+      "primitiveCalls": 12212,
+      "selfSeconds": 0.022923934,
+      "totalCalls": 12212
+    },
+    {
+      "cumulativeSeconds": 6.803745252000001,
+      "file": "/nix/store/jm7jvgi26icvnm2c5cx9iliixlvplgrp-python3-3.14.7-env/lib/python3.14/json/decoder.py",
+      "function": "decode",
+      "line": 340,
+      "primitiveCalls": 12212,
+      "selfSeconds": 0.026192988,
+      "totalCalls": 12212
+    },
+    {
+      "cumulativeSeconds": 6.754214224,
+      "file": "/nix/store/jm7jvgi26icvnm2c5cx9iliixlvplgrp-python3-3.14.7-env/lib/python3.14/json/decoder.py",
+      "function": "raw_decode",
+      "line": 351,
+      "primitiveCalls": 12212,
+      "selfSeconds": 6.754214224,
+      "totalCalls": 12212
+    },
+    {
+      "cumulativeSeconds": 5.087972811,
+      "file": "/var/tmp/sqlite-verifier-t04c-20261007.4yNihbCP/source/conformance/corpus_evidence.py",
+      "function": "verify",
+      "line": 93,
+      "primitiveCalls": 1,
+      "selfSeconds": 0.002366206,
+      "totalCalls": 1
+    },
+    {
+      "cumulativeSeconds": 4.589246044,
+      "file": "/var/tmp/sqlite-verifier-t04c-20261007.4yNihbCP/source/conformance/native_storage.py",
+      "function": "serialized",
+      "line": 23,
+      "primitiveCalls": 67689,
+      "selfSeconds": 0.061286642,
+      "totalCalls": 67689
+    },
+    {
+      "cumulativeSeconds": 4.49145515,
+      "file": "/nix/store/jm7jvgi26icvnm2c5cx9iliixlvplgrp-python3-3.14.7-env/lib/python3.14/json/__init__.py",
+      "function": "dumps",
+      "line": 185,
+      "primitiveCalls": 67689,
+      "selfSeconds": 0.129564857,
+      "totalCalls": 67689
+    },
+    {
+      "cumulativeSeconds": 4.335970130000001,
+      "file": "/nix/store/jm7jvgi26icvnm2c5cx9iliixlvplgrp-python3-3.14.7-env/lib/python3.14/json/encoder.py",
+      "function": "encode",
+      "line": 185,
+      "primitiveCalls": 67689,
+      "selfSeconds": 0.095521729,
+      "totalCalls": 67689
+    },
+    {
+      "cumulativeSeconds": 4.193026824,
+      "file": "/nix/store/jm7jvgi26icvnm2c5cx9iliixlvplgrp-python3-3.14.7-env/lib/python3.14/json/encoder.py",
+      "function": "iterencode",
+      "line": 207,
+      "primitiveCalls": 67689,
+      "selfSeconds": 4.193026824,
+      "totalCalls": 67689
+    },
+    {
+      "cumulativeSeconds": 3.1308792750000003,
+      "file": "/var/tmp/sqlite-verifier-t04c-20261007.4yNihbCP/source/conformance/corpus_acquisition.py",
+      "function": "verify",
+      "line": 70,
+      "primitiveCalls": 1,
+      "selfSeconds": 0.511930717,
+      "totalCalls": 1
+    },
+    {
+      "cumulativeSeconds": 1.4824831490000001,
+      "file": "~",
+      "function": "<built-in method marshal.loads>",
+      "line": 0,
+      "primitiveCalls": 24880,
+      "selfSeconds": 1.4824831490000001,
+      "totalCalls": 24880
+    },
+    {
+      "cumulativeSeconds": 0.901998359,
+      "file": "/var/tmp/sqlite-verifier-t04c-20261007.4yNihbCP/source/conformance/corpus_evidence.py",
+      "function": "document",
+      "line": 50,
+      "primitiveCalls": 2,
+      "selfSeconds": 0.004280206,
+      "totalCalls": 2
+    },
+    {
+      "cumulativeSeconds": 0.7571381260000001,
+      "file": "/var/tmp/sqlite-verifier-t04c-20261007.4yNihbCP/source/conformance/freeze_profiles.py",
+      "function": "result_nullvalue",
+      "line": 38,
+      "primitiveCalls": 153764,
+      "selfSeconds": 0.5018161760000001,
+      "totalCalls": 153764
+    },
+    {
+      "cumulativeSeconds": 0.7201058650000001,
+      "file": "/var/tmp/sqlite-verifier-t04c-20261007.4yNihbCP/source/conformance/corpus_evidence.py",
+      "function": "refusals",
+      "line": 68,
+      "primitiveCalls": 1,
+      "selfSeconds": 0.35006671500000003,
+      "totalCalls": 1
+    },
+    {
+      "cumulativeSeconds": 0.717134911,
+      "file": "~",
+      "function": "<built-in method _hashlib.openssl_sha256>",
+      "line": 0,
+      "primitiveCalls": 8511,
+      "selfSeconds": 0.717134911,
+      "totalCalls": 8511
+    },
+    {
+      "cumulativeSeconds": 0.6635714100000001,
+      "file": "/var/tmp/sqlite-verifier-t04c-20261007.4yNihbCP/source/conformance/freeze_profiles.py",
+      "function": "result_precision",
+      "line": 25,
+      "primitiveCalls": 153764,
+      "selfSeconds": 0.46001979800000004,
+      "totalCalls": 153764
+    },
+    {
+      "cumulativeSeconds": 0.6306488170000001,
+      "file": "/var/tmp/sqlite-verifier-t04c-20261007.4yNihbCP/source/conformance/execution_profile.py",
+      "function": "recorded_profile",
+      "line": 152,
+      "primitiveCalls": 13059,
+      "selfSeconds": 0.028421707,
+      "totalCalls": 13059
+    },
+    {
+      "cumulativeSeconds": 0.608602826,
+      "file": "/var/tmp/sqlite-verifier-t04c-20261007.4yNihbCP/source/conformance/corpus_shards.py",
+      "function": "validate_profiles",
+      "line": 53,
+      "primitiveCalls": 110,
+      "selfSeconds": 0.000567387,
+      "totalCalls": 110
+    },
+    {
+      "cumulativeSeconds": 0.592682524,
+      "file": "/var/tmp/sqlite-verifier-t04c-20261007.4yNihbCP/source/conformance/execution_profile.py",
+      "function": "profile_from_wire",
+      "line": 106,
+      "primitiveCalls": 13185,
+      "selfSeconds": 0.117616652,
+      "totalCalls": 13185
+    },
+    {
+      "cumulativeSeconds": 0.45164125800000005,
+      "file": "/var/tmp/sqlite-verifier-t04c-20261007.4yNihbCP/source/conformance/execution_profile.py",
+      "function": "validate_manifest_profiles",
+      "line": 167,
+      "primitiveCalls": 110,
+      "selfSeconds": 0.013732252,
+      "totalCalls": 110
+    },
+    {
+      "cumulativeSeconds": 0.43526572,
+      "file": "/var/tmp/sqlite-verifier-t04c-20261007.4yNihbCP/source/conformance/corpus_acquisition.py",
+      "function": "strings",
+      "line": 13,
+      "primitiveCalls": 154109,
+      "selfSeconds": 0.250921137,
+      "totalCalls": 154109
+    },
+    {
+      "cumulativeSeconds": 0.41137155200000003,
+      "file": "~",
+      "function": "<built-in method builtins.isinstance>",
+      "line": 0,
+      "primitiveCalls": 3523896,
+      "selfSeconds": 0.40920749500000003,
+      "totalCalls": 3523896
+    }
+  ],
+  "topSelf": [
+    {
+      "cumulativeSeconds": 6.754214224,
+      "file": "/nix/store/jm7jvgi26icvnm2c5cx9iliixlvplgrp-python3-3.14.7-env/lib/python3.14/json/decoder.py",
+      "function": "raw_decode",
+      "line": 351,
+      "primitiveCalls": 12212,
+      "selfSeconds": 6.754214224,
+      "totalCalls": 12212
+    },
+    {
+      "cumulativeSeconds": 10.542457637,
+      "file": "/var/tmp/sqlite-verifier-t04c-20261007.4yNihbCP/source/conformance/native_storage.py",
+      "function": "expanded_record",
+      "line": 69,
+      "primitiveCalls": 4376,
+      "selfSeconds": 5.270413991000001,
+      "totalCalls": 4376
+    },
+    {
+      "cumulativeSeconds": 4.193026824,
+      "file": "/nix/store/jm7jvgi26icvnm2c5cx9iliixlvplgrp-python3-3.14.7-env/lib/python3.14/json/encoder.py",
+      "function": "iterencode",
+      "line": 207,
+      "primitiveCalls": 67689,
+      "selfSeconds": 4.193026824,
+      "totalCalls": 67689
+    },
+    {
+      "cumulativeSeconds": 1.4824831490000001,
+      "file": "~",
+      "function": "<built-in method marshal.loads>",
+      "line": 0,
+      "primitiveCalls": 24880,
+      "selfSeconds": 1.4824831490000001,
+      "totalCalls": 24880
+    },
+    {
+      "cumulativeSeconds": 0.717134911,
+      "file": "~",
+      "function": "<built-in method _hashlib.openssl_sha256>",
+      "line": 0,
+      "primitiveCalls": 8511,
+      "selfSeconds": 0.717134911,
+      "totalCalls": 8511
+    },
+    {
+      "cumulativeSeconds": 3.1308792750000003,
+      "file": "/var/tmp/sqlite-verifier-t04c-20261007.4yNihbCP/source/conformance/corpus_acquisition.py",
+      "function": "verify",
+      "line": 70,
+      "primitiveCalls": 1,
+      "selfSeconds": 0.511930717,
+      "totalCalls": 1
+    },
+    {
+      "cumulativeSeconds": 0.7571381260000001,
+      "file": "/var/tmp/sqlite-verifier-t04c-20261007.4yNihbCP/source/conformance/freeze_profiles.py",
+      "function": "result_nullvalue",
+      "line": 38,
+      "primitiveCalls": 153764,
+      "selfSeconds": 0.5018161760000001,
+      "totalCalls": 153764
+    },
+    {
+      "cumulativeSeconds": 0.6635714100000001,
+      "file": "/var/tmp/sqlite-verifier-t04c-20261007.4yNihbCP/source/conformance/freeze_profiles.py",
+      "function": "result_precision",
+      "line": 25,
+      "primitiveCalls": 153764,
+      "selfSeconds": 0.46001979800000004,
+      "totalCalls": 153764
+    },
+    {
+      "cumulativeSeconds": 0.41137155200000003,
+      "file": "~",
+      "function": "<built-in method builtins.isinstance>",
+      "line": 0,
+      "primitiveCalls": 3523896,
+      "selfSeconds": 0.40920749500000003,
+      "totalCalls": 3523896
+    },
+    {
+      "cumulativeSeconds": 0.7201058650000001,
+      "file": "/var/tmp/sqlite-verifier-t04c-20261007.4yNihbCP/source/conformance/corpus_evidence.py",
+      "function": "refusals",
+      "line": 68,
+      "primitiveCalls": 1,
+      "selfSeconds": 0.35006671500000003,
+      "totalCalls": 1
+    },
+    {
+      "cumulativeSeconds": 0.30242257100000003,
+      "file": "~",
+      "function": "<method 'get' of 'dict' objects>",
+      "line": 0,
+      "primitiveCalls": 1519525,
+      "selfSeconds": 0.30242257100000003,
+      "totalCalls": 1519525
+    },
+    {
+      "cumulativeSeconds": 0.26760538700000003,
+      "file": "~",
+      "function": "<built-in method marshal.dumps>",
+      "line": 0,
+      "primitiveCalls": 7833,
+      "selfSeconds": 0.26760538700000003,
+      "totalCalls": 7833
+    },
+    {
+      "cumulativeSeconds": 0.43526572,
+      "file": "/var/tmp/sqlite-verifier-t04c-20261007.4yNihbCP/source/conformance/corpus_acquisition.py",
+      "function": "strings",
+      "line": 13,
+      "primitiveCalls": 154109,
+      "selfSeconds": 0.250921137,
+      "totalCalls": 154109
+    },
+    {
+      "cumulativeSeconds": 0.236096789,
+      "file": "~",
+      "function": "<method 'update' of '_hashlib.HASH' objects>",
+      "line": 0,
+      "primitiveCalls": 109,
+      "selfSeconds": 0.236096789,
+      "totalCalls": 109
+    },
+    {
+      "cumulativeSeconds": 24.755542883,
+      "file": "/var/tmp/sqlite-verifier-t04c-20261007.4yNihbCP/source/conformance/corpus_shards.py",
+      "function": "load",
+      "line": 97,
+      "primitiveCalls": 1,
+      "selfSeconds": 0.219688245,
+      "totalCalls": 1
+    },
+    {
+      "cumulativeSeconds": 0.207731032,
+      "file": "~",
+      "function": "<method 'decompress' of 'zlib.Decompress' objects>",
+      "line": 0,
+      "primitiveCalls": 111,
+      "selfSeconds": 0.207731032,
+      "totalCalls": 111
+    },
+    {
+      "cumulativeSeconds": 0.224797452,
+      "file": "~",
+      "function": "<built-in method builtins.sorted>",
+      "line": 0,
+      "primitiveCalls": 320716,
+      "selfSeconds": 0.18546294000000002,
+      "totalCalls": 320716
+    },
+    {
+      "cumulativeSeconds": 4.49145515,
+      "file": "/nix/store/jm7jvgi26icvnm2c5cx9iliixlvplgrp-python3-3.14.7-env/lib/python3.14/json/__init__.py",
+      "function": "dumps",
+      "line": 185,
+      "primitiveCalls": 67689,
+      "selfSeconds": 0.129564857,
+      "totalCalls": 67689
+    },
+    {
+      "cumulativeSeconds": 0.592682524,
+      "file": "/var/tmp/sqlite-verifier-t04c-20261007.4yNihbCP/source/conformance/execution_profile.py",
+      "function": "profile_from_wire",
+      "line": 106,
+      "primitiveCalls": 13185,
+      "selfSeconds": 0.117616652,
+      "totalCalls": 13185
+    },
+    {
+      "cumulativeSeconds": 0.10579155400000001,
+      "file": "~",
+      "function": "<built-in method builtins.len>",
+      "line": 0,
+      "primitiveCalls": 758713,
+      "selfSeconds": 0.105363781,
+      "totalCalls": 760312
+    }
+  ]
+}

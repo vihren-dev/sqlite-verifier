@@ -8,6 +8,8 @@ from conformance.case_format import Json
 from conformance.corpus_shards import natural
 from conformance.execution_profile import ExecutionProfile, profile_from_wire
 from conformance.freeze_profiles import file_conditions, record_conditions, result_precision, result_nullvalue
+from conformance.upstream_profiles import RETAINED_TCL_PRECISION_POLICY_VERSIONS
+from conformance.upstream_binding_policy import retained_binding_policy, call_digest, retained_call_evidence
 
 
 def strings(value: Json) -> list[str]:
@@ -33,7 +35,8 @@ def retained_profiles(report: dict[str, Json]) -> tuple[dict[str, Json], dict[tu
     strings(policy["controlledClockPatterns"])
     precision = report.get("tclDisplayPrecisionPolicy")
     if (not isinstance(precision, dict) or set(precision) != {"version", "requested", "establishAfter"}
-            or type(precision["version"]) is not int or precision["version"] != 1
+            or type(precision["version"]) is not int
+            or precision["version"] not in RETAINED_TCL_PRECISION_POLICY_VERSIONS
             or type(precision["requested"]) is not int or precision["requested"] != 0
             or precision["establishAfter"] != "tester.tcl"):
         raise ValueError("Invalid retained Tcl precision policy")
@@ -69,8 +72,7 @@ def retained_profiles(report: dict[str, Json]) -> tuple[dict[str, Json], dict[tu
 
 def verify(report: dict[str, Json], records: list[dict[str, Json]]) -> None:
     """Bind every upstream case to one accepted source instance and its actual capture conditions."""
-    if type(report.get("corpusVersion")) is not int or report["corpusVersion"] != 1:
-        raise ValueError("Unsupported retained acquisition version")
+    binding_observed = retained_binding_policy(report)
     policy, profiles = retained_profiles(report)
     catalog, files = report.get("sourceCatalog"), report.get("files")
     if (not isinstance(catalog, list) or not isinstance(files, list) or len(catalog) != len(files)
@@ -108,8 +110,10 @@ def verify(report: dict[str, Json], records: list[dict[str, Json]]) -> None:
             reasons = strings(instance.get("exclusions"))
             if instance.get("result") != ("; ".join(reasons) or "recorded"):
                 raise ValueError("Retained acquisition result differs")
-            result_precision(instance.get("tclResultPrecision"), accepted=not reasons)
+            result_precision(instance.get("tclResultPrecision"), accepted=not reasons,
+                             policy_version=report["tclDisplayPrecisionPolicy"]["version"])
             result_nullvalue(instance.get("tclNullvalueEvidence"), instance["tclResultPrecision"], accepted=not reasons)
+            call_digest(instance, required=binding_observed and not reasons)
             if not reasons:
                 accepted[filename, instance["id"], occurrence] = (file, profile, clock,
                     instance["tclResultPrecision"], instance["tclNullvalueEvidence"])
@@ -138,6 +142,8 @@ def verify(report: dict[str, Json], records: list[dict[str, Json]]) -> None:
                 or provenance.get("sourceSha256") != file["sha256"]):
             raise ValueError("Retained case source evidence differs")
         record_conditions(record, profile, precision, clock, nullvalue)
+        instance = file["instances"][identity[2]]
+        retained_call_evidence(record, instance, observed=binding_observed, precision=precision, nullvalue=nullvalue)
         observed.add(identity)
     if observed != set(accepted):
         raise ValueError("Retained accepted membership differs")

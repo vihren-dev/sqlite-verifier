@@ -8,7 +8,8 @@ from conformance.authored_review import definitions as historical_review
 from conformance.authored_transactions import definitions
 from conformance.case_format import Json
 from conformance.native_connection import Row
-from conformance.native_replay import decode_rows, output_wire
+from conformance.native_bindings import decode_rows
+from conformance.native_replay import output_wire
 
 pytestmark = [pytest.mark.integration, pytest.mark.conformance, pytest.mark.requires_native("sqlite3")]
 

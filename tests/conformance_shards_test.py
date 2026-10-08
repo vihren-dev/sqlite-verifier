@@ -176,8 +176,10 @@ def test_corruption_after_rebinding(cases: list[dict[str, Json]], tmp_path: Path
     if damage.endswith("version"):
         stored["nativeVersion" if damage == "native-version" else "snapshotStorageVersion"] = True
     replace_payload(directory, manifest, [stored])
-    with pytest.raises(ValueError):
+    with pytest.raises(ValueError) as failure:
         load(directory)
+    if damage == "oversized":
+        assert isinstance(failure.value, CaseSizeLimit) and failure.value.byte_count == len(serialized(broken))
 
 
 def test_writer_validates_every_case_before_creating_output(cases: list[dict[str, Json]], tmp_path: Path) -> None:
