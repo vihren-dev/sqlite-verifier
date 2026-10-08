@@ -50,11 +50,17 @@ jobs:
         if: env.PLATFORM_RUNS == 'true'
         id: scope
         run: python3 tests/ci_scope.py
+      - name: Check that the review log only grows
+        if: env.PLATFORM_RUNS == 'true'
+        env:
+          # Passed as data; tools/review_log_check.py validates it as a full commit hash.
+          REVIEW_LOG_BASE: ${{ github.event.pull_request.base.sha || github.event.before || '' }}
+        run: python3 tools/review_log_check.py
       - name: Check documentation and CI routing
         if: env.PLATFORM_RUNS == 'true' && steps.scope.outputs.scope == 'docs'
         run: |
           python3 tests/docs_test.py
-          python3 -m unittest tests.test_ci_scope
+          python3 -m unittest tests.test_ci_scope tests.test_review_log_check
       - uses: cachix/install-nix-action@13d8dd58da0234aa297dedd986986ccb8e7f3e24 # v31
         if: env.PLATFORM_RUNS == 'true' && steps.scope.outputs.scope != 'docs'
         with:
