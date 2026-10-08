@@ -611,3 +611,14 @@ Decisions waiting for the owner:
 
 - Feedback on that correction and workspace compatibility rule.
 - Final review of the fully integrated PR #56 head before protected changes merge.
+# Workspace policy correction authorized, 2026-10-08
+
+The owner authorizes continuing with per-spelling views based on original
+root lookup and a case-sensitive workspace requirement only when distinct
+views cannot coexist. That feedback clears the hold for continued correction
+and tests. Final owner review remains required before merge. No new corrected
+implementation or acceptance is claimed in this entry.
+
+Decisions waiting for the owner:
+
+- Review the fully integrated PR #56 head after its corrections and checks.
