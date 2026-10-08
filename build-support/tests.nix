@@ -161,6 +161,9 @@ in {
       (fs.fileFilter (file: file.hasExt "py") (root + /migration_check))
       (fs.fileFilter (file: file.hasExt "json") (root + /conformance/cases))
       (root + /tests/sql_fixtures.py)
+      (root + /tests/kernel_fixture.py) (root + /tests/kernel_attack_cases.py)
+      (root + /tests/bundle_attack_fixture.py) (root + /tests/bundle_hostile_records.py)
+      (fs.fileFilter (file: file.hasExt "lean") (root + /tests/kernel_gate))
     ];
     inherit runtime;
   };
@@ -169,7 +172,8 @@ in {
     inherit runtime;
   };
   kernel = suite "kernel" {
-    inputs = [ (fs.fileFilter (file: file.hasExt "lean") (root + /tests/kernel_gate)) ];
+    inputs = [ (fs.fileFilter (file: file.hasExt "lean") (root + /tests/kernel_gate))
+      (root + /tests/kernel_fixture.py) (root + /tests/kernel_attack_cases.py) ];
     runtime = leanRoot;
   };
   model = suite "model" {

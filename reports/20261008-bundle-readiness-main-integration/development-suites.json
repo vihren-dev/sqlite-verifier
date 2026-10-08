@@ -1,0 +1,64 @@
+{
+  "suite_count": 7,
+  "total_tests": 333,
+  "suites": {
+    "atuin": {
+      "output": "/nix/store/dm1r233bfg893r5bp1pkaq8jpxnds82f-sqlite-verifier-test-atuin-1",
+      "original_xml": "atuin.xml",
+      "tests": 12,
+      "xml_time_seconds": 100.898,
+      "xml_timestamp": "2026-10-08T07:43:52.192826+00:00",
+      "execution": "fresh execution in this development invocation"
+    },
+    "bundle": {
+      "output": "/nix/store/bl42x5pv5nbmzcigv6x1vzp91550ip7b-sqlite-verifier-test-bundle-1",
+      "original_xml": "bundle.xml",
+      "tests": 65,
+      "xml_time_seconds": 325.386,
+      "xml_timestamp": "2026-10-08T07:31:20.096506+00:00",
+      "execution": "fresh execution in the earlier retained gate invocation"
+    },
+    "cli": {
+      "output": "/nix/store/ypnwy5f7bwm4fbkdabxfxwcds130sb08-sqlite-verifier-test-cli-1",
+      "original_xml": "cli.xml",
+      "tests": 14,
+      "xml_time_seconds": 42.382,
+      "xml_timestamp": "2026-10-08T07:45:40.953961+00:00",
+      "execution": "fresh execution in this development invocation"
+    },
+    "harness": {
+      "output": "/nix/store/zibyi4rm8w3w3gflszr35c7wnwp97prn-sqlite-verifier-test-harness-1",
+      "original_xml": "nix-harness.xml",
+      "tests": 126,
+      "xml_time_seconds": 2.385,
+      "xml_timestamp": "2026-10-07T13:53:34.158684+00:00",
+      "execution": "matching cached result; original XML timestamp retained"
+    },
+    "kernel": {
+      "output": "/nix/store/6ylpwamwvjdibxwrwbr5kg18si2wxmgc-sqlite-verifier-test-kernel-1",
+      "original_xml": "kernel.xml",
+      "tests": 28,
+      "xml_time_seconds": 48.207,
+      "xml_timestamp": "2026-10-08T07:37:02.344496+00:00",
+      "execution": "fresh execution in the earlier retained gate invocation"
+    },
+    "sample": {
+      "output": "/nix/store/d2s3yhbchsx3ifrm9vyvjiwznis0xpgg-sqlite-verifier-test-sample-1",
+      "original_xml": "sample.xml",
+      "tests": 12,
+      "xml_time_seconds": 57.17,
+      "xml_timestamp": "2026-10-08T07:46:25.879156+00:00",
+      "execution": "fresh execution in this development invocation"
+    },
+    "upstream": {
+      "output": "/nix/store/q6i3qn2m3myclpcjh8dri2b2fh26j5xs-sqlite-verifier-test-upstream-1",
+      "original_xml": "upstream.xml",
+      "tests": 76,
+      "xml_time_seconds": 5.557,
+      "xml_timestamp": "2026-10-08T07:47:23.623949+00:00",
+      "execution": "fresh execution in this development invocation"
+    }
+  },
+  "model_and_frozen": "not selected by the ordinary development recipe",
+  "cold_performance_evidence": false
+}

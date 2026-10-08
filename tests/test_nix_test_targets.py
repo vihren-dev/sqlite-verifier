@@ -74,7 +74,12 @@ def source_tree(tmp_path: Path) -> Path:
 @pytest.mark.parametrize('relative,affected', [
     ('tests/kernel_gate_test.py', {'kernel'}),
     ('tests/single_executor_test.py', {'kernel'}),
-    ('tests/kernel_gate/Proofs.lean', {'kernel'}),
+    ('tests/kernel_gate/Proofs.lean', {'kernel', 'bundle'}),
+    ('tests/kernel_fixture.py', {'kernel', 'bundle'}),
+    ('tests/kernel_attack_cases.py', {'kernel', 'bundle'}),
+    ('tests/bundle_attack_test.py', {'bundle'}),
+    ('tests/bundle_attack_fixture.py', {'bundle'}),
+    ('tests/bundle_hostile_records.py', {'bundle'}),
     ('conformance/model_cases.py', {'model', 'frozen', 'harness', 'upstream'}),
     ('conformance/replay_tiers.py', {'model', 'frozen', 'harness', 'sample', 'upstream'}),
     ('conformance/native_workers.py', {'model', 'frozen', 'harness', 'sample', 'upstream'}),

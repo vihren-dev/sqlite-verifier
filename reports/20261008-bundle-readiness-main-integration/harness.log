@@ -1,0 +1,7 @@
+copying path '/nix/store/nhsyx7qja6j11bkvc8cm1psw6z4bk9mn-source' from 'https://cache.nixos.org'...
+this path will be fetched (0.10 MiB download, 0.10 MiB unpacked):
+  /nix/store/qw1lvd6i8yy5h56k1i2ajnkrz33145qa-bash-interactive-5.3p15-man
+copying path '/nix/store/qw1lvd6i8yy5h56k1i2ajnkrz33145qa-bash-interactive-5.3p15-man' from 'https://cache.nixos.org'...
+........................................................................ [ 52%]
+.................................................................        [100%]
+137 passed in 6.17s
