@@ -55,3 +55,53 @@ def test_cache_save_is_limited_to_main_and_nightly() -> None:
                 "(github.event_name == 'push' && github.ref == 'refs/heads/main') }}")
     assert expected in text
     assert "save: true" not in text
+
+
+CACHE_URL = "https://cache.vihren.dev/sqlite-verifier"
+CACHE_KEY = "sqlite-verifier:tbKquH1YWJZFbMzT6Z14DmJ5yeVMnHSYobIDGdkWGis="
+"""The publicly readable Vihren Attic cache and its signing key."""
+
+
+def workflow_jobs() -> dict[str, str]:
+    """The text of each top-level job, keyed by job id, so tests can scope assertions to one job."""
+    text = (ROOT / ".github/workflows/ci.yml").read_text(encoding="utf-8")
+    body = text[text.index("\njobs:\n") + len("\njobs:\n"):]
+    parts = re.split(r"\n(?=  [a-z][a-z0-9-]*:\n)", "\n" + body)
+    return {part.strip().split(":", 1)[0]: part for part in parts if part.strip()}
+
+
+def test_check_job_substitutes_from_the_public_cache_with_fallback() -> None:
+    """Checks read the Attic cache without credentials; a failed substitution builds locally."""
+    check = workflow_jobs()["check"]
+    assert f"extra-substituters = {CACHE_URL}" in check
+    assert f"extra-trusted-public-keys = {CACHE_KEY}" in check
+    assert "fallback = true" in check
+    assert "sandbox-fallback = false" in check
+
+
+def test_only_the_publishing_job_receives_the_write_token() -> None:
+    """The check and release jobs, which pull requests and tags run, never see the upload token."""
+    jobs = workflow_jobs()
+    assert set(jobs) == {"check", "release", "publish-nix-store"}
+    assert "ATTIC_WRITE_TOKEN" not in jobs["check"]
+    assert "ATTIC_WRITE_TOKEN" not in jobs["release"]
+    assert "secrets.ATTIC_WRITE_TOKEN" in jobs["publish-nix-store"]
+
+
+def test_publishing_follows_accepted_main_and_nightly_checks_only() -> None:
+    """Uploads run after both checks pass, in the main-only environment, and cannot fail the workflow."""
+    publish = workflow_jobs()["publish-nix-store"]
+    assert ("if: github.event_name == 'schedule' || "
+            "(github.event_name == 'push' && github.ref == 'refs/heads/main')") in publish
+    assert "needs: check" in publish
+    assert "environment: attic-publish" in publish
+    assert "continue-on-error: true" in publish
+    assert re.search(r"\n    timeout-minutes: \d+\n", publish)
+
+
+def test_publishing_restores_the_check_jobs_store_without_saving() -> None:
+    """The publishing job restores exactly the key the check job saved and never writes a GitHub cache."""
+    jobs = workflow_jobs()
+    key = re.compile(r"primary-key: (.+)")
+    assert key.search(jobs["publish-nix-store"]).group(1) == key.search(jobs["check"]).group(1)
+    assert "save: false" in jobs["publish-nix-store"]

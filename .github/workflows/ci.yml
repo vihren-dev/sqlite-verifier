@@ -65,6 +65,12 @@ jobs:
             sandbox-fallback = false
             keep-outputs = true
             keep-derivations = true
+            # The Vihren Attic cache is publicly readable; main runs publish to it
+            # (publish-nix-store). A failed substitution falls back to a local build.
+            extra-substituters = https://cache.vihren.dev/sqlite-verifier
+            extra-trusted-public-keys = sqlite-verifier:tbKquH1YWJZFbMzT6Z14DmJ5yeVMnHSYobIDGdkWGis=
+            connect-timeout = 5
+            fallback = true
       - name: Restore Nix builds and test results
         if: env.PLATFORM_RUNS == 'true' && steps.scope.outputs.scope != 'docs'
         uses: nix-community/cache-nix-action@7df957e333c1e5da7721f60227dbba6d06080569 # v7
@@ -176,3 +182,50 @@ jobs:
           if [[ "$RELEASE_TAG" == *-* ]]; then flags+=(--prerelease); fi
           gh release create "$RELEASE_TAG" "${flags[@]}" --verify-tag --title "SQLite verifier $RELEASE_TAG" \
             --notes-file docs/release-notes.md release-assets/*.tar.gz release-assets/*.sha256
+
+  publish-nix-store:
+    name: Publish Nix store (${{ matrix.system }})
+    # After both native checks of a main push or nightly run pass, upload the store
+    # that the check job saved to the Vihren Attic cache. Only this job can use the
+    # attic-publish environment, which deploys only from main and holds the write
+    # token. An upload failure never fails the workflow or changes a check result.
+    if: github.event_name == 'schedule' || (github.event_name == 'push' && github.ref == 'refs/heads/main')
+    needs: check
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - runner: ubuntu-22.04
+            system: x86_64-linux
+          - runner: macos-14
+            system: aarch64-darwin
+    runs-on: ${{ matrix.runner }}
+    environment: attic-publish
+    continue-on-error: true
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          persist-credentials: false
+      - uses: cachix/install-nix-action@13d8dd58da0234aa297dedd986986ccb8e7f3e24 # v31
+        with:
+          enable_kvm: false
+          set_as_trusted_user: false
+          extra_nix_config: |
+            keep-outputs = true
+            keep-derivations = true
+      - name: Restore the store that the check job saved
+        id: restore
+        uses: nix-community/cache-nix-action@7df957e333c1e5da7721f60227dbba6d06080569 # v7
+        with:
+          # The check job's primary key for this commit; this job never saves.
+          primary-key: nix-tests-v2-${{ matrix.system }}-${{ hashFiles('nix/*.nix', 'nix/flake.lock') }}-${{ hashFiles('**', '!.git/**', '!plans/**', '!reviews/**') }}
+          save: false
+      - name: Upload store paths that cache.nixos.org does not provide
+        if: steps.restore.outputs.hit-primary-key == 'true'
+        env:
+          ATTIC_WRITE_TOKEN: ${{ secrets.ATTIC_WRITE_TOKEN }}
+        run: |
+          attic="$(nix build --no-link --print-out-paths --inputs-from path:./nix nixpkgs#attic-client)/bin/attic"
+          "$attic" login vihren https://cache.vihren.dev "$ATTIC_WRITE_TOKEN"
+          nix path-info --all | grep -v '\.drv$' | "$attic" push vihren:sqlite-verifier --stdin
