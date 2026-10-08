@@ -129,7 +129,9 @@ the parse result does not name one release. The limits stay: 1 MiB of input
 and 200,000 nodes give `RESOURCE_LIMIT`. Invalid UTF-8, NUL and syntax errors
 give `INPUT_ERROR`.
 
-The library has no global mutable state. Concurrent calls are permitted.
+The library makes no promise for concurrent calls. Callers parse one text at
+a time. `ctypes` releases Python's global interpreter lock during a foreign
+call, so the binding holds its own lock for each call.
 
 ### Python binding
 
@@ -191,23 +193,87 @@ the model supports it.
 - **No crash containment.** A fault in the parser stops the verifier or the
   test run. Before, it failed one parse.
 - **Memory faults can corrupt verifier state.** In-process memory faults are
-  not always visible as crashes. A CI job therefore builds the library with
-  AddressSanitizer and UndefinedBehaviorSanitizer. It parses every parser test
-  input and every distinct SQL text of the current corpus, for each grammar.
-  A sanitizer finding fails the job.
+  not always visible as crashes, and they can change data without a change in
+  output. The sanitizer job in "How the parser library is tested" checks for
+  them.
 - **Trust boundary.** The parser was already trusted code. The
   [trust boundary](trust-boundary.md) must say that it now runs inside the
   verifier process, without a deadline.
-- **Tests.** The parser tests call the library through the binding. They take
-  the grammars and dialects from the metadata, so a new grammar is tested
-  without a test change. A test loads all grammars in one process on Linux and
-  on macOS, and checks that each release gives its own result for the `RAISE`
-  boundary case.
 - **Packaging.** The runtime and the release archive contain the library
   instead of the executables. The installer tests must still show that no
   ambient tool or library is used.
 - **Documentation.** [SQLite syntax boundary](sqlite-parser.md) describes the
   library, the API, the metadata and the dialect table.
+
+## How the parser library is tested
+
+Each claim about the parser has its own evidence:
+
+| Claim | Evidence |
+| --- | --- |
+| The parser reads the syntax of SQLite, for each dialect | Construction from hash-checked upstream sources, and the conformance pipeline |
+| The syntax trees are correct | The conformance pipeline, and the parser tests |
+| No memory faults or leaks | The sanitizer job |
+| All grammars work in one process | The load test |
+| The build and the metadata are correct | The build checks |
+| The library gives the same result as the executables | A one-time comparison in step 1 |
+
+**Construction.** The build checks the hashes of the unmodified upstream
+sources. It keeps every production, precedence rule and token of the upstream
+grammar, and replaces only the actions. It fails when the token inventories of
+the grammar and the tokenizer differ. These checks exist today and stay.
+
+**Conformance pipeline.** This is the main evidence that the parser agrees
+with SQLite. Each corpus case is parsed with the dialect of its profile, then
+mapped, resolved and executed in the model, and compared with native SQLite.
+
+- A parser rejection of a statement that native SQLite ran is a harness error,
+  and a harness error fails the tests.
+- A wrong syntax tree changes the model result, for example through operator
+  precedence, so the case disagrees.
+- A parser acceptance of a statement that SQLite rejects also gives a
+  disagreement when the statement is in the admitted scope. Outside that scope,
+  the mapping refuses the statement as `UNSUPPORTED`, and `UNSUPPORTED` never
+  becomes `VERIFIED`.
+- The harness parses every case before it checks the profile. Today the
+  harness rejects the cases of corpus v5 for their profile before it parses
+  them, so they give no parser evidence. With this change, every distinct SQL
+  text of every retained corpus goes through the parser.
+
+**Parser tests.** The existing parser tests call the library through the
+binding. They take the grammars and dialects from the metadata, so a new
+grammar is tested without a test change. They cover valid and invalid scripts,
+the resource limits, exact byte spans, and the `RAISE` case that each release
+parses differently.
+
+**Sanitizer job.** A CI job builds the library with AddressSanitizer,
+LeakSanitizer and UndefinedBehaviorSanitizer. It parses every parser test input
+and every distinct SQL text of every retained corpus, with each grammar. A
+finding fails the job. The executables freed all memory when they exited, but
+the library runs in a long process, so a leak also fails the job.
+
+**Load test.** One process loads all grammars on Linux amd64 and macOS arm64,
+and each grammar gives its own result for the `RAISE` case.
+
+**Build checks.** The build extracts the grammar options of each release and
+checks each dialect-table entry against the identity that its sources give. The
+production count in the metadata is checked against Lemon's own export of the
+grammar.
+
+**One-time comparison.** In step 1, for each grammar, the library output must
+equal the executable output byte for byte, except that `grammar` replaces
+`profile`. The inputs are all parser test inputs and all distinct SQL texts of
+every retained corpus. The comparison ends when step 2 removes the executables.
+
+**Not tested on purpose.**
+
+- Stored expected syntax trees, a separate syntax comparison with SQLite, and a
+  measure of production coverage. The conformance pipeline already checks the
+  behavior that these would check. Syntax outside the admitted scope is
+  refused, so its coverage does not affect a result.
+- Fuzzing. SQLite's own grammar and tokenizer are fuzzed upstream. A sanitizer
+  finding or a parser crash is a trigger in "When to revisit".
+- Concurrent calls. The library makes no promise for them.
 
 ## Development in two steps
 
@@ -229,8 +295,9 @@ library yet.
 
 **Step 2: the switch.** It starts after PR #56 merges. It adds the binding in
 `belay.sqlite` and the profile resolution helper, changes `parse`, the verifier
-runtime and the conformance harness to use the library, and removes the
-executables, their callers and their tests. It updates the runtime packaging,
+runtime and the conformance harness to use the library, makes the harness
+parse every case before it checks the profile, and removes the executables,
+their callers and their tests. It updates the runtime packaging,
 the installer tests, the [SQLite syntax boundary](sqlite-parser.md) and the
 [trust boundary](trust-boundary.md).
 
@@ -241,7 +308,7 @@ Step 1, before step 2 starts:
 1. For each grammar, the library output equals the executable output, byte for
    byte, except that `grammar` replaces `profile`. The inputs are all parser
    test inputs and all distinct SQL texts of every retained corpus.
-2. The sanitizer job passes on the same inputs.
+2. The sanitizer job, with LeakSanitizer, passes on the same inputs.
 3. Both grammars load in one process on Linux amd64 and macOS arm64.
 4. The build extracts the grammar options of each release, and a changed
    dialect-table entry fails the build.
@@ -253,8 +320,11 @@ Step 2, before the executables are removed:
    without a built dialect. It ignores compile options that are not grammar
    options.
 6. Each supported profile resolves to a built dialect when the library loads.
-7. The installer tests pass with the library.
-8. The time of `parse` over the corpus v5 migrations is measured and
+7. The conformance pipeline parses every case of every retained corpus,
+   including cases that it rejects later for their profile. No statement that
+   native SQLite ran is rejected by the parser.
+8. The installer tests pass with the library.
+9. The time of `parse` over the corpus v5 migrations is measured and
    recorded, before and after.
 
 ## Alternatives considered
@@ -278,6 +348,9 @@ Add a process wrapper over the library when one of these occurs:
 - a sanitizer finding or a crash in the parser;
 - a parse that takes longer than the old 5-second deadline;
 - a need to parse SQL from untrusted sources in a shared service.
+
+Add a promise for concurrent calls, with its own tests, when a caller needs to
+parse in parallel.
 
 ## Not decided here
 
