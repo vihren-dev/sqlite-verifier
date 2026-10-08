@@ -18,8 +18,11 @@ the six measured production files and delivered transaction code. It passes
 136 bounded tests and 11 actual Nix ownership checks. Integration review
 `20261008T071836Z-886de497` has no findings. Publication and normal delivery
 remain required. [Draft PR #59](https://github.com/vihren-dev/sqlite-verifier/pull/59)
-publishes reviewed head `d264bba3`. CI `37743066830` is in progress;
-no hosted pass is claimed. No timing rerun is claimed.
+publishes reviewed head `d264bba3`. CI `37743066830` succeeds. Hosted
+Linux passes all nine Nix suites with 532 checks, 99 infrastructure checks
+and 417 source tests with 35 subtests and two optional reviewer-tool skips.
+The macOS PR job skips execution; retained local native records supply
+macOS acceptance. The actual CI merge tree equals the reviewed head. No timing rerun is claimed.
 The original 33.707907737-second Linux miss remains retained on its original
 source. No performance phase is running. T04c is not DONE.
 
@@ -916,3 +919,15 @@ authorized one Linux diagnostic below. No production change followed it.
   normally, and draft PR #59 is created at that exact head. The PR is
   attached to this chat. Hosted CI `37743066830` is confirmed in progress.
   No hosted pass, normal merge or DONE state is claimed.
+
+- 2026-10-08: Hosted CI `37743066830` completes successfully for published
+  head `d264bba3`. The actual merge source `4d492b4b` has zero changed
+  files against that head. All nine Linux Nix suites pass 532 tests,
+  infrastructure passes 99 tests, and source checks pass 417 tests and
+  35 subtests with two explicit optional reviewer-tool skips. The macOS
+  PR job skips execution. No new installed or timing acceptance is claimed.
+  The exact artifact ZIP matches GitHub's digest; all 17 original members,
+  decoded job log and tree comparison are retained in
+  [the hosted record](../reports/20261008-development-replay-hosted-acceptance/README.md).
+  All artifact hashes verify. Hosted evidence review and normal delivery
+  remain required. T04c is not DONE.
