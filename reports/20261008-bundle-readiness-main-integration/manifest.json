@@ -67,5 +67,34 @@
     "bytes": 8574,
     "sha256": "823c1c77c05bfb5d23b2430ca32b9b3f8f9051e8623c7dda798f339998a6301d",
     "original_sha256": "419599d5f5ded500ae15b9ba4219ed6fd1a29f34ef9cfbf08d4005b5f1975de9"
+  },
+  "atuin.xml": {
+    "bytes": 1443,
+    "sha256": "cd0f847465102b65f1e065e6d3a2e28344bbe5e94b88f2e83b1d7105ecc31692"
+  },
+  "cli.xml": {
+    "bytes": 1538,
+    "sha256": "75efb7a0842e3d5af63da0221fb96a9714dea259dc6cacbcc85221f992ba0b09"
+  },
+  "nix-harness.xml": {
+    "bytes": 17027,
+    "sha256": "1e4e499b512bf73377ba6645c614194fccf81a49fb095f9285e6dab007e0ee43"
+  },
+  "sample.xml": {
+    "bytes": 1883,
+    "sha256": "8122f71babf6e11b289247ec3827797a88b582876742bac9e92b196e6c717094"
+  },
+  "upstream.xml": {
+    "bytes": 10697,
+    "sha256": "f6b6e445229901a644386c100e05d8dc42686b66a653db2cd813e3df8ae3a8c0"
+  },
+  "development-suites.json": {
+    "bytes": 2526,
+    "sha256": "943a1b98c696c7c919352aebb9c19ef9f82dc5e980e4cb29bf50b5ee2b67d900"
+  },
+  "development-suites.log.gz": {
+    "bytes": 4420,
+    "sha256": "a1bcef0fa8d639edb2ae9f5d060fa37c4ddfb385c1a6d38ebbb9d1104762d1a3",
+    "original_sha256": "aa9ec5b08b684e60c6d1f548c081b813097a81916ac868fcf6984ef2b4dde3ec"
   }
 }

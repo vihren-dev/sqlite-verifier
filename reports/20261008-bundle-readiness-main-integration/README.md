@@ -36,5 +36,13 @@ Synthetic observations and test durations are not cold-run performance
 evidence. The actual campaigns still wait for the accepted documentation
 runtime and coordinated idle hosts. Integration review `20261008T073925Z-849bceae` has no findings. The
 reviewer did not run hash commands; author checks independently verify
-every artifact hash and the decompressed console log. Remaining ordinary
-Nix acceptance is running. T06 remains IN PROGRESS.
+every artifact hash and the decompressed console log. All seven ordinary Nix suites now pass 333 checks. Atuin, CLI,
+sample and upstream execute freshly in the development invocation. Bundle
+and kernel retain their fresh earlier gate results. Harness uses its matching
+cached result, with the original XML timestamp retained. `harness.xml` records
+137 host harness and inventory checks; `nix-harness.xml` records the 126 cached
+Nix harness checks. These are different selections. The full console log,
+exact outputs and per-suite execution distinctions are retained. The ordinary
+recipe excludes model and frozen suites; no fresh execution of those suites
+is claimed. Installed execution, both-platform cold campaigns and normal
+delivery remain required. T06 remains IN PROGRESS.

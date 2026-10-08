@@ -332,3 +332,13 @@ No new campaign, launcher, benchmark or task was started after the hold.
   and the original decompressed native-gate log. The acceptance record
   now identifies the team as its sole audience. Remaining seven-suite
   ordinary Nix acceptance is running. The actual cold campaign is held.
+
+- 2026-10-08: All seven ordinary macOS Nix suites pass 333 checks.
+  Atuin, CLI, sample and upstream execute freshly; bundle and kernel use
+  their retained fresh earlier gate outputs. Harness uses its matching
+  cached output with 126 checks and its original timestamp. This differs
+  from the 137 host harness and inventory checks. The original XML files
+  retain separate names. Model and frozen are outside the ordinary recipe.
+  Complete console bytes and exact output/execution metadata are retained.
+  Evidence review, Linux correctness acceptance, installed execution and
+  actual cold campaigns remain required. T06 is not DONE.
