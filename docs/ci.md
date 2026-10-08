@@ -30,6 +30,9 @@ Linux builds the [checked API reference](api-reference.md) for pull requests.
 Main, tags, manual and nightly runs build it on both native platforms for
 non-documentation scopes. They use the
 pinned Nix environment with the checkout's full commit hash for source links.
+Only the last, cheap step uses that hash. The expensive base build does not, and
+`tools/ci_store_gc.py` keeps it in the saved cache, so a run whose Lean sources
+match the cache reuses it.
 CI retains `api-reference-SYSTEM` for 14 days, including when a later check
 fails. The reference checks authored Verso coverage and retains its inventory.
 Documentation dependencies stay outside the installed proof runtime.

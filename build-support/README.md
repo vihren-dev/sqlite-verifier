@@ -12,9 +12,11 @@ are fetched. Lean is exactly 4.34.1; neither Elan nor a nixpkgs Lean version is
 used. Linux binaries use the pinned loader via autoPatchelf. Darwin upstream
 binaries already use bundled-relative/platform loaders.
 
-`docGen4` builds the exact doc-gen4 v4.34.1 manifest closure. `apiReference`
-builds the checked public Lean library and HTML reference, with a required
-`referenceRevision` full commit hash for source links. `just reference HASH`
+`docGen4` builds the exact doc-gen4 v4.34.1 manifest closure.
+`apiReferenceBase` builds the checked public Lean library and HTML reference,
+with a placeholder in its source links, so it does not change with the commit.
+`apiReference` copies it and puts the required `referenceRevision` full commit
+hash into the source links. `just reference HASH`
 runs it in a sandbox and links the output at `build/api-reference`. These
 targets are separate from `runtime` and its installed closure. See the
 [API reference guide](../docs/api-reference.md).

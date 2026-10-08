@@ -38,3 +38,24 @@ Relevant files: `tests/ci_scope.py`, `tests/test_ci_scope.py`,
   `latest_outcomes` now uses the resolution date, with the line only for equal
   dates. `docs/ci.md` describes the scope and the log check. The task text
   describes the presence rule.
+- 2026-10-08: commit `b1363a62`, refactor review
+  `20261008T131057Z-b1363a62` with no findings. Both findings of the first
+  review are recorded as fixed.
+- 2026-10-08: the reference is two Nix targets. `apiReferenceBase` builds the
+  pages and all checks with the placeholder `SOURCE-REVISION`; it takes no
+  commit. `apiReference` copies it and puts the commit into the source links
+  (`tools/api_reference_links.py`). `tools/ci_store_gc.py` roots the base.
+  Local measurement on macOS arm64, with the sandbox:
+
+  | Build | Time | Built derivations |
+  | --- | --- | --- |
+  | `apiReference` for `b1363a62` | 403 s | base and link step |
+  | `apiReference` for `318b7fdb` | 1.9 s | link step only |
+
+  Both outputs have 279 source links with their commit and no placeholder.
+  They differ in 25 files: the pages with source links and the report. The
+  base output is 172 MB, 7.7 MB with zstd level 3. Rooting the base keeps its
+  build inputs, including doc-gen4, which is 194 MB, 45 MB compressed. No
+  previous CI root contained doc-gen4, so CI also rebuilt it in each
+  non-documentation run. The saved cache grows by about 53 MB for each
+  platform. 56 focused tests pass.

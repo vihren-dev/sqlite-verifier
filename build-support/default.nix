@@ -25,8 +25,12 @@ in rec {
   inherit leanToolchain sources;
   sqlite3534 = native.sqlite3534;
   docGen4 = import ./doc-gen4.nix { inherit pkgs leanToolchain; };
-  apiReference = import ./api-reference.nix {
+  apiReferenceBase = import ./api-reference.nix {
     inherit pkgs sources leanToolchain lean4export docGen4 inventoryTools;
+  };
+  apiReference = import ./api-reference-links.nix {
+    inherit pkgs;
+    base = apiReferenceBase;
     revision = referenceRevision;
   };
   publicDocumentation = import ./public-documentation.nix {
