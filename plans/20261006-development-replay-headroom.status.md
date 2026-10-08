@@ -850,3 +850,13 @@ authorized one Linux diagnostic below. No production change followed it.
   checks pass without replay. All three findings are recorded as fixed.
   Original measurements and all 34 individually retained raw artifacts
   remain unchanged. Correction review remains required.
+
+- 2026-10-08: Correction review `20261008T070801Z-4d40ca38` finds
+  one mandatory omission: Jujutsu did not snapshot the new 2.1 MiB Linux
+  archive under its default 1 MiB guard. The exact archive is now added
+  with a one-command limit of its known 2,167,232-byte size. No persistent
+  configuration changes. Named phase and target policies and precise
+  summary file/field diagnostics fix the two wording suggestions. The
+  original bytes, observations and measurement values remain unchanged.
+  Read-only validation and all five corruption checks pass. All findings
+  are recorded as fixed; correction review remains required.

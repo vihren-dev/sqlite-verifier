@@ -13,6 +13,10 @@ Json: TypeAlias = None | bool | int | float | str | list["Json"] | dict[str, "Js
 COMPARISON_FIELDS = ("corpusVersion", "casesSha256", "manifestSha256", "executionProfiles", "denominator",
     "selectedDenominator", "selectedNames", "selectedIdentities", "selectedIdentitiesSha256", "cases", "counts")
 """Historical identities, profiles and verdicts remain authoritative for each selected input."""
+PHASE_LIMIT_SECONDS = 120
+"""The owner-approved process-group guard remains separate from the performance target."""
+TARGET_SECONDS_EXCLUSIVE = 30
+"""Each native phase must finish strictly below this target without reducing validation."""
 
 
 def read_original(name: str, root: Path = ROOT) -> dict[str, Json]:
@@ -36,11 +40,11 @@ def validate(root: Path = ROOT) -> None:
     files = read_original("source-files.json.gz", root)
     helpers = read_original("helper-manifest.json.gz", root)
     summary = json.loads((root / "acceptance.json").read_text())
-    assert summary["source_revision"] == source["source_revision"], "summary source"
-    assert summary["phase_limit_seconds"] == 120 and summary["target_seconds_exclusive"] == 30, "summary limits"
-    assert summary["complete_performance_acceptance"] is True and summary["task_done"] is False, "summary status"
-    assert summary["model_agreement_claimed"] is False and summary["raw_artifacts"] == len(bindings), "summary scope"
-    assert hashlib.sha256((root / "linux-evidence.tar.gz").read_bytes()).hexdigest() == summary["linux_evidence_archive_sha256"], "retrieval archive"
+    assert summary["source_revision"] == source["source_revision"], "acceptance.json: source_revision differs; compare it with source.json.gz"
+    assert summary["phase_limit_seconds"] == PHASE_LIMIT_SECONDS and summary["target_seconds_exclusive"] == TARGET_SECONDS_EXCLUSIVE, "acceptance.json: phase_limit_seconds or target_seconds_exclusive differs; compare the original receipts"
+    assert summary["complete_performance_acceptance"] is True and summary["task_done"] is False, "acceptance.json: complete_performance_acceptance or task_done differs; compare the original receipts and task status"
+    assert summary["model_agreement_claimed"] is False and summary["raw_artifacts"] == len(bindings), "acceptance.json: model_agreement_claimed or raw_artifacts differs; compare the original reports and raw-sha256.json"
+    assert hashlib.sha256((root / "linux-evidence.tar.gz").read_bytes()).hexdigest() == summary["linux_evidence_archive_sha256"], "acceptance.json: linux_evidence_archive_sha256 differs; compare the original retrieved archive"
     for platform, prefix in (("darwin", "darwin/"), ("linux", "linux-originals/linux/")):
         receipt = read_original(prefix + "receipt.json.gz", root)
         report = read_original(prefix + "report.json.gz", root)
@@ -81,18 +85,18 @@ def validate(root: Path = ROOT) -> None:
         assert report["policy"] == previous["policy"] and report["policySha256"] == previous["policySha256"], platform
         measurement = receipt["measurement"]
         assert measurement == report["measurement"], platform
-        assert measurement["limitSeconds"] == receipt["phaseLimitSeconds"] == 120, platform
-        assert receipt["targetSecondsExclusive"] == 30, platform
-        assert receipt["underTarget"] == (measurement["seconds"] < 30) is True, platform
+        assert measurement["limitSeconds"] == receipt["phaseLimitSeconds"] == PHASE_LIMIT_SECONDS, platform
+        assert receipt["targetSecondsExclusive"] == TARGET_SECONDS_EXCLUSIVE, platform
+        assert receipt["underTarget"] == (measurement["seconds"] < TARGET_SECONDS_EXCLUSIVE) is True, platform
         outer = (phase["ended"]["monotonicNs"] - phase["started"]["monotonicNs"]) / 1e9
-        assert outer == phase["outerPhaseSeconds"] and 0 < measurement["seconds"] <= outer < 120, platform
+        assert outer == phase["outerPhaseSeconds"] and 0 < measurement["seconds"] <= outer < PHASE_LIMIT_SECONDS, platform
         assert receipt["valid"] and receipt["command"]["returncode"] == 0 and not receipt["command"]["timedOut"], platform
         assert receipt["conditionsBefore"]["storageDevice"] == receipt["conditionsAfter"]["storageDevice"], platform
         expected = {"phase_seconds": measurement["seconds"], "outer_seconds": outer,
             "start": phase["started"], "end": phase["ended"], "fixture_count": len(paths),
             "fixtures_cleaned": phase["fixturesCleaned"], "bindings_unchanged": receipt["bindingsUnchanged"],
             "storage_root": str(storage), "storage_device": receipt["conditionsBefore"]["storageDevice"]}
-        assert summary["platforms"][platform] == expected, (platform, "summary")
+        assert summary["platforms"][platform] == expected, f"acceptance.json: platforms.{platform} differs; compare phase seconds, outer seconds, timestamps, paths and storage with the original receipt"
     storage = read_original("darwin-storage-after-only.json.gz", root)
     original = read_original("darwin/receipt.json.gz", root)
     assert storage["matches_recorded_before_after"] and storage["observation"].startswith("after-only"), "darwin storage"
