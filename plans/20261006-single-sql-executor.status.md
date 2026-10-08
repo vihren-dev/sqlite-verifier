@@ -1,34 +1,31 @@
 # One SQL executor implementation status
 
-Created 2026-10-06. Status: IN PROGRESS.
+Created 2026-10-06. Status: DONE on 2026-10-07.
 Task: [observable outcomes](20261006-single-sql-executor.task.md).
 Sources: public issues #21 and #13.
 
 ## Current state
 
-The executor implementation and requested mutation-harness correction are
-checked and independently reviewed. Prior native ordinary/installed acceptances
-remain retained. The complete model now passes natively on both hosts under
-explicit recipes: Linux at the branch's 420-second budget, and Darwin through
-the separately reviewed model-only 600-second validation invocation. The earlier
-Darwin 420-second failure remains retained. Earlier PR #48 head `45ac63b2`
-used 420 seconds. Published integration `8e10a593` now adopts the reviewed
-600-second model policy from merged main; the other six suites retain 420.
+PR #48 merged normally as `eb061e76` on 2026-10-07. The final reviewed
+head `b8eb25dd` passes Linux CI `37635846254`, and the merged tree exactly
+matches that tested head. The macOS PR job skips execution; retained full
+native macOS checks supply its acceptance. Earlier failed and cancelled
+runs retain their original meaning.
 
-Integration includes approved exporter source `07dc71b3` and its checked
-publication record `555b9a74`, checked root documentation `db69c816` and
-reviewed main `b91e5cb5`. Final source correction is `9e3b4419`.
-Both hosted native checks pass at PR #48 head `45ac63b2`. The separate timeout
-task is delivered in PR #49. The owner approved PR #48 on 2026-10-07, including
-the target file and proposed protected baselines. The exporter owner approval
-is also recorded. Publication integration, the recorded baseline exception,
-merge and release remain pending. The protected-baseline failure remains an
-expected failure; its guard is unchanged. T05 is not DONE.
+The owner approved the executor, target file and exact proposed protected
+baselines. All 74 approved files remain unchanged through the final
+integration. The final target-file finding is resolved. The protected
+baseline guard remains a failure; the recorded approval supplies its
+required exception. The implementation, mutation correction and integration
+reviews are complete. Issues #21 and #13 are closed as completed.
+T05 is DONE. This task grants no release approval.
 
-Relevant definitions and callers are listed in the task file. The removed
-executor's unconditional preservation law relied on treating data statements
-as errors. Its replacement has an explicit CREATE/ADD guard and idle starting
-state. The generated starting-schema pattern now matches the Atuin example.
+The removed executor's unconditional preservation law treated data
+statements as errors. Its replacement states the CREATE/ADD guard and idle
+starting state. Generated starting schemas match the approved Atuin
+pattern. Relevant definitions and callers are listed in the task file.
+The historical progress log below retains source identities, exact native
+checks and the separate timeout corrections.
 
 ## Progress
 
@@ -332,3 +329,102 @@ the stated recipes are complete. The task is not DONE.
   write; the corrected check confirmed the actual clean review. The isolated
   exact bundle receipt is a local pass, not proof of the hosted failure cause.
   Fresh hosted acceptance and exporter delivery remain required.
+- 2026-10-07: The scheduling integration passed independent review with no
+  findings. Jujutsu stopped the first push because the journal-only parent had
+  no description; no remote changed. Added its description and reviewed that
+  parent as `9fc40a76`, with no findings. The resulting integration `9e91e525`
+  has exactly the earlier checked tree and passes its own clean review
+  `20261007T092131Z-9e91e525`. Published only the existing PR #48 branch and
+  updated its body. Hosted CI `37600117584` is running, with Linux job
+  `112722153900` and Darwin job `112722154338`. Earlier failures and the
+  protected-baseline exception remain recorded. This local publication record
+  does not change the published source while those checks run.
+- 2026-10-07: The current Darwin job is terminal cancelled, not a pass. Its
+  authoritative timestamps span 1824 seconds and match the workflow's
+  30-minute job guard. The separate bundle passes all 42 cases in 376.21
+  seconds before the later complete recipe is cancelled. Linux passes.
+  PR #47 has merged normally as `2e01c49a`; PR #48 is retargeted to main.
+  Their base trees are identical. No replacement native run exists at the
+  unchanged head. Prepared the separate complete-job budget task before any
+  workflow edit; individual suite budgets and approved source remain intact.
+
+- 2026-10-07: The aggregate CI repair changes only the overall job guard to
+  75 minutes. The declared sequential commands can use 3620 seconds; the old
+  job limit allowed only 1800. All 26 bounded checks and 28 subtests pass,
+  including actual Nix suite ownership and unchanged individual budgets.
+  The negative oracle rejects the old guard. All 74 approved files remain
+  unchanged. Original cancellation evidence is retained; a new hosted pass
+  remains required before delivery.
+
+- 2026-10-07: The aggregate deadline review has no must findings. Corrected
+  its two suggestions: the guide now states 75 minutes and the test names
+  its setup allowance. All 26 focused checks and 28 subtests pass again.
+  Every owner-approved source and baseline file remains unchanged.
+- 2026-10-07: Final aggregate-budget correction `46bd04b5` passes independent
+  review `20261007T113253Z-46bd04b5` with no findings. Published only the
+  existing PR #48 branch and updated its body with the original cancellation
+  and exact new budget. Current CI `37615200892` is active on Linux job
+  `112771743045` and Darwin job `112771743430`. All 74 approved files remain
+  unchanged. The original failed and cancelled receipts and owner-approved
+  baseline exception remain intact. No new hosted completion is claimed.
+
+- 2026-10-07: CI `37615200892` is now complete. Both actual native jobs at
+  `46bd04b5` pass the complete pinned checks and all artifact retention steps.
+  The owner refreshed the branch with accepted main and split suites at
+  `935e42db`. Current run `37628447150` passes actual Linux execution; macOS
+  runs only the PR skip step and is not counted as acceptance. All 74 approved
+  source, pin and baseline files remain byte-identical. The new suite limits
+  come from the accepted main change and do not rewrite prior receipts.
+- 2026-10-07: The refreshed merge omitted 15 original committed review rows
+  and changed their order. Restored both complete histories without editing
+  or deleting existing rows, and recovered the pending clean `0855f956`
+  review from its retained working-copy revision. The merged journal has
+  211 rows before this repair's review. The
+  [refreshed acceptance record](../reports/20261007-executor-refreshed-acceptance/README.md)
+  retains actual job responses, the approved source manifest and preservation
+  checks. This repair changes only review and acceptance records and this
+  status. Independent review, normal publication and delivery remain required.
+
+- 2026-10-07: Repair `59ad4eab` passes independent review with no findings
+  and is normally published. The attempted expected-head merge is rejected
+  with GitHub error 405 for conflicts; no main write occurs. A fresh response
+  shows that main advanced to `98b90975` through accepted PR #54 after the
+  earlier refresh. Fetched that exact main and integrated it locally. Its CI
+  follow-up changes platform conditions, scope handling and store retention;
+  it changes no library or model input. The only conflict is the journal.
+  Preserved all 212 branch rows, including the pending repair review, and all
+  148 main rows in their original order with 239 merged rows. All 74 approved
+  source, pin and baseline files remain unchanged. The
+  [preservation record](../reports/20261007-executor-refreshed-acceptance/main54-journal-preservation.json)
+  records the exact parents and counts. All 36 relevant CI, frontend, link and
+  actual Nix membership checks pass with 35 subtests in 2.36 seconds under a
+  120-second command limit; 46 unrelated Nix checks are deselected. Original
+  XML is retained at `build/t05-main54-integration/checks.xml`. Integration
+  review, normal feature publication and delivery remain required.
+
+- 2026-10-07: Integration `b8eb25dd` passes independent review with no
+  findings (`20261007T141813Z-b8eb25dd`). Normally published only the existing
+  feature branch and updated PR #48's body. GitHub now reports the PR as
+  mergeable against main `98b90975`. Fresh CI `37635846254` has actual Linux
+  checks running in job `112841729038`. Its macOS job only skips execution
+  and is not counted as acceptance. No new native completion is claimed.
+  Original failures, completed native evidence and
+  the owner-approved protected-baseline exception remain unchanged. This
+  local publication record changes no code or test input while CI runs.
+
+- 2026-10-07: Fresh Linux job `112841729038` completes all pinned checks,
+  store retention and required artifact uploads successfully. Its macOS PR
+  job only skips execution; the retained actual local model and installed
+  checks and complete hosted run at `46bd04b5` remain the macOS evidence.
+  Verified the reviewed head `b8eb25dd` and current main `98b90975`, then
+  merged PR #48 normally with the expected head and recorded owner approval.
+  GitHub returns merge `eb061e7655b10b9de03e43bd321f5b76bf1e7183`.
+  Fetched main and verified its tree is exactly the tested published head:
+  zero changed files. All 74 owner-approved files remain unchanged. The
+  expected baseline failure stays recorded; no guard or force option is used.
+  T05 is DONE. The earlier failed and cancelled runs remain failures.
+
+- 2026-10-07: Corrected the stale current-state section, which still
+  said merge was pending despite the DONE header and recorded delivery.
+  Verified the final PR48 head, successful CI and zero merge-tree difference.
+  No source, baseline, review journal or historical evidence changes.

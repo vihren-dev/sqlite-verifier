@@ -1,0 +1,30 @@
+{
+  "bounded.xml": {
+    "bytes": 18242,
+    "sha256": "8a44315e7663db437a1e6a6ba6e5987cc6e0f3494f88b0f164adbe74ce509b14"
+  },
+  "nix-ownership.xml": {
+    "bytes": 1933,
+    "sha256": "cf0c841c78639791c759d50bc5871dd724f6319bc06295b2edf26caeab525a14"
+  },
+  "unchanged-production.json": {
+    "bytes": 792,
+    "sha256": "2c8c8e5e52fd13cf5d8a51781ab44cb7c3d5e1a92461527ded51dcf287fa0d57"
+  },
+  "journal-preservation.json": {
+    "bytes": 618,
+    "sha256": "f21aa4366b5cc249834d67cd41211dfedb7177f27260b58b274ee5dd9ce1f838"
+  },
+  "feature-journal.jsonl": {
+    "bytes": 195332,
+    "sha256": "47aacb77071d432852f4381c8c4fa54690e6305b4a0246b6084931c630e8d424"
+  },
+  "main-journal.jsonl": {
+    "bytes": 183445,
+    "sha256": "04919d484214d863441539102bfa4292a1f84bbcfee56035a31f791a850aa8a2"
+  },
+  "pending-journal.jsonl": {
+    "bytes": 196125,
+    "sha256": "44acfe7edc61e665ec99c1acbfdac1ebbf13361f49b4f62d8569ddc0c42af4bb"
+  }
+}

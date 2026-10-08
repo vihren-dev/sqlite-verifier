@@ -100,6 +100,12 @@ def source_tree(tmp_path: Path) -> Path:
     ('tests/conformance_storage_test.py', {'harness'}),
     ('tests/conformance_loading_workers_test.py', {'harness'}),
     ('tests/native_worker_fixtures.py', {'sample'}),
+    ('tests/conformance_authored_transactions_test.py', {'harness'}),
+    ('tests/conformance_transaction_evidence_test.py', {'frozen'}),
+    ('conformance/authored_transactions.py', {'model', 'frozen', 'harness', 'upstream'}),
+    ('conformance/transaction_evidence.py', {'model', 'frozen', 'harness', 'upstream'}),
+    ('reports/20261006-grouped-immediate-transactions/manifest.json', {'frozen'}),
+    ('reports/20261006-grouped-immediate-transactions/shards/0000.jsonl.gz', {'frozen'}),
     ('tests/conformance_freeze_test.py', {'frozen', 'upstream'}),
     ('tests/conformance_command_sources_test.py', {'upstream'}),
     ('tests/test_native_replay_storage.py', {'upstream'}),
@@ -124,7 +130,7 @@ def test_dependency_invalidation(source_tree: Path, relative: str, affected: set
     """Changing a declared input invalidates only dependent suites; unrelated tests leave both cached."""
     before = identities(source_tree)
     path = source_tree / relative
-    path.write_text(path.read_text() + '\n')
+    path.write_bytes(path.read_bytes() + b'\n')
     after = identities(source_tree)
     assert {name for name in before if before[name] != after[name]} == affected
 

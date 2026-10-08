@@ -860,3 +860,21 @@ authorized one Linux diagnostic below. No production change followed it.
   original bytes, observations and measurement values remain unchanged.
   Read-only validation and all five corruption checks pass. All findings
   are recorded as fixed; correction review remains required.
+
+- 2026-10-08: Evidence fix `584f4c8e` passes independent review
+  `20261008T070929Z-584f4c8e` with no findings. The exact archive is
+  tracked, and read-only validation and all five mutations pass. Current
+  integration includes accepted main `d75fdc2b`, preserving delivered
+  transaction code, evidence and Nix ownership. Both parent journals and
+  the pending review journal remain ordered subsequences of 328 rows,
+  including duplicates. All six tested production files and frozen v1-v5
+  bytes are unchanged. Integration checks and review remain required.
+
+- 2026-10-08: Current-main integration passes 136 bounded tests with one
+  deselection in 9.04 seconds, and 11 actual Nix ownership checks with
+  46 deselections in 26.94 seconds. Original XML, source comparison and
+  preserved journals are retained in [the integration record](../reports/20261008-development-replay-main-integration/README.md).
+  The standalone receipt validator and all five corruption checks pass.
+  No timing rerun is claimed. The six measured production files and all
+  delivered transaction files remain unchanged. Integration review and
+  publication remain required.

@@ -15,11 +15,11 @@ request base:
 
 | Scope | Selected when | Recipes |
 | --- | --- | --- |
-| `docs` | only Markdown documentation changed | link checks, no build |
+| `docs` | only Markdown documentation changed, including on a `main` push | link checks, no build |
 | `test` | any other change | `just test-full` |
 | `infrastructure` | build definitions or shared test infrastructure changed | `just test-full test-nix` |
 | `packaging` | archive contents, installation or runtime discovery changed | `just test-full runtime-package` |
-| `package` | both of the above, `main` pushes, tags, manual and nightly runs | `just package` |
+| `package` | both of the above, other `main` pushes, tags, manual and nightly runs | `just package` |
 
 Each native job enters the pinned Nix environment once. `tools/ci_checks.py`
 checks resources, builds the runtime and
@@ -106,7 +106,9 @@ later run and cannot change a result. The step may fail without failing the job.
 Host JUnit reports, cached Nix test outputs and CI phase diagnostics are
 retained for 14 days. Pytest's exit status decides success. Individual subprocess
 and whole-command deadlines remain bounded (a timed-out test command's process
-group is killed); the job limit is 30 minutes.
+group is killed). The hosted job limit is 75 minutes. It covers the sequential
+runtime, Darwin bundle and complete-check phase budgets, plus setup and artifact
+retention. Individual suite and command limits remain unchanged.
 Superseded ordinary runs are cancelled; release/manual runs are not.
 
 The matrix follows GitHub's documented native runner architectures:
