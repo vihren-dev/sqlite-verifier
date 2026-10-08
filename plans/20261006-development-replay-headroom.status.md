@@ -978,3 +978,11 @@ so fresh standalone acceptance on both platforms remains required. The
 
 Decisions waiting for the owner: None. The approved normal merge waits for
 the integrated checks and required reviews.
+
+- 2026-10-08: Integration `31679691` passes independent review
+  `20261008T110432Z-31679691` with no findings. Its conflict resolution
+  preserves both bounded expansion and recording validation. This
+  publication record retains the raw review row. Hosted Linux and fresh
+  standalone timing on both platforms remain before approved normal merge.
+
+  Decisions waiting for the owner: None.
