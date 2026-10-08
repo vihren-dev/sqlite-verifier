@@ -24,3 +24,10 @@ Four workflow tests added. actionlint 1.7.12 (with ShellCheck) passes;
 subtests. Removing `environment: attic-publish`, or giving the check job the
 token, each fails a new test. `docs/ci.md` describes the substituter, the
 publishing job and the token boundary; `tests/docs_test.py` passes.
+
+Codex review of `8e5f0b27`: no "must" findings, two "should" findings, both
+fixed in `19ac767c` (a test now pins the upload step's restore condition,
+client, login and push; the docs say only the check job substitutes from
+Attic). Replacing the upload with `true` now fails a test. Review of
+`19ac767c`: no findings. Not verified locally: hosted cache restoration and
+the upload itself.
