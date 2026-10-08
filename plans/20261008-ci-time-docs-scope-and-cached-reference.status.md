@@ -59,3 +59,14 @@ Relevant files: `tests/ci_scope.py`, `tests/test_ci_scope.py`,
   previous CI root contained doc-gen4, so CI also rebuilt it in each
   non-documentation run. The saved cache grows by about 53 MB for each
   platform. 56 focused tests pass.
+- 2026-10-08: commit `30d2b651`, review `20261008T132534Z-30d2b651`: one
+  R13 should finding, the cache roots in `docs/ci.md`, fixed in `bb5d5eaa`
+  (review `20261008T132840Z-bb5d5eaa`, no findings). 164 tests pass, including
+  the Nix source identity, Nix test target and test ownership tests.
+
+## Remaining
+
+- Hosted CI of the pull request. It changes `build-support/`, so it runs the
+  `package` scope.
+- After the merge: the time of the reference step in a later pull request
+  that does not change Lean sources.
