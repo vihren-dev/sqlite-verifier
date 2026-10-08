@@ -13,7 +13,7 @@ from conformance.corpus import load
 from conformance.corpus_shards import write
 from conformance.native_record import record_sql
 from conformance.native_connection import Connection, library_path, load_library
-from conformance.native_replay import decode_rows
+from conformance.native_bindings import decode_rows
 from conformance.workload import bound_records, record, report
 from conformance.workload_inputs import load_inputs
 

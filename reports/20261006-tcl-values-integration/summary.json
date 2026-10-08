@@ -1,0 +1,258 @@
+{
+  "version": 1,
+  "created": "2026-10-06",
+  "task": "T17",
+  "assemblyRevision": "c1eb7de91952d004bcc59fff21d2daacf0b7ba7b",
+  "parents": [
+    "b167602674560c8fc458e4b1deeeafcd4c5f589a",
+    "cbcbf0bd801c7c777c3d76d89698c2baac870c17",
+    "ba48d8487f608da946239b482b3da6e27d33b024"
+  ],
+  "platform": "darwin-arm64",
+  "ordinaryCommand": [
+    "nix",
+    "develop",
+    "path:./nix",
+    "--command",
+    "just",
+    "test"
+  ],
+  "ordinarySource": {
+    "passed": 328,
+    "subtestsPassed": 28,
+    "seconds": 34.68
+  },
+  "ordinaryDevelopment": {
+    "passedTargets": [
+      "atuin",
+      "bundle",
+      "cli",
+      "kernel",
+      "sample",
+      "upstream"
+    ],
+    "sampleTests": 12,
+    "sampleSeconds": 52.01,
+    "upstreamTests": 117,
+    "upstreamSeconds": 5.02
+  },
+  "nixInfrastructureCommand": [
+    "nix",
+    "develop",
+    "path:./nix",
+    "--command",
+    "just",
+    "test-nix"
+  ],
+  "nixInfrastructure": {
+    "passed": 83,
+    "seconds": 93.63,
+    "testFile": "tests/test_nix_test_targets.py",
+    "testFileSha256": "ae66fe3b8c0ff63dc9d6bed86d883bd62a6cb8b7cab513366a6c2f1855f708ad",
+    "correction": "The freeze test module invalidates model; its extracted fixture invalidates model/upstream. New observation and binding-type modules invalidate model/sample/upstream."
+  },
+  "targeted": {
+    "passed": 141,
+    "seconds": 8.17,
+    "timeoutSeconds": 90
+  },
+  "retainedFreshReplay": {
+    "dateCases": 95,
+    "codecCases": 11,
+    "temporaryStorage": "explicit ordinary-file directory",
+    "fixturePathsChecked": 106,
+    "allFixturesBeneathSelectedRoot": true,
+    "allFixturesCleaned": true,
+    "timeoutSeconds": 30
+  },
+  "journalMerge": {
+    "originalRawLines": 72,
+    "allParentOrdersPreserved": true,
+    "rawLineContentsChanged": 0
+  },
+  "frozenCorpora": {
+    "versions": [
+      1,
+      2,
+      3,
+      4,
+      5
+    ],
+    "changedFiles": 0
+  },
+  "heldFullModel": {
+    "target": "tests.model",
+    "status": "HELD",
+    "reason": "Root task awaits T13 environment feedback; this target was not started or waived."
+  },
+  "artifacts": [
+    {
+      "name": "source",
+      "path": "source-junit.xml.gz",
+      "originalPath": "build/test-results/source.xml",
+      "sha256": "152dd24acf3a4fe60727ad91a169af50ed33c2d448dadf3e62a0423bbbc9e999",
+      "uncompressedSha256": "a17e03bc1c47c1598c915e2dd6e4b68baba0b95f095789c39b0d633c6ec56cc6",
+      "bytes": 5098,
+      "uncompressedBytes": 38985,
+      "suites": [
+        {
+          "name": "pytest",
+          "errors": "0",
+          "failures": "0",
+          "skipped": "0",
+          "tests": "356",
+          "time": "34.674",
+          "timestamp": "2026-10-06T19:04:16.288862+03:00",
+          "hostname": "tzanko-mbp"
+        }
+      ]
+    },
+    {
+      "name": "nix-infrastructure",
+      "path": "nix-infrastructure-junit.xml.gz",
+      "originalPath": "build/test-results/nix.xml",
+      "sha256": "4ee0e2f2eee44fd61e1b8907dea0d516feafe1034c868a3e26b81f1aef433a5c",
+      "uncompressedSha256": "22d75894e4f12dd3b4d100de15eed07db3b7ba4560611841d4706a2e745ba36d",
+      "bytes": 1482,
+      "uncompressedBytes": 10911,
+      "suites": [
+        {
+          "name": "pytest",
+          "errors": "0",
+          "failures": "0",
+          "skipped": "0",
+          "tests": "83",
+          "time": "93.631",
+          "timestamp": "2026-10-06T19:12:10.550970+03:00",
+          "hostname": "tzanko-mbp"
+        }
+      ]
+    },
+    {
+      "name": "atuin",
+      "path": "atuin-junit.xml.gz",
+      "originalPath": "/nix/store/9fp693smiygq1zdigyjz26laq18zz2x4-sqlite-verifier-test-atuin-1/junit.xml",
+      "sha256": "a3097f00e37b1553fb475022b7ef458a7c3078ea7e26222f0d225012f3972ace",
+      "uncompressedSha256": "206c987e5cb84a1b04cbefc1695e57945928356127f4df1e2f54754dfda4d2f9",
+      "bytes": 458,
+      "uncompressedBytes": 1442,
+      "suites": [
+        {
+          "name": "pytest",
+          "errors": "0",
+          "failures": "0",
+          "skipped": "0",
+          "tests": "12",
+          "time": "75.210",
+          "timestamp": "2026-10-06T09:29:06.829075+00:00",
+          "hostname": "tzanko-mbp"
+        }
+      ]
+    },
+    {
+      "name": "bundle",
+      "path": "bundle-junit.xml.gz",
+      "originalPath": "/nix/store/1ir72xygykhirqhw0p5cb4wcyfxsk4ga-sqlite-verifier-test-bundle-1/junit.xml",
+      "sha256": "5ab65749dc6e4ffffb716211d1026775f8fbf66fdd3d7c4620f7ef1d17aec4aa",
+      "uncompressedSha256": "1da5c052d67b8e9d57ddce8d747621091317379af660ae3b1c103256b4643c6c",
+      "bytes": 865,
+      "uncompressedBytes": 4225,
+      "suites": [
+        {
+          "name": "pytest",
+          "errors": "0",
+          "failures": "0",
+          "skipped": "0",
+          "tests": "33",
+          "time": "149.402",
+          "timestamp": "2026-10-06T09:30:22.384349+00:00",
+          "hostname": "tzanko-mbp"
+        }
+      ]
+    },
+    {
+      "name": "cli",
+      "path": "cli-junit.xml.gz",
+      "originalPath": "/nix/store/kbjh4p86dvv3jynwjsbadvrfrjg2hslv-sqlite-verifier-test-cli-1/junit.xml",
+      "sha256": "db4d0c122029b81d831a6d2e734dc889f1e0bc8e43374c9e87d337feda509001",
+      "uncompressedSha256": "0b97b4931c05c4691ee5113128867ecec56aae26361c09342c4c07cf9cbc0105",
+      "bytes": 448,
+      "uncompressedBytes": 1434,
+      "suites": [
+        {
+          "name": "pytest",
+          "errors": "0",
+          "failures": "0",
+          "skipped": "0",
+          "tests": "13",
+          "time": "35.604",
+          "timestamp": "2026-10-06T09:32:52.219143+00:00",
+          "hostname": "tzanko-mbp"
+        }
+      ]
+    },
+    {
+      "name": "kernel",
+      "path": "kernel-junit.xml.gz",
+      "originalPath": "/nix/store/6ya8hgpprqi97a6l5mpgi6r0n6a7b7ha-sqlite-verifier-test-kernel-1/junit.xml",
+      "sha256": "7f287653591de5dfcf1c5f6df545ed648148c695f23d9ee1cfa34fff14a73b1d",
+      "uncompressedSha256": "a569ed25754cecc0c11093198e597ba660aa67fdb08e54ec9d05e3ac8b1235b1",
+      "bytes": 528,
+      "uncompressedBytes": 2156,
+      "suites": [
+        {
+          "name": "pytest",
+          "errors": "0",
+          "failures": "0",
+          "skipped": "0",
+          "tests": "19",
+          "time": "47.643",
+          "timestamp": "2026-10-02T08:44:11.993332+00:00",
+          "hostname": "tzanko-mbp"
+        }
+      ]
+    },
+    {
+      "name": "sample",
+      "path": "sample-junit.xml.gz",
+      "originalPath": "/nix/store/304bj7y3pl16in3phxmjm7gj11spk0s2-sqlite-verifier-test-sample-1/junit.xml",
+      "sha256": "8059d3dfad9f590225c1d43efb7b0f5cf8d2f592005d457a5bdec2bd156dde7b",
+      "uncompressedSha256": "a36e33427f8374454758ea830e1a426a9c511b6bdbfdfb4d9fbed390e692276a",
+      "bytes": 532,
+      "uncompressedBytes": 1883,
+      "suites": [
+        {
+          "name": "pytest",
+          "errors": "0",
+          "failures": "0",
+          "skipped": "0",
+          "tests": "12",
+          "time": "52.010",
+          "timestamp": "2026-10-06T16:04:52.583823+00:00",
+          "hostname": "tzanko-mbp"
+        }
+      ]
+    },
+    {
+      "name": "upstream",
+      "path": "upstream-junit.xml.gz",
+      "originalPath": "/nix/store/bvxkw4a5qz1qxf8lp37kf77n1dihmb54-sqlite-verifier-test-upstream-1/junit.xml",
+      "sha256": "e4a42b5bf3a6e60bd52fdb5df8fdb3ee2723c4c155e8908df1a85841663d2fc2",
+      "uncompressedSha256": "a483bbaa9a633a9925b29c729fbc26ccd969f216697387311b8d9b8cb4091bef",
+      "bytes": 2460,
+      "uncompressedBytes": 16606,
+      "suites": [
+        {
+          "name": "pytest",
+          "errors": "0",
+          "failures": "0",
+          "skipped": "0",
+          "tests": "117",
+          "time": "5.016",
+          "timestamp": "2026-10-06T16:01:33.345235+00:00",
+          "hostname": "tzanko-mbp"
+        }
+      ]
+    }
+  ]
+}

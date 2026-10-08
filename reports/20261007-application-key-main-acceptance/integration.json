@@ -1,0 +1,28 @@
+{
+  "main": "eb061e7655b10b9de03e43bd321f5b76bf1e7183",
+  "unchangedFeatureFiles": 16,
+  "unchangedRuntimeInputs": 106,
+  "actualRuntime": "/nix/store/w9gq5ixswhvpv2hb08vlh2andqxxhip0-sqlite-verifier-runtime-1",
+  "journal": {
+    "parentRows": [
+      217,
+      239,
+      218
+    ],
+    "mergedRows": 282,
+    "allOrdersAndRepeatedRowsPreserved": true,
+    "unchangedFeatureFiles": 16
+  },
+  "suite": {
+    "name": "pytest",
+    "errors": "0",
+    "failures": "0",
+    "skipped": "0",
+    "tests": "77",
+    "time": "4.405",
+    "timestamp": "2026-10-07T18:41:20.729367+03:00",
+    "hostname": "tzanko-mbp"
+  },
+  "outerTimeoutSeconds": 120,
+  "nativeBuildOrReplay": false
+}

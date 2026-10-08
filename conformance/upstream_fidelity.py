@@ -2,7 +2,8 @@
 
 from conformance.case_format import Json
 from conformance.native_record import record_sql
-from conformance.native_replay import decode_rows
+from conformance.native_bindings import decode_rows
+from conformance.native_call_recording import replay_arguments
 from conformance.execution_profile import recorded_profile
 from conformance.upstream_helpers import command_events
 from conformance.query_window import ASCII_UPPER, identifier_name, tokens
@@ -88,6 +89,10 @@ def minimize_prefix(record: dict[str, Json]) -> dict[str, Json]:
         attempts += 1
         trial = commands[:position] + commands[position + 1:]
         try:
+            recording = replay_arguments(record)
+            for key in ("setup_parameters", "setup_parameter_names", "setup_helpers", "setup_call_indices"):
+                if key in recording:
+                    recording[key] = recording[key][:position] + recording[key][position + 1:]
             outputs = record["nativeVersion"] in (3, 4)
             profile = recorded_profile(record) if record["nativeVersion"] == 4 else None
             fresh = record_sql(trial, record["migrationSql"], name=record["name"],
@@ -95,7 +100,7 @@ def minimize_prefix(record: dict[str, Json]) -> dict[str, Json]:
                 parameters=decode_rows([event["parameters"] for event in record["trace"]]) if outputs else None,
                 profile=profile, setup_clock=record.get("setupClockUnixMilliseconds"),
                 clock_values=[event["clockUnixMilliseconds"] for event in record["trace"]]
-                    if profile is not None and profile.clock == "unix-milliseconds-v1" else None)
+                    if profile is not None and profile.clock == "unix-milliseconds-v1" else None, **recording)
         except (ValueError, RuntimeError):
             continue
         if (fresh["initial"], fresh["trace"]) == (record["initial"], record["trace"]):

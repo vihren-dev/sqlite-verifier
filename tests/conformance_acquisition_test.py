@@ -99,6 +99,21 @@ def test_retained_routes_survive_future_policy_changes(acquisition: tuple[dict[s
     verify(report, list(reversed(loaded)))
 
 
+def test_source_owned_precision_remains_bound_to_its_policy(
+        acquisition: tuple[dict[str, Json], list[dict[str, Json]]], tmp_path: Path) -> None:
+    """New exact REAL evidence loads at precision 15 without weakening historical policy v1."""
+    report, records = acquisition
+    report["tclDisplayPrecisionPolicy"]["version"] = 2
+    report["files"][0]["instances"][0]["tclResultPrecision"]["values"] = [15]
+    records[0]["upstream"]["tclResultPrecision"]["values"] = [15]
+    directory = tmp_path / "source-precision"
+    store(directory, report, records)
+    native_replay(load(directory)[1])
+    report["tclDisplayPrecisionPolicy"]["version"] = 1
+    with pytest.raises(ValueError, match="precision evidence differs"):
+        verify(report, records)
+
+
 @pytest.mark.parametrize("damage", ["identity", "source", "labels", "scope", "profile", "setup-clock", "event-clock",
     "file-clock", "precision", "precision-count", "record-precision", "file-precision", "completion", "occurrence",
     "accepted-instance", "duplicate-instance", "excluded-instance", "route", "route-version", "policy-version",

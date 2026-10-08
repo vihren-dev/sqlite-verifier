@@ -1,0 +1,92 @@
+[
+  {
+    "path": "ci-environment.json",
+    "bytes": 253,
+    "sha256": "57cf58d2a2aea02cce2e2dacc4aecd5ddf4ad5bad2f1069faf1b57bf7f5df895"
+  },
+  {
+    "path": "ci-phases/lake-version/command-0000.json",
+    "bytes": 291,
+    "sha256": "4fcce46ed4b9c46e9d05f840d8a5ee369d99e92c9030229181f6f2fd309cf7eb"
+  },
+  {
+    "path": "ci-phases/checks-package/command-0000.json",
+    "bytes": 143791,
+    "sha256": "c11e4c78d91f5a1638b347022b2bf8d669bb30aa1e97879f283dc4778a07159d"
+  },
+  {
+    "path": "ci-phases/lean-version/command-0000.json",
+    "bytes": 344,
+    "sha256": "291a14f781b664f6cfa7c91e0945ede4cf2db37061a54f30230833f38c94d8fd"
+  },
+  {
+    "path": "ci-phases/runtime/command-0000.json",
+    "bytes": 11464,
+    "sha256": "446ac7ba25d65e0448489137e73a4ec9c4aba9b6943d461feae93067505d7171"
+  },
+  {
+    "path": "ci-phases.json",
+    "bytes": 921,
+    "sha256": "eefed6b64fdba84fd140ea70a2571bfb152504cbc9ba464529d0a9091d213cc3"
+  },
+  {
+    "path": "nix-tests-full/junit.xml",
+    "bytes": 1442,
+    "sha256": "6d78e79f931cd217ab4adbeb7460fb3a334ab7512ccc81a7adf0f29746394f94"
+  },
+  {
+    "path": "nix-tests-full-2/junit.xml",
+    "bytes": 79820,
+    "sha256": "7f3374815e8dd0ad13ca7289176622b474358bcfffcff8818513ff66d6bf152c"
+  },
+  {
+    "path": "nix-tests-full-3/junit.xml",
+    "bytes": 1540,
+    "sha256": "04cf02d7c144f101c96a4e3535a61b07c8f8ead6bbe59ab006cc93eba13a692f"
+  },
+  {
+    "path": "nix-tests-full-4/junit.xml",
+    "bytes": 20331,
+    "sha256": "6afde26096456172a66f03ea07c247cd17c89b157d408f2b27f8b9fc06a62099"
+  },
+  {
+    "path": "nix-tests-full-5/junit.xml",
+    "bytes": 17026,
+    "sha256": "8325aa64da9aca8f37767647df8129f378b430bd44916fea4fa17fccc89f654c"
+  },
+  {
+    "path": "nix-tests-full-6/junit.xml",
+    "bytes": 3255,
+    "sha256": "eea4cb620c655d3cc5f3bd05c0f4a1931f51f2a26dc5f1cf912a8be67aa39757"
+  },
+  {
+    "path": "nix-tests-full-7/junit.xml",
+    "bytes": 5980,
+    "sha256": "307d74c11270b0236f322a2dab051ca5932f7db02f9e43c6a9ce6dbb4ace19b7"
+  },
+  {
+    "path": "nix-tests-full-8/junit.xml",
+    "bytes": 1884,
+    "sha256": "c145d5993195a1f1f86bfe332c3c4e54c51af7d022688423dae78a74d02d118b"
+  },
+  {
+    "path": "nix-tests-full-9/junit.xml",
+    "bytes": 10696,
+    "sha256": "00b5557ece12bec2e767ce87dc77e893fd5591666e5e79ca173cdab0a300b235"
+  },
+  {
+    "path": "test-results/installed.xml",
+    "bytes": 2751,
+    "sha256": "5b794b16e2cc0648a88bd063036e8b11119d007a1752b62dce09824228e5579b"
+  },
+  {
+    "path": "test-results/nix.xml",
+    "bytes": 12715,
+    "sha256": "3f8f5149eddb6b948bf7d6399258464697797c458674a97e8025465235ce1386"
+  },
+  {
+    "path": "test-results/source.xml",
+    "bytes": 50349,
+    "sha256": "783b0b8e9ceb045d7e23d97e2d7f20abe99393a12528fa3366f99d13bbcfffc6"
+  }
+]

@@ -12,7 +12,7 @@ from conformance.corpus_evidence import FEATURE_LABEL_VIEWS, feature_counts
 from conformance.freeze_corpus import freeze
 from conformance.freeze_validation import digest
 from conformance.native_storage import serialized, shared_record
-from tests.conformance_freeze_test import capture, save
+from tests.conformance_freeze_capture import capture, save
 
 pytestmark = [pytest.mark.integration, pytest.mark.conformance, pytest.mark.requires_native("sqlite3")]
 

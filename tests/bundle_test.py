@@ -1,13 +1,18 @@
 """ADR 0003 data path through the public entrypoint: `prepare` then `verify-bundle`."""
 
 from collections.abc import Callable
+import hashlib
+import json
 from pathlib import Path
 
 import pytest
 
 from tests.runtime_support import CommandResult
+from tests.proof_exporter_test import exporter_runtime_identity, input_digests
 
 pytestmark = [pytest.mark.e2e, pytest.mark.kernel, pytest.mark.requires_lean, pytest.mark.requires_native]
+APPLICATION_KEY_HEADER = {"bundle": 1, "trusted_imports": ["Init", "SqliteVerifier.ApplicationKeyDemonstration"]}
+"""The authored variant imports the complete application-key certificate from the selected library."""
 
 
 @pytest.fixture
@@ -15,20 +20,23 @@ def data_path(runtime_root: Path, tmp_path: Path,
               command_runner: Callable[..., CommandResult]) -> Callable[..., dict[str, object]]:
     """Prepare a bundle from one contract/candidate pair, then verify it against another contract."""
     def run(*, approved: Path, candidate: Path, schema: Path, profile: str = "3.51.0",
-            checked_approved: Path | None = None, checked_migration: Path | None = None) -> dict[str, object]:
+            checked_approved: Path | None = None, checked_migration: Path | None = None,
+            directory: Path | None = None) -> dict[str, object]:
         """Return verify-bundle's JSON report after asserting prepare succeeded."""
         def common(contract: Path, migration: Path) -> list[str]:
             return ["--profile", profile, "--format", "json", "--schema", str(schema),
                     "--requirements", str(contract / "Requirements.lean"),
                     "--interpretation", str(contract / "Interpretation.lean"), "--migration", str(migration)]
-        bundle = tmp_path / "proof.bundle"
+        selected = directory or tmp_path
+        selected.mkdir(exist_ok=True)
+        bundle = selected / "proof.bundle"
         launcher = str(runtime_root / "bin/migration-check")
         prepared = command_runner([launcher, "prepare", *common(approved, candidate / "migration.sql"),
                                    "--next-interpretation", str(candidate / "NextInterpretation.lean"),
                                    "--proofs", str(candidate / "Proofs.lean"),
-                                   "--workspace", str(tmp_path / "agent"), "--output", str(bundle)],
+                                   "--workspace", str(selected / "agent"), "--output", str(bundle)],
                                   cwd=tmp_path, timeout=180)
-        assert prepared.json_object()["status"] == "PREPARED", prepared.diagnostic()
+        assert prepared.returncode == 0 and prepared.json_object()["status"] == "PREPARED", prepared.diagnostic()
         checked = command_runner([launcher, "verify-bundle",
                                   *common(checked_approved or approved, checked_migration or candidate / "migration.sql"),
                                   "--bundle", str(bundle)], cwd=tmp_path, timeout=120)
@@ -43,7 +51,9 @@ def data_path(runtime_root: Path, tmp_path: Path,
     ("approved", "missing_required_column", "approved/schema.sql", "3.51.0", "VIOLATED"),
     ("allowed_failure/approved", "allowed_failure", "allowed_failure/approved/schema.sql", "3.51.0", "VERIFIED"),
     ("atuin/approved", "atuin", "atuin/schema.sql", "3.46.0", "VERIFIED"),
-], ids=["positive", "refutation", "allowed_failure", "atuin"])
+    ("application_keys/approved", "application_keys/add_column_then_table",
+     "application_keys/approved/schema.sql", "3.51.0", "VERIFIED"),
+], ids=["positive", "refutation", "allowed_failure", "atuin", "application_keys"])
 def test_status_parity(data_path: Callable[..., dict[str, object]], example_factory: Callable[[str], Path],
                        approved: str, candidate: str, schema: str, profile: str, status: str) -> None:
     """Each shipped example gets the same status through the data path as through `verify`."""
@@ -51,6 +61,30 @@ def test_status_parity(data_path: Callable[..., dict[str, object]], example_fact
     report = data_path(approved=examples / approved, candidate=examples / candidate,
                        schema=examples / schema, profile=profile)
     assert report["status"] == status, report
+
+
+def test_application_key_bundle_repeatability(data_path: Callable[..., dict[str, object]],
+        example_factory: Callable[[str], Path], tmp_path: Path, runtime_root: Path,
+        exporter_runtime_identity: dict[str, object], record_testsuite_property: Callable[[str, object], None]) -> None:
+    """Independent preparation binds identical keyed certificates to the selected inputs and library."""
+    examples = example_factory("application_keys")
+    options = {"approved": examples / "approved", "candidate": examples / "add_column_then_table",
+               "schema": examples / "approved/schema.sql"}
+    hashes = input_digests(examples, "approved", "add_column_then_table", "approved/schema.sql")
+    assert hashes == input_digests(runtime_root / "examples/application_keys", "approved",
+                                  "add_column_then_table", "approved/schema.sql")
+    reports = [data_path(**options, directory=tmp_path / label) for label in ("first", "second")]
+    payloads = [(tmp_path / label / "proof.bundle").read_bytes() for label in ("first", "second")]
+    for report, payload in zip(reports, payloads, strict=True):
+        assert report["status"] == "VERIFIED" and json.loads(payload.splitlines()[0]) == APPLICATION_KEY_HEADER
+        expected = {"profile": "3.51.0", "schema.sql": hashes["approved/schema.sql"],
+            "migration.sql": hashes["add_column_then_table/migration.sql"], "bundle": hashlib.sha256(payload).hexdigest(),
+            **{name: digest for name, digest in hashes.items() if name.startswith("approved/") and name.endswith(".lean")}}
+        assert isinstance(report["inputs"], dict) and expected.items() <= report["inputs"].items(), report
+    assert payloads[0] == payloads[1]
+    record_testsuite_property("application-key-example", json.dumps({"inputSha256": hashes,
+        "runtime": exporter_runtime_identity, "header": APPLICATION_KEY_HEADER,
+        "bundleSha256": hashlib.sha256(payloads[0]).hexdigest(), "checks": reports}, sort_keys=True))
 
 
 @pytest.fixture

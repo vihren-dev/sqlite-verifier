@@ -14,16 +14,16 @@ from tests.runtime_support import CommandResult, CommandTimeout
 
 pytestmark = [pytest.mark.unit, pytest.mark.environment]
 
-HOSTED_SETUP_AND_ARTIFACT_ALLOWANCE_SECONDS = 300
-"""Leave five minutes beyond complete phase limits for runner setup and artifact retention."""
+OWNER_JOB_LIMIT_MINUTES = 75
+"""Owner feedback of 2026-10-08 restores the aggregate job ceiling; child deadlines stay independent."""
 
 
 @pytest.mark.parametrize("scope", ["test", "package"])
 @pytest.mark.parametrize("mode", ["source", "build"])
 @pytest.mark.parametrize("system", ["aarch64-darwin", "x86_64-linux"])
-def test_hosted_job_covers_sequential_phase_budgets(
+def test_hosted_job_keeps_owner_limit_and_child_deadlines(
         tmp_path: Path, scope: str, mode: str, system: str) -> None:
-    """A hosted job must allow the actual complete phase limits plus setup and artifact retention."""
+    """The 75-minute aggregate limit and individual child deadlines are separate bounds."""
     workflow = (Path(__file__).resolve().parents[1] / ".github/workflows/ci.yml").read_text()
     check_job = workflow.split("  check:\n", 1)[1].split("\n  publish:", 1)[0]
     match = re.search(r"(?m)^    timeout-minutes: ([1-9][0-9]*)$", check_job)
@@ -40,9 +40,14 @@ def test_hosted_job_covers_sequential_phase_budgets(
     with patch("tools.ci_checks.check_resources"), patch("tools.ci_checks.run_command", side_effect=invoke), \
          patch.dict("os.environ", {"SQLITE_VERIFIER_SYSTEM": system}):
         run_checks(scope, mode, system, tmp_path)
-    assert sum(budgets) + HOSTED_SETUP_AND_ARTIFACT_ALLOWANCE_SECONDS <= int(match.group(1)) * 60, \
-        f"Hosted job budget cannot cover {sum(budgets)} seconds of phases plus " \
-        f"{HOSTED_SETUP_AND_ARTIFACT_ALLOWANCE_SECONDS} seconds of setup and artifacts"
+    recipes = (Path(__file__).resolve().parents[1] / "justfile").read_text()
+    reference = re.search(r"timeout ([1-9][0-9]*) nix-build [^\n]*-A apiReference", recipes)
+    assert reference is not None, "Reference phase has no bounded recipe"
+    reference_limit = int(reference.group(1))
+    assert int(match.group(1)) == OWNER_JOB_LIMIT_MINUTES
+    assert reference_limit == 1800
+    assert all(0 < timeout <= OWNER_JOB_LIMIT_MINUTES * 60 for timeout in budgets)
+
 
 
 @pytest.mark.parametrize("mode", ["source", "build"])
@@ -122,7 +127,7 @@ def test_bundle_policy_matches_existing_nix_test_recipes() -> None:
             continue
         targets.add(words[words.index("-A") + 1])
         assert tuple(words[words.index("--option"):]) == NIX_TEST_BUILD_OPTIONS
-    assert targets == {"developmentTests", "tests", "tests.atuin"}
+    assert targets == {"developmentTests", "tests", "tests.atuin", "publicDocumentation"}
 
 
 def test_ci_failure_retains_phase_status(tmp_path: Path) -> None:

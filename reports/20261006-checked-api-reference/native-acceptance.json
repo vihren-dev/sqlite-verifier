@@ -1,0 +1,57 @@
+{
+  "source_revision": "dac12b493dc5b64f5381b8a39fd6ac285b2d5c9b",
+  "reference": {
+    "public_modules": 24,
+    "public_declarations": 345,
+    "html_pages": 1170,
+    "local_links": 829888,
+    "corrected_links": 178,
+    "source_revision": "dac12b493dc5b64f5381b8a39fd6ac285b2d5c9b"
+  },
+  "authored_coverage": {
+    "authored": 281,
+    "checked": 281,
+    "ordinary": 0,
+    "missing": 0,
+    "unclassified": 0,
+    "excluded": 964
+  },
+  "checks": {
+    "focused_cases": 47,
+    "markdown_links": "passed",
+    "independent_source_review": "no findings"
+  },
+  "native_outputs": {
+    "aarch64-darwin": {
+      "artifact": "/nix/store/p3bqdqsz822gscnn233819pdbvcz5if4-sqlite-verifier-api-reference-dac12b493dc5",
+      "build_phase_seconds": 306
+    },
+    "x86_64-linux": {
+      "artifact": "/nix/store/swr1cd4dwvx7ciz6lpwjdnbnf2k0mq2s-sqlite-verifier-api-reference-dac12b493dc5",
+      "build_phase_seconds": 418,
+      "retained_directory": "/var/tmp/sqlite-verifier-reference.zgvSyF",
+      "receipts_sha256": "f66ea758f0a881f2728f1e37ba9d74987b27c51695bbf6ccf5fd524fc53f541e",
+      "helper_sha256": "a56806904f7ce68ad6e688bd4ab6eb65900bd9ed9d512ab5cfee59ce941eb317",
+      "source_archive_sha256": "97d6cfcee09c3a506c586477fb77372b16db8cd911e08297818f3db2f0865643",
+      "tracked_entries": 896,
+      "regular_files_unchanged_before_and_after": 895,
+      "symlink": {
+        "path": "CLAUDE.md",
+        "target": "AGENTS.md"
+      }
+    }
+  },
+  "upstream_warnings": [
+    "Std.Time.DateTime.weekOfYear",
+    "Std.Time.PlainDateTime.weekday",
+    "Std.Time.PlainDateTime.weekYear",
+    "Std.Time.PlainDateTime.weekOfYear"
+  ],
+  "warning_detail": "Upstream equational-lemma heartbeat limit; generation and validation passed on both hosts.",
+  "remaining_acceptance": "Hosted CI must build and retain both platform artifacts after publication; not run in this task.",
+  "earlier_checkpoint": {
+    "source_revision": "6b47be648021d46fb212d9001cd35576f180c45b",
+    "artifact": "/nix/store/c43n80xbvia86i7ckywvfd5899d4bm6y-sqlite-verifier-api-reference-6b47be648021",
+    "unchanged": true
+  }
+}

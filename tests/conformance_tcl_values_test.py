@@ -43,10 +43,10 @@ def test_changed_real_values_are_not_equivalent(number: float, text: str) -> Non
 
 
 @pytest.mark.unit
-@pytest.mark.parametrize("precision", [None, 3, 6, 17])
-def test_real_precision_requires_observed_shortest_round_trip(precision: int | None) -> None:
-    """Rounded or historical unobserved Tcl formatting cannot hide a native difference."""
-    with pytest.raises(ValueError, match="requires captured tcl_precision=0"):
+@pytest.mark.parametrize("precision", [None, -1, 18, True])
+def test_real_precision_requires_valid_observation(precision: int | None) -> None:
+    """Historical unobserved or invalid Tcl formatting cannot establish exact equality."""
+    with pytest.raises(ValueError, match="lacks valid precision"):
         values_agree([[real(1.0000001)]], ["1.0"], "eval", precision)
 
 
@@ -100,9 +100,9 @@ def test_pinned_tcl_real_blob_acquisition_and_negative_results(tmp_path: Path) -
                 "values-null-helpers", "values-null-reset"}
     assert {name for name, row in instances.items() if row["result"] == "recorded"} == accepted, instances
     assert "upstream Tcl expectation failed" in instances["values-original-expectation"]["result"]
-    for name in ("values-rounded", "values-traced"):
-        assert "precision" in instances[name]["result"], instances[name]
-    assert "Tcl NULL display marker unobservable" in instances["values-null-unobserved"]["result"]
+    assert "results differ from Tcl execution" in instances["values-rounded"]["result"]
+    assert "precision" in instances["values-traced"]["result"]
+    assert "connection execution callback context" in instances["values-null-unobserved"]["result"]
     assert report["files"][0]["runtimeComplete"] is True
     _, records = load(output)
     native_replay(records)

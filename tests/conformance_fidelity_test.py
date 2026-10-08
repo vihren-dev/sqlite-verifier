@@ -10,9 +10,11 @@ from pathlib import Path
 import pytest
 
 from conformance.corpus import native_replay
+from conformance.case_format import Json
 from conformance.native_record import record_sql
 from conformance.upstream_fidelity import check_results
 from conformance.upstream_selection import candidate_reasons
+from conformance.upstream_assertions import assertions
 
 pytestmark = [pytest.mark.conformance]
 
@@ -97,20 +99,26 @@ def test_missing_testfixture_module_keeps_native_error(prefix: bool) -> None:
 @pytest.mark.unit
 def test_uncaptured_tcl_bindings_are_excluded_without_guessing_values() -> None:
     """Named variables in setup or SQL cannot silently become native NULL bindings."""
-    candidate = {"exclusions": [], "failed": False, "codes": [0],
-                 "prefix": [{"reopen": True}, "INSERT INTO t VALUES($dots)"],
-                 "commands": ["SELECT :value, @other, '$literal', \"$column\" /* $comment */"]}
+    def captured(command: str, prefix: str = "") -> dict[str, Json]:
+        """Use the real assertion iterator rather than reconstructing its binding cache."""
+        events = [("reset",)]
+        if prefix:
+            events += [("sql", "db", prefix, "0", "eval"), ("result", "db", "0")]
+        events += [("begin", "bindings", ""), ("sql", "db", command, "0", "eval"),
+                   ("result", "db", "0"), ("end", "bindings")]
+        return assertions("\n".join("\t".join(item.encode().hex() for item in event) for event in events))[0]
+    candidate = captured("SELECT :value, @other, '$literal', \"$column\" /* $comment */",
+                         "INSERT INTO t VALUES($dots)")
     assert set(candidate_reasons(candidate, selected=0, limit=1)) == {
         "implicit Tcl parameter binding: $dots", "implicit Tcl parameter binding: :value",
         "implicit Tcl parameter binding: @other"}
-    candidate["prefix"] = []
-    candidate["commands"] = ["SELECT '$literal', \"$column\" /* $comment */"]
+    candidate = captured("SELECT '$literal', \"$column\" /* $comment */")
     assert candidate_reasons(candidate, selected=0, limit=1) == []
-    candidate["commands"] = ["SELECT :; SELECT 1::int"]
+    candidate = captured("SELECT :; SELECT 1::int")
     assert candidate_reasons(candidate, selected=0, limit=1) == []
-    candidate["commands"] = ["SELECT 1 /* $comment"]
+    candidate = captured("SELECT 1 /* $comment")
     assert candidate_reasons(candidate, selected=0, limit=1) == []
-    candidate["commands"] = ["SELECT :name::scope(key), $💫(x), @x$y /* $comment"]
+    candidate = captured("SELECT :name::scope(key), $💫(x), @x$y /* $comment")
     assert set(candidate_reasons(candidate, selected=0, limit=1)) == {
         "implicit Tcl parameter binding: :name::scope(key)", "implicit Tcl parameter binding: $💫(x)",
         "implicit Tcl parameter binding: @x$y"}

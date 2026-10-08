@@ -39,7 +39,7 @@ def test_fixed_catalog_and_explicit_file_exclusions() -> None:
 def test_identity_sampling_ignores_native_acceptance() -> None:
     """Hash ranking is reproducible when refusal flags change, and preserves all other reasons."""
     candidates = [{"id": f"generated-{i}", "exclusions": [], "failed": False,
-                   "commands": ["SELECT 1;"], "codes": [0]} for i in range(12)]
+                   "commands": ["SELECT 1;"], "codes": [0], "implicitBindingReasons": []} for i in range(12)]
     cohorts = (("loops.test", "generated-", 4),)
     rejected, report = select_candidates("loops.test", candidates, cohorts)
     expected = sorted((hashlib.sha256(serialized(["loops.test", candidate["id"], i])).hexdigest(), i)

@@ -1,0 +1,185 @@
+[
+  {
+    "suite": "atuin",
+    "output": "/nix/store/ic2ha49169blplb29lyanr7b8rx0jcjl-sqlite-verifier-test-atuin-1",
+    "junitSha256": "d535e8ecb2c1a9e120034bf5a0cc499e1c65a3a2ed95574f717abe10a32445e9",
+    "testsuites": [
+      {
+        "name": "pytest",
+        "errors": "0",
+        "failures": "0",
+        "skipped": "0",
+        "tests": "12",
+        "time": "80.484",
+        "timestamp": "2026-10-08T09:17:01.908637+00:00",
+        "hostname": "tzanko-mbp"
+      }
+    ]
+  },
+  {
+    "suite": "bundle",
+    "output": "/nix/store/596ydg93cwjixb0lqz7jl4bb39w69mr4-sqlite-verifier-test-bundle-1",
+    "junitSha256": "4b071263164a0b61b9b27795283d992aecd922e81c3d0aa2e231be62f6807098",
+    "testsuites": [
+      {
+        "name": "pytest",
+        "errors": "0",
+        "failures": "0",
+        "skipped": "0",
+        "tests": "44",
+        "time": "266.421",
+        "timestamp": "2026-10-08T09:18:22.875143+00:00",
+        "hostname": "tzanko-mbp"
+      }
+    ]
+  },
+  {
+    "suite": "cli",
+    "output": "/nix/store/7vlvmslai1rd3yqk8m1zcqxg7fwigk2m-sqlite-verifier-test-cli-1",
+    "junitSha256": "aae7499eb829a67e98d6f975531df3d0495d526bf5ad61e30a4a47049ef29faa",
+    "testsuites": [
+      {
+        "name": "pytest",
+        "errors": "0",
+        "failures": "0",
+        "skipped": "0",
+        "tests": "15",
+        "time": "48.001",
+        "timestamp": "2026-10-08T09:22:49.806731+00:00",
+        "hostname": "tzanko-mbp"
+      }
+    ]
+  },
+  {
+    "suite": "frozen",
+    "output": "/nix/store/z3d56l0rz781la8xngpk1ajjcgfsv6bk-sqlite-verifier-test-frozen-1",
+    "junitSha256": "ed78a6d6fcd9d6c73cae3c94b4113a984d59ea557cbbf4083b6dfc14110f6cbc",
+    "testsuites": [
+      {
+        "name": "pytest",
+        "errors": "0",
+        "failures": "0",
+        "skipped": "0",
+        "tests": "152",
+        "time": "289.624",
+        "timestamp": "2026-10-08T10:03:54.281948+00:00",
+        "hostname": "tzanko-mbp"
+      }
+    ]
+  },
+  {
+    "suite": "harness",
+    "output": "/nix/store/6wxdc34qdpa67pbsdc1yhi2zvgh66hji-sqlite-verifier-test-harness-1",
+    "junitSha256": "cb8988676d091dcaaa3549293342abb4359de3e3864a88d63e5290aacbee4b30",
+    "testsuites": [
+      {
+        "name": "pytest",
+        "errors": "0",
+        "failures": "0",
+        "skipped": "0",
+        "tests": "127",
+        "time": "2.558",
+        "timestamp": "2026-10-08T10:16:15.882171+00:00",
+        "hostname": "tzanko-mbp"
+      }
+    ]
+  },
+  {
+    "suite": "kernel",
+    "output": "/nix/store/r1w2ikdyj5m25pv8fjz8hx4g9ampp0d3-sqlite-verifier-test-kernel-1",
+    "junitSha256": "2f04e98d308139daafc45fd5161eb48376601b3a63b7a84a9d4c50964ab293cd",
+    "testsuites": [
+      {
+        "name": "pytest",
+        "errors": "0",
+        "failures": "0",
+        "skipped": "0",
+        "tests": "28",
+        "time": "49.016",
+        "timestamp": "2026-10-08T09:24:32.432801+00:00",
+        "hostname": "tzanko-mbp"
+      }
+    ]
+  },
+  {
+    "suite": "model",
+    "output": "/nix/store/28zzklcc2qiaca1gw6w89kr7lq49b9n6-sqlite-verifier-test-model-1",
+    "junitSha256": "6aa242d2d93e8aa5f90940987904a796797654350476fc9664f6828e183598ad",
+    "testsuites": [
+      {
+        "name": "pytest",
+        "errors": "0",
+        "failures": "0",
+        "skipped": "0",
+        "tests": "51",
+        "time": "53.712",
+        "timestamp": "2026-10-08T10:16:18.915653+00:00",
+        "hostname": "tzanko-mbp"
+      }
+    ]
+  },
+  {
+    "suite": "sample",
+    "output": "/nix/store/j51ic3qis5q6v1vmcrxwcd8wa566ckq7-sqlite-verifier-test-sample-1",
+    "junitSha256": "604449a4f64554b7db458914dd6c4735efcba160cb8390038b47bae20af0add9",
+    "testsuites": [
+      {
+        "name": "pytest",
+        "errors": "0",
+        "failures": "0",
+        "skipped": "0",
+        "tests": "12",
+        "time": "54.798",
+        "timestamp": "2026-10-08T10:17:13.182385+00:00",
+        "hostname": "tzanko-mbp"
+      }
+    ]
+  },
+  {
+    "suite": "upstream",
+    "output": "/nix/store/yx1531hzj3d2b9jngws1mgk00a7apw0z-sqlite-verifier-test-upstream-1",
+    "junitSha256": "0a0b1912a94ae069a18319df47c5431a3382599aa219be9800d8211798e33d73",
+    "testsuites": [
+      {
+        "name": "pytest",
+        "errors": "0",
+        "failures": "0",
+        "skipped": "0",
+        "tests": "117",
+        "time": "5.261",
+        "timestamp": "2026-10-08T10:18:08.452731+00:00",
+        "hostname": "tzanko-mbp"
+      }
+    ]
+  },
+  {
+    "suite": "source",
+    "testsuites": [
+      {
+        "name": "pytest",
+        "errors": "0",
+        "failures": "0",
+        "skipped": "0",
+        "tests": "447",
+        "time": "81.826",
+        "timestamp": "2026-10-08T13:14:49.814197+03:00",
+        "hostname": "tzanko-mbp"
+      }
+    ]
+  },
+  {
+    "suite": "nix",
+    "testsuites": [
+      {
+        "name": "pytest",
+        "errors": "0",
+        "failures": "0",
+        "skipped": "0",
+        "tests": "98",
+        "time": "141.684",
+        "timestamp": "2026-10-08T13:18:14.082430+03:00",
+        "hostname": "tzanko-mbp"
+      }
+    ]
+  }
+]

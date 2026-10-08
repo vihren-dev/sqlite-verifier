@@ -47,6 +47,7 @@ let
     } // environment);
   # Inputs shared by the three suites that the old single model suite contained.
   modelInputs = frontend ++ [
+    (root + /tests/conformance_freeze_capture.py)
     (fs.fileFilter (file: file.hasExt "json") (root + /conformance/cases))
     (root + /SqliteVerifier/SqlExecution.lean)
     (root + /SqliteVerifier/Execution.lean) (root + /SqliteVerifier/LiteralData.lean)
@@ -59,6 +60,7 @@ let
     (root + /conformance/synthetic-workload)
     (root + /conformance/upstream_proxy.tcl)
     (root + /conformance/upstream_external.tcl)
+    (root + /conformance/upstream_bindings.tcl)
     (root + /nix/sqlite.nix)
     (root + /nix/flake.lock)
     (root + /build-support/conformance-native.nix)
@@ -72,6 +74,9 @@ let
     "upstream_selection" "upstream_catalog" "upstream_sampling" "upstream_profiles" "upstream_functions" "upstream_result_values"
     "corpus_shards" "corpus_workers" "corpus_evidence" "corpus_acquisition" "freeze_corpus" "freeze_validation" "freeze_profiles" "workload" "workload_inputs"
     "upstream_assertions"
+    "native_bindings" "native_call_recording" "native_binding_types" "native_binding_validation"
+    "native_observation"
+    "upstream_bindings" "upstream_binding_policy" "upstream_display" "upstream_evidence"
     "upstream_helpers"
     "native_fixture" "import_fixture" "schema"
     "case_format" "native_connection" "native_library" "native_clock" "native_probe" "native_ordering" "query_window" "native_metadata" "native_record" "native_statements" "native_replay" "upstream_pilot" "upstream_fidelity" "corpus" "generated_program" "mutation_check" "state_machine" "regressions" "progress" "measure_coverage" "native_trace" "pipeline"
@@ -103,18 +108,21 @@ in {
     ] ++ map (name: root + "/conformance/${name}.py") [
       "replay_tiers" "native_workers" "corpus" "corpus_shards" "corpus_workers" "corpus_evidence" "corpus_acquisition" "case_format"
       "workload" "workload_inputs" "execution_profile" "native_replay" "model_check"
-      "native_record" "native_acquisition" "native_connection" "native_library" "native_clock" "native_storage"
+      "native_record" "native_observation" "native_acquisition" "native_connection" "native_library" "native_clock" "native_storage"
       "native_probe" "native_ordering" "query_window" "native_metadata" "native_statements"
+      "native_bindings" "native_call_recording" "upstream_bindings" "upstream_binding_policy"
+      "native_binding_types" "native_binding_validation"
       "upstream_helpers" "model_assertions" "native_trace" "freeze_validation"
       "upstream_catalog" "upstream_sampling" "upstream_profiles" "freeze_profiles"
+      "upstream_result_values" "upstream_fidelity" "upstream_display"
     ];
     runtime = conformance;
     tools = [ native.sqlite ];
   };
   upstream = suite "upstream" {
     inputs = frontend ++ [
+      (root + /tests/conformance_freeze_capture.py)
       (fs.fileFilter (file: file.hasExt "py" || file.hasExt "tcl") (root + /conformance))
-      (root + /tests/conformance_freeze_test.py)
       (root + /conformance/requirements-3.51.0.json)
       (root + /conformance/corpus-v1)
       (root + /conformance/corpus-v2)
@@ -138,6 +146,7 @@ in {
       (root + /tests/upstream_source_calls.test)
       (root + /tests/upstream_registered_calls.test)
       (root + /tests/upstream_value_calls.test)
+      (root + /tests/upstream_binding_calls.test)
     ];
     runtime = conformance;
     tools = [ native.sqlite conformanceNative.fixture ];

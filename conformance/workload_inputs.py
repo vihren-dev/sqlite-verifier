@@ -9,7 +9,7 @@ from conformance.case_format import Json, cell_wire
 from conformance.corpus_shards import source_path
 from conformance.execution_profile import ExecutionProfile, profile_from_wire
 from conformance.native_connection import Row
-from conformance.native_replay import decode_cell
+from conformance.native_bindings import decode_cell
 from conformance.upstream_helpers import join_commands
 
 

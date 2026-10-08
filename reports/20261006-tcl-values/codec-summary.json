@@ -1,0 +1,123 @@
+{
+  "kind": "authored regression fixture executed by pinned upstream Tcl",
+  "revision": "d4eb312a615ea2d59c52736dd2cc19bc86171ac6",
+  "fixtureSource": "tests/upstream_binding_calls.test",
+  "fixtureSourceSha256": "d65a9d3f0a2a53049cc02b1c8ce82f3b4ac343a2bca411e085c6105196ca0ecc",
+  "fixtureExecutable": "/nix/store/x7bw05snijdsq74pi3fykgwdygkcwdx5-sqlite-conformance-testfixture-3.51.0/bin/testfixture",
+  "fixtureExecutableSha256": "1278f155596c72b6020cefc6ce6d6b3d1f95210abb56a913631a90831337436d",
+  "runs": [
+    {
+      "returncode": 0,
+      "captureConditions": {
+        "CONFORMANCE_TCL_PRECISION": "0"
+      }
+    }
+  ],
+  "runtimeInstances": 21,
+  "accepted": 11,
+  "freshNativeReplayPassed": 11,
+  "exactBindingCells": {
+    "$::nul": {
+      "text": {
+        "bytes": [
+          192,
+          128
+        ]
+      }
+    },
+    "$::cesu": {
+      "text": {
+        "bytes": [
+          237,
+          160,
+          189,
+          237,
+          184,
+          128
+        ]
+      }
+    }
+  },
+  "namedCodecRefusals": {
+    "bindings-nul-display": {
+      "id": "bindings-nul-display",
+      "occurrence": 16,
+      "result": "native acquisition: Native fidelity difference for bindings:bindings-nul-display:16: Tcl TEXT display encoding is not reproduced; retain the typed bytes and exclude this assertion. Exclude this source assertion; its recorded results differ.",
+      "exclusions": [
+        "native acquisition: Native fidelity difference for bindings:bindings-nul-display:16: Tcl TEXT display encoding is not reproduced; retain the typed bytes and exclude this assertion. Exclude this source assertion; its recorded results differ."
+      ],
+      "tclResultPrecision": {
+        "values": [
+          0
+        ],
+        "successfulCalls": 1
+      },
+      "tclNullvalueEvidence": {
+        "values": [
+          ""
+        ],
+        "successfulCalls": 1
+      }
+    },
+    "bindings-cesu-display": {
+      "id": "bindings-cesu-display",
+      "occurrence": 17,
+      "result": "native acquisition: Native fidelity difference for bindings:bindings-cesu-display:17: Tcl TEXT display encoding is not reproduced; retain the typed bytes and exclude this assertion. Exclude this source assertion; its recorded results differ.",
+      "exclusions": [
+        "native acquisition: Native fidelity difference for bindings:bindings-cesu-display:17: Tcl TEXT display encoding is not reproduced; retain the typed bytes and exclude this assertion. Exclude this source assertion; its recorded results differ."
+      ],
+      "tclResultPrecision": {
+        "values": [
+          0
+        ],
+        "successfulCalls": 1
+      },
+      "tclNullvalueEvidence": {
+        "values": [
+          ""
+        ],
+        "successfulCalls": 1
+      }
+    },
+    "bindings-nul-sql": {
+      "id": "bindings-nul-sql",
+      "occurrence": 19,
+      "result": "Tcl SQL encoding is not reproduced",
+      "exclusions": [
+        "Tcl SQL encoding is not reproduced"
+      ],
+      "tclResultPrecision": {
+        "values": [
+          0
+        ],
+        "successfulCalls": 1
+      },
+      "tclNullvalueEvidence": {
+        "values": [
+          ""
+        ],
+        "successfulCalls": 1
+      }
+    },
+    "bindings-cesu-sql": {
+      "id": "bindings-cesu-sql",
+      "occurrence": 18,
+      "result": "Tcl SQL encoding is not reproduced",
+      "exclusions": [
+        "Tcl SQL encoding is not reproduced"
+      ],
+      "tclResultPrecision": {
+        "values": [
+          0
+        ],
+        "successfulCalls": 1
+      },
+      "tclNullvalueEvidence": {
+        "values": [
+          ""
+        ],
+        "successfulCalls": 1
+      }
+    }
+  }
+}

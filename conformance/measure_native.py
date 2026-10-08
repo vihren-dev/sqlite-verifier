@@ -5,7 +5,7 @@ import json
 from pathlib import Path
 
 from conformance.model_check import compiled_many
-from conformance.native_replay import decode_cell
+from conformance.native_bindings import decode_cell
 from conformance.native_trace import Fixture, record
 
 

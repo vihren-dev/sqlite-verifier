@@ -958,3 +958,23 @@ authorized one Linux diagnostic below. No production change followed it.
   The owner is asked to approve the exact reviewed head. No merge or
   alternate publication is attempted. The branch is unchanged, and
   T04c remains IN PROGRESS until normal delivery.
+# Approved delivery integration, 2026-10-08
+
+The owner approves PR #59 when ready and requests accepted main integration
+before normal merge. PRs #57, #53 and #50 are delivered. Integrated their main
+head `c1dea71b` without rewriting the reviewed feature commits. Resolved the
+corpus-shard conflict by retaining bounded snapshot expansion and T17's
+recording validation. All three original review journals remain ordered
+subsequences, including repeated rows. Original journals and checks are saved
+under `build/20261008-approved-main-integration/`.
+
+Complete macOS acceptance exits zero: all nine suites pass 577 tests with
+no failures, errors or skips. Source checks pass 461 tests and 35 subtests;
+infrastructure checks pass all 102 tests. Original receipts and source hashes
+are retained in `reports/20261008-development-replay-approved-integration/`.
+No new standalone timing result is claimed. Integrated loading and native helpers changed,
+so fresh standalone acceptance on both platforms remains required. The
+120-second outer guard and strict under-30-second target are unchanged.
+
+Decisions waiting for the owner: None. The approved normal merge waits for
+the integrated checks and required reviews.
