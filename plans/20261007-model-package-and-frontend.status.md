@@ -508,3 +508,24 @@ Decisions waiting for the owner:
 
 - Review PR #56 after PRs #57, #53, #50 and #59 are integrated and checks pass.
   Protected source pins and trust changes still require that final review.
+# Original-root correction, 2026-10-08
+
+Review `20261008T103804Z-a630a4fb` requires owner review of the case-aware
+trusted/caller package selection. Finding #1 is recorded as deferred to the
+owner's requested final integrated PR #56 review. The branch remains gated.
+The reviewer also identified a mixed-filesystem concern outside the checklist.
+The helper now probes each original root's case behavior and exposes original
+package spellings in the merged view. Each artifact selects the first original
+root where its name resolves.
+
+A new immutable macOS runtime passes all 18 affected checks. These receipts
+are retained separately under
+`reports/20261008-model-package-owner-review-changes/root-case-correction/`.
+Native mixed-filesystem validation is not claimed. The earlier source and
+receipts remain unchanged. Final integrated checks and owner review remain
+required.
+
+Decisions waiting for the owner:
+
+- Review the case-aware package selection with the other trust changes at
+  the final integrated PR #56 head.
