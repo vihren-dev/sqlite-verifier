@@ -45,11 +45,14 @@ the later observation does not replace them. Linux records ordinary ext4
 storage before and after.
 
 `raw-sha256.json` binds all 34 original compressed artifacts. `acceptance.json`
-records the two results. The read-only validator checks original bytes,
+records the two results, and its fields are checked against the original
+receipts. The exact retrieved Linux archive is retained separately. The
+read-only validator checks original bytes,
 complete source and helper bindings, historical results, paths and limits.
 Four independent mutations are refused after their file digests are
 rebound: duplicate fixture paths, a false target flag, a changed library
-identity and a changed selected name. No replay runs during these checks.
+identity and a changed selected name. The retained `check_mutations.py` reproduces these four refusals and a
+changed-summary refusal. No replay runs during these checks.
 Independent evidence review and normal delivery remain required. T04c is
 IN PROGRESS.
 
@@ -57,4 +60,5 @@ Run the bounded read-only check:
 
 ```sh
 python3 -B reports/20261008-development-replay-parallel-acceptance/validate.py
+python3 -B reports/20261008-development-replay-parallel-acceptance/check_mutations.py
 ```

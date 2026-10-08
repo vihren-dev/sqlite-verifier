@@ -840,3 +840,13 @@ authorized one Linux diagnostic below. No production change followed it.
   Read-only checks pass and refuse all four independent mutations. Earlier
   target misses remain unchanged. Independent review and normal delivery
   remain required; T04c is not DONE.
+
+- 2026-10-08: Acceptance evidence `d6e2e0bb` passes independent review
+  `20261008T070348Z-d6e2e0bb` with no mandatory defect and three
+  suggestions. The retained mutation script reproduces four semantic
+  refusals plus summary drift. The validator checks each summary field
+  against original receipts and retains the exact retrieved Linux archive.
+  The JSON reader now states its caller verification precondition. All
+  checks pass without replay. All three findings are recorded as fixed.
+  Original measurements and all 34 individually retained raw artifacts
+  remain unchanged. Correction review remains required.

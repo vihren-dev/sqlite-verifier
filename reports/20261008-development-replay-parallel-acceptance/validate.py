@@ -15,31 +15,37 @@ COMPARISON_FIELDS = ("corpusVersion", "casesSha256", "manifestSha256", "executio
 """Historical identities, profiles and verdicts remain authoritative for each selected input."""
 
 
-def read_original(name: str) -> dict[str, Json]:
-    """Parse a retained original JSON file only after its compressed and original bytes verify."""
-    value = json.loads(gzip.decompress((ROOT / name).read_bytes()))
+def read_original(name: str, root: Path = ROOT) -> dict[str, Json]:
+    """Parse retained JSON; the caller must first verify its compressed and original bytes."""
+    value = json.loads(gzip.decompress((root / name).read_bytes()))
     if not isinstance(value, dict):
         raise ValueError(f"{name}: expected a JSON object")
     return value
 
 
-def validate() -> None:
+def validate(root: Path = ROOT) -> None:
     """Require exact source, helper, runtime, historical result and fixture bindings on both platforms."""
-    bindings = json.loads((ROOT / "raw-sha256.json").read_text())
+    bindings = json.loads((root / "raw-sha256.json").read_text())
     for name, binding in bindings.items():
-        compressed = (ROOT / name).read_bytes()
+        compressed = (root / name).read_bytes()
         assert hashlib.sha256(compressed).hexdigest() == binding["sha256"], name
         original = gzip.decompress(compressed)
         assert len(original) == binding["original_bytes"], name
         assert hashlib.sha256(original).hexdigest() == binding["original_sha256"], name
-    source = read_original("source.json.gz")
-    files = read_original("source-files.json.gz")
-    helpers = read_original("helper-manifest.json.gz")
+    source = read_original("source.json.gz", root)
+    files = read_original("source-files.json.gz", root)
+    helpers = read_original("helper-manifest.json.gz", root)
+    summary = json.loads((root / "acceptance.json").read_text())
+    assert summary["source_revision"] == source["source_revision"], "summary source"
+    assert summary["phase_limit_seconds"] == 120 and summary["target_seconds_exclusive"] == 30, "summary limits"
+    assert summary["complete_performance_acceptance"] is True and summary["task_done"] is False, "summary status"
+    assert summary["model_agreement_claimed"] is False and summary["raw_artifacts"] == len(bindings), "summary scope"
+    assert hashlib.sha256((root / "linux-evidence.tar.gz").read_bytes()).hexdigest() == summary["linux_evidence_archive_sha256"], "retrieval archive"
     for platform, prefix in (("darwin", "darwin/"), ("linux", "linux-originals/linux/")):
-        receipt = read_original(prefix + "receipt.json.gz")
-        report = read_original(prefix + "report.json.gz")
-        before = read_original(prefix + "identity-before.json.gz")
-        after = read_original(prefix + "identity-after.json.gz")
+        receipt = read_original(prefix + "receipt.json.gz", root)
+        report = read_original(prefix + "report.json.gz", root)
+        before = read_original(prefix + "identity-before.json.gz", root)
+        after = read_original(prefix + "identity-after.json.gz", root)
         assert before == after and receipt["bindingsUnchanged"], platform
         assert receipt["sourceCommit"] == source["source_revision"], platform
         assert before["archive"]["sha256"] == source["archive_sha256"], platform
@@ -53,7 +59,7 @@ def validate() -> None:
             assert actual["sha256"] == expected["sha256"] and actual["bytes"] == expected["bytes"], name
         for name, expected in helpers.items():
             actual = before["helpers"]["files"][name]
-            raw = gzip.decompress((ROOT / "helpers" / (name + ".gz")).read_bytes())
+            raw = gzip.decompress((root / "helpers" / (name + ".gz")).read_bytes())
             assert hashlib.sha256(raw).hexdigest() == actual["sha256"] == expected["sha256"], name
             assert len(raw) == actual["bytes"] == expected["bytes"], name
         historical = receipt["historicalReceipt"]
@@ -82,8 +88,13 @@ def validate() -> None:
         assert outer == phase["outerPhaseSeconds"] and 0 < measurement["seconds"] <= outer < 120, platform
         assert receipt["valid"] and receipt["command"]["returncode"] == 0 and not receipt["command"]["timedOut"], platform
         assert receipt["conditionsBefore"]["storageDevice"] == receipt["conditionsAfter"]["storageDevice"], platform
-    storage = read_original("darwin-storage-after-only.json.gz")
-    original = read_original("darwin/receipt.json.gz")
+        expected = {"phase_seconds": measurement["seconds"], "outer_seconds": outer,
+            "start": phase["started"], "end": phase["ended"], "fixture_count": len(paths),
+            "fixtures_cleaned": phase["fixturesCleaned"], "bindings_unchanged": receipt["bindingsUnchanged"],
+            "storage_root": str(storage), "storage_device": receipt["conditionsBefore"]["storageDevice"]}
+        assert summary["platforms"][platform] == expected, (platform, "summary")
+    storage = read_original("darwin-storage-after-only.json.gz", root)
+    original = read_original("darwin/receipt.json.gz", root)
     assert storage["matches_recorded_before_after"] and storage["observation"].startswith("after-only"), "darwin storage"
     assert storage["storage_device_now"] == original["conditionsBefore"]["storageDevice"], "darwin storage"
     assert "/System/Volumes/Data" in storage["system_df"] and "APFS" in storage["diskutil"], "darwin storage"
