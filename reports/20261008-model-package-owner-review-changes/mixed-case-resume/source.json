@@ -1,0 +1,14 @@
+{
+  "platform": "aarch64-darwin",
+  "runtime": "/nix/store/ypplqnh9xsizqy5gxfpa6djf6wzbnvdx-sqlite-verifier-runtime-1",
+  "helper_sha256": "816cd3932999c955c77396650c62f4e912f60b6564354d81cae894a9e0cb9f82",
+  "test_sha256": "0faccd1f455c41e571322e7e0e57d6c28dc738373ac4392402960717051bc893",
+  "passing_checks": 24,
+  "authoritative_receipt": "final-native-checks.xml.gz",
+  "earlier_receipts": "intermediate implementations; do not rebind to final helper",
+  "deterministic_mixed_case_combinations": 6,
+  "both_root_orders": true,
+  "physical_mixed_filesystems_native_tested": false,
+  "owner_feedback": "Resume the correction and tests",
+  "final_owner_review_pending": true
+}

@@ -549,3 +549,24 @@ Decisions waiting for the owner:
 - Resume correction and regression testing, or hold the package work for
   owner review after PR #59 is delivered.
 - Review the final integrated PR #56 head before its protected changes merge.
+# Correction resumed with owner feedback, 2026-10-08
+
+The owner explicitly authorizes resuming the correction and tests. Case-aware
+package merging now requires agreement among all original roots for that
+package family. Mixed case modes retain original paths and order, including
+matching directory spellings. Six deterministic cases cover equivalent and
+mixed modes with matching or different spellings, in both root orders. Alias
+links and first-root bytes are checked. The coverage finding is recorded fixed;
+the final trust review remains required.
+
+The final fresh immutable macOS runtime passes all 24 affected checks,
+including actual lowercase caller preparation, export and kernel replay.
+Final and intermediate receipts remain separate under
+`reports/20261008-model-package-owner-review-changes/mixed-case-resume/`.
+Physical mixed-volume testing is not claimed. Full accepted-main integration,
+both-platform acceptance and final owner review remain before delivery.
+
+Decisions waiting for the owner:
+
+- Review the final integrated PR #56 head after the requested deliveries and
+  required checks are complete. No further feedback is needed to continue.

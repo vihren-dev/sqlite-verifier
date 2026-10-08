@@ -6,6 +6,12 @@ from pathlib import Path
 from tempfile import TemporaryDirectory
 
 
+def ignores_package_case(directory: Path) -> bool:
+    """Identify a directory's case alias without assuming its volume matches the workspace."""
+    alias = directory.with_name(directory.name.swapcase())
+    return alias.exists() and alias.samefile(directory)
+
+
 @contextmanager
 def merged_search_path(roots: Sequence[Path], workspace: Path) -> Iterator[tuple[Path, ...]]:
     """Expose all sibling modules while selecting the first existing file from the original roots.
@@ -19,11 +25,16 @@ def merged_search_path(roots: Sequence[Path], workspace: Path) -> Iterator[tuple
     with TemporaryDirectory(prefix="import-path-", dir=workspace) as temporary:
         merged = Path(temporary)
         directories = [entry for root in roots for entry in root.iterdir() if entry.is_dir()]
-        case_aliases = {entry.name.casefold() for entry in directories
-                        if entry.with_name(entry.name.swapcase()).exists()
-                        and entry.with_name(entry.name.swapcase()).samefile(entry)}
+        families: dict[str, list[Path]] = {}
+        for entry in directories:
+            families.setdefault(entry.name.casefold(), []).append(entry)
+        modes = {name: {ignores_package_case(entry) for entry in entries}
+                 for name, entries in families.items()}
+        case_aliases = {name for name, values in modes.items() if values == {True}}
         packages: dict[str, list[Path]] = {}
         for entry in directories:
+            if len(modes[entry.name.casefold()]) > 1:
+                continue
             key = entry.name.casefold() if entry.name.casefold() in case_aliases else entry.name
             packages.setdefault(key, []).append(entry)
         split = {key: directories for key, directories in packages.items() if len(directories) > 1}

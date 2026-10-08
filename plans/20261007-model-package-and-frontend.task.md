@@ -125,6 +125,9 @@ state and behavior. Sources remain below 200 lines, with complete Python types.
   first-root precedence for colliding artifacts. Historical plan records keep
   their original source paths and are exempt from current-document link checks;
   broken links in maintained documentation still fail.
+  Deterministic original-root checks cover both root orders and matching or
+  different package spellings. Mixed filesystem case modes retain original
+  package search paths instead of combining their casing rules.
 - On native `aarch64-darwin` and `x86_64-linux`, build a fresh runtime archive and
   run actual installed acceptance with `--runtime-variant installed` and
   `--runtime-archive`, without substituting a development runtime root. Poison

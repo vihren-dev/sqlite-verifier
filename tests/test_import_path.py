@@ -4,6 +4,7 @@ from pathlib import Path
 
 import pytest
 
+from migration_check import import_path
 from migration_check.import_path import merged_search_path
 from migration_check.source_closure import lean_process
 
@@ -68,6 +69,33 @@ def test_package_case_follows_filesystem_without_changing_precedence(tmp_path: P
         else:
             assert paths == (library, candidate)
             assert (candidate / "model/Core.olean").read_text() == "candidate-substitution"
+
+
+@pytest.mark.parametrize("insensitive_roots", [{"library", "candidate"}, {"library"}, {"candidate"}],
+                         ids=["equivalent", "candidate-sensitive", "trusted-sensitive"])
+@pytest.mark.parametrize("candidate_name", ["Model", "model"])
+def test_original_root_case_modes_control_alias_merging(tmp_path: Path,
+        monkeypatch: pytest.MonkeyPatch, insensitive_roots: set[str], candidate_name: str) -> None:
+    """Equivalent roots expose both spellings; mixed roots keep their original package search order."""
+    library, candidate = tmp_path / "library", tmp_path / "candidate"
+    artifact(library, "Model/Core.olean", "trusted-core")
+    artifact(candidate, f"{candidate_name}/Core.olean", "candidate-substitution")
+    artifact(candidate, f"{candidate_name}/User.olean", "candidate-sibling")
+    def root_ignores_case(directory: Path) -> bool:
+        """Supply explicit original-volume case modes independently of the test host."""
+        return directory.parent.name in insensitive_roots
+
+    monkeypatch.setattr(import_path, "ignores_package_case", root_ignores_case)
+    for roots in ((library, candidate), (candidate, library)):
+        with merged_search_path(roots, tmp_path) as paths:
+            if insensitive_roots == {"library", "candidate"}:
+                assert paths[1:] == roots
+                assert (paths[0] / "Model").samefile(paths[0] / candidate_name)
+                expected = "trusted-core" if roots[0] == library else "candidate-substitution"
+                assert (paths[0] / f"{candidate_name}/Core.olean").read_text() == expected
+                assert (paths[0] / f"{candidate_name}/User.olean").read_text() == "candidate-sibling"
+            else:
+                assert paths == roots
 
 
 @pytest.mark.integration
