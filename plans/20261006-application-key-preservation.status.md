@@ -6,6 +6,14 @@ Source: [issue #16](https://github.com/vihren-dev/sqlite-verifier/issues/16).
 
 ## Current publication boundary
 
+The owner approves PR #53 on 2026-10-08. Integration `4b27c6a6` includes
+accepted main `a38d0001` and passes the current documentation inventory,
+ordinary source, native, infrastructure and fresh installed checks recorded
+below. Independent review `20261008T093852Z-4b27c6a6` has no findings. Publication, fresh hosted Linux checks
+and normal merge remain. No additional owner design decision is requested.
+
+## Original publication boundary
+
 This is the existing T15 task. Its helpers use declared logical keys and complete
 record permutations over the flexible interpretation and contract primitives.
 The feature formulas and example policy remain the reviewed implementation.
@@ -290,3 +298,9 @@ a correction. T15 is not DONE before final approval and normal delivery.
   [the combined acceptance](../reports/20261008-application-key-approved-main/README.md).
   Independent review, fresh hosted Linux checks and normal merge remain.
   T15 is not DONE.
+
+- 2026-10-08: Accepted-main integration `4b27c6a6` passes independent
+  review `20261008T093852Z-4b27c6a6` with no findings. No checklist
+  trust-relevant file differs from main. The current publication boundary
+  is stated separately from the preserved original boundary. The checked
+  integration is ready for fresh hosted Linux validation on approved PR #53.
