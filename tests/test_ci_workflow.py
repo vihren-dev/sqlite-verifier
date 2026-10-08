@@ -105,3 +105,15 @@ def test_publishing_restores_the_check_jobs_store_without_saving() -> None:
     key = re.compile(r"primary-key: (.+)")
     assert key.search(jobs["publish-nix-store"]).group(1) == key.search(jobs["check"]).group(1)
     assert "save: false" in jobs["publish-nix-store"]
+
+
+def test_publishing_uploads_the_restored_store_only_on_an_exact_hit() -> None:
+    """The upload runs only after the check job's store was restored, and pushes every non-derivation path."""
+    publish = workflow_jobs()["publish-nix-store"]
+    upload = publish[publish.index("- name: Upload store paths"):]
+    assert "if: steps.restore.outputs.hit-primary-key == 'true'" in upload
+    assert "id: restore" in publish[:publish.index("- name: Upload store paths")]
+    assert "--inputs-from path:./nix nixpkgs#attic-client" in upload
+    assert 'login vihren https://cache.vihren.dev "$ATTIC_WRITE_TOKEN"' in upload
+    assert ("nix path-info --all | grep -v '\\.drv$' | "
+            '"$attic" push vihren:sqlite-verifier --stdin') in upload

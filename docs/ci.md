@@ -104,7 +104,7 @@ Pull requests, tags and manual runs do not save caches. Nix, not the GitHub cach
 key, determines which outputs can be reused; changing a declared input creates a
 different test derivation.
 
-Every Nix job also substitutes from the publicly readable Vihren Attic cache,
+The check job also substitutes from the publicly readable Vihren Attic cache,
 `https://cache.vihren.dev/sqlite-verifier`, trusting only its signing key
 `sqlite-verifier:tbKquH1YWJZFbMzT6Z14DmJ5yeVMnHSYobIDGdkWGis=` in addition to
 cache.nixos.org. Reads need no credentials, so fork pull requests use it too.
