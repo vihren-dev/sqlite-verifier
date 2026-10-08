@@ -113,8 +113,10 @@ key, determines which outputs can be reused; changing a declared input creates a
 different test derivation. No extra signing credentials are required.
 
 Before the save, `tools/ci_store_gc.py` registers garbage-collector roots for the
-test targets, runtimes, parsers, development shell and flake inputs of the current
-commit, and removes every other store path. Nix keeps the outputs of rooted
+test targets, runtimes, parsers, base API reference (`apiReferenceBase`),
+development shell and flake inputs of the current commit, and removes every other
+store path. The base API reference and its doc-gen4 build input add about 53 MB
+compressed for each platform. Nix keeps the outputs of rooted
 derivations' build inputs (`keep-outputs`). Without this step the store kept every
 older commit's outputs and grew to 5.8 GB for Linux, while one commit needs about
 1.4 GB compressed; GitHub keeps at most 10 GB of caches for a repository, so the
