@@ -21,6 +21,8 @@ def merged_search_path(roots: Sequence[Path], workspace: Path) -> Iterator[tuple
     library already supplies that package. Original artifacts stay in place.
     Package names follow the original roots' case rules. The merged view exposes
     each original spelling when its filesystem distinguishes letter case.
+    Different spellings combine only when all roots ignore case; matching
+    spellings retain sibling merging, including across mixed case modes.
     """
     with TemporaryDirectory(prefix="import-path-", dir=workspace) as temporary:
         merged = Path(temporary)
@@ -33,8 +35,6 @@ def merged_search_path(roots: Sequence[Path], workspace: Path) -> Iterator[tuple
         case_aliases = {name for name, values in modes.items() if values == {True}}
         packages: dict[str, list[Path]] = {}
         for entry in directories:
-            if len(modes[entry.name.casefold()]) > 1:
-                continue
             key = entry.name.casefold() if entry.name.casefold() in case_aliases else entry.name
             packages.setdefault(key, []).append(entry)
         split = {key: directories for key, directories in packages.items() if len(directories) > 1}

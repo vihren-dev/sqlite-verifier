@@ -76,7 +76,7 @@ def test_package_case_follows_filesystem_without_changing_precedence(tmp_path: P
 @pytest.mark.parametrize("candidate_name", ["Model", "model"])
 def test_original_root_case_modes_control_alias_merging(tmp_path: Path,
         monkeypatch: pytest.MonkeyPatch, insensitive_roots: set[str], candidate_name: str) -> None:
-    """Equivalent roots expose both spellings; mixed roots keep their original package search order."""
+    """Equivalent roots expose aliases; matching spellings retain siblings even across mixed volumes."""
     library, candidate = tmp_path / "library", tmp_path / "candidate"
     artifact(library, "Model/Core.olean", "trusted-core")
     artifact(candidate, f"{candidate_name}/Core.olean", "candidate-substitution")
@@ -88,7 +88,7 @@ def test_original_root_case_modes_control_alias_merging(tmp_path: Path,
     monkeypatch.setattr(import_path, "ignores_package_case", root_ignores_case)
     for roots in ((library, candidate), (candidate, library)):
         with merged_search_path(roots, tmp_path) as paths:
-            if insensitive_roots == {"library", "candidate"}:
+            if insensitive_roots == {"library", "candidate"} or candidate_name == "Model":
                 assert paths[1:] == roots
                 assert (paths[0] / "Model").samefile(paths[0] / candidate_name)
                 expected = "trusted-core" if roots[0] == library else "candidate-substitution"

@@ -570,3 +570,24 @@ Decisions waiting for the owner:
 
 - Review the final integrated PR #56 head after the requested deliveries and
   required checks are complete. No further feedback is needed to continue.
+# Exact-spelling sibling restoration, 2026-10-08
+
+The resumed review identifies a lost mixed-root capability in `b15e8f53`.
+Restored merged views for matching package spellings, including mixed case
+modes. Different spellings combine only when all original roots containing
+that package ignore case; otherwise their original paths remain. The updated
+docstring states both rules. The trust finding remains deferred to final owner
+review, and the docstring finding is recorded fixed.
+
+A fresh corrected macOS runtime passes 13 focused import-path and actual caller
+preparation, export and kernel replay checks. Six deterministic mode/spelling
+combinations run in both root orders. Matching spellings retain caller siblings;
+different spellings in mixed modes retain original paths. Exact receipts are
+in `reports/20261008-model-package-owner-review-changes/sibling-restoration/`.
+Earlier 24-test receipts remain bound to the intermediate helper. Physical
+mixed-volume testing is not claimed. Final integration and acceptance remain.
+
+Decisions waiting for the owner:
+
+- Review trusted package selection with the other changes at the final
+  integrated PR #56 head. The existing feedback permits continued correction.
