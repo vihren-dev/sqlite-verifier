@@ -931,3 +931,11 @@ authorized one Linux diagnostic below. No production change followed it.
   [the hosted record](../reports/20261008-development-replay-hosted-acceptance/README.md).
   All artifact hashes verify. Hosted evidence review and normal delivery
   remain required. T04c is not DONE.
+
+- 2026-10-08: Hosted evidence `627b9cae` has no mandatory review finding.
+  Its one wording suggestion is fixed: the acceptance record identifies
+  the team as its sole audience. The reviewer could not run hash commands;
+  author checks independently verify every stored artifact hash. Required
+  PR checks report successful Linux, macOS schedule and protected-baseline
+  jobs; publication is skipped as expected. No native macOS PR execution
+  is claimed. The correction review and normal delivery remain required.

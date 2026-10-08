@@ -81,11 +81,15 @@
     "original_sha256": "43f309a9967edf281eb3d1148586a80ec4ba8d46e5410a69e6bdb635e9d2c149"
   },
   "summary.json": {
-    "bytes": 1779,
-    "sha256": "77e6d7a673a671d9c7180d1d016b4c6a9920a6ad34531a629b8107818899b0c6"
+    "bytes": 1988,
+    "sha256": "8de89dd0765b7afb13c01a28ace3f0c1c47eb4b4a70513cfdaad0c4f5de79275"
   },
   "ci-tree-comparison.json": {
     "bytes": 907,
     "sha256": "634f559bd9263aa66855ed5871cef7679b74a6262b7b46f1ffaaa9bfb5e0943f"
+  },
+  "required-checks.json": {
+    "bytes": 689,
+    "sha256": "1de24117cf17c137447cc1d206aa6df97aa8cf8af314f36c635a83b64eec475e"
   }
 }

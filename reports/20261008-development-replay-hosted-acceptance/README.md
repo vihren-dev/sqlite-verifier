@@ -1,6 +1,6 @@
 # Hosted development replay acceptance
 
-Created 2026-10-08. Audience: team and reviewers.
+Created 2026-10-08. Audience: team.
 Task: [T04c](../../plans/20261006-development-replay-headroom.task.md).
 
 CI `37743066830` succeeds for reviewed head `d264bba3`. The actual CI
@@ -30,4 +30,6 @@ These correctness results do not replace the standalone timing measurements
 on reviewed source `2006755a`. Their original macOS 10.65-second and Linux
 24.78-second receipts remain separate. No timing rerun is claimed.
 Independent hosted-evidence review and normal delivery remain required.
+The protected approved-baseline check also succeeds. The exact required
+check response is retained; archive publication is skipped for this scope.
 T04c is IN PROGRESS.

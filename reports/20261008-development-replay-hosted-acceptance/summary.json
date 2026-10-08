@@ -60,5 +60,11 @@
   "source_deselected": 99,
   "installed_checks": "not run for the infrastructure scope; no new installed acceptance claimed",
   "actual_ci_merge_source": "4d492b4b8ad9b0acfffc1dcf8e26ea5e9e490ceb",
-  "ci_merge_tree_matches_tested_head": true
+  "ci_merge_tree_matches_tested_head": true,
+  "required_check_states": {
+    "Check (aarch64-darwin)": "SUCCESS",
+    "Check (x86_64-linux)": "SUCCESS",
+    "Protected approved baseline": "SUCCESS",
+    "Publish checked native archives": "SKIPPED"
+  }
 }
