@@ -10,9 +10,11 @@ from pathlib import Path
 from conformance.case_format import Json
 from conformance.model_check import compiled_many
 from conformance.native_record import record_sql
-from conformance.native_replay import decode_rows, prepare, without_trailing_queries
+from conformance.native_bindings import decode_rows
+from conformance.native_replay import prepare, without_trailing_queries
 from conformance.execution_profile import ExecutionProfile, recorded_profile, validate_manifest_profiles
 from conformance.native_storage import expanded_record
+from conformance.native_call_recording import replay_arguments, validate_recording
 
 
 def load(directory: Path) -> tuple[dict[str, Json], list[dict[str, Json]]]:
@@ -25,9 +27,14 @@ def load(directory: Path) -> tuple[dict[str, Json], list[dict[str, Json]]]:
     if hashlib.sha256(payload).hexdigest() != manifest["casesSha256"]:
         raise ValueError("Corpus digest mismatch")
     records = [expanded_record(json.loads(line)) for line in payload.splitlines()]
+    for record in records:
+        validate_recording(record)
     if len(records) != manifest["recordedCases"] or type(manifest["corpusVersion"]) is not int or manifest["corpusVersion"] < 1:
         raise ValueError("Corpus version/count mismatch")
     validate_manifest_profiles(manifest, records)
+    if "files" in manifest and "extractorSha256" in manifest:
+        from conformance.upstream_binding_policy import validate_capture_bindings
+        validate_capture_bindings(manifest, records)
     return manifest, records
 
 
@@ -79,6 +86,7 @@ def native_replay(records: list[dict[str, Json]], *, profile: ExecutionProfile |
                   temporary_root: Path | None = None, fixture_paths: list[Path] | None = None) -> None:
     """Verify frozen observations without rewriting evidence, optionally auditing explicit file storage."""
     for record in records:
+        recording = replay_arguments(record)
         selected_profile = recorded_profile(record) if record["nativeVersion"] == 4 else None
         if profile is not None and selected_profile != profile:
             raise ValueError("Native replay execution profile differs")
@@ -88,9 +96,11 @@ def native_replay(records: list[dict[str, Json]], *, profile: ExecutionProfile |
         fresh = record_sql(record["setupCommands"], record["migrationSql"], name=record["name"],
             outputs=outputs, parameters=parameters, profile=selected_profile,
             setup_clock=record.get("setupClockUnixMilliseconds"), clock_values=clock_values,
-            temporary_root=temporary_root, fixture_paths=fixture_paths)
+            temporary_root=temporary_root, fixture_paths=fixture_paths, **recording)
         if (fresh["initial"], fresh["trace"]) != (record["initial"], record["trace"]):
             raise ValueError(f"Native replay changed: {record['name']}")
+        if recording and fresh["setupBindings"] != record["setupBindings"]:
+            raise ValueError(f"Native replay setup bindings changed: {record['name']}")
 
 
 def main() -> None:

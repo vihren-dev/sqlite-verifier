@@ -1,0 +1,63 @@
+{
+  "parents": [
+    "5518a333df22169956e77796039134b48cb41dea",
+    "6852f6fac316b2f5c177d561ba924e7c73640f9e"
+  ],
+  "mainMetadataExact": {
+    "plans/20261006-hosted-model-timeout.status.md": {
+      "bytes": 10031,
+      "sha256": "813bfc53f953183f410fadde31346b2a3cbdc00e878a1988832f9972aa06c948"
+    },
+    "plans/20261006-hosted-model-timeout.task.md": {
+      "bytes": 2517,
+      "sha256": "7e3965fc55c84899befedefdde19fdbbeaacb718138d51b4c68deea4a8185739"
+    },
+    "reports/20261006-hosted-model-timeout/README.md": {
+      "bytes": 8416,
+      "sha256": "ed1150c414a66279629b69d43caee6d5d0dc2329b1f18a46ad317f26c94b800e"
+    },
+    "reports/20261006-hosted-model-timeout/acceptance/completion.json": {
+      "bytes": 1300,
+      "sha256": "c0c2322e9e40857a1c87486a770f12b547c7306890e25f76ce4fd7ade938bd82"
+    },
+    "reports/20261006-hosted-model-timeout/acceptance/darwin/case-reports.zip": {
+      "bytes": 55797,
+      "sha256": "94566fa260e88e8187b93df42a4acd93ea230c5d1666b29670bbfa2dca4ceb92"
+    },
+    "reports/20261006-hosted-model-timeout/acceptance/darwin/job.log.gz": {
+      "bytes": 64979,
+      "sha256": "46f43847ec083d00e26779ca186d61ecf68dcd69157ce6a5907ccbcc1ebb3d68"
+    },
+    "reports/20261006-hosted-model-timeout/acceptance/darwin/receipt.json": {
+      "bytes": 10604,
+      "sha256": "2f101029b9eeebe97ef5c44c42747b3c0f6d052e3c859fef46bb8d0d45d6aaf7"
+    },
+    "reports/20261006-hosted-model-timeout/acceptance/linux/case-reports.zip": {
+      "bytes": 34608,
+      "sha256": "400d37b971570edc23e054e01aba6c91074af72bc84a28b0b9f34f237a51c723"
+    },
+    "reports/20261006-hosted-model-timeout/acceptance/linux/job.log.gz": {
+      "bytes": 35735,
+      "sha256": "6ebb0b2254230c9bd7ebb214fded8acfa7b4b179dcbbf01337a7f88142bd358a"
+    },
+    "reports/20261006-hosted-model-timeout/acceptance/linux/receipt.json": {
+      "bytes": 9941,
+      "sha256": "88c12c88aa026a0212f59e18bfd12312e7bf3c7bec03a5b0a03bb2816b672399"
+    },
+    "reports/20261006-hosted-model-timeout/acceptance/pr48-darwin-qualified.json": {
+      "bytes": 3699,
+      "sha256": "3daf266f1555744ee4920408478a260129fedfb1b7ba8a4fbc11ed77d3b474cb"
+    }
+  },
+  "journal": {
+    "ownRows": 82,
+    "incomingRows": 57,
+    "mergedExactDistinctRows": 89,
+    "uniqueReviews": 46,
+    "bothFullOrdersPreserved": true,
+    "sha256": "9d211cd596fd2ab14d08a9fa5530bf182d31822ab1e5597b9899d693b020f004"
+  },
+  "ownerRetentionQuestion": "pending; inheriting existing main metadata does not resolve it",
+  "otherCodeChanges": false,
+  "bothNativeAcceptedTargetIdentitiesUnchanged": true
+}

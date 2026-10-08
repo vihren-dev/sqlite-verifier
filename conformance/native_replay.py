@@ -4,7 +4,9 @@ from pathlib import Path
 import subprocess
 
 from conformance.case_format import Json, schema_wire, statement_wire, table_wire
-from conformance.native_connection import Cell, Row, SOURCE_ID
+from conformance.native_connection import SOURCE_ID
+from conformance import native_bindings
+from conformance.native_call_recording import validate_recording
 from conformance.native_metadata import check_inventory, identifier, integer, text
 from conformance.execution_profile import recorded_profile
 from migration_check.diagnostics import Rejection
@@ -13,37 +15,10 @@ from migration_check.sql_tree import parse
 from migration_check.translate import commands, starting_schema, statements
 
 
-def decode_cell(value: Json) -> Cell:
-    """Reject malformed native cell transport rather than coercing its payload."""
-    if value == "null":
-        return 5, None
-    if not isinstance(value, dict) or len(value) != 1:
-        raise ValueError("Invalid native cell")
-    kind, payload = next(iter(value.items()))
-    if not isinstance(payload, dict):
-        raise ValueError("Invalid native cell payload")
-    if kind == "integer" and type(payload.get("value")) is int and -(2**63) <= payload["value"] < 2**63:
-        return 1, payload["value"]
-    if kind == "real" and isinstance(payload.get("bits"), str) and payload["bits"].isdigit():
-        bits = int(payload["bits"])
-        if bits < 2**64:
-            return 2, bits
-    if kind in ("text", "blob") and isinstance(payload.get("bytes"), list):
-        data = payload["bytes"]
-        if all(type(byte) is int and 0 <= byte < 256 for byte in data):
-            return (3 if kind == "text" else 4), bytes(data)
-    raise ValueError("Invalid native cell payload")
-
-
-def decode_rows(rows: list[Json]) -> list[Row]:
-    """Restore typed metadata from the frozen JSON encoding."""
-    return [tuple(decode_cell(cell) for cell in row) for row in rows]
-
-
 def schema_sql(observation: dict[str, Json]) -> str:
     """Retain every SQL-declared object; unsupported ones must reach frontend admission."""
     # SQLite inventories sort indexes before tables; replayable DDL needs the dependencies first.
-    rows = sorted(decode_rows(observation["schema"]), key=lambda row: text(row[0]) != "table")
+    rows = sorted(native_bindings.decode_rows(observation["schema"]), key=lambda row: text(row[0]) != "table")
     return "\n".join(text(row[3]) + ";" for row in rows if row[3][0] != 5)
 
 
@@ -53,8 +28,8 @@ def output_wire(event: dict[str, Json]) -> dict[str, Json]:
     if (not isinstance(columns, list) or any(not isinstance(name, str) for name in columns)
             or type(event["columnCount"]) is not int or event["columnCount"] != len(columns)):
         raise ValueError("Invalid native output shape")
-    rows = decode_rows(event["rows"])
-    decode_rows([event["parameters"]])
+    rows = native_bindings.decode_rows(event["rows"])
+    native_bindings.decode_rows([event["parameters"]])
     if any(len(row) != len(columns) for row in rows):
         raise ValueError("Invalid native output row width")
     changes = event["changes"]
@@ -66,7 +41,7 @@ def output_wire(event: dict[str, Json]) -> dict[str, Json]:
             raise ValueError("Invalid native tie groups")
         position = 0
         for index, group in enumerate(groups):
-            eligible = decode_rows(group["rows"])
+            eligible = native_bindings.decode_rows(group["rows"])
             count = group["count"]
             if 0 < index < len(groups) - 1 and count != len(eligible):
                 raise ValueError("Only boundary tie groups may be partial")
@@ -86,6 +61,7 @@ def output_wire(event: dict[str, Json]) -> dict[str, Json]:
 
 def model_case(record: dict[str, Json], parser: Path) -> dict[str, Json]:
     """Re-translate on every replay, preserving frozen native truth as the model grows."""
+    validate_recording(record)
     if record.get("nativeVersion") not in (1, 2, 3, 4) or record["nativeVersion"] != 4 and record.get("sourceId") != SOURCE_ID:
         raise ValueError("Unsupported native record version or engine identity")
     outputs = [output_wire(event) for event in record["trace"]] if record["nativeVersion"] in (3, 4) else None
@@ -127,11 +103,11 @@ def model_case(record: dict[str, Json], parser: Path) -> dict[str, Json]:
         result: list[Json] = []
         for table in sorted(cache[sql], key=lambda t: t.name):
             native = actual[table.name]
-            check_inventory(table, decode_rows(native["columns"]), [
-                (decode_rows([index["entry"]])[0], decode_rows(index["columns"])) for index in native["indexes"]])
+            check_inventory(table, native_bindings.decode_rows(native["columns"]), [
+                (native_bindings.decode_rows([index["entry"]])[0], native_bindings.decode_rows(index["columns"])) for index in native["indexes"]])
             if native["withoutRowid"] or native["kind"] != "table" or native["rowKey"] not in [["rowid"], ["_rowid_"], ["oid"]]:
                 raise ValueError("Unexpected row identity in admitted table")
-            rows = [(integer(decode_cell(row["identity"][0])), tuple(decode_cell(cell) for cell in row["values"]))
+            rows = [(integer(native_bindings.decode_cell(row["identity"][0])), tuple(native_bindings.decode_cell(cell) for cell in row["values"]))
                     for row in native["rows"]]
             result.append([table.name, table_wire(table, rows)])
         return result

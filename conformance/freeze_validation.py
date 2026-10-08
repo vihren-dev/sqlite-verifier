@@ -8,6 +8,7 @@ from conformance.case_format import Json
 from conformance.corpus_shards import natural, source_path
 from conformance.corpus_acquisition import verify
 from conformance.upstream_profiles import source_profile_policy, tcl_precision_policy
+from conformance.upstream_binding_policy import binding_policy
 from conformance.native_connection import SOURCE_ID
 from conformance.native_storage import serialized
 from conformance.upstream_catalog import CATALOG_VERSION, catalog_patterns, exclusion_policy, family_policy, source_catalog
@@ -36,13 +37,14 @@ def mismatch(reason: str) -> bool:
 def acquisition(report: dict[str, Json], records: list[dict[str, Json]], upstream: Path,
                 root: Path) -> set[tuple[str, str, int]]:
     """Bind exact sources, fixed sampling, completed candidates and the accepted membership."""
-    if (type(report.get("corpusVersion")) is not int or report["corpusVersion"] != 1
+    if (type(report.get("corpusVersion")) is not int or report["corpusVersion"] != 2
             or natural(report.get("recordedCases")) != len(records)
             or type(report.get("sourceCatalogVersion")) is not int or report["sourceCatalogVersion"] != CATALOG_VERSION
             or report.get("sourceCatalog") != source_catalog()
             or serialized(report.get("sourceFamilyPolicy")) != serialized(family_policy())
             or serialized(report.get("sourceExecutionProfilePolicy")) != serialized(source_profile_policy())
             or serialized(report.get("tclDisplayPrecisionPolicy")) != serialized(tcl_precision_policy())
+            or serialized(report.get("tclBindingPolicy")) != serialized(binding_policy())
             or report.get("fileExclusionPolicy") != exclusion_policy()
             or report.get("expressionSamplingPolicy") != sampling_policy(EXPRESSION_COHORTS)
             or report.get("patterns") != list(catalog_patterns())

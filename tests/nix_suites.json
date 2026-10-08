@@ -68,6 +68,10 @@
     "tests/conformance_source_profiles_test.py",
     "tests/conformance_foreign_key_recovery_test.py",
     "tests/conformance_tcl_values_test.py",
+    "tests/conformance_tcl_precision_test.py",
+    "tests/conformance_tcl_bindings_test.py",
+    "tests/conformance_native_bindings_test.py",
+    "tests/conformance_tcl_binding_policy_test.py",
     "tests/test_native_replay_storage.py"
   ]
 }

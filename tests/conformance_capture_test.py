@@ -92,7 +92,8 @@ def test_real_method_aliases_and_untraced_context_refusals(tmp_path: Path) -> No
     assert report["files"][0]["runtimeExit"] == 0, report["files"]
     instances = {item["id"]: item for item in report["files"][0]["instances"]}
     accepted = {"fidelity-helper-abbreviations", "fidelity-method-resolution", "fidelity-reset-clean",
-                "fidelity-close-alias", "fidelity-auxiliary-alias", "fidelity-quoted-binding-text"}
+                "fidelity-close-alias", "fidelity-auxiliary-alias", "fidelity-quoted-binding-text",
+                "fidelity-untraced-prefix-bind", "fidelity-untraced-sql-bind"}
     assert {key for key, item in instances.items() if item["result"] == "recorded"} == accepted
     for name in ("fidelity-function-alias", "fidelity-function-full", "fidelity-nested"):
         assert "application callback: function" in instances[name]["exclusions"]
@@ -101,7 +102,7 @@ def test_real_method_aliases_and_untraced_context_refusals(tmp_path: Path) -> No
     assert "incremental BLOB operation: sqlite3_blob_write" in instances["fidelity-blob-api"]["exclusions"]
     assert "incremental BLOB operation: incrblob" in instances["fidelity-blob-method"]["exclusions"]
     for name in ("fidelity-untraced-prefix-bind", "fidelity-untraced-sql-bind"):
-        assert instances[name]["exclusions"] == ["implicit Tcl parameter binding: $bind_value"]
+        assert instances[name]["exclusions"] == []
     assert "connection command renamed" in instances["fidelity-reset-renamed-live"]["exclusions"]
     _, records = load(output)
     native_replay(records)

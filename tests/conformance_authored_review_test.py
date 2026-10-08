@@ -12,7 +12,7 @@ from conformance.case_format import Json
 from conformance.corpus import load, native_replay
 from conformance.corpus_shards import write
 from conformance.native_connection import Row
-from conformance.native_replay import decode_rows
+from conformance.native_bindings import decode_rows
 from conformance.native_storage import CASE_BYTE_LIMIT, serialized
 
 pytestmark = [pytest.mark.integration, pytest.mark.conformance, pytest.mark.requires_native("sqlite3")]
