@@ -17,7 +17,9 @@ file locks and needs no `ps`. Current-main integration `886de497` preserves
 the six measured production files and delivered transaction code. It passes
 136 bounded tests and 11 actual Nix ownership checks. Integration review
 `20261008T071836Z-886de497` has no findings. Publication and normal delivery
-remain required. No timing rerun is claimed.
+remain required. [Draft PR #59](https://github.com/vihren-dev/sqlite-verifier/pull/59)
+publishes reviewed head `d264bba3`. CI `37743066830` is in progress;
+no hosted pass is claimed. No timing rerun is claimed.
 The original 33.707907737-second Linux miss remains retained on its original
 source. No performance phase is running. T04c is not DONE.
 
@@ -908,3 +910,9 @@ authorized one Linux diagnostic below. No production change followed it.
   and all six measured production bindings. No Lean, frontend or frozen
   corpus file differs from accepted main. The checked change is ready
   for publication; hosted CI and normal delivery remain required.
+
+- 2026-10-08: Publication checkpoint `d264bba3` passes independent review
+  `20261008T072141Z-d264bba3` with no findings. The branch is pushed
+  normally, and draft PR #59 is created at that exact head. The PR is
+  attached to this chat. Hosted CI `37743066830` is confirmed in progress.
+  No hosted pass, normal merge or DONE state is claimed.
