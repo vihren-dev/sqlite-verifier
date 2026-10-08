@@ -347,3 +347,10 @@ Decisions waiting for the owner:
   Independent review and fresh hosted Linux checks remain before merge.
 
   Decisions waiting for the owner: None. The existing approval applies.
+
+- 2026-10-08: Integration commit `faa6a456` passes independent review
+  `20261008T102227Z-faa6a456` with no findings. This publication record
+  preserves the raw review row. Fresh hosted Linux checks remain before
+  the approved normal merge. T17 is not DONE.
+
+  Decisions waiting for the owner: None.
