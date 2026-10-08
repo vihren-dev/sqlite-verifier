@@ -1,0 +1,70 @@
+{
+  "run_id": 37743066830,
+  "tested_head": "d264bba3551f6f37eacb8c283a806fccf8695f90",
+  "linux_job": 113198058841,
+  "linux_conclusion": "success",
+  "macos_job": 113198058624,
+  "macos_execution": "skipped by PR schedule; retained local native records supply acceptance",
+  "native_suites": {
+    "atuin": {
+      "original": "nix-tests-full/junit.xml",
+      "tests": 12,
+      "xml_time_seconds": 170.165
+    },
+    "bundle": {
+      "original": "nix-tests-full-2/junit.xml",
+      "tests": 42,
+      "xml_time_seconds": 374.05
+    },
+    "cli": {
+      "original": "nix-tests-full-3/junit.xml",
+      "tests": 14,
+      "xml_time_seconds": 72.528
+    },
+    "frozen": {
+      "original": "nix-tests-full-4/junit.xml",
+      "tests": 152,
+      "xml_time_seconds": 222.68
+    },
+    "harness": {
+      "original": "nix-tests-full-5/junit.xml",
+      "tests": 135,
+      "xml_time_seconds": 7.851
+    },
+    "kernel": {
+      "original": "nix-tests-full-6/junit.xml",
+      "tests": 28,
+      "xml_time_seconds": 72.018
+    },
+    "model": {
+      "original": "nix-tests-full-7/junit.xml",
+      "tests": 51,
+      "xml_time_seconds": 112.275
+    },
+    "sample": {
+      "original": "nix-tests-full-8/junit.xml",
+      "tests": 22,
+      "xml_time_seconds": 83.688
+    },
+    "upstream": {
+      "original": "nix-tests-full-9/junit.xml",
+      "tests": 76,
+      "xml_time_seconds": 10.107
+    }
+  },
+  "native_total": 532,
+  "nix_infrastructure_tests": 99,
+  "source_passed": 417,
+  "source_skipped": 2,
+  "source_subtests": 35,
+  "source_deselected": 99,
+  "installed_checks": "not run for the infrastructure scope; no new installed acceptance claimed",
+  "actual_ci_merge_source": "4d492b4b8ad9b0acfffc1dcf8e26ea5e9e490ceb",
+  "ci_merge_tree_matches_tested_head": true,
+  "required_check_states": {
+    "Check (aarch64-darwin)": "SUCCESS",
+    "Check (x86_64-linux)": "SUCCESS",
+    "Protected approved baseline": "SUCCESS",
+    "Publish checked native archives": "SKIPPED"
+  }
+}

@@ -1,25 +1,52 @@
 """Bound new native cases and share snapshots without changing their observations."""
 
-from copy import deepcopy
 import hashlib
 import json
+import marshal
 
 from conformance.case_format import Json
 
 CASE_BYTE_LIMIT = 1_000_000
+
+SNAPSHOT_COPY_VERSION = 2
+"""Internal marshal copies exclude object references so each mutable subtree is independent."""
 
 
 class CaseSizeLimit(ValueError):
     """Retain measured exclusion size separately from the human-readable reason."""
 
     def __init__(self, byte_count: int, limit: int) -> None:
+        """Keep both measured integers so process transport can reconstruct the same refusal."""
         self.byte_count = byte_count
+        self.limit = limit
         super().__init__(f"case size limit: {byte_count} bytes exceeds {limit} bytes")
+
+    def __reduce__(self) -> tuple[type["CaseSizeLimit"], tuple[int, int]]:
+        """Preserve the measured size and limit when a loading worker reports this refusal."""
+        return type(self), (self.byte_count, self.limit)
 
 
 def serialized(value: Json) -> bytes:
     """Use deterministic UTF-8 JSON for storage digests and size measurements."""
     return json.dumps(value, ensure_ascii=False, sort_keys=True, separators=(",", ":")).encode()
+
+
+SNAPSHOT_REFERENCE_BASE_BYTES = len(serialized({"snapshot": ""}))
+"""Canonical punctuation and key bytes; plain ASCII alphanumeric digest characters add one byte each."""
+
+
+def _reference_byte_count(reference: dict[str, Json], digest: Json) -> int:
+    """Avoid repeated encoding while bounded expansion measures every snapshot reference.
+
+    The caller supplies the validated reference value. Plain ASCII alphanumeric
+    references have a proven byte count; every other input retains JSON encoding.
+    """
+    if type(reference) is dict and len(reference) == 1:
+        key = next(iter(reference))
+        if (type(key) is str and key == "snapshot" and type(digest) is str
+                and digest.isascii() and digest.isalnum()):
+            return SNAPSHOT_REFERENCE_BASE_BYTES + len(digest)
+    return len(serialized(reference))
 
 
 def check_size(byte_count: int, limit: int = CASE_BYTE_LIMIT) -> None:
@@ -63,21 +90,38 @@ def shared_record(record: dict[str, Json], *, byte_limit: int | None = CASE_BYTE
     return result
 
 
-def expanded_record(value: Json) -> dict[str, Json]:
-    """Verify every digest/reference before restoring independent native observations."""
+def expanded_record(value: Json, *, byte_limit: int | None = None) -> dict[str, Json]:
+    """Verify and independently reconstruct snapshots, optionally bounding exact canonical logical bytes.
+
+    A bounded record counts its reference skeleton plus each validated payload's
+    replacement length. It retains the expanded-size check without serializing
+    repeated reconstructed snapshots. The default primitive remains unbounded.
+    Canonical JSON defines hashes, size and normalization. Internal binary copies
+    reconstruct each occurrence from that normalized JSON without decoding it again.
+    """
     if not isinstance(value, dict):
         raise ValueError("Invalid native record")
     if "snapshotStorageVersion" not in value and "snapshots" not in value:
+        if byte_limit is not None:
+            check_size(len(serialized(value)), byte_limit)
         return value  # Frozen legacy cases keep their observations and size policy.
     if type(value.get("snapshotStorageVersion")) is not int or value["snapshotStorageVersion"] != 1:
         raise ValueError("Unsupported native snapshot storage version")
     snapshots = value.get("snapshots")
     if not isinstance(snapshots, dict):
         raise ValueError("Invalid native snapshot pool")
+    validated_snapshot_json: dict[str, bytes] = {}
+    snapshot_copies: dict[str, bytes] = {}
     for digest, snapshot in snapshots.items():
-        if (not isinstance(snapshot, dict) or set(snapshot) != {"schema", "tables"}
-                or hashlib.sha256(serialized(snapshot)).hexdigest() != digest):
+        if not isinstance(snapshot, dict) or set(snapshot) != {"schema", "tables"}:
             raise ValueError("Native snapshot digest or content differs")
+        payload = serialized(snapshot)
+        if hashlib.sha256(payload).hexdigest() != digest:
+            raise ValueError("Native snapshot digest or content differs")
+        validated_snapshot_json[digest] = payload
+        snapshot_copies[digest] = marshal.dumps(json.loads(payload), SNAPSHOT_COPY_VERSION)
+    result = {key: item for key, item in value.items() if key not in {"snapshotStorageVersion", "snapshots"}}
+    expanded_byte_count = len(serialized(result)) if byte_limit is not None else 0
     used: set[str] = set()
     restored: list[dict[str, Json]] = []
     for observation in observations(value):
@@ -89,10 +133,13 @@ def expanded_record(value: Json) -> dict[str, Json]:
             digest = reference["snapshot"]
             if not isinstance(digest, str) or digest not in snapshots:
                 raise ValueError("Missing native snapshot reference")
-            copied[field] = deepcopy(snapshots[digest])
+            copied[field] = marshal.loads(snapshot_copies[digest])
+            if byte_limit is not None:
+                expanded_byte_count += len(validated_snapshot_json[digest]) - _reference_byte_count(reference, digest)
             used.add(digest)
         restored.append(copied)
     if used != set(snapshots):
         raise ValueError("Native snapshot pool contains unused evidence")
-    result = {key: item for key, item in value.items() if key not in {"snapshotStorageVersion", "snapshots"}}
+    if byte_limit is not None:
+        check_size(expanded_byte_count, byte_limit)
     return {**result, "initial": restored[0], "trace": restored[1:]}

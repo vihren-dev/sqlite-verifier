@@ -1,0 +1,181 @@
+{
+  "main": "c1dea71b189c219d545784e680d9200acd058150",
+  "native_tests": 577,
+  "receipts": [
+    {
+      "suite": "atuin",
+      "output": "/nix/store/ic2ha49169blplb29lyanr7b8rx0jcjl-sqlite-verifier-test-atuin-1",
+      "testsuites": [
+        {
+          "name": "pytest",
+          "errors": "0",
+          "failures": "0",
+          "skipped": "0",
+          "tests": "12",
+          "time": "80.484",
+          "timestamp": "2026-10-08T09:17:01.908637+00:00",
+          "hostname": "tzanko-mbp"
+        }
+      ]
+    },
+    {
+      "suite": "bundle",
+      "output": "/nix/store/596ydg93cwjixb0lqz7jl4bb39w69mr4-sqlite-verifier-test-bundle-1",
+      "testsuites": [
+        {
+          "name": "pytest",
+          "errors": "0",
+          "failures": "0",
+          "skipped": "0",
+          "tests": "44",
+          "time": "266.421",
+          "timestamp": "2026-10-08T09:18:22.875143+00:00",
+          "hostname": "tzanko-mbp"
+        }
+      ]
+    },
+    {
+      "suite": "cli",
+      "output": "/nix/store/7vlvmslai1rd3yqk8m1zcqxg7fwigk2m-sqlite-verifier-test-cli-1",
+      "testsuites": [
+        {
+          "name": "pytest",
+          "errors": "0",
+          "failures": "0",
+          "skipped": "0",
+          "tests": "15",
+          "time": "48.001",
+          "timestamp": "2026-10-08T09:22:49.806731+00:00",
+          "hostname": "tzanko-mbp"
+        }
+      ]
+    },
+    {
+      "suite": "frozen",
+      "output": "/nix/store/f2c8g451ng6j1dryg2rzv9mmvsq2iqkl-sqlite-verifier-test-frozen-1",
+      "testsuites": [
+        {
+          "name": "pytest",
+          "errors": "0",
+          "failures": "0",
+          "skipped": "0",
+          "tests": "152",
+          "time": "266.001",
+          "timestamp": "2026-10-08T10:46:00.430376+00:00",
+          "hostname": "tzanko-mbp"
+        }
+      ]
+    },
+    {
+      "suite": "harness",
+      "output": "/nix/store/8j2ka3mffsvfk06fz1bnpik8yvi8nbzf-sqlite-verifier-test-harness-1",
+      "testsuites": [
+        {
+          "name": "pytest",
+          "errors": "0",
+          "failures": "0",
+          "skipped": "0",
+          "tests": "136",
+          "time": "3.035",
+          "timestamp": "2026-10-08T10:50:27.421374+00:00",
+          "hostname": "tzanko-mbp"
+        }
+      ]
+    },
+    {
+      "suite": "kernel",
+      "output": "/nix/store/r1w2ikdyj5m25pv8fjz8hx4g9ampp0d3-sqlite-verifier-test-kernel-1",
+      "testsuites": [
+        {
+          "name": "pytest",
+          "errors": "0",
+          "failures": "0",
+          "skipped": "0",
+          "tests": "28",
+          "time": "49.016",
+          "timestamp": "2026-10-08T09:24:32.432801+00:00",
+          "hostname": "tzanko-mbp"
+        }
+      ]
+    },
+    {
+      "suite": "model",
+      "output": "/nix/store/qg1d8irsjsk8x93w9igap58klfqka6wz-sqlite-verifier-test-model-1",
+      "testsuites": [
+        {
+          "name": "pytest",
+          "errors": "0",
+          "failures": "0",
+          "skipped": "0",
+          "tests": "51",
+          "time": "63.955",
+          "timestamp": "2026-10-08T10:50:30.925635+00:00",
+          "hostname": "tzanko-mbp"
+        }
+      ]
+    },
+    {
+      "suite": "sample",
+      "output": "/nix/store/jix4jldd1z9mh1s809mwywwv8dpcifsl-sqlite-verifier-test-sample-1",
+      "testsuites": [
+        {
+          "name": "pytest",
+          "errors": "0",
+          "failures": "0",
+          "skipped": "0",
+          "tests": "22",
+          "time": "42.036",
+          "timestamp": "2026-10-08T10:51:35.413505+00:00",
+          "hostname": "tzanko-mbp"
+        }
+      ]
+    },
+    {
+      "suite": "upstream",
+      "output": "/nix/store/3vm16v6w1drmfrq5z0lp3fjsmicgyv86-sqlite-verifier-test-upstream-1",
+      "testsuites": [
+        {
+          "name": "pytest",
+          "errors": "0",
+          "failures": "0",
+          "skipped": "0",
+          "tests": "117",
+          "time": "5.134",
+          "timestamp": "2026-10-08T10:52:17.899215+00:00",
+          "hostname": "tzanko-mbp"
+        }
+      ]
+    },
+    {
+      "suite": "source",
+      "testsuites": [
+        {
+          "name": "pytest",
+          "errors": "0",
+          "failures": "0",
+          "skipped": "0",
+          "tests": "496",
+          "time": "72.471",
+          "timestamp": "2026-10-08T13:44:18.475804+03:00",
+          "hostname": "tzanko-mbp"
+        }
+      ]
+    },
+    {
+      "suite": "nix",
+      "testsuites": [
+        {
+          "name": "pytest",
+          "errors": "0",
+          "failures": "0",
+          "skipped": "0",
+          "tests": "102",
+          "time": "167.225",
+          "timestamp": "2026-10-08T13:52:23.396203+03:00",
+          "hostname": "tzanko-mbp"
+        }
+      ]
+    }
+  ],
+  "standalone_timing_pending": true
+}

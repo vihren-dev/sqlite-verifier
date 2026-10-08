@@ -1,0 +1,128 @@
+{
+  "kind": "runtime-build-readiness-only",
+  "ready": true,
+  "acceptancePerformed": false,
+  "sourceRevision": "c3e8f5186e2865b5cdc0ea5af1a9d0924531752a",
+  "integrationReview": "20261007T094550Z-c3e8f518",
+  "integrationReviewHandle": 58187,
+  "publicationRevision": "9e91e5259885e6f9612f144298674f44e1558bf5",
+  "archive": {
+    "archiveCommand": [
+      "git",
+      "--git-dir=/Users/tzankomatev/work/sqlite-verifier/.git",
+      "archive",
+      "--format=tar",
+      "c3e8f5186e2865b5cdc0ea5af1a9d0924531752a"
+    ],
+    "archiveSha256": "ee3aac147f2390dd28e47f31de7bff56451c08122a7634ecc75102ff994db292",
+    "archiveBytes": 72294400
+  },
+  "sourceEntries": 1113,
+  "platforms": {
+    "darwin": {
+      "handle": 74913,
+      "exitCode": 0,
+      "runtime": "/nix/store/3h1ww180anyrw23dhs7bpzswhkrv2l1s-sqlite-verifier-conformance",
+      "runtimeFiles": 17897,
+      "sourceFiles": 1113,
+      "existedBefore": true,
+      "runtimeBeforeEqualsAfter": true,
+      "sourceInputsBeforeEqualsAfter": true,
+      "captureStart": {
+        "monotonicNs": 40705911183666,
+        "utc": "2026-10-07T09:48:38.031366+00:00"
+      },
+      "buildStart": {
+        "monotonicNs": 40712852589916,
+        "utc": "2026-10-07T09:48:44.972959+00:00"
+      },
+      "buildResult": {
+        "ended": {
+          "monotonicNs": 40713956085875,
+          "utc": "2026-10-07T09:48:46.076463+00:00"
+        },
+        "returncode": 0,
+        "timedOut": false
+      },
+      "buildLimitSeconds": 900,
+      "replayInvocations": 0,
+      "leanVersion": "Lean (version 4.34.1, arm64-apple-darwin24.6.0, commit 5045d0056413266e57c625dcd7c365b10e377c52, Release)\n",
+      "python": {
+        "path": "/nix/store/7xgkr19ify5wzfj8mafjqhywzvsmgqaq-python3-3.14.7-env/bin/python3.14",
+        "sha256": "14bfa4a81a883fee6bfd962d9c0e8a0c4b43b528de58785d648c3ea8dd5a301e",
+        "version": "3.14.7 (main, Aug  5 2026, 10:29:49) [Clang 21.1.8 ]"
+      },
+      "nativeLibraries": {
+        "3.51.0": {
+          "path": "/nix/store/snlk5qqf7gbjk465rrwzxsn14mx3znh0-sqlite-verifier-native-3.51.0/lib/libsqlite3.3.51.0.dylib",
+          "sha256": "f0a5f8a3a2728278700f3dccf2e122b89f3187986af2462b22a8c8bb7229c414"
+        }
+      }
+    },
+    "linux": {
+      "handle": 34344,
+      "exitCode": 0,
+      "runtime": "/nix/store/ixl6nwa1nk8ah8138axkqkgian4a27bc-sqlite-verifier-conformance",
+      "runtimeFiles": 17936,
+      "sourceFiles": 1113,
+      "existedBefore": true,
+      "runtimeBeforeEqualsAfter": true,
+      "sourceInputsBeforeEqualsAfter": true,
+      "captureStart": {
+        "monotonicNs": 426263272418618,
+        "utc": "2026-10-07T09:50:17.672133+00:00"
+      },
+      "buildStart": {
+        "monotonicNs": 426274148562176,
+        "utc": "2026-10-07T09:50:28.548271+00:00"
+      },
+      "buildResult": {
+        "ended": {
+          "monotonicNs": 426274637932332,
+          "utc": "2026-10-07T09:50:29.037646+00:00"
+        },
+        "returncode": 0,
+        "timedOut": false
+      },
+      "buildLimitSeconds": 900,
+      "replayInvocations": 0,
+      "leanVersion": "Lean (version 4.34.1, x86_64-unknown-linux-gnu, commit 5045d0056413266e57c625dcd7c365b10e377c52, Release)\n",
+      "python": {
+        "path": "/nix/store/jm7jvgi26icvnm2c5cx9iliixlvplgrp-python3-3.14.7-env/bin/python3.14",
+        "sha256": "f5cce9ecc914b0c2eee78056c1c816aa02ae4c73c0aaf958eb5e0bb9281f34ea",
+        "version": "3.14.7 (main, Aug  5 2026, 10:29:49) [GCC 15.3.0]"
+      },
+      "nativeLibraries": {
+        "3.51.0": {
+          "path": "/nix/store/af83s1zssaf4sgkjjsqz0hs5sjf5s4lk-sqlite-verifier-native-3.51.0/lib/libsqlite3.so.3.51.0",
+          "sha256": "a8244e2eceb4fde2af23e260dd50958b3986993afcb6b2e9fc8a0541b6558b3e"
+        }
+      }
+    }
+  },
+  "checks": {
+    "changedTests": {
+      "handle": 78291,
+      "passed": 92,
+      "seconds": 11.21,
+      "skipped": 0
+    },
+    "routingTests": {
+      "handle": 72006,
+      "passed": 56,
+      "seconds": 12.77,
+      "deselected": 75,
+      "skipped": 0
+    }
+  },
+  "journal": {
+    "headroomRows": 110,
+    "executorRows": 161,
+    "pendingRows": 1,
+    "mergedRows": 208,
+    "sha256": "136982961119cf707d024ad3fc7593aef70802f85c25434ba865554d6ddddd94",
+    "parentOrdersAndMultiplicitiesRetained": true,
+    "minimumMergedParentRows": 207
+  },
+  "qualification": "Both fresh pinned build invocations reused already existing exact Nix outputs. These receipts are neither acceptance nor performance measurements."
+}

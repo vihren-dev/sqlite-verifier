@@ -3,13 +3,16 @@
 import gzip
 import hashlib
 import json
+from collections.abc import Callable, Iterator
+from concurrent.futures import Executor
 from pathlib import Path
 
 from conformance.case_format import Json
 from conformance.execution_profile import validate_manifest_profiles
 from conformance.native_replay import output_wire
 from conformance.native_call_recording import validate_recording
-from conformance.native_storage import check_size, expanded_record, serialized, shared_record
+from conformance.native_storage import CASE_BYTE_LIMIT, check_size, expanded_record, serialized, shared_record
+from conformance.corpus_workers import validated_shards
 
 FORMATS = {"shardStorageVersion": 1, "caseFormatVersion": 2,
            "nativeVersion": 4, "snapshotStorageVersion": 1}
@@ -78,9 +81,8 @@ def payload_records(payload: bytes, binding: dict[str, Json]) -> list[dict[str, 
             if type(value.get(field)) is not int or value[field] != FORMATS[field]:
                 raise ValueError(f"Unsupported corpus record format: {field}")
         check_size(len(serialized(value)))
-        record = expanded_record(value)
+        record = expanded_record(value, byte_limit=CASE_BYTE_LIMIT)
         validate_recording(record)
-        check_size(len(serialized(record)))
         if not isinstance(record.get("name"), str) or not record["name"]:
             raise ValueError("Invalid corpus case name")
         upstream = record.get("upstream")
@@ -97,19 +99,11 @@ def payload_records(payload: bytes, binding: dict[str, Json]) -> list[dict[str, 
     return result
 
 
-def load(directory: Path, manifest: dict[str, Json]) -> list[dict[str, Json]]:
-    """Verify ordered shards, exact profiles and the combined payload before model replay."""
-    formats(manifest, root=True)
-    natural(manifest.get("corpusVersion"), positive=True)
-    count = natural(manifest.get("recordedCases"))
-    shards = manifest.get("shards")
-    if not isinstance(shards, list) or not shards:
-        raise ValueError("Invalid corpus shards")
+def _payloads(directory: Path, shards: list[Json], update_digest: Callable[[bytes], None]
+              ) -> Iterator[tuple[bytes, dict[str, Json]]]:
+    """Check each source declaration and accumulate its exact payload in manifest order."""
     paths: set[Path] = set()
     identities: set[tuple[str, str]] = set()
-    names: set[str] = set()
-    records: list[dict[str, Json]] = []
-    combined = hashlib.sha256()
     for shard in shards:
         if not isinstance(shard, dict):
             raise ValueError("Invalid corpus shard declaration")
@@ -123,13 +117,27 @@ def load(directory: Path, manifest: dict[str, Json]) -> list[dict[str, Json]]:
             raise ValueError("Duplicate corpus shard path")
         paths.add(path)
         payload = gzip.decompress(path.read_bytes())
-        loaded = payload_records(payload, shard)
+        update_digest(payload)
+        yield payload, shard
+
+
+def load(directory: Path, manifest: dict[str, Json], *, executor: Executor | None = None) -> list[dict[str, Json]]:
+    """Verify all ordered shards and global bindings, with optional caller-owned execution."""
+    formats(manifest, root=True)
+    natural(manifest.get("corpusVersion"), positive=True)
+    count = natural(manifest.get("recordedCases"))
+    shards = manifest.get("shards")
+    if not isinstance(shards, list) or not shards:
+        raise ValueError("Invalid corpus shards")
+    names: set[str] = set()
+    records: list[dict[str, Json]] = []
+    combined = hashlib.sha256()
+    for loaded in validated_shards(_payloads(directory, shards, combined.update), executor):
         for record in loaded:
             if record["name"] in names:
                 raise ValueError("Duplicate corpus case name")
             names.add(record["name"])
         records.extend(loaded)
-        combined.update(payload)
     if len(records) != count or combined.hexdigest() != manifest.get("casesSha256"):
         raise ValueError("Combined corpus count or digest mismatch")
     validate_profiles(manifest, records)

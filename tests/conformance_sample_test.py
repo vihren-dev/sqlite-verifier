@@ -4,13 +4,13 @@ from collections import Counter
 import hashlib
 import json
 from pathlib import Path
-import subprocess
 import sys
 
 import pytest
 
 from conformance import replay_tiers
 from conformance.corpus import load
+from tests.runtime_support import run_command
 
 ROOT = Path(__file__).resolve().parents[1]
 GENERIC = ROOT / "conformance/corpus-v5"
@@ -23,9 +23,9 @@ def test_frozen_cli_replays_every_authored_and_synthetic_case_within_bound(
         tmp_path: Path, runtime_root: Path) -> None:
     """The same command as the development target checks fresh native truth and current model."""
     output = tmp_path / "sample.json"
-    child = subprocess.run([sys.executable, "-m", "conformance.replay_tiers",
+    child = run_command([sys.executable, "-m", "conformance.replay_tiers",
         "--runtime-root", str(runtime_root), "--output", str(output)],
-        cwd=ROOT, capture_output=True, text=True, timeout=replay_tiers.PHASE_LIMIT_SECONDS)
+        cwd=ROOT, timeout=replay_tiers.PHASE_LIMIT_SECONDS)
     assert child.returncode == 0, child.stdout + child.stderr
     result = json.loads(output.read_text())
     manifest, records = load(GENERIC)

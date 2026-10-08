@@ -14,7 +14,23 @@ represented rows out of all 3,500 requirements. Model semantics are unchanged.
 Current v5 uses 184 development cases. Retained direct measurements pass on
 [macOS](../reports/20261002-adr5-review-v5-sample-darwin.json) in 37.21 seconds and
 [Linux](../reports/20261002-adr5-review-v5-sample-linux.json) in 56.58 seconds,
-with identical selected identities and the unchanged 60-second phase bound.
+with identical selected identities under the then-current 60-second phase bound.
+The owner raised the current bound to 120 seconds on 2026-10-06; the separate
+development headroom target remains less than 30 seconds on both platforms.
+The development tier validates independent shards in at most four spawned
+processes, then replays independent native cases in at most four spawned
+processes. The two phases do not overlap. Each case retains its exact SQL, profile, controlled clocks and
+ordinary SQLite files. The serial `corpus.native_replay` primitive remains
+available for full replay and library callers. Supply `--temporary-root PATH`
+to select development fixture storage. The development `report` helper accepts
+the same storage input and an optional `fixture_paths` list for actual paths,
+including failed cases. Worker failures fail the tier in input order; its CLI
+tests stop the entire process group on timeout. Fresh standalone acceptance
+on reviewed source `2006755a` passes in 10.65 seconds on macOS and
+24.78 seconds on Linux, with all 184 native comparisons passing. The
+[original receipts](../reports/20261008-development-replay-parallel-acceptance/README.md)
+retain complete source/runtime bindings and storage conditions. These results
+meet the separate less-than-30-second target; publication remains pending.
 Hosted [CI validation](../plans/20261006-adr5-hosted-validation.md) passes on
 ubuntu-22.04 and macos-14, including the v5 sample and full model/upstream checks.
 
@@ -103,7 +119,8 @@ acceptance and model verdicts. The [Darwin measurement](../reports/20261002-adr5
 records fresh loading, native replay and model classification in 6.27 seconds;
 the [Linux measurement](../reports/20261002-adr5-c7-sample-linux.json) records
 19.70 seconds with identical profiles and selected input identities.
-All 100 cases remain unsupported. The phase has a 60-second deadline.
+All 100 cases remain unsupported. Those historical measurements used a
+60-second phase deadline; the current owner-approved bound is 120 seconds.
 `just test-full`, CI and packaging retain the full model suite. Historical
 corpora and reports remain readable without changing their membership.
 

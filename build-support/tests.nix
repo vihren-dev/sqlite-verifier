@@ -65,14 +65,14 @@ let
     (root + /nix/flake.lock)
     (root + /build-support/conformance-native.nix)
   ] ++ map (name: root + "/conformance/${name}.py") [
-    "model_assertions" "model_cases" "model_check" "replay_tiers"
+    "model_assertions" "model_cases" "model_check" "replay_tiers" "native_workers"
     "execution_profile" "native_acquisition"
     "native_storage"
     "refresh_corpus" "requirement_cases" "requirement_coverage"
     "authored_cases" "authored_cases_queries" "authored_boundaries" "authored_review" "authored_report"
     "authored_transactions" "transaction_evidence"
     "upstream_selection" "upstream_catalog" "upstream_sampling" "upstream_profiles" "upstream_functions" "upstream_result_values"
-    "corpus_shards" "corpus_evidence" "corpus_acquisition" "freeze_corpus" "freeze_validation" "freeze_profiles" "workload" "workload_inputs"
+    "corpus_shards" "corpus_workers" "corpus_evidence" "corpus_acquisition" "freeze_corpus" "freeze_validation" "freeze_profiles" "workload" "workload_inputs"
     "upstream_assertions"
     "native_bindings" "native_call_recording" "native_binding_types" "native_binding_validation"
     "native_observation"
@@ -102,10 +102,11 @@ let
 in {
   sample = suite "sample" {
     inputs = frontend ++ [
+      (root + /tests/native_worker_fixtures.py)
       (root + /conformance/corpus-v5)
       (root + /conformance/synthetic-workload)
     ] ++ map (name: root + "/conformance/${name}.py") [
-      "replay_tiers" "corpus" "corpus_shards" "corpus_evidence" "corpus_acquisition" "case_format"
+      "replay_tiers" "native_workers" "corpus" "corpus_shards" "corpus_workers" "corpus_evidence" "corpus_acquisition" "case_format"
       "workload" "workload_inputs" "execution_profile" "native_replay" "model_check"
       "native_record" "native_observation" "native_acquisition" "native_connection" "native_library" "native_clock" "native_storage"
       "native_probe" "native_ordering" "query_window" "native_metadata" "native_statements"

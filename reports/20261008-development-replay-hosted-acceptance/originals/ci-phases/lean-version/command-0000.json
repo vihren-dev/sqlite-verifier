@@ -1,0 +1,11 @@
+{
+  "command": [
+    "/nix/store/zfjrlz8kda2pxvp8dc4mn1i8hbb5qsys-sqlite-verifier-runtime-1/lean/bin/lean",
+    "--version"
+  ],
+  "returncode": 0,
+  "stdout": "Lean (version 4.34.1, x86_64-unknown-linux-gnu, commit 5045d0056413266e57c625dcd7c365b10e377c52, Release)\n",
+  "stderr": "",
+  "elapsed": 0.052353012999901694,
+  "timed_out": false
+}

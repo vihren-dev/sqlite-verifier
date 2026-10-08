@@ -1,0 +1,50 @@
+{
+  "source_revision": "2006755acdbc5882f3f9adf7d6d3e6924717a85f",
+  "phase_limit_seconds": 120,
+  "target_seconds_exclusive": 30,
+  "complete_performance_acceptance": true,
+  "task_done": false,
+  "model_agreement_claimed": false,
+  "raw_artifacts": 34,
+  "platforms": {
+    "darwin": {
+      "phase_seconds": 10.64997112499259,
+      "outer_seconds": 11.488487166,
+      "start": {
+        "group": 37547,
+        "monotonicNs": 72829343008000,
+        "pid": 37547,
+        "utc": "2026-10-08T06:51:14.664898+00:00"
+      },
+      "end": {
+        "monotonicNs": 72840831495166,
+        "utc": "2026-10-08T06:51:26.153498+00:00"
+      },
+      "fixture_count": 184,
+      "fixtures_cleaned": true,
+      "bindings_unchanged": true,
+      "storage_root": "/Users/tzankomatev/work/sqlite-verifier-headroom/build/20261008-t04c-parallel-acceptance/darwin/native-storage",
+      "storage_device": 16777242
+    },
+    "linux": {
+      "phase_seconds": 24.784056110016536,
+      "outer_seconds": 25.615881044,
+      "start": {
+        "group": 507716,
+        "monotonicNs": 502103795695508,
+        "pid": 507716,
+        "utc": "2026-10-08T06:54:18.195410+00:00"
+      },
+      "end": {
+        "monotonicNs": 502129411576552,
+        "utc": "2026-10-08T06:54:43.811280+00:00"
+      },
+      "fixture_count": 184,
+      "fixtures_cleaned": true,
+      "bindings_unchanged": true,
+      "storage_root": "/var/tmp/sqlite-verifier-t04c-loading.1s65SL/linux/native-storage",
+      "storage_device": 2431
+    }
+  },
+  "linux_evidence_archive_sha256": "2b13c2c9141aaefd1e02b3444deb33730bc5d2170ec8c7951416da8fc48342fb"
+}
