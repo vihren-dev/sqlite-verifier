@@ -253,11 +253,26 @@ grammar is tested without a test change. They cover valid and invalid scripts,
 the resource limits, exact byte spans, and the `RAISE` case that each release
 parses differently.
 
-**Sanitizer job.** A CI job builds the library with AddressSanitizer,
+**Sanitizer job.** The job builds the library with AddressSanitizer,
 LeakSanitizer and UndefinedBehaviorSanitizer. It parses every parser test input
 and every distinct SQL text of every retained corpus, with each grammar. A
 finding fails the job. The executables freed all memory when they exited, but
 the library runs in a long process, so a leak also fails the job.
+
+- **Where.** The job is a separate Nix test target on Linux amd64. On that
+  platform LeakSanitizer is part of AddressSanitizer. The parser code is
+  portable C, so a second platform would double the cost for little gain.
+- **When.** The declared inputs of the target are the parser sources, the
+  grammar generator, the build flags and the retained corpora. CI reuses the
+  result of the target when none of these inputs change, as it does for the
+  other Nix test targets. A change to the model, the Python code or the
+  documentation therefore does not run the job. A change to a corpus runs only
+  the parse step, because the sanitizer build is reused.
+- **Cost.** A prototype measured on macOS arm64 needed 48.8 s to build one
+  grammar with the sanitizers, and 1.9 s to parse the 9,590 distinct corpus
+  texts. The build of `sqlite3.c`, which the tokenizer includes, takes most of
+  the time. With two grammars, a parser change costs about two builds and a
+  few seconds of parsing. CI runners can be slower than the measured machine.
 
 **Load test.** One process loads all grammars on Linux amd64 and macOS arm64,
 and each grammar gives its own result for the `RAISE` case.
