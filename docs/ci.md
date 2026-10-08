@@ -110,7 +110,27 @@ therefore restores the exact store of the earlier push, finds every Nix target
 cached and saves nothing. Other runs restore the newest visible matching store for their platform and pins.
 Pull requests, tags and manual runs do not save caches. Nix, not the GitHub cache
 key, determines which outputs can be reused; changing a declared input creates a
-different test derivation. No extra signing credentials are required.
+different test derivation.
+
+The check job also substitutes from the publicly readable Vihren Attic cache,
+`https://cache.vihren.dev/sqlite-verifier`, trusting only its signing key
+`sqlite-verifier:tbKquH1YWJZFbMzT6Z14DmJ5yeVMnHSYobIDGdkWGis=` in addition to
+cache.nixos.org. Reads need no credentials, so fork pull requests use it too.
+`connect-timeout = 5` and `fallback = true` make an unreachable cache or a failed
+download fall back to a local build; substitution fallback is unrelated to
+`sandbox-fallback`, which stays disabled.
+
+After both native checks of a `main` push or nightly run pass, the
+`publish-nix-store` job restores, per platform, exactly the store that the check
+job saved and uploads its paths with the pinned Attic client; Attic skips paths
+that cache.nixos.org already provides. Only that job uses the `attic-publish`
+environment, which deploys only from `main` and holds `ATTIC_WRITE_TOKEN`; pull
+request, tag and manual jobs never receive the token. The job may fail or reach
+its 60-minute limit without failing the workflow, and it changes no check
+result. A missing saved store uploads nothing. The cache, its token rotation and
+server operation are maintained in the devops repository
+(`docs/vihren-demo/attic-ops.md`). An earlier attempt uploaded inside the check
+job and was rolled back ([record](../plans/20260929-attic-ci.status.md)).
 
 Before the save, `tools/ci_store_gc.py` registers garbage-collector roots for the
 test targets, runtimes, parsers, base API reference (`apiReferenceBase`),
