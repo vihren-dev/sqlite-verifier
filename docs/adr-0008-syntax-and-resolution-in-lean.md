@@ -396,6 +396,97 @@ about 50 lines. It depends only on `propext`, `Classical.choice` and
 - **More places to change.** A new construct needs a `Syntax` constructor, a
   `resolve` case and a semantics case.
 
+## Cleanup after implementation
+
+The new layers replace resolution in Python, the current model statements and
+the column constant. The repository rule for replaced code applies: no
+fallback, alias or legacy path remains. File names in the frontend are the
+names after PR #56, in `belay/sqlite/`.
+
+**Python frontend.** The frontend keeps the mapping to `Syntax`, the refusal of
+unknown syntax, lexical decoding and the table of source positions. It loses
+all work that depends on the schema or on SQLite's value rules:
+
+- In `translate.py`, `schema_syntax.py` and `schema_translate.py`: case
+  folding, the five accepted type names and the affinity mapping, the checks
+  for duplicate, reserved and too many columns, key and index resolution, and
+  `validate_migration`.
+- In `sql_dml.py`: the column positions of INSERT and UPDATE, and the check of
+  the value count.
+- `sql_admission.py`: the checks of value conversion and of the key domain.
+  They become model restrictions in `resolve`.
+- In `sql_values.py`: the conversion of numeric literals. Lexical decoding of
+  strings and blobs stays.
+- In `sql_model.py`: the Python model types `Column`, `Index`, `Table` and
+  `Statement`, their Lean emitters, and `transition`. The frontend emits
+  `Syntax` terms instead.
+- In `structural.py`: the encoding of the current statements and schemas. It
+  encodes `Syntax` in the new format version.
+- The constant 2,000 in each of these files.
+
+**Lean model.**
+
+- `Schema`, `TableSchema` and `TableProperties` with nested indexes, and their
+  lookup functions. The catalog replaces them.
+- `DeclaredType` and `declaredTypeMatches`. The declared type text and the
+  affinity function replace them.
+- `maximumColumns` in `Model.lean`. Validity uses the profile limit.
+- The enumeration `ExecutionProfile`. The profile structure replaces it.
+- The current `Statement` type with names. `Resolved` replaces it.
+- The errors `tableExists`, `missingTable`, `columnExists` and
+  `tooManyColumns` as execution errors. They become prepare errors of
+  `resolve`. The execution semantics keep the failure position.
+- The decoders of the current statements and schemas in the structural codec.
+
+**Generated inputs and gate.** `startSchema`, `nextSchema` as a Python
+computation, and `script` as a list of named statements. The generated inputs
+contain the start catalog, `script` as `Syntax`, `resolved` and the profile.
+
+**Recorder and conformance harness.**
+
+- The forced column limit of 2,000 and its readback check in
+  `native_connection.py`.
+- The comparison of Python statements in `native_replay.model_case`, which
+  aligns native statements with Python translation results.
+- The cross-check of Python schema translation against native metadata in
+  `native_metadata.py`. The comparison of the catalog after each statement
+  replaces it.
+
+**Tests.**
+
+- Tests of resolution decisions in Python: the affinity, default, key, limit
+  and duplicate cases in `test_translation.py`, `test_schema_translation.py`,
+  `test_sql_writes.py` and `schema_generation_test.py`. Each case moves to the
+  specification proofs, to Lean examples of `resolve`, or to the conformance
+  suite. Cases that test only the mapping to `Syntax` stay in Python.
+- The checks in `generated_inputs_test.py` that compare declarations with the
+  Python emitter.
+- Cases that need a table with 2,000 columns, such as the column boundary in
+  `conformance_generation_test.py`. Cases under a profile with a lowered limit
+  replace them.
+
+**Documentation.** The documents that describe the replaced parts change in the
+same work: [conformance format v1](conformance-format-v1.md) for the statement
+encoding, [execution profile](execution-profile.md),
+[data path](data-path.md), [kernel gate](kernel-gate.md),
+[source staging](source-staging.md), [trust boundary](trust-boundary.md),
+[conformance model](conformance-model.md) and
+[conformance generation](conformance-generation.md).
+
+**Kept.** Frozen corpus records and their readers are historical evidence and
+stay. They contain SQL text, not statements, so no reader of the replaced
+statement encoding is necessary for them. Reports, plans and accepted ADRs
+stay as records.
+
+**Checks that the cleanup is complete.**
+
+- No Python module in the frontend imports a catalog or schema type, or
+  contains an affinity rule, a case-folding function or the constant 2,000.
+- No Lean or Python file outside reports, plans and ADRs uses `DeclaredType`,
+  `maximumColumns`, `.sqlite351` or `.sqlite346`.
+- Each removed Python test case of a resolution decision has a named
+  replacement: a proof, a Lean example or a conformance case.
+
 ## Alternatives considered
 
 **Keep resolution in Python.** Rejected. The resolution needed for queries is
