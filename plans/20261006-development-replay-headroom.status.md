@@ -900,3 +900,11 @@ authorized one Linux diagnostic below. No production change followed it.
   console bytes are retained in the integration record. Suite durations
   remain separate from standalone replay timings. No feature changes.
   Final evidence review and normal publication remain required.
+
+- 2026-10-08: Final native evidence `2cb71575` passes independent review
+  `20261008T072053Z-2cb71575` with no findings. The reviewer did not
+  hash the artifacts or decompress the log. Author checks independently
+  verify every manifest SHA-256, the original decompressed log SHA-256
+  and all six measured production bindings. No Lean, frontend or frozen
+  corpus file differs from accepted main. The checked change is ready
+  for publication; hosted CI and normal delivery remain required.
