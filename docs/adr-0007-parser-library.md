@@ -235,10 +235,17 @@ mapped, resolved and executed in the model, and compared with native SQLite.
   disagreement when the statement is in the admitted scope. Outside that scope,
   the mapping refuses the statement as `UNSUPPORTED`, and `UNSUPPORTED` never
   becomes `VERIFIED`.
-- The harness parses every case before it checks the profile. Today the
-  harness rejects the cases of corpus v5 for their profile before it parses
-  them, so they give no parser evidence. With this change, every distinct SQL
-  text of every retained corpus goes through the parser.
+- The harness selects the dialect from the profile that each case records,
+  and parses the case before it checks that the model supports that profile.
+  Today the harness rejects the cases of corpus v5 at that model check, before
+  it parses them, so they give no parser evidence. All cases of the retained
+  corpora record SQLite 3.51.0 with no grammar options, so the library has
+  their dialect. With this change, each of their distinct SQL texts goes
+  through the parser.
+- A case whose recorded profile has no built dialect is not parsed. Its
+  verdict is `MODEL_UNSUPPORTED` with the reason "no parser for this dialect",
+  and the progress report counts these cases separately. It is never a parser
+  rejection, and a parse with another dialect never replaces it.
 
 **Parser tests.** The existing parser tests call the library through the
 binding. They take the grammars and dialects from the metadata, so a new
@@ -296,7 +303,8 @@ library yet.
 **Step 2: the switch.** It starts after PR #56 merges. It adds the binding in
 `belay.sqlite` and the profile resolution helper, changes `parse`, the verifier
 runtime and the conformance harness to use the library, makes the harness
-parse every case before it checks the profile, and removes the executables,
+parse each case with the dialect of its recorded profile before it checks that
+the model supports the profile, and removes the executables,
 their callers and their tests. It updates the runtime packaging,
 the installer tests, the [SQLite syntax boundary](sqlite-parser.md) and the
 [trust boundary](trust-boundary.md).
@@ -383,9 +391,10 @@ Step 2, before the executables are removed:
    without a built dialect. It ignores compile options that are not grammar
    options.
 6. Each supported profile resolves to a built dialect when the library loads.
-7. The conformance pipeline parses every case of every retained corpus,
-   including cases that it rejects later for their profile. No statement that
-   native SQLite ran is rejected by the parser.
+7. The conformance pipeline parses each case of every retained corpus with
+   the dialect of its recorded profile, including cases that the model check
+   rejects later. No statement that native SQLite ran is rejected by the
+   parser. Cases without a built dialect are counted separately.
 8. The installer tests pass with the library.
 9. The time of `parse` over the corpus v5 migrations is measured and
    recorded, before and after.
