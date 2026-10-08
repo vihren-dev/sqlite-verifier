@@ -2,6 +2,12 @@
 
 Status: IN PROGRESS. Created 2026-10-06.
 
+The clean implementation passes both native reference builds at
+`2df58fd1ca2cdfc01a822e5b36602f43140f0809`. Ordinary integration checks,
+hosted artifact acceptance and delivery remain required. The historical
+mixed-source checkpoint `dac12b493dc5b64f5381b8a39fd6ac285b2d5c9b` remains
+separate evidence. See the status file.
+
 ## Outcome
 
 The public Lean library has documentation that Lean checks when it compiles
@@ -18,7 +24,9 @@ The formulas, runtime behavior and verification statuses remain unchanged.
 
 A checked module walkthrough shows how to use the library. CLI help explains
 user knowledge that does not belong to a Lean declaration. The README links
-to the reference and CLI help. The reference builds under Lean 4.34.1 in CI
+to the reference and CLI help. Pull requests build the reference on Linux. Main, tags and nightly builds
+run on both platforms. The complete CI job has a 75-minute limit, and caches
+are saved only on main and nightly runs. The reference builds under Lean 4.34.1 in CI
 from an exact Nix-pinned doc-gen4 and dependency closure. Hosting is not part
 of this task. Documentation dependencies belong to the development and
 reference build, rather than the installed proof runtime.
@@ -69,4 +77,3 @@ sandbox. Source links must identify actual repository paths and revisions.
 The verified upstream doc-gen4 tag `v4.34.1` resolves to commit
 `953c8992d174b4e56955e01e101d46668c68f2bb`. Its own manifest determines the
 dependency revisions; no dependency branch tip is used as a pin.
-

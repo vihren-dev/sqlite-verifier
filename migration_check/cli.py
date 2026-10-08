@@ -15,6 +15,26 @@ from .stage_store import StageStore
 
 __all__ = ["arguments", "main", "read_sql", "verify"]
 
+API_REFERENCE_GUIDE = "https://github.com/vihren-dev/sqlite-verifier/blob/main/docs/api-reference.md"
+"""The public guide connects CLI inputs to the checked Lean library walkthrough."""
+INPUT_HELP: dict[str, str] = {
+    "schema": "Pre-migration schema SQL",
+    "requirements": "Approved Lean logical contract for states, changes, schema, failures and required outcomes",
+    "interpretation": "Approved Lean meaning and admission condition for starting data",
+    "migration": "Candidate migration SQL",
+    "next-interpretation": "Candidate Lean meanings for resulting data and modeled failure states",
+    "proofs": "Candidate Lean proof or refutation of the verification contract",
+    "bundle": "Candidate bundle containing resulting/failure interpretations and proofs",
+}
+"""Explain approved and candidate roles without changing the required input paths."""
+VERIFICATION_SCOPE = (
+    "Check the supplied logical contract for every model-conforming starting\n"
+    "database satisfying the approved admission condition, under the supplied\n"
+    "schema and profile. Proofs also establish that the supplied interpretations\n"
+    "are sound."
+)
+"""A verification claim covers the admitted starting-data domain of the selected model."""
+
 
 class Arguments(argparse.ArgumentParser):
     """Render usage failures using the same diagnostic protocol as later failures."""
@@ -28,23 +48,29 @@ def common_arguments(command: argparse.ArgumentParser, candidate: tuple[str, ...
     """Contract inputs shared by all commands, plus the named candidate inputs."""
     command.add_argument("--profile", required=True, help="Exact SQLite semantic version: 3.51.0 or 3.46.0")
     for name in ("schema", "interpretation", "migration", "requirements", *candidate):
-        command.add_argument("--" + name, required=True, type=Path)
+        command.add_argument("--" + name, required=True, type=Path, help=INPUT_HELP[name])
     command.add_argument("--format", choices=("human", "json"), default="human")
 
 
 def arguments(values: Sequence[str]) -> argparse.Namespace:
     """Expose `verify` and the ADR 0003 data path: `prepare` (agent side) and `verify-bundle`."""
-    parser = Arguments(prog="migration-check", description=__doc__)
+    guide = f"Lean API walkthrough and reference guide:\n{API_REFERENCE_GUIDE}"
+    parser = Arguments(prog="migration-check", description=__doc__, epilog=guide,
+                       formatter_class=argparse.RawDescriptionHelpFormatter)
     commands = parser.add_subparsers(dest="command", required=True, parser_class=Arguments)
-    verify = commands.add_parser("verify", help="Check one migration under approved Lean requirements")
+    verify = commands.add_parser("verify", help="Check one migration under approved Lean requirements",
+        description=VERIFICATION_SCOPE, epilog=guide, formatter_class=argparse.RawDescriptionHelpFormatter)
     common_arguments(verify, ("next-interpretation", "proofs"))
     verify.add_argument("--artifacts", type=Path, help="Create a directory with generated SQL and input hashes")
     verify.add_argument("--approved-baseline", type=Path, help="Require unchanged approved source/dependency hashes")
-    prepare = commands.add_parser("prepare", help="Build the candidate and export a proof bundle (agent side)")
+    prepare = commands.add_parser("prepare", help="Build the candidate and export a proof bundle (agent side)",
+        description="Write a candidate proof bundle for later verification. PREPARED records that the bundle was written.",
+        epilog=guide, formatter_class=argparse.RawDescriptionHelpFormatter)
     common_arguments(prepare, ("next-interpretation", "proofs"))
     prepare.add_argument("--workspace", required=True, type=Path, help="Persistent agent build directory")
     prepare.add_argument("--output", required=True, type=Path, help="Bundle file to write")
-    bundle = commands.add_parser("verify-bundle", help="Check a proof bundle without compiling candidate source")
+    bundle = commands.add_parser("verify-bundle", help="Check a proof bundle without compiling candidate source",
+        description=VERIFICATION_SCOPE, epilog=guide, formatter_class=argparse.RawDescriptionHelpFormatter)
     common_arguments(bundle, ("bundle",))
     bundle.add_argument("--approved-baseline", type=Path, help="Require unchanged approved source/dependency hashes")
     return parser.parse_args(values)

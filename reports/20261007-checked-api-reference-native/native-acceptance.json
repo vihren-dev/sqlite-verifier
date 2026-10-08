@@ -1,0 +1,84 @@
+{
+  "source_revision": "2df58fd1ca2cdfc01a822e5b36602f43140f0809",
+  "source_tree": "374f1bb50c19b81c91f859bda5205a890f30d32d",
+  "scope": "Clean T18b source over reviewed executor 9e91e525; T15 and T07 modules/examples are excluded. Historical mixed-source receipts remain unchanged.",
+  "reference": {
+    "public_modules": 21,
+    "public_declarations": 323,
+    "html_pages": 1167,
+    "local_links": 829618,
+    "corrected_links": 178,
+    "source_revision": "2df58fd1ca2cdfc01a822e5b36602f43140f0809"
+  },
+  "authored_coverage": {
+    "authored": 259,
+    "checked": 259,
+    "ordinary": 0,
+    "missing": 0,
+    "unclassified": 0,
+    "excluded": 942
+  },
+  "lean_version": "4.34.1",
+  "native_outputs": {
+    "aarch64-darwin": {
+      "artifact": "/nix/store/bmmr98hxwh7yx102m8925ii8wai0a7l5-sqlite-verifier-api-reference-2df58fd1ca2c",
+      "exit_code": 0,
+      "successful_retry_session": 49492,
+      "build_phase_seconds": 305,
+      "outer_elapsed_seconds": null,
+      "tracked_entries_unchanged": 968,
+      "regular_files_unchanged": 967,
+      "review_journal_excluded": true,
+      "symlink": {
+        "path": "CLAUDE.md",
+        "target": "AGENTS.md"
+      },
+      "qualification": "Actual retry terminal exit 0 reported by parent; original output retained. Retry UTC and monotonic boundaries were not captured. Original stalled 137 and ambient 127 attempts are retained separately."
+    },
+    "x86_64-linux": {
+      "artifact": "/nix/store/gcvsljvadiy8in9xpbwafs6kayyfk9qk-sqlite-verifier-api-reference-2df58fd1ca2c",
+      "exit_code": 0,
+      "build_phase_seconds": 416,
+      "recipe_elapsed_seconds": 418.351160823,
+      "recipe_started_utc": "2026-10-07T11:07:30.444798+00:00",
+      "recipe_finished_utc": "2026-10-07T11:14:28.795936+00:00",
+      "tracked_entries_unchanged": 969,
+      "regular_files_unchanged": 968,
+      "review_journal_excluded": false,
+      "symlink": {
+        "path": "CLAUDE.md",
+        "target": "AGENTS.md"
+      },
+      "retained_directory": "/var/tmp/sqlite-verifier-t18b-reference.stMbNq",
+      "source_archive_sha256": "53b57e3e54ba2889dab39355b8d54e08af88f363873e861fdb229585edb3cf8f",
+      "capture_helper_sha256": "66146b14c80171ddb5a8e8667af3019c110e9b77c538e30ca601d61008db325a",
+      "archive_and_helper_unchanged": true,
+      "fresh_output": true,
+      "qualification": "Output was invalid before the one build. Exact public tracked archive, executable bits, symlink and all output metadata were checked before/after."
+    }
+  },
+  "pins": "Both output doc-gen4 pin files exactly match the reviewed source and each other. Nix and Lean pins were unchanged.",
+  "upstream_warnings": [
+    "Std.Time.DateTime.weekOfYear",
+    "Std.Time.PlainDateTime.weekday",
+    "Std.Time.PlainDateTime.weekYear",
+    "Std.Time.PlainDateTime.weekOfYear"
+  ],
+  "warning_qualification": "Four upstream equational-lemma heartbeat warnings on each host; generation and link validation passed.",
+  "remaining_acceptance": [
+    "Reviewed deadline/base integration preserving all source and child budgets.",
+    "Relevant ordinary source/development and Nix infrastructure checks on the integrated source.",
+    "Both hosted native reference outputs built and retained from the published reviewed head.",
+    "Normal PR delivery."
+  ],
+  "archives": {
+    "darwin.tar.gz": {
+      "sha256": "a5dcb98feb36e577e9e62f51a883257beadb8874d23e4dd52a5d506623fbf79c",
+      "bytes": 125068
+    },
+    "linux.tar.gz": {
+      "sha256": "bb31f268f7f73c0c2a850a41f644d6f405f18f058aed6b5d9e123abf7025ec86",
+      "bytes": 215895
+    }
+  }
+}
