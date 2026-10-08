@@ -529,3 +529,23 @@ Decisions waiting for the owner:
 
 - Review the case-aware package selection with the other trust changes at
   the final integrated PR #56 head.
+# Held after the second review, 2026-10-08
+
+Review `20261008T104752Z-8e93cb47` has one mandatory finding and one
+recommended finding. The mandatory finding includes a mixed-filesystem
+precedence defect: a case-insensitive candidate root can cause a
+case-sensitive trusted package to be selected for a differently cased import.
+The recommended finding requests a deterministic regression for original-root
+case behavior and alias links. Both findings remain unresolved.
+
+Stopped source changes after two review rounds under the repository rule.
+The 18 passing native macOS checks do not cover this mixed-filesystem case,
+and correction `8e93cb47` is not accepted or published. Full integration and
+delivery remain pending. The owner has been asked for feedback. T07 remains
+paused, and no merge of PR #56 is authorized.
+
+Decisions waiting for the owner:
+
+- Resume correction and regression testing, or hold the package work for
+  owner review after PR #59 is delivered.
+- Review the final integrated PR #56 head before its protected changes merge.
