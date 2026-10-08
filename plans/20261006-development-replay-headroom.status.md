@@ -2,17 +2,24 @@
 
 Status: IN PROGRESS. Created 2026-10-06.
 
-The latest complete Linux replay takes 33.707907737 seconds on reviewed
-production source `c3e8f518`. All 184 selected native comparisons pass and the
-receipt is valid. The target remains below 30 seconds on both platforms.
-The 120-second phase limit remains unchanged.
+Fresh standalone acceptance passes on reviewed source `2006755a`:
+10.649971125 seconds on macOS and 24.784056110 seconds on Linux.
+Both are below the 30-second target under the unchanged 120-second limit.
+All 184 native comparisons pass, fixtures are cleaned, and complete source
+and runtime bindings remain exact before and after each phase. The model
+classifies every selected case unsupported; no supported agreement is claimed.
+[Original receipts](../reports/20261008-development-replay-parallel-acceptance/README.md)
+and the exact retrieved Linux archive are retained. Evidence correction
+`584f4c8e` passes independent review with no findings.
 
-The retained earlier macOS replay takes 21.434975333 seconds on its original
-source. It is not a fresh measurement of the current production source.
-[The latest Linux record](../reports/20261007-development-replay-linux-cap4/README.md)
-retains the target miss. Its corrected validator passes independent review.
-The requested sandbox test fix also passes on both native platforms and
-needs no `ps` command. No performance phase is running. The task is not DONE.
+Both native harness and sample suites pass. The sandbox timeout test uses
+file locks and needs no `ps`. Current-main integration `886de497` preserves
+the six measured production files and delivered transaction code. It passes
+136 bounded tests and 11 actual Nix ownership checks. Integration review
+`20261008T071836Z-886de497` has no findings. Publication and normal delivery
+remain required. No timing rerun is claimed.
+The original 33.707907737-second Linux miss remains retained on its original
+source. No performance phase is running. T04c is not DONE.
 
 Decisions waiting for the owner:
 
@@ -878,3 +885,10 @@ authorized one Linux diagnostic below. No production change followed it.
   No timing rerun is claimed. The six measured production files and all
   delivered transaction files remain unchanged. Integration review and
   publication remain required.
+
+- 2026-10-08: Integration `886de497` passes independent review
+  `20261008T071836Z-886de497` with no findings. Task and status summaries
+  now identify both fresh passing timings, retaining all earlier misses in
+  the progress history. The progress document now describes four workers
+  per phase and links the measured acceptance. All 40 local documentation
+  links resolve, and the receipt validator passes. Publication remains.

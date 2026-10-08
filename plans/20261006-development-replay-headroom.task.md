@@ -7,8 +7,8 @@ Fresh standalone acceptance now passes the strict target on both platforms:
 reviewed loading source `2006755a`. Both retain complete source/runtime
 bindings, original reports, actual fixture paths and the unchanged
 120-second guard in [the new receipt](../reports/20261008-development-replay-parallel-acceptance/README.md).
-Independent evidence review, publication and normal delivery remain
-required. The earlier Linux misses and original macOS results below remain
+Independent evidence review is clean at `584f4c8e`. Integration review,
+publication and normal delivery remain required. The earlier Linux misses and original macOS results below remain
 historical observations. This task is not DONE.
 
 The one-run measurement record is in
