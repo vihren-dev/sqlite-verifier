@@ -301,6 +301,69 @@ their callers and their tests. It updates the runtime packaging,
 the installer tests, the [SQLite syntax boundary](sqlite-parser.md) and the
 [trust boundary](trust-boundary.md).
 
+## Cleanup in step 2
+
+Step 2 removes the executables and every path that uses them. The repository
+rule for replaced code applies: no fallback, alias or legacy path remains.
+
+The cleanup also removes a large part of the test time. On 2026-10-08, seven
+conformance test files started the parser 7,196 times. These starts took
+136.6 s of the 330 s that the files ran. After the cleanup, no test starts a
+parser process.
+
+**Build and runtime.**
+
+- The `sqlite-parser` and `sqlite-parser-3.46.0` executables in
+  `build-support/default.nix`, and their packaging in the runtime.
+- The `just parser` recipe, and the `build/` links to the executables that
+  `just build` and `just parser` make.
+- The command-line part of `parser/main.c`: file reading, the usage message
+  and the exit codes. The parse and output code moves into the library.
+
+**Frontend.**
+
+- In `parse` (`belay/sqlite/sql_tree.py`): the temporary-file snapshot, the
+  process start, the 5-second deadline, the "SQL parser exceeded its time
+  limit" rejection, and the handling of exit codes and output streams.
+- The map from release to executable name in `Runtime.locate`
+  (`migration_check/runtime.py`).
+
+**Conformance harness.** The executable path parameters in `corpus.py`,
+`progress.py`, `replay_tiers.py`, `model_check.py`, `state_machine.py`,
+`measure_native.py`, `measure_coverage.py`, `native_replay.py`,
+`native_trace.py` and `generated_program.py`. The progress report binds the
+digest of the library instead of the digest of the executable.
+
+**Tests.**
+
+- The checks of exit codes in `test_invalid_grammar` and `test_resource_limit`
+  (`tests/parser_test.py`). They become checks of the result status.
+- The timeout part of `test_parser_failure_is_not_subset_exclusion`
+  (`tests/conformance_coverage_test.py`). The part for a broken parser stays.
+- The executable selection in `test_wrong_parser_profile_is_rejected`
+  (`tests/test_translation.py`). The test then checks that a result for
+  another grammar identity is rejected.
+- The executable checks in `test_installed_parser`
+  (`tests/runtime_package_test.py`). The test then checks the installed
+  library.
+- The executable paths in the fixtures of `tests/runtime_fixtures.py` and
+  `tests/source_fixtures.py`.
+- The step 1 comparison of the library with the executables.
+
+**Documentation.**
+
+- [SQLite syntax boundary](sqlite-parser.md): rewritten for the library, its
+  API, the metadata and the dialect table.
+- [Conformance fixtures](conformance-fixtures.md): the references to the
+  executables.
+- [Trust boundary](trust-boundary.md): the parser runs in the verifier process,
+  without a deadline.
+
+**Kept.** Reports and plans that name the executables are historical evidence,
+and accepted ADRs are records. The repository keeps both, as its rule for
+replaced code requires. Old progress reports keep the executable digests that
+they bound.
+
 ## Acceptance evidence
 
 Step 1, before step 2 starts:
@@ -326,6 +389,9 @@ Step 2, before the executables are removed:
 8. The installer tests pass with the library.
 9. The time of `parse` over the corpus v5 migrations is measured and
    recorded, before and after.
+10. No file outside reports, plans and ADRs names the executables. A test run
+    of the conformance files with a process counter starts no parser
+    process.
 
 ## Alternatives considered
 
