@@ -939,3 +939,11 @@ authorized one Linux diagnostic below. No production change followed it.
   PR checks report successful Linux, macOS schedule and protected-baseline
   jobs; publication is skipped as expected. No native macOS PR execution
   is claimed. The correction review and normal delivery remain required.
+
+- 2026-10-08: Hosted evidence correction `2490d87d` passes independent
+  review `20261008T074529Z-2490d87d` with no findings. Author checks
+  verify all artifact hashes and check states. All changes since tested
+  head `d264bba3` are task, review or acceptance records; production,
+  test and build inputs remain unchanged. The branch is ready to publish
+  these records and enter final PR review. Current publication-head CI
+  and normal delivery remain required. T04c is not DONE.
