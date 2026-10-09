@@ -6,8 +6,10 @@ import hashlib
 import json
 import os
 from pathlib import Path
+import sys
 from time import monotonic
 
+from belay.sqlite.parser_library import library_name
 from conformance.case_format import Json
 from conformance.corpus import replay
 from conformance.native_workers import load_development_corpus, replay_native_cases
@@ -94,12 +96,15 @@ def checked_replay(records: list[dict[str, Json]], runtime: Path) -> dict[str, J
 
 
 def runtime_binding(runtime: Path) -> dict[str, Json]:
-    """Require and identify both executable oracles even when every case is unsupported."""
+    """Require and identify the parser library and the model executable, even when every
+    case is unsupported."""
     result: dict[str, Json] = {}
-    for role, relative in (("parser", "build/sqlite-parser"), ("compiledModel", ".lake/build/bin/conformance-runner")):
+    for role, relative in (("parser", f"lib/{library_name(sys.platform)}"),
+                           ("compiledModel", ".lake/build/bin/conformance-runner")):
         path = runtime / relative
-        if not path.is_file() or not os.access(path, os.X_OK):
-            raise ValueError(f"Tier runtime executable is missing or not executable: {relative}")
+        if not path.is_file() or role == "compiledModel" and not os.access(path, os.X_OK):
+            raise ValueError(f"Tier runtime file is missing or not usable: {relative}; build the "
+                             "conformance runtime with just conformance-build")
         result[role] = {"path": relative, "sha256": hashlib.sha256(path.read_bytes()).hexdigest()}
     return result
 

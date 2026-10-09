@@ -21,7 +21,7 @@ from conformance.requirement_coverage import comparison
 ROOT = Path(__file__).resolve().parents[1]
 REPORT = ROOT / "reports/20261001-adr5-c5-authored.json"
 pytestmark = [pytest.mark.integration, pytest.mark.conformance,
-              pytest.mark.requires_native("sqlite3", "sqlite-parser")]
+              pytest.mark.requires_native("sqlite3", "parser-library")]
 
 
 @pytest.fixture(scope="module")

@@ -1,13 +1,15 @@
-"""Read the pinned parser's concrete tree against one immutable SQL byte snapshot."""
+"""Read the pinned parser's concrete syntax tree of an SQL text, in this process.
 
-from dataclasses import dataclass
-import json
-from pathlib import Path
-import subprocess
-from tempfile import TemporaryDirectory
+The parser library holds one grammar for each dialect. Python `bytes` cannot change,
+so the library reads the caller's bytes directly.
+"""
+
 from collections.abc import Iterator
+from dataclasses import dataclass
 
+from .dialects import ProfileIdentity, select_grammar
 from .errors import SqlError
+from .parser_library import ParserLibrary, ParserLibraryError
 
 
 @dataclass(frozen=True)
@@ -51,24 +53,47 @@ class Tree:
                          start=node.start, end=node.end)
 
 
-def parse(parser: Path, sql: bytes, source: str, expected_profile: str = "3.51.0") -> Tree:
-    """Parse a copied snapshot, never a caller-controlled file that may change mid-run."""
-    with TemporaryDirectory(prefix="migration-parse-") as directory:
-        snapshot = Path(directory) / "input.sql"
-        snapshot.write_bytes(sql)
-        try:
-            result = subprocess.run([str(parser), str(snapshot)], capture_output=True,
-                                    text=True, timeout=5)
-        except subprocess.TimeoutExpired as error:
-            raise SqlError("UNVERIFIED", "SQL parser exceeded its time limit", source=source) from error
+class ParserResourceLimit(SqlError):
+    """The SQL text exceeds the parser's input or syntax-tree size limit.
+
+    The parser did not decide whether the text is valid SQL, so the result is unverified.
+    """
+
+    def __init__(self, source: str, offset: int) -> None:
+        """Report the limit at the offset where the parser stopped."""
+        super().__init__("UNVERIFIED", "SQL exceeds the parser's limits of 1 MiB of input and 200,000 "
+                         "syntax-tree nodes; split the SQL into smaller files", source=source, start=offset)
+
+
+@dataclass(frozen=True)
+class SqlParser:
+    """A loaded parser library and the grammar identity of one dialect."""
+
+    library: ParserLibrary
+    grammar: str
+
+    @classmethod
+    def for_profile(cls, library: ParserLibrary, profile: ProfileIdentity) -> "SqlParser":
+        """Select the profile's dialect in the library; refuse a profile without one."""
+        return cls(library, select_grammar(library.metadata, profile))
+
+
+def parse(parser: SqlParser, sql: bytes, source: str) -> Tree:
+    """Parse sql in-process with the parser's grammar and check the syntax tree."""
     try:
-        payload = json.loads(result.stdout)
+        payload = parser.library.parse(parser.grammar, sql)
+    except ParserLibraryError as error:
+        raise SqlError("UNVERIFIED", f"SQL parser failed: {error}", source=source) from error
+    try:
+        if not isinstance(payload, dict):
+            raise ValueError("Parser document is not an object")
+        if payload["status"] == "RESOURCE_LIMIT":
+            raise ParserResourceLimit(source, int(payload.get("offset", 0)))
         if payload["status"] != "PARSED":
-            status = "UNVERIFIED" if payload["status"] == "RESOURCE_LIMIT" else "INPUT_ERROR"
-            raise SqlError(status, str(payload.get("message", "SQL parser rejected input")),
-                            source=source, start=int(payload.get("offset", 0)))
-        if result.returncode != 0 or payload["profile"] != expected_profile:
-            raise ValueError("Parser build/profile mismatch")
+            raise SqlError("INPUT_ERROR", "SQL parser rejected input", source=source,
+                           start=int(payload.get("offset", 0)))
+        if payload["grammar"] != parser.grammar:
+            raise ValueError("Parser result is for another grammar")
         nodes = tuple(Node(item["symbol"], item["start"], item["end"], tuple(item["children"]))
                       for item in payload["nodes"])
         for index, node in enumerate(nodes):

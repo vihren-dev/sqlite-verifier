@@ -7,6 +7,7 @@ from pathlib import Path
 from conformance.model_check import compiled_many
 from conformance.native_bindings import decode_cell
 from conformance.native_trace import Fixture, record
+from conformance.record_parser import default_parser
 
 
 def main() -> None:
@@ -23,7 +24,7 @@ def main() -> None:
         rows = {name: [(row["rowid"], tuple(decode_cell(cell) for cell in row["values"]))
                       for row in table["rows"]] for name, table in case["initial"]}
         fixture = Fixture(case["schemaSql"], case["migrationSql"], rows, "coverage")
-        observed = record(fixture, args.runtime_root.resolve() / "build/sqlite-parser", args.library.resolve(), migration_coverage=True)
+        observed = record(fixture, default_parser(args.runtime_root), args.library.resolve(), migration_coverage=True)
         assert observed["nativeTrace"] == case["nativeTrace"]
         actual.append(observed)
     assert all(result["verdict"] == "AGREE" for result in compiled_many(actual, args.runtime_root.resolve()))

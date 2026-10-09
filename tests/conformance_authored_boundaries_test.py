@@ -13,9 +13,10 @@ from conformance.native_record import record_sql
 from conformance.native_replay import prepare
 from conformance.native_storage import CASE_BYTE_LIMIT, expanded_record, serialized, shared_record
 from conformance.requirement_coverage import resolved_ids
+from conformance.record_parser import runtime_library
 
 pytestmark = [pytest.mark.integration, pytest.mark.conformance,
-              pytest.mark.requires_native("sqlite3", "sqlite-parser")]
+              pytest.mark.requires_native("sqlite3", "parser-library")]
 
 
 @pytest.fixture(scope="module")
@@ -47,7 +48,7 @@ def test_validity_boundaries_are_unsupported_without_profile_gate(runtime_root: 
     for case in validity_definitions():
         record = record_sql(case.setup, case.sql, name=case.name, outputs=True,
             parameters=list(case.parameters) if case.parameters is not None else None)
-        model, answer = prepare(record, runtime_root / "build/sqlite-parser")
+        model, answer = prepare(record, runtime_library(runtime_root))
         assert model is None and answer["verdict"] == "MODEL_UNSUPPORTED", case.name
         if case.name == "validity-rowid-shadow":
             assert "rowid-shadowing names" in answer["error"]

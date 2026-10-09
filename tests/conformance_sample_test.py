@@ -16,7 +16,7 @@ ROOT = Path(__file__).resolve().parents[1]
 GENERIC = ROOT / "conformance/corpus-v5"
 SYNTHETIC = ROOT / "conformance/synthetic-workload"
 pytestmark = [pytest.mark.integration, pytest.mark.conformance,
-              pytest.mark.requires_native("sqlite3", "sqlite-parser")]
+              pytest.mark.requires_native("sqlite3", "parser-library")]
 
 
 def test_frozen_cli_replays_every_authored_and_synthetic_case_within_bound(

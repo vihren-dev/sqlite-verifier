@@ -31,6 +31,28 @@ Relevant files: `belay/sqlite/sql_tree.py`, `belay/sqlite/profiles.py`,
   `profiles.py`; the runtime and the conformance runtime contain the library
   at `lib/`, and `just build` links it. The executables still serve all
   callers. `just test-source` with the built runtime: 498 passed.
+- 2026-10-09: switch. `sql_tree.parse` takes a `SqlParser` (library and
+  grammar); the verifier selects the default dialect of its profile; the
+  harness selects each case's dialect from its recorded profile
+  (`conformance/record_parser.py`) and parses before the model check; the
+  progress and tier reports bind the library's digest; `progress` reports
+  `noParserForDialect` (0 for all retained corpora). Corpus v5 replay:
+  4,376 `MODEL_UNSUPPORTED`, 0 harness errors. One case,
+  `aggorderby:aggorderby-10.1:28`, has a 140 KB migration that exceeds the
+  200,000-node limit; native SQLite refused it too, so a resource limit on a
+  natively refused migration is now `MODEL_UNSUPPORTED`, as a syntax rejection
+  was (`ParserResourceLimit`). `just test-source` with the built runtime: 460
+  passed; all ten Nix suites pass; `tests/test_nix_test_targets.py`: 63
+  passed. The executables are still built, but no caller uses them.
+
+## Measurements (Linux amd64, local, 2026-10-09)
+
+| Step | Executable | Library |
+| --- | --- | --- |
+| `parse` of all 4,376 corpus v5 migrations, through `sql_tree.parse` | 3.69 s | 1.30 s |
+
+The ADR's 18.0 s and 1.8 s were measured on macOS arm64, where a process start
+costs more.
 
 ## Remaining
 

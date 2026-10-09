@@ -9,7 +9,7 @@ from tempfile import TemporaryDirectory
 from belay.sqlite.sql_model import Table
 from belay.sqlite.admission import admit
 from belay.sqlite.errors import SqlError
-from belay.sqlite.sql_tree import parse
+from belay.sqlite.sql_tree import SqlParser, parse
 from belay.sqlite.translate import starting_schema, statements
 from conformance.native_metadata import check_metadata, identifier, integer, quoted, text
 from conformance.case_format import Json, schema_wire, statement_wire, table_wire
@@ -26,19 +26,13 @@ class Fixture:
 
 
 @lru_cache(maxsize=128)
-def parsed_schema(parser: Path, identity: tuple[int, int, int], sql: str) -> tuple[Table, ...]:
-    """Reuse immutable declarations across cases; executable identity prevents stale parser reuse."""
+def read_schema(parser: SqlParser, sql: str) -> tuple[Table, ...]:
+    """Reuse immutable declarations across cases; the key is the exact SQL and the loaded
+    library and grammar, never native observations."""
     return starting_schema(parse(parser, sql.encode(), "conformance-schema.sql"))
 
 
-def read_schema(parser: Path, sql: str) -> tuple[Table, ...]:
-    """Bound caching to exact SQL and the current parser executable, never native observations."""
-    parser = parser.resolve()
-    stat = parser.stat()
-    return parsed_schema(parser, (stat.st_ino, stat.st_size, stat.st_mtime_ns), sql)
-
-
-def snapshot(connection: Connection, parser: Path,
+def snapshot(connection: Connection, parser: SqlParser,
              cache: dict[str, tuple[Table, ...]] | None = None) -> list[Json]:
     """Read all supported objects and chunk wide rows below the fixed result-column limit."""
     metadata = connection.query("SELECT type,name,sql FROM sqlite_schema ORDER BY name;")
@@ -89,7 +83,7 @@ def initialize(connection: Connection, schema: tuple[Table, ...], fixture: Fixtu
             connection.query(f"INSERT INTO {quoted(table.name)}({names}) VALUES({values});", ((1, rowid), *cells))
 
 
-def record(fixture: Fixture, parser: Path, library: Path | None = None, *, migration_coverage: bool = False) -> dict[str, Json]:
+def record(fixture: Fixture, parser: SqlParser, library: Path | None = None, *, migration_coverage: bool = False) -> dict[str, Json]:
     """Acquire real evidence; admission failures are raised before native execution."""
     schema = read_schema(parser, fixture.schema_sql)
     script = statements(parse(parser, fixture.migration_sql.encode(), "migration.sql"))

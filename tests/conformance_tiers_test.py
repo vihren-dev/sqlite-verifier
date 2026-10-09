@@ -2,11 +2,13 @@
 
 from copy import deepcopy
 from pathlib import Path
+import sys
 
 import pytest
 
 from conformance.case_format import Json
 from conformance import replay_tiers
+from belay.sqlite.parser_library import library_name
 
 pytestmark = pytest.mark.conformance
 
@@ -83,14 +85,14 @@ def test_unsupported_stays_explicit(monkeypatch: pytest.MonkeyPatch) -> None:
     assert result["cases"][0]["diagnostics"] == ["profile"]
 
 
-@pytest.mark.parametrize("missing", ["build/sqlite-parser", ".lake/build/bin/conformance-runner"])
+@pytest.mark.parametrize("missing", [f"lib/{library_name(sys.platform)}", ".lake/build/bin/conformance-runner"])
 def test_missing_runtime_fails_even_before_unsupported_replay(tmp_path: Path, missing: str) -> None:
     """A sample cannot pass against an incomplete artifact just because it admits no cases."""
-    for relative in ("build/sqlite-parser", ".lake/build/bin/conformance-runner"):
+    for relative in (f"lib/{library_name(sys.platform)}", ".lake/build/bin/conformance-runner"):
         if relative != missing:
             path = tmp_path / relative
             path.parent.mkdir(parents=True)
             path.write_text("#!/bin/sh\nexit 0\n")
             path.chmod(0o755)
-    with pytest.raises(ValueError, match="Tier runtime executable.*" + missing):
+    with pytest.raises(ValueError, match="Tier runtime file.*" + missing):
         replay_tiers.report(Path("unused-generic"), Path("unused-synthetic"), tmp_path)

@@ -7,7 +7,7 @@ from conformance.case_format import Json, statement_wire
 from conformance.native_trace import Fixture
 from conformance.native_connection import Cell
 from belay.sqlite.sql_model import Affinity, Column, Statement
-from belay.sqlite.sql_tree import parse
+from belay.sqlite.sql_tree import SqlParser, parse
 from belay.sqlite.sql_values import SqlValue
 from belay.sqlite.translate import statements
 
@@ -53,7 +53,7 @@ class Program:
         return Fixture(self.schema, "\n".join(sql for _, sql in self.commands),
                        self.rows, "hypothesis")
 
-    def roundtrip(self, parser: Path) -> None:
+    def roundtrip(self, parser: SqlParser) -> None:
         """Reject parser/renderer disagreement before native comparison can mask it."""
         parsed = statements(parse(parser, self.fixture().migration_sql.encode(), "generated.sql"))
         assert [statement_wire(item) for item in parsed] == [statement_wire(item) for item, _ in self.commands]

@@ -12,6 +12,7 @@ from belay.sqlite.sql_tree import parse
 from belay.sqlite.translate import starting_schema, statements
 from tests.sql_fixtures import RICH_BASELINE
 from tests.runtime_support import CommandResult
+from tests.runtime_fixtures import profile_parser
 
 pytestmark = [pytest.mark.integration, pytest.mark.parser, pytest.mark.requires_native]
 RICH_ASSERTIONS = """
@@ -39,10 +40,9 @@ example : (match Belay.Sqlite.runSql Generated.script Generated.startSchema.empt
 
 def rich_source(runtime: Path, version: str) -> tuple[str, str]:
     """Emit the same rich baseline and nullable ADD from the selected parser release."""
-    filename = "sqlite-parser" if version == "3.51.0" else "sqlite-parser-3.46.0"
-    parser = runtime / "build" / filename
-    schema = starting_schema(parse(parser, RICH_BASELINE.encode(), "baseline.sql", version))
-    script = statements(parse(parser, b"ALTER TABLE events ADD extra TEXT;", "migration.sql", version))
+    parser = profile_parser(runtime, version)
+    schema = starting_schema(parse(parser, RICH_BASELINE.encode(), "baseline.sql"))
+    script = statements(parse(parser, b"ALTER TABLE events ADD extra TEXT;", "migration.sql"))
     return schema_inputs(schema), sql_inputs(schema, script, ExecutionProfile(version))
 
 
@@ -79,14 +79,14 @@ def test_rich_schema_kernel_properties(runtime_root: Path, tmp_path: Path, lean_
 def test_literal_write_kernel_properties(runtime_root: Path, tmp_path: Path, lean_sysroot: Path,
                                         lean_libraries: tuple[Path, Path], command_runner: Callable[..., CommandResult]) -> None:
     """Explicit transaction/literal operations bind the older profile and produce the exact stored integer."""
-    parser = runtime_root / "build/sqlite-parser-3.46.0"
+    parser = profile_parser(runtime_root, "3.46.0")
     schema = starting_schema(parse(parser,
         b"CREATE TABLE ledger(version BIGINT PRIMARY KEY, label TEXT, stamp TIMESTAMP, ok BOOLEAN, data BLOB);",
-        "literal-schema.sql", "3.46.0"))
+        "literal-schema.sql"))
     script = statements(parse(parser,
         b"BEGIN; INSERT INTO ledger(version,label,stamp,ok,data) "
         b"VALUES(7,'shell','2026-09-25 00:00:00',1,X'00ff'); COMMIT; "
-        b"UPDATE ledger SET ok=-1 WHERE version=7;", "literal-writes.sql", "3.46.0"))
+        b"UPDATE ledger SET ok=-1 WHERE version=7;", "literal-writes.sql"))
     sql = sql_inputs(schema, script, ExecutionProfile("3.46.0"))
     check_source(schema_inputs(schema) + sql.removeprefix("import SchemaInputs\n") + LITERAL_ASSERTIONS,
                  tmp_path, lean_sysroot, lean_libraries, command_runner)

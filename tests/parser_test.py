@@ -1,30 +1,41 @@
-"""Independently selectable grammar recognition and source-bound syntax trees."""
+"""Grammar recognition and source-bound syntax trees of each grammar of the parser library.
+
+The tests take the grammars and dialects from the library's metadata, so a new grammar
+is tested without a test change. They parse through the binding in
+`belay/sqlite/parser_library.py`.
+"""
 
 from pathlib import Path
-from tempfile import TemporaryDirectory
+import sys
 
 import pytest
 
+from belay.sqlite.parser_library import ParserLibrary, installed_library, load
 from tests.parser_inputs import INVALID, OVERSIZED, RAISE_EXPRESSION, UNICODE_SPANS, VALID
-from tests.runtime_support import run_command
 
-pytestmark = [pytest.mark.integration, pytest.mark.parser, pytest.mark.requires_native]
-VERSIONS = ("3.51.0", "3.46.0")
+pytestmark = [pytest.mark.integration, pytest.mark.parser, pytest.mark.requires_native("parser-library")]
+RAISE_EXPRESSION_RELEASE = (3, 47, 0)
+"""The first SQLite release that accepts an expression in RAISE."""
 
 
-def parse(sql: bytes, expected: str = "PARSED", *, runtime: Path, version: str) -> dict[str, object]:
-    """Check status, exit, profile and every span using the explicitly selected binary."""
-    name = "sqlite-parser" if version == "3.51.0" else "sqlite-parser-3.46.0"
-    with TemporaryDirectory(prefix="parser-case-") as directory:
-        path = Path(directory) / "input.sql"
-        path.write_bytes(sql)
-        result = run_command([str(runtime / "build" / name), str(path)],
-                             cwd=runtime, timeout=3)
-    value = result.json_object()
-    assert value["status"] == expected, result.diagnostic()
-    assert result.returncode == (0 if expected == "PARSED" else 1), result.diagnostic()
+@pytest.fixture(scope="module")
+def library(runtime_root: Path) -> ParserLibrary:
+    """The runtime's parser library."""
+    return load(installed_library(runtime_root.resolve(), sys.platform))
+
+
+def default_dialects(library: ParserLibrary) -> dict[str, str]:
+    """Return the grammar identity of each release's default dialect, from the metadata."""
+    dialects = library.metadata["dialects"]  # type: ignore[index]
+    return {dialect["version"]: dialect["grammar"] for dialect in dialects if not dialect["grammarOptions"]}
+
+
+def check(library: ParserLibrary, grammar: str, sql: bytes, expected: str = "PARSED") -> dict[str, object]:
+    """Check the status, the grammar and every span of one parse."""
+    value = library.parse(grammar, sql)
+    assert isinstance(value, dict) and value["status"] == expected, (grammar, sql[:200], value)
     if expected == "PARSED":
-        assert value["profile"] == version, value
+        assert value["grammar"] == grammar
         nodes = value["nodes"]
         assert isinstance(nodes, list)
         for node in nodes:
@@ -34,41 +45,41 @@ def parse(sql: bytes, expected: str = "PARSED", *, runtime: Path, version: str) 
     return value
 
 
-@pytest.mark.parametrize("version,sql", [(version, sql) for version in VERSIONS for _, sql in VALID],
-                         ids=[f"{version}-{name}" for version in VERSIONS for name, _ in VALID])
-def test_valid_grammar(version: str, sql: bytes, runtime_root: Path) -> None:
-    """A grammar-family script parses with valid byte spans and the selected release."""
-    parse(sql, runtime=runtime_root, version=version)
+@pytest.mark.parametrize("sql", [sql for _, sql in VALID], ids=[name for name, _ in VALID])
+def test_valid_grammar(sql: bytes, library: ParserLibrary) -> None:
+    """A grammar-family script parses with valid byte spans in every grammar."""
+    for grammar in default_dialects(library).values():
+        check(library, grammar, sql)
 
 
-@pytest.mark.parametrize("version,sql", [(version, sql) for version in VERSIONS for _, sql in INVALID],
-                         ids=[f"{version}-{name}" for version in VERSIONS for name, _ in INVALID])
-def test_invalid_grammar(version: str, sql: bytes, runtime_root: Path) -> None:
-    """Malformed bytes or syntax produce INPUT_ERROR and a nonzero parser exit."""
-    parse(sql, "INPUT_ERROR", runtime=runtime_root, version=version)
+@pytest.mark.parametrize("sql", [sql for _, sql in INVALID], ids=[name for name, _ in INVALID])
+def test_invalid_grammar(sql: bytes, library: ParserLibrary) -> None:
+    """Malformed bytes or syntax give the INPUT_ERROR status in every grammar."""
+    for grammar in default_dialects(library).values():
+        check(library, grammar, sql, "INPUT_ERROR")
 
 
-@pytest.mark.parametrize("version", VERSIONS)
-def test_resource_limit(version: str, runtime_root: Path) -> None:
-    """An oversized SQL file produces the distinct RESOURCE_LIMIT parser result."""
-    parse(OVERSIZED, "RESOURCE_LIMIT", runtime=runtime_root,
-          version=version)
+def test_resource_limit(library: ParserLibrary) -> None:
+    """An oversized SQL text gives the distinct RESOURCE_LIMIT status in every grammar."""
+    for grammar in default_dialects(library).values():
+        check(library, grammar, OVERSIZED, "RESOURCE_LIMIT")
 
 
-@pytest.mark.parametrize("version", VERSIONS)
-def test_deterministic_unicode_spans(version: str, runtime_root: Path) -> None:
-    """Repeated Unicode parsing preserves exact quoted byte spans and all CST output in both releases."""
-    text = UNICODE_SPANS
-    result = parse(text, runtime=runtime_root, version=version)
-    assert result == parse(text, runtime=runtime_root, version=version)
-    nodes = result["nodes"]
-    assert isinstance(nodes, list)
-    quoted = [text[node["start"]:node["end"]] for node in nodes if node["symbol"] == "ID"]
-    assert '"café"'.encode() in quoted and '"💡"'.encode() in quoted, quoted
+def test_deterministic_unicode_spans(library: ParserLibrary) -> None:
+    """Repeated Unicode parsing keeps exact quoted byte spans and the whole tree in every grammar."""
+    for grammar in default_dialects(library).values():
+        result = check(library, grammar, UNICODE_SPANS)
+        assert result == check(library, grammar, UNICODE_SPANS)
+        nodes = result["nodes"]
+        assert isinstance(nodes, list)
+        quoted = [UNICODE_SPANS[node["start"]:node["end"]] for node in nodes if node["symbol"] == "ID"]
+        assert '"café"'.encode() in quoted and '"💡"'.encode() in quoted, quoted
 
 
-
-@pytest.mark.parametrize("version", VERSIONS)
-def test_raise_expression_version_boundary(version: str, runtime_root: Path) -> None:
-    """An expression in RAISE (added after 3.46) parses only in the newer pinned grammar."""
-    parse(RAISE_EXPRESSION, "PARSED" if version == "3.51.0" else "INPUT_ERROR", runtime=runtime_root, version=version)
+def test_raise_expression_version_boundary(library: ParserLibrary) -> None:
+    """An expression in RAISE parses only in the grammars of SQLite 3.47 and later."""
+    dialects = default_dialects(library)
+    assert {"3.51.0", "3.46.0"} <= set(dialects)
+    for version, grammar in dialects.items():
+        accepted = tuple(int(part) for part in version.split(".")) >= RAISE_EXPRESSION_RELEASE
+        check(library, grammar, RAISE_EXPRESSION, "PARSED" if accepted else "INPUT_ERROR")

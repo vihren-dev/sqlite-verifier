@@ -16,6 +16,7 @@ from conformance.native_replay import prepare, without_trailing_queries
 from conformance.execution_profile import ExecutionProfile, recorded_profile, validate_manifest_profiles
 from conformance.native_storage import expanded_record
 from conformance.native_call_recording import replay_arguments, validate_recording
+from conformance.record_parser import NO_PARSER_REASON, runtime_library
 
 
 def load(directory: Path, *, executor: Executor | None = None) -> tuple[dict[str, Json], list[dict[str, Json]]]:
@@ -44,8 +45,9 @@ def replay(records: list[dict[str, Json]], runtime: Path) -> dict[str, Json]:
     cases: list[dict[str, Json]] = []
     positions: list[int] = []
     answers: list[dict[str, Json]] = []
+    library = runtime_library(runtime)
     for position, record in enumerate(records):
-        case, answer = prepare(record, runtime / "build/sqlite-parser")
+        case, answer = prepare(record, library)
         answers.append(answer)
         if case is not None:
             positions.append(position)
@@ -54,13 +56,13 @@ def replay(records: list[dict[str, Json]], runtime: Path) -> dict[str, Json]:
         answers[position] = answer
     query_counts: Counter[str] = Counter()
     for record, answer in zip(records, answers, strict=True):
-        if answer["verdict"] != "MODEL_UNSUPPORTED":
+        if answer["verdict"] != "MODEL_UNSUPPORTED" or answer.get("reason") == NO_PARSER_REASON:
             continue
-        projection = without_trailing_queries(record, runtime / "build/sqlite-parser")
+        projection = without_trailing_queries(record, library)
         if projection is None:
             query_counts["OTHER_UNSUPPORTED"] += 1
             continue
-        case, prefix_answer = prepare(projection, runtime / "build/sqlite-parser")
+        case, prefix_answer = prepare(projection, library)
         if case is not None:
             prefix_answer = compiled_many([case], runtime)[0]
         category = "PREFIX_" + prefix_answer["verdict"]
@@ -79,6 +81,7 @@ def replay(records: list[dict[str, Json]], runtime: Path) -> dict[str, Json]:
             requirements[requirement][verdict] += 1
         details.append({"name": record["name"], **answer})
     return {"queryDiagnostics": dict(query_counts), "counts": dict(Counter(answer["verdict"] for answer in answers)),
+            "noParserForDialect": sum(answer.get("reason") == NO_PARSER_REASON for answer in answers),
             "byArea": {key: dict(value) for key, value in sorted(areas.items())},
             "byRequirement": {key: dict(value) for key, value in sorted(requirements.items())}, "cases": details}
 

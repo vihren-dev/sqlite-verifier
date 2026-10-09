@@ -8,6 +8,7 @@ import pytest
 from conformance.case_format import Json
 from conformance.progress import progress
 from conformance.requirement_coverage import comparison, credited_upstream, resolved_ids
+from conformance.progress import RUNTIME_FILES
 
 pytestmark = [pytest.mark.unit, pytest.mark.conformance]
 FIRST = "R-00001-00002-00003"
@@ -109,8 +110,7 @@ def test_progress_uses_per_case_verdicts(inventory: dict[str, Json], tmp_path: P
     monkeypatch.setattr("conformance.progress.replay", replayed)
     requirements = tmp_path / "requirements.json"
     requirements.write_text(json.dumps(inventory))
-    for relative in ("build/sqlite-parser", ".lake/build/bin/conformance-runner",
-                     "manifest.json", "cases.jsonl.gz"):
+    for relative in (*RUNTIME_FILES, "manifest.json", "cases.jsonl.gz"):
         path = tmp_path / relative
         path.parent.mkdir(parents=True, exist_ok=True)
         path.write_bytes(b"aggregation fixture")

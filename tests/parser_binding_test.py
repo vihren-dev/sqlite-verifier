@@ -15,6 +15,7 @@ from belay.sqlite.dialects import ProfileIdentity, select_grammar
 from belay.sqlite.parser_library import ParserLibrary, ParserLibraryError, check_metadata, installed_library, load
 from belay.sqlite.profiles import SUPPORTED_PROFILES
 from tests.parser_inputs import OVERSIZED, RAISE_EXPRESSION
+from tests.runtime_fixtures import runtime_parser_library
 
 pytestmark = [pytest.mark.integration, pytest.mark.parser, pytest.mark.requires_native]
 
@@ -72,3 +73,8 @@ def test_calls_from_several_threads_give_the_serial_results(library: ParserLibra
     serial = [library.parse(identity, text) for text in texts]
     with ThreadPoolExecutor(8) as pool:
         assert list(pool.map(lambda text: library.parse(identity, text), texts)) == serial
+
+
+def test_fixture_and_binding_agree_on_the_installed_path(runtime_root: Path) -> None:
+    """The test plugin's copy of the installed location equals the binding's."""
+    assert runtime_parser_library(runtime_root) == installed_library(runtime_root, sys.platform)

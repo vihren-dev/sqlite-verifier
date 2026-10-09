@@ -4,8 +4,13 @@ from dataclasses import dataclass
 import os
 from pathlib import Path
 import subprocess
+import sys
 from typing import Final
 
+from belay.sqlite.dialects import ProfileIdentity
+from belay.sqlite.parser_library import ParserLibraryError, installed_library, load
+from belay.sqlite.profiles import ExecutionProfile
+from belay.sqlite.sql_tree import SqlParser
 from .diagnostics import Rejection
 
 
@@ -15,13 +20,14 @@ PINNED_LEAN_VERSION: Final[str] = "4.34.1"
 
 @dataclass(frozen=True)
 class Runtime:
-    """Pinned library, parser, and checker paths owned by the verifier installation."""
+    """Pinned library, parser library, and checker paths owned by the verifier installation."""
 
     root: Path
     sysroot: Path
     libraries: tuple[Path, Path]
     """Installed application and model artifacts, in resolver and gate precedence order."""
-    parser: Path
+    parser_library: Path
+    """The installed SQLite parser library, which the verifier loads into its own process."""
     checker: Path
 
     @property
@@ -34,12 +40,17 @@ class Runtime:
         """Repository exporter used by `prepare` with the checker's explicit trusted imports."""
         return self.root / ".lake/build/bin/migration-proof-exporter"
 
+    def sql_parser(self, profile: ExecutionProfile) -> SqlParser:
+        """Load the installed parser library and select the default dialect of the profile's release."""
+        try:
+            return SqlParser.for_profile(load(self.parser_library),
+                                         ProfileIdentity(profile.engine, profile.source_id))
+        except ParserLibraryError as error:
+            raise Rejection("INPUT_ERROR", str(error)) from error
+
     @classmethod
-    def locate(cls, sqlite_version: str = "3.51.0") -> "Runtime":
+    def locate(cls) -> "Runtime":
         """Resolve a development/install runtime, never a candidate Lake configuration."""
-        parsers = {"3.51.0": "sqlite-parser", "3.46.0": "sqlite-parser-3.46.0"}
-        if sqlite_version not in parsers:
-            raise Rejection("UNSUPPORTED", f"No installed parser for SQLite {sqlite_version}")
         root = Path(__file__).resolve().parent.parent
         configured = os.environ.get("MIGRATION_CHECK_LEAN_SYSROOT")
         if configured:
@@ -61,9 +72,10 @@ class Runtime:
                 f"MIGRATION_CHECK_LEAN_SYSROOT to a Lean {PINNED_LEAN_VERSION} installation.",
             )
         runtime = cls(root, sysroot, (root / ".lake/build/lib/lean",
-                      root / "packages/belay-sqlite/.lake/build/lib/lean"), root / "build" / parsers[sqlite_version],
+                      root / "packages/belay-sqlite/.lake/build/lib/lean"), installed_library(root, sys.platform),
                       root / ".lake/build/bin/migration-proof-checker")
-        if not all(path.is_dir() for path in runtime.libraries) or not runtime.parser.is_file() or not runtime.checker.is_file():
+        if (not all(path.is_dir() for path in runtime.libraries) or not runtime.parser_library.is_file()
+                or not runtime.checker.is_file()):
             raise Rejection("INPUT_ERROR", "Verifier runtime is incomplete; run just build or reinstall")
         validate_libraries(sysroot, runtime.libraries)
         return runtime

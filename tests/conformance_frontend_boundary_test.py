@@ -8,12 +8,13 @@ import sys
 
 import pytest
 
+from belay.sqlite.parser_library import installed_library
 from tests.runtime_support import run_command
 
 ROOT = Path(__file__).resolve().parents[1]
 FRONTEND = ROOT / 'belay/sqlite'
 pytestmark = [pytest.mark.integration, pytest.mark.conformance,
-              pytest.mark.requires_native('sqlite-parser')]
+              pytest.mark.requires_native('parser-library')]
 
 
 def test_namespace_and_independent_imports() -> None:
@@ -38,11 +39,13 @@ sys.path.insert(0, sys.argv[1])
 from belay.sqlite.admission import admit
 from belay.sqlite.errors import SqlError
 from belay.sqlite.profiles import profile
-from belay.sqlite.sql_tree import parse
+from belay.sqlite.dialects import ProfileIdentity
+from belay.sqlite.parser_library import load
+from belay.sqlite.sql_tree import SqlParser, parse
 from belay.sqlite.structural import generated_inputs_wire, schema_wire
 from belay.sqlite.translate import starting_schema, statements
-parser = Path(sys.argv[2])
 selected = profile('3.51.0')
+parser = SqlParser.for_profile(load(Path(sys.argv[2])), ProfileIdentity(selected.engine, selected.source_id))
 schema = starting_schema(parse(parser, b'CREATE TABLE t(k BIGINT PRIMARY KEY NOT NULL,x TEXT);'
     b'CREATE INDEX second ON t(x); CREATE INDEX first ON t(k);', 'schema.sql'))
 script = statements(parse(parser, "UPDATE t SET x='é' WHERE k=1;".encode(), 'update.sql'))
@@ -64,7 +67,7 @@ assert not any(name.startswith('migration_check') for name in sys.modules)
 print(json.dumps(record))
 '''
     result = run_command([sys.executable, '-I', '-c', source, str(tmp_path),
-                          str(runtime_root / 'build/sqlite-parser')],
+                          str(installed_library(runtime_root.resolve(), sys.platform))],
                          cwd=tmp_path, timeout=30)
     assert result.returncode == 0, result.diagnostic()
     assert json.loads(result.stdout)['version'] == 1

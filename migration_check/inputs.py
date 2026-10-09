@@ -44,10 +44,10 @@ class GeneratedInputs:
 def generated_inputs(options: argparse.Namespace) -> GeneratedInputs:
     """Parse schema and migration with the pinned frontend and emit the generated inputs."""
     selected = profile(options.profile)
-    runtime = Runtime.locate(selected.engine)
+    parser = Runtime.locate().sql_parser(selected)
     schema_bytes, migration_bytes = read_sql(options.schema), read_sql(options.migration)
-    schema = starting_schema(parse(runtime.parser, schema_bytes, str(options.schema), selected.engine))
-    script = statements(parse(runtime.parser, migration_bytes, str(options.migration), selected.engine))
+    schema = starting_schema(parse(parser, schema_bytes, str(options.schema)))
+    script = statements(parse(parser, migration_bytes, str(options.migration)))
     if not script:
         raise Rejection("INPUT_ERROR", "Migration must contain at least one statement", source=str(options.migration))
     schema_hash = hashlib.sha256(schema_bytes).hexdigest()

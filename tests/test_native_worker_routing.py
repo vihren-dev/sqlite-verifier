@@ -15,7 +15,7 @@ from conformance.native_storage import serialized
 from tests.test_native_workers import clock_cases
 
 pytestmark = [pytest.mark.integration, pytest.mark.conformance,
-              pytest.mark.requires_native("sqlite3", "sqlite-parser")]
+              pytest.mark.requires_native("sqlite3", "parser-library")]
 
 
 def test_cli_and_report_forward_real_storage_and_fixture_paths(
