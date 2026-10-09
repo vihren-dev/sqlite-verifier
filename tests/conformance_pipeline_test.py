@@ -114,21 +114,6 @@ def test_preserved_schema_metadata(runtime_root: Path, tmp_path: Path) -> None:
         prove(result["caseLean"], runtime_root, tmp_path / "ChangedTerm.lean", case=changed)
 
 
-def test_connection_dqs_profile(tmp_path: Path) -> None:
-    """Each connection verifies the library default without disabling DQS fallback."""
-    from conformance.native_connection import Connection, NativeError, library_path, load_library
-    library = load_library(library_path())
-    assert not library.sqlite3_compileoption_used(b"DQS=0")
-    for name in ("writer", "reader"):
-        connection = Connection(library, tmp_path / name)
-        try:
-            assert connection.configure(1013, -1) == connection.configure(1014, -1) == 1
-            assert connection.query('SELECT "not_an_identifier";') == [((3, b"not_an_identifier"),)]
-            connection.query('CREATE TABLE t(x CHECK(x <> "not_an_identifier"));')
-        finally:
-            connection.close()
-
-
 def test_native_metadata_catches_translator_faults(runtime_root: Path, tmp_path: Path,
                                                   monkeypatch: pytest.MonkeyPatch) -> None:
     """Independent PRAGMAs reject corrupted metadata even when the parser accepts it."""

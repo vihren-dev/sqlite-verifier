@@ -1,4 +1,4 @@
-"""Check pinned tool identities and native schema behavior as independent cases."""
+"""Check the identity of each pinned tool as an independent case."""
 
 from pathlib import Path
 import subprocess

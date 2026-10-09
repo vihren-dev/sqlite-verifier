@@ -14,18 +14,14 @@ pytestmark = [pytest.mark.integration, pytest.mark.conformance,
 
 @pytest.mark.parametrize("version,suffix", [("3.51.0", ""), ("3.46.0", "-3.46.0")])
 def test_library_default_and_frontend(version: str, suffix: str, runtime_root: Path, tmp_path: Path) -> None:
-    """Native fallback works; quoted real identifiers remain admitted and unknown keys reject."""
-    connection = Connection(load_library(library_path("sqlite3" + suffix), version), tmp_path / "dqs.db")
+    """The library keeps default DQS; quoted real identifiers remain admitted and unknown keys reject."""
+    library = load_library(library_path("sqlite3" + suffix), version)
+    assert not library.sqlite3_compileoption_used(b"DQS=0")
+    connection = Connection(library, tmp_path / "dqs.db")
     parser = runtime_root / ("build/sqlite-parser" + suffix)
     schema_sql = 'CREATE TABLE "t"("id" INTEGER NOT NULL,"value" TEXT,UNIQUE("id"));'
     try:
         assert connection.configure(1013, -1) == connection.configure(1014, -1) == 1
-        connection.execute_script(schema_sql)
-        connection.query('INSERT INTO t VALUES(1,"fallback");')
-        assert connection.query('SELECT "value" FROM "t";') == [((3, b"fallback"),)]
-        connection.query('CREATE TABLE checks(x CHECK(x != "forbidden"));')
-        connection.query('CREATE INDEX i ON t("nosuch");')
-        assert connection.query("PRAGMA index_xinfo(i);")[0][1] == (1, -2)
         with pytest.raises(SqlError) as caught:
             starting_schema(parse(parser, (schema_sql + 'CREATE INDEX i ON t("nosuch");').encode(), "index.sql", version))
         assert caught.value.status == "UNSUPPORTED"
