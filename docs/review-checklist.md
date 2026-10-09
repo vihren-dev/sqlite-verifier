@@ -102,6 +102,16 @@ complete type hints and no `Any`.
 behavior (README, `docs/`, CLI help) changes in the same commit.
 *Applies to:* all files.
 
+**R15. Tests target our code.** A new or changed test or build check says in
+its docstring which code of this repository, or which named assumption about a
+dependency, it checks. It does not check a dependency's own behavior. A check
+of a dependency assumption runs when that dependency's pin changes, unless our
+results depend on it at every change. A workaround for a dependency bug names
+the upstream report. See "Testing" in `AGENTS.md`.
+*Example of a violation:* a build check that validates every link on the pages
+that a documentation generator writes for Lean's own libraries.
+*Applies to:* `tests/*`, `tools/*`, `build-support/*`.
+
 ## Output format
 
 Write one line per finding, and nothing else in these lines:
