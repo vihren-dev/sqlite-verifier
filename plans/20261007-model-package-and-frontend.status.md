@@ -43,6 +43,13 @@ feature and its fixtures. The protected-baseline owner gate no longer applies.
 Independent review `20261009T113944Z-34c65a7a` has no findings. The live
 ruleset requires only `Check (x86_64-linux)` and `Check (aarch64-darwin)`.
 
+The integration of main had restored the examples and demonstrations to the
+production root `SqliteVerifier.lean`, and an earlier fix changed only the
+Lake comment. ADR 0006 classifies them as test code, and the task requires
+that production library imports exclude them. The owner chose the ADR design:
+the root no longer imports them, the checked walkthrough moved to the
+`Demonstration` module, and `EngineeringExamples` remains a separate target.
+
 The accepted ADR was delivered through
 [PR44](https://github.com/vihren-dev/sqlite-verifier/pull/44), normal merge
 `b91e5cb5b3e145bc9713cc5e2b88bd502aa9ad0a`. The approved exporter in

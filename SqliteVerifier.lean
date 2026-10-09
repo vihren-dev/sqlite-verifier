@@ -1,16 +1,9 @@
 import Belay.Sqlite
 import SqliteVerifier.Contract
 import SqliteVerifier.Library
-import SqliteVerifier.Examples
-import SqliteVerifier.Demonstration
-import SqliteVerifier.ReverseDemonstration
-import SqliteVerifier.FailureDemonstration
-import SqliteVerifier.SchemaExamples
-import SqliteVerifier.SqlExamples
 import SqliteVerifier.NullableProjection
 import SqliteVerifier.ApplicationKeys
 import SqliteVerifier.ApplicationKeyPreservation
-import SqliteVerifier.ApplicationKeyDemonstration
 
 set_option doc.verso true
 
@@ -49,16 +42,8 @@ users prove those outcome obligations from the computed SQL result while
 retaining the universal support premise. {name}`Belay.Sqlite.SchemaOnly`
 guards the current schema-extension preservation laws.
 
-The complete engineering example adds a nullable invoice note and creates an
-audit table. Its theorem covers arbitrary admitted stored invoice data:
-
-```lean
-open Belay.Sqlite SqliteVerifier
-example : VerificationConditions Demonstration.startSchema Demonstration.nextSchema
-    Demonstration.script (fun _ => True) Demonstration.requirements
-    Demonstration.current Demonstration.next unreachableFailures :=
-  Demonstration.migrationCorrect
-```
+Engineering examples and demonstrations are test code in the separate
+`EngineeringExamples` library. This module does not import them.
 
 For command-line verification, supply approved schema, requirements and current
 interpretation files, plus candidate SQL, next interpretation and proof files.
