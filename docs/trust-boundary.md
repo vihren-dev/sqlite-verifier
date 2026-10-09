@@ -24,6 +24,13 @@ verifier process and its result channel. It provides no OS sandbox, network
 restriction or filesystem containment. Kernel replay rejects invalid proofs but
 does not protect a checker environment that executable source can modify.
 
+The SQL parser is trusted code: SQLite's own tokenizer and Lemon grammar, with
+generated tree-building actions (see [SQLite syntax boundary](sqlite-parser.md)).
+It runs inside the verifier process, without a deadline. The input and node
+limits bound a parse, but a fault in the parser stops the verifier, and a memory
+fault can change verifier data without a visible crash. The sanitizer job in
+`tests.parserLibrary` checks the parser for memory faults and leaks.
+
 [Source staging](source-staging.md) snapshots reachable imports, separates approved
 and candidate module search paths, and generates SQL inputs independently. These
 are logical compilation boundaries, not OS access controls. Processes use explicit

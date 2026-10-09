@@ -16,21 +16,6 @@ from tests.runtime_support import CommandResult
 pytestmark = [pytest.mark.integration, pytest.mark.conformance]
 
 
-@pytest.mark.parser
-@pytest.mark.requires_native
-@pytest.mark.parametrize("version", ["3.51.0", "3.46.0"])
-def test_grammar_inventory(version: str, runtime_root: Path,
-                           command_runner: Callable[..., CommandResult]) -> None:
-    """The pinned upstream default grammar and generated syntax have equal positive production counts."""
-    directory = "parser" if version == "3.51.0" else "parser-3.46.0"
-    upstream = "upstream" if version == "3.51.0" else "upstream-3.46.0"
-    result = command_runner([str(runtime_root / "build" / directory / "lemon"), "-g",
-                             str(ROOT / "parser" / upstream / "parse.y")], cwd=ROOT, timeout=5)
-    assert result.returncode == 0, result.diagnostic()
-    generated = sum("::=" in line for line in (runtime_root / "build" / directory / "syntax.y").read_text().splitlines())
-    assert generated > 0 and generated == sum("::=" in line for line in result.stdout.splitlines())
-
-
 @pytest.mark.kernel
 @pytest.mark.requires_lean
 def test_named_proofs(lean_sysroot: Path, lean_libraries: tuple[Path, Path], tmp_path: Path,

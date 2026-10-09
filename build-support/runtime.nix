@@ -1,5 +1,5 @@
 # Assemble immutable runtime artifacts for trusted source execution.
-{ pkgs, sources, leanToolchain, parsers, parserLibrary, leanRuntime, modelPackage }:
+{ pkgs, sources, leanToolchain, parserLibrary, leanRuntime, modelPackage }:
 let
   python = pkgs.python3;
   runtimePath = pkgs.lib.makeBinPath [ python ];
@@ -16,7 +16,6 @@ in pkgs.stdenv.mkDerivation {
     mkdir -p "$out"
     cp -R . "$out/"
     cp -R ${sources.lean}/. "$out/"
-    cp -R ${parsers}/build "$out/"
     mkdir -p "$out/lib"
     cp ${parserLibrary}/lib/* "$out/lib/"
     cp -R ${leanRuntime}/.lake "$out/"

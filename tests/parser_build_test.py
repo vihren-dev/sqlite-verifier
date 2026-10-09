@@ -14,7 +14,7 @@ def test_generator_preserves_rules_and_rejects_mismatched_tokens(tmp_path: Path)
     header = "#define TK_ID 1\n#define TK_PLUS 2\n"
     grammar = "input ::= expr.\nexpr ::= ID PLUS ID. [PLUS]\n"
     target = tmp_path / "syntax.y"
-    generate("%left PLUS.\n", grammar, header, header, target)
+    generate("%left PLUS.\n", grammar, header, header, target, "Syntax_test")
     result = target.read_text()
     assert "%left PLUS." in result and "ctx->root = A;" in result
     assert 'expr(A) ::= ID(v0) PLUS(v1) ID(v2). [PLUS]' in result
@@ -24,16 +24,14 @@ def test_generator_preserves_rules_and_rejects_mismatched_tokens(tmp_path: Path)
     for actual, native in ((header, header.replace("PLUS 2", "PLUS 3")), ("", "")):
         rejected = tmp_path / "rejected.y"
         with pytest.raises(ValueError, match="token inventories differ"):
-            generate("", grammar, actual, native, rejected)
+            generate("", grammar, actual, native, rejected, "Syntax_test")
         assert not rejected.exists()
     with pytest.raises(ValueError, match="Unexpected upstream production"):
-        generate("", "input ::= ID. trailing", header, header, tmp_path / "invalid.y")
+        generate("", "input ::= ID. trailing", header, header, tmp_path / "invalid.y", "Syntax_test")
 
 
 def test_generator_uses_the_given_lemon_prefix(tmp_path: Path) -> None:
     """The parser library links several grammars, so each one gets its own Lemon function prefix."""
     header = "#define TK_ID 1\n"
-    generate("", "input ::= ID.\n", header, header, tmp_path / "default.y")
     generate("", "input ::= ID.\n", header, header, tmp_path / "library.y", "Syntax_0123")
-    assert "%name Syntax\n" in (tmp_path / "default.y").read_text()
     assert "%name Syntax_0123\n" in (tmp_path / "library.y").read_text()

@@ -1,5 +1,5 @@
 # Independent pytest targets: Nix owns isolation, dependency identity and reuse.
-{ pkgs, leanToolchain, leanRuntime, parsers, runtime, modelPackage, parserLibrary, conformance ? runtime, root ? ../.
+{ pkgs, leanToolchain, leanRuntime, runtime, modelPackage, parserLibrary, conformance ? runtime, root ? ../.
 , native ? import ../nix/sqlite.nix { inherit pkgs; }
 , conformanceNative ? import ./conformance-native.nix { inherit pkgs; }
 }:

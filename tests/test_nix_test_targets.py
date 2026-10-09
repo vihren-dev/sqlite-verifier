@@ -20,10 +20,10 @@ def expression(root: Path) -> str:
       pkgs = import (builtins.toPath {quote(ROOT / 'build-support/locked-nixpkgs.nix')}) {{}};
       builds = import (builtins.toPath {quote(ROOT / 'build-support/default.nix')}) {{}};
     in import (builtins.toPath {quote(ROOT / 'build-support/tests.nix')}) {{
-      inherit pkgs; inherit (builds) leanToolchain leanRuntime parsers conformance modelPackage;
+      inherit pkgs; inherit (builds) leanToolchain leanRuntime conformance modelPackage;
       parserLibrary = builds.parserLibrary.testRoot;
       runtime = import (builtins.toPath {quote(ROOT / 'build-support/runtime.nix')}) {{
-        inherit pkgs; inherit (builds) leanToolchain leanRuntime parsers modelPackage;
+        inherit pkgs; inherit (builds) leanToolchain leanRuntime modelPackage;
         parserLibrary = builds.parserLibrary.library;
         sources = builds.sources // {{ runtime = (import (builtins.toPath {quote(ROOT / 'build-support/sources.nix')}) {{
           inherit (pkgs) lib; root = /. + {quote(root)};

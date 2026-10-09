@@ -6,11 +6,11 @@ from pathlib import Path
 
 
 def generate(preprocessed: str, grammar: str, header: str, native: str, target: Path,
-             name: str = "Syntax") -> None:
+             name: str) -> None:
     """Preserve productions and parser directives, replacing only semantic actions.
 
     `name` is Lemon's function prefix. The parser library links several grammars into
-    one library, so each grammar there gets its own prefix.
+    one library, so each grammar gets its own prefix.
     """
     tokens = re.findall(r"#define TK_(\w+)\s+(\d+)", header)
     if not tokens or dict(tokens) != dict(re.findall(r"#define TK_(\w+)\s+(\d+)", native)):
@@ -59,7 +59,7 @@ if __name__ == "__main__":
     cli = argparse.ArgumentParser(description=__doc__)
     cli.add_argument("upstream", type=Path)
     cli.add_argument("directory", type=Path)
-    cli.add_argument("--name", default="Syntax", help="Lemon function prefix")
+    cli.add_argument("--name", required=True, help="Lemon function prefix of this grammar")
     args = cli.parse_args()
     generate((args.directory / "preprocessed.y").read_text(),
              (args.directory / "grammar.y").read_text(),

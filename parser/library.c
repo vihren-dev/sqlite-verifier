@@ -2,9 +2,8 @@
 **
 ** The build generates library_grammars.inc, which names each grammar's prefix and
 ** identity, and library_metadata.inc, which holds the metadata document. Each grammar's
-** parse function comes from library_grammar.c. The documents keep the format of the
-** sqlite-parser executable, except that "grammar" replaces "profile": one grammar can
-** serve several releases.
+** parse function comes from library_grammar.c. A parse document names the grammar
+** identity, not a release: one grammar can serve several releases.
 */
 #include "library.h"
 #include "runtime.h"
@@ -27,7 +26,7 @@ static const char library_metadata[] =
 #include "library_metadata.inc"
 ;
 
-/* The input limit of the executable: larger texts give RESOURCE_LIMIT at offset 0. */
+/* The input limit: larger texts give RESOURCE_LIMIT at offset 0. */
 #define LIBRARY_INPUT_LIMIT (1024 * 1024)
 
 /* A growing output text; failed records an allocation failure, after which appends stop. */
@@ -81,7 +80,7 @@ static int utf8_valid(const unsigned char *text, size_t size){
   return 1;
 }
 
-/* Write the executable's JSON for ctx, with the grammar identity in place of the release. */
+/* Write the parse document for ctx, with the grammar identity that parsed it. */
 static void output(Document *document, const Context *ctx, const char *identity){
   if(ctx->error || !ctx->accepted){
     document_text(document, "{\"status\":\"");
@@ -114,7 +113,7 @@ static void output(Document *document, const Context *ctx, const char *identity)
   document_text(document, "]}\n");
 }
 
-/* Check the input as the executable does, then parse a NUL-terminated copy: the
+/* Check the input size and encoding, then parse a NUL-terminated copy: the
 ** tokenizer reads past the end of a token until it finds a NUL byte. */
 static int parse_checked(GrammarParse parse, Context *ctx, const unsigned char *sql, size_t length){
   if(length > LIBRARY_INPUT_LIMIT){ ctx->error = 2; return SQLITE_VERIFIER_PARSER_OK; }

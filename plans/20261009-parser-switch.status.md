@@ -45,6 +45,25 @@ Relevant files: `belay/sqlite/sql_tree.py`, `belay/sqlite/profiles.py`,
   passed; all ten Nix suites pass; `tests/test_nix_test_targets.py`: 63
   passed. The executables are still built, but no caller uses them.
 
+- 2026-10-09: review `20261009T145904Z-ee5bde65`: findings 1 and 2 are R8
+  owner-review markers on `migration_check/bundle.py` and `prepare.py`, whose
+  only change is that `Runtime.locate()` has no parser-version argument;
+  deferred to the owner. Findings 3 to 6 fixed in `cfe5c47b`; its review's two
+  findings fixed in `7b395f55` (review with no findings).
+- 2026-10-09: removal. The `parsers` derivation, `sources.parsers`,
+  `parser/main.c`, `just parser`, the `build/` links, the CI cache root, the
+  step 1 comparison test and `test_grammar_inventory` (replaced by the build's
+  production-count step) are gone; `generate.py` requires a Lemon prefix. The
+  runtime and conformance roots have no `build/` directory, and no file outside
+  reports, plans and ADRs names the executables, so no test can start a parser
+  process. `docs/sqlite-parser.md`, `docs/trust-boundary.md`,
+  `docs/conformance-fixtures.md`, `docs/ci.md` and `build-support/README.md`
+  describe the library. `tests/test_source_identity.py` gives its synthetic
+  tree the inputs that Nix evaluates for the parser library. `just test-source`
+  with the built runtime: 459 passed; all ten Nix suites pass;
+  `tests/test_nix_test_targets.py` and `tests/test_source_identity.py`: 112
+  passed.
+
 ## Measurements (Linux amd64, local, 2026-10-09)
 
 | Step | Executable | Library |
@@ -56,4 +75,7 @@ costs more.
 
 ## Remaining
 
-- Everything in the task file.
+- Owner review of the R8 markers (`Runtime.locate()` in `bundle.py` and
+  `prepare.py`).
+- Installer tests with a built archive (`just runtime-package`), and the macOS
+  arm64 runs of the load test and the installer tests.

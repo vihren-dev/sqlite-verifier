@@ -77,7 +77,8 @@ equivalence proof.
 ## Coverage
 
 Each pinned default grammar has 409 productions, independently generated from
-its release's sources. The regression suite exercises 20 scripts per release
+its release's sources. The regression suite (`tests/parser_test.py`) exercises
+21 scripts in each grammar
 across DDL, DML, CTEs, windows, triggers,
 virtual tables, pragmas, transaction control, and EXPLAIN; malformed input,
 encoding/resource boundaries, determinism, and byte spans are separate checks.
@@ -124,8 +125,8 @@ release and each grammar in its own derivation, so a patch release with an
 unchanged grammar adds a release derivation and no parser.
 
 The test suite `tests.parserLibrary` (`tests/parser_library_test.py`) loads all
-grammars in one process and parses the RAISE case with each. It checks that the
-library output equals the executable output for each release, for every parser
-test input and every distinct SQL text of corpora v1 to v5. On Linux, it parses
-the same inputs with a library built with AddressSanitizer, LeakSanitizer and
-UndefinedBehaviorSanitizer.
+grammars in one process and parses the RAISE case with each. On Linux, it parses
+every parser test input and every distinct SQL text of corpora v1 to v5 with a
+library built with AddressSanitizer, LeakSanitizer and
+UndefinedBehaviorSanitizer. Before the parser executables were removed, the
+library output was byte-identical to theirs for all these inputs.
