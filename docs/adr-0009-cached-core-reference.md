@@ -1,4 +1,4 @@
-# ADR 0009: Build the core API reference once per toolchain, and check only our pages
+# ADR 0009: Build the core API reference once per toolchain, without checks of doc-gen4
 
 Date: 2026-10-09. Status: PROPOSED.
 Audience: designers and reviewers.
@@ -50,9 +50,22 @@ Two parts do not depend on our sources:
 - The core documentation, about 150 s, depends only on the Lean toolchain and
   doc-gen4.
 - The two Python passes parse all 1,170 pages, but only 24 pages are ours. The
-  other 1,146 pages contain 826,137 of the 829,888 local links. Checking them
-  tests doc-gen4 and Lean's own documentation, not our code. The testing rules
-  in `AGENTS.md` exclude tests of a dependency's own behavior.
+  other 1,146 pages contain 826,137 of the 829,888 local links.
+
+`validate_reference` tests doc-gen4, also on our pages. It takes the expected
+modules from the same function that selects the modules for doc-gen4, and the
+expected source-link prefix from the same formula that builds the source URI.
+So it can fail only when doc-gen4 does not write what we passed to it. The link
+and anchor checks test how doc-gen4 renders links.
+
+The task record of the reference
+([status](../plans/20261006-checked-api-reference.status.md)) lists what these
+checks found: two errors in the validator itself, links from doc-gen4 to
+generated recursors that have no anchor, and a typo in Lean's own
+documentation. Since then, every recorded run gave the same 178 corrections and
+no new failure. The testing rules in `AGENTS.md` keep a check of a dependency
+only for a known or suspected problem. Only the recursor links are such a
+problem for our pages.
 
 ## Decision
 
@@ -66,28 +79,29 @@ a change to the repository's tools does not rebuild it. Nix and the CI cache
 reuse it until the toolchain or doc-gen4 changes.
 
 `apiReferenceBase` copies that build directory, runs `single` for each public
-module and `fromDb`, and then runs the checks of decision 2.
+module and `fromDb`, and then applies the correction of decision 2.
 `tools/ci_store_gc.py` keeps `apiReferenceCore` in the saved cache.
 
-### 2. Checks of our pages only
+### 2. No checks of doc-gen4's output, except one known bug
 
-The reference build checks our pages, not the pages that doc-gen4 writes for
-Lean's libraries:
+- **`validate_reference` is removed.** The build no longer checks module
+  pages, source-link prefixes, local links or anchors in the generated pages.
+- **The correction of Lean's `Init/Tactic.html` typo is removed.** The typo is
+  in Lean's documentation, not in ours.
+- **The recursor-link correction stays, for our pages only.** It is the one
+  known doc-gen4 problem on our pages. It names an upstream report to doc-gen4.
+  When it finds no recursor link to correct on our pages, the build fails with
+  a message that the doc-gen4 bug may be fixed and that the correction can be
+  removed.
 
-- **Module pages.** Each public module has a page. This stays as it is.
-- **Source links.** Each public declaration links to its file at the
-  placeholder or commit. This stays as it is.
-- **Local links and anchors.** Every local link on our 24 pages resolves, and
-  its anchor exists, also when the target is a Lean library page. Links on
-  Lean's library pages are not checked.
-- **Link corrections.** The recursor-link correction applies to our pages. The
-  correction of Lean's own `Init/Tactic.html` typo is removed: the typo is
-  only on Lean's library pages. The recursor-link bug is reported to doc-gen4,
-  and the correction names that report.
+Our own code in the reference build keeps its tests:
 
-The source-link and module-page checks test our build code. The link and
-anchor checks test how doc-gen4 renders our declarations, which changes with
-our code.
+| Our code | Its test |
+| --- | --- |
+| The commit in the source links (`tools/api_reference_links.py`) | The checks of the link step, and `tests/test_api_reference.py` |
+| The recursor-link correction | Unit tests with HTML fixtures |
+| Complete documentation of public declarations | `tools/public_doc_inventory.py`, and the Lean compiler for Verso docstrings |
+| The calls of doc-gen4 | Each call fails the build when doc-gen4 fails |
 
 ## Evidence
 
@@ -101,13 +115,13 @@ Each question was answered on macOS arm64 on 2026-10-09:
 | How large is the core database? | 95 MB, 13.2 MB with zstd level 3. |
 | Should the core build also store its pages? | No. `fromDb` writes all 1,170 pages in 8.6 s. |
 | Do our pages need the recursor-link correction? | Yes. Of the 178 corrections, 3 files are ours and 46 are Lean's. |
-| What do the checks of decision 2 cost? | Parsing our 24 pages and the 27 Lean pages they link to took 1.0 s, against 158 s for all pages. |
+| What does the correction of our pages cost? | The correction must read our 24 pages and the 27 Lean pages they link to, for their anchors. Parsing them took 1.0 s, against 158 s for both passes over all pages. |
 
 ## Expected effect
 
 A pull request that changes a Lean source runs the Lean build, the inventory,
-`single`, `fromDb` and the checks of our pages: about 7 + 6 + 17 + 9 + 2 s,
-about 41 s instead of about 346 s. A pull request that does not change Lean
+`single`, `fromDb` and the correction of our pages: about 7 + 6 + 17 + 9 + 1 s,
+about 40 s instead of about 346 s. A pull request that does not change Lean
 sources still reuses the whole base build, as after PR #63. A Lean toolchain
 or doc-gen4 upgrade rebuilds the core documentation once, about 150 s.
 
@@ -115,11 +129,12 @@ The saved cache grows by about 13 MB compressed for each platform.
 
 ## Consequences
 
-- The published reference keeps all 1,170 pages. Lean's library pages can
-  contain broken links that the build no longer reports. Those links come from
-  doc-gen4 or Lean, and the reference is not hosted yet.
-- The `reference-check.json` report counts the links on our pages only.
-- [API reference](api-reference.md) describes the narrower checks.
+- The published reference keeps all 1,170 pages. A broken link that doc-gen4
+  or Lean writes is no longer reported by the build. The reference is not
+  hosted yet.
+- The `reference-check.json` report records the recursor corrections on our
+  pages and the source links of the link step.
+- [API reference](api-reference.md) describes the build without the checks.
 - The requirements of the checked API reference task (issue #26) become
   narrower: the owner decides this with this ADR.
 
@@ -129,10 +144,13 @@ The saved cache grows by about 13 MB compressed for each platform.
 Lean sources are the main development work, and each one would keep paying
 for the core documentation and the checks of Lean's pages.
 
-**Check Lean's pages once in the core derivation.** Rejected. It would keep a
-test of a dependency's own output, which the testing rules exclude, and it
-would make the core derivation fail on problems that only doc-gen4 or Lean can
-fix.
+**Check our pages on each build.** Rejected. The checks of our pages also test
+doc-gen4. No problem is suspected besides the recursor links, which the
+correction handles.
+
+**Check doc-gen4's output at each doc-gen4 or Lean upgrade.** Rejected. An
+upgrade alone gives no reason to suspect a problem, and we do not run a
+dependency's tests at its upgrades.
 
 **Build the reference only on `main`.** Rejected by the owner on 2026-10-08,
 when option A of PR #63 kept the reference check on pull requests.

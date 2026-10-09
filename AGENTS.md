@@ -102,20 +102,23 @@ A test is useful only when we know what it checks. These rules apply to new
 and changed tests and checks, including checks that tools run during a build.
 
 - **Name the subject.** The docstring of a test says which code of this
-  repository it checks, or which assumption about a dependency it checks, and
+  repository it checks, or which known problem of a dependency it checks, and
   why.
 - **Test our code.** Tests check our code, our configuration and our use of
-  dependencies. They do not check a dependency's own behavior. For example, a
+  dependencies. They do not check a dependency's own behavior, except for a
+  suspected problem, as the next rules describe. For example, a
   check of the links that doc-gen4 writes on Lean's library pages tests
   doc-gen4, not this repository.
 - **Dependency as oracle.** A dependency can supply the expected result for
   our code. The conformance corpus uses native SQLite in this way. Such a test
   checks our code and is not a test of the dependency.
-- **Assumptions run at upgrades.** A test of an assumption about a dependency
-  names the assumption. It runs when the pinned version of that dependency
-  changes, unless our results depend on the assumption at every change. An
-  example is the check that the pinned Lean and SQLite builds are the ones in
-  use.
+- **Check a dependency only for a suspected problem.** Do not keep a test of a
+  dependency in the test suite or in CI if there is no reason to suspect that
+  the test can fail. A dependency upgrade alone is no such reason: we do not
+  run a dependency's own test suite. A check of a dependency names the known
+  or suspected problem, as an upstream report or an observed failure, and is
+  removed when the problem is gone. A check that the pinned Lean and SQLite
+  builds are the ones in use tests our configuration, not the dependency.
 - **Workarounds are narrow.** A workaround for a dependency bug covers only the
   cases that we need, names the upstream report, and is removed when the fix
   arrives.
