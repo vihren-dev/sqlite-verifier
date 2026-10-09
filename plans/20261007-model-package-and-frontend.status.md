@@ -61,6 +61,13 @@ imports `Belay.Sqlite` starts in 0.24 instead of 0.42 seconds. The model and
 the Atuin `HistoryModel` example no longer import `Std`; the Atuin baseline
 fixture has the new hash.
 
+On macOS the runtime build, documentation inventory (240 of 240 checked), 470
+source tests and the kernel (28), bundle (73), CLI (16), Atuin (12) and model
+(50) Nix suites pass. Reviews `20261009T122505Z-5c904753`,
+`20261009T122704Z-438129ce` and `20261009T122820Z-5fbd01f7` have no open
+findings; ADR 0006 now records the `Init`-only model import policy. The owner
+will run macOS acceptance on main after the merge.
+
 The accepted ADR was delivered through
 [PR44](https://github.com/vihren-dev/sqlite-verifier/pull/44), normal merge
 `b91e5cb5b3e145bc9713cc5e2b88bd502aa9ad0a`. The approved exporter in
