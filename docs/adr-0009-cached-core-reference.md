@@ -1,10 +1,10 @@
-# ADR 0009: Build the Lean core documentation of the API reference once per toolchain
+# ADR 0009: Build the core API reference once per toolchain, and check only our pages
 
-Date: 2026-10-09. Status: DRAFT. The owner chose the decision below; the open
-questions must be answered before this ADR is proposed.
+Date: 2026-10-09. Status: PROPOSED.
 Audience: designers and reviewers.
 Related: [API reference](api-reference.md), [CI](ci.md),
-[task for PR #63](../plans/20261008-ci-time-docs-scope-and-cached-reference.task.md).
+[task for PR #63](../plans/20261008-ci-time-docs-scope-and-cached-reference.task.md),
+"Testing" in [AGENTS.md](../AGENTS.md).
 
 ## Context
 
@@ -23,7 +23,9 @@ base build.
    pages can link to core types.
 3. `single` adds each of the 24 public modules, with its source link.
 4. `fromDb` writes all HTML pages: 1,170 pages, 172 MB.
-5. Python corrects known generator links and checks every local link.
+5. `correct_reference_links` rewrites two known kinds of broken doc-gen4
+   links, and `validate_reference` checks module pages, source links and every
+   local link and anchor.
 
 Measured on macOS arm64, 2026-10-09, with the base build's commands outside
 Nix:
@@ -37,75 +39,100 @@ Nix:
 | `genCore Std` | 114 s | no |
 | `single`, 24 modules | 17 s | yes |
 | `fromDb` | 9 s | yes |
-| Python link correction | 79 s | all pages |
-| Python link check | 79 s | all pages |
+| `correct_reference_links` | 79 s | parses all pages |
+| `validate_reference` | 79 s | parses all pages |
 | Total | about 346 s | |
 
-The database is 97 MB after the build. On CI, PR #63's run spent 379 s in
-the base build phase, which agrees with these measurements. Building doc-gen4
-itself takes 92 s locally; PR #63 keeps it in the CI cache.
+On CI, PR #63's run spent 379 s in the base build phase, which agrees.
 
-About 150 s, the `bibPrepass` and `genCore` stages, depend only on the Lean
-toolchain and doc-gen4. They run again for each change to a Lean source.
+Two parts do not depend on our sources:
+
+- The core documentation, about 150 s, depends only on the Lean toolchain and
+  doc-gen4.
+- The two Python passes parse all 1,170 pages, but only 24 pages are ours. The
+  other 1,146 pages contain 826,137 of the 829,888 local links. Checking them
+  tests doc-gen4 and Lean's own documentation, not our code. The testing rules
+  in `AGENTS.md` exclude tests of a dependency's own behavior.
 
 ## Decision
 
+### 1. A separate core documentation build
+
 A new Nix derivation, `apiReferenceCore`, runs `bibPrepass`, `genCore Init`
-and `genCore Std`, and stores the resulting database. Its inputs are the Lean
-toolchain and the pinned doc-gen4, and nothing from the repository's sources.
-Nix and the CI cache therefore reuse it until the toolchain or doc-gen4
-changes.
+and `genCore Std` in an empty directory, and stores the resulting build
+directory with `api-docs.db`. Its inputs are the Lean toolchain and the pinned
+doc-gen4 only. Its commands are in the Nix file, not in a repository script, so
+a change to the repository's tools does not rebuild it. Nix and the CI cache
+reuse it until the toolchain or doc-gen4 changes.
 
-`apiReferenceBase` copies that database, runs `single` for each public module
-and `fromDb`, and keeps its existing checks. `tools/ci_store_gc.py` keeps
-`apiReferenceCore` in the saved cache.
+`apiReferenceBase` copies that build directory, runs `single` for each public
+module and `fromDb`, and then runs the checks of decision 2.
+`tools/ci_store_gc.py` keeps `apiReferenceCore` in the saved cache.
 
-The published reference stays the same: the same pages, source links, link
-corrections and checks.
+### 2. Checks of our pages only
+
+The reference build checks our pages, not the pages that doc-gen4 writes for
+Lean's libraries:
+
+- **Module pages.** Each public module has a page. This stays as it is.
+- **Source links.** Each public declaration links to its file at the
+  placeholder or commit. This stays as it is.
+- **Local links and anchors.** Every local link on our 24 pages resolves, and
+  its anchor exists, also when the target is a Lean library page. Links on
+  Lean's library pages are not checked.
+- **Link corrections.** The recursor-link correction applies to our pages. The
+  correction of Lean's own `Init/Tactic.html` typo is removed: the typo is
+  only on Lean's library pages. The recursor-link bug is reported to doc-gen4,
+  and the correction names that report.
+
+The source-link and module-page checks test our build code. The link and
+anchor checks test how doc-gen4 renders our declarations, which changes with
+our code.
+
+## Evidence
+
+Each question was answered on macOS arm64 on 2026-10-09:
+
+| Question | Answer |
+| --- | --- |
+| Does a build from a copied core database give the same reference? | Yes. All 1,186 files match the build in one database, byte for byte. |
+| Does the core database contain paths of its build? | No. No row contains the build directory, `/nix/store`, `/Users/` or `/private/tmp`. |
+| Does `genCore` need our project? | No. It ran in an empty directory, without `lake env`, in the same time. |
+| How large is the core database? | 95 MB, 13.2 MB with zstd level 3. |
+| Should the core build also store its pages? | No. `fromDb` writes all 1,170 pages in 8.6 s. |
+| Do our pages need the recursor-link correction? | Yes. Of the 178 corrections, 3 files are ours and 46 are Lean's. |
+| What do the checks of decision 2 cost? | Parsing our 24 pages and the 27 Lean pages they link to took 1.0 s, against 158 s for all pages. |
 
 ## Expected effect
 
-A pull request that changes a Lean source no longer runs the about 150 s of
-core documentation. Measured from the table, its base build drops from about
-346 s to about 196 s. The Python link passes, about 158 s, stay; see "Not
-decided here".
+A pull request that changes a Lean source runs the Lean build, the inventory,
+`single`, `fromDb` and the checks of our pages: about 7 + 6 + 17 + 9 + 2 s,
+about 41 s instead of about 346 s. A pull request that does not change Lean
+sources still reuses the whole base build, as after PR #63. A Lean toolchain
+or doc-gen4 upgrade rebuilds the core documentation once, about 150 s.
 
-## Open questions
+The saved cache grows by about 13 MB compressed for each platform.
 
-These must be answered, with evidence, before this ADR is proposed.
+## Consequences
 
-1. **Same output.** Does a reference built from a copied core database give the
-   same pages, byte for byte, as today's build in one database?
-2. **Database reuse.** Can `single` and `fromDb` write to a copy of the core
-   database without other state from the `genCore` run? Does doc-gen4 store
-   paths or build directories in the database, which would differ after the
-   copy?
-3. **No project input.** Today `genCore` runs as `lake env doc-gen4 ...` in our
-   project root. Does it read anything from the project, such as the Lake
-   environment or `LEAN_PATH`, or does it need only the toolchain? Can it run
-   in an empty project?
-4. **Cache size.** How large is the core database, compressed? The CI cache and
-   the Attic cache must hold it.
-5. **Core pages.** `fromDb` writes the core pages again in each build. Is that
-   part of the 9 s small enough, or should the core derivation also store its
-   pages?
-6. **Toolchain upgrades.** Lean upgrades follow each stable release within two
-   weeks. Each upgrade rebuilds the core database once. Confirm that nothing
-   else invalidates it, such as a change to `tools/api_reference.py`.
-
-## Not decided here
-
-- **The Python link passes.** They parse all 1,170 pages twice, although only
-  25 are ours. Checking the core pages once in the core derivation, or parsing
-  each page once, would save up to about 150 s more. This is a separate
-  decision.
-- **The doc-gen4 build.** It is already cached by PR #63.
+- The published reference keeps all 1,170 pages. Lean's library pages can
+  contain broken links that the build no longer reports. Those links come from
+  doc-gen4 or Lean, and the reference is not hosted yet.
+- The `reference-check.json` report counts the links on our pages only.
+- [API reference](api-reference.md) describes the narrower checks.
+- The requirements of the checked API reference task (issue #26) become
+  narrower: the owner decides this with this ADR.
 
 ## Alternatives considered
 
 **Leave the build as it is after PR #63.** Rejected. Pull requests that change
 Lean sources are the main development work, and each one would keep paying
-for the core documentation.
+for the core documentation and the checks of Lean's pages.
+
+**Check Lean's pages once in the core derivation.** Rejected. It would keep a
+test of a dependency's own output, which the testing rules exclude, and it
+would make the core derivation fail on problems that only doc-gen4 or Lean can
+fix.
 
 **Build the reference only on `main`.** Rejected by the owner on 2026-10-08,
 when option A of PR #63 kept the reference check on pull requests.
