@@ -14,11 +14,12 @@ The model now stores columns and retained properties in `TableShape`.
 `Table` and `TableSchema` share that representation. The codec retains the flat
 version-one transport. Application proofs, generated terms, conformance and
 Atuin callers have been adapted to the current package boundary.
-The standalone model, full runtime, conformance runtime and checked public
-documentation build successfully on macOS. Test acceptance is still in progress.
+Both platforms pass complete native, source, infrastructure and offline installed
+acceptance. Both public inventories check all 244 authored declarations.
+Draft PR #79 waits for hosted CI and final owner review.
 The dated progress entries below retain the original paused work's history.
 
-## Source audit
+## Original source audit, 2026-10-06
 
 The current `Table` and `TableSchema` each store columns and properties. Current
 `Conforms` compares columns and separately requires a property equality for each
@@ -89,9 +90,9 @@ approved model package name or the existing verification vocabulary.
 
 ## Open gates
 
-Source and native suite acceptance, complete model acceptance on both platforms,
-offline installed acceptance on both platforms, independent feature review and
-final R8 owner review remain open. This task is not DONE.
+Hosted CI and final R8 owner review of the codec and whole-shape conformance
+formula remain open. All local acceptance and independent code reviews pass.
+This task is not DONE.
 
 ## Resumed checkpoint, 2026-10-09
 
@@ -157,3 +158,15 @@ Published draft PR #79. Integrated main `b1d1828b`, whose only change since
 the tested base records parser task completion in plan files. Runtime source
 and all test inputs are unchanged by that integration. Final owner review is
 not requested yet; Linux, installed and hosted acceptance remain pending.
+
+Final local acceptance on 2026-10-09 passes on both platforms. Each passes
+all nine native suites (599 tests), 118 infrastructure checks and 26 actual
+offline installed tests. macOS source checks pass 460 tests; Linux passes
+458 with two declared skips for optional review tools unavailable on that host.
+Both source runs pass 57 subtests. Both public inventories check all 244
+authored declarations. The reviewed source is `7454f437`; the later main
+integration changes only plan records and the review journal.
+
+PR #79 remains draft pending hosted CI and final owner review of the codec
+and whole-shape conformance formula. No acceptance timeout or failure is
+counted as a pass. The implementation task remains IN PROGRESS.
