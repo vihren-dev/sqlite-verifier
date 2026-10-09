@@ -29,14 +29,24 @@ library" and "Acceptance evidence", items 1 to 4.
    computes the grammar identity of each dialect in a checked-in dialect
    table, and fails when an entry names another identity. The production count
    in the metadata equals the number of productions in Lemon's grammar export.
-5. **A sanitizer job checks for memory faults and leaks.** On Linux amd64, a
-   separate Nix target builds the library with AddressSanitizer,
-   LeakSanitizer and UndefinedBehaviorSanitizer and parses every parser test
-   input and every distinct SQL text of every retained corpus with each
-   grammar. A finding fails the target. The target does not depend on the
-   model, the harness Python code or the documentation.
-6. **CI runs the checks.** `just test-full` builds the library checks, and
-   the CI cache keeps the library targets.
+5. **A sanitizer job checks for memory faults and leaks.** On Linux amd64, the
+   checks build the library with AddressSanitizer, LeakSanitizer and
+   UndefinedBehaviorSanitizer and parse every parser test input and every
+   distinct SQL text of every retained corpus with each grammar. A finding
+   fails the check. The check does not depend on the model, the harness Python
+   code or the documentation.
+6. **Nix builds each grammar separately** (revised 2026-10-09, owner request
+   after PR #56 merged). Nix reads `parser/dialects.json` when it evaluates the
+   build, and makes one derivation for each release (its Lemon outputs and the
+   identity check of its dialects), one for each distinct grammar identity (its
+   generated parser and compiled objects), and one that links the library. A
+   new release or grammar builds only its own derivations. Python does only
+   the work that needs a program: the grammar transform, option extraction,
+   identity and production checks, the metadata and the export check.
+7. **The checks are a pytest suite** (revised 2026-10-09). The load test, the
+   comparison and the sanitizer job are tests in the `parserLibrary` suite of
+   `build-support/tests.nix`, so `just test-full` and CI run them like the
+   other suites, with per-test timeouts and JUnit reports.
 
 ## Tests
 
@@ -48,14 +58,14 @@ library" and "Acceptance evidence", items 1 to 4.
   label that differs from `sqlite3.h`, or grammar options that the release
   does not have fails the check; the metadata document has the documented
   fields; the corpus text extraction reads both corpus formats.
-- **Load test** (Nix, Linux amd64 and macOS arm64): one process loads the
+- **Load test** (pytest suite `parserLibrary`, Linux amd64 and macOS arm64): one process loads the
   library, reads the metadata, checks `api` and the export list, and parses
   the `RAISE` case with each grammar: 3.51.0 accepts it and 3.46.0 rejects it.
   An unknown grammar identity gives the distinct error with no document.
-- **Comparison** (Nix): for each grammar, the library output equals the
+- **Comparison** (pytest suite `parserLibrary`): for each grammar, the library output equals the
   executable output for all parser test inputs and all distinct SQL texts of
   every retained corpus, except for the `grammar` field.
-- **Sanitizer job** (Nix, Linux amd64): the same inputs with each grammar, on
+- **Sanitizer job** (pytest suite `parserLibrary`, Linux amd64): the same inputs with each grammar, on
   the sanitized library, with leak detection.
 - **Build check evidence** (status file): a changed dialect-table entry fails
   the Nix build, with the message.
@@ -67,14 +77,12 @@ library" and "Acceptance evidence", items 1 to 4.
   `build-support/default.nix`. Step 1 keeps the executables as they are; the
   comparison needs them unchanged. Step 2 moves the parse and output code
   into the library and deletes the executables.
-- The ADR allows one change to an existing build file:
-  the new attribute in `build-support/default.nix`. PR #56 changes
-  `default.nix`, `tests.nix`, `sources.nix` and `tests/nix_suites.json`.
-  The library checks therefore live in a new Nix file and do not add a suite
-  to `tests.nix`; `tests/nix_suites.json` must equal the suites of
-  `tests.nix`. The `justfile` and `tools/ci_store_gc.py` change only to run
-  and keep the new targets, because the ADR requires that CI runs the
-  sanitizer job.
+- PR #56 has merged, so the step 1 limit on existing build files no longer
+  applies. `tests/nix_suites.json` must equal the suites of `tests.nix`, and
+  `tests/test_nix_test_targets.py` lists the suites and the inputs that
+  invalidate them.
+- Per-grammar caching needs per-release inputs: a release derivation must not
+  read the whole dialect table, or a new release would rebuild every grammar.
 - `sqlite3GetToken` reads past the token until a NUL byte. The executable
   reads the file into a zeroed buffer. The library must copy the caller's
   bytes into a buffer with a NUL terminator.

@@ -64,6 +64,10 @@ Relevant files: `parser/`, `build-support/default.nix`,
   as root, 36 tests on main fail because `just build` does not link
   `packages/belay-sqlite/.lake`; this branch does not change that.
 
+- 2026-10-09: owner review of PR #71: move compiling and linking from Python
+  into Nix with one derivation per grammar, and turn the check scripts into a
+  pytest suite. Task file revised (outcomes 6 and 7).
+
 ## Measurements (Linux amd64, local, 2026-10-09)
 
 | Step | Time |
