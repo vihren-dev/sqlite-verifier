@@ -28,6 +28,9 @@ ROOT = Path(__file__).resolve().parents[2]
 RUNTIME = (ROOT / "build" / "runtime").resolve()
 EXAMPLES = ROOT / "examples"
 
+COMMAND_TIMEOUT_SECONDS = 600
+"""Deadline for one setup command: a verification or a Lake build of `SqliteVerifier`."""
+
 SQLITE_VERIFIER_LAKEFILE = '''name = "sqliteVerifier"
 version = "0.1.0"
 enableArtifactCache = false
@@ -45,7 +48,11 @@ globs = {globs}
 
 
 def generated_inputs(work: Path) -> None:
-    """Write the generated sources of the small and Atuin examples with the installed CLI."""
+    """Write the generated sources of the small and Atuin examples with the installed CLI.
+
+    The Lake workspace must contain the same `SchemaInputs`/`SqlInputs` that the verifier
+    generates, so the experiment compiles exactly what `prepare` and `verify-bundle` compile.
+    """
     cases = {"small": ("3.51.0", EXAMPLES / "approved", EXAMPLES / "add_column_then_table", EXAMPLES / "approved"),
              "atuin": ("3.46.0", EXAMPLES / "atuin/approved", EXAMPLES / "atuin", EXAMPLES / "atuin")}
     for name, (profile, approved, candidate, schema) in cases.items():
@@ -57,27 +64,34 @@ def generated_inputs(work: Path) -> None:
                         "--migration", str(candidate / "migration.sql"),
                         "--next-interpretation", str(candidate / "NextInterpretation.lean"),
                         "--proofs", str(candidate / "Proofs.lean"), "--artifacts", str(output)],
-                       check=True, capture_output=True, timeout=300)
+                       check=True, capture_output=True, timeout=COMMAND_TIMEOUT_SECONDS)
 
 
 def runtime_lake_with_ir(work: Path, shim: Path) -> None:
-    """Copy the runtime's `.lake`, let Lake add `build/ir` for `SqliteVerifier`, then make it read-only."""
+    """Copy the runtime's `.lake`, let Lake add `build/ir` for `SqliteVerifier`, then make it read-only.
+
+    This stands in for a runtime that ships `ir`; read-only permissions reproduce the Nix store.
+    """
     target = work / "runtime-lake"
     if target.exists():
-        for path in target.rglob("*"):
+        for path in [target, *target.rglob("*")]:
             path.chmod(path.stat().st_mode | stat.S_IWUSR)
         shutil.rmtree(target)
     shutil.copytree(RUNTIME / ".lake", target)
     for path in [target, *target.rglob("*")]:
         path.chmod(path.stat().st_mode | stat.S_IWUSR)
     (shim / ".lake").symlink_to(target)
-    subprocess.run(["lake", "build", "SqliteVerifier"], cwd=shim, check=True, capture_output=True, timeout=600)
+    subprocess.run(["lake", "build", "SqliteVerifier"], cwd=shim, check=True, capture_output=True,
+                   timeout=COMMAND_TIMEOUT_SECONDS)
     for path in [target, *target.rglob("*")]:
         path.chmod(path.stat().st_mode & ~(stat.S_IWUSR | stat.S_IWGRP | stat.S_IWOTH))
 
 
 def shim_packages(work: Path) -> Path:
-    """Create the library-only `sqliteVerifier` and `belaySqlite` packages over the runtime."""
+    """Create the library-only `sqliteVerifier` and `belaySqlite` packages over the runtime.
+
+    Lake finds prebuilt libraries only through packages; it replaces `LEAN_PATH` when it compiles.
+    """
     shim = work / "shim"
     shutil.rmtree(shim, ignore_errors=True)
     belay_source, belay = RUNTIME / "packages/belay-sqlite", shim / "packages/belay-sqlite"

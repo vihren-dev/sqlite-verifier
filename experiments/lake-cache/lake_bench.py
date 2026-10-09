@@ -25,12 +25,21 @@ CASES = {
     "atuin": (ROOT / "examples/atuin/approved", ROOT / "examples/atuin", WORK / "generated-atuin"),
 }
 """Approved sources, candidate sources and generated sources of each example."""
+BUILD_TIMEOUT_SECONDS = 600
+"""Deadline for one `lake build`; the slowest scenario takes about 5 s."""
+
+FAILURE_TAIL_CHARACTERS = 2000
+"""Characters of Lake's stdout and stderr shown when a build fails."""
+
 CONTRACT_ONLY = ("SchemaInputs", "SqlInputs", "Requirements", "Interpretation")
 """Targets verify-bundle needs compiled; Lake builds their approved imports too."""
 
 
 def workspace(directory: Path, case: str, shim: Path, edit: str | None = None) -> Path:
-    """Generate a TOML-only workspace: approved, generated and candidate modules as one library."""
+    """Generate a TOML-only workspace: approved, generated and candidate modules as one library.
+
+    This is the workspace the verifier would write instead of compiling modules one by one.
+    """
     approved, candidate, generated = CASES[case]
     shutil.rmtree(directory, ignore_errors=True)
     directory.mkdir(parents=True)
@@ -50,20 +59,30 @@ def workspace(directory: Path, case: str, shim: Path, edit: str | None = None) -
 
 
 def build(directory: Path, targets: tuple[str, ...] = ()) -> tuple[float, int]:
-    """Run `lake build`; return wall seconds and the number of modules Lake compiled."""
+    """Run `lake build`; return wall seconds and the number of modules Lake compiled, not restored.
+
+    The compiled count shows whether the artifact cache supplied the outputs.
+    """
     started = time.perf_counter()
     environment = {**os.environ, "LAKE_CACHE_DIR": str(WORK / "cache"),
                    "PATH": f"{(ROOT / 'build/runtime/lean/bin').resolve()}{os.pathsep}{os.environ['PATH']}"}
     result = subprocess.run(["lake", "build", *targets], cwd=directory, capture_output=True, text=True,
-                            timeout=600, env=environment)
+                            timeout=BUILD_TIMEOUT_SECONDS, env=environment)
     seconds = time.perf_counter() - started
     if result.returncode:
-        raise SystemExit(f"lake build failed in {directory}:\n{result.stdout[-2000:]}{result.stderr[-2000:]}")
+        tail = FAILURE_TAIL_CHARACTERS
+        raise SystemExit(f"lake build failed in {directory}:\n{result.stdout[-tail:]}{result.stderr[-tail:]}\n"
+                         "Correct the reported error (run setup_shim.py again if the shim is missing), "
+                         "then run the benchmark again.")
     return seconds, sum(1 for line in result.stdout.splitlines() if "Built " in line and "Belay" not in line)
 
 
 def main(shim: Path, cache: Path, trials: int) -> None:
-    """Run each scenario TRIALS times and print medians as JSON lines."""
+    """Run each scenario TRIALS times and print medians as JSON lines.
+
+    Scenarios mirror verifier runs: empty cache, new directory with a warm cache, a proof edit,
+    and the contract-only build that `verify-bundle` needs.
+    """
     base = WORK / "bench"
     for case in CASES:
         samples: dict[str, list[tuple[float, int]]] = {}
