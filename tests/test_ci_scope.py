@@ -8,7 +8,7 @@ import subprocess
 import sys
 import unittest
 
-from tests.baseline_ci import git
+from tests.git_commands import git
 from tests.ci_scope import scope
 
 

@@ -35,6 +35,12 @@ smaller DQS test, with the moved `SqlError` name. Independent reviews
 `20261009T112433Z-22293717` and `20261009T112657Z-3261a7c7` have no findings.
 Fresh hosted and native acceptance of this head remains required.
 
+On 2026-10-09 the owner removed `Protected approved baseline` from the main
+ruleset's required checks. The examples' approved files are test fixtures, and
+ordinary review protects them like other tests. This branch deletes the
+workflow, its checker and its tests, and keeps the `--approved-baseline`
+feature and its fixtures. The protected-baseline owner gate no longer applies.
+
 The accepted ADR was delivered through
 [PR44](https://github.com/vihren-dev/sqlite-verifier/pull/44), normal merge
 `b91e5cb5b3e145bc9713cc5e2b88bd502aa9ad0a`. The approved exporter in
