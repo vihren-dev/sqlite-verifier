@@ -81,6 +81,10 @@ Relevant files: `belay/sqlite/sql_tree.py`, `belay/sqlite/profiles.py`,
   94.3 s), the new parserLibrary suite 11.4 s; total 986 s to 990 s. Other
   suites changed within the noise (kernel, which does not parse, moved 5 s).
 
+- 2026-10-09: the owner approved the two R8 markers of review
+  `20261009T145904Z-ee5bde65` (`Runtime.locate()` in `bundle.py` and
+  `prepare.py`); both are recorded as fixed.
+
 ## Measurements (Linux amd64, local, 2026-10-09)
 
 | Step | Executable | Library |
@@ -92,7 +96,5 @@ costs more.
 
 ## Remaining
 
-- Owner review of the R8 markers (`Runtime.locate()` in `bundle.py` and
-  `prepare.py`).
 - The macOS arm64 runs of the load test and the installer tests (main or
   nightly CI).
