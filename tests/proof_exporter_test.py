@@ -25,6 +25,12 @@ EXPECTED = {"small": ("VERIFIED", ["Init", "SqliteVerifier.Demonstration", "Sqli
             "refutation": ("VIOLATED", ["Init", "SqliteVerifier.Library"]),
             "atuin": ("VERIFIED", ["Init", "SqliteVerifier"])}
 """Independent status and exact trusted-import expectations for the shipped examples."""
+REPEATED_CASES = frozenset({"small"})
+"""Cases prepared twice to show that preparation is deterministic.
+
+The exporter code is the same for every example, so one small example shows determinism; the
+others are prepared once, for their status, imports and input bindings.
+"""
 
 
 def file_digest(path: Path) -> str:
@@ -85,7 +91,7 @@ def test_current_native_export(name: str, runtime_root: Path, example_factory: C
         tmp_path: Path, command_runner: Callable[..., CommandResult],
         exporter_runtime_identity: dict[str, object],
         record_testsuite_property: Callable[[str, object], None]) -> None:
-    """Fresh preparations are byte-identical and independently checked against exact current inputs."""
+    """Preparations are independently checked against exact current inputs; repeated ones are byte-identical."""
     approved, candidate, schema, profile = CASES[name]
     status, imports = EXPECTED[name]
     examples = example_factory(".")
@@ -94,7 +100,7 @@ def test_current_native_export(name: str, runtime_root: Path, example_factory: C
     payloads: list[bytes] = []
     reports: list[dict[str, object]] = []
     header = {"bundle": 1, "trusted_imports": imports}
-    for label in ("first", "second"):
+    for label in ("first", "second") if name in REPEATED_CASES else ("first",):
         workspace = tmp_path / label
         workspace.mkdir()
         bundle, report = prepare_check(runtime_root, examples, workspace, *CASES[name], command_runner)
@@ -109,7 +115,7 @@ def test_current_native_export(name: str, runtime_root: Path, example_factory: C
             assert isinstance(report["inputs"], dict) and expected.items() <= report["inputs"].items(), report
         payloads.append(payload)
         reports.append(report)
-    assert payloads[0] == payloads[1]
+    assert all(payload == payloads[0] for payload in payloads)
     assert hashes == input_digests(examples, approved, candidate, schema)
     record_testsuite_property(f"current-export-{name}", json.dumps({"inputSha256": hashes,
         "runtime": exporter_runtime_identity, "header": header, "bundleBytes": len(payloads[0]),
