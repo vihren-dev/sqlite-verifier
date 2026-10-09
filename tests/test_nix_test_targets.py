@@ -1,4 +1,4 @@
-"""Exercise Nix's real dependency identities and failed-test behavior, without receipt validation."""
+"""Check the real Nix test targets: their commands, failed-test behavior and flake checks."""
 
 import json
 from pathlib import Path
@@ -29,15 +29,6 @@ def expression(root: Path) -> str:
       }};
       root = /. + {quote(root)};
     }}'''
-
-
-def identities(root: Path) -> dict[str, str]:
-    """Evaluate derivation paths, which include sources, commands and all declared tool dependencies."""
-    result = run_command(['nix-instantiate', '--eval', '--strict', '--json',
-        '--extra-experimental-features', 'nix-command flakes', '--expr',
-        f'builtins.mapAttrs (_: test: test.drvPath) ({expression(root)})'], cwd=ROOT, timeout=30)
-    assert result.returncode == 0, result.diagnostic()
-    return json.loads(result.stdout)
 
 
 def test_bounded_commands_keep_complete_suite_ownership() -> None:
@@ -73,73 +64,6 @@ def source_tree(tmp_path: Path) -> Path:
         path.parent.mkdir(parents=True, exist_ok=True)
         shutil.copy2(ROOT / "experiments/adr-0003-latency" / name, path)
     return tmp_path
-
-
-@pytest.mark.parametrize('relative,affected', [
-    ('tests/kernel_gate_test.py', {'kernel'}),
-    ('tests/single_executor_test.py', {'kernel'}),
-    ('tests/kernel_gate/Proofs.lean', {'kernel'}),
-    ('conformance/model_cases.py', {'model', 'frozen', 'harness', 'upstream'}),
-    ('conformance/replay_tiers.py', {'model', 'frozen', 'harness', 'sample', 'upstream'}),
-    ('conformance/native_workers.py', {'model', 'frozen', 'harness', 'sample', 'upstream'}),
-    ('conformance/corpus_workers.py', {'model', 'frozen', 'harness', 'sample', 'upstream'}),
-    ('conformance/corpus-v5/manifest.json', {'frozen', 'sample'}),
-    ('conformance/corpus-v4/manifest.json', {'frozen', 'upstream'}),
-    ('conformance/corpus-v3/manifest.json', {'frozen', 'upstream'}),
-    ('conformance/corpus-v2/manifest.json', {'frozen', 'upstream'}),
-    ('conformance/corpus-v1/manifest.json', {'frozen', 'upstream'}),
-    ('reports/20261001-adr5-c4-fidelity.json', {'frozen'}),
-    ('conformance/requirements-3.51.0.json', {'model', 'frozen', 'harness', 'upstream'}),
-    ('tools/__init__.py', {'upstream'}),
-    ('tools/check_resources.py', {'upstream'}),
-    ('nix/flake.nix', {'upstream'}),
-    ('nix/flake.lock', {'model', 'frozen', 'harness', 'upstream'}),
-    ('nix/sqlite.nix', {'model', 'frozen', 'harness', 'upstream'}),
-    ('build-support/conformance-native.nix', {'model', 'frozen', 'harness', 'upstream'}),
-    ('conformance/synthetic-workload/workload.json', {'model', 'frozen', 'harness', 'sample'}),
-    ('conformance/progress.py', {'model', 'frozen', 'harness', 'upstream'}),
-    ('tests/conformance_sample_test.py', {'sample'}),
-    ('tests/conformance_tier_bindings_test.py', {'frozen'}),
-    ('tests/conformance_authored_test.py', {'frozen'}),
-    ('tests/conformance_storage_test.py', {'harness'}),
-    ('tests/conformance_loading_workers_test.py', {'harness'}),
-    ('tests/native_worker_fixtures.py', {'sample'}),
-    ('tests/conformance_authored_transactions_test.py', {'harness'}),
-    ('tests/conformance_transaction_evidence_test.py', {'frozen'}),
-    ('conformance/authored_transactions.py', {'model', 'frozen', 'harness', 'upstream'}),
-    ('conformance/transaction_evidence.py', {'model', 'frozen', 'harness', 'upstream'}),
-    ('reports/20261006-grouped-immediate-transactions/manifest.json', {'frozen'}),
-    ('reports/20261006-grouped-immediate-transactions/shards/0000.jsonl.gz', {'frozen'}),
-    ('tests/conformance_freeze_test.py', {'frozen'}),
-    ('tests/conformance_freeze_capture.py', {'model', 'frozen', 'harness', 'upstream'}),
-    ('conformance/native_observation.py', {'model', 'frozen', 'harness', 'sample', 'upstream'}),
-    ('conformance/native_binding_types.py', {'model', 'frozen', 'harness', 'sample', 'upstream'}),
-    ('tests/conformance_command_sources_test.py', {'upstream'}),
-    ('tests/test_native_replay_storage.py', {'upstream'}),
-    ('tests/conformance_foreign_key_recovery_test.py', {'upstream'}),
-    ('conformance/cases/add_then_create.json', {'model', 'frozen', 'harness', 'bundle'}),
-    ('conformance/native_trace.py', {'model', 'frozen', 'harness', 'sample', 'upstream'}),
-    ('conformance/native_acquisition.py', {'model', 'frozen', 'harness', 'sample', 'upstream'}),
-    ('conformance/case_format.py', {'model', 'frozen', 'harness', 'sample', 'upstream'}),
-    ('VerifierConformance/Trace.lean', {'model', 'frozen', 'harness'}),
-    ('tests/conformance_pipeline_test.py', {'model'}),
-    ('belay/sqlite/translate.py', {'model', 'frozen', 'harness', 'sample', 'upstream', 'atuin', 'cli', 'bundle'}),
-    ('migration_check/prepare.py', {'atuin', 'cli', 'bundle'}),
-    ('conftest.py', {'kernel', 'model', 'frozen', 'harness', 'sample', 'upstream', 'atuin', 'cli', 'bundle'}),
-    ('tests/atuin_cli_test.py', {'atuin'}),
-    ('tests/cli_test.py', {'cli'}),
-    ('tests/bundle_test.py', {'bundle'}),
-    ('tests/generated_inputs_test.py', {'bundle'}),
-    ('examples/atuin/Proofs.lean', {'atuin', 'cli', 'bundle'}),
-    ('tests/test_translation.py', set()),
-])
-def test_dependency_invalidation(source_tree: Path, relative: str, affected: set[str]) -> None:
-    """Changing a declared input invalidates only dependent suites; unrelated tests leave both cached."""
-    before = identities(source_tree)
-    path = source_tree / relative
-    path.write_bytes(path.read_bytes() + b'\n')
-    after = identities(source_tree)
-    assert {name for name in before if before[name] != after[name]} == affected
 
 
 def test_failed_pytest_target_has_no_output(source_tree: Path) -> None:

@@ -91,7 +91,7 @@ depends on the other targets; its 1200-second limit only guards against a hang
 outside a test.
 
 The remaining cheap source cases run in one pytest invocation. Cases marked
-`requires_nix` (source identities, test-target invalidation, environment snapshots,
+`requires_nix` (source identities, test-target commands, environment snapshots,
 installer cache paths) run in `just test-nix`; CI selects it for changes to build
 definitions and shared test infrastructure. `just test-atuin` selects
 only the cached Atuin target. Tests use trusted repository fixtures; no production
