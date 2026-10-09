@@ -36,8 +36,16 @@ Relevant files: `build-support/api-reference-core.nix`,
   the report, and the removed `public-doc-inventory.json`. The correction
   changed 10 links on our pages.
 
+- 2026-10-09: commit `b4cd7536`. 149 tests pass, including the Nix source
+  identity, Nix test target and test ownership tests.
+
 ## Remaining
 
 - The upstream report of the recursor-link bug to doc-gen4. Filing it needs the
-  owner's approval.
+  owner's approval. No existing doc-gen4 issue reports it. A likely cause is
+  doc-gen4 PR #371 ("link directly to custom recursors instead of parent
+  type", merged 2026-03-23): links now name a recursor when doc-gen4 has
+  documentation data for it, but no anchor is written for generated
+  recursors. Review `20261009T075621Z-b4cd7536` asks for the report in the
+  docstring (R15, should); the finding is deferred until the report exists.
 - Hosted CI of the pull request, and the reference step after the merge.
