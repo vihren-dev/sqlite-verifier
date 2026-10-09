@@ -29,10 +29,12 @@ COMMAND_TIMEOUT_SECONDS = 600
 CORE_DATABASE = "api-docs.db"
 """The doc-gen4 database that the core build creates and this tool extends."""
 OMITTED_RECURSOR_SUFFIXES = frozenset({"rec", "ndrec", "recOn", "ndrecOn", "casesOn"})
-"""doc-gen4 4.34.1 links to these generated recursors but writes no anchor for them.
+"""Suffixes of internal names that doc-gen4 links to with a missing anchor.
 
-This is the one known doc-gen4 problem on our pages. Its upstream report is recorded in
-`plans/20261009-cached-core-reference.status.md`; remove the correction when doc-gen4 fixes it.
+doc-gen4 maps an internal name such as `Eq.ndrec` to its target type, but uses the internal name
+as the link anchor (`#Eq.ndrec`), which only `#Eq` exists for. On our pages these are the `▸`
+links in derived `decEq` equations. Reported upstream as
+https://github.com/leanprover/doc-gen4/issues/423; remove the correction when it is fixed.
 """
 
 

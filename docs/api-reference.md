@@ -90,8 +90,11 @@ inherited documentation does not replace a declaration's own docstring.
 Temporary declarations in checked documentation code blocks are excluded only
 when their compiler binder positions lie in a compiled Verso comment range.
 
-doc-gen4 4.34.1 links to generated recursors but writes no anchor for them.
-On our pages, such links point to the existing parent type. The build fails
+doc-gen4 links internal names such as `Eq.ndrec` with the internal name as
+the anchor, although only the target type (`#Eq`) has one
+([doc-gen4 issue 423](https://github.com/leanprover/doc-gen4/issues/423)). On
+our pages, these are the `▸` links in derived `decEq` equations. The build
+points them to the existing parent type. The build fails
 when no link needs this correction: then doc-gen4 may have fixed the bug, and
 the correction can be removed.
 

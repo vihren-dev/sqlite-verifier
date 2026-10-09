@@ -89,7 +89,11 @@ module and `fromDb`, and then applies the correction of decision 2.
 - **The correction of Lean's `Init/Tactic.html` typo is removed.** The typo is
   in Lean's documentation, not in ours.
 - **The recursor-link correction stays, for our pages only.** It is the one
-  known doc-gen4 problem on our pages. It names an upstream report to doc-gen4.
+  known doc-gen4 problem on our pages. It names an upstream report to doc-gen4:
+  [doc-gen4 issue 423](https://github.com/leanprover/doc-gen4/issues/423),
+  filed on 2026-10-09. The links come from internal names such as `Eq.ndrec`,
+  which doc-gen4 maps to their type but links with their own name as the
+  anchor. On our pages, they are the `▸` links in derived `decEq` equations.
   When it finds no recursor link to correct on our pages, the build fails with
   a message that the doc-gen4 bug may be fixed and that the correction can be
   removed.

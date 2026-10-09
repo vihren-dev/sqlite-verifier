@@ -39,13 +39,19 @@ Relevant files: `build-support/api-reference-core.nix`,
 - 2026-10-09: commit `b4cd7536`. 149 tests pass, including the Nix source
   identity, Nix test target and test ownership tests.
 
+- 2026-10-09: PR #67 merged. Its Linux CI spent 285 s in the reference step,
+  with no cached core build, against 402 s in PR #63.
+- 2026-10-09: with the owner's approval, filed
+  [doc-gen4 issue 423](https://github.com/leanprover/doc-gen4/issues/423), with
+  a five-line reproduction. The cause is in doc-gen4's code, unchanged on its
+  `main` at `fd5ce8f`: `buildName2ModIdx` maps an internal name such as
+  `Eq.ndrec` only to its target module, and `declNameToLink` uses the internal
+  name as the anchor. doc-gen4 PR #347 introduced this, not PR #371. All 10
+  corrected links on our pages are `▸` links to `Eq.ndrec` in derived `decEq`
+  equations. The workaround docstring, `docs/api-reference.md` and ADR 0009 name
+  the issue, which resolves review finding `20261009T075621Z-b4cd7536#1`.
+
 ## Remaining
 
-- The upstream report of the recursor-link bug to doc-gen4. Filing it needs the
-  owner's approval. No existing doc-gen4 issue reports it. A likely cause is
-  doc-gen4 PR #371 ("link directly to custom recursors instead of parent
-  type", merged 2026-03-23): links now name a recursor when doc-gen4 has
-  documentation data for it, but no anchor is written for generated
-  recursors. Review `20261009T075621Z-b4cd7536` asks for the report in the
-  docstring (R15, should); the finding is deferred until the report exists.
-- Hosted CI of the pull request, and the reference step after the merge.
+- The time of the reference step in a later pull request that changes a Lean
+  source, after a `main` run has saved the core build to the cache.
