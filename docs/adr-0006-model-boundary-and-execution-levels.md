@@ -36,8 +36,9 @@ are `Belay.Sqlite`. The root application imports that package; the model has
 no dependency on the root package. Independent distribution can be added later.
 
 The core entry point imports only model declarations, execution and model
-lemmas. Its transitive dependencies may use `Init` and `Std`, but not `Lean`
-or application modules. A separate `Belay.Sqlite.Codec` library in the same
+lemmas. Its transitive dependencies may use `Init`, but not `Std`, `Lean` or
+application modules. `Std` is excluded because the model does not use it and
+every importer, including the kernel gates, pays its import cost. A separate `Belay.Sqlite.Codec` library in the same
 package may import `Lean` and the core. The core never imports the codec.
 The codec contains the model-value/statement/profile transport currently in
 [packages/belay-sqlite/Belay/Sqlite/Codec.lean](../packages/belay-sqlite/Belay/Sqlite/Codec.lean). Construction of the application's
