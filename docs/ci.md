@@ -34,7 +34,7 @@ Only the last, cheap step uses that hash. The expensive base build does not, and
 `tools/ci_store_gc.py` keeps it in the saved cache, so a run whose Lean sources
 match the cache reuses it.
 CI retains `api-reference-SYSTEM` for 14 days, including when a later check
-fails. The reference checks authored Verso coverage and retains its inventory.
+fails. `just documentation-inventory` checks authored Verso coverage.
 Documentation dependencies stay outside the installed proof runtime.
 The complete job has a 75-minute limit. The reference phase keeps its
 30-minute limit. Individual compiler, suite and installer deadlines remain

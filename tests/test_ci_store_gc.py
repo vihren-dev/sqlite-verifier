@@ -14,12 +14,12 @@ pytestmark = [pytest.mark.unit, pytest.mark.environment]
 
 
 def test_roots_cover_every_target_and_the_development_shell() -> None:
-    """The next run needs the test targets, both runtimes, the parsers, the base API reference
-    and the shell."""
+    """The next run needs the test targets, both runtimes, the parsers, the core and base API
+    references and the shell."""
     instantiate, shell = root_commands(Path("roots"))
     assert instantiate[:2] == ["nix-instantiate", "build-support/default.nix"]
     assert [instantiate[index + 1] for index, value in enumerate(instantiate) if value == "-A"] == \
-        ["tests", "runtime", "conformance", "parsers", "apiReferenceBase"]
+        ["tests", "runtime", "conformance", "parsers", "apiReferenceCore", "apiReferenceBase"]
     assert "--indirect" in instantiate and "roots/derivation" in instantiate
     assert shell[-4:] == ["--profile", "roots/dev-shell", "--command", "true"]
     assert "path:./nix" in shell
