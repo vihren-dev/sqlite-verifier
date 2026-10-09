@@ -9,8 +9,11 @@ let
   inherit (pkgs.stdenv.hostPlatform) isLinux;
   table = builtins.fromJSON (builtins.readFile (root + /parser/dialects.json));
   libraryName = "libsqlite-verifier-parser" + (if isLinux then ".so" else ".dylib");
-  # Prefix of a grammar's symbols; parser/library_steps.py fails if two grammars share one.
-  prefix = identity: "Syntax_" + builtins.substring 0 16 identity;
+  # The identity digits in a grammar's symbol prefix and derivation names;
+  # parser/library_steps.py fails if two grammars share them.
+  prefixDigits = 16;
+  short = identity: builtins.substring 0 prefixDigits identity;
+  prefix = identity: "Syntax_" + short identity;
   # The build steps and the grammar transform; the release and grammar files come per derivation.
   steps = map (name: root + "/parser/${name}.py")
     [ "library_steps" "grammar_sources" "dialect_table" "library_metadata" "generate" ];
@@ -55,7 +58,7 @@ let
     built = releases.${release.version};
   in pkgs.stdenv.mkDerivation {
     pname = "sqlite-verifier-parser-grammar";
-    version = builtins.substring 0 16 identity;
+    version = short identity;
     src = source (steps ++ map (name: root + "/${directory}/${name}") [ "lempar.c" "sqlite3.c" ]);
     nativeBuildInputs = [ pkgs.python3 ];
     dontConfigure = true;
@@ -73,7 +76,7 @@ let
   grammarObjects = flags: identity: let
     release = releaseOfGrammar identity;
     directory = "parser/${release.sources}";
-  in pkgs.runCommandCC "sqlite-verifier-parser-objects-${builtins.substring 0 16 identity}" {
+  in pkgs.runCommandCC "sqlite-verifier-parser-objects-${short identity}" {
     src = source (map (name: root + "/parser/${name}")
       [ "runtime.h" "tokenizer.c" "library_prefix.h" "library_tokenizer.c" "library_grammar.c" ]
       ++ map (name: root + "/${directory}/${name}") [ "sqlite3.c" "sqlite3.h" ]);

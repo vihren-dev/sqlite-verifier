@@ -16,6 +16,8 @@ from tests.runtime_support import run_command
 
 LIBRARY_NAME = "libsqlite-verifier-parser" + (".dylib" if sys.platform == "darwin" else ".so")
 """The file name of the library on this platform."""
+EXECUTABLE_TIMEOUT_SECONDS = 5
+"""One executable run on one input: the old parser deadline."""
 DRIVER_TIMEOUT_SECONDS = 120
 """One driver run over all inputs and grammars; the sanitized build needs about 6 seconds."""
 
@@ -76,7 +78,7 @@ def default_dialects(document: dict[str, object]) -> dict[str, str]:
 def executable_output(executable: Path, sql: bytes, path: Path) -> bytes:
     """Return the standard output of one executable run on sql, which it reads from path."""
     path.write_bytes(sql)
-    result = run_command([executable, path], cwd=path.parent, timeout=5)
+    result = run_command([executable, path], cwd=path.parent, timeout=EXECUTABLE_TIMEOUT_SECONDS)
     assert result.returncode in (0, 1), result.diagnostic()
     return result.stdout.encode()
 

@@ -40,7 +40,8 @@ def release_record(directory: Path, table: DialectTable, preprocessed: str) -> R
     `parser/dialects.json` does not change the steps of the other releases.
     """
     if len(table.releases) != 1:
-        raise ValueError("A release step needs a dialect table with exactly one release")
+        raise ValueError(f"The release step got a dialect table with {len(table.releases)} releases; "
+                         "build-support/parser-library.nix must pass only the release that it builds")
     sources = read_release(directory)
     check_release(table.releases[0], sources)
     for dialect in table.dialects:
@@ -63,12 +64,16 @@ def library_sources(table: DialectTable, releases: list[ReleaseRecord], grammars
                     output: Path) -> None:
     """Write the C inputs of `library.c` for these releases and grammars into output."""
     if {dialect.grammar for dialect in table.dialects} != {grammar.identity for grammar in grammars}:
-        raise ValueError("The built grammars differ from the grammar identities of the dialect table")
+        raise ValueError(f"The library step got grammars {sorted(grammar.identity for grammar in grammars)}, "
+                         f"but parser/dialects.json names {sorted({d.grammar for d in table.dialects})}; "
+                         "build-support/parser-library.nix must pass one grammar for each identity")
     if len({grammar.prefix for grammar in grammars}) != len(grammars):
-        raise ValueError("Two grammars have the same symbol prefix; lengthen the prefix in "
+        raise ValueError("Two grammars have the same symbol prefix; increase prefixDigits in "
                          "build-support/parser-library.nix")
     if [release.version for release in releases] != [release.version for release in table.releases]:
-        raise ValueError("The release records differ from the releases of the dialect table")
+        raise ValueError(f"The library step got release records {[r.version for r in releases]}, but "
+                         f"parser/dialects.json lists {[r.version for r in table.releases]}; "
+                         "build-support/parser-library.nix must pass them in the table's order")
     write_sources(output, metadata(releases, list(table.dialects), grammars), grammars)
 
 

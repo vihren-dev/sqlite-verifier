@@ -30,7 +30,7 @@ def test_release_step_checks_each_dialect_of_its_release(tmp_path: Path) -> None
     changed = DialectTable(table.releases, (Dialect("3.51.0", (), "0" * 64),))
     with pytest.raises(ValueError, match="records 0000"):
         release_record(directory, changed, PREPROCESSED)
-    with pytest.raises(ValueError, match="exactly one release"):
+    with pytest.raises(ValueError, match="must pass only the release"):
         release_record(directory, DialectTable(table.releases * 2, table.dialects), PREPROCESSED)
 
 
@@ -52,12 +52,12 @@ def test_sources_step_needs_every_grammar_once_with_a_unique_prefix(tmp_path: Pa
     grammar = Grammar("ab" * 32, "Syntax_ab", 409, 186)
     library_sources(table, releases, [grammar], tmp_path)
     assert (tmp_path / "library_metadata.inc").is_file()
-    with pytest.raises(ValueError, match="differ from the grammar identities"):
+    with pytest.raises(ValueError, match="one grammar for each identity"):
         library_sources(table, releases, [], tmp_path)
     other = DialectTable(table.releases, (*table.dialects, Dialect("3.51.0", ("SQLITE_X",), "cd" * 32)))
     with pytest.raises(ValueError, match="same symbol prefix"):
         library_sources(other, releases, [grammar, Grammar("cd" * 32, "Syntax_ab", 409, 186)], tmp_path)
-    with pytest.raises(ValueError, match="release records differ"):
+    with pytest.raises(ValueError, match="in the table.s order"):
         library_sources(table, [], [grammar], tmp_path)
 
 
