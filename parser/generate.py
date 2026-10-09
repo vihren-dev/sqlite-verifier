@@ -5,8 +5,13 @@ import re
 from pathlib import Path
 
 
-def generate(preprocessed: str, grammar: str, header: str, native: str, target: Path) -> None:
-    """Preserve productions and parser directives, replacing only semantic actions."""
+def generate(preprocessed: str, grammar: str, header: str, native: str, target: Path,
+             name: str = "Syntax") -> None:
+    """Preserve productions and parser directives, replacing only semantic actions.
+
+    `name` is Lemon's function prefix. The parser library links several grammars into
+    one library, so each grammar there gets its own prefix.
+    """
     tokens = re.findall(r"#define TK_(\w+)\s+(\d+)", header)
     if not tokens or dict(tokens) != dict(re.findall(r"#define TK_(\w+)\s+(\d+)", native)):
         raise ValueError("Upstream grammar and amalgamation token inventories differ")
@@ -16,7 +21,7 @@ def generate(preprocessed: str, grammar: str, header: str, native: str, target: 
     )
     lines = [
         '%include {#include "runtime.h"\n#define YYNOERRORRECOVERY 1}',
-        "%name Syntax", "%start_symbol input", "%token_prefix P_", "%token_type {int}",
+        f"%name {name}", "%start_symbol input", "%token_prefix P_", "%token_type {int}",
         "%default_type {int}", "%extra_argument {Context *ctx}",
         "%stack_size 0", "%realloc realloc", "%free free",
         "%syntax_error {if(!ctx->error) ctx->error = 1;}",
@@ -54,8 +59,9 @@ if __name__ == "__main__":
     cli = argparse.ArgumentParser(description=__doc__)
     cli.add_argument("upstream", type=Path)
     cli.add_argument("directory", type=Path)
+    cli.add_argument("--name", default="Syntax", help="Lemon function prefix")
     args = cli.parse_args()
     generate((args.directory / "preprocessed.y").read_text(),
              (args.directory / "grammar.y").read_text(),
              (args.directory / "parse.h").read_text(),
-             (args.upstream / "sqlite3.c").read_text(), args.directory / "syntax.y")
+             (args.upstream / "sqlite3.c").read_text(), args.directory / "syntax.y", args.name)

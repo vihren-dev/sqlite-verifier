@@ -53,7 +53,7 @@ their per-test limits, described below. The
 [dated evidence](../reports/20261007-darwin-bundle-scheduling/README.md)
 distinguishes the earlier hosted failures from the isolated local pass.
 
-`just test-full` builds nine independent Nix test targets
+`just test-full` builds ten independent Nix test targets
 with `nix-build -A tests`; the flake exposes the same derivations as
 `checks.<system>`:
 
@@ -71,6 +71,11 @@ with `nix-build -A tests`; the flake exposes the same derivations as
 - `tests.atuin`: the Atuin application CLI scenarios.
 - `tests.cli`: public-entrypoint acceptance and adversarial input scenarios.
 - `tests.bundle`: the data path (`prepare`/`verify-bundle`) and opt-in stage reuse.
+- `tests.parserLibrary`: the in-process parser library: one process with all
+  grammars, byte equality with the parser executables for every parser test
+  input and corpus text, and, on Linux, the sanitizer job. Its runtime root
+  holds the built library and inputs, so a model, harness or documentation
+  change reuses the result.
 
 Each target runs ordinary pytest on a cache miss. Its explicit source files,
 Python/pytest, native tools, Lean artifacts and command determine its Nix identity.

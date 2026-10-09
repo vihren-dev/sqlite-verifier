@@ -1,0 +1,10 @@
+{
+  "releases": [
+    {"version": "3.51.0", "sources": "upstream"},
+    {"version": "3.46.0", "sources": "upstream-3.46.0"}
+  ],
+  "dialects": [
+    {"version": "3.51.0", "grammarOptions": [], "grammar": "7c0495821ae35f29088747fd33c5bf52342b75dce5e896fec9d11bd74351b6d0"},
+    {"version": "3.46.0", "grammarOptions": [], "grammar": "191f4283d9f99a43480717a72ed39c54b6242e2376269d6d4a29f8a17e74efea"}
+  ]
+}

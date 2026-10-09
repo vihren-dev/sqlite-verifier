@@ -35,6 +35,16 @@ is no separate local builder or content-stamp cache. The derivation verifies
 upstream checksums; `parser/generate.py` verifies token agreement and transforms
 the grammar before Nix compiles and links the C sources.
 
+`parserLibrary` builds the in-process parser library from the same sources, as
+[ADR 0007](../docs/adr-0007-parser-library.md) decides. Nix reads
+`parser/dialects.json` and makes one derivation for each release
+(`parserLibrary.releases`), one for each distinct grammar identity
+(`parserLibrary.grammars`) and one that links `parserLibrary.library`, so a new
+release or grammar builds only its own derivations. `parser/library_steps.py`
+does the checks between the Lemon and compiler steps. The test suite
+`tests.parserLibrary` checks the library; the verifier and the runtime do not
+use it yet. See the [SQLite syntax boundary](../docs/sqlite-parser.md#parser-library).
+
 `parsers/build/` retains both executables, Lemon tools and generated grammar for
 fresh host coverage. `leanRuntime/.lake/build/` contains the current Lean library
 and checkers. `modelPackage` builds `Belay.Sqlite` and its separate codec with

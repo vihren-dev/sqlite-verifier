@@ -81,5 +81,8 @@
     "tests/conformance_native_bindings_test.py",
     "tests/conformance_tcl_binding_policy_test.py",
     "tests/test_native_replay_storage.py"
+  ],
+  "parserLibrary": [
+    "tests/parser_library_test.py"
   ]
 }

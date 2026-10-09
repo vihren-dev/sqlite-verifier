@@ -72,3 +72,48 @@ Public native fixture imports and formal/native comparisons are separate work.
 Exact source/archive hashes and retained notices are recorded in
 `parser/upstream/{README.md,sha256.json}` and
 `parser/upstream-3.46.0/{README.md,sha256.json}`.
+
+## Parser library
+
+`parserLibrary.library` in `build-support/default.nix` is
+one shared library with a parser for each grammar, which the verifier will load
+into its own process. The verifier and the runtime do not use it yet; the
+executables above stay the parsers in use.
+
+`parser/dialects.json` is the dialect table. It lists each release with its
+source directory, and each built dialect (a release with the grammar options in
+effect) with its grammar identity. A grammar identity is the SHA-256 digest of
+Lemon's preprocessed `parse.y` for those options, the tokenizer and keyword code
+of `sqlite3.c` (`tokenize.c` up to `sqlite3RunParser`), the character tables
+`sqlite3UpperToLower` and `sqlite3CtypeMap`, and the options. The grammar
+options of a release are the macros that the conditionals of `parse.y` and of
+this tokenizer code test; the build extracts them. The build fails when the
+sources give another identity than the table records. After a reviewed source
+change, record the identity from the build's message. Only default dialects are
+built: a dialect with grammar options fails the build.
+
+The library contains one parser for each distinct identity, with its own
+release's tokenizer. Each grammar's symbols have a unique prefix, SQLite's own
+symbols stay internal, and the build fails unless the library exports exactly
+the API of `parser/library.h`:
+
+- `sqlite_verifier_parser_metadata` gives a JSON document with `api` (the API
+  version, 1), `releases` (version, `sourceId`, `grammarOptions`), `dialects`
+  (version, `grammarOptions`, `grammar`) and `grammars` (`grammar`,
+  `productions`, `tokens`).
+- `sqlite_verifier_parser_parse` takes a grammar identity and SQL bytes. It
+  gives the executable's document, with `grammar` (the identity) in place of
+  `profile`. An unknown identity gives result code 1 and no document.
+- `sqlite_verifier_parser_free` releases either document.
+
+The library makes no promise for concurrent calls. The build checks that the
+production count in the metadata equals Lemon's grammar export. Nix builds each
+release and each grammar in its own derivation, so a patch release with an
+unchanged grammar adds a release derivation and no parser.
+
+The test suite `tests.parserLibrary` (`tests/parser_library_test.py`) loads all
+grammars in one process and parses the RAISE case with each. It checks that the
+library output equals the executable output for each release, for every parser
+test input and every distinct SQL text of corpora v1 to v5. On Linux, it parses
+the same inputs with a library built with AddressSanitizer, LeakSanitizer and
+UndefinedBehaviorSanitizer.

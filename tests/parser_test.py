@@ -5,49 +5,11 @@ from tempfile import TemporaryDirectory
 
 import pytest
 
+from tests.parser_inputs import INVALID, OVERSIZED, RAISE_EXPRESSION, UNICODE_SPANS, VALID
 from tests.runtime_support import run_command
 
 pytestmark = [pytest.mark.integration, pytest.mark.parser, pytest.mark.requires_native]
 VERSIONS = ("3.51.0", "3.46.0")
-VALID = (
-    ('empty', b''),
-    ('line_comment', b'-- only a comment'),
-    ('comment_semicolons', b'/* comment */ ; ;'),
-    ('create_add', b'CREATE TABLE t(a TEXT); ALTER TABLE t ADD COLUMN b INTEGER;'),
-    ('quoted_names', b"CREATE TABLE 'quoted name'([x;y] TEXT, `z``a` BLOB);"),
-    ('trigger_semicolons', b"CREATE TRIGGER tr AFTER INSERT ON missing BEGIN SELECT 'a;b'; SELECT 2; END; SELECT 3;"),
-    ('literal_tokens', b"SELECT ';', 'it''s', X'00FF', 1_000, ?1, :named; -- end"),
-    ('contextual_keywords', b'CREATE TABLE window(over, filter, key); SELECT over, filter FROM window;'),
-    ('window_filter', b'SELECT sum(x) FILTER (WHERE x>0) OVER (PARTITION BY a ORDER BY b) FROM absent;'),
-    ('named_window', b'SELECT sum(x) OVER win FROM absent WINDOW win AS (ORDER BY x);'),
-    ('recursive_cte', b'WITH RECURSIVE c(x) AS (VALUES(1) UNION ALL SELECT x+1 FROM c WHERE x<3) SELECT * FROM c;'),
-    ('upsert_returning', b'INSERT INTO absent(a) VALUES(1) ON CONFLICT(a) DO UPDATE SET a=excluded.a RETURNING a;'),
-    ('virtual_table', b"CREATE VIRTUAL TABLE absent USING uninstalled(a, tokenize='porter unicode61');"),
-    ('strict_generated', b"CREATE TABLE s(id INTEGER PRIMARY KEY, x TEXT GENERATED ALWAYS AS ('x')) STRICT;"),
-    ('expression_index', b'CREATE INDEX i ON absent((x+1)) WHERE x IS NOT NULL;'),
-    ('attach_pragma_vacuum', b"ATTACH ':memory:' AS aux; DETACH aux; PRAGMA main.user_version=1; VACUUM;"),
-    ('transaction_savepoint', b'BEGIN IMMEDIATE; SAVEPOINT s; ROLLBACK TO s; RELEASE s; COMMIT;'),
-    ('explain_delete', b'EXPLAIN QUERY PLAN SELECT * FROM missing; DELETE FROM missing RETURNING *;'),
-    ('update_analyze_reindex', b'UPDATE missing SET a=1 WHERE a=0 RETURNING a; ANALYZE missing; REINDEX;'),
-    ('unicode_bom', b'\xef\xbb\xbfCREATE TABLE "caf\xc3\xa9"("\xd0\xbd\xd0\xb0\xd0\xbc\xd0\xb5" TEXT); /*\xe7\xb5\x82*/ ALTER TABLE "caf\xc3\xa9" ADD "\xf0\x9f\x92\xa1";'),
-)
-INVALID = (
-    ('incomplete_select', b'SELECT'),
-    ('incomplete_create', b'CREATE TABLE t('),
-    ('unterminated_string', b"SELECT 'unterminated"),
-    ('odd_blob', b"SELECT X'odd'"),
-    ('trailing_nonsense', b'CREATE TABLE t(a); nonsense;'),
-    ('embedded_nul', b'SELECT 1\x00; DROP TABLE t;'),
-    ('invalid_utf8', b"SELECT '\xff';"),
-    ('incomplete_trigger', b'CREATE TRIGGER t AFTER INSERT ON x BEGIN SELECT 1;'),
-    ('update_limit', b'UPDATE t SET a=1 LIMIT 1'),
-    ('invalid_variable', b'SELECT @;'),
-    ('utf8_surrogate', b"SELECT '\xed\xa0\x80';"),
-    ('double_separator', b'SELECT 1__2'),
-    ('trailing_separator', b'SELECT 1_'),
-    ('hex_double_separator', b'SELECT 0xA__B'),
-    ('separator_before_decimal', b'SELECT 1_.2'),
-)
 
 
 def parse(sql: bytes, expected: str = "PARSED", *, runtime: Path, version: str) -> dict[str, object]:
@@ -89,14 +51,14 @@ def test_invalid_grammar(version: str, sql: bytes, runtime_root: Path) -> None:
 @pytest.mark.parametrize("version", VERSIONS)
 def test_resource_limit(version: str, runtime_root: Path) -> None:
     """An oversized SQL file produces the distinct RESOURCE_LIMIT parser result."""
-    parse(b" " * (1024 * 1024 + 1), "RESOURCE_LIMIT", runtime=runtime_root,
+    parse(OVERSIZED, "RESOURCE_LIMIT", runtime=runtime_root,
           version=version)
 
 
 @pytest.mark.parametrize("version", VERSIONS)
 def test_deterministic_unicode_spans(version: str, runtime_root: Path) -> None:
     """Repeated Unicode parsing preserves exact quoted byte spans and all CST output in both releases."""
-    text = 'CREATE TABLE "café"("💡" TEXT);'.encode()
+    text = UNICODE_SPANS
     result = parse(text, runtime=runtime_root, version=version)
     assert result == parse(text, runtime=runtime_root, version=version)
     nodes = result["nodes"]
@@ -109,5 +71,4 @@ def test_deterministic_unicode_spans(version: str, runtime_root: Path) -> None:
 @pytest.mark.parametrize("version", VERSIONS)
 def test_raise_expression_version_boundary(version: str, runtime_root: Path) -> None:
     """An expression in RAISE (added after 3.46) parses only in the newer pinned grammar."""
-    parse(b"CREATE TRIGGER tr BEFORE INSERT ON t BEGIN SELECT RAISE(FAIL, 1+2); END;",
-          "PARSED" if version == "3.51.0" else "INPUT_ERROR", runtime=runtime_root, version=version)
+    parse(RAISE_EXPRESSION, "PARSED" if version == "3.51.0" else "INPUT_ERROR", runtime=runtime_root, version=version)
