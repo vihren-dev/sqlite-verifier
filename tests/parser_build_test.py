@@ -1,6 +1,8 @@
 """The grammar adapter preserves syntax and rejects mismatched upstream tokens."""
 
 from pathlib import Path
+import subprocess
+import sys
 
 import pytest
 
@@ -35,3 +37,10 @@ def test_generator_uses_the_given_lemon_prefix(tmp_path: Path) -> None:
     header = "#define TK_ID 1\n"
     generate("", "input ::= ID.\n", header, header, tmp_path / "library.y", "Syntax_0123")
     assert "%name Syntax_0123\n" in (tmp_path / "library.y").read_text()
+
+
+def test_generator_command_requires_a_lemon_prefix(tmp_path: Path) -> None:
+    """`parser/generate.py` has no default prefix: two grammars with one prefix cannot link."""
+    result = subprocess.run([sys.executable, "parser/generate.py", "upstream", str(tmp_path)],
+                            cwd=Path(__file__).resolve().parents[1], capture_output=True, text=True, timeout=10)
+    assert result.returncode == 2 and "--name" in result.stderr

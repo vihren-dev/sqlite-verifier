@@ -154,7 +154,7 @@ in {
     tools = [ native.sqlite conformanceNative.fixture ];
     environment.CONFORMANCE_UPSTREAM = conformanceNative.upstream;
   };
-  # The parser library: load test, comparison with the executables and, on Linux, the sanitizer job.
+  # The parser library: all grammars in one process and, on Linux, the sanitizer job.
   # Its runtime root holds the built inputs, so a harness or model change reuses the result.
   parserLibrary = suite "parserLibrary" {
     inputs = map (name: root + "/tests/${name}.py") [ "parser_inputs" "parser_library_inputs" "parser_library_support" ];
