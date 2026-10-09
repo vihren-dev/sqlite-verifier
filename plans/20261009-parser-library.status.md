@@ -67,6 +67,17 @@ Relevant files: `parser/`, `build-support/default.nix`,
 - 2026-10-09: owner review of PR #71: move compiling and linking from Python
   into Nix with one derivation per grammar, and turn the check scripts into a
   pytest suite. Task file revised (outcomes 6 and 7).
+- 2026-10-09: commit `85f0555f`: Nix builds one derivation for each release,
+  each grammar identity and the linked library; `parser/library_steps.py`
+  replaces `parser/library_build.py`. The checks are the `tests.parserLibrary`
+  suite (5 tests, 15.8 s in the sandbox, including the sanitizer run).
+  `tests/parser_library_check.py`, `just parser-library` and its CI cache root
+  are removed. Adding a release `3.51.1` with the 3.51.0 identity to the table
+  left both release derivations and both grammar derivations unchanged and
+  added one release derivation; only the link step changes. `just test-source`
+  with the built runtime: 487 passed; `tests/test_nix_test_targets.py`: 63
+  passed. Review `20261009T141212Z-85f0555f`: three should findings, fixed in
+  `44ed3849` (review `20261009T141403Z-44ed3849`, no findings).
 
 ## Measurements (Linux amd64, local, 2026-10-09)
 
@@ -78,6 +89,7 @@ Relevant files: `parser/`, `build-support/default.nix`,
 | Comparison with the executables, both grammars | 12.9 s |
 | Corpus text extraction | 12.5 s |
 | All `parserLibrary` targets in the Nix sandbox, first build | 47 s |
+| `tests.parserLibrary` suite, all derivations from scratch | 52 s |
 
 ## Remaining
 
