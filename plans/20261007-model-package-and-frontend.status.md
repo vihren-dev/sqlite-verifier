@@ -19,6 +19,16 @@ at the final integrated head remains required. The owner will review that head
 after PRs #57, #53, #50 and #59 are delivered and integrated. T07 stays paused.
 Authorized cleanup is complete, and the resource guard passes before this work.
 
+On 2026-10-09 the owner removed this task's four result folders from
+`reports/`: `20261007-model-package-darwin`, `20261007-model-package-linux`,
+`20261008-model-package-owner-review-changes` and
+`20261009-model-package-integrated-acceptance`. No test or tool reads them,
+and they describe earlier revisions, not the head that will merge. Commit
+`9b8bdae35c54843ebfeaea5073596243adfc1681` still contains them. Links to them
+in the log below are historical. Final acceptance records its counts and
+verdicts in this file and keeps logs and JUnit files in hosted CI or local
+outputs, as the task file now requires.
+
 The accepted ADR was delivered through
 [PR44](https://github.com/vihren-dev/sqlite-verifier/pull/44), normal merge
 `b91e5cb5b3e145bc9713cc5e2b88bd502aa9ad0a`. The approved exporter in

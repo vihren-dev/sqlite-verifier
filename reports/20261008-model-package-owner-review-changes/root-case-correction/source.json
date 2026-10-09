@@ -1,9 +1,0 @@
-{
-  "platform": "aarch64-darwin",
-  "runtime": "/nix/store/1f8yihqg7xw2c0fva4vfsadhi3habffp-sqlite-verifier-runtime-1",
-  "import_path_sha256": "70a26acc28387c7585fd2d05e87d1975c70ed61d41b4796dfb57fe00f8486911",
-  "passing_checks": 18,
-  "mixed_filesystems_native_tested": false,
-  "owner_review_finding": "20261008T103804Z-a630a4fb#1",
-  "owner_review_deferred_until": "final integrated PR #56 review"
-}

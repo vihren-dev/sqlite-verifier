@@ -141,10 +141,11 @@ state and behavior. Sources remain below 200 lines, with complete Python types.
 - Both platforms pass current `just test`, the affected Nix infrastructure
   checks, the full model and conformance suites, kernel and bundle suites, and
   native installed package and Atuin acceptance. Replay frozen v1–v5 and run
-  authored, generated and mutation cases. Retain selected node identities,
-  counts, verdicts, source/runtime/archive identities, commands, logs and JUnit
-  bytes. Prior receipts, synthetic checks or unsupported-only reports do not
-  replace actual acceptance on the new implementation.
+  authored, generated and mutation cases. The status file records the tested
+  revision, commands, counts and verdicts, and names the hosted CI run or local
+  output that holds the logs and JUnit files. The repository does not keep
+  copies of these results. Prior results, synthetic checks or unsupported-only
+  reports do not replace actual acceptance on the new implementation.
 
 Every test and subprocess has an explicit timeout. Short dependency and identity
 checks use bounded fixtures; full and installed suites retain the configured
