@@ -1,6 +1,6 @@
 # ADR 0009: Build the core API reference once per toolchain, without checks of doc-gen4
 
-Date: 2026-10-09. Status: PROPOSED.
+Date: 2026-10-09. Status: ACCEPTED on 2026-10-09.
 Audience: designers and reviewers.
 Related: [API reference](api-reference.md), [CI](ci.md),
 [task for PR #63](../plans/20261008-ci-time-docs-scope-and-cached-reference.task.md),
