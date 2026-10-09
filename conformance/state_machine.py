@@ -13,6 +13,7 @@ from conformance.native_record import record_sql
 from conformance.native_replay import prepare
 from belay.sqlite.sql_model import Affinity
 from belay.sqlite.sql_values import SqlValue
+from conformance.record_parser import default_parser, runtime_library
 
 VALUES = {
     "blob": [None, "", "1", " 1", "1.0", "a'\nb", b"", b"\x00\xff", -(2**63), 2**63-1],
@@ -104,7 +105,7 @@ def generate(runtime: Path, *, error_seeking: bool, examples: int = 20, steps: i
             if error_seeking:
                 self.program.commands.append(command("insert", "t", key=1))
             for program in (self.program, self.ddl):
-                program.roundtrip(runtime / "build/sqlite-parser")
+                program.roundtrip(default_parser(runtime))
                 case, result = acquire(program.fixture(), runtime)
                 if case is not None:
                     native_laws(case)
@@ -114,7 +115,7 @@ def generate(runtime: Path, *, error_seeking: bool, examples: int = 20, steps: i
                 assert result["verdict"] in {"AGREE", "MODEL_UNSUPPORTED"}, (program.fixture(), result)
             native = record_sql("CREATE TABLE t(v INTEGER);",
                 "INSERT INTO t(v) VALUES('" + self.boundary + "');", name="generated-affinity-boundary")
-            case, result = prepare(native, runtime / "build/sqlite-parser")
+            case, result = prepare(native, runtime_library(runtime))
             if case is not None:
                 result = compiled(case, runtime)
                 records.append(case)

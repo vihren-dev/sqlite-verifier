@@ -17,6 +17,7 @@ from conformance.native_replay import prepare
 from conformance.native_storage import serialized
 from conformance.upstream_fidelity import minimize_prefix
 from conformance.upstream_helpers import join_commands
+from conformance.record_parser import runtime_library
 
 pytestmark = [pytest.mark.integration, pytest.mark.conformance, pytest.mark.requires_native("sqlite3")]
 
@@ -113,11 +114,14 @@ def test_original_control_references_survive_minimization() -> None:
     native_replay([minimized])
 
 
+@pytest.mark.requires_native("parser-library")
 @pytest.mark.parametrize("damage", ["version", "missing", "duplicate", "setup-count", "source-name", "source-value", "expected"])
-def test_malformed_inputs_fail_before_profile_unsupported(profile: ExecutionProfile, damage: str) -> None:
+def test_malformed_inputs_fail_before_profile_unsupported(profile: ExecutionProfile, damage: str,
+                                                          runtime_root: Path) -> None:
     """A valid explicit profile cannot conceal malformed or inconsistent retained binding inputs."""
     record = source_record(profile)
-    assert prepare(record, Path("/unused-parser"))[1]["verdict"] == "MODEL_UNSUPPORTED"
+    library = runtime_library(runtime_root)
+    assert prepare(record, library)[1]["verdict"] == "MODEL_UNSUPPORTED"
     if damage == "version":
         record["bindingRecordingVersion"] = True
     elif damage == "missing":
@@ -133,7 +137,7 @@ def test_malformed_inputs_fail_before_profile_unsupported(profile: ExecutionProf
         record["setupBindings"][2][0]["parameters"][0] = {"integer": {"value": 8}}
     else:
         record["sourceCalls"]["assertion"][0]["results"] = ["8"]
-    assert prepare(record, Path("/unused-parser"))[1]["verdict"] == "HARNESS_ERROR"
+    assert prepare(record, library)[1]["verdict"] == "HARNESS_ERROR"
     with pytest.raises(ValueError):
         native_replay([record])
 

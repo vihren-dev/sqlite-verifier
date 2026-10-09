@@ -8,6 +8,7 @@ from collections.abc import Callable
 import hashlib
 import json
 from pathlib import Path
+import sys
 import os
 
 import pytest
@@ -15,6 +16,7 @@ import pytest
 from tests.runtime_support import CommandResult
 from migration_check.import_path import merged_search_path
 from migration_check.source_closure import lean_process
+from belay.sqlite.parser_library import library_name
 
 pytestmark = [pytest.mark.e2e, pytest.mark.kernel, pytest.mark.requires_lean, pytest.mark.requires_native]
 CASES = {"small": ("approved", "add_column_then_table", "approved/schema.sql", "3.51.0"),
@@ -44,8 +46,8 @@ def input_digests(examples: Path, approved: str, candidate: str, schema: str) ->
 def exporter_runtime_identity(runtime_root: Path, lean_sysroot: Path) -> dict[str, object]:
     """Retain actual runtime code, executable and compiled-library identities in native evidence."""
     library = runtime_root / ".lake/build/lib/lean"
-    executables = {name: runtime_root / name for name in ("bin/migration-check", "build/sqlite-parser",
-        "build/sqlite-parser-3.46.0", ".lake/build/bin/migration-proof-exporter",
+    executables = {name: runtime_root / name for name in ("bin/migration-check", f"lib/{library_name(sys.platform)}",
+        ".lake/build/bin/migration-proof-exporter",
         ".lake/build/bin/migration-proof-checker", ".lake/build/bin/migration-bundle-checker")}
     executables["lean/bin/lean"] = lean_sysroot / "bin/lean"
     return {"runtime": str(runtime_root.resolve()), "sysroot": str(lean_sysroot.resolve()),

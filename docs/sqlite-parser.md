@@ -1,29 +1,45 @@
 # SQLite syntax boundary
 
-Build: `just parser`. Test inside the pinned development shell:
-`just test-cases tests/parser_test.py`.
-Nix builds and caches both versions; the paths below link to its immutable output.
-The executables `build/sqlite-parser INPUT.sql` (3.51.0) and
-`build/sqlite-parser-3.46.0 INPUT.sql` each read one UTF-8 file and emit JSON.
-No database is opened and no SQL is executed, prepared, or schema-resolved.
+The verifier and the conformance harness parse SQL with SQLite's own grammar and
+tokenizer, compiled into one shared library that they load into their own
+process: `lib/libsqlite-verifier-parser.so` (`.dylib` on macOS) in the runtime.
+Nix builds it as `parserLibrary.library` in `build-support/default.nix`, and
+`just build` links it at `lib/` in the checkout. Test inside the pinned
+development shell: `just test-cases tests/parser_test.py`. No database is
+opened and no SQL is executed, prepared, or schema-resolved.
 
-Successful output is `PARSED`, never `VERIFIED`. It contains the actual upstream
-header's version as `profile` (`3.51.0` or `3.46.0`),
-a root node index, and a flat node array. Every node contains its upstream grammar
-symbol, `start`/`end` UTF-8 byte offsets (end exclusive), and ordered child indexes.
-Terminals have no children. Empty productions have zero-width spans. The implicit
-EOF semicolon also has a zero-width span. Whitespace/comments are not nodes.
-The input root contains ordered `cmdlist`/`ecmd` productions; trigger statements
-remain inside the corresponding outer command. Symbols and offsets, together
-with original input bytes, are sufficient for downstream semantic translation.
+`belay/sqlite/parser_library.py` loads the library with `ctypes`, only from the
+runtime's explicit path, once for each process. It refuses a library with
+another API version, or without a dialect for each profile in
+`belay/sqlite/profiles.py`, and it holds its own lock for each call: the
+library makes no promise for concurrent calls. `belay/sqlite/dialects.py`
+selects the grammar of a profile from its release, its SQLite source id and the
+grammar options among its compile options, and never falls back to another
+dialect. `verify` uses the default dialect of its profile's release. The
+conformance harness uses the dialect of each case's recorded profile; a case
+without a built dialect is `MODEL_UNSUPPORTED` with the reason "no parser for
+this dialect".
+
+A parse runs in the verifier's process. It has no deadline and no crash
+containment: the input and node limits bound it, and Lemon's LALR parsing is
+linear in the number of tokens.
+
+A successful parse document has status `PARSED`, never `VERIFIED`. It contains
+the grammar identity as `grammar`, a root node index, and a flat node array.
+Every node contains its upstream grammar symbol, `start`/`end` UTF-8 byte
+offsets (end exclusive), and ordered child indexes. Terminals have no children.
+Empty productions have zero-width spans. The implicit EOF semicolon also has a
+zero-width span. Whitespace/comments are not nodes. The input root contains
+ordered `cmdlist`/`ecmd` productions; trigger statements remain inside the
+corresponding outer command. Symbols and offsets, together with original input
+bytes, are sufficient for downstream semantic translation.
 
 `INPUT_ERROR` indicates invalid UTF-8, embedded NUL, a lexical error, or rejection
-by the pinned grammar. `RESOURCE_LIMIT` indicates the 1 MiB input or 200,000-node
-bound or allocation/stack failure. Errors include a byte offset where available;
-whole-file encoding/size errors use offset zero. Error output is bounded. These
-parser-internal statuses must be mapped by the verifier: resource exhaustion is
-not evidence of invalid SQL or a violated requirement. Usage/I/O errors exit
-nonzero with stderr diagnostics. Any accepted parse exits zero.
+by the grammar. `RESOURCE_LIMIT` indicates the 1 MiB input or 200,000-node bound
+or allocation failure. Errors include a byte offset where available;
+whole-text encoding/size errors use offset zero. The frontend maps
+`RESOURCE_LIMIT` to `UNVERIFIED`: resource exhaustion is not evidence of
+invalid SQL or a violated requirement.
 
 ## Grammar provenance and dialect
 
@@ -40,7 +56,8 @@ Tokenization calls the pinned `sqlite3GetToken` implementation and its contextua
 `WINDOW`/`OVER`/`FILTER` helpers. Comments are enabled, matching the native default.
 Numeric-separator adjacency validation follows upstream `sqlite3DequoteNumber`:
 that lexical check occurs in SQLite's expression action rather than its tokenizer.
-No `SQLITE_OMIT_*` or `SQLITE_ENABLE_UPDATE_DELETE_LIMIT` grammar switches are set.
+The built dialects are the default builds: no `SQLITE_OMIT_*` or
+`SQLITE_ENABLE_UPDATE_DELETE_LIMIT` grammar switches are set.
 This is default-build grammar recognition, not schema/name-resolution validity.
 For example, an uninstalled virtual-table module or unknown table still parses.
 Double-quoted tokens are recognized syntactically; the selected execution
@@ -60,7 +77,8 @@ equivalence proof.
 ## Coverage
 
 Each pinned default grammar has 409 productions, independently generated from
-its release's sources. The regression suite exercises 20 scripts per release
+its release's sources. The regression suite (`tests/parser_test.py`) exercises
+21 scripts in each grammar
 across DDL, DML, CTEs, windows, triggers,
 virtual tables, pragmas, transaction control, and EXPLAIN; malformed input,
 encoding/resource boundaries, determinism, and byte spans are separate checks.
@@ -73,12 +91,7 @@ Exact source/archive hashes and retained notices are recorded in
 `parser/upstream/{README.md,sha256.json}` and
 `parser/upstream-3.46.0/{README.md,sha256.json}`.
 
-## Parser library
-
-`parserLibrary.library` in `build-support/default.nix` is
-one shared library with a parser for each grammar, which the verifier will load
-into its own process. The verifier and the runtime do not use it yet; the
-executables above stay the parsers in use.
+## Library build and dialect table
 
 `parser/dialects.json` is the dialect table. It lists each release with its
 source directory, and each built dialect (a release with the grammar options in
@@ -102,8 +115,8 @@ the API of `parser/library.h`:
   (version, `grammarOptions`, `grammar`) and `grammars` (`grammar`,
   `productions`, `tokens`).
 - `sqlite_verifier_parser_parse` takes a grammar identity and SQL bytes. It
-  gives the executable's document, with `grammar` (the identity) in place of
-  `profile`. An unknown identity gives result code 1 and no document.
+  gives the parse document above. An unknown identity gives result code 1 and
+  no document.
 - `sqlite_verifier_parser_free` releases either document.
 
 The library makes no promise for concurrent calls. The build checks that the
@@ -112,8 +125,8 @@ release and each grammar in its own derivation, so a patch release with an
 unchanged grammar adds a release derivation and no parser.
 
 The test suite `tests.parserLibrary` (`tests/parser_library_test.py`) loads all
-grammars in one process and parses the RAISE case with each. It checks that the
-library output equals the executable output for each release, for every parser
-test input and every distinct SQL text of corpora v1 to v5. On Linux, it parses
-the same inputs with a library built with AddressSanitizer, LeakSanitizer and
-UndefinedBehaviorSanitizer.
+grammars in one process and parses the RAISE case with each. On Linux, it parses
+every parser test input and every distinct SQL text of corpora v1 to v5 with a
+library built with AddressSanitizer, LeakSanitizer and
+UndefinedBehaviorSanitizer. Before the parser executables were removed, the
+library output was byte-identical to theirs for all these inputs.

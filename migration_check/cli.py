@@ -80,7 +80,7 @@ def arguments(values: Sequence[str]) -> argparse.Namespace:
 def verify(options: argparse.Namespace) -> dict[str, object]:
     """Seal SQL and approved sources, compile in isolation, and invoke the independent gate."""
     inputs = generated_inputs(options)
-    runtime = Runtime.locate(inputs.profile.engine)
+    runtime = Runtime.locate()
     from .compile import CompileError, EXPECTED_SOURCE, compile_project
 
     schema_hash, starting, generated = inputs.schema_hash, inputs.schema_source, inputs.sql_source

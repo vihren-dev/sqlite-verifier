@@ -52,6 +52,7 @@
     "tests/conformance_ordering_test.py",
     "tests/conformance_clock_test.py",
     "tests/conformance_profile_test.py",
+    "tests/conformance_dialect_test.py",
     "tests/conformance_driver_profiles_test.py",
     "tests/conformance_readonly_workload_test.py",
     "tests/conformance_context_test.py",

@@ -21,7 +21,7 @@ class CiScopeTest(unittest.TestCase):
                     (["docs/nested/guide.md"], "docs"), (["unknown/file.md"], "test"),
                     (["reviews/log.jsonl"], "docs"), (["docs/adr.md", "reviews/log.jsonl"], "docs"),
                     (["reviews/log.jsonl", "tools/review.py"], "test"),
-                    (["reviews/log.jsonl", "parser/main.c"], "package"),
+                    (["reviews/log.jsonl", "parser/library.c"], "package"),
                     (["reviews/other.jsonl"], "test"), (["reviews/notes.md"], "test"),
                     (["log.jsonl"], "test"),
                     (["parser/upstream/README.md"], "package"),
@@ -47,7 +47,7 @@ class CiScopeTest(unittest.TestCase):
                     (["tests/runtime_installation.py"], "package"),
                     (["tests/test_translation.py"], "test"),
                     (["docs/install.md"], "packaging"),
-                    (["README.md", "parser/main.c"], "package"),
+                    (["README.md", "parser/library.c"], "package"),
                     (["migration_check/runtime.py"], "packaging"),
                     (["examples/atuin/Proofs.lean"], "test"),
                     (["migration_check/runtime.py", "tests/nix_suites.json"], "package"),
@@ -70,7 +70,7 @@ class CiScopeTest(unittest.TestCase):
             root = Path(directory)
             git(root, "init", "-q")
             (root / "parser").mkdir()
-            source = root / "parser/main.c"
+            source = root / "parser/library.c"
             source.write_text("fixture")
 
             def commit() -> str:

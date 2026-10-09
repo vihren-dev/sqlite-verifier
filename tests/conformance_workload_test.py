@@ -19,7 +19,7 @@ from conformance.workload_inputs import load_inputs
 
 ROOT = Path(__file__).resolve().parents[1]
 pytestmark = [pytest.mark.integration, pytest.mark.conformance,
-              pytest.mark.requires_native("sqlite3", "sqlite-parser")]
+              pytest.mark.requires_native("sqlite3", "parser-library")]
 
 
 def copied_inputs(tmp_path: Path) -> Path:

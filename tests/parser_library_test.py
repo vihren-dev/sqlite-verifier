@@ -1,12 +1,10 @@
-"""The parser library loads all grammars in one process and gives the executables' results.
+"""The parser library loads all grammars in one process and is free of memory faults.
 
 These tests check the library that `build-support/parser-library.nix` builds from
-`parser/library*.c` and `parser/dialects.json`: its metadata, its grammar selection, its
-equality with the `sqlite-parser` executables of each release, and its memory safety
-under the sanitizers. The comparison ends when the executables are removed.
+`parser/library*.c` and `parser/dialects.json`: its metadata, its grammar selection in
+one process, and its memory safety under the sanitizers.
 """
 
-from concurrent.futures import ThreadPoolExecutor
 import os
 from pathlib import Path
 import sys
@@ -15,14 +13,11 @@ import pytest
 
 from tests.parser_inputs import RAISE_EXPRESSION
 from tests.parser_library_inputs import read_records, write_records
-from tests.parser_library_support import (
-    Build, Result, default_dialects, executable_output, metadata, parse_all, parsed_status, with_grammar)
+from tests.parser_library_support import Build, Result, default_dialects, metadata, parse_all, parsed_status
 
 pytestmark = [pytest.mark.integration, pytest.mark.parser]
 API_VERSION = 1
 """The API version of `parser/library.h`."""
-EXECUTABLES = {"3.51.0": "sqlite-parser", "3.46.0": "sqlite-parser-3.46.0"}
-"""The executable of each release; the comparison uses its output as the reference."""
 RAISE_ACCEPTED = {"3.51.0": True, "3.46.0": False}
 """Whether each release accepts an expression in RAISE, which SQLite 3.47 added."""
 UNKNOWN_GRAMMAR = "0" * 64
@@ -60,24 +55,6 @@ def test_one_process_parses_with_each_grammar(build: Build, tmp_path: Path) -> N
     for version, [result] in zip(versions, results):
         assert parsed_status(result) == ("PARSED" if RAISE_ACCEPTED[version] else "INPUT_ERROR"), (version, result)
     assert results[-1] == [Result(1, b"")]
-
-
-@pytest.mark.parametrize("version", sorted(EXECUTABLES))
-def test_library_gives_the_executable_output(version: str, build: Build, runtime_root: Path,
-                                             tmp_path: Path) -> None:
-    """For every parser test input and corpus text, the library output equals the executable
-    output byte for byte, except that the grammar identity replaces the release."""
-    identity = default_dialects(metadata(build, tmp_path))[version]
-    inputs = runtime_root / "inputs"
-    records = read_records(inputs)
-    [outputs] = parse_all(build, inputs, [identity], tmp_path)
-    executable = runtime_root / "build" / EXECUTABLES[version]
-    with ThreadPoolExecutor(os.cpu_count()) as pool:
-        expected = list(pool.map(lambda item: executable_output(executable, item[1], tmp_path / f"{item[0]}.sql"),
-                                 enumerate(records)))
-    differences = [sql for sql, reference, result in zip(records, expected, outputs, strict=True)
-                   if result != Result(0, with_grammar(reference, version, identity))]
-    assert not differences, f"{len(differences)} of {len(records)} inputs differ, first: {differences[0][:200]!r}"
 
 
 @pytest.mark.skipif(not sys.platform.startswith("linux"), reason="the sanitizer job runs on Linux amd64 only")

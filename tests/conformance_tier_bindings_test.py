@@ -15,7 +15,7 @@ ROOT = Path(__file__).resolve().parents[1]
 GENERIC = ROOT / "conformance/corpus-v4"
 SYNTHETIC = ROOT / "conformance/synthetic-workload"
 pytestmark = [pytest.mark.integration, pytest.mark.conformance,
-              pytest.mark.requires_native("sqlite3", "sqlite-parser")]
+              pytest.mark.requires_native("sqlite3", "parser-library")]
 
 
 @pytest.mark.parametrize("binding", ["digest", "profile", "evidence"])

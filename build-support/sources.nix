@@ -38,5 +38,4 @@ in {
   lean = source leanFiles;
   conformanceLean = source (fs.unions [ leanFiles
     (root + /ConformanceRunner.lean) (extensions [ "lean" ] (root + /VerifierConformance)) ]);
-  parsers = source (extensions [ "py" "c" "h" "y" "json" ] (root + /parser));
 }

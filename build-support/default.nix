@@ -51,51 +51,17 @@ in rec {
     inherit pkgs; inherit (conformanceNative) fixture upstream;
   };
   tests = import ./tests.nix {
-    inherit pkgs leanToolchain leanRuntime parsers runtime native conformance modelPackage root;
+    inherit pkgs leanToolchain leanRuntime runtime native conformance modelPackage root;
     parserLibrary = parserLibrary.testRoot;
   };
   # `just test` skips the slow model comparisons and the frozen evidence; `just test-full` runs them.
   developmentTests = pkgs.lib.removeAttrs tests [ "model" "frozen" ];
   runtime = import ./runtime.nix {
-    inherit pkgs sources leanToolchain parsers leanRuntime modelPackage;
+    inherit pkgs sources leanToolchain leanRuntime modelPackage;
+    parserLibrary = parserLibrary.library;
   };
-  parsers = pkgs.stdenv.mkDerivation {
-    pname = "sqlite-verifier-parsers";
-    version = "1";
-    src = sources.parsers;
-    nativeBuildInputs = [ pkgs.python3 ];
-    dontConfigure = true;
-    buildPhase = pkgs.lib.concatMapStringsSep "\n" (release:
-      let
-        upstream = "parser/${release.source}";
-        directory = "build/${release.directory}";
-        hashes = builtins.fromJSON (builtins.readFile (../parser + "/${release.source}/sha256.json"));
-      in ''
-        (cd ${upstream}; sha256sum --check <<'HASHES'
-        ${pkgs.lib.concatStringsSep "\n" (pkgs.lib.mapAttrsToList (name: hash: "${hash}  ${name}") hashes)}
-        HASHES
-        )
-        mkdir -p ${directory}
-        $CC ${upstream}/lemon.c -o ${directory}/lemon
-        ${directory}/lemon -q -d${directory} -T${upstream}/lempar.c ${upstream}/parse.y
-        ${directory}/lemon -E ${upstream}/parse.y > ${directory}/preprocessed.y
-        ${directory}/lemon -g ${upstream}/parse.y > ${directory}/grammar.y
-        python3 parser/generate.py ${upstream} ${directory}
-        ${directory}/lemon -q -T${upstream}/lempar.c ${directory}/syntax.y
-        $CC -std=c99 -O1 -Iparser -I${directory} -I${upstream} \
-          parser/tokenizer.c ${directory}/syntax.c parser/main.c \
-          -lm -lpthread -ldl -o build/${release.executable}
-      '') [
-        { source = "upstream"; directory = "parser"; executable = "sqlite-parser"; }
-        { source = "upstream-3.46.0"; directory = "parser-3.46.0"; executable = "sqlite-parser-3.46.0"; }
-      ];
-    installPhase = ''
-      mkdir -p "$out"
-      cp -R build "$out/"
-    '';
-  };
-  # The in-process parser library; the verifier does not use it yet. tests.parserLibrary checks it.
-  parserLibrary = import ./parser-library.nix { inherit pkgs parsers root; };
+  # The in-process SQLite parser library of the verifier and the harness; tests.parserLibrary checks it.
+  parserLibrary = import ./parser-library.nix { inherit pkgs root; };
   leanRuntime = pkgs.stdenv.mkDerivation {
     pname = "sqlite-verifier-lean-runtime";
     version = "1";
@@ -135,7 +101,7 @@ in rec {
     ln -s ${conformanceRuntime}/.lake "$out/.lake"
     mkdir -p "$out/packages"
     ln -s ${modelPackage} "$out/packages/belay-sqlite"
-    ln -s ${parsers}/build "$out/build"
+    ln -s ${parserLibrary.library}/lib "$out/lib"
   '';
   conformanceCoverage = conformanceRuntime.overrideAttrs (old: {
     pname = "sqlite-verifier-conformance-coverage";

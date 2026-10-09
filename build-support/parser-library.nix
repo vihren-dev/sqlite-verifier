@@ -1,8 +1,8 @@
-# The SQLite parser library (see docs/sqlite-parser.md, "Parser library").
+# The SQLite parser library (see docs/sqlite-parser.md, "Library build and dialect table").
 # Nix reads parser/dialects.json and makes one derivation for each release, one for each
 # distinct grammar identity and one that links the library, so a new release or grammar
 # builds only its own derivations. The `parserLibrary` suite of tests.nix checks the result.
-{ pkgs, parsers, root ? ../. }:
+{ pkgs, root ? ../. }:
 let
   inherit (pkgs) lib;
   fs = lib.fileset;
@@ -126,12 +126,11 @@ in {
   inherit releases grammars inputs;
   library = normal;
   # The runtime root of the parserLibrary test suite: the library, the driver, the
-  # executables for the comparison, the inputs and, on Linux, the sanitized build.
+  # inputs and, on Linux, the sanitized build.
   testRoot = pkgs.runCommandCC "sqlite-verifier-parser-library-tests" {} ''
     mkdir -p "$out/bin" "$out/lib"
     ln -s ${normal}/lib/${libraryName} "$out/lib/${libraryName}"
     $CC -std=c99 -O1 ${driver} -o "$out/bin/parser-library-driver" ${lib.optionalString isLinux "-ldl"}
-    ln -s ${parsers}/build "$out/build"
     ln -s ${inputs} "$out/inputs"
     ${lib.optionalString isLinux ''
       mkdir -p "$out/sanitized/bin" "$out/sanitized/lib"

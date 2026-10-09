@@ -12,6 +12,7 @@ import pytest
 
 from conformance.execution_profile import measured_profile, profile_from_wire
 from conformance.native_connection import Connection, library_path, load_library
+from conformance.record_parser import runtime_library
 
 pytestmark = [pytest.mark.integration, pytest.mark.conformance, pytest.mark.requires_native("sqlite3")]
 
@@ -91,9 +92,9 @@ def test_recorded_profile_clock_and_fresh_replay(tmp_path: Path, runtime_root: P
         (tmp_path / "manifest.json").write_text(json.dumps({**manifest, "executionProfiles": declarations}))
         with pytest.raises(ValueError, match="profile"):
             load(tmp_path)
-    assert prepare(record, runtime_root / "build/sqlite-parser")[1]["verdict"] == "MODEL_UNSUPPORTED"
+    assert prepare(record, runtime_library(runtime_root))[1]["verdict"] == "MODEL_UNSUPPORTED"
     malformed = {**record, "setupClockUnixMilliseconds": True}
-    assert prepare(malformed, runtime_root / "build/sqlite-parser")[1]["verdict"] == "HARNESS_ERROR"
+    assert prepare(malformed, runtime_library(runtime_root))[1]["verdict"] == "HARNESS_ERROR"
     with pytest.raises(ValueError, match="profile differs"):
         native_replay([record], profile=replace(profile, foreign_keys=False))
     with pytest.raises(ValueError, match="one clock value"):
@@ -140,7 +141,7 @@ def test_profile_selects_its_pinned_engine(tmp_path: Path, runtime_root: Path) -
     record = record_sql("", "SELECT 1;", name="older-pin", outputs=True, profile=profile)
     assert record["sourceId"] == profile.source_id
     native_replay([record], profile=profile)
-    assert prepare(record, runtime_root / "build/sqlite-parser")[1]["verdict"] == "MODEL_UNSUPPORTED"
+    assert prepare(record, runtime_library(runtime_root))[1]["verdict"] == "MODEL_UNSUPPORTED"
 
 
 def test_fixed_clock_records_native_statement_boundaries(tmp_path: Path) -> None:
@@ -192,3 +193,4 @@ def test_profile_equal_setting_writes_preserve_readback(tmp_path: Path) -> None:
             profile.verify_settings(connection)
     finally:
         connection.close()
+

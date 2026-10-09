@@ -10,12 +10,11 @@ from tests.runtime_support import run_command
 
 ROOT = Path(__file__).resolve().parents[1]
 pytestmark = [pytest.mark.integration, pytest.mark.environment, pytest.mark.requires_nix]
-COMPONENTS: set[str] = {"runtime", "parsers", "lean", "conformanceLean", "model"}
+COMPONENTS: set[str] = {"runtime", "lean", "conformanceLean", "model"}
 DYNAMIC: dict[str, set[str]] = {
     "packages/belay-sqlite/Belay/Sqlite/Model.lean": {"model"},
     "packages/belay-sqlite/Belay/Sqlite/Codec.lean": {"model"},
-    **{f"parser/input.{suffix}": {"parsers"}
-       for suffix in ("py", "c", "h", "y", "json")},
+    **{f"parser/input.{suffix}": set() for suffix in ("py", "c", "h", "y", "json")},
     "SqliteVerifier/Contract.lean": {"lean", "conformanceLean"}, "Root.lean": {"lean", "conformanceLean"},
     "SqliteVerifier/ContractProofs.lean": {"lean", "conformanceLean"},
     "SqliteVerifier/Library.lean": {"lean", "conformanceLean"},
@@ -36,6 +35,16 @@ FIXED: dict[str, set[str]] = {
 PARENTS: tuple[str, ...] = (".", "parser", "SqliteVerifier", "VerifierConformance", "migration_check", "belay/sqlite", "tests", "packaging", "tools",
            "conformance", "examples", "packages/belay-sqlite", "packages/belay-sqlite/Belay/Sqlite")
 IGNORED: tuple[str, ...] = (".git", ".jj", ".lake", "build", "dist", "__pycache__")
+PARSER_LIBRARY_INPUTS: dict[str, str] = {
+    "parser/dialects.json": json.dumps({"releases": [{"version": "3.51.0", "sources": "upstream"}],
+                                        "dialects": [{"version": "3.51.0", "grammarOptions": [], "grammar": "0" * 64}]}),
+    **{f"parser/{name}": f"declared input {name}\n" for name in (
+        "library_steps.py", "grammar_sources.py", "dialect_table.py", "library_metadata.py", "generate.py",
+        "runtime.h", "tokenizer.c", "library_prefix.h", "library_tokenizer.c", "library_grammar.c",
+        "library.c", "library.h", "upstream/lempar.c", "upstream/sqlite3.c", "upstream/sqlite3.h")},
+}
+"""The files that `build-support/parser-library.nix` reads when Nix evaluates the runtime's
+parser library: a one-release dialect table and placeholders, since nothing is built."""
 
 
 def identities(root: Path) -> dict[str, str]:
@@ -65,6 +74,10 @@ def identity_baseline(tmp_path_factory: pytest.TempPathFactory) -> tuple[Path, d
         path = root / name
         path.parent.mkdir(parents=True, exist_ok=True)
         path.write_text(f"declared input {name}\n")
+    for name, text in PARSER_LIBRARY_INPUTS.items():
+        path = root / name
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text(text)
     return root, identities(root)
 
 

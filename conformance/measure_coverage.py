@@ -15,6 +15,7 @@ from conformance.case_format import Json
 from conformance.corpus import load
 from conformance.model_check import compiled_many
 from conformance.native_replay import prepare
+from conformance.record_parser import runtime_library
 
 
 def workload(runtime: Path, generated: Path) -> tuple[list[dict[str, Json]], dict[str, int]]:
@@ -23,7 +24,7 @@ def workload(runtime: Path, generated: Path) -> tuple[list[dict[str, Json]], dic
     cases += [json.loads(path.read_text()) for path in sorted(Path("conformance/cases").glob("*.json"))]
     counts: Counter[str] = Counter()
     for record in load(Path("conformance/corpus-v3"))[1]:
-        case, error = prepare(record, runtime / "build/sqlite-parser")
+        case, error = prepare(record, runtime_library(runtime))
         if case is not None:
             cases.append(case)
         else:

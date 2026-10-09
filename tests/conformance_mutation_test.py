@@ -11,17 +11,18 @@ from conformance.native_connection import Connection
 from conformance.native_trace import Fixture, initialize, record
 from conformance.model_check import compiled, evaluate
 from belay.sqlite.sql_model import Table
+from conformance.record_parser import default_parser
 
 ROOT = Path(__file__).resolve().parents[1]
 pytestmark = [pytest.mark.integration, pytest.mark.conformance, pytest.mark.kernel,
-              pytest.mark.requires_lean, pytest.mark.requires_native("sqlite-parser", "sqlite3")]
+              pytest.mark.requires_lean, pytest.mark.requires_native("parser-library", "sqlite3")]
 
 
 def test_model_mutation(runtime_root: Path, tmp_path: Path) -> None:
     """Dropping INSERT in an isolated copy of the production model yields DISAGREE in both tiers."""
     fixture = Fixture("CREATE TABLE records(id INTEGER);",
         "BEGIN; INSERT INTO records(id) VALUES(9); COMMIT;", {}, "insert-mutant")
-    case = record(fixture, runtime_root / "build/sqlite-parser")
+    case = record(fixture, default_parser(runtime_root))
     result = compiled(case, runtime_root, emit_lean=True)
     assert result["verdict"] == "AGREE"
     sources = []

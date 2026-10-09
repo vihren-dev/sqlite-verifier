@@ -9,8 +9,9 @@ from belay.sqlite.errors import SqlError
 from belay.sqlite.quoted_text import quoted_string
 from belay.sqlite.sql_model import transition
 from migration_check.lean_inputs import sql_inputs
-from belay.sqlite.sql_tree import Tree, parse
+from belay.sqlite.sql_tree import SqlParser, Tree, parse
 from belay.sqlite.translate import normalize, starting_schema, statements
+from conformance.record_parser import default_parser
 
 pytestmark = [pytest.mark.integration, pytest.mark.parser, pytest.mark.requires_native]
 UNSUPPORTED_STATEMENTS = [
@@ -72,13 +73,23 @@ def test_duplicate_and_empty_schema(parse_sql: Callable[..., Tree]) -> None:
     assert starting_schema(parse_sql('-- empty\n;')) == ()
 
 
-def test_wrong_parser_profile_is_rejected(runtime_root: Path) -> None:
-    """Selecting a different engine cannot silently consume the current grammar binary."""
+def test_result_for_another_grammar_is_rejected(runtime_root: Path) -> None:
+    """`parse` refuses a library document for another grammar than the one it requested."""
+    parser = default_parser(runtime_root)
+
+    class OtherGrammar:
+        """A library whose documents name another grammar."""
+
+        metadata = parser.library.metadata
+
+        def parse(self, grammar: str, sql: bytes) -> object:
+            """Return the real document with another grammar identity."""
+            return {**parser.library.parse(grammar, sql), "grammar": "0" * 64}  # type: ignore[dict-item]
+
     with pytest.raises(SqlError) as rejected:
-        parse(runtime_root / "build/sqlite-parser", b'CREATE TABLE t(x TEXT);', 'fixture.sql',
-              expected_profile='3.46.0')
+        parse(SqlParser(OtherGrammar(), parser.grammar), b'CREATE TABLE t(x TEXT);', 'fixture.sql')  # type: ignore[arg-type]
     assert rejected.value.status == 'UNVERIFIED'
-    assert 'profile mismatch' in str(rejected.value)
+    assert 'another grammar' in str(rejected.value)
 
 
 @pytest.mark.parametrize("sql,status", [("CREATE TABLE", "INPUT_ERROR"), (" " * (1024 * 1024 + 1), "UNVERIFIED")],
@@ -88,3 +99,12 @@ def test_parser_failure_classes(parse_sql: Callable[..., Tree], sql: str, status
     with pytest.raises(SqlError) as rejected:
         parse_sql(sql)
     assert rejected.value.status == status
+
+
+def test_grammar_rejection_names_the_place_and_the_next_step(parse_sql: Callable[..., Tree]) -> None:
+    """`parse` reports a grammar rejection with the source, the offset and what to do next."""
+    with pytest.raises(SqlError) as rejected:
+        parse_sql("CREATE TABLE t(a TEXT); SELEC 1;")
+    assert rejected.value.status == "INPUT_ERROR"
+    assert rejected.value.source == "fixture.sql" and rejected.value.start == 24
+    assert "correct the SQL there and run the command again" in str(rejected.value)

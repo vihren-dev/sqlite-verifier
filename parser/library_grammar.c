@@ -1,7 +1,7 @@
 /* The Lemon parser of one grammar in the parser library, and its parse loop.
 **
-** The parse loop is the one of main.c: it feeds the release's tokens to the generated
-** parser and adds SQLite's final semicolon when the text has none. library.c checks the
+** The parse loop feeds the release's tokens to the generated parser and adds SQLite's
+** final semicolon when the text has none. library.c checks the
 ** input and writes the document; this file only builds the syntax tree in a Context.
 */
 #include "library_prefix.h"

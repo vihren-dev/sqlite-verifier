@@ -9,6 +9,7 @@ from belay.sqlite.errors import SqlError
 from conformance.case_format import Json
 from conformance.model_assertions import assertions, audit_axioms
 from conformance.native_trace import Fixture, record
+from conformance.record_parser import default_parser
 
 
 def compiled(case: dict[str, Json], runtime: Path, *, emit_lean: bool = False) -> dict[str, Json]:
@@ -39,7 +40,7 @@ def compiled_many(cases: list[dict[str, Json]], runtime: Path, *,
 def acquire(fixture: Fixture, runtime: Path) -> tuple[dict[str, Json] | None, dict[str, Json]]:
     """Keep acquisition errors separate from cases submitted to the model."""
     try:
-        return record(fixture, runtime / "build/sqlite-parser"), {}
+        return record(fixture, default_parser(runtime)), {}
     except SqlError as error:
         return None, {"verdict": "MODEL_UNSUPPORTED" if error.status == "UNSUPPORTED" else "HARNESS_ERROR",
                       "error": str(error)}

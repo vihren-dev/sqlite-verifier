@@ -6,6 +6,7 @@ from dataclasses import dataclass
 import hashlib
 import json
 from pathlib import Path
+import sys
 import shutil
 
 import pytest
@@ -14,6 +15,7 @@ from migration_check.cli import arguments
 from migration_check.compile import CompiledProject, compile_project
 from migration_check.runtime import Runtime
 from migration_check.lean_inputs import schema_inputs, sql_inputs
+from belay.sqlite.parser_library import installed_library
 
 FIXTURES = Path(__file__).resolve().parent / "kernel_gate"
 HELPER = b"/- import Ignored -/\nimport Deeper\ndef approvedHelper : Nat := deeperValue\n"
@@ -90,11 +92,10 @@ def baseline_case(tmp_path: Path, runtime_root: Path, lean_sysroot: Path, lean_l
                   monkeypatch: pytest.MonkeyPatch) -> BaselineFixture:
     """Redirect only runtime location; source parsing, closure discovery and verification remain real."""
     runtime = Runtime(runtime_root, lean_sysroot, lean_libraries,
-                      runtime_root / "build/sqlite-parser", proof_checker)
+                      installed_library(runtime_root.resolve(), sys.platform), proof_checker)
 
-    def locate(cls: type[Runtime], sqlite_version: str = "3.51.0") -> Runtime:
-        """Bind the test's exact supported profile to the explicitly selected artifact root."""
-        assert sqlite_version == "3.51.0"
+    def locate(cls: type[Runtime]) -> Runtime:
+        """Bind the test to the explicitly selected artifact root."""
         return runtime
 
     monkeypatch.setattr(Runtime, "locate", classmethod(locate))

@@ -21,7 +21,7 @@ def main() -> None:
     parser.add_argument("--uncached", action="store_true")
     args = parser.parse_args()
     if args.uncached:
-        native_trace.parsed_schema = native_trace.parsed_schema.__wrapped__
+        native_trace.read_schema = native_trace.read_schema.__wrapped__
     runtime = args.runtime_root.resolve()
     profiler = cProfile.Profile()
     profiler.enable()

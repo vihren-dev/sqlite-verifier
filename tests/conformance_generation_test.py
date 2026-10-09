@@ -13,9 +13,10 @@ from conformance.native_record import record_sql
 from conformance.native_replay import prepare
 from conformance.regressions import freeze, minimize
 from conformance.state_machine import generate
+from conformance.record_parser import default_parser, runtime_library
 
 pytestmark = [pytest.mark.integration, pytest.mark.conformance,
-              pytest.mark.requires_lean, pytest.mark.requires_native("sqlite-parser", "sqlite3")]
+              pytest.mark.requires_lean, pytest.mark.requires_native("parser-library", "sqlite3")]
 
 
 @pytest.mark.parametrize("error_seeking", [False, True])
@@ -40,7 +41,7 @@ def test_affinity_boundaries_remain_unsupported(runtime_root: Path, literal: str
     """Native affinity observations are retained even when no structural case can be admitted."""
     native = record_sql("CREATE TABLE t(id INTEGER,UNIQUE(id));",
                         f"INSERT INTO t(id) VALUES({literal});", name=f"boundary-{literal}")
-    case, answer = prepare(native, runtime_root / "build/sqlite-parser")
+    case, answer = prepare(native, runtime_library(runtime_root))
     if case is not None:
         answer = compiled(case, runtime_root)
     assert answer["verdict"] == "MODEL_UNSUPPORTED"
@@ -51,7 +52,7 @@ def test_column_boundary(runtime_root: Path) -> None:
     """The error-seeking boundary reaches the real 2000-column failure and atomicity check."""
     program = Program([command("addColumn", "wide", column="extra")],
         Program().schema + "CREATE TABLE wide(" + ",".join(f"c{i} BLOB" for i in range(2000)) + ");")
-    program.roundtrip(runtime_root / "build/sqlite-parser")
+    program.roundtrip(default_parser(runtime_root))
     case, error = acquire(program.fixture(), runtime_root)
     assert case is not None, error
     assert case["nativeTrace"][-1]["primaryCode"] == 1

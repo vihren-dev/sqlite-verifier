@@ -1,12 +1,13 @@
 # Pinned native fixture slice
 
 Run `python3 tests/conformance_native_test.py` with SQLite 3.51.0 from the Nix
-environment on PATH, after building the production parser. `SQLITE3` may point
-to that exact executable. Every subprocess has a timeout; the longest is 12s.
-To inspect the separate evidence report:
+environment on PATH, after `just conformance-build`, which builds the
+conformance runtime with the parser library. `SQLITE3` may point to that exact
+executable. Every subprocess has a timeout; the longest is 12s. To inspect the
+separate evidence report, give the conformance runtime root:
 
 ```
-python3 conformance/native_fixture.py "$(command -v sqlite3)" ./build/sqlite-parser
+python3 conformance/native_fixture.py "$(command -v sqlite3)" ./build/conformance
 ```
 
 ## Imported evidence

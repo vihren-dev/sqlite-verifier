@@ -72,10 +72,9 @@ with `nix-build -A tests`; the flake exposes the same derivations as
 - `tests.cli`: public-entrypoint acceptance and adversarial input scenarios.
 - `tests.bundle`: the data path (`prepare`/`verify-bundle`) and opt-in stage reuse.
 - `tests.parserLibrary`: the in-process parser library: one process with all
-  grammars, byte equality with the parser executables for every parser test
-  input and corpus text, and, on Linux, the sanitizer job. Its runtime root
-  holds the built library and inputs, so a model, harness or documentation
-  change reuses the result.
+  grammars, and, on Linux, the sanitizer job over every parser test input and
+  corpus text. Its runtime root holds the built library and inputs, so a model,
+  harness or documentation change reuses the result.
 
 Each target runs ordinary pytest on a cache miss. Its explicit source files,
 Python/pytest, native tools, Lean artifacts and command determine its Nix identity.
@@ -138,7 +137,7 @@ server operation are maintained in the devops repository
 job and was rolled back ([record](../plans/20260929-attic-ci.status.md)).
 
 Before the save, `tools/ci_store_gc.py` registers garbage-collector roots for the
-test targets, runtimes, parsers, base API reference (`apiReferenceBase`),
+test targets, runtimes, base API reference (`apiReferenceBase`),
 development shell and flake inputs of the current commit, and removes every other
 store path. The base API reference and its doc-gen4 build input add about 53 MB
 compressed for each platform. Nix keeps the outputs of rooted
