@@ -29,6 +29,12 @@ in the log below are historical. Final acceptance records its counts and
 verdicts in this file and keeps logs and JUnit files in hosted CI or local
 outputs, as the task file now requires.
 
+The branch then integrated main through PR #70, the test-policy cleanup. The
+merge keeps main's deletion of `tests/test_checked_public_docs.py` and its
+smaller DQS test, with the moved `SqlError` name. Independent reviews
+`20261009T112433Z-22293717` and `20261009T112657Z-3261a7c7` have no findings.
+Fresh hosted and native acceptance of this head remains required.
+
 The accepted ADR was delivered through
 [PR44](https://github.com/vihren-dev/sqlite-verifier/pull/44), normal merge
 `b91e5cb5b3e145bc9713cc5e2b88bd502aa9ad0a`. The approved exporter in
