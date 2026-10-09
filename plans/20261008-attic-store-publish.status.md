@@ -1,6 +1,6 @@
 # Substitute from and publish to the Vihren Attic cache: status
 
-Created 2026-10-08. Status: IN PROGRESS.
+Created 2026-10-08. Status: DONE.
 Task: [20261008-attic-store-publish.task.md](20261008-attic-store-publish.task.md).
 Related: [20260929-attic-ci](20260929-attic-ci.status.md) (rolled back),
 devops `plans/20261008-attic-ci-cache.*`.
@@ -39,3 +39,12 @@ writer; two runners uploaded at once). The devops repository moved Attic to
 PostgreSQL (devops pull requests 19 and 20), which recreated the cache with a
 new signing key, `sqlite-verifier:XgeRqTIGBEw3VP8GPrzSvdU+5t1lJz7uEMhIG1lh7QE=`.
 The workflow, its test constant and `docs/ci.md` now trust that key.
+
+Hosted verification after pull request 64: `main` run 37897299079 succeeded.
+Checks took 12 minutes (Linux) and 22.5 minutes (macOS); the publish jobs
+took 2.0 and 3.8 minutes, and atticd logged no errors. The cache now serves
+759 sqlite-verifier store paths. Pull request 64's own Linux check took
+9.6 minutes.
+
+Status: DONE. CI substitutes from the public cache and publishes after
+accepted `main` and nightly runs.

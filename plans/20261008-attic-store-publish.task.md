@@ -1,6 +1,6 @@
 # Substitute from and publish to the Vihren Attic cache
 
-Created 2026-10-08. Status: IN PROGRESS.
+Created 2026-10-08. Status: DONE.
 
 ## Outcome
 
