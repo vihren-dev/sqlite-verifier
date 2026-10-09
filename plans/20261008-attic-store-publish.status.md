@@ -31,3 +31,11 @@ client, login and push; the docs say only the check job substitutes from
 Attic). Replacing the upload with `true` now fails a test. Review of
 `19ac767c`: no findings. Not verified locally: hosted cache restoration and
 the upload itself.
+
+2026-10-09: the first `main` run with publishing (37787820192) passed both
+checks, but both publish jobs reached their 60-minute limit and the run was
+cancelled. atticd logged `Connection pool timed out` (SQLite allows one
+writer; two runners uploaded at once). The devops repository moved Attic to
+PostgreSQL (devops pull requests 19 and 20), which recreated the cache with a
+new signing key, `sqlite-verifier:XgeRqTIGBEw3VP8GPrzSvdU+5t1lJz7uEMhIG1lh7QE=`.
+The workflow, its test constant and `docs/ci.md` now trust that key.

@@ -58,7 +58,7 @@ def test_cache_save_is_limited_to_main_and_nightly() -> None:
 
 
 CACHE_URL = "https://cache.vihren.dev/sqlite-verifier"
-CACHE_KEY = "sqlite-verifier:tbKquH1YWJZFbMzT6Z14DmJ5yeVMnHSYobIDGdkWGis="
+CACHE_KEY = "sqlite-verifier:XgeRqTIGBEw3VP8GPrzSvdU+5t1lJz7uEMhIG1lh7QE="
 """The publicly readable Vihren Attic cache and its signing key."""
 
 
