@@ -94,34 +94,53 @@ module and `fromDb`, and then applies the correction of decision 2.
   a message that the doc-gen4 bug may be fixed and that the correction can be
   removed.
 
-Our own code in the reference build keeps its tests:
+### 3. No second documentation inventory
 
-| Our code | Its test |
-| --- | --- |
-| The commit in the source links (`tools/api_reference_links.py`) | The checks of the link step, and `tests/test_api_reference.py` |
-| The recursor-link correction | Unit tests with HTML fixtures |
-| Complete documentation of public declarations | `tools/public_doc_inventory.py`, and the Lean compiler for Verso docstrings |
-| The calls of doc-gen4 | Each call fails the build when doc-gen4 fails |
+The reference build no longer runs `tools/public_doc_inventory.py`. The
+inventory is a gate on our sources: every public declaration and field has a
+checked Verso docstring. `just documentation-inventory` already runs it in
+`just test` and `just test-full`. In the reference build it only repeated the
+gate and copied its report into the reference. The reference no longer
+contains `public-doc-inventory.json`.
+
+### Tests of our code
+
+The reference build contains this code of ours. Each part has a test that
+checks our code, not doc-gen4:
+
+| Our code                                                                                          | Its test                                                                                                                                                                                                                             |
+|---------------------------------------------------------------------------------------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| The commit in the source links (`tools/api_reference_links.py`)                                   | The checks of the link step, and `tests/test_api_reference.py`                                                                                                                                                                       |
+| The recursor-link correction                                                                      | Unit tests with HTML fixtures                                                                                                                                                                                                        |
+| The arguments that we give to doc-gen4: the modules, their source URIs, the order of the commands | **New:** a unit test that runs the generator on a fixture source tree with a stand-in for doc-gen4, which records its arguments. Each public module is given once, with the URI of its own file, and `single` comes before `fromDb`. |
+| The documentation inventory tool                                                                  | `tests/test_public_doc_inventory.py`                                                                                                                                                                                                 |
+
+A failing doc-gen4 call fails the build. That prevents a partial reference, but
+it is not a test of our code.
+
+The completeness of our documentation is not a test of the reference build. It
+is the content gate `just documentation-inventory`, with the Lean compiler,
+which checks the names, terms and assertions in our Verso docstrings.
 
 ## Evidence
 
 Each question was answered on macOS arm64 on 2026-10-09:
 
-| Question | Answer |
-| --- | --- |
-| Does a build from a copied core database give the same reference? | Yes. All 1,186 files match the build in one database, byte for byte. |
-| Does the core database contain paths of its build? | No. No row contains the build directory, `/nix/store`, `/Users/` or `/private/tmp`. |
-| Does `genCore` need our project? | No. It ran in an empty directory, without `lake env`, in the same time. |
-| How large is the core database? | 95 MB, 13.2 MB with zstd level 3. |
-| Should the core build also store its pages? | No. `fromDb` writes all 1,170 pages in 8.6 s. |
-| Do our pages need the recursor-link correction? | Yes. Of the 178 corrections, 3 files are ours and 46 are Lean's. |
-| What does the correction of our pages cost? | The correction must read our 24 pages and the 27 Lean pages they link to, for their anchors. Parsing them took 1.0 s, against 158 s for both passes over all pages. |
+| Question                                                          | Answer                                                                                                                                                              |
+|-------------------------------------------------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| Does a build from a copied core database give the same reference? | Yes. All 1,186 files match the build in one database, byte for byte.                                                                                                |
+| Does the core database contain paths of its build?                | No. No row contains the build directory, `/nix/store`, `/Users/` or `/private/tmp`.                                                                                 |
+| Does `genCore` need our project?                                  | No. It ran in an empty directory, without `lake env`, in the same time.                                                                                             |
+| How large is the core database?                                   | 95 MB, 13.2 MB with zstd level 3.                                                                                                                                   |
+| Should the core build also store its pages?                       | No. `fromDb` writes all 1,170 pages in 8.6 s.                                                                                                                       |
+| Do our pages need the recursor-link correction?                   | Yes. Of the 178 corrections, 3 files are ours and 46 are Lean's.                                                                                                    |
+| What does the correction of our pages cost?                       | The correction must read our 24 pages and the 27 Lean pages they link to, for their anchors. Parsing them took 1.0 s, against 158 s for both passes over all pages. |
 
 ## Expected effect
 
-A pull request that changes a Lean source runs the Lean build, the inventory,
-`single`, `fromDb` and the correction of our pages: about 7 + 6 + 17 + 9 + 1 s,
-about 40 s instead of about 346 s. A pull request that does not change Lean
+A pull request that changes a Lean source runs the Lean build, `single`,
+`fromDb` and the correction of our pages: about 7 + 17 + 9 + 1 s, about 34 s
+instead of about 346 s. A pull request that does not change Lean
 sources still reuses the whole base build, as after PR #63. A Lean toolchain
 or doc-gen4 upgrade rebuilds the core documentation once, about 150 s.
 
@@ -134,7 +153,10 @@ The saved cache grows by about 13 MB compressed for each platform.
   hosted yet.
 - The `reference-check.json` report records the recursor corrections on our
   pages and the source links of the link step.
-- [API reference](api-reference.md) describes the build without the checks.
+- The reference artifact no longer contains `public-doc-inventory.json`. The
+  inventory report stays a result of `just documentation-inventory`.
+- [API reference](api-reference.md) and [CI](ci.md) describe the build without
+  the checks and without the inventory.
 - The requirements of the checked API reference task (issue #26) become
   narrower: the owner decides this with this ADR.
 
