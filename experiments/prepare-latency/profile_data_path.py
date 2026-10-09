@@ -20,6 +20,9 @@ import subprocess
 import sys
 import time
 
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from attribution import Interval, python_remainder  # noqa: E402
+
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "adr-0003-latency"))
 from cases import CASES, ROOT, ExampleCase  # noqa: E402
 
@@ -32,8 +35,8 @@ from migration_check.diagnostics import Rejection  # noqa: E402
 WORK = ROOT / "build" / "prepare-latency"
 """Scratch copies, agent workspaces, bundles and stage stores."""
 
-EVENTS: list[tuple[str, float]] = []
-"""(label, seconds) for every child process of the current command."""
+EVENTS: list[tuple[str, Interval]] = []
+"""(label, (start, end)) for every child process of the current command."""
 
 COMPILES: list[tuple[str, float]] = []
 """(module file stem, seconds) for every Lean compile of the current command."""
@@ -58,7 +61,7 @@ def label(command: Sequence[str]) -> str:
 
 
 def recorded(original: Callable[..., object]) -> Callable[..., object]:
-    """Wrap a process launcher so each call's wall time lands in EVENTS."""
+    """Wrap a process launcher so each call's start and end land in EVENTS."""
     def run(command: Sequence[object], *arguments: object, **keywords: object) -> object:
         """Delegate unchanged and record elapsed time, including failures."""
         started = time.perf_counter()
@@ -66,8 +69,9 @@ def recorded(original: Callable[..., object]) -> Callable[..., object]:
             return original(command, *arguments, **keywords)
         finally:
             parts = [str(part) for part in command]
-            seconds = time.perf_counter() - started
-            EVENTS.append((label(parts), seconds))
+            ended = time.perf_counter()
+            seconds = ended - started
+            EVENTS.append((label(parts), (started, ended)))
             if label(parts) == "lean_compile":
                 COMPILES.append((Path(parts[-1]).stem, round(seconds, 3)))
     return run
@@ -80,7 +84,11 @@ subprocess.run = recorded(subprocess.run)
 
 
 def summary(command: Callable[[], dict[str, object]]) -> dict[str, object]:
-    """Run one command and report total, per-label child time and the Python remainder."""
+    """Run one command and report total, per-label child time and the Python remainder.
+
+    Per-label times are sums, so with concurrent children they can exceed the total;
+    the Python remainder subtracts the union of child intervals instead.
+    """
     EVENTS.clear()
     COMPILES.clear()
     started = time.perf_counter()
@@ -90,10 +98,10 @@ def summary(command: Callable[[], dict[str, object]]) -> dict[str, object]:
         status = rejection.status
     total = time.perf_counter() - started
     stages: dict[str, list[float]] = {}
-    for key, seconds in EVENTS:
-        stages.setdefault(key, []).append(seconds)
-    children = sum(seconds for _, seconds in EVENTS)
-    return {"status": status, "total_s": round(total, 3), "python_s": round(total - children, 3),
+    for key, (begin, end) in EVENTS:
+        stages.setdefault(key, []).append(end - begin)
+    remainder = python_remainder(total, (interval for _, interval in EVENTS))
+    return {"status": status, "total_s": round(total, 3), "python_s": round(remainder, 3),
             "compiles": COMPILES.copy(),
             "stages": {key: {"count": len(values), "s": round(sum(values), 3)} for key, values in stages.items()}}
 

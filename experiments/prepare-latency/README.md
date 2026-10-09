@@ -98,22 +98,25 @@ Median total seconds. All 270 prototype runs gave the expected status
 
 | Case | Scenario | Baseline | wait | validate | header | parallel | All four |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| small | prepare_cold | 3.20 | 2.54 | 2.79 | 2.29 | 3.11 | 1.60 |
-| small | prepare_noop | 1.23 | 0.93 | 0.74 | 0.77 | 1.09 | 0.39 |
-| small | prepare_proof_edit | 1.68 | 1.18 | 1.02 | 0.95 | 1.36 | 0.56 |
+| small | prepare_cold | 3.20 | 2.54 | 2.79 | 2.29 | 3.11 | 1.70 |
+| small | prepare_noop | 1.23 | 0.93 | 0.74 | 0.77 | 1.09 | 0.40 |
+| small | prepare_proof_edit | 1.68 | 1.18 | 1.02 | 0.95 | 1.36 | 0.59 |
 | small | verify_bundle | 2.13 | 1.62 | 1.46 | 1.42 | 1.80 | 0.95 |
 | small | verify_bundle_store_warm | 1.14 | 0.87 | 0.60 | 0.82 | 0.95 | 0.43 |
 | refutation | prepare_cold | 3.15 | 2.44 | 2.67 | 2.28 | 3.12 | 1.66 |
-| refutation | prepare_proof_edit | 1.44 | 1.19 | 1.01 | 0.95 | 1.42 | 0.61 |
-| refutation | verify_bundle | 1.86 | 1.50 | 1.42 | 1.47 | 1.75 | 0.96 |
-| atuin | prepare_cold | 11.69 | 10.53 | 11.29 | 9.89 | 8.85 | 6.64 |
-| atuin | prepare_noop | 1.61 | 1.25 | 1.26 | 0.83 | 1.61 | 0.46 |
-| atuin | prepare_proof_edit | 1.96 | 1.49 | 1.57 | 1.02 | 1.89 | 0.67 |
-| atuin | verify_bundle | 6.62 | 5.86 | 6.08 | 5.51 | 6.48 | 4.97 |
-| atuin | verify_bundle_store_warm | 3.98 | 3.67 | 3.49 | 3.43 | 3.83 | 3.12 |
+| refutation | prepare_proof_edit | 1.44 | 1.19 | 1.01 | 0.95 | 1.42 | 0.62 |
+| refutation | verify_bundle | 1.86 | 1.50 | 1.42 | 1.47 | 1.75 | 0.97 |
+| atuin | prepare_cold | 11.69 | 10.53 | 11.29 | 9.89 | 8.85 | 6.88 |
+| atuin | prepare_noop | 1.61 | 1.25 | 1.26 | 0.83 | 1.61 | 0.47 |
+| atuin | prepare_proof_edit | 1.96 | 1.49 | 1.57 | 1.02 | 1.89 | 0.70 |
+| atuin | verify_bundle | 6.62 | 5.86 | 6.08 | 5.51 | 6.48 | 5.05 |
+| atuin | verify_bundle_store_warm | 3.98 | 3.67 | 3.49 | 3.43 | 3.83 | 3.07 |
 
-With all four, the Python share is 0.01–0.04 s. The remaining time is Lean
-compiles, the export and the checker.
+With all four, the Python share is 0.00–0.07 s: wall time minus the union of
+child-process intervals, so concurrent compiles count once. The remaining time is
+Lean compiles, the export and the checker. The "All four" column was measured
+again after that correction; the single-option columns use the same harness
+with summed child times, which affects only their Python share, not the totals.
 
 The "All four" column is slightly optimistic for one CLI call: the prototype
 caches persist across the commands in one Python process. A real command would

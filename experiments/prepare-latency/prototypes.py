@@ -37,6 +37,9 @@ import profile_data_path as harness  # noqa: E402  (installs the timing wrappers
 from migration_check import contract, process, runtime, source_closure  # noqa: E402
 from migration_check import prepare as prepare_module  # noqa: E402
 
+CAPTURED_OUTPUT_BYTES = 1 << 20
+"""Bytes read from each captured child stream, the same bound as `process.run_process`."""
+
 ORIGINAL_IMPORTS = source_closure.imports
 """Lean-backed import reader, kept to check the header prototype against it."""
 
@@ -70,8 +73,8 @@ def blocking_run_process(arguments: Sequence[str], *, write_root: Path, environm
             stdout_file.seek(0)
             stderr_file.seek(0)
             return subprocess.CompletedProcess(command, child.returncode,
-                                               stdout_file.read(1 << 20).decode("utf-8", "replace"),
-                                               stderr_file.read(1 << 20).decode("utf-8", "replace"))
+                                               stdout_file.read(CAPTURED_OUTPUT_BYTES).decode("utf-8", "replace"),
+                                               stderr_file.read(CAPTURED_OUTPUT_BYTES).decode("utf-8", "replace"))
 
 
 IMPORT_LINE = re.compile(r"^import\s+(\S+)\s*$")
@@ -104,7 +107,8 @@ def check_header_prototype() -> None:
         for source in sorted((harness.ROOT / "examples").rglob("*.lean")):
             expected = ORIGINAL_IMPORTS(source, located.sysroot, located.libraries, Path(temporary))
             if header_imports(source) != expected:
-                raise SystemExit(f"header prototype disagrees with Lean on {source}: {expected}")
+                raise SystemExit(f"Header prototype result differs from Lean on {source}: Lean reports "
+                                 f"{expected}. Correct header_imports in prototypes.py, then measure again.")
 
 
 def parallel_compile_candidates(*, order: tuple[str, ...], sources: Path, candidate: Path, trusted: Path,
