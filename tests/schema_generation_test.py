@@ -17,9 +17,9 @@ from tests.runtime_fixtures import profile_parser
 pytestmark = [pytest.mark.integration, pytest.mark.parser, pytest.mark.requires_native]
 RICH_ASSERTIONS = """
 open Belay.Sqlite SqliteVerifier
-example : Generated.startSchema.all (fun t => supportedProperties t.columns t.properties) = true := by
+example : Generated.startSchema.all (fun t => supportedProperties t.shape.columns t.shape.properties) = true := by
   decide +kernel
-example : Generated.startSchema.all (fun t => supportedColumns t.columns) = true := by decide +kernel
+example : Generated.startSchema.all (fun t => supportedColumns t.shape.columns) = true := by decide +kernel
 example : Generated.nextSchema.lookupProperties "events" =
   Generated.startSchema.lookupProperties "events" := by decide +kernel
 example : (Generated.startSchema.lookup "events").bind (fun cs => cs.head?.map Column.notNull) = some false := by

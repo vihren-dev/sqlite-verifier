@@ -99,7 +99,7 @@ theorem step_extends (statement : Statement) (database : Database) (position : N
     split
     · exact DatabaseExtends.refl database
     · cases h : database name with
-      | none => exact DatabaseExtends.create database name { columns := columns, rows := [] } h
+      | none => exact DatabaseExtends.create database name { shape.columns := columns, rows := [] } h
       | some table => exact DatabaseExtends.refl database
   | addColumn name column =>
     simp only [step]
@@ -164,8 +164,8 @@ width, taking that many values from every after row gives the exact ordered
 before value lists. With no rows the claim is vacuous. The proof unfolds NULL
 extension and uses the width assumption for each row. -/
 theorem TableExtends.oldValues (extension : TableExtends before after)
-    (width : ∀ row ∈ before.rows, row.values.length = before.columns.length) :
-    after.rows.map (fun row => row.values.take before.columns.length) =
+    (width : ∀ row ∈ before.rows, row.values.length = before.shape.columns.length) :
+    after.rows.map (fun row => row.values.take before.shape.columns.length) =
       before.rows.map Row.values := by
   obtain ⟨columns, rfl⟩ := extension
   simp only [Table.appendColumns, List.map_map]

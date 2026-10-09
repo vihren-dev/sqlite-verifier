@@ -6,15 +6,17 @@ Sources: public issue #15 and approved product T07 outcome.
 
 ## Current state
 
-Prepared from checked T05 publication tip
-`2ef00198994c4f285bcae0853359fe20d148d6aa` in the separate named Jujutsu workspace
-`shared-table-shape`. T05 remains IN PROGRESS in draft PR48, with full-model,
-hosted and final R8 gates pending. Its evidence and executor workspace are intact.
-A partial implementation now exists, as recorded below. The latest owner review
-requires T10 to finish before T07 resumes. This is an explicitly incomplete,
-unreviewed feature checkpoint. No further T15/T18b integration, T07 correction
-or acceptance starts during the hold. The named base remains `e884e1d8`; final
-API-reference assembly `dac12b49` has not been merged.
+T10 is delivered. The resumed implementation starts from accepted main
+`c0dfbac0`, through PR #77, in the `shared-table-shape` Jujutsu workspace.
+The original paused changes remain under `archive/paused-t07-20261009`.
+
+The model now stores columns and retained properties in `TableShape`.
+`Table` and `TableSchema` share that representation. The codec retains the flat
+version-one transport. Application proofs, generated terms, conformance and
+Atuin callers have been adapted to the current package boundary.
+The standalone model, full runtime, conformance runtime and checked public
+documentation build successfully on macOS. Test acceptance is still in progress.
+The dated progress entries below retain the original paused work's history.
 
 ## Source audit
 
@@ -87,12 +89,9 @@ approved model package name or the existing verification vocabulary.
 
 ## Open gates
 
-T10 completion and explicit resumption, remaining caller/baseline assembly,
-strict documentation coverage, source/Nix identity checks, all ordinary and
-native model checks, complete model acceptance on both platforms, both actual
-offline installed acceptances, feature independent review and final R8 owner
-approval remain open. No Nix runtime build, full-model, native replay, installed
-or timing acceptance ran for T07. This checkpoint is not DONE.
+Source and native suite acceptance, complete model acceptance on both platforms,
+offline installed acceptance on both platforms, independent feature review and
+final R8 owner review remain open. This task is not DONE.
 
 ## Resumed checkpoint, 2026-10-09
 
@@ -108,3 +107,30 @@ above describe the original paused work and its older rules.
 Decisions waiting for the owner:
 
 - Final model and codec review after the resumed implementation passes checks.
+
+Progress on 2026-10-09: Ported the shared shape structures, execution and
+preservation modules to the accepted model package. Adapted structural lookup
+facts and the flat version-one codec. The old application-only types remain
+outside the model package. The first compiler pass found a damaged declaration during the port. Restored
+the retained declarations, adapted application callers and generated terms,
+and completed the compiler checks recorded above.
+
+Validation on 2026-10-09: The pinned macOS builds passed for the standalone
+model and codec, full runtime, conformance runtime and public documentation.
+The documentation inventory checked all 244 authored declarations, with no
+missing or ordinary docstrings. The source suite passed 460 tests and 57
+subtests. Twenty focused shape, caller and frontend checks passed. A further
+14 checks passed after adding missing-metadata decoder cases.
+
+The first native Atuin run detected the changed SchemaBinding fixture's stale
+checksum. Updated only that file's entry in the fixture manifest. The next
+native run passed all 12 Atuin tests, 28 kernel tests and 56 model tests.
+Bundle acceptance passed all 73 tests, and CLI acceptance passed all 16 tests.
+The exact final model test source passed all 56 sandbox tests. Frozen, harness,
+sample and upstream acceptance are still in progress.
+Logs remain local under `build/20261009-t07-resume`; no validation result
+folder is committed. Linux and installed-runtime acceptance remain open.
+
+The resumed model, codec and caller migration is ready for a source commit and
+independent review. This is a checked implementation checkpoint, not final
+two-platform or installed acceptance. The remaining gates above still apply.

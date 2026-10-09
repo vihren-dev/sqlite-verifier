@@ -22,7 +22,7 @@ def businessRows : List HistoryModel.History := [
 
 /-- History rows retain all eleven fields and every approved declaration. -/
 def history (rows : List Row) : Table :=
-  ⟨SchemaBinding.history.columns, rows, SchemaBinding.history.properties⟩
+  ⟨SchemaBinding.history.shape, rows⟩
 /-- Witnesses contain only the declared application storage. -/
 def database (rows : List Row) : Database :=
   SchemaBinding.start.emptyDatabase.set "history" (history rows)
@@ -39,7 +39,7 @@ theorem start_valid : SchemaBinding.start.Valid := by
 theorem conforms (rows : List Row) (valid : (history rows).Valid) :
     Conforms SchemaBinding.start (database rows) :=
   (SchemaBinding.start.emptyDatabase_conforms start_valid).replaceRows
-    (name := "history") (by rfl) (by rfl) (by rfl) valid
+    (name := "history") (by rfl) (by rfl) valid
 
 /-- Empty history satisfies storage validity and complete decoder-definedness. -/
 theorem empty_admitted : Admitted SchemaBinding.start Interpretation.admitted emptyState :=

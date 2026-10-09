@@ -7,7 +7,7 @@ executable definitions; neither native row allocation nor frame rules are axioms
 namespace Belay.Sqlite
 
 /-- For every schema, database, name and old/replacement tables, assume original
-{name}`Conforms`, the old table's presence, equal columns and properties, and
+{name}`Conforms`, the old table's presence, equal whole shapes, and
 replacement {name}`Table.Valid`. Then setting the replacement preserves
 conformance with that schema. An absent old table cannot meet the assumptions.
 Use this theorem when a write changes only represented rows.
@@ -15,19 +15,19 @@ Use this theorem when a write changes only represented rows.
 The proof separates the updated lookup from other names. Equal metadata
 retains schema matching, and the supplied validity covers the replacement. -/
 theorem Conforms.replaceRows {old replacement : Table} (conforms : Conforms schema database)
-    (present : database name = some old) (columns : replacement.columns = old.columns)
-    (properties : replacement.properties = old.properties) (valid : replacement.Valid) :
+    (present : database name = some old) (shape : replacement.shape = old.shape)
+    (valid : replacement.Valid) :
     Conforms schema (database.set name replacement) := by
   refine ⟨conforms.1, ?_⟩
   intro other
   by_cases same : other = name
   · subst other
     refine ⟨?_, ?_⟩
-    · simpa [Database.set, present, columns] using (conforms.2 name).1
+    · simpa [Database.set, present, shape] using (conforms.2 name).1
     · intro table stored
       have equal : table = replacement := by simpa [Database.set] using stored.symm
       subst table
-      exact ⟨valid, by simpa [properties] using ((conforms.2 name).2 old present).2⟩
+      exact valid
   · simpa [Database.set, same] using conforms.2 other
 
 /-- For every row list and initial integer, the folded maximum is at least
@@ -72,7 +72,7 @@ The proof makes the new rowid fresh using {name}`LiteralData.rowid_lt_next`,
 then handles the old rows and single appended row separately. -/
 theorem Table.Valid.inserted (valid : table.Valid)
     (bounded : validRowid (LiteralData.nextRowid table.rows))
-    (width : values.length = table.columns.length) :
+    (width : values.length = table.shape.columns.length) :
     (LiteralData.inserted table values).Valid := by
   refine ⟨valid.1, ?_, ?_⟩
   · have fresh : LiteralData.nextRowid table.rows ∉ table.rows.map Row.rowid := by
@@ -113,7 +113,7 @@ theorem LiteralData.uniqueRows_append (unique : uniqueRows table key rows = true
 No row, property or validity agreement is required, including for an empty list.
 Use this to move a key check between tables with unchanged columns.
 The proof shows identical key reads, then inducts on the supplied rows. -/
-theorem LiteralData.uniqueRows_columns (columns : before.columns = after.columns) :
+theorem LiteralData.uniqueRows_columns (columns : before.shape.columns = after.shape.columns) :
     uniqueRows before key rows = uniqueRows after key rows := by
   have same : keyEqual before key = keyEqual after key := by
     funext first second
@@ -132,9 +132,9 @@ Use this after admission and new-row constraint checks.
 The proof separates old and new NOT NULL checks, then applies the uniqueness
 append and unchanged-column theorems to each retained key. -/
 theorem LiteralData.inserted_constraints (old : constraints table = true)
-    (nonnull : (table.columns.zip values).all (fun (column, value) =>
+    (nonnull : (table.shape.columns.zip values).all (fun (column, value) =>
       !column.notNull || value != .null) = true)
-    (fresh : ∀ key ∈ table.properties.keys, ∀ row ∈ table.rows,
+    (fresh : ∀ key ∈ table.shape.properties.keys, ∀ row ∈ table.rows,
       keyEqual table key row { rowid := nextRowid table.rows, values := values } = false) :
     constraints (inserted table values) = true := by
   simp only [constraints, Bool.and_eq_true] at old ⊢
@@ -144,7 +144,7 @@ theorem LiteralData.inserted_constraints (old : constraints table = true)
     intro key member
     change uniqueRows (inserted table values) key
       (table.rows ++ [{ rowid := nextRowid table.rows, values := values }]) = true
-    rw [uniqueRows_columns (show (inserted table values).columns = table.columns from rfl)]
+    rw [uniqueRows_columns (show (inserted table values).shape.columns = table.shape.columns from rfl)]
     exact uniqueRows_append (List.all_eq_true.mp old.2 key member) (fresh key member)
 
 /-- For every table, key name and supplied value list, assume old

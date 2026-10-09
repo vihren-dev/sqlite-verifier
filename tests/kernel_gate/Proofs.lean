@@ -15,7 +15,7 @@ and the computed successful outcome; no extra execution premise is assumed. -/
 theorem migrationCorrect : Generated.expected := by
   apply VerificationConditions.of_runSql
   · exact ⟨fun _ => none, by
-      simp [Admitted, Conforms, Schema.Valid, Schema.lookup,
+      simp [Admitted, Conforms, Schema.Valid, Schema.lookupShape,
         Generated.startSchema, Interpretation.admitted]⟩
   · exact sound
   · exact sound

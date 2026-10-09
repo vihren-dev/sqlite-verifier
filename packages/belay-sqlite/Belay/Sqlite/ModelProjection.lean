@@ -27,8 +27,8 @@ The proof unfolds the projections and compares each stored row. Freshness
 places the new field after the original columns, and row width makes its
 selected cell the appended NULL. -/
 theorem Table.project_newNullable {table : Table} {column : Column}
-    (width : ∀ row ∈ table.rows, row.values.length = table.columns.length)
-    (fresh : table.columns.findIdx? (fun old => old.name == column.name) = none) :
+    (width : ∀ row ∈ table.rows, row.values.length = table.shape.columns.length)
+    (fresh : table.shape.columns.findIdx? (fun old => old.name == column.name) = none) :
     (table.appendColumns [column]).project [column.name] =
       nullExtension (table.project fields) := by
   simp only [Table.project, Table.appendColumns, nullExtension, List.map_map]

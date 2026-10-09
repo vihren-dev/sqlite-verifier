@@ -14,10 +14,10 @@ def columns : List Column := [
   { name := "key", affinity := .integer, declaredType := .bigInt },
   { name := "value", affinity := .text, notNull := true }]
 
-/-- Negative physical identities and a NULL key exercise both distinct semantics. -/
+/-- Shared key metadata, negative physical identities and a NULL key exercise both distinct semantics. -/
 def original : Table where
-  columns := columns
-  properties := { primaryKey := ["key"] }
+  shape.columns := columns
+  shape.properties := { primaryKey := ["key"] }
   rows := [⟨-5, [.null, .text [97]]⟩, ⟨-2, [.integer 1, .text [98]]⟩]
 
 /-- The finite starting database contains {name}`original` only at the records
@@ -61,8 +61,8 @@ def rejected : List Statement := [.beginTransaction, .addColumn "records" note,
 
 example : error (runSql rejected database) = some (2, .constraintViolation) ∧
     openTransaction (runSql rejected database) = true := by decide +kernel
-example : ((runSql rejected database).database "records").map Table.columns = some (columns ++ [note]) ∧
-    ((runSql rejected database).persistedDatabase "records").map Table.columns = some columns := by
+example : ((runSql rejected database).database "records").map (fun table => table.shape.columns) = some (columns ++ [note]) ∧
+    ((runSql rejected database).persistedDatabase "records").map (fun table => table.shape.columns) = some columns := by
   decide +kernel
 example : ((runSql [.beginTransaction, .insert "records" ["key", "value"]
     [.integer 2, .text []], .rollback] database).database "records") = some original := by decide +kernel

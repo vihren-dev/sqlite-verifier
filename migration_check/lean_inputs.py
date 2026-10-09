@@ -29,12 +29,12 @@ def index_lean(index: Index) -> str:
 
 
 def table_lean(table: Table) -> str:
-    """Render only trusted constructors and quoted identifier literals."""
+    """Emit a named schema entry with one shared shape and inert identifiers."""
     keys = "[" + ", ".join(map(lean_names, table.unique_keys)) + "]"
     indexes = "[" + ", ".join(index_lean(index) for index in table.indexes) + "]"
-    return (f"{{ name := {quoted_string(table.name)}, columns := [{', '.join(column_lean(c) for c in table.columns)}], "
+    return (f"{{ name := {quoted_string(table.name)}, shape := {{ columns := [{', '.join(column_lean(c) for c in table.columns)}], "
             f"properties := {{ primaryKey := {lean_names(table.primary_key)}, "
-            f"uniqueKeys := {keys}, indexes := {indexes} }} }}")
+            f"uniqueKeys := {keys}, indexes := {indexes} }} }} }}")
 
 
 def statement_lean(statement: Statement) -> str:

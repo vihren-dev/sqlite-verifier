@@ -42,7 +42,7 @@ def decodeCase (json : Lean.Json) : Except String Case := do
       unless (table.rows.map Row.rowid).eraseDups.length == table.rows.length do
         throw "duplicate physical rowid"
       for row in table.rows do
-        unless LiteralData.boundedInteger row.rowid && row.values.length == table.columns.length do
+        unless LiteralData.boundedInteger row.rowid && row.values.length == table.shape.columns.length do
           throw "invalid physical rowid or row width"
   for n in c.nativeTrace do
     unless n.extendedCode % 256 == n.primaryCode do throw "inconsistent SQLite result codes"

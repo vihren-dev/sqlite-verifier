@@ -35,7 +35,7 @@ def lossless (column : Column) : Value → Bool
 {name}`Option.none` for an absent column or missing cell, so malformed rows
 cannot supply an invented value. This lookup does not require table validity. -/
 def read (table : Table) (row : Row) (name : String) : Option Value := do
-  let index ← table.columns.findIdx? (fun column => column.name == name)
+  let index ← table.shape.columns.findIdx? (fun column => column.name == name)
   row.values[index]?
 
 /-- Admit NULL or a signed 64-bit integer for exact modeled comparisons.
@@ -50,14 +50,14 @@ Also require {name}`read` of that name in every row to yield a value accepted
 by {name}`integerOrNull`. With no rows only the column requirement remains.
 Use this domain check before integer equality or key comparisons. -/
 def comparisonReady (table : Table) (name : String) : Bool :=
-  table.columns.any (fun column => column.name == name &&
+  table.shape.columns.any (fun column => column.name == name &&
     [.integer, .numeric, .blob].contains column.affinity) &&
   table.rows.all (fun row => (read table row name).any integerOrNull)
 
 /-- For each key name, require both reads to be integers with equal values.
 A missing, NULL or other cell makes the comparison false, as needed for the
 admitted ordinary UNIQUE keys. An empty key compares equal vacuously;
-{assert}`keyEqual { columns := [], rows := [] } [] { rowid := 0, values := [] }
+{assert}`keyEqual { shape.columns := [], rows := [] } [] { rowid := 0, values := [] }
   { rowid := 1, values := [] } = true`. Key admission is a separate check. -/
 def keyEqual (table : Table) (key : List String) (first second : Row) : Bool :=
   key.all fun name => match read table first name, read table second name with
@@ -76,15 +76,15 @@ NOT NULL checks inspect only zipped column/cell pairs; row width is checked
 separately. A table with no rows satisfies both checks. In the admitted domain,
 these checks represent ABORT constraints, rather than admission restrictions. -/
 def constraints (table : Table) : Bool :=
-  table.rows.all (fun row => (table.columns.zip row.values).all
+  table.rows.all (fun row => (table.shape.columns.zip row.values).all
     (fun (column, value) => !column.notNull || value != .null)) &&
-  table.properties.keys.all (fun key => uniqueRows table key table.rows)
+  table.shape.properties.keys.all (fun key => uniqueRows table key table.rows)
 
 /-- Require {name}`comparisonReady` for every field of every retained key,
 and {name}`constraints` on the old table. With no keys, comparison requirements
 are vacuous; constraints still apply. Use this check to admit literal DML. -/
 def tableReady (table : Table) : Bool :=
-  table.properties.keys.all (fun key => key.all (comparisonReady table)) && constraints table
+  table.shape.properties.keys.all (fun key => key.all (comparisonReady table)) && constraints table
 
 /-- Return 1 for no rows, otherwise one more than the largest stored rowid,
 even when that largest rowid is negative; {assert}`nextRowid [] = 1`.
@@ -100,10 +100,10 @@ Require {name}`lossless` on every column/value pair, {name}`tableReady`, a bound
 Supplying every value avoids implicit defaults. This admits evaluation;
 the inserted table's constraint truth is checked separately. -/
 def insertReady (table : Table) (columns : List String) (values : List Value) : Bool :=
-  columns == table.columns.map Column.name && values.length == table.columns.length &&
-  (table.columns.zip values).all (fun (column, value) => lossless column value) &&
+  columns == table.shape.columns.map Column.name && values.length == table.shape.columns.length &&
+  (table.shape.columns.zip values).all (fun (column, value) => lossless column value) &&
   tableReady table && boundedInteger (nextRowid table.rows) &&
-  table.properties.keys.all (fun key => key.all fun name =>
+  table.shape.properties.keys.all (fun key => key.all fun name =>
     (read table { rowid := 0, values := values } name).any integerOrNull)
 
 /-- Append one row with {name}`nextRowid` and the supplied cells. Retain columns,
@@ -123,7 +123,7 @@ Retain every rowid, other cell and metadata field. An absent target column
 leaves the table unchanged; a cell index beyond a row's width changes nothing.
 Callers check the admitted assignment domain separately. -/
 def updated (table : Table) (column : String) (value : Value) (key : String) (equals : Int) : Table :=
-  match table.columns.findIdx? (fun item => item.name == column) with
+  match table.shape.columns.findIdx? (fun item => item.name == column) with
   | none => table
   | some index => { table with rows := table.rows.map fun row =>
       if (matchesKey table row key equals) then { row with values := row.values.set index value } else row }
@@ -135,9 +135,9 @@ after {name}`updated`. The admitted unique equality key permits at most one
 matching row. This check does not establish the updated constraints. -/
 def updateReady (table : Table) (column : String) (value : Value) (key : String) (equals : Int) : Bool :=
   boundedInteger equals && tableReady table && comparisonReady table key &&
-  table.properties.keys.contains [key] &&
-  table.columns.any (fun item => item.name == column && lossless item value) &&
-  (updated table column value key equals).properties.keys.all (fun names =>
+  table.shape.properties.keys.contains [key] &&
+  table.shape.columns.any (fun item => item.name == column && lossless item value) &&
+  (updated table column value key equals).shape.properties.keys.all (fun names =>
     names.all (comparisonReady (updated table column value key equals)))
 
 end LiteralData

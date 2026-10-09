@@ -58,7 +58,7 @@ theorem projectedInterpretation_sound (contract : LogicalContract LogicalRows)
   intro database invariant
   obtain ⟨conforms, table, present, covered⟩ := invariant
   exact ⟨conforms, table.project fields, by simp [projectedInterpretation, observeTable, present],
-    valid table ((conforms.2 name).2 table present).1 covered⟩
+    valid table ((conforms.2 name).2 table present) covered⟩
 
 
 end SqliteVerifier

@@ -88,9 +88,9 @@ and public walkthrough with the API-reference worker before final acceptance.
 
 T10 is now a prerequisite under the latest owner review. On resumption, package
 names and lookup ownership must follow its accepted and completed boundary.
-Protected invoice baselines and T03/T02/T05 archived evidence are immutable here;
-any intentional new current-input expectation records exact identities and leaves
-the existing protected-baseline CI guard and final owner decision intact.
+Existing example behavior and frozen corpus bytes retain their meanings.
+Current example source changes follow main’s test-fixture policy; final model
+and codec owner review remains required.
 
 ## Accepted boundary at resumption, 2026-10-09
 

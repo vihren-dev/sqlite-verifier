@@ -45,7 +45,7 @@ to the schema and has a defined observation satisfying {name}`LogicalContract.va
 An impossible invariant leaves those database obligations vacuous; an empty
 table still needs the validity premise for its empty record list.
 Use this with application-specific contracts.
-The proof extracts the stored valid table from conformance and applies the premise. -/
+The proof extracts the stored valid table from whole-shape conformance and applies the premise. -/
 theorem applicationKeyInterpretation_sound (contract : LogicalContract ApplicationKeyRows)
     (schema : Schema) (name : String) (keyNames fields : List String)
     (valid : ∀ table, table.Valid → ∀ records,
@@ -57,7 +57,7 @@ theorem applicationKeyInterpretation_sound (contract : LogicalContract Applicati
   cases stored : database name with
   | none => simp [observeApplicationRows, stored] at read
   | some table =>
-    exact valid table ((conforms.2 name).2 table stored).1 records
+    exact valid table ((conforms.2 name).2 table stored) records
       (by simpa [observeApplicationRows, stored] using read)
 
 /-- For every schema, table name and key/field lists, the application-key
@@ -81,7 +81,7 @@ names occur in its columns. An empty list satisfies both conditions vacuously.
 Use this to establish the reader's metadata check. The proof converts each
 successful first-index lookup into its Boolean existence test. -/
 theorem Covers.columnsPresent (covered : Covers table names) :
-    names.all (fun name => table.columns.any (fun column => column.name == name)) = true := by
+    names.all (fun name => table.shape.columns.any (fun column => column.name == name)) = true := by
   apply List.all_eq_true.mpr
   intro name member
   obtain ⟨index, found⟩ := covered name member
@@ -94,7 +94,7 @@ including refusal for an invalid key. With no old rows width is vacuous;
 coverage still requires the named columns. Use this for schema extensions.
 The proof preserves metadata presence and rewrites the complete cell projection. -/
 theorem TableExtends.projectApplicationRows (extension : TableExtends before after)
-    (width : ∀ row ∈ before.rows, row.values.length = before.columns.length)
+    (width : ∀ row ∈ before.rows, row.values.length = before.shape.columns.length)
     (covered : Covers before (keyNames ++ fields)) :
     projectApplicationRows after keyNames fields = projectApplicationRows before keyNames fields := by
   have oldColumns := SqliteVerifier.Covers.columnsPresent covered
@@ -111,7 +111,7 @@ with no old rows only widths are vacuous. Use this for existing-table observatio
 The proof selects the retained table and applies its projection extension law. -/
 theorem DatabaseExtends.observeApplicationRows (extension : DatabaseExtends before after)
     (present : before name = some table)
-    (width : ∀ row ∈ table.rows, row.values.length = table.columns.length)
+    (width : ∀ row ∈ table.rows, row.values.length = table.shape.columns.length)
     (covered : Covers table (keyNames ++ fields)) :
     SqliteVerifier.observeApplicationRows name keyNames fields after =
       SqliteVerifier.observeApplicationRows name keyNames fields before := by
