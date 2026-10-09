@@ -152,3 +152,8 @@ the remote host verified it before extraction. The resource check passed with
 35 GiB free. All nine native Linux suites and checked documentation are running.
 Offline installed acceptance of the same source also started on macOS.
 These runs are not reported as passes until their terminal results succeed.
+
+Published draft PR #79. Integrated main `b1d1828b`, whose only change since
+the tested base records parser task completion in plan files. Runtime source
+and all test inputs are unchanged by that integration. Final owner review is
+not requested yet; Linux, installed and hosted acceptance remain pending.

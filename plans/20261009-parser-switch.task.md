@@ -1,6 +1,6 @@
 # Parser switch, step 2 of ADR 0007
 
-Created 2026-10-09. Status: IN PROGRESS.
+Created 2026-10-09. Status: DONE (2026-10-09).
 Specification: [ADR 0007](../docs/adr-0007-parser-library.md), "Step 2: the
 switch", "Cleanup in step 2" and "Acceptance evidence", items 5 to 10.
 Depends on step 1: [task](20261009-parser-library.task.md), PR #71. This work
