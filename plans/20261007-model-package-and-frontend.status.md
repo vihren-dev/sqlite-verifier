@@ -1,12 +1,25 @@
 # Status: T10 model package and SQL frontend
 
-Created 2026-10-07. Status: IN PROGRESS.
+Created 2026-10-07. Status: DONE (delivered 2026-10-09 in PR #56).
 Audience: team and reviewers.
 Task: [task](20261007-model-package-and-frontend.task.md).
 Specification: [accepted ADR 0006](../docs/adr-0006-model-boundary-and-execution-levels.md).
 Source: [issue #31](https://github.com/vihren-dev/sqlite-verifier/issues/31).
 
 ## Current checkpoint
+
+T10 is DONE. [PR #56](https://github.com/vihren-dev/sqlite-verifier/pull/56)
+merged as `39040632f` on 2026-10-09 after its hosted Linux check passed at head
+`03075d65`. The owner completed the final review. Main CI run
+[37932362343](https://github.com/vihren-dev/sqlite-verifier/actions/runs/37932362343)
+is the final acceptance on both native platforms. On `aarch64-darwin` it
+passes all nine Nix suites (bundle 73, CLI 16, kernel 28, Atuin 12, model 50
+and the four conformance suites), 468 source tests with two optional
+reviewer-tool skips, 115 infrastructure tests and 26 actual offline installed
+tests. `x86_64-linux` passes in the same run. Issue #31 is closed. T07 may
+resume.
+
+The text below records the work before delivery.
 
 The standalone `Belay.Sqlite` model and `belay.sqlite` frontend are integrated
 with the application. Replaced paths are deleted. Both compiled library

@@ -1,6 +1,6 @@
 # T10: Separate the SQLite model package and SQL frontend
 
-Created 2026-10-07. Status: IN PROGRESS.
+Created 2026-10-07. Status: DONE (delivered 2026-10-09 in PR #56).
 Audience: implementers and reviewers.
 Status file: [status](20261007-model-package-and-frontend.status.md).
 Specification: [accepted ADR 0006](../docs/adr-0006-model-boundary-and-execution-levels.md).
