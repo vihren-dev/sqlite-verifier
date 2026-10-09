@@ -50,6 +50,17 @@ that production library imports exclude them. The owner chose the ADR design:
 the root no longer imports them, the checked walkthrough moved to the
 `Demonstration` module, and `EngineeringExamples` remains a separate target.
 
+Review `20261009T120443Z-ae33d1d1` found that the API reference build compiled
+only `SqliteVerifier`; it now also builds `EngineeringExamples`. A new source
+test keeps example modules out of the production import closure.
+
+An independent reviewer reported that `import Std` in the model's
+`Declarations` module is unnecessary and slow. The model builds without it:
+the package build falls from 15 to 4 seconds on macOS, and a Lean process that
+imports `Belay.Sqlite` starts in 0.24 instead of 0.42 seconds. The model and
+the Atuin `HistoryModel` example no longer import `Std`; the Atuin baseline
+fixture has the new hash.
+
 The accepted ADR was delivered through
 [PR44](https://github.com/vihren-dev/sqlite-verifier/pull/44), normal merge
 `b91e5cb5b3e145bc9713cc5e2b88bd502aa9ad0a`. The approved exporter in

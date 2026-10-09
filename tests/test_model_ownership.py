@@ -18,8 +18,8 @@ MODEL_ROOTS = ("Belay.Sqlite.SchemaExtension", "Belay.Sqlite.SchemaPreservation"
 APPLICATION_MODULES = {"SqliteVerifier.Contract", "SqliteVerifier.ContractProofs",
                        "SqliteVerifier.Library", "SqliteVerifier.NullableProjection"}
 """These modules supply logical contracts or application observations, not model facts."""
-ALLOWED_EXTERNAL_IMPORT_ROOTS = {"Init", "Std"}
-"""The core model uses foundational libraries without the Lean compiler API."""
+ALLOWED_EXTERNAL_IMPORT_ROOTS = {"Init"}
+"""The core model uses only Lean's prelude, without `Std` or the Lean compiler API."""
 PROJECT_MODULE_PREFIXES = ("Belay.Sqlite",)
 """Follow the model package namespace without opening application dependencies."""
 pytestmark = [pytest.mark.integration, pytest.mark.requires_lean("compiler")]

@@ -1,5 +1,3 @@
-import Std
-
 set_option doc.verso true
 
 /-! Structural declarations retained by the ordinary-table backend. Constraint

@@ -13,8 +13,8 @@ ROOT = Path(__file__).resolve().parents[1]
 PACKAGE = ROOT / "packages/belay-sqlite"
 MODEL_MODULE_PREFIX = "Belay.Sqlite"
 """Only the standalone package namespace supplies project modules to the core."""
-ALLOWED_EXTERNAL_IMPORT_ROOTS = {"Init", "Std"}
-"""The core uses foundational libraries and excludes the Lean compiler API."""
+ALLOWED_EXTERNAL_IMPORT_ROOTS = {"Init"}
+"""The core uses only Lean's prelude; `Std` and the Lean compiler API add import cost it does not need."""
 EXPECTED_CORE_MODULE_COUNT = 14
 """The initial ownership inventory has thirteen model modules and the public root."""
 pytestmark = [pytest.mark.integration, pytest.mark.requires_nix, pytest.mark.requires_lean("compiler")]

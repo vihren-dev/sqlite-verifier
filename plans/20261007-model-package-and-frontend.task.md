@@ -12,7 +12,7 @@ The SQLite model is reusable without the migration contract, CLI, demonstrations
 or example proofs. Its separate Lake package is `packages/belay-sqlite/`, with
 its own `lakefile.toml` and manifest. The root Lake package requires `belaySqlite`
 through that relative path. The core library and namespace are `Belay.Sqlite`.
-Its transitive imports use only model modules, `Init` and `Std`. A separate
+Its transitive imports use only model modules and `Init`. A separate
 same-package library, `Belay.Sqlite.Codec`, may use `Lean` and the core. The core
 does not import the codec. An independent model build has no application sources
 or application dependency, even when a checkout exists beside the build.
@@ -96,7 +96,7 @@ state and behavior. Sources remain below 200 lines, with complete Python types.
   lookups, projection facts and conformance laws without the application. A
   deliberately introduced application import fails the isolated model build,
   including when an application checkout exists beside it. Core transitive
-  import checks reject `Lean` and codec imports. The separate codec builds and
+  import checks reject `Std`, `Lean` and codec imports. The separate codec builds and
   decodes the existing structural records using `Lean`.
 - Theorem-ownership checks and neutral consumers cover model facts currently
   reached through `Library`, `LiteralPreservation`, `SchemaExtension`,

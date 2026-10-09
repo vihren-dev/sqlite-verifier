@@ -23,7 +23,7 @@ CASES = {"small": ("approved", "add_column_then_table", "approved/schema.sql", "
 """Current shipped positive, refutation and Atuin inputs."""
 EXPECTED = {"small": ("VERIFIED", ["Init", "SqliteVerifier.Demonstration", "SqliteVerifier.Library"]),
             "refutation": ("VIOLATED", ["Init", "SqliteVerifier.Library"]),
-            "atuin": ("VERIFIED", ["Init", "SqliteVerifier", "Std"])}
+            "atuin": ("VERIFIED", ["Init", "SqliteVerifier"])}
 """Independent status and exact trusted-import expectations for the shipped examples."""
 
 
