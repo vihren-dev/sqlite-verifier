@@ -289,7 +289,7 @@ error is also a subset-admission failure, not a SQLite error, and maps to
 ### 4.3 Compiled runner
 
 Add a `lake exe` target that reads case records as JSON lines, decodes the
-structural statements into `SqliteVerifier.Statement`, evaluates
+structural statements into `Belay.Sqlite.Statement`, evaluates
 `classifyCase`, and prints the verdict with optional model observations.
 `checkCase` remains the tier 2 proof predicate. The statement encoding
 is the versioned structural encoding in ADR 0003's P3 package, so both efforts

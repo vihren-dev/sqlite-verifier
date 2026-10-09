@@ -13,9 +13,10 @@ from conformance.native_record import record_sql
 from conformance.native_replay import prepare
 from conformance.regressions import freeze, minimize
 from conformance.state_machine import generate
+from conformance.record_parser import default_parser, runtime_library
 
 pytestmark = [pytest.mark.integration, pytest.mark.conformance,
-              pytest.mark.requires_lean, pytest.mark.requires_native("sqlite-parser", "sqlite3")]
+              pytest.mark.requires_lean, pytest.mark.requires_native("parser-library", "sqlite3")]
 
 
 @pytest.mark.parametrize("error_seeking", [False, True])
@@ -40,7 +41,7 @@ def test_affinity_boundaries_remain_unsupported(runtime_root: Path, literal: str
     """Native affinity observations are retained even when no structural case can be admitted."""
     native = record_sql("CREATE TABLE t(id INTEGER,UNIQUE(id));",
                         f"INSERT INTO t(id) VALUES({literal});", name=f"boundary-{literal}")
-    case, answer = prepare(native, runtime_root / "build/sqlite-parser")
+    case, answer = prepare(native, runtime_library(runtime_root))
     if case is not None:
         answer = compiled(case, runtime_root)
     assert answer["verdict"] == "MODEL_UNSUPPORTED"
@@ -51,7 +52,7 @@ def test_column_boundary(runtime_root: Path) -> None:
     """The error-seeking boundary reaches the real 2000-column failure and atomicity check."""
     program = Program([command("addColumn", "wide", column="extra")],
         Program().schema + "CREATE TABLE wide(" + ",".join(f"c{i} BLOB" for i in range(2000)) + ");")
-    program.roundtrip(runtime_root / "build/sqlite-parser")
+    program.roundtrip(default_parser(runtime_root))
     case, error = acquire(program.fixture(), runtime_root)
     assert case is not None, error
     assert case["nativeTrace"][-1]["primaryCode"] == 1
@@ -86,7 +87,7 @@ def test_shrink_delete_and_freeze(runtime_root: Path, tmp_path: Path) -> None:
     assert entry["status"] == "resolved"
 
 
-def test_frozen_regression(runtime_root: Path) -> None:
+def test_frozen_regression(runtime_root: Path, tmp_path: Path) -> None:
     """Retained tier-two evidence is reacquired and kernel-checked on every model test run."""
     import hashlib
     import json
@@ -100,8 +101,9 @@ def test_frozen_regression(runtime_root: Path) -> None:
     program = Program([command("insert", "t", key=2, value=0)])
     fresh, error = acquire(program.fixture(), runtime_root)
     assert fresh == json.loads(case_file.read_text()), error
-    checked = subprocess.run([str(runtime_root / "lean/bin/lean"), str(directory / "Regression.lean")],
-        env={**os.environ, "LEAN_PATH": str(runtime_root / ".lake/build/lib/lean")},
-        capture_output=True, text=True, timeout=30)
-    assert checked.returncode == 0, checked.stdout + checked.stderr
-    audit_axioms(checked.stdout)
+    from conformance.model_check import prove
+    result = compiled(fresh, runtime_root, emit_lean=True)
+    assert result['verdict'] == 'AGREE'
+    term = result['caseLean']
+    assert isinstance(term, str)
+    audit_axioms(prove(term, runtime_root, tmp_path / 'CurrentRegression.lean', case=fresh))

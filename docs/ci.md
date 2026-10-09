@@ -53,7 +53,7 @@ their per-test limits, described below. The
 [dated evidence](../reports/20261007-darwin-bundle-scheduling/README.md)
 distinguishes the earlier hosted failures from the isolated local pass.
 
-`just test-full` builds nine independent Nix test targets
+`just test-full` builds ten independent Nix test targets
 with `nix-build -A tests`; the flake exposes the same derivations as
 `checks.<system>`:
 
@@ -71,6 +71,10 @@ with `nix-build -A tests`; the flake exposes the same derivations as
 - `tests.atuin`: the Atuin application CLI scenarios.
 - `tests.cli`: public-entrypoint acceptance and adversarial input scenarios.
 - `tests.bundle`: the data path (`prepare`/`verify-bundle`) and opt-in stage reuse.
+- `tests.parserLibrary`: the in-process parser library: one process with all
+  grammars, and, on Linux, the sanitizer job over every parser test input and
+  corpus text. Its runtime root holds the built library and inputs, so a model,
+  harness or documentation change reuses the result.
 
 Each target runs ordinary pytest on a cache miss. Its explicit source files,
 Python/pytest, native tools, Lean artifacts and command determine its Nix identity.
@@ -133,7 +137,7 @@ server operation are maintained in the devops repository
 job and was rolled back ([record](../plans/20260929-attic-ci.status.md)).
 
 Before the save, `tools/ci_store_gc.py` registers garbage-collector roots for the
-test targets, runtimes, parsers, base API reference (`apiReferenceBase`),
+test targets, runtimes, base API reference (`apiReferenceBase`),
 development shell and flake inputs of the current commit, and removes every other
 store path. The base API reference and its doc-gen4 build input add about 53 MB
 compressed for each platform. Nix keeps the outputs of rooted
@@ -181,8 +185,10 @@ is overwritten. The download-artifact v5 commit was resolved from the official
 repository tag on 2026-09-24. Tag creation remains a coordinated release action.
 A passing engineering workflow does not mean roadmap Step 1 is complete.
 
-The separate target-owned `Protected approved baseline` workflow is unchanged.
-Documentation routing does not authorize changed approved sources or manifests.
+The main ruleset requires `Check (x86_64-linux)` and `Check (aarch64-darwin)`
+and requires a branch to be up to date before it merges. Changes to approved
+example requirements are ordinary test-fixture changes and get the same
+review as other changes.
 
 ## Maintainer release
 

@@ -6,6 +6,7 @@ from dataclasses import dataclass
 import hashlib
 import json
 from pathlib import Path
+import sys
 import shutil
 
 import pytest
@@ -13,7 +14,8 @@ import pytest
 from migration_check.cli import arguments
 from migration_check.compile import CompiledProject, compile_project
 from migration_check.runtime import Runtime
-from migration_check.sql_model import schema_inputs, sql_inputs
+from migration_check.lean_inputs import schema_inputs, sql_inputs
+from belay.sqlite.parser_library import installed_library
 
 FIXTURES = Path(__file__).resolve().parent / "kernel_gate"
 HELPER = b"/- import Ignored -/\nimport Deeper\ndef approvedHelper : Nat := deeperValue\n"
@@ -36,12 +38,12 @@ class CompilationFixture:
     candidate: Path
     workspace: Path
     sysroot: Path
-    library: Path
+    libraries: tuple[Path, Path]
 
     def compile(self, *, schema: str | None = None, requirements: Path | None = None,
                 interpretation: Path | None = None) -> CompiledProject:
         """Invoke the real staged compiler with explicit immutable runtime paths."""
-        return compile_project(sysroot=self.sysroot, library=self.library,
+        return compile_project(sysroot=self.sysroot, libraries=self.libraries,
             requirements=requirements or self.approved / "Requirements.lean",
             interpretation=interpretation or self.approved / "Interpretation.lean",
             next_interpretation=self.candidate / "NextInterpretation.lean",
@@ -50,7 +52,7 @@ class CompilationFixture:
 
 
 @pytest.fixture
-def compilation_case(tmp_path: Path, lean_sysroot: Path, lean_library: Path) -> CompilationFixture:
+def compilation_case(tmp_path: Path, lean_sysroot: Path, lean_libraries: tuple[Path, Path]) -> CompilationFixture:
     """Set up source aliases and generated-schema checks without compiling in setup."""
     root = tmp_path.resolve()
     approved, candidate, workspace = root / "approved", root / "candidate", root / "work"
@@ -69,7 +71,7 @@ def compilation_case(tmp_path: Path, lean_sysroot: Path, lean_library: Path) -> 
     requirement.write_text(requirement.read_text().replace("import SqliteVerifier",
         "import SqliteVerifier\nimport SchemaInputs\nimport «Odd.Module»") +
         '\nexample : Generated.startSchema = [] := rfl\n')
-    return CompilationFixture(root, approved, candidate, workspace, lean_sysroot, lean_library)
+    return CompilationFixture(root, approved, candidate, workspace, lean_sysroot, lean_libraries)
 
 
 @dataclass(frozen=True)
@@ -85,16 +87,15 @@ class BaselineFixture:
 
 
 @pytest.fixture
-def baseline_case(tmp_path: Path, runtime_root: Path, lean_sysroot: Path, lean_library: Path,
+def baseline_case(tmp_path: Path, runtime_root: Path, lean_sysroot: Path, lean_libraries: tuple[Path, Path],
                   proof_checker: Path, example_factory: Callable[[str], Path],
                   monkeypatch: pytest.MonkeyPatch) -> BaselineFixture:
     """Redirect only runtime location; source parsing, closure discovery and verification remain real."""
-    runtime = Runtime(runtime_root, lean_sysroot, lean_library,
-                      runtime_root / "build/sqlite-parser", proof_checker)
+    runtime = Runtime(runtime_root, lean_sysroot, lean_libraries,
+                      installed_library(runtime_root.resolve(), sys.platform), proof_checker)
 
-    def locate(cls: type[Runtime], sqlite_version: str = "3.51.0") -> Runtime:
-        """Bind the test's exact supported profile to the explicitly selected artifact root."""
-        assert sqlite_version == "3.51.0"
+    def locate(cls: type[Runtime]) -> Runtime:
+        """Bind the test to the explicitly selected artifact root."""
         return runtime
 
     monkeypatch.setattr(Runtime, "locate", classmethod(locate))

@@ -1,6 +1,6 @@
 """Independent PRAGMA checks for the translated subset of native SQLite metadata."""
 
-from migration_check.sql_model import Affinity, Table
+from belay.sqlite.sql_model import Affinity, Table
 from conformance.native_connection import Cell, Row, Connection
 
 

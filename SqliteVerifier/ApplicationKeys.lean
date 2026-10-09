@@ -7,6 +7,8 @@ through reordered storage. The permutation convenience is built over the
 general {name}`SqliteVerifier.Interpretation` and
 {name}`SqliteVerifier.LogicalContract` constructors. -/
 
+open Belay.Sqlite
+
 namespace SqliteVerifier
 
 /-- Rowid-free records: each pair contains an ordered application-key tuple

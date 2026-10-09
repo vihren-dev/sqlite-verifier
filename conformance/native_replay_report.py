@@ -33,7 +33,7 @@ def bindings(corpus: Path, records: list[dict[str, Json]], runtime: Path | None)
                 for record in records}
     libraries = [library_path(library_binary(version)) for version in sorted(versions)]
     sources = [*sorted((ROOT / 'conformance').glob('*.py')),
-               *sorted((ROOT / 'migration_check').glob('*.py')),
+               *sorted((ROOT / 'belay/sqlite').glob('*.py')),
                ROOT / 'tools/check_resources.py', ROOT / 'nix/sqlite.nix', ROOT / 'nix/flake.lock']
     return {'sourcesSha256': {str(path.relative_to(ROOT)): hashlib.sha256(path.read_bytes()).hexdigest()
                              for path in sources},

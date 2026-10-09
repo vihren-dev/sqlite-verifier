@@ -1,5 +1,5 @@
 # Independent pytest targets: Nix owns isolation, dependency identity and reuse.
-{ pkgs, leanToolchain, leanRuntime, parsers, runtime, conformance ? runtime, root ? ../.
+{ pkgs, leanToolchain, leanRuntime, runtime, modelPackage, parserLibrary, conformance ? runtime, root ? ../.
 , native ? import ../nix/sqlite.nix { inherit pkgs; }
 , conformanceNative ? import ./conformance-native.nix { inherit pkgs; }
 }:
@@ -18,12 +18,14 @@ let
   suiteTimeoutSeconds = 1200;
   # The conformance suites use only the SQL frontend, not the verification application.
   # tests/test_conformance_frontend.py checks this list against the actual imports.
-  frontend = map (name: root + "/migration_check/${name}.py")
+  frontend = map (name: root + "/${builtins.replaceStrings [ "." ] [ "/" ] name}.py")
     (builtins.fromJSON (builtins.readFile (root + /tests/conformance_frontend.json)));
   leanRoot = pkgs.runCommand "sqlite-verifier-test-lean" {} ''
     mkdir -p "$out"
     ln -s ${leanToolchain} "$out/lean"
     ln -s ${leanRuntime}/.lake "$out/.lake"
+    mkdir -p "$out/packages"
+    ln -s ${modelPackage} "$out/packages/belay-sqlite"
   '';
   suite = name: { inputs, runtime, tools ? [], environment ? {} }:
     let
@@ -49,12 +51,12 @@ let
   modelInputs = frontend ++ [
     (root + /tests/conformance_freeze_capture.py)
     (fs.fileFilter (file: file.hasExt "json") (root + /conformance/cases))
-    (root + /SqliteVerifier/SqlExecution.lean)
-    (root + /SqliteVerifier/Execution.lean) (root + /SqliteVerifier/LiteralData.lean)
+    (root + /packages/belay-sqlite/Belay/Sqlite/SqlExecution.lean)
+    (root + /packages/belay-sqlite/Belay/Sqlite/Execution.lean) (root + /packages/belay-sqlite/Belay/Sqlite/LiteralData.lean)
     (root + /VerifierConformance/Trace.lean)
     (root + /VerifierConformance/Outputs.lean)
     (root + /VerifierConformance/Case.lean)
-    (root + /VerifierConformance/Laws.lean)
+    (root + /packages/belay-sqlite/Belay/Sqlite/Laws.lean)
     (root + /conformance/requirements-3.51.0.json)
     (root + /conformance/regressions)
     (root + /conformance/synthetic-workload)
@@ -79,7 +81,7 @@ let
     "upstream_bindings" "upstream_binding_policy" "upstream_display" "upstream_evidence"
     "upstream_helpers"
     "native_fixture" "import_fixture" "schema"
-    "case_format" "native_connection" "native_library" "native_clock" "native_probe" "native_ordering" "query_window" "native_metadata" "native_record" "native_statements" "native_replay" "upstream_pilot" "upstream_fidelity" "corpus" "generated_program" "mutation_check" "state_machine" "regressions" "progress" "measure_coverage" "native_trace" "pipeline"
+    "case_format" "native_connection" "native_library" "native_clock" "native_probe" "native_ordering" "query_window" "native_metadata" "native_record" "native_statements" "native_replay" "record_parser" "upstream_pilot" "upstream_fidelity" "corpus" "generated_program" "mutation_check" "state_machine" "regressions" "progress" "measure_coverage" "native_trace" "pipeline"
   ];
   # Frozen corpora and retained reports: large, rarely changed, read only by the frozen suite.
   frozenData = [
@@ -107,7 +109,7 @@ in {
       (root + /conformance/synthetic-workload)
     ] ++ map (name: root + "/conformance/${name}.py") [
       "replay_tiers" "native_workers" "corpus" "corpus_shards" "corpus_workers" "corpus_evidence" "corpus_acquisition" "case_format"
-      "workload" "workload_inputs" "execution_profile" "native_replay" "model_check"
+      "workload" "workload_inputs" "execution_profile" "native_replay" "record_parser" "model_check"
       "native_record" "native_observation" "native_acquisition" "native_connection" "native_library" "native_clock" "native_storage"
       "native_probe" "native_ordering" "query_window" "native_metadata" "native_statements"
       "native_bindings" "native_call_recording" "upstream_bindings" "upstream_binding_policy"
@@ -152,6 +154,12 @@ in {
     tools = [ native.sqlite conformanceNative.fixture ];
     environment.CONFORMANCE_UPSTREAM = conformanceNative.upstream;
   };
+  # The parser library: all grammars in one process and, on Linux, the sanitizer job.
+  # Its runtime root holds the built inputs, so a harness or model change reuses the result.
+  parserLibrary = suite "parserLibrary" {
+    inputs = map (name: root + "/tests/${name}.py") [ "parser_inputs" "parser_library_inputs" "parser_library_support" ];
+    runtime = parserLibrary;
+  };
   atuin = suite "atuin" {
     inputs = [];
     inherit runtime;
@@ -159,8 +167,11 @@ in {
   bundle = suite "bundle" {
     inputs = [
       (fs.fileFilter (file: file.hasExt "py") (root + /migration_check))
+      (fs.fileFilter (file: file.hasExt "py") (root + /belay/sqlite))
       (fs.fileFilter (file: file.hasExt "json") (root + /conformance/cases))
       (root + /tests/sql_fixtures.py)
+      (root + /experiments/adr-0003-latency/cases.py)
+      (root + /experiments/adr-0003-latency/stage_timing.py)
     ];
     inherit runtime;
   };

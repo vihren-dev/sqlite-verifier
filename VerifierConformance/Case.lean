@@ -4,7 +4,7 @@ import VerifierConformance.Outputs
 /-! ADR 0004's finite comparison authority. Native observations remain empirical
 inputs; proving checkCase certifies only the model's agreement with those inputs. -/
 
-namespace SqliteVerifier.Conformance
+namespace Belay.Sqlite.Conformance
 
 /-- Present tables only; absence is reconstructed over the complete case name set. -/
 abbrev FiniteDatabase := List (String × Table)
@@ -125,4 +125,4 @@ def checkCase (c : Case) : Bool := decide (classifyCase c = .agree)
 theorem unsupported_not_checked (c : Case) (h : classifyCase c = .modelUnsupported) :
     checkCase c = false := by simp [checkCase, h]
 
-end SqliteVerifier.Conformance
+end Belay.Sqlite.Conformance

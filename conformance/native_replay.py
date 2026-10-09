@@ -1,18 +1,19 @@
 """Derive today's structural model input from frozen translator-independent evidence."""
 
-from pathlib import Path
-import subprocess
+from conformance.record_parser import NO_PARSER_REASON, record_parser
 
 from conformance.case_format import Json, schema_wire, statement_wire, table_wire
 from conformance.native_connection import SOURCE_ID
 from conformance import native_bindings
 from conformance.native_call_recording import validate_recording
 from conformance.native_metadata import check_inventory, identifier, integer, text
-from conformance.execution_profile import recorded_profile
-from migration_check.diagnostics import Rejection
-from migration_check.sql_model import Table, sql_inputs
-from migration_check.sql_tree import parse
-from migration_check.translate import commands, starting_schema, statements
+from belay.sqlite.dialects import NoParserForDialect
+from belay.sqlite.errors import SqlError
+from belay.sqlite.sql_model import Table
+from belay.sqlite.admission import admit
+from belay.sqlite.parser_library import ParserLibrary, ParserLibraryError
+from belay.sqlite.sql_tree import ParserResourceLimit, parse
+from belay.sqlite.translate import commands, starting_schema, statements
 
 
 def schema_sql(observation: dict[str, Json]) -> str:
@@ -59,24 +60,33 @@ def output_wire(event: dict[str, Json]) -> dict[str, Json]:
     return {"result": {"columns": columns, "rows": event["rows"], "changes": changes}, "groups": groups}
 
 
-def model_case(record: dict[str, Json], parser: Path) -> dict[str, Json]:
-    """Re-translate on every replay, preserving frozen native truth as the model grows."""
+def model_case(record: dict[str, Json], library: ParserLibrary) -> dict[str, Json]:
+    """Re-translate on every replay, preserving frozen native truth as the model grows.
+
+    The case's SQL is parsed with the dialect of its recorded profile before the model
+    check, so every case is parser evidence, also when the model does not support it.
+    """
     validate_recording(record)
     if record.get("nativeVersion") not in (1, 2, 3, 4) or record["nativeVersion"] != 4 and record.get("sourceId") != SOURCE_ID:
         raise ValueError("Unsupported native record version or engine identity")
     outputs = [output_wire(event) for event in record["trace"]] if record["nativeVersion"] in (3, 4) else None
-    if record["nativeVersion"] == 4:
-        recorded_profile(record)
-        raise Rejection("UNSUPPORTED", "Model execution profile capability is not implemented")
+    parser = record_parser(library, record)
     initial_sql = schema_sql(record["initial"]["visible"])
-    schema = starting_schema(parse(parser, initial_sql.encode(), "corpus-schema.sql"))
-    script = statements(parse(parser, record["migrationSql"].encode(), "corpus-migration.sql"))
+    schema_tree = parse(parser, initial_sql.encode(), "corpus-schema.sql")
+    migration_tree = parse(parser, record["migrationSql"].encode(), "corpus-migration.sql")
+    ran = [parse(parser, event["sql"].encode(), "native-statement.sql")
+           for event in record["trace"] if "sql" in event and not event["primaryCode"]]
+    if record["nativeVersion"] == 4:
+        raise SqlError("UNSUPPORTED", "Model execution profile capability is not implemented")
+    schema = starting_schema(schema_tree)
+    script = statements(migration_tree)
     trace = record["trace"]
     if (len(trace) > len(script) or any(event["primaryCode"] for event in trace[:-1])
             or (not trace or not trace[-1]["primaryCode"]) and len(trace) != len(script)):
         raise ValueError("Native/frontend statement-count mismatch")
     offset = 0
     migration = record["migrationSql"].encode()
+    native_trees = iter(ran)
     for index, event in enumerate(trace):
         consumed = event["sql"].encode()
         end = offset + len(consumed)
@@ -85,10 +95,10 @@ def model_case(record: dict[str, Json], parser: Path) -> dict[str, Json]:
             raise ValueError("Native/frontend statement boundary mismatch")
         offset = end
         if not event["primaryCode"]:
-            native_statement = statements(parse(parser, event["sql"].encode(), "native-statement.sql"))
+            native_statement = statements(next(native_trees))
             if [statement_wire(item) for item in native_statement] != [statement_wire(script[index])]:
                 raise ValueError("Native/frontend statement alignment mismatch")
-    sql_inputs(schema, script)
+    admit(schema, script)
     cache: dict[str, tuple[Table, ...]] = {initial_sql: schema}
 
     def tables(observation: dict[str, Json]) -> list[Json]:
@@ -124,20 +134,26 @@ def model_case(record: dict[str, Json], parser: Path) -> dict[str, Json]:
             **({"outputs": outputs, "parameters": [event["parameters"] for event in trace]} if outputs is not None else {})}
 
 
-def prepare(record: dict[str, Json], parser: Path) -> tuple[dict[str, Json] | None, dict[str, Json]]:
+def prepare(record: dict[str, Json], library: ParserLibrary) -> tuple[dict[str, Json] | None, dict[str, Json]]:
     """Unsupported native cases survive replay; corrupt evidence remains a harness error."""
     try:
-        return model_case(record, parser), {}
-    except Rejection as error:
-        native_syntax_error = (error.status == "INPUT_ERROR" and error.source == "corpus-migration.sql"
+        return model_case(record, library), {}
+    except NoParserForDialect as error:
+        return None, {"verdict": "MODEL_UNSUPPORTED", "frontendStatus": error.status,
+                      "reason": NO_PARSER_REASON, "error": str(error)}
+    except SqlError as error:
+        # A migration that native SQLite also refused (SQLITE_ERROR) is outside the model's scope,
+        # also when it exceeds the parser's size limits before the parser reaches its error.
+        native_syntax_error = ((error.status == "INPUT_ERROR" or isinstance(error, ParserResourceLimit))
+                               and error.source == "corpus-migration.sql"
                                and bool(record.get("trace")) and record["trace"][-1].get("primaryCode") == 1)
         return None, {"verdict": "MODEL_UNSUPPORTED" if error.status == "UNSUPPORTED" or native_syntax_error else "HARNESS_ERROR",
                       "frontendStatus": error.status, "error": str(error)}
-    except (ValueError, KeyError, TypeError, IndexError, OSError, RuntimeError, subprocess.SubprocessError) as error:
+    except (ValueError, KeyError, TypeError, IndexError, OSError, RuntimeError, ParserLibraryError) as error:
         return None, {"verdict": "HARNESS_ERROR", "error": str(error)}
 
 
-def without_trailing_queries(record: dict[str, Json], parser: Path) -> dict[str, Json] | None:
+def without_trailing_queries(record: dict[str, Json], library: ParserLibrary) -> dict[str, Json] | None:
     """Project only successful trailing SELECT/metadata PRAGMAs with unchanged recorded state.
 
     The original record retains query SQL and exact result rows. This diagnostic does
@@ -145,10 +161,10 @@ def without_trailing_queries(record: dict[str, Json], parser: Path) -> dict[str,
     """
     if any(event["primaryCode"] for event in record["trace"]):
         return None
-    tree = parse(parser, record["migrationSql"].encode(), "corpus-queries.sql")
+    tree = parse(record_parser(library, record), record["migrationSql"].encode(), "corpus-queries.sql")
     try:
         nodes = commands(tree)
-    except Rejection as error:
+    except SqlError as error:
         if error.status == "UNSUPPORTED":
             return None  # EXPLAIN and other wrappers are outside this diagnostic projection.
         raise

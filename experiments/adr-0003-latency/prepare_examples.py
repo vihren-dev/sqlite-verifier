@@ -13,11 +13,11 @@ from cases import CASES, ROOT, WORK  # noqa: E402
 
 sys.path.insert(0, str(ROOT))
 from migration_check.compile import compile_project  # noqa: E402
-from migration_check.profiles import profile  # noqa: E402
+from belay.sqlite.profiles import profile  # noqa: E402
 from migration_check.runtime import Runtime  # noqa: E402
-from migration_check.sql_model import schema_inputs, sql_inputs  # noqa: E402
-from migration_check.sql_tree import parse  # noqa: E402
-from migration_check.translate import starting_schema, statements  # noqa: E402
+from migration_check.lean_inputs import schema_inputs, sql_inputs  # noqa: E402
+from belay.sqlite.sql_tree import parse  # noqa: E402
+from belay.sqlite.translate import starting_schema, statements  # noqa: E402
 
 
 def compile_case(name: str, schema: Path, approved: Path, candidate: Path, version: str) -> Path:

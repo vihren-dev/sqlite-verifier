@@ -1,9 +1,11 @@
-import SqliteVerifier.SchemaPreservation
+import Belay.Sqlite.SchemaPreservation
 
 set_option doc.verso true
 
 /-! Bounded structural regressions for the reusable schema model. Native SQL
 comparisons and complete application examples are checked separately. -/
+
+open Belay.Sqlite
 
 namespace SqliteVerifier.SchemaExamples
 

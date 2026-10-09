@@ -5,6 +5,8 @@ set_option doc.verso true
 /-! An explicit failure contract protects the committed prefix's actual storage.
 This separate engineering policy permits exactly the expected third-statement error. -/
 
+open Belay.Sqlite
+
 namespace SqliteVerifier.Demonstration
 
 /-- Recreating the audit table fails after both earlier statements have committed. -/

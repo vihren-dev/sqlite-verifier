@@ -5,10 +5,13 @@ from pathlib import Path
 
 import pytest
 
-from migration_check.diagnostics import Rejection
-from migration_check.sql_model import lean_string, sql_inputs, transition
-from migration_check.sql_tree import Tree, parse
-from migration_check.translate import normalize, starting_schema, statements
+from belay.sqlite.errors import SqlError
+from belay.sqlite.quoted_text import quoted_string
+from belay.sqlite.sql_model import transition
+from migration_check.lean_inputs import sql_inputs
+from belay.sqlite.sql_tree import SqlParser, Tree, parse
+from belay.sqlite.translate import normalize, starting_schema, statements
+from conformance.record_parser import default_parser
 
 pytestmark = [pytest.mark.integration, pytest.mark.parser, pytest.mark.requires_native]
 UNSUPPORTED_STATEMENTS = [
@@ -51,38 +54,57 @@ def test_supported_scripts_and_prefix_failures(parse_sql: Callable[..., Tree]) -
     assert transition(schema, statements(parse_sql('ALTER TABLE "café" ADD N TEXT;')))[1] == "columnExists"
     assert 'def script : List Statement := [.addColumn "café"' in sql_inputs(schema, script)
     assert normalize("ÄZ") == "Äz"
-    assert lean_string('a\b\f"\\\n') == '"a\\u0008\\u000c\\"\\\\\\u000a"'
+    assert quoted_string('a\b\f"\\\n') == '"a\\u0008\\u000c\\"\\\\\\u000a"'
 
 
 @pytest.mark.parametrize("sql", UNSUPPORTED_STATEMENTS)
 def test_unsupported_statement(parse_sql: Callable[..., Tree], sql: str) -> None:
     """No valid but unmodeled object or optional SQL clause can disappear."""
-    with pytest.raises(Rejection) as rejected:
+    with pytest.raises(SqlError) as rejected:
         statements(parse_sql(sql))
     assert rejected.value.status == "UNSUPPORTED"
 
 
 def test_duplicate_and_empty_schema(parse_sql: Callable[..., Tree]) -> None:
     """Case-insensitive duplicate tables are input errors; an empty schema has no tables."""
-    with pytest.raises(Rejection) as duplicate:
+    with pytest.raises(SqlError) as duplicate:
         starting_schema(parse_sql('CREATE TABLE t(x TEXT); CREATE TABLE T(x TEXT);'))
     assert duplicate.value.status == "INPUT_ERROR"
     assert starting_schema(parse_sql('-- empty\n;')) == ()
 
 
-def test_wrong_parser_profile_is_rejected(runtime_root: Path) -> None:
-    """Selecting a different engine cannot silently consume the current grammar binary."""
-    with pytest.raises(Rejection) as rejected:
-        parse(runtime_root / "build/sqlite-parser", b'CREATE TABLE t(x TEXT);', 'fixture.sql',
-              expected_profile='3.46.0')
+def test_result_for_another_grammar_is_rejected(runtime_root: Path) -> None:
+    """`parse` refuses a library document for another grammar than the one it requested."""
+    parser = default_parser(runtime_root)
+
+    class OtherGrammar:
+        """A library whose documents name another grammar."""
+
+        metadata = parser.library.metadata
+
+        def parse(self, grammar: str, sql: bytes) -> object:
+            """Return the real document with another grammar identity."""
+            return {**parser.library.parse(grammar, sql), "grammar": "0" * 64}  # type: ignore[dict-item]
+
+    with pytest.raises(SqlError) as rejected:
+        parse(SqlParser(OtherGrammar(), parser.grammar), b'CREATE TABLE t(x TEXT);', 'fixture.sql')  # type: ignore[arg-type]
     assert rejected.value.status == 'UNVERIFIED'
-    assert 'profile mismatch' in str(rejected.value)
+    assert 'another grammar' in str(rejected.value)
 
 
 @pytest.mark.parametrize("sql,status", [("CREATE TABLE", "INPUT_ERROR"), (" " * (1024 * 1024 + 1), "UNVERIFIED")],
                          ids=["syntax", "resource_limit"])
 def test_parser_failure_classes(parse_sql: Callable[..., Tree], sql: str, status: str) -> None:
     """Resource exhaustion does not become a syntax error or a violated theorem."""
-    with pytest.raises(Rejection) as rejected:
+    with pytest.raises(SqlError) as rejected:
         parse_sql(sql)
     assert rejected.value.status == status
+
+
+def test_grammar_rejection_names_the_place_and_the_next_step(parse_sql: Callable[..., Tree]) -> None:
+    """`parse` reports a grammar rejection with the source, the offset and what to do next."""
+    with pytest.raises(SqlError) as rejected:
+        parse_sql("CREATE TABLE t(a TEXT); SELEC 1;")
+    assert rejected.value.status == "INPUT_ERROR"
+    assert rejected.value.source == "fixture.sql" and rejected.value.start == 24
+    assert "correct the SQL there and run the command again" in str(rejected.value)

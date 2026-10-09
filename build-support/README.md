@@ -6,7 +6,7 @@ ordinary Nix expression. The flake in `nix/flake.nix` also exposes the same test
 derivations as `checks.<system>`. The development shell remains
 `nix develop path:./nix`, with the existing `nix/flake.lock` pin.
 
-Targets `leanToolchain`, `parsers`, `leanRuntime` and `runtime` share the locked
+Targets `leanToolchain`, `parserLibrary`, `leanRuntime` and `runtime` share the locked
 nixpkgs input. Derivations build offline after their declared archives/packages
 are fetched. Lean is exactly 4.34.1; neither Elan nor a nixpkgs Lean version is
 used. Linux binaries use the pinned loader via autoPatchelf. Darwin upstream
@@ -29,16 +29,31 @@ docstring's `Init/Tactic.html` link to `Init/Tactics.html`. The remaining
 missing pages and anchors fail validation. The standard `#top` fragment,
 named anchors and raw/decoded HTML IDs remain valid targets.
 
-`just parser` builds the `parsers` target and links its executables and grammar
-directories into the checkout’s `build/`. Nix owns all parser build reuse; there
-is no separate local builder or content-stamp cache. The derivation verifies
-upstream checksums; `parser/generate.py` verifies token agreement and transforms
-the grammar before Nix compiles and links the C sources.
+`parserLibrary` builds the in-process SQLite parser library, as
+[ADR 0007](../docs/adr-0007-parser-library.md) decides. Nix owns all parser
+build reuse; there is no separate local builder or content-stamp cache. The
+release derivations verify upstream checksums; `parser/generate.py` verifies
+token agreement and transforms the grammar before Nix compiles and links the C
+sources. Nix reads
+`parser/dialects.json` and makes one derivation for each release
+(`parserLibrary.releases`), one for each distinct grammar identity
+(`parserLibrary.grammars`) and one that links `parserLibrary.library`, so a new
+release or grammar builds only its own derivations. `parser/library_steps.py`
+does the checks between the Lemon and compiler steps. The test suite
+`tests.parserLibrary` checks the library. `runtime` and `conformance` contain it
+at `lib/`. See the [SQLite syntax boundary](../docs/sqlite-parser.md).
 
-`parsers/build/` retains both executables, Lemon tools and generated grammar for
-fresh host coverage. `leanRuntime/.lake/build/` contains the current Lean library
-and checker. `runtime/` assembles those outputs, source/module membership,
-examples and Python CLI. `just build` uses this same runtime and exposes local development
+`parserLibrary.grammars` retains each grammar's Lemon outputs and generated
+parser. `leanRuntime/.lake/build/` contains the current Lean library
+and checkers. `modelPackage` builds `Belay.Sqlite` and its separate codec with
+no application inputs. The application requires it at `packages/belay-sqlite`.
+`EngineeringExamples` is a separate dependency for the shipped examples; the
+production application root excludes demonstrations.
+`runtime/` assembles those outputs, source/module membership,
+examples, the `belay.sqlite` namespace frontend and the Python CLI.
+The frontend takes explicit parser and profile inputs. It has no dependency on
+the verification application. Application Lean emission lives in
+`migration_check/lean_inputs.py`; conformance calls frontend admission directly. `just build` uses this same runtime and exposes local development
 paths as links; it does not rebuild Lean through Elan or Lake outside Nix. It never caches a user
 proof verdict or installed test result. Set
 `SQLITE_VERIFIER_RUNTIME_ROOT` to this immutable output before `just test` or

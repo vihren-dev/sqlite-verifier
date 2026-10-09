@@ -11,12 +11,13 @@ from conformance.model_cases import cases
 from conformance.native_trace import record
 from conformance.model_check import compiled, prove
 from conformance.pipeline import fixtures
-from migration_check.sql_model import Affinity, Column, Table, transition
-from migration_check.sql_tree import parse
-from migration_check.translate import statements
+from belay.sqlite.sql_model import Affinity, Column, Table, transition
+from belay.sqlite.sql_tree import parse
+from belay.sqlite.translate import statements
+from conformance.record_parser import default_parser, runtime_library
 
 pytestmark = [pytest.mark.integration, pytest.mark.conformance, pytest.mark.kernel,
-              pytest.mark.requires_lean, pytest.mark.requires_native("sqlite-parser", "sqlite3")]
+              pytest.mark.requires_lean, pytest.mark.requires_native("parser-library", "sqlite3")]
 
 
 @pytest.mark.parametrize("name", [case.name for case in cases()])
@@ -24,14 +25,14 @@ def test_native_model(name: str, runtime_root: Path, tmp_path: Path) -> None:
     """The unchanged five fixtures agree natively, round-trip, and receive kernel proofs."""
     index = next(i for i, case in enumerate(cases()) if case.name == name)
     old, fixture = cases()[index], fixtures()[index]
-    case = record(fixture, runtime_root / "build/sqlite-parser")
+    case = record(fixture, default_parser(runtime_root))
     frozen = json.loads((Path(__file__).resolve().parents[1] / "conformance/cases" / f"{name}.json").read_text())
     assert case == frozen, "Native replay differs from the frozen pinned-engine record"
     before = tuple(Table(table.name, tuple(Column(name, cast(Affinity, kind.lower()))
                    for name, kind in table.columns)) for table in old.before)
     after = tuple(Table(table.name, tuple(Column(name, cast(Affinity, kind.lower()))
                   for name, kind in table.columns)) for table in old.after)
-    script = statements(parse(runtime_root / "build/sqlite-parser", fixture.migration_sql.encode(), "case.sql"))
+    script = statements(parse(default_parser(runtime_root), fixture.migration_sql.encode(), "case.sql"))
     assert case["schema"] == [schema_wire(table) for table in before]
     assert transition(before, script)[0] == after
     expected = [[table.name, table_wire(
@@ -48,7 +49,7 @@ def test_native_model(name: str, runtime_root: Path, tmp_path: Path) -> None:
 
 def test_lost_rows_rejected(runtime_root: Path, tmp_path: Path) -> None:
     """A falsely empty target fails the shared checker and cannot receive a kernel proof."""
-    case = record(fixtures()[0], runtime_root / "build/sqlite-parser")
+    case = record(fixtures()[0], default_parser(runtime_root))
     case["nativeTrace"][-1]["visible"][1][1]["rows"] = []
     result = compiled(case, runtime_root, emit_lean=True)
     assert result["verdict"] == "DISAGREE"
@@ -66,7 +67,7 @@ def test_version_two_outputs(runtime_root: Path, tmp_path: Path) -> None:
         "BEGIN; UPDATE t SET v=7 WHERE id=1; UPDATE t SET v=8 WHERE id=2;"
         "INSERT INTO t(id,v) VALUES(2,8); INSERT INTO t(id,v) VALUES(2,9); COMMIT;",
         name="outputs-v2", outputs=True)
-    case, error = prepare(native, runtime_root / "build/sqlite-parser")
+    case, error = prepare(native, runtime_library(runtime_root))
     assert case is not None, error
     assert case["version"] == 2
     answer = compiled(case, runtime_root, emit_lean=True)
@@ -86,11 +87,11 @@ def test_version_two_outputs(runtime_root: Path, tmp_path: Path) -> None:
     for sql, parameters in (("SELECT 1;", None), ("INSERT INTO t(id,v) VALUES(?,?);", [((1, 3), (1, 4))])):
         unsupported = record_sql("CREATE TABLE t(id INTEGER,v BLOB);", sql,
                                  name="unsupported-output", outputs=True, parameters=parameters)
-        assert prepare(unsupported, runtime_root / "build/sqlite-parser")[1]["verdict"] == "MODEL_UNSUPPORTED"
+        assert prepare(unsupported, runtime_library(runtime_root))[1]["verdict"] == "MODEL_UNSUPPORTED"
     ordered = record_sql("CREATE TABLE t(k); INSERT INTO t VALUES(1),(1),(2);",
                          "SELECT k FROM t ORDER BY k LIMIT 1;", name="ordered", outputs=True)
-    assert prepare(ordered, runtime_root / "build/sqlite-parser")[1]["verdict"] == "MODEL_UNSUPPORTED"
+    assert prepare(ordered, runtime_library(runtime_root))[1]["verdict"] == "MODEL_UNSUPPORTED"
     ordered["trace"][0]["groups"][0]["count"] = 3
-    assert prepare(ordered, runtime_root / "build/sqlite-parser")[1]["verdict"] == "HARNESS_ERROR"
+    assert prepare(ordered, runtime_library(runtime_root))[1]["verdict"] == "HARNESS_ERROR"
     native["trace"][0]["columnCount"] = 1
-    assert prepare(native, runtime_root / "build/sqlite-parser")[1]["verdict"] == "HARNESS_ERROR"
+    assert prepare(native, runtime_library(runtime_root))[1]["verdict"] == "HARNESS_ERROR"

@@ -58,7 +58,7 @@ One UTF-8 file:
 
 1. A JSON header line: `{"bundle": 1, "trusted_imports": ["Module", ...]}`. It names
    the trusted-library modules whose declarations the export references but omits.
-   The checker imports them only from the sysroot and verifier library.
+   The checker imports them only from the sysroot, application library and model library.
 2. A [lean4export](https://github.com/leanprover/lean4export) NDJSON 3.1.0 export
    of the proof, next/failure interpretations and their dependencies. Declarations
    supplied by the checker's trusted import closure are omitted. The exporter

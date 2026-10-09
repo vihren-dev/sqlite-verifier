@@ -8,11 +8,11 @@ from pathlib import Path
 import pytest
 
 from migration_check.contract import Contract, compile_trusted
-from migration_check.profiles import profile
-from migration_check.sql_model import schema_inputs, sql_inputs
-from migration_check.sql_tree import Tree
-from migration_check.structural import Json, generated_inputs_wire
-from migration_check.translate import starting_schema, statements
+from belay.sqlite.profiles import profile
+from migration_check.lean_inputs import schema_inputs, sql_inputs
+from belay.sqlite.sql_tree import Tree
+from belay.sqlite.structural import Json, generated_inputs_wire
+from belay.sqlite.translate import starting_schema, statements
 from tests.runtime_support import CommandResult, run_command
 from tests.sql_fixtures import RICH_BASELINE
 
@@ -62,7 +62,7 @@ CASES: dict[str, tuple[Callable[[Path], tuple[str, str]], str]] = {
 
 
 @pytest.fixture
-def parity(runtime_root: Path, lean_sysroot: Path, lean_library: Path, tmp_path: Path,
+def parity(runtime_root: Path, lean_sysroot: Path, lean_libraries: tuple[Path, Path], tmp_path: Path,
            parse_sql: Callable[..., Tree]) -> Callable[..., CommandResult]:
     """Compile today's SchemaInputs/SqlInputs, then ask the checker to compare its construction."""
     def check(schema_sql: str, migration_sql: str, version: str,
@@ -76,7 +76,7 @@ def parity(runtime_root: Path, lean_sysroot: Path, lean_library: Path, tmp_path:
             directory.mkdir()
         compile_trusted(contract=Contract({}, (), frozenset()), approved_sources=approved,
                         schema_inputs=schema_inputs(schema), sql_inputs=sql_inputs(schema, script, selected),
-                        trusted=trusted, sysroot=lean_sysroot, library=lean_library.resolve(),
+                        trusted=trusted, sysroot=lean_sysroot, libraries=tuple(path.resolve() for path in lean_libraries),
                         workspace=workspace, store=None)
         record = generated_inputs_wire(schema, script, selected)
         if mutate is not None:
@@ -84,7 +84,7 @@ def parity(runtime_root: Path, lean_sysroot: Path, lean_library: Path, tmp_path:
         generated = tmp_path / "generated.json"
         generated.write_text(json.dumps(record))
         return run_command([str(runtime_root / ".lake/build/bin/migration-bundle-checker"), "--parity",
-                            str(lean_library.resolve()), str(trusted), str(generated)], cwd=tmp_path, timeout=60,
+                            *[str(path.resolve()) for path in lean_libraries], str(trusted), str(generated)], cwd=tmp_path, timeout=60,
                            environment={**os.environ, "LEAN_SYSROOT": str(lean_sysroot)})
     return check
 
@@ -101,7 +101,7 @@ def test_constructed_declarations_match_emitter(parity: Callable[..., CommandRes
 
 @pytest.mark.parametrize("change,diagnostic", [
     (lambda record: record["schema"][0].update(name="other"), "do not match the compiled starting schema"),
-    (lambda record: record.update(version=2), "unsupported generated-inputs version"),
+    (lambda record: record.update(version=2), "only version 1 is supported"),
     (lambda record: record.pop("script"), "bundle checker rejected"),
     (lambda record: record["script"].append("commit"), "value differs from the emitter: Generated.script"),
     (lambda record: record.update(profile="sqlite346"), "value differs from the emitter: Generated.profile"),

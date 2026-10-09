@@ -21,14 +21,14 @@ MUTANTS = {
 
 
 def schema_step_source(module: str) -> str:
-    """Copy `def step` up to the last `end SqliteVerifier` from Execution.lean.
+    """Copy `def step` up to the last `end Belay.Sqlite` from Execution.lean.
 
     `step` must remain this namespace's final declaration; later declarations
     would also be copied into mutants. Docstrings do not determine either boundary.
     """
     start = module.index("\ndef step ") + 1
-    end = module.rindex("\nend SqliteVerifier")
-    return "namespace SqliteVerifier\n" + module[start:end] + "\nend SqliteVerifier\n"
+    end = module.rindex("\nend Belay.Sqlite")
+    return "namespace Belay.Sqlite\n" + module[start:end] + "\nend Belay.Sqlite\n"
 
 
 def measure(cases: list[dict[str, Json]], runtime: Path) -> dict[str, Json]:
@@ -39,11 +39,11 @@ def measure(cases: list[dict[str, Json]], runtime: Path) -> dict[str, Json]:
     terms = ",\n".join(answer["caseLean"] for _, answer in admitted)
     source = ("import VerifierConformance.Case\nset_option maxRecDepth 100000\n"
               "set_option maxHeartbeats 100000000\n"
-              "def originals : List SqliteVerifier.Conformance.Case := [\n" + terms + "\n]\n")
+              "def originals : List Belay.Sqlite.Conformance.Case := [\n" + terms + "\n]\n")
     hashes: dict[str, str] = {}
     for name, (target, before, after) in MUTANTS.items():
-        for filename in ("SqliteVerifier/Execution.lean", "SqliteVerifier/LiteralData.lean",
-                         "SqliteVerifier/SqlExecution.lean", "VerifierConformance/Trace.lean",
+        for filename in ("packages/belay-sqlite/Belay/Sqlite/Execution.lean", "packages/belay-sqlite/Belay/Sqlite/LiteralData.lean",
+                         "packages/belay-sqlite/Belay/Sqlite/SqlExecution.lean", "VerifierConformance/Trace.lean",
                          "VerifierConformance/Outputs.lean", "VerifierConformance/Case.lean"):
             text = (root / filename).read_text()
             hashes[filename] = hashlib.sha256(text.encode()).hexdigest()
@@ -54,8 +54,8 @@ def measure(cases: list[dict[str, Json]], runtime: Path) -> dict[str, Json]:
                 # Reuse production Statement/Outcome types; only the step definition is shadowed.
                 text = schema_step_source(text)
             text = "\n".join(line for line in text.splitlines() if not line.startswith("import "))
-            text = text.replace("namespace SqliteVerifier", f"namespace SqliteVerifier.{name}")
-            text = text.replace("end SqliteVerifier", f"end SqliteVerifier.{name}")
+            text = text.replace("namespace Belay.Sqlite", f"namespace Belay.Sqlite.{name}")
+            text = text.replace("end Belay.Sqlite", f"end Belay.Sqlite.{name}")
             source += text + "\n"
         fields = ("version", "schemaSql", "migrationSql", "schema", "initial", "script", "nativeTrace", "requirements", "provenance", "parameters", "outputs")
         # NativeObservation is namespace-local too, so copy its unchanged data fields explicitly.
@@ -63,13 +63,13 @@ def measure(cases: list[dict[str, Json]], runtime: Path) -> dict[str, Json]:
         outputs = "c.outputs.map fun n => { result := { columns := n.result.columns, rows := n.result.rows, changes := n.result.changes }, groups := n.groups.map (fun groups => groups.map fun g => { rows := g.rows, count := g.count }) }"
         copied = {"nativeTrace": native, "outputs": outputs}
         conversion = ", ".join(field + " := " + ("(" + copied[field] + ")" if field in copied else "c." + field) for field in fields)
-        source += f'\ndef convert_{name} (c : SqliteVerifier.Conformance.Case) : SqliteVerifier.{name}.Conformance.Case := {{ {conversion} }}\n'
-        source += f'#eval IO.println (String.intercalate "\\n" (originals.zipIdx.map fun (c, i) => s!"MUTANT|{name}|{{i}}|{{reprStr (SqliteVerifier.{name}.Conformance.classifyCase (convert_{name} c))}}"))\n'
+        source += f'\ndef convert_{name} (c : Belay.Sqlite.Conformance.Case) : Belay.Sqlite.{name}.Conformance.Case := {{ {conversion} }}\n'
+        source += f'#eval IO.println (String.intercalate "\\n" (originals.zipIdx.map fun (c, i) => s!"MUTANT|{name}|{{i}}|{{reprStr (Belay.Sqlite.{name}.Conformance.classifyCase (convert_{name} c))}}"))\n'
     with TemporaryDirectory(prefix="model-mutants-") as directory:
         lean = Path(directory) / "Mutants.lean"
         lean.write_text(source)
         result = subprocess.run([str(runtime / "lean/bin/lean"), str(lean)],
-            env={**os.environ, "LEAN_PATH": str(runtime / ".lake/build/lib/lean")},
+            env={**os.environ, "LEAN_PATH": os.pathsep.join(str(runtime / path) for path in (".lake/build/lib/lean", "packages/belay-sqlite/.lake/build/lib/lean"))},
             capture_output=True, text=True, timeout=120)
     if result.returncode:
         raise RuntimeError(result.stdout + result.stderr)

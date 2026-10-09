@@ -5,7 +5,9 @@ from collections import Counter, defaultdict
 import hashlib
 import json
 from pathlib import Path
+import sys
 
+from belay.sqlite.parser_library import library_name
 from conformance.case_format import Json
 from conformance.corpus import load, replay
 from conformance.corpus_evidence import FEATURE_LABEL_VIEWS, feature_label_view
@@ -14,7 +16,8 @@ from conformance.requirement_coverage import inventory_rows, resolved_ids
 
 VERDICTS = ("AGREE", "DISAGREE", "MODEL_UNSUPPORTED", "HARNESS_ERROR")
 ROOT = Path(__file__).resolve().parents[1]
-RUNTIME_FILES = ("build/sqlite-parser", ".lake/build/bin/conformance-runner")
+RUNTIME_FILES = (f"lib/{library_name(sys.platform)}", ".lake/build/bin/conformance-runner")
+"""The parser library and the compiled model, which a progress report binds by digest."""
 
 
 def digest(path: Path) -> str:
@@ -82,7 +85,7 @@ def progress(corpus: Path, requirements: Path, runtime: Path) -> dict[str, Json]
             "runtimeSha256": runtime_hashes,
             "requirementsSha256": digest(requirements),
             "frontendSha256": {str(path.relative_to(ROOT)): digest(path)
-                for path in sorted((ROOT / "migration_check").glob("*.py"))},
+                for path in sorted((ROOT / "belay/sqlite").glob("*.py"))},
             "harnessSha256": {path.name: digest(path)
                 for path in sorted((ROOT / "conformance").glob("*.py"))},
             "denominator": len(records), "requirementInventoryCount": inventory["count"],

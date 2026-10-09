@@ -13,17 +13,10 @@ setup: build
 build: resources
     mkdir -p build .lake
     timeout 900 nix-build build-support/default.nix -A runtime --out-link build/runtime --extra-experimental-features 'nix-command flakes'
-    rm -rf .lake/build build/parser build/parser-3.46.0
+    rm -rf .lake/build
     ln -sfn ../build/runtime/.lake/build .lake/build
     ln -sfn build/runtime/lean lean
-    for name in parser parser-3.46.0 sqlite-parser sqlite-parser-3.46.0; do ln -sfn "runtime/build/$name" "build/$name"; done
-
-# Compile the pinned complete SQLite grammar and tokenizer.
-parser: resources
-    mkdir -p build
-    timeout 300 nix-build build-support/default.nix -A parsers --out-link build/parsers --extra-experimental-features 'nix-command flakes'
-    rm -rf build/parser build/parser-3.46.0
-    for name in parser parser-3.46.0 sqlite-parser sqlite-parser-3.46.0; do ln -sfn "parsers/build/$name" "build/$name"; done
+    ln -sfn build/runtime/lib lib
 
 # Run an explicitly selected scenario without rebuilding its prerequisites.
 [positional-arguments]

@@ -1,10 +1,10 @@
 """Conformance-side view of the version-one structural JSON.
 
-The encoders live in `migration_check.structural`, shared with the bundle checker.
+The encoders live in `belay.sqlite.structural`, shared with the bundle checker.
 """
 
-from migration_check.sql_model import Table
-from migration_check.structural import (Cell, Json, cell_wire, column_wire, literal_cell, schema_wire,
+from belay.sqlite.sql_model import Table
+from belay.sqlite.structural import (Cell, Json, cell_wire, column_wire, literal_cell, schema_wire,
                                         statement_wire)
 
 __all__ = ["Cell", "Json", "cell_wire", "column_wire", "literal_cell", "schema_wire", "statement_wire",

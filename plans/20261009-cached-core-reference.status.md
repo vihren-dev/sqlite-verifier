@@ -1,6 +1,6 @@
 # Status: cached core API reference without checks of doc-gen4
 
-Created 2026-10-09. Status: IN PROGRESS.
+Created 2026-10-09. Status: DONE on 2026-10-09.
 Task: [task](20261009-cached-core-reference.task.md).
 ADR: [ADR 0009](../docs/adr-0009-cached-core-reference.md).
 
@@ -39,13 +39,30 @@ Relevant files: `build-support/api-reference-core.nix`,
 - 2026-10-09: commit `b4cd7536`. 149 tests pass, including the Nix source
   identity, Nix test target and test ownership tests.
 
-## Remaining
+- 2026-10-09: PR #67 merged. Its Linux CI spent 285 s in the reference step,
+  with no cached core build, against 402 s in PR #63.
+- 2026-10-09: with the owner's approval, filed
+  [doc-gen4 issue 423](https://github.com/leanprover/doc-gen4/issues/423), with
+  a five-line reproduction. The cause is in doc-gen4's code, unchanged on its
+  `main` at `fd5ce8f`: `buildName2ModIdx` maps an internal name such as
+  `Eq.ndrec` only to its target module, and `declNameToLink` uses the internal
+  name as the anchor. doc-gen4 PR #347 introduced this, not PR #371. All 10
+  corrected links on our pages are `▸` links to `Eq.ndrec` in derived `decEq`
+  equations. The workaround docstring, `docs/api-reference.md` and ADR 0009 name
+  the issue, which resolves review finding `20261009T075621Z-b4cd7536#1`.
 
-- The upstream report of the recursor-link bug to doc-gen4. Filing it needs the
-  owner's approval. No existing doc-gen4 issue reports it. A likely cause is
-  doc-gen4 PR #371 ("link directly to custom recursors instead of parent
-  type", merged 2026-03-23): links now name a recursor when doc-gen4 has
-  documentation data for it, but no anchor is written for generated
-  recursors. Review `20261009T075621Z-b4cd7536` asks for the report in the
-  docstring (R15, should); the finding is deferred until the report exists.
-- Hosted CI of the pull request, and the reference step after the merge.
+- 2026-10-09: the `main` run for PR #67 (`37904138843`) passed on both
+  platforms, and both Attic publish jobs passed. A re-run of PR #68's CI
+  (`37905384166`, attempt 2) then restored the core build: its log lists three
+  derivations to build, the link tools, the base and the link step. PR #68
+  changes `tools/api_reference.py`, an input of the base, so the base was
+  rebuilt as after a Lean source change. Linux step times:
+
+  | Step | PR #68 re-run | PR #67 | PR #63 |
+  | --- | --- | --- | --- |
+  | Build checked API reference | 55 s | 285 s | 402 s |
+  | Run checks in one pinned environment | 56 s | 439 s | 389 s |
+  | Restore Nix builds and test results | 99 s | 126 s | 71 s |
+
+  The whole Linux job took about 5.5 minutes, against 14 minutes 47 seconds for
+  PR #67. The task is DONE.

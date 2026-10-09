@@ -6,6 +6,7 @@ from pathlib import Path
 from tempfile import TemporaryDirectory
 
 from .baseline import check_baseline
+from .runtime import validate_libraries
 from .contract import compile_trusted, discover_contract, source_hashes
 from .source_closure import (CompileError, Source, discover_sources, file_identity, lean_process, module_path,
                              role_sources)
@@ -48,7 +49,7 @@ def artifact_bytes(produced: Path, output: Path) -> bytes | None:
 
 
 def compile_modules(*, order: tuple[str, ...], sources: Path, destination: Path,
-                    previous: tuple[Path, ...], sysroot: Path, library: Path,
+                    previous: tuple[Path, ...], sysroot: Path, libraries: tuple[Path, Path],
                     workspace: Path) -> list[str]:
     """Copy only expected regular artifacts after each compiler has exited."""
     diagnostics: list[str] = []
@@ -60,7 +61,7 @@ def compile_modules(*, order: tuple[str, ...], sources: Path, destination: Path,
             artifact = output / relative.with_suffix(relative.suffix + ".olean")
             artifact.parent.mkdir(parents=True, exist_ok=True)
             diagnostics.append(lean_process(
-                sysroot, library, [*previous, destination], source, output,
+                sysroot, libraries, [*previous, destination], source, output,
                 ["-R", str(sources), "-o", str(artifact)], "compile"))
             artifacts: dict[Path, bytes] = {}
             for extension in (".olean", ".olean.server", ".olean.private", ".ir", ".ir.sig"):
@@ -78,7 +79,7 @@ def compile_modules(*, order: tuple[str, ...], sources: Path, destination: Path,
     return diagnostics
 
 
-def compile_project(*, sysroot: Path, library: Path, requirements: Path,
+def compile_project(*, sysroot: Path, libraries: tuple[Path, Path], requirements: Path,
                     interpretation: Path, next_interpretation: Path, proofs: Path,
                     schema_inputs: str, sql_inputs: str, workspace: Path,
                     approved_baseline: Path | None = None, schema_hash: str | None = None,
@@ -87,9 +88,10 @@ def compile_project(*, sysroot: Path, library: Path, requirements: Path,
 
     `store` enables reuse of eligible trusted stages; candidate modules always compile.
     """
-    sysroot, library, workspace = (path.resolve(strict=True) for path in (sysroot, library, workspace))
-    if not all(path.is_dir() for path in (sysroot, library, workspace)):
-        raise ValueError("Toolchain, library and workspace must be directories")
+    sysroot, first, second, workspace = (path.resolve(strict=True) for path in (sysroot, *libraries, workspace))
+    libraries = (first, second)
+    if not all(path.is_dir() for path in (sysroot, *libraries, workspace)):
+        raise ValueError("Toolchain, libraries and workspace must be directories")
     if any(workspace.iterdir()):
         raise ValueError("Compilation workspace must be a fresh empty private directory")
     selected = {"Requirements": requirements.resolve(strict=True),
@@ -100,6 +102,7 @@ def compile_project(*, sysroot: Path, library: Path, requirements: Path,
         raise ValueError("SchemaInputs is reserved for generated starting schema")
     if not all(path.is_file() for path in selected.values()):
         raise ValueError("Lean inputs must be regular source files")
+    validate_libraries(sysroot, libraries)
     trusted, candidate = workspace / "trusted", workspace / "candidate"
     approved_sources, candidate_sources = workspace / "approved-sources", workspace / "candidate-sources"
     for directory in (trusted, candidate, approved_sources, candidate_sources):
@@ -111,7 +114,7 @@ def compile_project(*, sysroot: Path, library: Path, requirements: Path,
         excluded={selected[name] for name in ("NextInterpretation", "Proofs")
                   if file_identity(selected[name]) not in {file_identity(selected["Requirements"]),
                                                          file_identity(selected["Interpretation"])}},
-        directory=approved_sources, sysroot=sysroot, library=library, workspace=workspace)
+        directory=approved_sources, sysroot=sysroot, libraries=libraries, workspace=workspace)
     approved = contract.sources
     # Snapshot candidates before any elaboration, but do not expose them to approved processes.
     proposed, proposed_order = discover_sources(
@@ -119,7 +122,7 @@ def compile_project(*, sysroot: Path, library: Path, requirements: Path,
                  "Generated": Source(None, EXPECTED_SOURCE.encode())},
         roots=tuple(dict.fromkeys(path.parent for path in selected.values())), excluded=set(),
         forbidden={"SchemaInputs", "SqlInputs"}, available=set(approved) | {"SchemaInputs", "SqlInputs"}, directory=candidate_sources,
-        sysroot=sysroot, library=library, workspace=workspace)
+        sysroot=sysroot, libraries=libraries, workspace=workspace)
     hashes = {**source_hashes("approved", approved), **source_hashes("candidate", proposed)}
     hashes["generated/SchemaInputs.lean"] = hashlib.sha256(schema_inputs.encode()).hexdigest()
     hashes["generated/SqlInputs.lean"] = hashlib.sha256(sql_inputs.encode()).hexdigest()
@@ -128,7 +131,7 @@ def compile_project(*, sysroot: Path, library: Path, requirements: Path,
         check_baseline(approved_baseline, protected_hashes)
     diagnostics = compile_trusted(contract=contract, approved_sources=approved_sources,
         schema_inputs=schema_inputs, sql_inputs=sql_inputs, trusted=trusted, sysroot=sysroot,
-        library=library, workspace=workspace, store=store)
+        libraries=libraries, workspace=workspace, store=store)
     diagnostics += compile_modules(order=proposed_order, sources=candidate_sources,
-        destination=candidate, previous=(trusted,), sysroot=sysroot, library=library, workspace=workspace)
+        destination=candidate, previous=(trusted,), sysroot=sysroot, libraries=libraries, workspace=workspace)
     return CompiledProject(trusted, candidate, hashes, tuple(text for text in diagnostics if text))

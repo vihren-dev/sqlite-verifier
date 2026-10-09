@@ -8,12 +8,15 @@ from collections.abc import Callable
 import hashlib
 import json
 from pathlib import Path
+import sys
+import os
 
 import pytest
 
 from tests.runtime_support import CommandResult
 from migration_check.import_path import merged_search_path
 from migration_check.source_closure import lean_process
+from belay.sqlite.parser_library import library_name
 
 pytestmark = [pytest.mark.e2e, pytest.mark.kernel, pytest.mark.requires_lean, pytest.mark.requires_native]
 CASES = {"small": ("approved", "add_column_then_table", "approved/schema.sql", "3.51.0"),
@@ -22,7 +25,7 @@ CASES = {"small": ("approved", "add_column_then_table", "approved/schema.sql", "
 """Current shipped positive, refutation and Atuin inputs."""
 EXPECTED = {"small": ("VERIFIED", ["Init", "SqliteVerifier.Demonstration", "SqliteVerifier.Library"]),
             "refutation": ("VIOLATED", ["Init", "SqliteVerifier.Library"]),
-            "atuin": ("VERIFIED", ["Init", "SqliteVerifier", "Std"])}
+            "atuin": ("VERIFIED", ["Init", "SqliteVerifier"])}
 """Independent status and exact trusted-import expectations for the shipped examples."""
 
 
@@ -43,8 +46,8 @@ def input_digests(examples: Path, approved: str, candidate: str, schema: str) ->
 def exporter_runtime_identity(runtime_root: Path, lean_sysroot: Path) -> dict[str, object]:
     """Retain actual runtime code, executable and compiled-library identities in native evidence."""
     library = runtime_root / ".lake/build/lib/lean"
-    executables = {name: runtime_root / name for name in ("bin/migration-check", "build/sqlite-parser",
-        "build/sqlite-parser-3.46.0", ".lake/build/bin/migration-proof-exporter",
+    executables = {name: runtime_root / name for name in ("bin/migration-check", f"lib/{library_name(sys.platform)}",
+        ".lake/build/bin/migration-proof-exporter",
         ".lake/build/bin/migration-proof-checker", ".lake/build/bin/migration-bundle-checker")}
     executables["lean/bin/lean"] = lean_sysroot / "bin/lean"
     return {"runtime": str(runtime_root.resolve()), "sysroot": str(lean_sysroot.resolve()),
@@ -115,32 +118,35 @@ def test_current_native_export(name: str, runtime_root: Path, example_factory: C
         "bundleSha256": hashlib.sha256(payloads[0]).hexdigest(), "checks": reports}, sort_keys=True))
 
 
-def test_candidate_module_under_library_namespace(runtime_root: Path,
+@pytest.mark.parametrize("module", ["SqliteVerifier.Candidate", "Belay.Sqlite.Candidate",
+                                    "belay.Sqlite.Candidate"])
+def test_candidate_module_under_library_namespace(module: str, runtime_root: Path,
         example_factory: Callable[[str], Path], tmp_path: Path,
         command_runner: Callable[..., CommandResult]) -> None:
-    """A used caller-owned declaration under SqliteVerifier must survive omission and kernel replay."""
+    """Caller modules survive kernel replay, including differently cased package names on macOS."""
     examples = example_factory(".")
     candidate = examples / "add_column_then_table"
-    helper = candidate / "SqliteVerifier/Candidate.lean"
-    helper.parent.mkdir()
-    helper.write_text("""import Generated
+    helper = candidate / (module.replace(".", "/") + ".lean")
+    helper.parent.mkdir(parents=True)
+    helper.write_text(f"""import Generated
 import SqliteVerifier.Demonstration
-namespace SqliteVerifier.Candidate
+namespace {module}
 /-- The caller-owned helper establishes this example's complete migration target. -/
 theorem checked : Generated.expected := SqliteVerifier.Demonstration.migrationCorrect
-end SqliteVerifier.Candidate
+end {module}
 """)
-    (candidate / "Proofs.lean").write_text("""import SqliteVerifier.Candidate
+    (candidate / "Proofs.lean").write_text(f"""import {module}
 /-- This proof requires the caller-owned library-like module to be exported. -/
-theorem Proofs.migrationCorrect : Generated.expected := SqliteVerifier.Candidate.checked
+theorem Proofs.migrationCorrect : Generated.expected := {module}.checked
 """)
     _bundle, report = prepare_check(runtime_root, examples, tmp_path, *CASES["small"], command_runner)
     assert report["status"] == "VERIFIED", report
 
 
+
 @pytest.mark.parametrize("arguments,diagnostic", [
-    (["--omit=Missing", "SqliteVerifier", "--", "SqliteVerifier.Schema"], "omitted module is not imported"),
-    (["--omit=", "SqliteVerifier", "--", "SqliteVerifier.Schema"], "Lean name"),
+    (["--omit=Missing", "SqliteVerifier", "--", "Belay.Sqlite.Schema"], "omitted module is not imported"),
+    (["--omit=", "SqliteVerifier", "--", "Belay.Sqlite.Schema"], "Lean name"),
     (["--skip-trusted", "SqliteVerifier"], "unknown exporter option"),
     ([], "no export module"),
 ])
@@ -149,7 +155,8 @@ def test_invalid_exporter_arguments(runtime_root: Path, tmp_path: Path,
     """An absent omission module or invalid request fails before producing a successful export."""
     result = command_runner([str(runtime_root / ".lake/build/bin/migration-proof-exporter"), *arguments],
         cwd=tmp_path, timeout=30, environment={"LEAN_SYSROOT": str(runtime_root / "lean"),
-            "LEAN_PATH": str(runtime_root / ".lake/build/lib/lean")})
+            "LEAN_PATH": os.pathsep.join(str(runtime_root / path) for path in
+                (".lake/build/lib/lean", "packages/belay-sqlite/.lake/build/lib/lean"))})
     assert result.returncode != 0 and diagnostic in result.stderr, result.diagnostic()
 
 
@@ -158,6 +165,7 @@ def test_omissions_follow_transitive_module_origins(runtime_root: Path, lean_sys
     """Trusted imports omit transitive declarations even in unrelated namespaces, while siblings export."""
     library, candidate = tmp_path / "library", tmp_path / "candidate"
     library.mkdir()
+    (tmp_path / "model").mkdir()
     candidate.mkdir()
     modules = [(library, "Trusted/Base", "def OtherNamespace.base : Nat := 7\n"),
         (library, "Trusted/Root", "import Trusted.Base\ndef OtherNamespace.root : Nat := OtherNamespace.base\n"),
@@ -167,7 +175,7 @@ def test_omissions_follow_transitive_module_origins(runtime_root: Path, lean_sys
         source = directory / (module + ".lean")
         source.parent.mkdir(exist_ok=True)
         source.write_text(contents)
-        lean_process(lean_sysroot, library, [candidate], source, directory,
+        lean_process(lean_sysroot, (library, tmp_path / "model"), [candidate], source, directory,
             ["-R", str(directory), "-o", str(source.with_suffix(".olean"))], "fixture", timeout=10)
     with merged_search_path([library, candidate], tmp_path) as paths:
         result = command_runner([str(runtime_root / ".lake/build/bin/migration-proof-exporter"),

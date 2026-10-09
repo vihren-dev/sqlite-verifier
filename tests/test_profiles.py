@@ -5,11 +5,11 @@ from pathlib import Path
 
 import pytest
 
-from migration_check.diagnostics import Rejection
-from migration_check.profiles import DEFAULT_PROFILE, profile
-from migration_check.sql_model import sql_inputs
-from migration_check.sql_tree import Tree
-from migration_check.translate import starting_schema, statements
+from belay.sqlite.errors import SqlError
+from belay.sqlite.profiles import DEFAULT_PROFILE, profile
+from migration_check.lean_inputs import sql_inputs
+from belay.sqlite.sql_tree import Tree
+from belay.sqlite.translate import starting_schema, statements
 
 pytestmark = pytest.mark.parser
 
@@ -34,9 +34,9 @@ def test_catalog_json_and_unknown_versions_reject(tmp_path: Path) -> None:
     manifest.write_text('{"kind":"sqlite-3.46.0-sqlx-0.9.0-wal-normal-optimize-v1",'
                         '"migration":{"version":7,"description":"x"},"previous":[]}')
     for value in (str(manifest), manifest.read_text(), '', '3.46', ' 3.46.0'):
-        with pytest.raises(Rejection) as rejected:
+        with pytest.raises(SqlError) as rejected:
             profile(value)
         assert rejected.value.status == 'INPUT_ERROR', value
-    with pytest.raises(Rejection) as rejected:
+    with pytest.raises(SqlError) as rejected:
         profile('3.45.0')
     assert rejected.value.status == 'UNSUPPORTED'

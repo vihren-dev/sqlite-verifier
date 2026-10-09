@@ -4,7 +4,7 @@ import SqlInputs
 /-! The candidate reads the old business model solely from resulting storage.
 New columns need not be business fields in the protected pre-migration model. -/
 namespace NextInterpretation
-open SqliteVerifier
+open Belay.Sqlite SqliteVerifier
 
 /-- Recover all pre-migration business fields from the actual resulting schema. -/
 def next : Interpretation Requirements.LogicalState where

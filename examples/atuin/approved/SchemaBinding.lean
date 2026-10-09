@@ -3,7 +3,7 @@ import SchemaInputs
 /-! Schema declarations come only from the sealed translation of schema.sql.
 Handwritten column names below describe the application mapping, not a SQL schema. -/
 namespace SchemaBinding
-open SqliteVerifier
+open Belay.Sqlite SqliteVerifier
 
 /-- The complete generated starting application representation. -/
 abbrev start : Schema := Generated.startSchema

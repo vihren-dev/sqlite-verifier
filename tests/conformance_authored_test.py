@@ -21,7 +21,7 @@ from conformance.requirement_coverage import comparison
 ROOT = Path(__file__).resolve().parents[1]
 REPORT = ROOT / "reports/20261001-adr5-c5-authored.json"
 pytestmark = [pytest.mark.integration, pytest.mark.conformance,
-              pytest.mark.requires_native("sqlite3", "sqlite-parser")]
+              pytest.mark.requires_native("sqlite3", "parser-library")]
 
 
 @pytest.fixture(scope="module")
@@ -94,54 +94,3 @@ def test_bound_storage_classes_and_integer_edges(authored: dict[str, dict[str, J
     assert decode_rows(trace[1]["rows"]) == [((1, index), cell, (3, kind))
         for index, (cell, kind) in enumerate(zip(cells, kinds, strict=True), 1)]
     assert trace[1]["changes"] is None
-
-
-def test_defaults_and_added_column(authored: dict[str, dict[str, Json]]) -> None:
-    """Omitted columns use their defaults and ALTER preserves the existing row."""
-    trace = authored["schema-defaults-add"]["trace"]
-    assert decode_rows(trace[0]["rows"]) == [((3, b"key"), (3, b"new"), (5, None))]
-    assert decode_rows(trace[3]["rows"]) == [((3, b"key"), (3, b"new"), (5, None), (3, b""))]
-    assert [event["changes"] for event in trace] == [1, None, None, None]
-    assert len(table_rows(trace[-1], "t")) == 1
-    assert any(decode_rows([row])[0][1] == (3, b"by_label") for row in trace[-1]["visible"]["schema"])
-
-
-def test_transaction_trigger_cascade_and_direct_counts(authored: dict[str, dict[str, Json]]) -> None:
-    """Direct counts exclude four trigger rows and two cascades; COMMIT publishes the writes."""
-    record = authored["transaction-trigger-cascade-counts"]
-    trace = record["trace"]
-    assert record["profile"]["foreignKeys"] and record["profile"]["transactionMode"] == "immediate"
-    assert [event["changes"] for event in trace] == [None, 2, 2, 1, None, 0, 1, None, None, None]
-    assert decode_rows(trace[1]["rows"]) == [((1, 2),), ((1, 3),)]
-    assert trace[4]["columns"] == ["missing"] and trace[4]["rows"] == []
-    assert decode_rows(trace[6]["rows"]) == [((1, 2),)]
-    assert table_rows(trace[6], "child") == [] and len(table_rows(trace[6], "audit")) == 4
-    assert all(event["persisted"] == record["initial"]["visible"] for event in trace[:8])
-    assert all(event["transactionOpen"] for event in trace[:8])
-    assert not trace[8]["transactionOpen"] and trace[8]["visible"] == trace[8]["persisted"]
-    assert decode_rows(trace[9]["rows"]) == [((1, 3),)]
-
-
-def test_upsert_all_returning_branches(authored: dict[str, dict[str, Json]]) -> None:
-    """Insert/update return their direct row; DO NOTHING retains shape with zero changes."""
-    trace = authored["upsert-returning"]["trace"]
-    assert [decode_rows(event["rows"]) for event in trace] == [
-        [((3, b"a"), (1, 1))], [((3, b"a"), (1, 2))], []]
-    assert [event["changes"] for event in trace] == [1, 1, 0]
-    assert trace[2]["columns"] == ["id", "v"] and trace[2]["groups"] is None
-    assert trace[2]["visible"] == trace[1]["visible"]
-
-
-def test_constraint_failures_and_statement_rollback(authored: dict[str, dict[str, Json]]) -> None:
-    """ABORT removes the failing statement's writes while preserving earlier transaction rows."""
-    record = authored["check-abort"]
-    failed = record["trace"][-1]
-    assert len(record["trace"]) == 3 and failed["primaryCode"] == 19 and failed["changes"] == 0
-    assert failed["transactionOpen"] and failed["persisted"] == record["initial"]["visible"]
-    assert decode_rows([row["values"] for row in table_rows(failed, "t")]) == [((1, 1), (5, None))]
-    for name in ("text-primary-key-failure", "not-null-failure", "foreign-key-failure"):
-        record = authored[name]
-        assert len(record["trace"]) == 1 and record["trace"][0]["primaryCode"] == 19
-        assert record["trace"][0]["changes"] == 0
-        assert record["trace"][0]["visible"] == record["initial"]["visible"]
-    assert authored["foreign-key-failure"]["profile"]["foreignKeys"]

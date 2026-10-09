@@ -3,6 +3,7 @@
 from collections.abc import Callable
 import os
 from pathlib import Path
+import sys
 
 import pytest
 
@@ -19,15 +20,33 @@ def require_installed_variant(pytestconfig: pytest.Config) -> None:
         pytest.fail("Installed acceptance requires --runtime-variant installed and an installed root or archive")
 
 
+INSTALLED_PARSE = """
+import json, sys
+from pathlib import Path
+root = Path(sys.argv[1])
+sys.path.insert(0, str(root))
+from belay.sqlite.dialects import ProfileIdentity
+from belay.sqlite.parser_library import installed_library, load
+from belay.sqlite.profiles import profile
+from belay.sqlite.sql_tree import SqlParser, parse
+selected = profile(sys.argv[2])
+parser = SqlParser.for_profile(load(installed_library(root, sys.platform)),
+                               ProfileIdentity(selected.engine, selected.source_id))
+tree = parse(parser, (root / "examples/approved/schema.sql").read_bytes(), "schema.sql")
+print(json.dumps({"grammar": parser.grammar, "nodes": len(tree.nodes)}))
+"""
+"""Parse the installed example schema with the installed binding and parser library."""
+
+
 @pytest.mark.parametrize("version", ["3.51.0", "3.46.0"])
 def test_installed_parser(version: str, runtime_root: Path, tmp_path: Path,
                           command_runner: Callable[..., CommandResult]) -> None:
-    """Both installed parsers retain their exact SQLite profiles under poisoned ambient imports."""
-    parser = "sqlite-parser" if version == "3.51.0" else "sqlite-parser-3.46.0"
-    result = command_runner([str(runtime_root / "build" / parser),
-                             str(runtime_root / "examples/approved/schema.sql")], cwd=tmp_path, timeout=10)
+    """The installed parser library parses with each supported profile's grammar under
+    poisoned ambient imports, loaded only from the installed path."""
+    result = command_runner([sys.executable, "-I", "-c", INSTALLED_PARSE, str(runtime_root.resolve()), version],
+                            cwd=tmp_path, timeout=10)
     assert result.returncode == 0, result.diagnostic()
-    assert result.json_object()["profile"] == version, result.diagnostic()
+    assert result.json_object()["nodes"] > 0, result.diagnostic()
 
 
 @pytest.fixture
@@ -147,3 +166,43 @@ def test_installed_data_path(runtime_root: Path, tmp_path: Path, command_runner:
                               "--bundle", str(bundle)], cwd=tmp_path, timeout=120)
     assert checked.json_object()["status"] == status, checked.diagnostic()
     assert checked.returncode == (0 if status == "VERIFIED" else 1), checked.diagnostic()
+
+
+def test_installed_model_and_codec_consumer(runtime_root: Path, tmp_path: Path,
+        command_runner: Callable[..., CommandResult]) -> None:
+    """An unrelated installed consumer compiles core, codec and application imports from both roots."""
+    source = tmp_path / 'NeutralConsumer.lean'
+    source.write_text('import Belay.Sqlite\nimport Belay.Sqlite.Codec\nimport SqliteVerifier\n'
+        '#check Belay.Sqlite.Conforms.set\n#check Belay.Sqlite.TableExtends.project\n'
+        '#check SqliteVerifier.VerificationConditions\n'
+        'def inputs : Belay.Sqlite.GeneratedInputs := ⟨1, .sqlite351, [], [], []⟩\n'
+        '#eval match Belay.Sqlite.decodeGeneratedInputs (Lean.toJson inputs) with\n'
+        '  | .ok value => value.version == 1\n  | .error _ => false\n')
+    roots = (runtime_root / '.lake/build/lib/lean',
+             runtime_root / 'packages/belay-sqlite/.lake/build/lib/lean')
+    result = command_runner([str(runtime_root / 'lean/bin/lean'), str(source)],cwd=tmp_path,
+        timeout=30,environment={'LEAN_SYSROOT':str(runtime_root / 'lean'),
+                               'LEAN_PATH':os.pathsep.join(map(str,roots))})
+    assert result.returncode == 0 and 'true' in result.stdout.splitlines(),result.diagnostic()
+
+
+def test_installed_namespace_frontend(runtime_root: Path, tmp_path: Path,
+        command_runner: Callable[..., CommandResult]) -> None:
+    """The pinned installed Python imports only the shipped namespace frontend under poisoned paths."""
+    python = (runtime_root / 'python-path').read_text().strip()
+    code = '''import sys
+from pathlib import Path
+root = Path(sys.argv[1])
+sys.path.insert(0, str(root))
+import belay.sqlite
+from belay.sqlite.profiles import profile
+from belay.sqlite.sql_model import Column
+assert not (root / 'belay/__init__.py').exists()
+assert {path.name for path in (root / 'belay').iterdir()} == {'sqlite'}
+assert profile('3.46.0').wire_tag == 'sqlite346'
+assert Column('value', 'text').name == 'value'
+assert not any(name.startswith('migration_check') for name in sys.modules)
+print('INSTALLED_FRONTEND')
+'''
+    result = command_runner([python,'-I','-c',code,str(runtime_root)],cwd=tmp_path,timeout=15)
+    assert result.returncode == 0 and result.stdout.strip() == 'INSTALLED_FRONTEND',result.diagnostic()

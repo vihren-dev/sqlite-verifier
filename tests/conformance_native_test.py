@@ -14,6 +14,7 @@ ROOT = Path(__file__).resolve().parent.parent
 
 sys.path.insert(0, str(ROOT / "conformance"))
 from native_fixture import run
+from conformance.record_parser import default_parser
 
 pytestmark = [pytest.mark.integration, pytest.mark.conformance]
 
@@ -39,11 +40,11 @@ def test_upstream_pin_and_import_fidelity() -> None:
 
 
 @pytest.mark.parser
-@pytest.mark.requires_native("sqlite-parser", "sqlite3")
+@pytest.mark.requires_native("sqlite3")
 @pytest.mark.parametrize("selected", range(3), ids=["alter3-3.1-1", "alter3-3.1-2", "alter3-3.2-1"])
 def test_upstream_case(selected: int, runtime_root: Path) -> None:
     """A selected upstream call matches Tcl expectations after its required connection/setup prefix."""
-    report = run(os.environ.get("SQLITE3", "sqlite3"), str(runtime_root / "build/sqlite-parser"), selected)
+    report = run(os.environ.get("SQLITE3", "sqlite3"), default_parser(runtime_root), selected)
     assert [(case["upstream_id"], case["occurrence"]) for case in report["cases"]] == [
         [("alter3-3.1", 1), ("alter3-3.1", 2), ("alter3-3.2", 1)][selected]]
 
@@ -51,7 +52,7 @@ def test_upstream_case(selected: int, runtime_root: Path) -> None:
 @pytest.mark.requires_native("sqlite3")
 def test_final_native_observations(runtime_root: Path) -> None:
     """Final replay retains physical row identity, appended NULLs, the schema cookie and the inherited view."""
-    report = run(os.environ.get("SQLITE3", "sqlite3"), str(runtime_root / "build/sqlite-parser"), final_only=True)
+    report = run(os.environ.get("SQLITE3", "sqlite3"), default_parser(runtime_root), final_only=True)
     assert report["cases"] == [], "Final replay must not repeat separately selected case comparisons"
     assert report["final_observations"][0] == [
         {"rowid": 1, "a": 1, "b": 100, "c": None},

@@ -8,7 +8,7 @@ import subprocess
 import sys
 import unittest
 
-from tests.baseline_ci import git
+from tests.git_commands import git
 from tests.ci_scope import scope
 
 
@@ -21,13 +21,15 @@ class CiScopeTest(unittest.TestCase):
                     (["docs/nested/guide.md"], "docs"), (["unknown/file.md"], "test"),
                     (["reviews/log.jsonl"], "docs"), (["docs/adr.md", "reviews/log.jsonl"], "docs"),
                     (["reviews/log.jsonl", "tools/review.py"], "test"),
-                    (["reviews/log.jsonl", "parser/main.c"], "package"),
+                    (["reviews/log.jsonl", "parser/library.c"], "package"),
                     (["reviews/other.jsonl"], "test"), (["reviews/notes.md"], "test"),
                     (["log.jsonl"], "test"),
                     (["parser/upstream/README.md"], "package"),
-                    (["SqliteVerifier/Preservation.lean"], "test"),
+                    (["packages/belay-sqlite/Belay/Sqlite/Preservation.lean"], "packaging"),
                     (["tests/coverage_test.py"], "test"), (["unknown/file"], "test"),
                     (["migration_check/prepare.py"], "test"), (["tools/review.py"], "test"),
+                    (["belay/sqlite/sql_model.py"], "packaging"),
+                    (["packages/belay-sqlite/Belay/Sqlite/Model.lean"], "packaging"),
                     (["packaging/install.py"], "packaging"), (["nix/flake.lock"], "package"),
                     (["tools/check_resources.py"], "infrastructure"),
                     (["build-support/default.nix"], "package"),
@@ -45,7 +47,7 @@ class CiScopeTest(unittest.TestCase):
                     (["tests/runtime_installation.py"], "package"),
                     (["tests/test_translation.py"], "test"),
                     (["docs/install.md"], "packaging"),
-                    (["README.md", "parser/main.c"], "package"),
+                    (["README.md", "parser/library.c"], "package"),
                     (["migration_check/runtime.py"], "packaging"),
                     (["examples/atuin/Proofs.lean"], "test"),
                     (["migration_check/runtime.py", "tests/nix_suites.json"], "package"),
@@ -68,7 +70,7 @@ class CiScopeTest(unittest.TestCase):
             root = Path(directory)
             git(root, "init", "-q")
             (root / "parser").mkdir()
-            source = root / "parser/main.c"
+            source = root / "parser/library.c"
             source.write_text("fixture")
 
             def commit() -> str:

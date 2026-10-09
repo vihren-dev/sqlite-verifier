@@ -23,7 +23,7 @@ class KernelCase:
     """Keep compiler and checker commands bound to one mutable trusted/candidate pair."""
 
     root: Path
-    library: Path
+    libraries: tuple[Path, Path]
     sysroot: Path
     checker: Path
     environment: dict[str, str]
@@ -37,25 +37,25 @@ class KernelCase:
                              cwd=directory, environment=self.environment, timeout=30)
         assert result.returncode == 0, result.diagnostic()
 
-    def check(self, *, environment: dict[str, str] | None = None, library: str | None = None) -> CommandResult:
+    def check(self, *, environment: dict[str, str] | None = None, application_library: str | None = None) -> CommandResult:
         """Replay the private artifacts; the test deadline does not change production limits."""
-        result = self.runner([str(self.checker), library or str(self.library), str(self.root / "trusted"),
+        result = self.runner([str(self.checker), application_library or str(self.libraries[0]), str(self.libraries[1]), str(self.root / "trusted"),
                               str(self.root / "candidate")], cwd=self.root, timeout=60,
                              environment=self.environment if environment is None else environment)
         assert "CANDIDATE_INITIALIZER_RAN" not in result.stdout + result.stderr, result.diagnostic()
         return result
 
 
-def context(root: Path, library: Path, sysroot: Path, checker: Path,
+def context(root: Path, libraries: tuple[Path, Path], sysroot: Path, checker: Path,
             environment: dict[str, str], runner: Callable[..., CommandResult]) -> KernelCase:
     """Replace inherited import paths with this case's explicit trusted toolchain and trees."""
     environment = {**environment, "LEAN_SYSROOT": str(sysroot),
-                   "LEAN_PATH": os.pathsep.join(map(str, (library, root / "trusted", root / "candidate")))}
-    return KernelCase(root, library, sysroot, checker, environment, runner)
+                   "LEAN_PATH": os.pathsep.join(map(str, (*libraries, root / "trusted", root / "candidate")))}
+    return KernelCase(root, libraries, sysroot, checker, environment, runner)
 
 
 @pytest.fixture(scope="session")
-def compiled_kernel(tmp_path_factory: pytest.TempPathFactory, lean_library: Path,
+def compiled_kernel(tmp_path_factory: pytest.TempPathFactory, lean_libraries: tuple[Path, Path],
                     lean_sysroot: Path, proof_checker: Path) -> Path:
     """Compile common fixtures once; cases receive writable copies and never mutate this tree."""
     root = tmp_path_factory.mktemp("kernel-common")
@@ -68,7 +68,7 @@ def compiled_kernel(tmp_path_factory: pytest.TempPathFactory, lean_library: Path
         return run_command(arguments, cwd=cwd, environment=environment, timeout=timeout,
                            artifacts=root / "commands")
 
-    common = context(root, lean_library, lean_sysroot, proof_checker, dict(os.environ), compile_runner)
+    common = context(root, lean_libraries, lean_sysroot, proof_checker, dict(os.environ), compile_runner)
     for module in ("SchemaInputs", "Requirements", "Interpretation", "SqlInputs"):
         common.compile("trusted", module, source(module))
     for module in ("NextInterpretation", "Generated", "Proofs"):
@@ -77,13 +77,13 @@ def compiled_kernel(tmp_path_factory: pytest.TempPathFactory, lean_library: Path
 
 
 @pytest.fixture
-def kernel(compiled_kernel: Path, tmp_path: Path, lean_library: Path, lean_sysroot: Path,
+def kernel(compiled_kernel: Path, tmp_path: Path, lean_libraries: tuple[Path, Path], lean_sysroot: Path,
            proof_checker: Path, runtime_environment: dict[str, str],
            command_runner: Callable[..., CommandResult]) -> KernelCase:
     """Give each attack its own compiled sources and artifacts, independent of selection order."""
     root = tmp_path / "kernel"
     copy_mutable_tree(compiled_kernel, root)
-    return context(root, lean_library, lean_sysroot, proof_checker, runtime_environment, command_runner)
+    return context(root, lean_libraries, lean_sysroot, proof_checker, runtime_environment, command_runner)
 
 
 def test_missing_sysroot(kernel: KernelCase) -> None:
@@ -95,8 +95,8 @@ def test_missing_sysroot(kernel: KernelCase) -> None:
 
 
 def test_relative_library_path(kernel: KernelCase) -> None:
-    """A relative library path cannot redirect the checker's trusted imports."""
-    result = kernel.check(library=".")
+    """A relative application library path cannot redirect the checker's trusted imports."""
+    result = kernel.check(application_library=".")
     assert result.returncode != 0 and "absolute existing directory" in result.stderr, result.diagnostic()
 
 

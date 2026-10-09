@@ -3,43 +3,40 @@
 from pathlib import Path
 import pytest
 from conformance.native_connection import Connection, library_path, load_library
-from migration_check.diagnostics import Rejection
-from migration_check.sql_tree import parse
-from migration_check.sql_model import sql_inputs
-from migration_check.translate import starting_schema, statements
+from belay.sqlite.errors import SqlError
+from belay.sqlite.sql_tree import parse
+from belay.sqlite.admission import admit
+from belay.sqlite.translate import starting_schema, statements
+from tests.runtime_fixtures import profile_parser
 
 pytestmark = [pytest.mark.integration, pytest.mark.conformance,
-              pytest.mark.requires_native("sqlite3", "sqlite3-3.46.0", "sqlite-parser", "sqlite-parser-3.46.0")]
+              pytest.mark.requires_native("sqlite3", "sqlite3-3.46.0", "parser-library")]
 
 
 @pytest.mark.parametrize("version,suffix", [("3.51.0", ""), ("3.46.0", "-3.46.0")])
 def test_library_default_and_frontend(version: str, suffix: str, runtime_root: Path, tmp_path: Path) -> None:
-    """Native fallback works; quoted real identifiers remain admitted and unknown keys reject."""
-    connection = Connection(load_library(library_path("sqlite3" + suffix), version), tmp_path / "dqs.db")
-    parser = runtime_root / ("build/sqlite-parser" + suffix)
+    """The library keeps default DQS; quoted real identifiers remain admitted and unknown keys reject."""
+    library = load_library(library_path("sqlite3" + suffix), version)
+    assert not library.sqlite3_compileoption_used(b"DQS=0")
+    connection = Connection(library, tmp_path / "dqs.db")
+    parser = profile_parser(runtime_root, version)
     schema_sql = 'CREATE TABLE "t"("id" INTEGER NOT NULL,"value" TEXT,UNIQUE("id"));'
     try:
         assert connection.configure(1013, -1) == connection.configure(1014, -1) == 1
-        connection.execute_script(schema_sql)
-        connection.query('INSERT INTO t VALUES(1,"fallback");')
-        assert connection.query('SELECT "value" FROM "t";') == [((3, b"fallback"),)]
-        connection.query('CREATE TABLE checks(x CHECK(x != "forbidden"));')
-        connection.query('CREATE INDEX i ON t("nosuch");')
-        assert connection.query("PRAGMA index_xinfo(i);")[0][1] == (1, -2)
-        with pytest.raises(Rejection) as caught:
-            starting_schema(parse(parser, (schema_sql + 'CREATE INDEX i ON t("nosuch");').encode(), "index.sql", version))
+        with pytest.raises(SqlError) as caught:
+            starting_schema(parse(parser, (schema_sql + 'CREATE INDEX i ON t("nosuch");').encode(), "index.sql"))
         assert caught.value.status == "UNSUPPORTED"
-        indexed = starting_schema(parse(parser, (schema_sql + 'CREATE INDEX i ON t("id");').encode(), "index.sql", version))
+        indexed = starting_schema(parse(parser, (schema_sql + 'CREATE INDEX i ON t("id");').encode(), "index.sql"))
         assert indexed[0].indexes[0].columns == ("id",)
-        schema = starting_schema(parse(parser, schema_sql.encode(), "schema.sql", version))
-        good = statements(parse(parser, b'UPDATE "t" SET "value"=\'ok\' WHERE "id"=1;', "good.sql", version))
-        sql_inputs(schema, good)
+        schema = starting_schema(parse(parser, schema_sql.encode(), "schema.sql"))
+        good = statements(parse(parser, b'UPDATE "t" SET "value"=\'ok\' WHERE "id"=1;', "good.sql"))
+        admit(schema, good)
         for sql in ('INSERT INTO t(id,value) VALUES(2,"fallback");',
                     'UPDATE t SET value="fallback" WHERE id=1;',
                     'UPDATE t SET value=\'ok\' WHERE "absent"=1;',
                     'CREATE INDEX i ON t("nosuch");'):
-            with pytest.raises(Rejection) as caught:
-                sql_inputs(schema, statements(parse(parser, sql.encode(), "bad.sql", version)))
+            with pytest.raises(SqlError) as caught:
+                admit(schema, statements(parse(parser, sql.encode(), "bad.sql")))
             assert caught.value.status == "UNSUPPORTED"
     finally:
         connection.close()

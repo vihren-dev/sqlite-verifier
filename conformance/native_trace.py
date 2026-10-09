@@ -6,10 +6,11 @@ from functools import lru_cache
 from pathlib import Path
 from tempfile import TemporaryDirectory
 
-from migration_check.sql_model import Table, sql_inputs
-from migration_check.diagnostics import Rejection
-from migration_check.sql_tree import parse
-from migration_check.translate import starting_schema, statements
+from belay.sqlite.sql_model import Table
+from belay.sqlite.admission import admit
+from belay.sqlite.errors import SqlError
+from belay.sqlite.sql_tree import SqlParser, parse
+from belay.sqlite.translate import starting_schema, statements
 from conformance.native_metadata import check_metadata, identifier, integer, quoted, text
 from conformance.case_format import Json, schema_wire, statement_wire, table_wire
 from conformance.native_connection import Cell, Connection, NativeError, SQL_ERRORS, SOURCE_ID, library_path, load_library
@@ -25,19 +26,13 @@ class Fixture:
 
 
 @lru_cache(maxsize=128)
-def parsed_schema(parser: Path, identity: tuple[int, int, int], sql: str) -> tuple[Table, ...]:
-    """Reuse immutable declarations across cases; executable identity prevents stale parser reuse."""
+def read_schema(parser: SqlParser, sql: str) -> tuple[Table, ...]:
+    """Reuse immutable declarations across cases; the key is the exact SQL and the loaded
+    library and grammar, never native observations."""
     return starting_schema(parse(parser, sql.encode(), "conformance-schema.sql"))
 
 
-def read_schema(parser: Path, sql: str) -> tuple[Table, ...]:
-    """Bound caching to exact SQL and the current parser executable, never native observations."""
-    parser = parser.resolve()
-    stat = parser.stat()
-    return parsed_schema(parser, (stat.st_ino, stat.st_size, stat.st_mtime_ns), sql)
-
-
-def snapshot(connection: Connection, parser: Path,
+def snapshot(connection: Connection, parser: SqlParser,
              cache: dict[str, tuple[Table, ...]] | None = None) -> list[Json]:
     """Read all supported objects and chunk wide rows below the fixed result-column limit."""
     metadata = connection.query("SELECT type,name,sql FROM sqlite_schema ORDER BY name;")
@@ -53,7 +48,7 @@ def snapshot(connection: Connection, parser: Path,
         if key not in cache:
             cache[key] = read_schema(parser, key)
         schema = cache[key]
-    except Rejection as error:
+    except SqlError as error:
         raise ValueError(f"Cannot observe native schema: {error}") from error
     if sorted(table.name for table in schema) != sorted(identifier(name) for kind, name, _ in metadata if text(kind) == "table"):
         raise ValueError("Native table inventory differs from parsed declaration")
@@ -88,11 +83,11 @@ def initialize(connection: Connection, schema: tuple[Table, ...], fixture: Fixtu
             connection.query(f"INSERT INTO {quoted(table.name)}({names}) VALUES({values});", ((1, rowid), *cells))
 
 
-def record(fixture: Fixture, parser: Path, library: Path | None = None, *, migration_coverage: bool = False) -> dict[str, Json]:
+def record(fixture: Fixture, parser: SqlParser, library: Path | None = None, *, migration_coverage: bool = False) -> dict[str, Json]:
     """Acquire real evidence; admission failures are raised before native execution."""
     schema = read_schema(parser, fixture.schema_sql)
     script = statements(parse(parser, fixture.migration_sql.encode(), "migration.sql"))
-    sql_inputs(schema, script)  # Includes production schema and literal-write admission.
+    admit(schema, script)  # Includes production schema and literal-write admission.
     pinned = load_library(library or library_path())
     if migration_coverage:
         for name in ("__gcov_reset", "__gcov_dump"):

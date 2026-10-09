@@ -5,6 +5,9 @@ import PublicDocSyntax
 
 open Lean PublicDocInventory
 
+/-- Locate the separately built model source beneath the repository root. -/
+private def modelPackageDirectory : System.FilePath := "packages/belay-sqlite"
+
 /-- Keep each kernel constant kind visible, including compiler-created recursors. -/
 def constantKind : ConstantInfo → String
   | .axiomInfo _ => "axiom"
@@ -44,7 +47,9 @@ unsafe def readModules (root : System.FilePath) (entry : Name) : IO (Array Json)
   for index in [:env.header.moduleNames.size] do
     let name := env.header.moduleNames[index]!
     let relative := System.FilePath.mk ("/".intercalate (name.components.map (·.toString))) |>.addExtension "lean"
-    let path := root / relative
+    let localPath := root / relative
+    let path ← if ← localPath.pathExists then pure localPath
+      else pure (root / modelPackageDirectory / relative)
     if ← path.pathExists then
       let declarations ← readSourceDeclarators env path
       let ilean ← (← searchPathRef.get).findModuleWithExt "ilean" name

@@ -3,7 +3,7 @@ import HistoryDecoding
 /-! Finite kernel-checked decoder boundaries complement the universal interpretation
 proof. These are business observations, not a proof of Rust-library equivalence. -/
 namespace HistoryDecodingChecks
-open SqliteVerifier HistoryModel HistoryDecoding
+open Belay.Sqlite SqliteVerifier HistoryModel HistoryDecoding
 
 /-- A canonical stored history with optional fields and non-UUID session text. -/
 def cells : List (Option Value) := [

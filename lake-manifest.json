@@ -1,13 +1,27 @@
-{"version": "1.2.0",
+{
+ "version": "1.2.0",
  "packagesDir": ".lake/packages",
- "packages":
- [{"type": "path",
+ "packages": [
+  {
+   "type": "path",
    "scope": "",
    "name": "lean4export",
    "manifestFile": "lake-manifest.json",
    "inherited": false,
    "dir": "build/lean4export",
-   "configFile": "lakefile.toml"}],
+   "configFile": "lakefile.toml"
+  },
+  {
+   "type": "path",
+   "scope": "",
+   "name": "belaySqlite",
+   "manifestFile": "lake-manifest.json",
+   "inherited": false,
+   "dir": "packages/belay-sqlite",
+   "configFile": "lakefile.toml"
+  }
+ ],
  "name": "sqliteVerifier",
  "lakeDir": ".lake",
- "fixedToolchain": false}
+ "fixedToolchain": false
+}

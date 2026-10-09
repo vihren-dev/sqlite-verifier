@@ -15,6 +15,7 @@ from conformance.case_format import Json
 from conformance.corpus import load
 from conformance.model_check import compiled_many
 from conformance.native_replay import prepare
+from conformance.record_parser import runtime_library
 
 
 def workload(runtime: Path, generated: Path) -> tuple[list[dict[str, Json]], dict[str, int]]:
@@ -23,7 +24,7 @@ def workload(runtime: Path, generated: Path) -> tuple[list[dict[str, Json]], dic
     cases += [json.loads(path.read_text()) for path in sorted(Path("conformance/cases").glob("*.json"))]
     counts: Counter[str] = Counter()
     for record in load(Path("conformance/corpus-v3"))[1]:
-        case, error = prepare(record, runtime / "build/sqlite-parser")
+        case, error = prepare(record, runtime_library(runtime))
         if case is not None:
             cases.append(case)
         else:
@@ -37,7 +38,7 @@ def workload(runtime: Path, generated: Path) -> tuple[list[dict[str, Json]], dic
 
 def constructors(declaration: str) -> list[str]:
     """Derive constructor denominators from the measured source, including future model additions."""
-    source = Path("SqliteVerifier/Execution.lean").read_text()
+    source = Path("packages/belay-sqlite/Belay/Sqlite/Execution.lean").read_text()
     body = source.split(f"inductive {declaration} where\n", 1)[1].split("  deriving", 1)[0]
     names = re.findall(r"^  \| (\w+)", body, re.MULTILINE)
     if not names:
@@ -132,7 +133,7 @@ def main() -> None:
     result = {"cases": len(cases), "workloadCounts": workload_counts,
               "corpusVersion": 3, "corpusSha256": load(Path("conformance/corpus-v3"))[0]["casesSha256"],
               "sourceSha256": {str(path): hashlib.sha256(path.read_bytes()).hexdigest()
-                  for path in [*sorted(Path("SqliteVerifier").glob("*.lean")), Path(__file__),
+                  for path in [*sorted(Path("packages/belay-sqlite/Belay/Sqlite").glob("*.lean")), Path(__file__),
                       Path("conformance/instrument_model.py"), Path("conformance/measure_native.py"),
                       Path("conformance/native_trace.py"), Path("conformance/native_connection.py")]},
               "casesSha256": hashlib.sha256(payload.encode()).hexdigest(),

@@ -5,10 +5,11 @@ import os
 from pathlib import Path
 import subprocess
 
-from migration_check.diagnostics import Rejection
+from belay.sqlite.errors import SqlError
 from conformance.case_format import Json
 from conformance.model_assertions import assertions, audit_axioms
 from conformance.native_trace import Fixture, record
+from conformance.record_parser import default_parser
 
 
 def compiled(case: dict[str, Json], runtime: Path, *, emit_lean: bool = False) -> dict[str, Json]:
@@ -39,8 +40,8 @@ def compiled_many(cases: list[dict[str, Json]], runtime: Path, *,
 def acquire(fixture: Fixture, runtime: Path) -> tuple[dict[str, Json] | None, dict[str, Json]]:
     """Keep acquisition errors separate from cases submitted to the model."""
     try:
-        return record(fixture, runtime / "build/sqlite-parser"), {}
-    except Rejection as error:
+        return record(fixture, default_parser(runtime)), {}
+    except SqlError as error:
         return None, {"verdict": "MODEL_UNSUPPORTED" if error.status == "UNSUPPORTED" else "HARNESS_ERROR",
                       "error": str(error)}
     except (RuntimeError, ValueError, OSError, subprocess.SubprocessError) as error:
@@ -63,7 +64,7 @@ def prove(term: str, runtime: Path, destination: Path, *, case: dict[str, Json],
     """Kernel-check the runner's decoded closed term, keeping native code out of the proof."""
     destination.write_text(assertions(term, json.dumps(case, ensure_ascii=False), expected=expected, failure=failure))
     checked = subprocess.run([str(runtime / "lean/bin/lean"), str(destination)],
-                             env={**os.environ, "LEAN_PATH": str(runtime / ".lake/build/lib/lean")},
+                             env={**os.environ, "LEAN_PATH": os.pathsep.join(str(runtime / path) for path in (".lake/build/lib/lean", "packages/belay-sqlite/.lake/build/lib/lean"))},
                              capture_output=True, text=True, timeout=120)
     if checked.returncode:
         raise AssertionError(checked.stdout + checked.stderr)

@@ -20,9 +20,11 @@ def expression(root: Path) -> str:
       pkgs = import (builtins.toPath {quote(ROOT / 'build-support/locked-nixpkgs.nix')}) {{}};
       builds = import (builtins.toPath {quote(ROOT / 'build-support/default.nix')}) {{}};
     in import (builtins.toPath {quote(ROOT / 'build-support/tests.nix')}) {{
-      inherit pkgs; inherit (builds) leanToolchain leanRuntime parsers conformance;
+      inherit pkgs; inherit (builds) leanToolchain leanRuntime conformance modelPackage;
+      parserLibrary = builds.parserLibrary.testRoot;
       runtime = import (builtins.toPath {quote(ROOT / 'build-support/runtime.nix')}) {{
-        inherit pkgs; inherit (builds) leanToolchain leanRuntime parsers;
+        inherit pkgs; inherit (builds) leanToolchain leanRuntime modelPackage;
+        parserLibrary = builds.parserLibrary.library;
         sources = builds.sources // {{ runtime = (import (builtins.toPath {quote(ROOT / 'build-support/sources.nix')}) {{
           inherit (pkgs) lib; root = /. + {quote(root)};
         }}).runtime; }};
@@ -49,7 +51,7 @@ def test_bounded_commands_keep_complete_suite_ownership() -> None:
     scripts = json.loads(result.stdout)
     ownership = json.loads((ROOT / 'tests/nix_suites.json').read_text())
     assert set(scripts) == set(ownership) == {'atuin', 'bundle', 'cli', 'kernel', 'model', 'frozen',
-                                               'harness', 'sample', 'upstream'}
+                                               'harness', 'sample', 'upstream', 'parserLibrary'}
     for name, script in scripts.items():
         command = shlex.split(next(line for line in script.replace('\\\n', ' ').splitlines()
                                   if line.strip().startswith('timeout ')))
@@ -65,9 +67,13 @@ def source_tree(tmp_path: Path) -> Path:
     """Copy only small potential test inputs; no store outputs, vendored parsers or build trees."""
     for name in ('pytest.ini', 'conftest.py', 'LICENSE'):
         shutil.copy2(ROOT / name, tmp_path / name)
-    for name in ('tests', 'migration_check', 'conformance', 'examples', 'docs', 'packaging', 'SqliteVerifier', 'VerifierConformance', 'reports', 'nix', 'build-support', 'tools'):
+    for name in ('tests', 'migration_check', 'belay', 'conformance', 'examples', 'docs', 'packaging', 'packages', 'SqliteVerifier', 'VerifierConformance', 'reports', 'nix', 'build-support', 'tools'):
         shutil.copytree(ROOT / name, tmp_path / name,
                         ignore=shutil.ignore_patterns('__pycache__', '*.pyc', 'upstream'))
+    for name in ("cases.py", "stage_timing.py"):
+        path = tmp_path / "experiments/adr-0003-latency" / name
+        path.parent.mkdir(parents=True, exist_ok=True)
+        shutil.copy2(ROOT / "experiments/adr-0003-latency" / name, path)
     return tmp_path
 
 
@@ -119,9 +125,13 @@ def source_tree(tmp_path: Path) -> Path:
     ('conformance/case_format.py', {'model', 'frozen', 'harness', 'sample', 'upstream'}),
     ('VerifierConformance/Trace.lean', {'model', 'frozen', 'harness'}),
     ('tests/conformance_pipeline_test.py', {'model'}),
-    ('migration_check/translate.py', {'model', 'frozen', 'harness', 'sample', 'upstream', 'atuin', 'cli', 'bundle'}),
+    ('belay/sqlite/translate.py', {'model', 'frozen', 'harness', 'sample', 'upstream', 'atuin', 'cli', 'bundle'}),
     ('migration_check/prepare.py', {'atuin', 'cli', 'bundle'}),
-    ('conftest.py', {'kernel', 'model', 'frozen', 'harness', 'sample', 'upstream', 'atuin', 'cli', 'bundle'}),
+    ('conftest.py', {'kernel', 'model', 'frozen', 'harness', 'sample', 'upstream', 'atuin', 'cli', 'bundle',
+                     'parserLibrary'}),
+    ('tests/parser_library_test.py', {'parserLibrary'}),
+    ('tests/parser_library_support.py', {'parserLibrary'}),
+    ('tests/parser_inputs.py', {'parserLibrary'}),
     ('tests/atuin_cli_test.py', {'atuin'}),
     ('tests/cli_test.py', {'cli'}),
     ('tests/bundle_test.py', {'bundle'}),

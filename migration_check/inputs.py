@@ -10,12 +10,12 @@ import hashlib
 from pathlib import Path
 
 from .diagnostics import Rejection
-from .profiles import ExecutionProfile, profile
+from belay.sqlite.profiles import ExecutionProfile, profile
 from .runtime import Runtime
-from .sql_model import schema_inputs, sql_inputs
-from .structural import Json, generated_inputs_wire
-from .sql_tree import parse
-from .translate import starting_schema, statements
+from .lean_inputs import schema_inputs, sql_inputs
+from belay.sqlite.structural import Json, generated_inputs_wire
+from belay.sqlite.sql_tree import parse
+from belay.sqlite.translate import starting_schema, statements
 
 
 def read_sql(path: Path) -> bytes:
@@ -44,16 +44,16 @@ class GeneratedInputs:
 def generated_inputs(options: argparse.Namespace) -> GeneratedInputs:
     """Parse schema and migration with the pinned frontend and emit the generated inputs."""
     selected = profile(options.profile)
-    runtime = Runtime.locate(selected.engine)
+    parser = Runtime.locate().sql_parser(selected)
     schema_bytes, migration_bytes = read_sql(options.schema), read_sql(options.migration)
-    schema = starting_schema(parse(runtime.parser, schema_bytes, str(options.schema), selected.engine))
-    script = statements(parse(runtime.parser, migration_bytes, str(options.migration), selected.engine))
+    schema = starting_schema(parse(parser, schema_bytes, str(options.schema)))
+    script = statements(parse(parser, migration_bytes, str(options.migration)))
     if not script:
         raise Rejection("INPUT_ERROR", "Migration must contain at least one statement", source=str(options.migration))
     schema_hash = hashlib.sha256(schema_bytes).hexdigest()
     hashes = {"schema.sql": schema_hash, "migration.sql": hashlib.sha256(migration_bytes).hexdigest(),
               "profile": selected.engine}
-    # sql_inputs also runs the frontend's migration and write validation.
+    # Lean emission calls the same frontend admission as native and model consumers.
     sql_source = sql_inputs(schema, script, selected)
     return GeneratedInputs(selected, schema_inputs(schema), sql_source, schema_hash, len(script), hashes,
                            generated_inputs_wire(schema, script, selected))

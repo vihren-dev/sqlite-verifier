@@ -7,7 +7,7 @@ import pytest
 
 from conformance.mutation_check import schema_step_source
 
-EXECUTION = Path(__file__).resolve().parents[1] / "SqliteVerifier/Execution.lean"
+EXECUTION = Path(__file__).resolve().parents[1] / "packages/belay-sqlite/Belay/Sqlite/Execution.lean"
 
 
 @pytest.mark.parametrize("documentation", ["", "/-- Replacement documentation. -/"])
@@ -19,7 +19,7 @@ def test_step_shadow_ignores_documentation(documentation: str) -> None:
     assert schema_step_source(changed) == schema_step_source(original)
 
 
-@pytest.mark.parametrize("boundary", ["\ndef step ", "\nend SqliteVerifier"])
+@pytest.mark.parametrize("boundary", ["\ndef step ", "\nend Belay.Sqlite"])
 def test_step_shadow_requires_code_boundaries(boundary: str) -> None:
     """A missing declaration or namespace closure fails before a partial model is compiled."""
     with pytest.raises(ValueError):

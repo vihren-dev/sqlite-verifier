@@ -4,12 +4,14 @@ from collections.abc import Callable
 
 import pytest
 
-from migration_check.diagnostics import Rejection
-from migration_check.profiles import profile
-from migration_check.sql_model import sql_inputs, transition
-from migration_check.sql_tree import Tree
-from migration_check.sql_values import literal, lean_value
-from migration_check.translate import starting_schema, statements
+from belay.sqlite.errors import SqlError
+from belay.sqlite.profiles import profile
+from belay.sqlite.sql_model import transition
+from migration_check.lean_inputs import sql_inputs
+from belay.sqlite.sql_tree import Tree
+from belay.sqlite.sql_values import literal
+from migration_check.lean_inputs import lean_value
+from belay.sqlite.translate import starting_schema, statements
 
 pytestmark = [pytest.mark.integration, pytest.mark.parser, pytest.mark.requires_native]
 SCHEMA = 'CREATE TABLE ledger(version BIGINT PRIMARY KEY, label TEXT, stamp TIMESTAMP, ok BOOLEAN, data BLOB);'
@@ -60,7 +62,7 @@ def test_literal_storage_values(parse_sql: Callable[..., Tree], sql: str, expect
                                    'CURRENT_TIMESTAMP', 'TRUE', '0x10', "CAST('7' AS INTEGER)"])
 def test_unsupported_literal_expressions_reject(parse_sql: Callable[..., Tree], value: str) -> None:
     """Values outside the exact literal subset cannot be written."""
-    with pytest.raises(Rejection):
+    with pytest.raises(SqlError):
         statements(parse_sql(f'INSERT INTO t(x) VALUES({value});'))
 
 
@@ -74,7 +76,7 @@ def test_unsupported_literal_expressions_reject(parse_sql: Callable[..., Tree], 
 def test_unmodeled_key_comparisons_reject(parse_sql: Callable[..., Tree], schema_sql: str, sql: str) -> None:
     """The static key domain cannot be smuggled into a false runtime-error claim."""
     schema = starting_schema(parse_sql(schema_sql))
-    with pytest.raises(Rejection):
+    with pytest.raises(SqlError):
         sql_inputs(schema, statements(parse_sql(sql)))
 
 
@@ -94,7 +96,7 @@ def test_unique_index_key_update_is_admitted(parse_sql: Callable[..., Tree]) -> 
 ])
 def test_optional_syntax_rejects(parse_sql: Callable[..., Tree], sql: str) -> None:
     """Optional grammar branches outside the lossless subset reject during translation."""
-    with pytest.raises(Rejection):
+    with pytest.raises(SqlError):
         statements(parse_sql(sql))
 
 
@@ -109,6 +111,6 @@ def test_optional_syntax_rejects(parse_sql: Callable[..., Tree], sql: str) -> No
 def test_coercing_writes_are_unsupported(parse_sql: Callable[..., Tree], sql: str) -> None:
     """Writes that would need affinity coercion or omit columns are UNSUPPORTED."""
     schema = starting_schema(parse_sql('CREATE TABLE t(id INTEGER,x TEXT,y NUMERIC,z REAL);'))
-    with pytest.raises(Rejection) as rejected:
+    with pytest.raises(SqlError) as rejected:
         sql_inputs(schema, statements(parse_sql(sql)))
     assert rejected.value.status == 'UNSUPPORTED'

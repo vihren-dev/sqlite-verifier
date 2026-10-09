@@ -11,20 +11,20 @@ THEOREMS: tuple[str, ...] = (
 
 CLAIMS: tuple[dict[str, str], ...] = (
     {"reference": "R-42316-09582", "snapshot": "conformance/upstream/e_createtable.test:854",
-     "claim": "Omitted defaults yield NULL", "model": "SqliteVerifier/Model.lean: Table.appendColumns",
+     "claim": "Omitted defaults yield NULL", "model": "packages/belay-sqlite/Belay/Sqlite/Model.lean: Table.appendColumns",
      "evidence": "alter3-3.2; derived ADD then CREATE; all_scripts_preserve"},
     {"reference": "R-25473-20557", "snapshot": "conformance/upstream/e_createtable.test:1059",
-     "claim": "Column count is bounded", "model": "SqliteVerifier/Execution.lean: step",
+     "claim": "Column count is bounded", "model": "packages/belay-sqlite/Belay/Sqlite/Execution.lean: step",
      "evidence": "derived 2000-column error precedence; native MAX_COLUMN pin"},
     {"reference": "R-27775-64721", "snapshot": "conformance/upstream/e_createtable.test:1074",
      "claim": "Runtime limits can be lowered", "model": "Excluded: profile fixes limit at 2000",
      "evidence": "REFERENCE_ONLY; lowering the runtime limit is not exercised"},
     {"reference": "lang_altertable.html#alter_table_add_column",
      "snapshot": "conformance/upstream/lang_altertable.html",
-     "claim": "ADD appends a column", "model": "SqliteVerifier/Model.lean: Table.appendColumns",
+     "claim": "ADD appends a column", "model": "packages/belay-sqlite/Belay/Sqlite/Model.lean: Table.appendColumns",
      "evidence": "derived ADD cases and model preservation; physical no-rewrite claim unmeasured"},
     {"reference": "limits.html#max_column", "snapshot": "conformance/upstream/limits.html",
-     "claim": "Default maximum column count is 2000", "model": "SqliteVerifier/Model.lean: maximumColumns",
+     "claim": "Default maximum column count is 2000", "model": "packages/belay-sqlite/Belay/Sqlite/Model.lean: maximumColumns",
      "evidence": "native MAX_COLUMN pin and derived boundary case"},
 )
 

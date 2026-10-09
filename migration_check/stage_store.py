@@ -30,12 +30,12 @@ def digest(value: object) -> str:
     return hashlib.sha256(json.dumps(value, sort_keys=True, separators=(",", ":")).encode()).hexdigest()
 
 
-def runtime_identity(sysroot: Path, library: Path) -> tuple[str, str]:
-    """Resolved toolchain and library paths: immutable Nix outputs, not the stable links to them.
+def runtime_identity(sysroot: Path, libraries: tuple[Path, Path]) -> tuple[str, ...]:
+    """Resolved toolchain and libraries paths: immutable Nix outputs, not the stable links to them.
 
     `just build` repoints `.lake/build` at a new runtime; keys must change with it.
     """
-    return str(sysroot.resolve()), str(library.resolve())
+    return (str(sysroot.resolve()), *(str(path.resolve()) for path in libraries))
 
 
 def valid_manifest(manifest: object, required: tuple[str, ...]) -> dict[str, str] | None:
@@ -53,7 +53,7 @@ def valid_manifest(manifest: object, required: tuple[str, ...]) -> dict[str, str
 
 
 def stage_key(stage: str, modules: dict[str, bytes], previous: tuple[str, ...], identity: tuple[str, ...]) -> str:
-    """Identify a stage by its exact sources, preceding stages and toolchain/library identity."""
+    """Identify a stage by its exact sources, preceding stages and toolchain and library identity."""
     return digest({"format": FORMAT, "stage": stage, "previous": list(previous), "identity": list(identity),
                    "modules": {name: hashlib.sha256(source).hexdigest() for name, source in modules.items()}})
 

@@ -1,7 +1,7 @@
 # Add our public modules to a copy of the cached core documentation and write the pages.
 # Source links contain a placeholder, so this build depends only on the Lean sources, the core
 # build and the pinned tools; api-reference-links.nix adds the checked commit in a cheap step.
-{ pkgs, sources, leanToolchain, lean4export, docGen4, core }:
+{ pkgs, sources, leanToolchain, lean4export, docGen4, core, modelPackage }:
 let
   sourceRules = pkgs.writeTextDir "tools/source_revision.py"
     (builtins.readFile ../tools/source_revision.py);
@@ -14,10 +14,12 @@ pkgs.stdenv.mkDerivation {
   dontConfigure = true;
   buildPhase = ''
     export HOME="$TMPDIR"
-    mkdir -p build
+    mkdir -p build packages
+    cp -R ${modelPackage} packages/belay-sqlite
+    chmod -R u+w packages/belay-sqlite
     cp -R ${lean4export} build/lean4export
     chmod -R u+w build/lean4export
-    lake build SqliteVerifier
+    lake build SqliteVerifier EngineeringExamples
     cp -R ${core} build/reference
     chmod -R u+w build/reference
     PYTHONPATH=${sourceRules} python3 ${../tools/api_reference.py} --root "$PWD" \
