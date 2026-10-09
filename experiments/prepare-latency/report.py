@@ -36,22 +36,51 @@ class Run:
 
     @classmethod
     def decode(cls, line: str) -> "Run":
-        """Validate one JSON line; a wrong type raises ValueError that names the field."""
+        """Validate one JSON line; a wrong type raises ValueError that names the field to correct."""
         record: object = json.loads(line)
-        if not isinstance(record, dict) or not isinstance(record.get("stages"), dict):
-            raise ValueError(f"Run record is not an object with a stages object: {line[:80]}")
-        text = {key: record.get(key, "none" if key == "options" else None)
-                for key in ("options", "case", "scenario", "status")}
-        numbers = {key: record.get(key) for key in ("total_s", "python_s")}
-        for key, value in text.items():
-            if not isinstance(value, str):
-                raise ValueError(f"Field {key} must be a string in: {line[:80]}")
-        for key, value in numbers.items():
-            if not isinstance(value, (int, float)):
-                raise ValueError(f"Field {key} must be a number in: {line[:80]}")
-        stages = {name: Stage(int(value["count"]), float(value["s"])) for name, value in record["stages"].items()}
-        return cls(str(text["options"]), str(text["case"]), str(text["scenario"]), str(text["status"]),
-                   float(numbers["total_s"]), float(numbers["python_s"]), stages)  # type: ignore[arg-type]
+        if not isinstance(record, dict):
+            raise invalid("the record", "a JSON object", line)
+        return cls(text(record, "options", line, "none"), text(record, "case", line),
+                   text(record, "scenario", line), text(record, "status", line),
+                   number(record, "total_s", line), number(record, "python_s", line), stages(record, line))
+
+
+def invalid(field: str, expected: str, line: str) -> ValueError:
+    """Error that names the field, the expected type and the line to correct."""
+    return ValueError(f"In the input JSON lines, {field} must be {expected}: {line[:80]}. "
+                      "Correct the line or measure again, then run the report again.")
+
+
+def text(record: dict[object, object], field: str, line: str, default: str | None = None) -> str:
+    """A string field; `default` applies only when the field is absent."""
+    value = record.get(field, default)
+    if not isinstance(value, str):
+        raise invalid(f"field {field}", "a string", line)
+    return value
+
+
+def number(record: dict[object, object], field: str, line: str) -> float:
+    """A numeric field, excluding booleans."""
+    value = record.get(field)
+    if isinstance(value, bool) or not isinstance(value, (int, float)):
+        raise invalid(f"field {field}", "a number", line)
+    return float(value)
+
+
+def stages(record: dict[object, object], line: str) -> dict[str, Stage]:
+    """The `stages` object: each name maps to an integer `count` and a numeric `s`."""
+    value = record.get("stages")
+    if not isinstance(value, dict):
+        raise invalid("field stages", "a JSON object", line)
+    decoded: dict[str, Stage] = {}
+    for name, stage in value.items():
+        if not isinstance(name, str) or not isinstance(stage, dict):
+            raise invalid(f"stage {name}", "a JSON object", line)
+        count = stage.get("count")
+        if isinstance(count, bool) or not isinstance(count, int):
+            raise invalid(f"stages.{name}.count", "an integer", line)
+        decoded[name] = Stage(count, number(stage, "s", line))
+    return decoded
 
 
 def table(runs: list[Run]) -> list[str]:
