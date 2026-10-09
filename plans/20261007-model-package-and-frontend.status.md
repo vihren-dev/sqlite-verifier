@@ -40,6 +40,8 @@ ruleset's required checks. The examples' approved files are test fixtures, and
 ordinary review protects them like other tests. This branch deletes the
 workflow, its checker and its tests, and keeps the `--approved-baseline`
 feature and its fixtures. The protected-baseline owner gate no longer applies.
+Independent review `20261009T113944Z-34c65a7a` has no findings. The live
+ruleset requires only `Check (x86_64-linux)` and `Check (aarch64-darwin)`.
 
 The accepted ADR was delivered through
 [PR44](https://github.com/vihren-dev/sqlite-verifier/pull/44), normal merge
