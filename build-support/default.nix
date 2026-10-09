@@ -58,6 +58,7 @@ in rec {
   developmentTests = pkgs.lib.removeAttrs tests [ "model" "frozen" ];
   runtime = import ./runtime.nix {
     inherit pkgs sources leanToolchain parsers leanRuntime modelPackage;
+    parserLibrary = parserLibrary.library;
   };
   parsers = pkgs.stdenv.mkDerivation {
     pname = "sqlite-verifier-parsers";
@@ -136,6 +137,7 @@ in rec {
     mkdir -p "$out/packages"
     ln -s ${modelPackage} "$out/packages/belay-sqlite"
     ln -s ${parsers}/build "$out/build"
+    ln -s ${parserLibrary.library}/lib "$out/lib"
   '';
   conformanceCoverage = conformanceRuntime.overrideAttrs (old: {
     pname = "sqlite-verifier-conformance-coverage";

@@ -16,6 +16,7 @@ build: resources
     rm -rf .lake/build build/parser build/parser-3.46.0
     ln -sfn ../build/runtime/.lake/build .lake/build
     ln -sfn build/runtime/lean lean
+    ln -sfn build/runtime/lib lib
     for name in parser parser-3.46.0 sqlite-parser sqlite-parser-3.46.0; do ln -sfn "runtime/build/$name" "build/$name"; done
 
 # Compile the pinned complete SQLite grammar and tokenizer.
