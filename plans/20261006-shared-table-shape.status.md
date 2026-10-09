@@ -143,5 +143,12 @@ both gates remain open under the existing implementation authorization.
 
 The docstring correction compiled successfully. The checked public inventory
 still covers all 244 authored declarations. The correction and review outcomes
-are recorded in the following refactor commit; its independent review remains
-the next check.
+are committed as `7454f437`. Its independent review found no further issues.
+
+Linux acceptance started from the exact tracked source of `7454f437` in
+`/var/tmp/sqlite-verifier-t07.zse20W/source` on the configured host. The transferred
+archive has SHA-256 `b91a7169c5a342d0444a5d5a88326ab5fe32bb0e732440a66a7bf3c4c62a4a87`;
+the remote host verified it before extraction. The resource check passed with
+35 GiB free. All nine native Linux suites and checked documentation are running.
+Offline installed acceptance of the same source also started on macOS.
+These runs are not reported as passes until their terminal results succeed.
