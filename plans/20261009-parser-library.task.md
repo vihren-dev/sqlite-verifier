@@ -1,6 +1,6 @@
 # Parser library, step 1 of ADR 0007
 
-Created 2026-10-09. Status: IN PROGRESS (implementation done; macOS evidence open).
+Created 2026-10-09. Status: DONE (2026-10-09).
 Specification: [ADR 0007](../docs/adr-0007-parser-library.md), "Step 1: the
 library" and "Acceptance evidence", items 1 to 4.
 
