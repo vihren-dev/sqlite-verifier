@@ -1,0 +1,10 @@
+{"case": "small", "scenario": "cold_empty_cache", "median_s": 1.077, "compiled": [7, 7, 7]}
+{"case": "small", "scenario": "noop_same_dir", "median_s": 0.145, "compiled": [0, 0, 0]}
+{"case": "small", "scenario": "fresh_dir_warm_cache", "median_s": 0.178, "compiled": [0, 0, 0]}
+{"case": "small", "scenario": "fresh_dir_proof_edit", "median_s": 0.376, "compiled": [1, 1, 1]}
+{"case": "small", "scenario": "fresh_dir_contract_only", "median_s": 0.146, "compiled": [0, 0, 0]}
+{"case": "atuin", "scenario": "cold_empty_cache", "median_s": 4.887, "compiled": [14, 14, 14]}
+{"case": "atuin", "scenario": "noop_same_dir", "median_s": 0.169, "compiled": [0, 0, 0]}
+{"case": "atuin", "scenario": "fresh_dir_warm_cache", "median_s": 0.175, "compiled": [0, 0, 0]}
+{"case": "atuin", "scenario": "fresh_dir_proof_edit", "median_s": 0.377, "compiled": [1, 1, 1]}
+{"case": "atuin", "scenario": "fresh_dir_contract_only", "median_s": 0.179, "compiled": [0, 0, 0]}
