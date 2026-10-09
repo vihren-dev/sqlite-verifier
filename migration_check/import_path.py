@@ -88,8 +88,10 @@ def merged_search_path(roots: Sequence[Path], workspace: Path, *,
     can combine identical origins; distinct origins require a case-sensitive
     workspace. Callers supply module paths parsed by Lean to retain their spelling.
     """
-    if any(path.is_absolute() or any(part in {".", ".."} for part in path.parts) for path in requested):
-        raise ValueError("Module paths must be relative names within the supplied roots")
+    for path in requested:
+        if not path.parts or path.is_absolute() or any(part in {".", ".."} for part in path.parts):
+            raise ValueError(f"Invalid module path {str(path)!r}; give a relative Lean module path "
+                             "with no '.' or '..' parts")
     names = {entry.name for root in roots for entry in root.iterdir() if entry.is_dir()}
     names.update(path.parts[0] for path in requested if path.parts)
     # Other casings can differ even when both directories use the same spelling.

@@ -16,7 +16,7 @@ name = "SqliteVerifier"
 roots = []
 globs = ["SqliteVerifier", "SqliteVerifier.Contract", "SqliteVerifier.ContractProofs", "SqliteVerifier.Library", "SqliteVerifier.NullableProjection", "SqliteVerifier.ApplicationKeys", "SqliteVerifier.ApplicationKeyPreservation"]
 
-# Shipped engineering examples have their own dependency; the production root excludes them.
+# Engineering examples have their own build target and are imported by the public walkthrough.
 [[lean_lib]]
 name = "EngineeringExamples"
 roots = []

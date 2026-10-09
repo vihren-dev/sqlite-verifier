@@ -1,5 +1,6 @@
 """Split package views preserve the ordered trusted-file boundary and clean up after use."""
 
+from collections.abc import Iterator
 from pathlib import Path
 
 import pytest
@@ -126,12 +127,14 @@ def test_workspace_rejects_distinct_views(tmp_path: Path, difference: str) -> No
         import_path.compatible_views(views, ignores_case=True)
 
 
-@pytest.mark.parametrize("requested", [Path("/absolute"), Path("../escape"), Path("Model/../escape")])
+@pytest.mark.parametrize("requested", [Path("/absolute"), Path("../escape"), Path("Model/../escape"), Path(".")])
 def test_requested_module_cannot_escape_roots(tmp_path: Path, requested: Path) -> None:
     """Invalid requested paths fail before any workspace is created."""
-    with pytest.raises(ValueError, match="relative names"):
+    with pytest.raises(ValueError, match="relative Lean module path") as error:
         with merged_search_path([], tmp_path, requested=[requested]):
             pytest.fail("Unsafe module path was accepted")
+    assert repr(str(requested)) in str(error.value)
+    assert "with no '.' or '..' parts" in str(error.value)
 
 
 @pytest.mark.integration
@@ -149,3 +152,39 @@ def test_real_lean_keeps_trusted_definition_in_split_package(tmp_path: Path, lea
     lean_process(lean_sysroot, (library, model), [candidate], source, candidate,
         ["-R", str(candidate), "-o", str(source.with_suffix(".olean"))], "collision", timeout=10)
     assert source.with_suffix(".olean").is_file()
+
+
+def test_requested_module_keeps_all_companion_artifacts(tmp_path: Path,
+        monkeypatch: pytest.MonkeyPatch) -> None:
+    """package_view resolves explicit module spellings absent from the enumerated names."""
+    root = tmp_path / "library"
+    files = {suffix: artifact(root, "Model/Alias" + suffix, suffix)
+             for suffix in (".olean", ".olean.server", ".olean.private", ".ir", ".ir.sig")}
+
+    def enumerated_names(directory: Path, pattern: str) -> Iterator[Path]:
+        """Stand in for physical-name enumeration that cannot list every lookup alias."""
+        return iter(())
+
+    monkeypatch.setattr(Path, "rglob", enumerated_names)
+    assert import_path.package_view([root], "Model", ()) == {}
+    view = import_path.package_view([root], "Model", [Path("Model/Alias")])
+    assert set(view) == {Path("Model/Alias" + suffix) for suffix in files}
+    for suffix, source in files.items():
+        assert view[Path("Model/Alias" + suffix)].samefile(source)
+
+
+def test_link_collision_preserves_origins_or_requires_sensitive_workspace(tmp_path: Path) -> None:
+    """compatible_links retains distinct sensitive paths and refuses an insensitive origin collision."""
+    first = artifact(tmp_path / "first", "Core.olean", "first")
+    second = artifact(tmp_path / "second", "Core.olean", "second")
+    links = {Path("Model/Core.olean"): first, Path("model/core.olean"): second}
+    assert import_path.compatible_links(links, ignores_case=False) == links
+    with pytest.raises(ValueError, match="case-sensitive workspace"):
+        import_path.compatible_links(links, ignores_case=True)
+
+
+def test_identical_link_origins_can_share_an_insensitive_path(tmp_path: Path) -> None:
+    """compatible_links combines case aliases only when their selected file origins are identical."""
+    source = artifact(tmp_path, "Core.olean", "same")
+    links = {Path("Model/Core.olean"): source, Path("model/core.olean"): source}
+    assert import_path.compatible_links(links, ignores_case=True) == {Path("Model/Core.olean"): source}
