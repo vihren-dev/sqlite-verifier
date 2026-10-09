@@ -1,4 +1,6 @@
-"""Generate the public Lean reference with explicit source links and check its local links."""
+"""Generate the public Lean reference with placeholder source links and check its local links.
+
+`tools/api_reference_links.py` puts the checked commit into the links in a cheap later step."""
 
 import argparse
 from html import escape
@@ -16,6 +18,8 @@ from tools.source_revision import FULL_COMMIT_HASH_PATTERN
 
 SOURCE_REPOSITORY = "https://github.com/vihren-dev/sqlite-verifier"
 """Source links identify the public repository and the caller's checked commit."""
+SOURCE_REVISION_PLACEHOLDER = "SOURCE-REVISION"
+"""The commit in base-build source links; not hexadecimal, so it cannot be a commit hash."""
 COMMAND_TIMEOUT_SECONDS = 600
 """Bound each documentation subprocess, including the Lean core prepass."""
 CORE_DOCUMENTATION_PREFIXES = ("Init", "Std")
@@ -106,9 +110,10 @@ def correct_reference_links(output: Path) -> int:
     return corrected
 
 
-def generate_reference(root: Path, executable: Path, build: Path, revision: str) -> None:
-    """Use the pinned CLI directly, so generation needs no Git checkout or Lake source facets."""
-    revision = source_revision(revision)
+def generate_reference(root: Path, executable: Path, build: Path) -> None:
+    """Use the pinned CLI directly, without a Git checkout or Lake source facets. Source links
+    contain the placeholder, so the result depends only on the Lean sources and pinned tools."""
+    revision = SOURCE_REVISION_PLACEHOLDER
     build.mkdir(parents=True, exist_ok=True)
 
     def run(*arguments: str) -> None:
@@ -131,13 +136,13 @@ def generate_reference(root: Path, executable: Path, build: Path, revision: str)
     corrected = correct_reference_links(build / "doc")
     report = validate_reference(build / "doc", root, revision)
     report["corrected_links"] = corrected
-    report["source_revision"] = revision
     (build / "doc/reference-check.json").write_text(json.dumps(report, indent=2) + "\n")
 
 
 def validate_reference(output: Path, root: Path, revision: str) -> dict[str, int | str]:
-    """Require all public pages, exact declaration source links and valid local HTML targets."""
-    revision = source_revision(revision)
+    """Require all public pages, exact source links (commit or placeholder) and valid local targets."""
+    if revision != SOURCE_REVISION_PLACEHOLDER:
+        revision = source_revision(revision)
     output = output.resolve()
     pages: dict[Path, PageLinks] = {}
     for path in output.rglob("*.html"):
@@ -180,15 +185,13 @@ def validate_reference(output: Path, root: Path, revision: str) -> dict[str, int
 
 
 def main() -> None:
-    """Accept Nix's explicit tool, source directory and checked commit."""
+    """Accept Nix's explicit tool and source directory; the commit comes later."""
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--root", type=Path, required=True)
     parser.add_argument("--executable", type=Path, required=True)
     parser.add_argument("--build", type=Path, required=True)
-    parser.add_argument("--revision", required=True)
     arguments = parser.parse_args()
-    generate_reference(arguments.root.resolve(), arguments.executable.resolve(),
-                       arguments.build.resolve(), arguments.revision)
+    generate_reference(arguments.root.resolve(), arguments.executable.resolve(), arguments.build.resolve())
 
 
 if __name__ == "__main__":

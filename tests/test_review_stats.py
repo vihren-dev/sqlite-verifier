@@ -17,9 +17,12 @@ def review(identifier: str, files: list[str], findings: list[tuple[str, str]], *
                          for index, (rule, severity) in enumerate(findings, start=1)]}
 
 
-def resolved(finding: str, outcome: str) -> dict[str, object]:
-    """A minimal resolution record."""
-    return {"kind": "resolution", "finding": finding, "outcome": outcome}
+def resolved(finding: str, outcome: str, date: str | None = None) -> dict[str, object]:
+    """A minimal resolution record, with a date when the test needs one."""
+    record: dict[str, object] = {"kind": "resolution", "finding": finding, "outcome": outcome}
+    if date is not None:
+        record["date"] = date
+    return record
 
 
 @pytest.mark.unit
@@ -67,3 +70,15 @@ def test_report_has_one_row_per_condition() -> None:
     """The table lists the conditions in numeric order."""
     rows = report(collect([], {"R10": Rule("v", ("*",)), "R2": Rule("v", ("*",))})).splitlines()[2:]
     assert [row.split(" | ")[0] for row in rows] == ["| R2", "| R10"]
+
+
+@pytest.mark.unit
+def test_latest_outcome_follows_dates() -> None:
+    """A merge can put a newer resolution before an older one; the newer date still counts."""
+    records = [review("d", ["x.py"], [("R1", "should")]),
+               resolved("d#1", "fixed", "2026-10-08T10:00:00+00:00"),
+               resolved("d#1", "rejected", "2026-10-07T10:00:00+00:00")]
+    assert collect(records, RULES)["R1"].outcomes == {"fixed": 1, "rejected": 0, "deferred": 0}
+    same_time = records[:1] + [resolved("d#1", "rejected", "2026-10-08T10:00:00+00:00"),
+                               resolved("d#1", "fixed", "2026-10-08T10:00:00+00:00")]
+    assert collect(same_time, RULES)["R1"].outcomes == {"fixed": 1, "rejected": 0, "deferred": 0}

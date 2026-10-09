@@ -59,8 +59,14 @@ CI builds this reference on Linux and macOS under Lean 4.34.1 and retains each
 and serve that directory with the same command to read it locally. Public
 hosting is a separate task.
 
-The `apiReference` Nix target requires `referenceRevision`, the exact source
-commit used in source links. It pins doc-gen4 v4.34.1 and all five dependencies
+The reference is built in two steps. The `apiReferenceBase` Nix target builds
+the library, the pages and the checks, with the placeholder `SOURCE-REVISION`
+in each source link. It does not depend on the commit, so Nix and the CI cache
+reuse it while the Lean sources stay the same. The `apiReference` target
+requires `referenceRevision`, the exact source commit. It copies the base and
+puts that commit into each source link, in a few seconds. It fails when a
+placeholder remains or a source link names another commit. The base build pins
+doc-gen4 v4.34.1 and all five dependencies
 to the revisions in doc-gen4's own manifest. These include the bundled native
 code for SQLite, Markdown and Unicode. Lake uses local paths; the sandbox
 needs no Git checkout or network access. The reference build checks public

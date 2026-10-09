@@ -9,8 +9,8 @@ platform caches evicted each other.
 The tool adds garbage-collector roots for what the next run needs, then collects
 everything else:
 
-- the test targets, runtimes and parsers, as derivations; with `keep-outputs` in the
-  Nix configuration, the outputs of all their build inputs stay too;
+- the test targets, runtimes, parsers and base API reference, as derivations; with
+  `keep-outputs` in the Nix configuration, the outputs of all their build inputs stay too;
 - the development shell, as a profile;
 - the flake inputs, which include the pinned nixpkgs source used for evaluation.
 
@@ -25,8 +25,9 @@ import sys
 
 ROOTS = Path("build/gc-roots")
 FLAGS = ["--extra-experimental-features", "nix-command flakes"]
-TARGETS = ["tests", "runtime", "conformance", "parsers"]
-"""Attributes of build-support/default.nix whose build closures the next run needs."""
+TARGETS = ["tests", "runtime", "conformance", "parsers", "apiReferenceBase"]
+"""Attributes of build-support/default.nix whose build closures the next run needs. The base
+API reference has no commit in it, so the next commit with the same Lean sources reuses it."""
 ROOT_TIMEOUT_SECONDS = 600
 """Evaluating the targets or entering the development shell; both are cached after the checks."""
 FLAKE_TIMEOUT_SECONDS = 300

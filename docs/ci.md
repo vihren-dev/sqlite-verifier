@@ -15,16 +15,24 @@ request base:
 
 | Scope | Selected when | Recipes |
 | --- | --- | --- |
-| `docs` | only Markdown documentation changed, including on a `main` push | link checks, no build |
+| `docs` | only Markdown documentation and the review log changed, including on a `main` push | link checks, no build |
 | `test` | any other change | `just test-full` |
 | `infrastructure` | build definitions or shared test infrastructure changed | `just test-full test-nix` |
 | `packaging` | archive contents, installation or runtime discovery changed | `just test-full runtime-package` |
 | `package` | both of the above, other `main` pushes, tags, manual and nightly runs | `just package` |
 
+Every scope checks the review log with `tools/review_log_check.py`. Each line
+must be a review or resolution record, and each line of the base commit must be
+present and unchanged. Merges may reorder lines; the review statistics use the
+date of a resolution, not its line.
+
 Linux builds the [checked API reference](api-reference.md) for pull requests.
 Main, tags, manual and nightly runs build it on both native platforms for
 non-documentation scopes. They use the
 pinned Nix environment with the checkout's full commit hash for source links.
+Only the last, cheap step uses that hash. The expensive base build does not, and
+`tools/ci_store_gc.py` keeps it in the saved cache, so a run whose Lean sources
+match the cache reuses it.
 CI retains `api-reference-SYSTEM` for 14 days, including when a later check
 fails. The reference checks authored Verso coverage and retains its inventory.
 Documentation dependencies stay outside the installed proof runtime.
@@ -125,8 +133,10 @@ server operation are maintained in the devops repository
 job and was rolled back ([record](../plans/20260929-attic-ci.status.md)).
 
 Before the save, `tools/ci_store_gc.py` registers garbage-collector roots for the
-test targets, runtimes, parsers, development shell and flake inputs of the current
-commit, and removes every other store path. Nix keeps the outputs of rooted
+test targets, runtimes, parsers, base API reference (`apiReferenceBase`),
+development shell and flake inputs of the current commit, and removes every other
+store path. The base API reference and its doc-gen4 build input add about 53 MB
+compressed for each platform. Nix keeps the outputs of rooted
 derivations' build inputs (`keep-outputs`). Without this step the store kept every
 older commit's outputs and grew to 5.8 GB for Linux, while one commit needs about
 1.4 GB compressed; GitHub keeps at most 10 GB of caches for a repository, so the
