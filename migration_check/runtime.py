@@ -19,7 +19,8 @@ class Runtime:
 
     root: Path
     sysroot: Path
-    library: Path
+    libraries: tuple[Path, Path]
+    """Installed application and model artifacts, in resolver and gate precedence order."""
     parser: Path
     checker: Path
 
@@ -59,8 +60,24 @@ class Runtime:
                 "Reinstall the verifier. For a development checkout, set "
                 f"MIGRATION_CHECK_LEAN_SYSROOT to a Lean {PINNED_LEAN_VERSION} installation.",
             )
-        runtime = cls(root, sysroot, root / ".lake/build/lib/lean", root / "build" / parsers[sqlite_version],
+        runtime = cls(root, sysroot, (root / ".lake/build/lib/lean",
+                      root / "packages/belay-sqlite/.lake/build/lib/lean"), root / "build" / parsers[sqlite_version],
                       root / ".lake/build/bin/migration-proof-checker")
-        if not runtime.library.is_dir() or not runtime.parser.is_file() or not runtime.checker.is_file():
+        if not all(path.is_dir() for path in runtime.libraries) or not runtime.parser.is_file() or not runtime.checker.is_file():
             raise Rejection("INPUT_ERROR", "Verifier runtime is incomplete; run just build or reinstall")
+        validate_libraries(sysroot, runtime.libraries)
         return runtime
+
+
+def validate_libraries(sysroot: Path, libraries: tuple[Path, Path]) -> None:
+    """Refuse missing roots and colliding installed modules before compiling caller source."""
+    roots = (sysroot / 'lib/lean', *libraries)
+    modules: dict[str, Path] = {}
+    for directory in roots:
+        if not directory.is_absolute() or not directory.is_dir():
+            raise ValueError(f'Trusted library directory {directory} is missing or relative; rebuild or reinstall')
+        for path in directory.rglob('*.olean'):
+            name = path.relative_to(directory).as_posix().casefold()
+            if name in modules:
+                raise ValueError(f'Installed module {path} conflicts with {modules[name]}; rebuild or reinstall')
+            modules[name] = path

@@ -1,10 +1,12 @@
 import SqliteVerifier.ContractProofs
-import SqliteVerifier.Preservation
+import Belay.Sqlite.Preservation
 
 set_option doc.verso true
 
 /-! Runnable engineering regressions, not claimed pilot migrations or evidence
 that the native SQLite implementation refines these definitions. -/
+
+open Belay.Sqlite
 
 namespace SqliteVerifier.Examples
 

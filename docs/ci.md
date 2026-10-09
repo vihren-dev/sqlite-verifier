@@ -181,8 +181,10 @@ is overwritten. The download-artifact v5 commit was resolved from the official
 repository tag on 2026-09-24. Tag creation remains a coordinated release action.
 A passing engineering workflow does not mean roadmap Step 1 is complete.
 
-The separate target-owned `Protected approved baseline` workflow is unchanged.
-Documentation routing does not authorize changed approved sources or manifests.
+The main ruleset requires `Check (x86_64-linux)` and `Check (aarch64-darwin)`
+and requires a branch to be up to date before it merges. Changes to approved
+example requirements are ordinary test-fixture changes and get the same
+review as other changes.
 
 ## Maintainer release
 

@@ -8,7 +8,7 @@ set_option doc.verso true
 /-! A closed preservation certificate for the supplied SQL over every admitted
 business history. Success and complete decoding are proved, not assumed. -/
 namespace Proofs
-open SqliteVerifier
+open Belay.Sqlite SqliteVerifier
 
 /-- Complete decoding establishes valid business objects for any represented schema. -/
 theorem mapping (schema : Schema) :

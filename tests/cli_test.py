@@ -166,3 +166,16 @@ def test_approved_transitive_dependency(invoke: Callable[..., dict[str, object]]
     report = invoke("VERIFIED", contract=transitive_contract, extra=("--artifacts", str(tmp_path / "artifacts")))
     assert "approved/Policy.lean" in report["inputs"]
     assert json.loads((tmp_path / "artifacts/inputs.json").read_text()) == report["inputs"]
+
+
+def test_caller_model_namespace_remains_untrusted(invoke: Callable[..., dict[str, object]],
+                                                 candidate: Path) -> None:
+    """A caller-owned model namespace resolves and is replayed without becoming a protected module."""
+    helper = candidate / 'Belay/Sqlite/Caller.lean'
+    helper.parent.mkdir(parents=True)
+    helper.write_text('def Belay.Sqlite.callerValue : Nat := 7\n')
+    proof = candidate / 'Proofs.lean'
+    proof.write_text(proof.read_text().replace('import Generated', 'import Generated\nimport Belay.Sqlite.Caller')
+        .replace('  SqliteVerifier.Demonstration.migrationCorrect',
+                 '  by\n    have checked : Belay.Sqlite.callerValue = 7 := rfl\n    exact SqliteVerifier.Demonstration.migrationCorrect'))
+    invoke('VERIFIED')

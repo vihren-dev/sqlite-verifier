@@ -1,5 +1,5 @@
 # Independent pytest targets: Nix owns isolation, dependency identity and reuse.
-{ pkgs, leanToolchain, leanRuntime, parsers, runtime, conformance ? runtime, root ? ../.
+{ pkgs, leanToolchain, leanRuntime, parsers, runtime, modelPackage, conformance ? runtime, root ? ../.
 , native ? import ../nix/sqlite.nix { inherit pkgs; }
 , conformanceNative ? import ./conformance-native.nix { inherit pkgs; }
 }:
@@ -18,12 +18,14 @@ let
   suiteTimeoutSeconds = 1200;
   # The conformance suites use only the SQL frontend, not the verification application.
   # tests/test_conformance_frontend.py checks this list against the actual imports.
-  frontend = map (name: root + "/migration_check/${name}.py")
+  frontend = map (name: root + "/${builtins.replaceStrings [ "." ] [ "/" ] name}.py")
     (builtins.fromJSON (builtins.readFile (root + /tests/conformance_frontend.json)));
   leanRoot = pkgs.runCommand "sqlite-verifier-test-lean" {} ''
     mkdir -p "$out"
     ln -s ${leanToolchain} "$out/lean"
     ln -s ${leanRuntime}/.lake "$out/.lake"
+    mkdir -p "$out/packages"
+    ln -s ${modelPackage} "$out/packages/belay-sqlite"
   '';
   suite = name: { inputs, runtime, tools ? [], environment ? {} }:
     let
@@ -49,12 +51,12 @@ let
   modelInputs = frontend ++ [
     (root + /tests/conformance_freeze_capture.py)
     (fs.fileFilter (file: file.hasExt "json") (root + /conformance/cases))
-    (root + /SqliteVerifier/SqlExecution.lean)
-    (root + /SqliteVerifier/Execution.lean) (root + /SqliteVerifier/LiteralData.lean)
+    (root + /packages/belay-sqlite/Belay/Sqlite/SqlExecution.lean)
+    (root + /packages/belay-sqlite/Belay/Sqlite/Execution.lean) (root + /packages/belay-sqlite/Belay/Sqlite/LiteralData.lean)
     (root + /VerifierConformance/Trace.lean)
     (root + /VerifierConformance/Outputs.lean)
     (root + /VerifierConformance/Case.lean)
-    (root + /VerifierConformance/Laws.lean)
+    (root + /packages/belay-sqlite/Belay/Sqlite/Laws.lean)
     (root + /conformance/requirements-3.51.0.json)
     (root + /conformance/regressions)
     (root + /conformance/synthetic-workload)
@@ -159,8 +161,11 @@ in {
   bundle = suite "bundle" {
     inputs = [
       (fs.fileFilter (file: file.hasExt "py") (root + /migration_check))
+      (fs.fileFilter (file: file.hasExt "py") (root + /belay/sqlite))
       (fs.fileFilter (file: file.hasExt "json") (root + /conformance/cases))
       (root + /tests/sql_fixtures.py)
+      (root + /experiments/adr-0003-latency/cases.py)
+      (root + /experiments/adr-0003-latency/stage_timing.py)
     ];
     inherit runtime;
   };

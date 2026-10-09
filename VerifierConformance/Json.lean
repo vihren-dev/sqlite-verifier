@@ -1,11 +1,13 @@
-import StructuralCodec
+import Belay.Sqlite.Codec
 import VerifierConformance.Case
 
 /-! Conformance-case transport. The structural codecs for model types live in
-`StructuralCodec`, shared with ADR 0003's bundle checker. These codecs are transport,
+`Belay.Sqlite.Codec`, shared with ADR 0003's bundle checker. These codecs are transport,
 not a proof oracle. The pure checker has no JSON dependency. -/
 
-namespace SqliteVerifier
+open Belay.Sqlite
+
+namespace Belay.Sqlite
 
 deriving instance Lean.FromJson, Lean.ToJson for Conformance.NativeObservation,
   Conformance.StatementOutput, Conformance.OutputGroup, Conformance.NativeOutput
@@ -55,4 +57,4 @@ def decodeCase (json : Lean.Json) : Except String Case := do
   return c
 
 end Conformance
-end SqliteVerifier
+end Belay.Sqlite

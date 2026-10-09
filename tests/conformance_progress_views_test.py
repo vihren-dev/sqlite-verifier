@@ -106,7 +106,7 @@ def test_report_binds_runtime_profiles_shards_evidence(inputs: tuple[Path, Path,
     assert [row["sha256"] for row in report["byShard"]] == [
         hashlib.sha256((corpus / row["path"]).read_bytes()).hexdigest() for row in manifest["shards"]]
     assert {"model_check.py", "execution_profile.py", "corpus_evidence.py"} <= report["harnessSha256"].keys()
-    assert "migration_check/sql_model.py" in report["frontendSha256"]
+    assert "belay/sqlite/sql_model.py" in report["frontendSha256"]
     (runtime / RUNTIME_FILES[1]).write_bytes(b"changed runner")
     assert progress(*inputs)["runtimeSha256"] != report["runtimeSha256"]
 

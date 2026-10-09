@@ -41,7 +41,7 @@ def test_parse_rules_and_scope() -> None:
     """Each condition has a scope; a changed text gives a new version, an unchanged one keeps it."""
     rules = parse_rules(CHECKLIST)
     assert rules["R1"].scope == ("*",) and rules["R2"].scope == ("*.lean", "tools/*.py")
-    assert in_scope(rules["R2"], ["SqliteVerifier/Model.lean"]) and not in_scope(rules["R2"], ["README.md"])
+    assert in_scope(rules["R2"], ["packages/belay-sqlite/Belay/Sqlite/Model.lean"]) and not in_scope(rules["R2"], ["README.md"])
     changed = parse_rules(CHECKLIST.replace("Text two.", "Text two, clearer."))
     assert changed["R1"].version == rules["R1"].version and changed["R2"].version != rules["R2"].version
 

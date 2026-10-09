@@ -1,0 +1,12 @@
+name = "belaySqlite"
+version = "0.1.0"
+defaultTargets = ["Belay.Sqlite", "Belay.Sqlite.Codec"]
+
+[[lean_lib]]
+name = "Belay.Sqlite"
+roots = []
+globs = ["Belay.Sqlite", "Belay.Sqlite.Declarations", "Belay.Sqlite.Model", "Belay.Sqlite.Execution", "Belay.Sqlite.LiteralData", "Belay.Sqlite.SqlExecution", "Belay.Sqlite.SqlProofs", "Belay.Sqlite.Preservation", "Belay.Sqlite.ModelFacts", "Belay.Sqlite.SchemaExtension", "Belay.Sqlite.SchemaPreservation", "Belay.Sqlite.LiteralPreservation", "Belay.Sqlite.ModelProjection", "Belay.Sqlite.Laws"]
+
+[[lean_lib]]
+name = "Belay.Sqlite.Codec"
+roots = ["Belay.Sqlite.Codec"]

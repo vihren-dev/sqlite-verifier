@@ -8,7 +8,7 @@ import sys
 from tempfile import TemporaryDirectory
 import unittest
 
-from tests.baseline_ci import git
+from tests.git_commands import git
 from tools.review_log_check import NO_BASE, problems, record_problem
 
 REVIEW = json.dumps({"kind": "review", "id": "r1", "commit": "a" * 40, "date": "2026-10-08",

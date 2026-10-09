@@ -1,8 +1,8 @@
-import SqliteVerifier
+import Belay.Sqlite
 
 /-! ADR 0005 output comparison uses native tie groups, without evaluating SQL. -/
 
-namespace SqliteVerifier.Conformance
+namespace Belay.Sqlite.Conformance
 
 /-- Returned cells retain storage classes and exact payloads. -/
 abbrev ResultRow := List Value
@@ -91,4 +91,4 @@ def outputTraceFrom (position : Nat) (script : List Statement) (state : SqlState
       | .next next => outputTraceFrom (position + 1) rest next
       | .halt _ => []
 
-end SqliteVerifier.Conformance
+end Belay.Sqlite.Conformance

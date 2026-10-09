@@ -5,6 +5,8 @@ set_option doc.verso true
 /-! An independently checked migration reuses the exact same logical contract
 and initial interpretation; the proof accounts for its changed statement order. -/
 
+open Belay.Sqlite
+
 namespace SqliteVerifier.Demonstration
 
 /-- Create the independent audit table before extending existing invoices. -/

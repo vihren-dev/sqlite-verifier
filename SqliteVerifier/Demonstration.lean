@@ -5,6 +5,8 @@ set_option doc.verso true
 /-! Engineering example: arbitrary stored amounts survive a column addition and
 new table. This is a complete VC proof, not a real-pilot acceptance claim. -/
 
+open Belay.Sqlite
+
 namespace SqliteVerifier.Demonstration
 
 /-- The field whose values and row identities are protected by the requirements. -/
@@ -142,3 +144,16 @@ theorem migrationCorrect :
 #print axioms migrationCorrect
 
 end SqliteVerifier.Demonstration
+
+/-!
+The engineering example adds a nullable invoice note and creates an audit
+table. Its theorem covers arbitrary admitted stored invoice data:
+
+```lean
+open Belay.Sqlite SqliteVerifier
+example : VerificationConditions Demonstration.startSchema Demonstration.nextSchema
+    Demonstration.script (fun _ => True) Demonstration.requirements
+    Demonstration.current Demonstration.next unreachableFailures :=
+  Demonstration.migrationCorrect
+```
+-/

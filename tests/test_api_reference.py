@@ -36,7 +36,7 @@ def test_core_takes_only_the_toolchain_and_doc_gen4() -> None:
     core = (BUILD_SUPPORT / "api-reference-core.nix").read_text()
     assert "{ pkgs, leanToolchain, docGen4 }:" in core and "../" not in core
     base = (BUILD_SUPPORT / "api-reference.nix").read_text()
-    assert "{ pkgs, sources, leanToolchain, lean4export, docGen4, core }:" in base
+    assert "{ pkgs, sources, leanToolchain, lean4export, docGen4, core, modelPackage }:" in base
     assert "--revision" not in base and "inventory" not in base
     assert {"apiReferenceCore", "apiReferenceBase"} <= set(TARGETS)
 
@@ -153,3 +153,33 @@ def test_link_step_refuses_unlinked_or_foreign_sources(tmp_path: Path, damage: s
     base = linked_base(tmp_path, page)
     with pytest.raises(ValueError):
         link_sources(base, tmp_path / "out", "main" if damage == "revision" else REVISION)
+
+
+def test_generator_maps_model_package_to_module_and_repository_uri(tmp_path: Path) -> None:
+    """Our generator passes a model module name and its exact package source URI to doc-gen4."""
+    model = tmp_path / "source/packages/belay-sqlite/Belay/Sqlite/Schema.lean"
+    model.parent.mkdir(parents=True)
+    model.write_text("-- fixture\n")
+    calls, build = run_generator(tmp_path, '<a href="#Value.rec">own</a>')
+    uri = f"{SOURCE_REPOSITORY}/blob/{SOURCE_REVISION_PLACEHOLDER}/packages/belay-sqlite/Belay/Sqlite/Schema.lean"
+    assert calls[-2][3:] == ["single", "--build", str(build), "Belay.Sqlite.Schema", CORE_DATABASE, uri]
+    assert calls[-1][-1] == "Belay.Sqlite.Schema"
+
+
+def test_model_pages_receive_our_recursor_correction(tmp_path: Path) -> None:
+    """Our namespace selection applies the known issue-423 workaround to model pages too."""
+    page = tmp_path / "Belay/Sqlite/Schema.html"
+    page.parent.mkdir(parents=True)
+    page.write_text('<a id="Value"></a><a href="#Value.rec">own</a>')
+    assert correct_recursor_links(tmp_path) == 1
+    assert 'href="#Value"' in page.read_text()
+
+
+def test_model_source_links_receive_the_checked_commit(tmp_path: Path) -> None:
+    """Our commit-link step processes model pages while preserving their package source paths."""
+    base = linked_base(tmp_path, placeholder_link(1))
+    page = base / "Belay/Sqlite/Schema.html"
+    page.parent.mkdir(parents=True)
+    page.write_text(f'<a href="{SOURCE_REPOSITORY}/blob/{SOURCE_REVISION_PLACEHOLDER}/packages/belay-sqlite/Belay/Sqlite/Schema.lean#L1">source</a>')
+    assert link_sources(base, tmp_path / "out", REVISION) == 2
+    assert f"/blob/{REVISION}/packages/belay-sqlite/" in (tmp_path / "out/Belay/Sqlite/Schema.html").read_text()

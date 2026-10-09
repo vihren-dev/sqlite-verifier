@@ -38,7 +38,7 @@ restores its matching seed; no garbage collection or cache purging runs.
 | package | Matching seed | Complete source and installed package acceptance |
 
 Controlled comments change `tests/test_translation.py` or
-`SqliteVerifier/Model.lean`. Each sample records before/after hashes and the exact
+`packages/belay-sqlite/Belay/Sqlite/Model.lean`. Each sample records before/after hashes and the exact
 revision. Baseline recipes remain unchanged. Candidate recipes receive immutable
 runtime and unit-check roots, validate current unit identities before reuse, and
 run proof, conformance and sandbox acceptance freshly on the host.

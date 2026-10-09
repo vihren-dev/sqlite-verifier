@@ -108,8 +108,8 @@ def test_runtime_identity_follows_symlinks(tmp_path: Path) -> None:
     first.mkdir()
     second.mkdir()
     link.symlink_to(first, target_is_directory=True)
-    before = runtime_identity(link, link)
+    before = runtime_identity(link, (link, second))
     link.unlink()
     link.symlink_to(second, target_is_directory=True)
-    assert runtime_identity(link, link) != before
-    assert before == (str(first.resolve()), str(first.resolve()))
+    assert runtime_identity(link, (link, second)) != before
+    assert before == (str(first.resolve()), str(first.resolve()), str(second.resolve()))

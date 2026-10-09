@@ -11,7 +11,7 @@ namespace Interpretation
 /-- For the given database, require a defined logical-key read. Missing table,
 column or cell, NULL keys and duplicate keys are refused; the empty invoice
 table is admitted. Schema conformance remains part of the generated target. -/
-def admitted : SqliteVerifier.Database → Prop :=
+def admitted : Belay.Sqlite.Database → Prop :=
   SqliteVerifier.ApplicationKeyDemonstration.admitted
 
 /-- Observe actual invoice keys and protected amounts under the sealed starting

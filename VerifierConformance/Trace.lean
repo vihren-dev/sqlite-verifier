@@ -1,10 +1,10 @@
-import SqliteVerifier.SqlExecution
+import Belay.Sqlite.SqlExecution
 
 /-! ADR 0004 observations follow production transitions, including open transactions.
 The caller supplies the finite union of fixture, statement and native table names.
 This module neither executes SQLite nor asserts native correspondence. -/
 
-namespace SqliteVerifier.Conformance
+namespace Belay.Sqlite.Conformance
 
 /-- Finite table observations retain absent names, metadata, cells and row identity. -/
 abbrev Tables := List (String × Option Table)
@@ -78,4 +78,4 @@ theorem trace_final (names : List String) (script : List Statement) (initial : D
       some (observeOutcome names (runSql script initial)) :=
   traceFrom_final names 0 script { database := initial }
 
-end SqliteVerifier.Conformance
+end Belay.Sqlite.Conformance

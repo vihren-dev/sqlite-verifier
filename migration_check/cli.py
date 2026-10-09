@@ -8,6 +8,7 @@ from tempfile import TemporaryDirectory
 from collections.abc import Sequence
 
 from .diagnostics import Rejection
+from belay.sqlite.errors import SqlError
 from .inputs import generated_inputs, read_sql
 from .runtime import Runtime
 from .process import run_process
@@ -92,7 +93,7 @@ def verify(options: argparse.Namespace) -> dict[str, object]:
         workspace = Path(temporary).resolve()
         try:
             compiled = compile_project(
-                sysroot=runtime.sysroot, library=runtime.library, requirements=options.requirements,
+                sysroot=runtime.sysroot, libraries=runtime.libraries, requirements=options.requirements,
                 interpretation=options.interpretation, next_interpretation=options.next_interpretation,
                 proofs=options.proofs, schema_inputs=starting, sql_inputs=generated, workspace=workspace,
                 approved_baseline=options.approved_baseline, schema_hash=schema_hash,
@@ -105,7 +106,7 @@ def verify(options: argparse.Namespace) -> dict[str, object]:
         output = workspace / "gate-output"
         output.mkdir()
         checked = run_process(
-            [str(runtime.checker), str(runtime.library), str(compiled.trusted), str(compiled.candidate)],
+            [str(runtime.checker), *map(str, runtime.libraries), str(compiled.trusted), str(compiled.candidate)],
             write_root=output, environment={"LEAN_SYSROOT": str(runtime.sysroot)}, timeout=30)
         if checked.returncode == 2:
             raise Rejection("VIOLATED", "A kernel-checked argument refutes the supplied verification contract")
@@ -128,7 +129,7 @@ def main(values: Sequence[str]) -> int:
             result = verify_bundle(options)
         else:
             result = verify(options)
-    except Rejection as error:
+    except (Rejection, SqlError) as error:
         result = error.diagnostic()
     except (ValueError, OSError) as error:
         result = Rejection("INPUT_ERROR", str(error)).diagnostic()

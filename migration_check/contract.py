@@ -10,6 +10,7 @@ import hashlib
 from pathlib import Path
 
 from .baseline import check_baseline
+from .runtime import validate_libraries
 from .cache_eligibility import approved_reuse_allowed
 from .source_closure import Source, discover_sources, module_path, role_sources
 from .stage_store import StageStore, runtime_identity, stage_key
@@ -19,7 +20,7 @@ APPROVED_FORBIDDEN = frozenset({"NextInterpretation", "Generated", "Proofs", "Sq
 
 @dataclass(frozen=True)
 class Contract:
-    """A snapshotted approved closure, its compile order and its trusted-library imports."""
+    """A snapshotted approved closure, its compile order and its imports from the trusted libraries."""
 
     sources: dict[str, Source]
     order: tuple[str, ...]
@@ -27,12 +28,12 @@ class Contract:
 
 
 def discover_contract(*, initial: dict[str, Source], roots: tuple[Path, ...], excluded: set[Path],
-                      directory: Path, sysroot: Path, library: Path, workspace: Path) -> Contract:
+                      directory: Path, sysroot: Path, libraries: tuple[Path, Path], workspace: Path) -> Contract:
     """Snapshot the approved closure reachable from Requirements and Interpretation."""
     external: set[str] = set()
     sources, order = discover_sources(
         initial=initial, roots=roots, excluded=excluded, forbidden=set(APPROVED_FORBIDDEN),
-        available={"SchemaInputs"}, directory=directory, sysroot=sysroot, library=library,
+        available={"SchemaInputs"}, directory=directory, sysroot=sysroot, libraries=libraries,
         workspace=workspace, external=external)
     return Contract(sources, order, frozenset(external))
 
@@ -44,26 +45,26 @@ def source_hashes(stage: str, sources: dict[str, Source]) -> dict[str, str]:
 
 
 def run_stage(*, stage: str, order: tuple[str, ...], sources: Path, destination: Path,
-              previous: tuple[Path, ...], previous_keys: tuple[str, ...], sysroot: Path, library: Path,
+              previous: tuple[Path, ...], previous_keys: tuple[str, ...], sysroot: Path, libraries: tuple[Path, Path],
               workspace: Path, store: StageStore | None, eligible: bool) -> tuple[list[str], str]:
     """Restore an eligible stage from the store or compile it, returning diagnostics and its key."""
     from .compile import compile_modules
 
     modules = {name: (sources / module_path(name)).with_suffix(module_path(name).suffix + ".lean").read_bytes()
                for name in order}
-    key = stage_key(stage, modules, previous_keys, runtime_identity(sysroot, library))
+    key = stage_key(stage, modules, previous_keys, runtime_identity(sysroot, libraries))
     required = tuple(f"{module_path(name).as_posix()}.olean" for name in order)
     if store is not None and eligible and store.restore(key, destination, required):
         return [], key
     diagnostics = compile_modules(order=order, sources=sources, destination=destination,
-                                  previous=previous, sysroot=sysroot, library=library, workspace=workspace)
+                                  previous=previous, sysroot=sysroot, libraries=libraries, workspace=workspace)
     if store is not None and eligible:
         store.save(key, destination)
     return diagnostics, key
 
 
 def compile_trusted(*, contract: Contract, approved_sources: Path, schema_inputs: str, sql_inputs: str | None,
-                    trusted: Path, sysroot: Path, library: Path, workspace: Path,
+                    trusted: Path, sysroot: Path, libraries: tuple[Path, Path], workspace: Path,
                     store: StageStore | None) -> list[str]:
     """Compile schema, approved and SQL stages into `trusted`, reusing only eligible stages.
 
@@ -76,7 +77,7 @@ def compile_trusted(*, contract: Contract, approved_sources: Path, schema_inputs
         directory.mkdir()
     # Starting schema has no access to approved or candidate sources/artifacts.
     (sql_sources / "SchemaInputs.lean").write_text(schema_inputs, encoding="utf-8")
-    common = {"sysroot": sysroot, "library": library, "workspace": workspace, "store": store}
+    common = {"sysroot": sysroot, "libraries": libraries, "workspace": workspace, "store": store}
     diagnostics, schema_key = run_stage(stage="SchemaInputs", order=("SchemaInputs",), sources=sql_sources,
                                         destination=schema_output, previous=(), previous_keys=(),
                                         eligible=True, **common)
@@ -112,7 +113,7 @@ class CompiledContract:
     modules: frozenset[str]
 
 
-def compile_contract(*, sysroot: Path, library: Path, requirements: Path, interpretation: Path,
+def compile_contract(*, sysroot: Path, libraries: tuple[Path, Path], requirements: Path, interpretation: Path,
                      schema_inputs: str, sql_inputs: str, workspace: Path, store: StageStore | None,
                      approved_baseline: Path | None = None, schema_hash: str | None = None,
                      compile_sql: bool = True) -> CompiledContract:
@@ -121,6 +122,7 @@ def compile_contract(*, sysroot: Path, library: Path, requirements: Path, interp
     `compile_sql=False` leaves `SqlInputs` uncompiled for the bundle checker to construct;
     its source hash is still reported.
     """
+    validate_libraries(sysroot, libraries)
     selected = {"Requirements": requirements.resolve(strict=True),
                 "Interpretation": interpretation.resolve(strict=True)}
     if any(path.stem.casefold() == "schemainputs" for path in selected.values()):
@@ -132,13 +134,13 @@ def compile_contract(*, sysroot: Path, library: Path, requirements: Path, interp
     contract = discover_contract(
         initial=initial,
         roots=tuple(dict.fromkeys(path.parent for path in selected.values())), excluded=set(),
-        directory=approved_sources, sysroot=sysroot, library=library, workspace=workspace)
+        directory=approved_sources, sysroot=sysroot, libraries=libraries, workspace=workspace)
     hashes = source_hashes("approved", contract.sources)
     hashes["generated/SchemaInputs.lean"] = hashlib.sha256(schema_inputs.encode()).hexdigest()
     hashes["generated/SqlInputs.lean"] = hashlib.sha256(sql_inputs.encode()).hexdigest()
     if approved_baseline is not None:
         check_baseline(approved_baseline, {**hashes, **({"schema.sql": schema_hash} if schema_hash else {})})
     compile_trusted(contract=contract, approved_sources=approved_sources, schema_inputs=schema_inputs,
-                    sql_inputs=sql_inputs if compile_sql else None, trusted=trusted, sysroot=sysroot, library=library,
+                    sql_inputs=sql_inputs if compile_sql else None, trusted=trusted, sysroot=sysroot, libraries=libraries,
                     workspace=workspace, store=store)
     return CompiledContract(trusted, hashes, contract.external, frozenset(contract.sources))

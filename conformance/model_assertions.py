@@ -2,7 +2,7 @@
 
 from textwrap import indent
 
-from migration_check.sql_model import lean_string
+from belay.sqlite.quoted_text import quoted_string
 
 
 def audit_axioms(output: str) -> None:
@@ -15,13 +15,13 @@ def assertions(term: str, encoded: str, *, expected: bool = True, failure: str |
     """Embed the runner's decoded structural case, never a separate comparison implementation."""
     preserved = "" if failure is None else (
         "theorem preservedFailure : (observeOutcome fixture.names "
-        "(SqliteVerifier.runSql fixture.script (databaseOf fixture.initial))).error = " + failure +
+        "(Belay.Sqlite.runSql fixture.script (databaseOf fixture.initial))).error = " + failure +
         " := by decide +kernel\n#print axioms preservedFailure\n")
     return ("import VerifierConformance.Json\n"
-            "open SqliteVerifier.Conformance\n"
+            "open Belay.Sqlite.Conformance\n"
             "set_option maxRecDepth 100000\nset_option maxHeartbeats 30000000\n"
             "def fixture : Case :=\n" + indent(term, "  ") + "\n" +
-            f"#guard match Lean.Json.parse {lean_string(encoded)} with\n"
+            f"#guard match Lean.Json.parse {quoted_string(encoded)} with\n"
             "  | .ok json => json == Lean.toJson fixture\n  | .error _ => false\n"
             f"theorem checkedCase : checkCase fixture = {str(expected).lower()} := by decide +kernel\n"
             "#print axioms checkedCase\n#print axioms unsupported_not_checked\n#print axioms trace_final\n" + preserved)

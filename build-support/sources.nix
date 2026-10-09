@@ -19,8 +19,18 @@ let
     (root + /lakefile.toml) (root + /lake-manifest.json) (root + /lean-toolchain)
   ];
 in {
+  model = fs.toSource {
+    root = root + /packages/belay-sqlite;
+    fileset = fs.unions [
+      (extensions [ "lean" ] (root + /packages/belay-sqlite/Belay))
+      (root + /packages/belay-sqlite/lakefile.toml)
+      (root + /packages/belay-sqlite/lake-manifest.json)
+      (root + /packages/belay-sqlite/lean-toolchain)
+    ];
+  };
   runtime = source (fs.unions [
     (extensions [ "py" ] (root + /migration_check))
+    (extensions [ "py" ] (root + /belay/sqlite))
     (filtered (file: file.name != ".DS_Store" && !file.hasExt "pyc") (root + /examples))
     (root + /LICENSE) (root + /docs/install.md)
     (root + /packaging/install.py) (root + /packaging/install.sh)

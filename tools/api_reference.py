@@ -20,6 +20,11 @@ from urllib.parse import quote, unquote, urlsplit
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 from tools.source_revision import FULL_COMMIT_HASH_PATTERN
 
+MODEL_PACKAGE_DIRECTORY = Path("packages/belay-sqlite")
+"""Repository location of the independent model package and its source files."""
+PUBLIC_PAGE_ROOTS = frozenset({"SqliteVerifier", "SqliteVerifier.html", "Belay"})
+"""Our library page roots; Lean library pages remain outside the correction scope."""
+
 SOURCE_REPOSITORY = "https://github.com/vihren-dev/sqlite-verifier"
 """Source links identify the public repository and the caller's checked commit."""
 SOURCE_REVISION_PLACEHOLDER = "SOURCE-REVISION"
@@ -58,7 +63,14 @@ class PageLinks(HTMLParser):
 
 def public_sources(root: Path) -> list[Path]:
     """Enumerate the entry point and library source files selected by the Nix fileset."""
-    return [root / "SqliteVerifier.lean", *sorted((root / "SqliteVerifier").rglob("*.lean"))]
+    return [root / "SqliteVerifier.lean", *sorted((root / "SqliteVerifier").rglob("*.lean")),
+            *sorted((root / MODEL_PACKAGE_DIRECTORY / "Belay").rglob("*.lean"))]
+
+
+def module_source_path(root: Path, source: Path) -> Path:
+    """Map the model package source to its Lean module, retaining its repository path for links."""
+    model = root / MODEL_PACKAGE_DIRECTORY
+    return source.relative_to(model) if source.is_relative_to(model) else source.relative_to(root)
 
 
 def source_revision(revision: str) -> str:
@@ -71,7 +83,7 @@ def source_revision(revision: str) -> str:
 def our_pages(output: Path) -> list[Path]:
     """The pages of our public modules; the other pages document Lean's own libraries."""
     return sorted(path for path in output.rglob("*.html")
-                  if path.relative_to(output).parts[0] in {"SqliteVerifier", "SqliteVerifier.html"})
+                  if path.relative_to(output).parts[0] in PUBLIC_PAGE_ROOTS)
 
 
 def correct_recursor_links(output: Path) -> int:
@@ -140,7 +152,7 @@ def generate_reference(root: Path, executable: Path, build: Path) -> dict[str, i
     modules: list[str] = []
     for source in public_sources(root):
         relative = source.relative_to(root)
-        module = ".".join(relative.with_suffix("").parts)
+        module = ".".join(module_source_path(root, source).with_suffix("").parts)
         modules.append(module)
         uri = f"{SOURCE_REPOSITORY}/blob/{SOURCE_REVISION_PLACEHOLDER}/{relative.as_posix()}"
         run("single", "--build", str(build), module, CORE_DATABASE, uri)

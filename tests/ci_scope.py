@@ -33,7 +33,7 @@ INFRASTRUCTURE_FILES = {"justfile", ".envrc", "flake.nix", "flake.lock", "lean-t
                         "tests/test_test_ownership.py"}
 """Build definitions and shared test infrastructure, which `just test-nix` checks."""
 
-PACKAGING_PREFIXES = ("packaging/", "bin/", "parser/", "nix/", ".github/")
+PACKAGING_PREFIXES = ("belay/", "packages/", "packaging/", "bin/", "parser/", "nix/", ".github/")
 PACKAGING_FILES = {"build-support/runtime.nix", "build-support/default.nix", "build-support/sources.nix",
                    "build-support/lean-toolchain.nix", "build-support/lean4export.nix",
                    "lean-toolchain", "lakefile.toml", "lake-manifest.json", "justfile",

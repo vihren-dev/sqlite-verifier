@@ -11,11 +11,11 @@ pytestmark = [pytest.mark.integration, pytest.mark.conformance, pytest.mark.kern
               pytest.mark.requires_lean]
 
 
-def test_production_trace(tmp_path: Path, lean_sysroot: Path, lean_library: Path) -> None:
+def test_production_trace(tmp_path: Path, lean_sysroot: Path, lean_libraries: tuple[Path, Path]) -> None:
     """Snapshots preserve writes, commits, rollbacks, failure positions and stop-on-error."""
     proof = tmp_path / "TraceChecks.lean"
     proof.write_text('''import VerifierConformance.Trace
-open SqliteVerifier SqliteVerifier.Conformance
+open Belay.Sqlite Belay.Sqlite.Conformance
 
 def columns : List Column := [{ name := "value", affinity := .integer }]
 def original : Table := {
@@ -60,18 +60,18 @@ theorem no_transaction : trace names [.commit, insertNew] initial =
 #print axioms no_transaction
 ''')
     result = subprocess.run([str(lean_sysroot / "bin/lean"), str(proof)],
-                            env={**os.environ, "LEAN_PATH": str(lean_library)},
+                            env={**os.environ, "LEAN_PATH": os.pathsep.join(map(str, lean_libraries))},
                             text=True, capture_output=True, timeout=30)
     assert result.returncode == 0, result.stdout + result.stderr
     for forbidden in ("sorryAx", "ofReduceBool", "_native"):
         assert forbidden not in result.stdout, result.stdout
 
 
-def test_statement_outputs(tmp_path: Path, lean_sysroot: Path, lean_library: Path) -> None:
+def test_statement_outputs(tmp_path: Path, lean_sysroot: Path, lean_libraries: tuple[Path, Path]) -> None:
     """Native groups allow tie permutations and cuts while rejecting corrupted outputs."""
     proof = tmp_path / "OutputChecks.lean"
     proof.write_text('''import VerifierConformance.Outputs
-open SqliteVerifier SqliteVerifier.Conformance
+open Belay.Sqlite Belay.Sqlite.Conformance
 
 def a : ResultRow := [.integer 1]
 def b : ResultRow := [.integer 2]
@@ -102,7 +102,7 @@ theorem output_contract : checks.all id = true := by decide +kernel
 #eval if checks.all id then "COMPILED_OUTPUTS_OK" else "COMPILED_OUTPUTS_FAILED"
 ''')
     result = subprocess.run([str(lean_sysroot / "bin/lean"), str(proof)],
-                            env={**os.environ, "LEAN_PATH": str(lean_library)},
+                            env={**os.environ, "LEAN_PATH": os.pathsep.join(map(str, lean_libraries))},
                             text=True, capture_output=True, timeout=30)
     assert result.returncode == 0, result.stdout + result.stderr
     assert "COMPILED_OUTPUTS_OK" in result.stdout, result.stdout

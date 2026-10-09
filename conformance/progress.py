@@ -82,7 +82,7 @@ def progress(corpus: Path, requirements: Path, runtime: Path) -> dict[str, Json]
             "runtimeSha256": runtime_hashes,
             "requirementsSha256": digest(requirements),
             "frontendSha256": {str(path.relative_to(ROOT)): digest(path)
-                for path in sorted((ROOT / "migration_check").glob("*.py"))},
+                for path in sorted((ROOT / "belay/sqlite").glob("*.py"))},
             "harnessSha256": {path.name: digest(path)
                 for path in sorted((ROOT / "conformance").glob("*.py"))},
             "denominator": len(records), "requirementInventoryCount": inventory["count"],

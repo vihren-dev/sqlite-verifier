@@ -9,7 +9,7 @@ namespace Interpretation
 
 /-- For every database, the approved condition is true. It adds no restriction;
 {name}`SqliteVerifier.Admitted` still requires conformance to the starting schema. -/
-def admitted (_ : SqliteVerifier.Database) : Prop := True
+def admitted (_ : Belay.Sqlite.Database) : Prop := True
 
 /-- Read every invoice's physical identity and amount from actual storage. The
 invariant requires conformance to {name}`Generated.startSchema` and coverage of

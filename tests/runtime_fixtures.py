@@ -13,7 +13,7 @@ import pytest
 from tests.runtime_support import run_command
 
 if TYPE_CHECKING:
-    from migration_check.sql_tree import Tree
+    from belay.sqlite.sql_tree import Tree
 
 
 def require_file(path: Path, *, executable: bool = False) -> Path:
@@ -42,11 +42,13 @@ def lean_sysroot(runtime_root: Path, pytestconfig: pytest.Config) -> Path:
 
 
 @pytest.fixture(scope="session")
-def lean_library(runtime_root: Path) -> Path:
-    """Select compiled project modules independently of the checkout's implementation imports."""
-    library = runtime_root / ".lake/build/lib/lean"
-    require_file(library / "SqliteVerifier.olean")
-    return library
+def lean_libraries(runtime_root: Path) -> tuple[Path, Path]:
+    """Require the separately installed application and model roots in trusted precedence order."""
+    application = runtime_root / ".lake/build/lib/lean"
+    model = runtime_root / "packages/belay-sqlite/.lake/build/lib/lean"
+    require_file(application / "SqliteVerifier.olean")
+    require_file(model / "Belay/Sqlite.olean")
+    return application, model
 
 
 @pytest.fixture(scope="session")
@@ -62,7 +64,7 @@ def selected_prerequisites(request: pytest.FixtureRequest) -> None:
     if lean is not None:
         request.getfixturevalue("lean_sysroot")
         if lean.args != ("compiler",):
-            request.getfixturevalue("lean_library")
+            request.getfixturevalue("lean_libraries")
             request.getfixturevalue("proof_checker")
     native = request.node.get_closest_marker("requires_native")
     if native is not None:
@@ -83,7 +85,7 @@ def parse_sql(runtime_root: Path) -> Callable[..., Tree]:
     The implementation import stays inside the fixture: Nix test targets that do not
     declare the Python sources still load this plugin.
     """
-    from migration_check.sql_tree import parse
+    from belay.sqlite.sql_tree import parse
 
     def parse_with_selected_grammar(sql: str, version: str = "3.51.0") -> Tree:
         """Choose the parser binary matching the release so its profile check passes."""

@@ -1,5 +1,3 @@
-import Std
-
 /-! Application history independent of SQLite rows, schemas, and migration machinery.
 This example admits canonical UUID spelling and the signed nanosecond domain used
 by Atuin's database decoder; it does not implement every UUID text spelling. -/

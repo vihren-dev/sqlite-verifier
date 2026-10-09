@@ -86,7 +86,7 @@ def test_shrink_delete_and_freeze(runtime_root: Path, tmp_path: Path) -> None:
     assert entry["status"] == "resolved"
 
 
-def test_frozen_regression(runtime_root: Path) -> None:
+def test_frozen_regression(runtime_root: Path, tmp_path: Path) -> None:
     """Retained tier-two evidence is reacquired and kernel-checked on every model test run."""
     import hashlib
     import json
@@ -100,8 +100,9 @@ def test_frozen_regression(runtime_root: Path) -> None:
     program = Program([command("insert", "t", key=2, value=0)])
     fresh, error = acquire(program.fixture(), runtime_root)
     assert fresh == json.loads(case_file.read_text()), error
-    checked = subprocess.run([str(runtime_root / "lean/bin/lean"), str(directory / "Regression.lean")],
-        env={**os.environ, "LEAN_PATH": str(runtime_root / ".lake/build/lib/lean")},
-        capture_output=True, text=True, timeout=30)
-    assert checked.returncode == 0, checked.stdout + checked.stderr
-    audit_axioms(checked.stdout)
+    from conformance.model_check import prove
+    result = compiled(fresh, runtime_root, emit_lean=True)
+    assert result['verdict'] == 'AGREE'
+    term = result['caseLean']
+    assert isinstance(term, str)
+    audit_axioms(prove(term, runtime_root, tmp_path / 'CurrentRegression.lean', case=fresh))

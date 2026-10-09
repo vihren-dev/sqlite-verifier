@@ -2,6 +2,8 @@ import SqliteVerifier.ApplicationKeys
 
 set_option doc.verso true
 
+open Belay.Sqlite
+
 namespace SqliteVerifier
 
 /-! Soundness and extension laws let application-key users reuse schema proofs
@@ -95,8 +97,8 @@ theorem TableExtends.projectApplicationRows (extension : TableExtends before aft
     (width : ∀ row ∈ before.rows, row.values.length = before.columns.length)
     (covered : Covers before (keyNames ++ fields)) :
     projectApplicationRows after keyNames fields = projectApplicationRows before keyNames fields := by
-  have oldColumns := covered.columnsPresent
-  have newColumns := (extension.covers covered).columnsPresent
+  have oldColumns := SqliteVerifier.Covers.columnsPresent covered
+  have newColumns := SqliteVerifier.Covers.columnsPresent (extension.covers covered)
   simp only [SqliteVerifier.projectApplicationRows, oldColumns, newColumns, Bool.not_true, Bool.or_false]
   rw [extension.project width covered]
 
@@ -115,6 +117,6 @@ theorem DatabaseExtends.observeApplicationRows (extension : DatabaseExtends befo
       SqliteVerifier.observeApplicationRows name keyNames fields before := by
   obtain ⟨replacement, stored, extended⟩ := extension name table present
   simp only [SqliteVerifier.observeApplicationRows, present, stored]
-  exact extended.projectApplicationRows width covered
+  exact SqliteVerifier.TableExtends.projectApplicationRows extended width covered
 
 end SqliteVerifier

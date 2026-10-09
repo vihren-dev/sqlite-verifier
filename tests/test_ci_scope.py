@@ -8,7 +8,7 @@ import subprocess
 import sys
 import unittest
 
-from tests.baseline_ci import git
+from tests.git_commands import git
 from tests.ci_scope import scope
 
 
@@ -25,9 +25,11 @@ class CiScopeTest(unittest.TestCase):
                     (["reviews/other.jsonl"], "test"), (["reviews/notes.md"], "test"),
                     (["log.jsonl"], "test"),
                     (["parser/upstream/README.md"], "package"),
-                    (["SqliteVerifier/Preservation.lean"], "test"),
+                    (["packages/belay-sqlite/Belay/Sqlite/Preservation.lean"], "packaging"),
                     (["tests/coverage_test.py"], "test"), (["unknown/file"], "test"),
                     (["migration_check/prepare.py"], "test"), (["tools/review.py"], "test"),
+                    (["belay/sqlite/sql_model.py"], "packaging"),
+                    (["packages/belay-sqlite/Belay/Sqlite/Model.lean"], "packaging"),
                     (["packaging/install.py"], "packaging"), (["nix/flake.lock"], "package"),
                     (["tools/check_resources.py"], "infrastructure"),
                     (["build-support/default.nix"], "package"),

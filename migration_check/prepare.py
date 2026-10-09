@@ -49,7 +49,7 @@ def compile_candidates(*, order: tuple[str, ...], sources: Path, candidate: Path
             with TemporaryDirectory(prefix="module-", dir=workspace) as temporary:
                 output = Path(temporary)
                 compile_modules(order=(name,), sources=sources, destination=output, previous=(trusted, candidate),
-                                sysroot=runtime.sysroot, library=runtime.library, workspace=workspace)
+                                sysroot=runtime.sysroot, libraries=runtime.libraries, workspace=workspace)
                 cache.mkdir(parents=True, exist_ok=True)
                 shutil.copytree(output, entry, dirs_exist_ok=True)
             compiled += 1
@@ -62,8 +62,11 @@ def compile_candidates(*, order: tuple[str, ...], sources: Path, candidate: Path
 def export_bundle(*, runtime: Runtime, trusted: Path, candidate: Path, trusted_imports: set[str],
                   output: Path, timeout: float) -> None:
     """Use the header's trusted imports and protected base to omit exactly the checker library closure."""
-    roots = (runtime.sysroot / "lib/lean", runtime.library, trusted, candidate)
-    with merged_search_path(roots, candidate.parent) as paths, output.open("w", encoding="utf-8") as stream:
+    roots = (runtime.sysroot / "lib/lean", *runtime.libraries, trusted, candidate)
+    requested = [module_path(name) for name in trusted_imports | {PROTECTED_BASE_MODULE}]
+    requested.extend(path.relative_to(root).with_suffix("") for root in (trusted, candidate)
+                     for path in root.rglob("*.olean"))
+    with merged_search_path(roots, candidate.parent, requested=requested) as paths, output.open("w", encoding="utf-8") as stream:
         environment = {"LEAN_SYSROOT": str(runtime.sysroot), "PATH": os.environ.get("PATH", ""),
                        "LEAN_PATH": os.pathsep.join(map(str, paths))}
         stream.write(json.dumps({"bundle": 1, "trusted_imports": sorted(trusted_imports)}) + "\n")
@@ -90,7 +93,7 @@ def prepare(options: argparse.Namespace) -> dict[str, object]:
         workspace = Path(temporary)
         try:
             contract = compile_contract(
-                sysroot=runtime.sysroot, library=runtime.library, requirements=options.requirements,
+                sysroot=runtime.sysroot, libraries=runtime.libraries, requirements=options.requirements,
                 interpretation=options.interpretation, schema_inputs=inputs.schema_source,
                 sql_inputs=inputs.sql_source, workspace=workspace,
                 store=StageStore(agent / "stage-store", approved_eligible=True))
@@ -111,12 +114,12 @@ def prepare(options: argparse.Namespace) -> dict[str, object]:
                 roots=tuple(dict.fromkeys(path.parent for path in selected.values())), excluded=set(),
                 forbidden={"SchemaInputs", "SqlInputs"},
                 available=set(contract.modules) | {"SchemaInputs", "SqlInputs"},
-                directory=sources, sysroot=runtime.sysroot, library=runtime.library, workspace=workspace,
+                directory=sources, sysroot=runtime.sysroot, libraries=runtime.libraries, workspace=workspace,
                 external=external, imports_out=imports)
             contract_key, sql_key = contract_keys(contract.hashes)
             keys = module_keys(
                 order=order, imports=imports, contract_modules=contract.modules, contract_key=contract_key,
-                sql_key=sql_key, runtime=runtime_identity(runtime.sysroot, runtime.library),
+                sql_key=sql_key, runtime=runtime_identity(runtime.sysroot, runtime.libraries),
                 sources={name: (sources / module_path(name)).with_suffix(module_path(name).suffix + ".lean")
                          .read_bytes() for name in order})
             compiled, reused = compile_candidates(

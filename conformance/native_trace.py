@@ -6,10 +6,11 @@ from functools import lru_cache
 from pathlib import Path
 from tempfile import TemporaryDirectory
 
-from migration_check.sql_model import Table, sql_inputs
-from migration_check.diagnostics import Rejection
-from migration_check.sql_tree import parse
-from migration_check.translate import starting_schema, statements
+from belay.sqlite.sql_model import Table
+from belay.sqlite.admission import admit
+from belay.sqlite.errors import SqlError
+from belay.sqlite.sql_tree import parse
+from belay.sqlite.translate import starting_schema, statements
 from conformance.native_metadata import check_metadata, identifier, integer, quoted, text
 from conformance.case_format import Json, schema_wire, statement_wire, table_wire
 from conformance.native_connection import Cell, Connection, NativeError, SQL_ERRORS, SOURCE_ID, library_path, load_library
@@ -53,7 +54,7 @@ def snapshot(connection: Connection, parser: Path,
         if key not in cache:
             cache[key] = read_schema(parser, key)
         schema = cache[key]
-    except Rejection as error:
+    except SqlError as error:
         raise ValueError(f"Cannot observe native schema: {error}") from error
     if sorted(table.name for table in schema) != sorted(identifier(name) for kind, name, _ in metadata if text(kind) == "table"):
         raise ValueError("Native table inventory differs from parsed declaration")
@@ -92,7 +93,7 @@ def record(fixture: Fixture, parser: Path, library: Path | None = None, *, migra
     """Acquire real evidence; admission failures are raised before native execution."""
     schema = read_schema(parser, fixture.schema_sql)
     script = statements(parse(parser, fixture.migration_sql.encode(), "migration.sql"))
-    sql_inputs(schema, script)  # Includes production schema and literal-write admission.
+    admit(schema, script)  # Includes production schema and literal-write admission.
     pinned = load_library(library or library_path())
     if migration_coverage:
         for name in ("__gcov_reset", "__gcov_dump"):

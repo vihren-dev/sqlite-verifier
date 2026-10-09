@@ -1,9 +1,11 @@
-import SqliteVerifier.SqlProofs
+import Belay.Sqlite.SqlProofs
 
 set_option doc.verso true
 
 /-! Kernel-checked finite SQL regressions complement independent native comparisons.
 They exercise ordinary table names and values, not application-specific policy. -/
+open Belay.Sqlite
+
 namespace SqliteVerifier.SqlExamples
 
 /-- The retained BIGINT key and nonnullable text field for these finite checks.

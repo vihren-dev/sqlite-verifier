@@ -4,10 +4,11 @@ from collections.abc import Callable
 
 import pytest
 
-from migration_check.diagnostics import Rejection
-from migration_check.sql_model import sql_inputs, transition
-from migration_check.sql_tree import Tree
-from migration_check.translate import starting_schema, statements
+from belay.sqlite.errors import SqlError
+from belay.sqlite.sql_model import transition
+from migration_check.lean_inputs import sql_inputs
+from belay.sqlite.sql_tree import Tree
+from belay.sqlite.translate import starting_schema, statements
 from tests.sql_fixtures import RICH_BASELINE
 
 pytestmark = [pytest.mark.integration, pytest.mark.parser, pytest.mark.requires_native]
@@ -59,14 +60,14 @@ def test_metadata_and_indexes_survive_nullable_add(parse_sql: Callable[..., Tree
         assert binding in generated
     changed = starting_schema(parse_sql(RICH_BASELINE.replace('UNIQUE(occurred, message)', 'UNIQUE(message, occurred)')))
     assert sql_inputs(changed, script) != generated
-    with pytest.raises(Rejection):
+    with pytest.raises(SqlError):
         sql_inputs(schema, statements(parse_sql('CREATE TABLE unrelated(x TEXT);')))
 
 
 def test_create_cannot_collide_with_preserved_index(parse_sql: Callable[..., Tree]) -> None:
     """The model's table-only CREATE primitive cannot bypass SQLite's shared namespace."""
     schema = starting_schema(parse_sql('CREATE TABLE t(a TEXT); CREATE INDEX other ON t(a);'))
-    with pytest.raises(Rejection) as rejected:
+    with pytest.raises(SqlError) as rejected:
         sql_inputs(schema, statements(parse_sql('CREATE TABLE other(x TEXT);')))
     assert rejected.value.status == 'UNSUPPORTED'
 
@@ -74,7 +75,7 @@ def test_create_cannot_collide_with_preserved_index(parse_sql: Callable[..., Tre
 @pytest.mark.parametrize("sql", UNSUPPORTED_METADATA)
 def test_unsupported_metadata_cannot_disappear(parse_sql: Callable[..., Tree], sql: str) -> None:
     """Every optional clause outside the fixed structural subset must reject."""
-    with pytest.raises(Rejection) as rejected:
+    with pytest.raises(SqlError) as rejected:
         starting_schema(parse_sql(sql))
     assert rejected.value.status == 'UNSUPPORTED'
 
@@ -91,10 +92,10 @@ def test_statistics_are_exact_engine_managed_baseline_objects(parse_sql: Callabl
                 'CREATE TABLE sqlite_stat1(tbl,idx,stat,extra);',
                 'CREATE TABLE sqlite_stat1(tbl,idx,stat NOT NULL);',
                 'CREATE TABLE sqlite_stat4(tbl,idx,neq,nlt,sample,ndlt);'):
-        with pytest.raises(Rejection):
+        with pytest.raises(SqlError):
             starting_schema(parse_sql(sql))
     for sql in ('ALTER TABLE sqlite_stat1 ADD extra TEXT;', 'ALTER TABLE ordinary ADD extra;'):
-        with pytest.raises(Rejection):
+        with pytest.raises(SqlError):
             statements(parse_sql(sql))
 
 
@@ -108,12 +109,12 @@ def test_global_namespace_references_and_aliases(parse_sql: Callable[..., Tree])
         'CREATE TABLE t(x TEXT, UNIQUE(missing));',
         'CREATE TABLE t(x TEXT PRIMARY KEY, y TEXT PRIMARY KEY);',
     ):
-        with pytest.raises(Rejection):
+        with pytest.raises(SqlError):
             starting_schema(parse_sql(sql))
     schema = starting_schema(parse_sql('CREATE TABLE "T"("Key" TEXT PRIMARY KEY, b BIGINT);'
                                        'CREATE INDEX "I" ON "t"("KEY");'))
     assert schema[0].indexes[0].columns == ('key',)
     for sql in ('ALTER TABLE t ADD x BIGINT;', 'ALTER TABLE t ADD x TEXT NOT NULL;',
                 'ALTER TABLE t ADD x TIMESTAMP DEFAULT CURRENT_TIMESTAMP;'):
-        with pytest.raises(Rejection):
+        with pytest.raises(SqlError):
             statements(parse_sql(sql))

@@ -120,8 +120,8 @@ def test_native_metadata_catches_translator_faults(runtime_root: Path, tmp_path:
     from dataclasses import replace
     from conformance import native_trace
     from conformance.native_connection import Connection, library_path, load_library
-    from migration_check.sql_tree import parse
-    from migration_check.translate import starting_schema
+    from belay.sqlite.sql_tree import parse
+    from belay.sqlite.translate import starting_schema
     sql = ("CREATE TABLE t(id BIGINT PRIMARY KEY, stamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP, "
            "flag INTEGER NOT NULL, value TEXT, UNIQUE(flag,value)); "
            "CREATE UNIQUE INDEX by_value ON t(value,flag);")
@@ -151,7 +151,7 @@ def test_native_metadata_catches_translator_faults(runtime_root: Path, tmp_path:
 def test_schema_cache_and_batch(runtime_root: Path, monkeypatch: pytest.MonkeyPatch) -> None:
     """Unchanged schemas reuse parsing; rollback restores metadata and batch order is exact."""
     from conformance import native_trace, model_check
-    from migration_check.sql_tree import Tree
+    from belay.sqlite.sql_tree import Tree
     parser = native_trace.parse
     parsed: list[str] = []
 
