@@ -57,8 +57,9 @@ def test_each_release_parses_with_its_own_grammar(library: ParserLibrary) -> Non
 
 def test_unknown_grammar_and_limits(library: ParserLibrary) -> None:
     """An unknown identity raises; oversized and invalid input give their statuses."""
-    with pytest.raises(ParserLibraryError, match="no such grammar"):
+    with pytest.raises(ParserLibraryError, match="no such grammar") as error:
         library.parse("0" * 64, b"SELECT 1;")
+    assert str(library.path) in str(error.value) and "reinstall the verifier" in str(error.value)
     identity = grammar(library, "3.51.0")
     assert library.parse(identity, OVERSIZED) == {"status": "RESOURCE_LIMIT", "offset": 0}
     assert library.parse(identity, b"SELECT '\xff';") == {"status": "INPUT_ERROR", "offset": 0}
