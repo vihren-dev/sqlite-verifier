@@ -19,7 +19,7 @@ pkgs.stdenv.mkDerivation {
     chmod -R u+w packages/belay-sqlite
     cp -R ${lean4export} build/lean4export
     chmod -R u+w build/lean4export
-    lake build SqliteVerifier
+    lake build SqliteVerifier EngineeringExamples
     cp -R ${core} build/reference
     chmod -R u+w build/reference
     PYTHONPATH=${sourceRules} python3 ${../tools/api_reference.py} --root "$PWD" \
