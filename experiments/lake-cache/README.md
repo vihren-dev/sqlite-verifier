@@ -13,6 +13,7 @@ Measured 2026-10-09 on one Linux x86_64 host (8 CPUs), Lean and Lake 4.34.1
 nix develop path:./nix -c just build
 nix develop path:./nix -c python3 experiments/lake-cache/setup_shim.py build/lake-cache
 nix develop path:./nix -c python3 experiments/lake-cache/lake_bench.py build/lake-cache 3
+nix develop path:./nix -c python3 experiments/lake-cache/seed_flow.py build/lake-cache
 ```
 
 `lake_bench.py` writes one TOML-only workspace per scenario, in a new directory:
@@ -68,6 +69,25 @@ outside these tables and do not change.
    the workspace in `/tmp`, Lake copied instead of hard-linking, at the same speed.
 7. **Generated `lean-toolchain`.** Without one, Lake writes it and stops with
    "you will need to manually restart Lake". The workspace must include it.
+8. **A read-only cache works only for reading.** With a read-only cache
+   directory:
+   - `enableArtifactCache = true`: hits work; a miss fails with "permission
+     denied", because Lake writes the new mapping.
+   - `enableArtifactCache = false`: Lake ignores the cache and compiles all
+     modules.
+   - setting absent: hits work, and a miss compiles locally without writing
+     (a proof edit compiled 1 module).
+9. **A seed moves between caches with `stage` and `unstage`.** `lake build -o
+   mappings.jsonl` records the outputs of the root package; `lake cache stage`
+   copies them to a directory (40 KB small, 188 KB Atuin); `lake cache unstage`,
+   run inside a generated workspace, copies them into another cache. On that
+   cache, new workspaces for both examples compiled nothing, and a proof edit
+   compiled only `Proofs` (`seed_flow.py`).
+10. **The cache key contains the toolchain's commit hash.** The traces record
+    "Lean 4.34.1, commit 5045d00…". A Lean built by Nix that reports a tag
+    instead of the commit gets different keys and no cache hits (see
+    [ledger/ledger#3270](https://github.com/ledger/ledger/pull/3270)). Ours
+    reports the commit.
 
 ## Not covered
 

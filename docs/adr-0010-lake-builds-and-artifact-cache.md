@@ -153,13 +153,58 @@ environment. With Lake:
 - the verifier maps Lake's failure output to the same per-module diagnostics as
   today.
 
-### 7. Tests and CI
+### 7. Tests and CI: one seed for the whole run
 
-Each Nix test suite sets `LAKE_CACHE_DIR` in its own `$TMPDIR`, so a suite
-compiles each example contract once. A CI job is one trust domain (section 4).
-A named set of tests runs with `--no-cache`, so the path without a cache stays
-tested. A test checks that a build from the cache and a build without it give
-the same verification result.
+Nix test targets are separate sandboxed derivations that run in parallel. They
+cannot share one writable cache directory, and a shared directory would make a
+target's result depend on the order of the targets. Instead, Nix builds the
+cache once and gives a copy to each target:
+
+- **Seed derivation.** A new Nix derivation generates the workspaces of the
+  checked-in examples, runs `lake build -o mappings.jsonl` in each, and runs
+  `lake cache stage` into its output. It compiles each example module once.
+  The staged outputs are small: 40 KB for the small example, 188 KB for Atuin.
+- **Test targets.** Only the targets that compile contracts (`atuin`,
+  `bundle`, `cli`) take the seed as an input. At start, each target runs
+  `lake cache unstage` into a writable cache in its `$TMPDIR` (inside a
+  generated workspace, because Lake stores mappings for each package) and
+  passes that cache to the verifier. A test that uses an example as it is
+  compiles nothing. A test that changes its inputs compiles only the changed
+  modules, and later tests in the same target reuse them.
+- **Fixture environment.** Installed-runtime tests give each child a clean
+  environment (`runtime_environment` in `conftest.py`). The cache setting is
+  added there; a variable set on the derivation does not reach the verifier.
+- **Keys do not contain paths.** Targets with different runtime roots
+  (`runtime`, `leanRoot`, the conformance runtime) get hits when the library
+  contents are the same. A difference causes misses, not wrong results.
+- **Reruns.** The seed depends on the examples, the runtime and the Python
+  code that generates `SchemaInputs`/`SqlInputs`. A change to one of them
+  rebuilds the seed and runs the three targets again. They already run again
+  on runtime and Python changes; only example changes add reruns. The seed adds
+  about 6 s before these targets start.
+- **Trust.** The seed is built in the Nix sandbox from repository sources, so
+  it is in the CI job's trust domain (section 4). Only successful `main` jobs
+  save the Nix cache, so a pull request cannot replace the seed that `main`
+  uses.
+
+A read-only cache is not used directly: with `enableArtifactCache = true` a
+miss fails because Lake writes the new mapping, and with
+`enableArtifactCache = false` Lake ignores the cache. The writable copy avoids
+both problems.
+
+A named set of tests runs with `--no-cache` and ignores the seed, so the path
+without a cache stays tested. A test checks that a build from the cache and a
+build without it give the same verification result. Host runs of
+`just test-cases` use a persistent cache under `build/`.
+
+### 8. The toolchain must report its commit
+
+Lake puts the toolchain's commit hash into every key. A Lean built by Nix that
+reports a release tag instead of the commit gets keys that never match: in
+[ledger/ledger#3270](https://github.com/ledger/ledger/pull/3270), every CI run
+compiled all of mathlib for this reason. Our pinned toolchain reports the
+commit today. A test checks that `lean --version` reports the commit hash, so
+a Lean upgrade cannot silently turn every cache hit into a miss.
 
 ## Consequences
 
@@ -185,7 +230,9 @@ accepted:
 - the exporter and the bundle checker reading Lake's outputs;
 - mapping Lake failures to per-module diagnostics;
 - macOS;
-- cache growth over many contracts.
+- cache growth over many contracts;
+- the seed derivation inside the Nix sandbox (the `stage`/`unstage` flow was
+  checked outside Nix with `experiments/lake-cache/seed_flow.py`).
 
 ## Alternatives considered
 
@@ -196,6 +243,17 @@ accepted:
 - **A per-module key in the stage store.** This copies Lake's design, without
   the cutoff on unchanged outputs, the parallel builds and Lake's maintenance.
 - **A cache made by Nix for CI only.** It helps CI, not users.
+- **A Lake and Nix integration** ([lean4-nix and lake2nix](https://github.com/lenianiva/lean4-nix),
+  or `buildLakePackage` in nixpkgs). Both build one derivation for each
+  package and let Lake reuse modules inside it; neither shares modules between
+  our test targets, and both add a dependency that must follow every Lean
+  release. Lean's own Nix support built one derivation for each module; it was
+  removed before Lean 4.11. Users run `verify-bundle` without Nix, so Lake's
+  cache is the mechanism in any case.
+- **Lake's remote cache services** (Lean 4.30). They would share outputs
+  across CI runs, but without signing and with a 64-bit key they are safe only
+  inside one trust domain. The Nix cache, saved only from `main`, already
+  does this.
 - **Run Lake on the user's own project.** Rejected: a `lakefile.lean` is Lean
   code, and the verifier must not run it. The verifier also needs its own
   snapshot and role rules.
