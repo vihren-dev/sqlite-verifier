@@ -59,19 +59,25 @@ CI builds this reference on Linux and macOS under Lean 4.34.1 and retains each
 and serve that directory with the same command to read it locally. Public
 hosting is a separate task.
 
-The reference is built in two steps. The `apiReferenceBase` Nix target builds
-the library, the pages and the checks, with the placeholder `SOURCE-REVISION`
-in each source link. It does not depend on the commit, so Nix and the CI cache
-reuse it while the Lean sources stay the same. The `apiReference` target
-requires `referenceRevision`, the exact source commit. It copies the base and
-puts that commit into each source link, in a few seconds. It fails when a
-placeholder remains or a source link names another commit. The base build pins
-doc-gen4 v4.34.1 and all five dependencies
-to the revisions in doc-gen4's own manifest. These include the bundled native
-code for SQLite, Markdown and Unicode. Lake uses local paths; the sandbox
-needs no Git checkout or network access. The reference build checks public
-module coverage, declaration source links and local HTML links before it
-creates a successful output.
+The reference is built in three steps:
+
+1. `apiReferenceCore` builds the doc-gen4 database for Lean's `Init` and `Std`
+   libraries. Its only inputs are the Lean toolchain and doc-gen4, so Nix and
+   the CI cache reuse it until one of them changes.
+2. `apiReferenceBase` copies the core build, adds our public modules, writes
+   all pages with the placeholder `SOURCE-REVISION` in each source link, and
+   corrects recursor links on our pages. It does not depend on the commit, so
+   Nix and the CI cache reuse it while the Lean sources stay the same.
+3. `apiReference` requires `referenceRevision`, the exact source commit. It
+   copies the base and puts that commit into each source link, in a few
+   seconds. It fails when a placeholder remains or a source link names another
+   commit.
+
+The build pins doc-gen4 v4.34.1 and all five dependencies to the revisions in
+doc-gen4's own manifest. These include the bundled native code for SQLite,
+Markdown and Unicode. Lake uses local paths; the sandbox needs no Git checkout
+or network access. The build does not check the pages that doc-gen4 writes:
+that would test doc-gen4, not this repository (ADR 0009).
 
 `just documentation-inventory` checks every authored public declaration,
 constructor and structure field in the compiled import closure. `just test`
@@ -84,13 +90,17 @@ inherited documentation does not replace a declaration's own docstring.
 Temporary declarations in checked documentation code blocks are excluded only
 when their compiler binder positions lie in a compiled Verso comment range.
 
-Links to generated recursors without separate documentation pages point to
-the existing parent type.
+doc-gen4 4.34.1 links to generated recursors but writes no anchor for them.
+On our pages, such links point to the existing parent type. The build fails
+when no link needs this correction: then doc-gen4 may have fixed the bug, and
+the correction can be removed.
 
-`reference-check.json` records the source revision and checked output counts.
+`reference-check.json` records the number of public modules, the corrected
+links, the source revision and the source links.
 `doc-gen4-sources.json` records the generator dependency pins.
-`public-doc-inventory.json` records authored coverage, exact module and
-declaration names, zero-based line and UTF-16 column selections, source hashes,
-compiler reference hashes and every generated-declaration exclusion.
+`just documentation-inventory` writes `public-doc-inventory.json`, with
+authored coverage, exact module and declaration names, zero-based line and
+UTF-16 column selections, source hashes, compiler reference hashes and every
+generated-declaration exclusion. The reference does not contain it.
 Documentation tools are separate Nix targets and are absent from the installed proof runtime.
 Use `bin/migration-check --help` for CLI commands and options.

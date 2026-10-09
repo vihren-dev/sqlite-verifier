@@ -13,8 +13,10 @@ used. Linux binaries use the pinned loader via autoPatchelf. Darwin upstream
 binaries already use bundled-relative/platform loaders.
 
 `docGen4` builds the exact doc-gen4 v4.34.1 manifest closure.
-`apiReferenceBase` builds the checked public Lean library and HTML reference,
-with a placeholder in its source links, so it does not change with the commit.
+`apiReferenceCore` builds the doc-gen4 database for Lean's `Init` and `Std`
+from the toolchain and doc-gen4 only. `apiReferenceBase` adds the public Lean
+library to a copy of it and writes the HTML reference, with a placeholder in
+its source links, so it does not change with the commit.
 `apiReference` copies it and puts the required `referenceRevision` full commit
 hash into the source links. `just reference HASH`
 runs it in a sandbox and links the output at `build/api-reference`. These

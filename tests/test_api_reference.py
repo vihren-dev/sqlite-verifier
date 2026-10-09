@@ -1,13 +1,19 @@
-"""A generated reference must contain its public modules and resolve its local links."""
+"""Our code in the API reference build: doc-gen4 arguments, recursor correction, commit links.
+
+These tests check what we give to doc-gen4 and what we change in its output, not doc-gen4
+itself (see "Testing" in AGENTS.md and ADR 0009).
+"""
 
 import json
 from pathlib import Path
 import re
+import subprocess
 
 import pytest
 
-from tools.api_reference import (SOURCE_REPOSITORY, SOURCE_REVISION_PLACEHOLDER, correct_reference_links,
-                                  validate_reference)
+import tools.api_reference as api_reference
+from tools.api_reference import (CORE_DATABASE, SOURCE_REPOSITORY, SOURCE_REVISION_PLACEHOLDER,
+                                  correct_recursor_links, generate_reference)
 from tools.api_reference_links import link_sources
 from tools.ci_store_gc import TARGETS
 from tools.source_revision import FULL_COMMIT_HASH_PATTERN
@@ -15,118 +21,105 @@ from tools.source_revision import FULL_COMMIT_HASH_PATTERN
 pytestmark = [pytest.mark.unit, pytest.mark.environment]
 REVISION = "1234567890abcdef1234567890abcdef12345678"
 """A complete source identity used by the isolated reference fixture."""
+BUILD_SUPPORT = Path(__file__).resolve().parents[1] / "build-support"
 
 
 def test_nix_and_python_source_revision_policy_agree() -> None:
     """Both build-boundary checks enforce the same full-commit requirement."""
-    definition = Path(__file__).resolve().parents[1] / "build-support/api-reference-links.nix"
-    match = re.search(r'fullCommitHashPattern = "([^"]+)";', definition.read_text())
+    match = re.search(r'fullCommitHashPattern = "([^"]+)";', (BUILD_SUPPORT / "api-reference-links.nix").read_text())
     assert match is not None
     assert match.group(1) == FULL_COMMIT_HASH_PATTERN
 
 
-def reference_fixture(root: Path) -> tuple[Path, Path]:
-    """Create one linked declaration and a module walkthrough without invoking Lean."""
-    source = root / "source"
-    (source / "SqliteVerifier").mkdir(parents=True)
-    (source / "SqliteVerifier.lean").write_text("import SqliteVerifier.Model\n")
-    (source / "SqliteVerifier/Model.lean").write_text("def example := 1\n")
-    output = root / "reference"
+def test_core_takes_only_the_toolchain_and_doc_gen4() -> None:
+    """No repository file reaches the core build, the base starts from it, and CI keeps both."""
+    core = (BUILD_SUPPORT / "api-reference-core.nix").read_text()
+    assert "{ pkgs, leanToolchain, docGen4 }:" in core and "../" not in core
+    base = (BUILD_SUPPORT / "api-reference.nix").read_text()
+    assert "{ pkgs, sources, leanToolchain, lean4export, docGen4, core }:" in base
+    assert "--revision" not in base and "inventory" not in base
+    assert {"apiReferenceCore", "apiReferenceBase"} <= set(TARGETS)
+
+
+def pages(output: Path, ours: str, core: str = "<p id=\"List\"></p>") -> None:
+    """One page of ours with a model type, and one Lean library page with `List`."""
     (output / "SqliteVerifier").mkdir(parents=True)
-    (root / "doc-data").mkdir()
-    (output / "SqliteVerifier.html").write_text('<p>Walkthrough</p><a href="SqliteVerifier/Model.html#example">Model</a>')
-    (output / "SqliteVerifier/Model.html").write_text('<a id="example"></a><a href="../SqliteVerifier.html">Library</a>')
-    for module in ("SqliteVerifier", "SqliteVerifier.Model"):
-        declarations = [] if module == "SqliteVerifier" else [{"info": {"sourceLink":
-            f"{SOURCE_REPOSITORY}/blob/{REVISION}/SqliteVerifier/Model.lean#L1-L1"}}]
-        (root / f"doc-data/declaration-data-{module}.bmp").write_text(json.dumps({"declarations": declarations}))
-    return output, source
-
-
-def test_reference_accepts_complete_linked_modules(tmp_path: Path) -> None:
-    """The artifact receipt counts actual public declarations and resolved local links."""
-    output, source = reference_fixture(tmp_path)
-    assert validate_reference(output, source, REVISION) == {
-        "public_modules": 2, "public_declarations": 1, "html_pages": 2, "local_links": 2}
-
-
-@pytest.mark.parametrize("link", ["#top", "#TOP", "#named", "#raw%20name", "#decoded%20name"])
-def test_standard_html_fragment_targets(tmp_path: Path, link: str) -> None:
-    """HTML accepts named anchors, raw or decoded IDs, and its special document-start fragment."""
-    output, source = reference_fixture(tmp_path)
-    (output / "SqliteVerifier.html").write_text(
-        f'<a name="named"></a><p id="raw%20name"></p><p id="decoded name"></p><a href="{link}">target</a>')
-    assert validate_reference(output, source, REVISION)["local_links"] == 2
-
-
-def test_known_generator_links_are_corrected_to_existing_targets(tmp_path: Path) -> None:
-    """Only missing generated recursors and the pinned core typo receive real existing targets."""
-    output, source = reference_fixture(tmp_path)
     (output / "Init").mkdir()
-    (output / "Init/Tactics.html").write_text("<p>Tactics</p>")
-    (output / "SqliteVerifier.html").write_text(
-        '<a href="SqliteVerifier/Model.html#example.rec">recursor</a>'
-        '<a href="Init/Tactic.html">tactics</a>')
-    assert correct_reference_links(output) == 2
-    assert 'href="SqliteVerifier/Model.html#example"' in (output / "SqliteVerifier.html").read_text()
-    assert validate_reference(output, source, REVISION)["local_links"] == 3
-    assert correct_reference_links(output) == 0
+    (output / "SqliteVerifier/Model.html").write_text('<a id="Value"></a>' + ours)
+    (output / "Init/Data.html").write_text(core)
 
 
-def test_existing_raw_fragment_is_preserved(tmp_path: Path) -> None:
-    """HTML gives an existing raw ID precedence over percent decoding and parent-type correction."""
-    output, source = reference_fixture(tmp_path)
-    text = '<a id="example%20.rec"></a><a id="example "></a><a href="#example%20.rec">raw ID</a>'
-    (output / "SqliteVerifier.html").write_text(text)
-    assert correct_reference_links(output) == 0
-    assert (output / "SqliteVerifier.html").read_text() == text
-    assert validate_reference(output, source, REVISION)["local_links"] == 2
+def test_correction_points_recursors_on_our_pages_at_their_type(tmp_path: Path) -> None:
+    """Links to omitted recursors, also into Lean's pages, get the parent anchor; Lean's pages stay."""
+    lean_page = '<p id="List"></p><a href="#List.casesOn">core</a>'
+    pages(tmp_path, '<a href="#Value.rec">own</a><a href="../Init/Data.html#List.rec">list</a>', lean_page)
+    assert correct_recursor_links(tmp_path) == 2
+    ours = (tmp_path / "SqliteVerifier/Model.html").read_text()
+    assert 'href="#Value"' in ours and 'href="../Init/Data.html#List"' in ours
+    assert (tmp_path / "Init/Data.html").read_text() == lean_page
+    assert correct_recursor_links(tmp_path) == 0
 
 
-@pytest.mark.parametrize("damage", ["module", "file", "anchor", "escape", "revision", "source"])
-def test_reference_rejects_incomplete_or_misidentified_output(tmp_path: Path, damage: str) -> None:
-    """Missing pages, links, anchors and source identities cannot produce a checked artifact."""
-    output, source = reference_fixture(tmp_path)
-    revision = REVISION
-    if damage == "module":
-        (output / "SqliteVerifier/Model.html").unlink()
-    elif damage == "file":
-        (output / "SqliteVerifier.html").write_text('<a href="missing.html">missing</a>')
-    elif damage == "anchor":
-        (output / "SqliteVerifier.html").write_text('<a href="SqliteVerifier/Model.html#missing">missing</a>')
-    elif damage == "escape":
-        (output / "SqliteVerifier.html").write_text('<a href="../source/SqliteVerifier.lean">outside</a>')
-    elif damage == "revision":
-        revision = "main"
-    else:
-        data = output.parent / "doc-data/declaration-data-SqliteVerifier.Model.bmp"
-        data.write_text(data.read_text().replace(REVISION, "0" * 40))
-    with pytest.raises(ValueError):
-        validate_reference(output, source, revision)
+@pytest.mark.parametrize("link", ["#Value.other", "#Missing.rec", "#example%20.rec"])
+def test_correction_changes_only_omitted_recursors(tmp_path: Path, link: str) -> None:
+    """Other suffixes, a missing parent and an existing raw anchor keep the link unchanged."""
+    page = f'<a id="example%20.rec"></a><a href="{link}">link</a>'
+    pages(tmp_path, page)
+    assert correct_recursor_links(tmp_path) == 0
+    assert (tmp_path / "SqliteVerifier/Model.html").read_text() == '<a id="Value"></a>' + page
 
 
-def test_base_build_has_no_commit_and_survives_cache_cleanup() -> None:
-    """Only the cheap link step takes the commit, and CI keeps the reusable base build."""
-    build_support = Path(__file__).resolve().parents[1] / "build-support"
-    base = (build_support / "api-reference.nix").read_text()
-    assert "{ pkgs, sources, leanToolchain, lean4export, docGen4, inventoryTools }:" in base
-    assert "--revision" not in base and "referenceRevision" not in base
-    assert "base = apiReferenceBase;" in (build_support / "default.nix").read_text()
-    assert "apiReferenceBase" in TARGETS
+def source_tree(root: Path) -> Path:
+    """An entry point and two nested library modules, without compiling Lean."""
+    (root / "SqliteVerifier/Nested").mkdir(parents=True)
+    for path in ("SqliteVerifier.lean", "SqliteVerifier/Model.lean", "SqliteVerifier/Nested/Rows.lean"):
+        (root / path).write_text("-- fixture\n")
+    return root
 
 
-def test_base_build_validates_placeholder_links(tmp_path: Path) -> None:
-    """The base build checks its source links against the placeholder, not a commit."""
-    output, source = reference_fixture(tmp_path)
-    data = tmp_path / "doc-data/declaration-data-SqliteVerifier.Model.bmp"
-    data.write_text(data.read_text().replace(REVISION, SOURCE_REVISION_PLACEHOLDER))
-    assert validate_reference(output, source, SOURCE_REVISION_PLACEHOLDER)["public_declarations"] == 1
-    with pytest.raises(ValueError):
-        validate_reference(output, source, REVISION)
+def run_generator(tmp_path: Path, ours: str) -> tuple[list[list[str]], Path]:
+    """Run the generator with a stand-in for doc-gen4 that only records its arguments."""
+    root, build, calls = source_tree(tmp_path / "source"), tmp_path / "build", []
+    (build / CORE_DATABASE).parent.mkdir(parents=True)
+    (build / CORE_DATABASE).write_text("core")
+    pages(build / "doc", ours)
+
+    def record(command: list[str], **options: object) -> subprocess.CompletedProcess[str]:
+        """Accept every doc-gen4 call and keep its arguments."""
+        assert options["cwd"] == root and options["check"] and options["timeout"]
+        calls.append(command)
+        return subprocess.CompletedProcess(command, 0)
+
+    with pytest.MonkeyPatch.context() as patch:
+        patch.setattr(api_reference.subprocess, "run", record)
+        generate_reference(root, Path("/tools/doc-gen4"), build)
+    return calls, build
+
+
+def test_generator_gives_each_module_its_own_source_uri(tmp_path: Path) -> None:
+    """Each public module is added once with its file's placeholder URI, before one `fromDb`."""
+    calls, build = run_generator(tmp_path, '<a href="#Value.rec">own</a>')
+    prefix = f"{SOURCE_REPOSITORY}/blob/{SOURCE_REVISION_PLACEHOLDER}/"
+    modules = {"SqliteVerifier": "SqliteVerifier.lean", "SqliteVerifier.Model": "SqliteVerifier/Model.lean",
+               "SqliteVerifier.Nested.Rows": "SqliteVerifier/Nested/Rows.lean"}
+    assert all(call[:3] == ["lake", "env", "/tools/doc-gen4"] for call in calls)
+    assert [call[3:] for call in calls[:-1]] == [
+        ["single", "--build", str(build), module, CORE_DATABASE, prefix + path] for module, path in modules.items()]
+    assert calls[-1][3:] == ["fromDb", "--build", str(build), "--manifest", str(build / "manifest.json"),
+                             str(build / CORE_DATABASE), *modules]
+    assert json.loads((build / "doc/reference-check.json").read_text()) == {"public_modules": 3, "corrected_links": 1}
+
+
+def test_generator_reports_a_missing_core_or_a_fixed_doc_gen4_bug(tmp_path: Path) -> None:
+    """A build without the core database fails; so does one with no recursor link to correct."""
+    with pytest.raises(ValueError, match="build apiReferenceCore first"):
+        generate_reference(source_tree(tmp_path / "source"), Path("/tools/doc-gen4"), tmp_path / "empty")
+    with pytest.raises(ValueError, match="doc-gen4 may have fixed the bug"):
+        run_generator(tmp_path / "fixed", "<p>no recursor link</p>")
 
 
 def linked_base(root: Path, page: str) -> Path:
-    """A base reference with one page and the check report of the base build."""
+    """A base reference with one page and the report of the base build."""
     base = root / "base"
     (base / "SqliteVerifier").mkdir(parents=True)
     (base / "SqliteVerifier/Model.html").write_text(page)
