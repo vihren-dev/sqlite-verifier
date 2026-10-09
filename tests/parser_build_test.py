@@ -28,3 +28,12 @@ def test_generator_preserves_rules_and_rejects_mismatched_tokens(tmp_path: Path)
         assert not rejected.exists()
     with pytest.raises(ValueError, match="Unexpected upstream production"):
         generate("", "input ::= ID. trailing", header, header, tmp_path / "invalid.y")
+
+
+def test_generator_uses_the_given_lemon_prefix(tmp_path: Path) -> None:
+    """The parser library links several grammars, so each one gets its own Lemon function prefix."""
+    header = "#define TK_ID 1\n"
+    generate("", "input ::= ID.\n", header, header, tmp_path / "default.y")
+    generate("", "input ::= ID.\n", header, header, tmp_path / "library.y", "Syntax_0123")
+    assert "%name Syntax\n" in (tmp_path / "default.y").read_text()
+    assert "%name Syntax_0123\n" in (tmp_path / "library.y").read_text()

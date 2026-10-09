@@ -93,6 +93,8 @@ in rec {
       cp -R build "$out/"
     '';
   };
+  # The in-process parser library and its checks; the verifier does not use it yet.
+  parserLibrary = import ./parser-library.nix { inherit pkgs sources parsers root; };
   leanRuntime = pkgs.stdenv.mkDerivation {
     pname = "sqlite-verifier-lean-runtime";
     version = "1";

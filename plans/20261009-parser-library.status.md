@@ -14,14 +14,54 @@ Relevant files: `parser/`, `build-support/default.nix`,
   -DSQLITE_EXTERN=` compiles with GCC 15 without warnings and defines no global
   symbol of its own (prototype, 2026-10-09).
 - The retained corpora v1 to v5 have 11,080 distinct migration, setup, setup
-  command and trace statement texts. The recorded profiles have no compile
-  option that is a grammar option.
+  command and trace statement texts. With the 39 parser test inputs (the empty
+  text is also a corpus text), the checks
+  parse 11,118 distinct inputs. The recorded profiles have no compile option
+  that is a grammar option.
+- Grammar identities: 3.51.0
+  `7c0495821ae35f29088747fd33c5bf52342b75dce5e896fec9d11bd74351b6d0`, 3.46.0
+  `191f4283d9f99a43480717a72ed39c54b6242e2376269d6d4a29f8a17e74efea`. Both
+  grammars have 409 productions and 186 tokens.
+- Extracted grammar options: the 20 (3.51.0) and 19 (3.46.0) macros of the
+  `parse.y` conditionals, and `SQLITE_ASCII`, `SQLITE_EBCDIC`,
+  `SQLITE_OMIT_BLOB_LITERAL`, `SQLITE_OMIT_FLOATING_POINT`,
+  `SQLITE_OMIT_HEX_INTEGER`, `SQLITE_OMIT_TCL_VARIABLE` from the tokenizer.
+  `SQLITE_ASCII` and `SQLITE_EBCDIC` select the character set; SQLite defines
+  `SQLITE_ASCII` itself, and `PRAGMA compile_options` reports neither.
+- Lemon must be built without the library flags: a sanitized Lemon reports
+  its own leaks and stops the build.
+- Known limit of the identity: the character macros of `sqliteInt.h`
+  (`sqlite3Isdigit` and others) and `SQLITE_DIGIT_SEPARATOR` are not part of
+  it. They read the tables, which are. Including all of `sqliteInt.h` would
+  give each patch release its own identity.
 
 ## Progress
 
 - 2026-10-09: task and status files created in the jj workspace
   `parser-library`.
+- 2026-10-09: library, dialect table, checks and CI wiring in one commit.
+  `nix-build -A parserLibrary` in the sandbox: `load` parsed the RAISE case
+  with both grammars in one process; `compare` found byte-identical output for
+  all 11,118 inputs with both grammars; `sanitizer` found nothing. A planted
+  leak (no `free` of the input copy) failed the sanitizer check with
+  LeakSanitizer, 22,228 allocations. Changing the 3.46.0 identity in
+  `parser/dialects.json` failed the Nix build of `parserLibrary.library` with
+  "The sources of dialect 3.46.0 [] give grammar identity 191f…, but
+  parser/dialects.json records 091f…". `just test-source`: 483 passed.
+  `tests/test_ci_checks.py` lists the sandboxed `justfile` targets and now
+  includes `parserLibrary`.
+
+## Measurements (Linux amd64, local, 2026-10-09)
+
+| Step | Time |
+| --- | --- |
+| Library build, both grammars, `-O1` | 5.4 s |
+| Library build with the sanitizers | 16 s |
+| Sanitizer parse of 11,118 inputs with 2 grammars | 5.4 s |
+| Comparison with the executables, both grammars | 12.9 s |
+| Corpus text extraction | 12.5 s |
+| All `parserLibrary` targets in the Nix sandbox, first build | 47 s |
 
 ## Remaining
 
-- Everything in the task file.
+- macOS arm64: the load test on a main or nightly CI run, or by the owner.
