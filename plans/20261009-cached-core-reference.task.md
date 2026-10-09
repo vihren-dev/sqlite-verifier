@@ -1,6 +1,6 @@
 # Cached core API reference without checks of doc-gen4
 
-Created 2026-10-09. Status: IN PROGRESS.
+Created 2026-10-09. Status: DONE on 2026-10-09.
 Decision: [ADR 0009](../docs/adr-0009-cached-core-reference.md), accepted by
 the owner on 2026-10-09.
 
