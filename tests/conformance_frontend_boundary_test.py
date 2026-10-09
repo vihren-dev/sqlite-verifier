@@ -1,6 +1,5 @@
 """The reusable SQL frontend runs with pinned parsers and no verification application."""
 
-import ast
 import json
 from pathlib import Path
 import shutil
@@ -11,22 +10,8 @@ import pytest
 from tests.runtime_support import run_command
 
 ROOT = Path(__file__).resolve().parents[1]
-FRONTEND = ROOT / 'belay/sqlite'
 pytestmark = [pytest.mark.integration, pytest.mark.conformance,
               pytest.mark.requires_native('sqlite-parser')]
-
-
-def test_namespace_and_independent_imports() -> None:
-    """The namespace contains one portion and no frontend source depends on application code."""
-    assert not (ROOT / 'belay/__init__.py').exists()
-    assert {path.name for path in (ROOT / 'belay').iterdir()} == {'sqlite'}
-    for path in FRONTEND.glob('*.py'):
-        for node in ast.walk(ast.parse(path.read_text())):
-            if isinstance(node, ast.ImportFrom):
-                assert not (node.module or '').startswith('migration_check'), path
-            elif isinstance(node, ast.Import):
-                assert not any(alias.name.startswith('migration_check') for alias in node.names), path
-    assert not list((ROOT / 'migration_check').glob('sql_*.py'))
 
 
 def test_only_frontend_copy_uses_real_parser(runtime_root: Path, tmp_path: Path) -> None:

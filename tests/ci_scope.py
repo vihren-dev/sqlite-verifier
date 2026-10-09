@@ -47,7 +47,7 @@ def is_shared_test_helper(path: str) -> bool:
     """A Python file under tests/ that is not a test module, such as a fixture module.
 
     Many suites import such helpers, so a change to one selects the host Nix tests,
-    which check the Nix target inputs and their invalidation.
+    which check the Nix test targets and source identities.
     """
     name = Path(path).name
     return (path.startswith("tests/") and path.endswith(".py")

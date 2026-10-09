@@ -87,7 +87,7 @@ review-resolve *args:
 review-stats *args:
     python3 -m tools.review_stats "$@"
 
-# Check Nix source identities, test-target invalidation, environment snapshots and the installer cache.
+# Check Nix source identities, test-target commands, environment snapshots and the installer cache.
 test-nix:
     timeout --foreground 600 python3 -u -m pytest -v tests -m requires_nix --ignore=tests/runtime_package_test.py --runtime-root "${SQLITE_VERIFIER_RUNTIME_ROOT:-$PWD}" --junitxml build/test-results/nix.xml
 
