@@ -1,6 +1,6 @@
 # Status: remove tests of dependency behavior
 
-Created 2026-10-09. Status: IN PROGRESS.
+Created 2026-10-09. Status: DONE.
 Task: [task](20261009-test-policy-cleanup.task.md).
 
 Relevant files: the eight test files named in the task,
@@ -15,6 +15,7 @@ Relevant files: the eight test files named in the task,
   from the local runtime root (an older Nix store build without `examples/`)
   and are in files that this change does not touch. CI runs them on a fresh
   build.
+- 2026-10-09: review of `e817a350` by Codex: no findings. Task DONE.
 
 ## Removed and reduced tests
 

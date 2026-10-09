@@ -1,6 +1,6 @@
 # Remove tests of dependency behavior
 
-Created 2026-10-09. Status: IN PROGRESS.
+Created 2026-10-09. Status: DONE.
 Rules: "Testing" in [AGENTS.md](../AGENTS.md) and review condition R15.
 Owner request: remove or reduce the tests that the review of 2026-10-09 found
 outside these rules.
