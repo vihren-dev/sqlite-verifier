@@ -74,7 +74,7 @@ jobs:
             # The Vihren Attic cache is publicly readable; main runs publish to it
             # (publish-nix-store). A failed substitution falls back to a local build.
             extra-substituters = https://cache.vihren.dev/sqlite-verifier
-            extra-trusted-public-keys = sqlite-verifier:tbKquH1YWJZFbMzT6Z14DmJ5yeVMnHSYobIDGdkWGis=
+            extra-trusted-public-keys = sqlite-verifier:XgeRqTIGBEw3VP8GPrzSvdU+5t1lJz7uEMhIG1lh7QE=
             connect-timeout = 5
             fallback = true
       - name: Restore Nix builds and test results
