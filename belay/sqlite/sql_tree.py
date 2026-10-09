@@ -90,7 +90,8 @@ def parse(parser: SqlParser, sql: bytes, source: str) -> Tree:
         if payload["status"] == "RESOURCE_LIMIT":
             raise ParserResourceLimit(source, int(payload.get("offset", 0)))
         if payload["status"] != "PARSED":
-            raise SqlError("INPUT_ERROR", "SQL parser rejected input", source=source,
+            raise SqlError("INPUT_ERROR", "SQLite's grammar rejects the SQL at this offset; correct the "
+                           "SQL there and run the command again", source=source,
                            start=int(payload.get("offset", 0)))
         if payload["grammar"] != parser.grammar:
             raise ValueError("Parser result is for another grammar")

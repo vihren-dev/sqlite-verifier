@@ -42,8 +42,8 @@ the grammar before Nix compiles and links the C sources.
 (`parserLibrary.grammars`) and one that links `parserLibrary.library`, so a new
 release or grammar builds only its own derivations. `parser/library_steps.py`
 does the checks between the Lemon and compiler steps. The test suite
-`tests.parserLibrary` checks the library; the verifier and the runtime do not
-use it yet. See the [SQLite syntax boundary](../docs/sqlite-parser.md#parser-library).
+`tests.parserLibrary` checks the library. `runtime` and `conformance` contain it
+at `lib/`. See the [SQLite syntax boundary](../docs/sqlite-parser.md).
 
 `parsers/build/` retains both executables, Lemon tools and generated grammar for
 fresh host coverage. `leanRuntime/.lake/build/` contains the current Lean library
