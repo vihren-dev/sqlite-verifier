@@ -30,7 +30,8 @@ class NoParserForDialect(SqlError):
 
     def __init__(self, message: str) -> None:
         """Report the profile as unsupported, with the reason in the message."""
-        super().__init__("UNSUPPORTED", f"No parser for this dialect: {message}")
+        super().__init__("UNSUPPORTED", f"No parser for this dialect: {message}. Select a supported "
+                         "profile, or install a verifier whose parser library has this dialect")
 
 
 def _entries(metadata: Metadata, key: str) -> list[dict[str, object]]:

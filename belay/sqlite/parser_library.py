@@ -89,8 +89,10 @@ class ParserLibrary:
         with self._lock:
             code = call(result, size)
             if code != RESULT_OK:
-                raise ParserLibraryError(f"The parser library's {name} call failed with result {code}"
-                                         + (": unknown grammar" if code == RESULT_UNKNOWN_GRAMMAR else ""))
+                reason = "it has no such grammar" if code == RESULT_UNKNOWN_GRAMMAR else "it could not allocate memory"
+                raise ParserLibraryError(f"The {name} call of the parser library {self.path} failed with "
+                                         f"result {code}: {reason}. Check the selected profile, or rebuild "
+                                         "or reinstall the verifier")
             try:
                 data = ctypes.string_at(result, size.value)
             finally:
@@ -98,7 +100,8 @@ class ParserLibrary:
         try:
             return json.loads(data)
         except ValueError as error:
-            raise ParserLibraryError(f"The parser library's {name} document is not JSON: {error}") from error
+            raise ParserLibraryError(f"The {name} document of the parser library {self.path} is not JSON: "
+                                     f"{error}. Rebuild or reinstall the verifier") from error
 
     def parse(self, grammar: str, sql: bytes) -> Json:
         """Parse sql with the grammar whose identity is grammar, and return the parse document."""
