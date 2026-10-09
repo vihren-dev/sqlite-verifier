@@ -99,3 +99,12 @@ def test_parser_failure_classes(parse_sql: Callable[..., Tree], sql: str, status
     with pytest.raises(SqlError) as rejected:
         parse_sql(sql)
     assert rejected.value.status == status
+
+
+def test_grammar_rejection_names_the_place_and_the_next_step(parse_sql: Callable[..., Tree]) -> None:
+    """`parse` reports a grammar rejection with the source, the offset and what to do next."""
+    with pytest.raises(SqlError) as rejected:
+        parse_sql("CREATE TABLE t(a TEXT); SELEC 1;")
+    assert rejected.value.status == "INPUT_ERROR"
+    assert rejected.value.source == "fixture.sql" and rejected.value.start == 24
+    assert "correct the SQL there and run the command again" in str(rejected.value)
