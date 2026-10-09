@@ -64,6 +64,23 @@ Relevant files: `belay/sqlite/sql_tree.py`, `belay/sqlite/profiles.py`,
   `tests/test_nix_test_targets.py` and `tests/test_source_identity.py`: 112
   passed.
 
+- 2026-10-09: review of the removal: three should findings, fixed in
+  `e9b01be0` (review with no findings).
+- 2026-10-09: installer tests. `just runtime-package` first failed: a
+  content-addressed Python path from earlier installer runs as root had a
+  bytecode file written into it, so `nix copy` refused it. The owner deleted
+  that path, its runtime copies and the stale root test directories. Then
+  `just runtime-package` built the archive and the installed tests passed:
+  26 passed in 124 s, including `test_installed_parser` for both profiles.
+  Installer and test runs as root can write into the store on this host; run
+  them as a normal user.
+- 2026-10-09: suite times on this Linux host, all ten Nix suites from scratch,
+  `main` against this branch (pytest time per suite): model 109.7 s to
+  101.3 s, sample 100.0 s to 94.6 s, harness 21.5 s to 19.9 s, frozen 236.7 s
+  to 240.7 s (corpus v5 cases are now parsed: its progress test 87.1 s to
+  94.3 s), the new parserLibrary suite 11.4 s; total 986 s to 990 s. Other
+  suites changed within the noise (kernel, which does not parse, moved 5 s).
+
 ## Measurements (Linux amd64, local, 2026-10-09)
 
 | Step | Executable | Library |
@@ -77,5 +94,5 @@ costs more.
 
 - Owner review of the R8 markers (`Runtime.locate()` in `bundle.py` and
   `prepare.py`).
-- Installer tests with a built archive (`just runtime-package`), and the macOS
-  arm64 runs of the load test and the installer tests.
+- The macOS arm64 runs of the load test and the installer tests (main or
+  nightly CI).
