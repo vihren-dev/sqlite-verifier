@@ -46,21 +46,17 @@ def data_path(runtime_root: Path, tmp_path: Path,
     return run
 
 
-@pytest.mark.parametrize("approved,candidate,schema,profile,status", [
-    ("approved", "add_column_then_table", "approved/schema.sql", "3.51.0", "VERIFIED"),
-    ("approved", "missing_required_column", "approved/schema.sql", "3.51.0", "VIOLATED"),
-    ("allowed_failure/approved", "allowed_failure", "allowed_failure/approved/schema.sql", "3.51.0", "VERIFIED"),
-    ("atuin/approved", "atuin", "atuin/schema.sql", "3.46.0", "VERIFIED"),
-    ("application_keys/approved", "application_keys/add_column_then_table",
-     "application_keys/approved/schema.sql", "3.51.0", "VERIFIED"),
-], ids=["positive", "refutation", "allowed_failure", "atuin", "application_keys"])
-def test_status_parity(data_path: Callable[..., dict[str, object]], example_factory: Callable[[str], Path],
-                       approved: str, candidate: str, schema: str, profile: str, status: str) -> None:
-    """Each shipped example gets the same status through the data path as through `verify`."""
-    examples = example_factory(".")
-    report = data_path(approved=examples / approved, candidate=examples / candidate,
-                       schema=examples / schema, profile=profile)
-    assert report["status"] == status, report
+def test_allowed_failure_through_data_path(data_path: Callable[..., dict[str, object]],
+                                          example_factory: Callable[[str], Path]) -> None:
+    """The allowed-failure example is VERIFIED through `prepare` and `verify-bundle`.
+
+    The other shipped examples go through the data path in `test_current_native_export` and
+    `test_application_key_bundle_repeatability`, which also check their status.
+    """
+    examples = example_factory("allowed_failure")
+    report = data_path(approved=examples / "approved", candidate=examples,
+                       schema=examples / "approved/schema.sql")
+    assert report["status"] == "VERIFIED", report
 
 
 def test_application_key_bundle_repeatability(data_path: Callable[..., dict[str, object]],

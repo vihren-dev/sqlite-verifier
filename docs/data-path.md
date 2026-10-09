@@ -137,7 +137,9 @@ the public launcher from the source runtime (Nix target `tests.bundle`);
 
 | Property | Layer | Test |
 | --- | --- | --- |
-| Same status as `verify` for the positive, refutation, allowed-failure and Atuin examples | End to end | `tests/bundle_test.py::test_status_parity` |
+| The positive, refutation and Atuin examples get their expected status, trusted imports and input bindings; preparation of the small example is deterministic | End to end | `tests/proof_exporter_test.py::test_current_native_export` |
+| The allowed-failure example is `VERIFIED` | End to end | `tests/bundle_test.py::test_allowed_failure_through_data_path` |
+| The application-key example is `VERIFIED` and its preparation is deterministic | End to end | `tests/bundle_test.py::test_application_key_bundle_repeatability` |
 | `sorry`, a forbidden axiom and a proof of another statement are `UNVERIFIED` | End to end | `tests/bundle_test.py::test_invalid_proof_rejected` |
 | A bundle built against an altered approved contract is rejected | End to end | `tests/bundle_test.py::test_bundle_from_altered_contract_rejected` |
 | A bundle is bound to the SQL it was prepared for | End to end | `tests/bundle_test.py::test_bundle_bound_to_prepared_sql` |
