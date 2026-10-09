@@ -1,5 +1,5 @@
 # Independent pytest targets: Nix owns isolation, dependency identity and reuse.
-{ pkgs, leanToolchain, leanRuntime, parsers, runtime, modelPackage, conformance ? runtime, root ? ../.
+{ pkgs, leanToolchain, leanRuntime, parsers, runtime, modelPackage, parserLibrary, conformance ? runtime, root ? ../.
 , native ? import ../nix/sqlite.nix { inherit pkgs; }
 , conformanceNative ? import ./conformance-native.nix { inherit pkgs; }
 }:
@@ -153,6 +153,12 @@ in {
     runtime = conformance;
     tools = [ native.sqlite conformanceNative.fixture ];
     environment.CONFORMANCE_UPSTREAM = conformanceNative.upstream;
+  };
+  # The parser library: load test, comparison with the executables and, on Linux, the sanitizer job.
+  # Its runtime root holds the built inputs, so a harness or model change reuses the result.
+  parserLibrary = suite "parserLibrary" {
+    inputs = map (name: root + "/tests/${name}.py") [ "parser_inputs" "parser_library_inputs" "parser_library_support" ];
+    runtime = parserLibrary;
   };
   atuin = suite "atuin" {
     inputs = [];

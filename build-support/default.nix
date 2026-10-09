@@ -52,6 +52,7 @@ in rec {
   };
   tests = import ./tests.nix {
     inherit pkgs leanToolchain leanRuntime parsers runtime native conformance modelPackage root;
+    parserLibrary = parserLibrary.testRoot;
   };
   # `just test` skips the slow model comparisons and the frozen evidence; `just test-full` runs them.
   developmentTests = pkgs.lib.removeAttrs tests [ "model" "frozen" ];
@@ -93,8 +94,8 @@ in rec {
       cp -R build "$out/"
     '';
   };
-  # The in-process parser library and its checks; the verifier does not use it yet.
-  parserLibrary = import ./parser-library.nix { inherit pkgs sources parsers root; };
+  # The in-process parser library; the verifier does not use it yet. tests.parserLibrary checks it.
+  parserLibrary = import ./parser-library.nix { inherit pkgs parsers root; };
   leanRuntime = pkgs.stdenv.mkDerivation {
     pname = "sqlite-verifier-lean-runtime";
     version = "1";

@@ -75,7 +75,7 @@ Exact source/archive hashes and retained notices are recorded in
 
 ## Parser library
 
-`just parser-library` builds `parserLibrary` in `build-support/default.nix`:
+`parserLibrary.library` in `build-support/default.nix` is
 one shared library with a parser for each grammar, which the verifier will load
 into its own process. The verifier and the runtime do not use it yet; the
 executables above stay the parsers in use.
@@ -107,10 +107,13 @@ the API of `parser/library.h`:
 - `sqlite_verifier_parser_free` releases either document.
 
 The library makes no promise for concurrent calls. The build checks that the
-production count in the metadata equals Lemon's grammar export. The `load`
-target loads all grammars in one process and parses the RAISE case with each.
-The `compare` target checks that the library output equals the executable
-output for each release, for every parser test input and every distinct SQL
-text of corpora v1 to v5. On Linux, the `sanitizer` target parses the same
-inputs with a library built with AddressSanitizer, LeakSanitizer and
+production count in the metadata equals Lemon's grammar export. Nix builds each
+release and each grammar in its own derivation, so a patch release with an
+unchanged grammar adds a release derivation and no parser.
+
+The test suite `tests.parserLibrary` (`tests/parser_library_test.py`) loads all
+grammars in one process and parses the RAISE case with each. It checks that the
+library output equals the executable output for each release, for every parser
+test input and every distinct SQL text of corpora v1 to v5. On Linux, it parses
+the same inputs with a library built with AddressSanitizer, LeakSanitizer and
 UndefinedBehaviorSanitizer.

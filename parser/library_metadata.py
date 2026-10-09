@@ -11,12 +11,20 @@ from pathlib import Path
 import re
 
 from parser.dialect_table import Dialect
-from parser.grammar_sources import ReleaseSources
 
 API_VERSION = 1
 """The API version of `parser/library.h`; callers refuse a library with another version."""
 JsonValue = str | int | list["JsonValue"] | dict[str, "JsonValue"]
 """The JSON values that the metadata document contains."""
+
+
+@dataclass(frozen=True)
+class ReleaseRecord:
+    """What the metadata says about one release; each release derivation writes one."""
+
+    version: str
+    source_id: str
+    grammar_options: tuple[str, ...]
 
 
 @dataclass(frozen=True)
@@ -37,7 +45,7 @@ def grammar_size(syntax_c: str, syntax_h: str) -> tuple[int, int]:
     return int(rules.group(1)), len(re.findall(r"^#define P_\w+\s+\d+$", syntax_h, re.M))
 
 
-def metadata(releases: list[ReleaseSources], dialects: list[Dialect],
+def metadata(releases: list[ReleaseRecord], dialects: list[Dialect],
              grammars: list[Grammar]) -> dict[str, JsonValue]:
     """Return the metadata document of a library with these releases, dialects and grammars."""
     return {

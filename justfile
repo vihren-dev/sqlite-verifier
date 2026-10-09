@@ -25,11 +25,6 @@ parser: resources
     rm -rf build/parser build/parser-3.46.0
     for name in parser parser-3.46.0 sqlite-parser sqlite-parser-3.46.0; do ln -sfn "parsers/build/$name" "build/$name"; done
 
-# Build the parser library and run its load test, executable comparison and (Linux) sanitizer job.
-parser-library: resources
-    mkdir -p build
-    timeout 900 nix-build build-support/default.nix -A parserLibrary --out-link build/parser-library --option sandbox true --option sandbox-fallback false --extra-experimental-features 'nix-command flakes'
-
 # Run an explicitly selected scenario without rebuilding its prerequisites.
 [positional-arguments]
 test-cases *args:
@@ -65,7 +60,7 @@ test: build documentation-inventory test-source
     timeout 900 nix-build build-support/default.nix -A developmentTests --out-link build/nix-tests --option sandbox true --option sandbox-fallback false --extra-experimental-features 'nix-command flakes'
 
 # CI and package checks retain all full model, kernel and historical evidence checks.
-test-full: build documentation-inventory test-source parser-library
+test-full: build documentation-inventory test-source
     timeout 900 nix-build build-support/default.nix -A tests --out-link build/nix-tests-full --option sandbox true --option sandbox-fallback false --extra-experimental-features 'nix-command flakes'
 
 # Check every authored public declaration, constructor and field in the compiled import closure.

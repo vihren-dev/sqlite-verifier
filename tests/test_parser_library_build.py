@@ -5,7 +5,6 @@ These tests check `parser/grammar_sources.py`, `parser/dialect_table.py` and
 `parserLibrary` runs the same code on the vendored releases.
 """
 
-import hashlib
 import json
 from pathlib import Path
 
@@ -13,45 +12,10 @@ import pytest
 
 from parser.dialect_table import Dialect, Release, check_dialect, check_release, grammar_identity, load_table
 from parser.grammar_sources import C_CONDITIONAL, LEMON_CONDITIONAL, read_release, conditional_macros
-from parser.library_metadata import Grammar, c_string, grammar_size, metadata, write_sources
+from parser.library_metadata import Grammar, ReleaseRecord, c_string, grammar_size, metadata, write_sources
+from tests.parser_release_fixtures import AMALGAMATION, release
 
 pytestmark = [pytest.mark.unit, pytest.mark.parser]
-AMALGAMATION = """/* before */
-SQLITE_PRIVATE const unsigned char sqlite3UpperToLower[] = {
-#ifdef SQLITE_ASCII
-  0, 1
-#endif
-};
-SQLITE_PRIVATE const unsigned char sqlite3CtypeMap[256] = {
-  0, 1
-};
-/* other global.c code */
-/************** Begin file tokenize.c ***************************************/
-#ifndef SQLITE_OMIT_WINDOWFUNC
-static int analyzeWindowKeyword(void){ return 0; }
-#endif
-SQLITE_PRIVATE int sqlite3RunParser(Parse *pParse, const char *zSql){
-#ifdef SQLITE_DEBUG
-#endif
-}
-"""
-"""The parts of sqlite3.c that the build reads: the tables, the tokenizer and code after it."""
-
-
-def release(directory: Path, *, version: str = "3.51.0", grammar: str = "%ifndef SQLITE_OMIT_CTE\n%endif\n",
-            amalgamation: str = AMALGAMATION) -> Path:
-    """Write a synthetic release directory with a matching sha256.json."""
-    directory.mkdir()
-    (directory / "sqlite3.h").write_text(f'#define SQLITE_VERSION        "{version}"\n'
-                                         '#define SQLITE_SOURCE_ID      "2025-11-04 source"\n')
-    (directory / "sqlite3.c").write_text(amalgamation)
-    (directory / "parse.y").write_text(grammar)
-    hashes = {name: hashlib.sha256((directory / name).read_bytes()).hexdigest()
-              for name in ("sqlite3.h", "sqlite3.c", "parse.y")}
-    (directory / "sha256.json").write_text(json.dumps(hashes))
-    return directory
-
-
 def test_conditional_macros_reads_lemon_and_c_conditionals() -> None:
     """Grammar options come from every conditional form; a test of a macro value is refused."""
     lemon = "%ifdef A\n%ifndef B\n%if C || !D\n%endif\n%else\n"
@@ -130,9 +94,9 @@ def test_load_table_validates_the_structure(tmp_path: Path) -> None:
 
 def test_metadata_and_generated_c_sources(tmp_path: Path) -> None:
     """The metadata has the documented fields, and the generated C keeps its exact bytes."""
-    sources = read_release(release(tmp_path / "upstream"))
+    record = ReleaseRecord("3.51.0", "2025-11-04 source", ("SQLITE_ASCII", "SQLITE_OMIT_CTE", "SQLITE_OMIT_WINDOWFUNC"))
     grammar = Grammar("ab" * 32, "Syntax_" + "ab" * 8, 409, 186)
-    document = metadata([sources], [Dialect("3.51.0", (), grammar.identity)], [grammar])
+    document = metadata([record], [Dialect("3.51.0", (), grammar.identity)], [grammar])
     assert document == {
         "api": 1,
         "releases": [{"version": "3.51.0", "sourceId": "2025-11-04 source",

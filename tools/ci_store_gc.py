@@ -9,8 +9,7 @@ platform caches evicted each other.
 The tool adds garbage-collector roots for what the next run needs, then collects
 everything else:
 
-- the test targets, runtimes, parsers, parser library checks and core and base API
-  references, as derivations; with
+- the test targets, runtimes, parsers and core and base API references, as derivations; with
   `keep-outputs` in the Nix configuration, the outputs of all their build inputs stay too;
 - the development shell, as a profile;
 - the flake inputs, which include the pinned nixpkgs source used for evaluation.
@@ -26,12 +25,10 @@ import sys
 
 ROOTS = Path("build/gc-roots")
 FLAGS = ["--extra-experimental-features", "nix-command flakes"]
-TARGETS = ["tests", "runtime", "conformance", "parsers", "parserLibrary", "apiReferenceCore",
-           "apiReferenceBase"]
+TARGETS = ["tests", "runtime", "conformance", "parsers", "apiReferenceCore", "apiReferenceBase"]
 """Attributes of build-support/default.nix whose build closures the next run needs. The core API
 reference depends only on the toolchain and doc-gen4; the base has no commit in it. So later
-commits reuse the core, and commits with the same Lean sources also reuse the base. The parser
-library checks, with the sanitizer job, rerun only when the parser sources or corpora change."""
+commits reuse the core, and commits with the same Lean sources also reuse the base."""
 ROOT_TIMEOUT_SECONDS = 600
 """Evaluating the targets or entering the development shell; both are cached after the checks."""
 FLAKE_TIMEOUT_SECONDS = 300
