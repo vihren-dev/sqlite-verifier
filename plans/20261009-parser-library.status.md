@@ -1,6 +1,6 @@
 # Status: parser library, step 1 of ADR 0007
 
-Created 2026-10-09. Status: IN PROGRESS.
+Created 2026-10-09. Status: IN PROGRESS (implementation done; macOS evidence open).
 Task: [task](20261009-parser-library.task.md).
 Specification: [ADR 0007](../docs/adr-0007-parser-library.md).
 
@@ -53,6 +53,16 @@ Relevant files: `parser/`, `build-support/default.nix`,
 - 2026-10-09: review `20261009T093844Z-aa091822`: no must findings, three
   should findings (R1 table field literals, R1 prefix length literal, R10 release
   label message), all fixed in the following refactor commit.
+- 2026-10-09: refactor commit `cdfdb8a9`, review `20261009T094022Z-cdfdb8a9`
+  with no findings. Acceptance items 1, 2 and 4 of the ADR have evidence above;
+  item 3 has Linux amd64 evidence only.
+- 2026-10-09: rebased onto main after PR #56 merged. The only text conflict was
+  `reviews/log.jsonl` (main's lines, then this branch's five). `parserLibrary`
+  now receives `root` from `build-support/default.nix`, as the other imports
+  do since PR #56. `just parser-library` passes; `just test-source` with
+  `SQLITE_VERIFIER_RUNTIME_ROOT=build/runtime`: 483 passed. With the checkout
+  as root, 36 tests on main fail because `just build` does not link
+  `packages/belay-sqlite/.lake`; this branch does not change that.
 
 ## Measurements (Linux amd64, local, 2026-10-09)
 
