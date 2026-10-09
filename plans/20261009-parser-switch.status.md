@@ -1,6 +1,6 @@
 # Status: parser switch, step 2 of ADR 0007
 
-Created 2026-10-09. Status: IN PROGRESS.
+Created 2026-10-09. Status: DONE (2026-10-09).
 Task: [task](20261009-parser-switch.task.md).
 Specification: [ADR 0007](../docs/adr-0007-parser-library.md).
 Step 1: [status](20261009-parser-library.status.md), PR #71.
@@ -84,6 +84,12 @@ Relevant files: `belay/sqlite/sql_tree.py`, `belay/sqlite/profiles.py`,
 - 2026-10-09: the owner approved the two R8 markers of review
   `20261009T145904Z-ee5bde65` (`Runtime.locate()` in `bundle.py` and
   `prepare.py`); both are recorded as fixed.
+- 2026-10-09: merged: PR #71 (`efddd44e`) and PR #77 (`c0dfbac0`). The CI run
+  of `main` (run 37973585320) passed on both platforms. macOS arm64:
+  `tests.parserLibrary` 2 passed (the sanitizer job is Linux only), the binding
+  tests passed, and the installed runtime tests passed (26). Linux: the same
+  suites with the sanitizer job, and the installed tests. All acceptance
+  evidence of ADR 0007 is recorded. DONE.
 
 ## Measurements (Linux amd64, local, 2026-10-09)
 
@@ -96,5 +102,4 @@ costs more.
 
 ## Remaining
 
-- The macOS arm64 runs of the load test and the installer tests (main or
-  nightly CI).
+Nothing remains.

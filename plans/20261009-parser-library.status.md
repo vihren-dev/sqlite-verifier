@@ -1,6 +1,6 @@
 # Status: parser library, step 1 of ADR 0007
 
-Created 2026-10-09. Status: IN PROGRESS (implementation done; macOS evidence open).
+Created 2026-10-09. Status: DONE (2026-10-09).
 Task: [task](20261009-parser-library.task.md).
 Specification: [ADR 0007](../docs/adr-0007-parser-library.md).
 
@@ -78,6 +78,12 @@ Relevant files: `parser/`, `build-support/default.nix`,
   with the built runtime: 487 passed; `tests/test_nix_test_targets.py`: 63
   passed. Review `20261009T141212Z-85f0555f`: three should findings, fixed in
   `44ed3849` (review `20261009T141403Z-44ed3849`, no findings).
+- 2026-10-09: merged: PR #71 (`efddd44e`) and PR #77 (`c0dfbac0`). The CI run
+  of `main` (run 37973585320) passed on both platforms. macOS arm64:
+  `tests.parserLibrary` 2 passed (the sanitizer job is Linux only), the binding
+  tests passed, and the installed runtime tests passed (26). Linux: the same
+  suites with the sanitizer job, and the installed tests. All acceptance
+  evidence of ADR 0007 is recorded. DONE.
 
 ## Measurements (Linux amd64, local, 2026-10-09)
 
@@ -93,4 +99,4 @@ Relevant files: `parser/`, `build-support/default.nix`,
 
 ## Remaining
 
-- macOS arm64: the load test on a main or nightly CI run, or by the owner.
+Nothing remains.
