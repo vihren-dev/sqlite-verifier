@@ -14,7 +14,7 @@ def Covers (table : Table) (names : List String) : Prop :=
 
 /-- For every valid schema, {name}`Schema.emptyDatabase` satisfies {name}`Conforms`
 with that schema, including the empty schema. Use it as an empty-data witness;
-additional approved conditions require a separate proof.
+additional invariants require a separate proof.
 The proof separates absent and present entries; empty rows satisfy row validity. -/
 theorem Schema.emptyDatabase_conforms (valid : schema.Valid) :
     Conforms schema schema.emptyDatabase := by

@@ -126,11 +126,22 @@ The first native Atuin run detected the changed SchemaBinding fixture's stale
 checksum. Updated only that file's entry in the fixture manifest. The next
 native run passed all 12 Atuin tests, 28 kernel tests and 56 model tests.
 Bundle acceptance passed all 73 tests, and CLI acceptance passed all 16 tests.
-The exact final model test source passed all 56 sandbox tests. Frozen, harness,
-sample and upstream acceptance are still in progress.
+The exact final model test source passed all 56 sandbox tests. The remaining macOS sandbox suites also passed: frozen 146, harness 129,
+sample 22 and upstream 117. All nine native suites passed, with 599 tests
+in total. The final model run includes the added missing-metadata cases.
 Logs remain local under `build/20261009-t07-resume`; no validation result
 folder is committed. Linux and installed-runtime acceptance remain open.
 
 The resumed model, codec and caller migration is ready for a source commit and
 independent review. This is a checked implementation checkpoint, not final
 two-platform or installed acceptance. The remaining gates above still apply.
+
+Independent review of `97ad82aa` found one model docstring that used
+application approval wording. Replaced it with “additional invariants.” The
+review also marked the codec and whole-shape conformance for final owner review;
+both gates remain open under the existing implementation authorization.
+
+The docstring correction compiled successfully. The checked public inventory
+still covers all 244 authored declarations. The correction and review outcomes
+are recorded in the following refactor commit; its independent review remains
+the next check.
