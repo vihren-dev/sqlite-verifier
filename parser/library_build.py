@@ -25,6 +25,9 @@ PARSER = Path(__file__).resolve().parent
 PUBLIC_API = frozenset({"sqlite_verifier_parser_metadata", "sqlite_verifier_parser_parse",
                         "sqlite_verifier_parser_free"})
 """The only symbols that the library exports; see `parser/library.h`."""
+PREFIX_DIGITS = 16
+"""The identity digits in a grammar's symbol prefix and work directory; the build fails if two
+identities share them."""
 STEP_TIMEOUT_SECONDS = 600
 """The limit for one Lemon or compiler run; a sanitizer build of sqlite3.c is the slowest."""
 LIBRARY_NAME = "libsqlite-verifier-parser" + (".dylib" if sys.platform == "darwin" else ".so")
@@ -60,7 +63,7 @@ class ReleaseBuild:
 
     def generate_grammar(self, identity: str, work: Path) -> Grammar:
         """Generate the grammar's parser with a unique prefix and check its production count."""
-        prefix = "Syntax_" + identity[:16]
+        prefix = "Syntax_" + identity[:PREFIX_DIGITS]
         work.mkdir()
         generate(self.preprocessed, self.grammar, self.header,
                  (self.directory / "sqlite3.c").read_text(), work / "syntax.y", prefix)
@@ -101,10 +104,10 @@ def build(table_path: Path, output: Path, work: Path, compiler: list[str], check
         check_dialect(dialect, built.sources,
                       grammar_identity(built.preprocessed, built.sources, dialect.grammar_options))
         if dialect.grammar not in grammars:
-            grammar = built.generate_grammar(dialect.grammar, work / f"grammar-{dialect.grammar[:16]}")
+            grammar = built.generate_grammar(dialect.grammar, work / f"grammar-{dialect.grammar[:PREFIX_DIGITS]}")
             grammars[dialect.grammar] = (grammar, built)
     if len({grammar.prefix for grammar, _ in grammars.values()}) != len(grammars):
-        raise ValueError("Two grammar identities share their first 16 digits; lengthen the prefix")
+        raise ValueError(f"Two grammar identities share their first {PREFIX_DIGITS} digits; increase PREFIX_DIGITS")
     write_sources(work, metadata([built.sources for built in releases.values()], list(table.dialects),
                                  [grammar for grammar, _ in grammars.values()]),
                   [grammar for grammar, _ in grammars.values()])
@@ -117,7 +120,7 @@ def link(output: Path, work: Path, compiler: list[str], grammars: dict[str, tupl
     flags = [*compiler, "-std=c99", "-fPIC", "-fvisibility=hidden", "-c", f"-I{PARSER}"]
     objects: list[str] = []
     for grammar, built in grammars.values():
-        directory = work / f"grammar-{grammar.identity[:16]}"
+        directory = work / f"grammar-{grammar.identity[:PREFIX_DIGITS]}"
         for unit in ("library_tokenizer", "library_grammar"):
             target = directory / f"{unit}.o"
             run([*flags, f"-DGRAMMAR_PREFIX={grammar.prefix}", f"-I{directory}", f"-I{built.directory}",

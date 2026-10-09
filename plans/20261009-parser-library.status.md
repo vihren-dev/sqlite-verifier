@@ -50,6 +50,9 @@ Relevant files: `parser/`, `build-support/default.nix`,
   parser/dialects.json records 091f…". `just test-source`: 483 passed.
   `tests/test_ci_checks.py` lists the sandboxed `justfile` targets and now
   includes `parserLibrary`.
+- 2026-10-09: review `20261009T093844Z-aa091822`: no must findings, three
+  should findings (R1 table field literals, R1 prefix length literal, R10 release
+  label message), all fixed in the following refactor commit.
 
 ## Measurements (Linux amd64, local, 2026-10-09)
 

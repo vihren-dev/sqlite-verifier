@@ -13,6 +13,12 @@ from pathlib import Path
 
 from parser.grammar_sources import ReleaseSources
 
+TABLE_FIELDS = frozenset({"releases", "dialects"})
+"""The fields of the dialect table object."""
+RELEASE_FIELDS = frozenset({"version", "sources"})
+"""The fields of a release entry: its version label and its source directory under `parser/`."""
+DIALECT_FIELDS = frozenset({"version", "grammarOptions", "grammar"})
+"""The fields of a dialect entry: its release, the grammar options in effect and its identity."""
 IDENTITY_FORMAT = "sqlite-verifier-grammar-1"
 """Names the digest layout below; a new layout must change it, so no old identity matches."""
 
@@ -69,7 +75,7 @@ def _text(entry: dict[str, object], key: str, where: str) -> str:
     return value
 
 
-def _entries(table: dict[str, object], key: str, fields: set[str]) -> list[dict[str, object]]:
+def _entries(table: dict[str, object], key: str, fields: frozenset[str]) -> list[dict[str, object]]:
     """Return the entries of one table list, each with exactly the given fields."""
     entries = table.get(key)
     if not isinstance(entries, list) or not entries or not all(
@@ -82,14 +88,14 @@ def _entries(table: dict[str, object], key: str, fields: set[str]) -> list[dict[
 def load_table(path: Path) -> DialectTable:
     """Read and validate the dialect table at path."""
     table = json.loads(path.read_text())
-    if not isinstance(table, dict) or set(table) != {"releases", "dialects"}:
+    if not isinstance(table, dict) or set(table) != TABLE_FIELDS:
         raise ValueError(f"{path} must be an object with 'releases' and 'dialects'")
     releases = tuple(Release(_text(entry, "version", "A release"), _text(entry, "sources", "A release"))
-                     for entry in _entries(table, "releases", {"version", "sources"}))
+                     for entry in _entries(table, "releases", RELEASE_FIELDS))
     dialects = tuple(Dialect(_text(entry, "version", "A dialect"),
                              _strings(entry["grammarOptions"], "grammarOptions"),
                              _text(entry, "grammar", "A dialect"))
-                     for entry in _entries(table, "dialects", {"version", "grammarOptions", "grammar"}))
+                     for entry in _entries(table, "dialects", DIALECT_FIELDS))
     if len({release.version for release in releases}) != len(releases):
         raise ValueError(f"{path} names a release twice")
     if len({(dialect.version, frozenset(dialect.grammar_options)) for dialect in dialects}) != len(dialects):
@@ -101,7 +107,8 @@ def check_release(release: Release, sources: ReleaseSources) -> None:
     """Fail when the table's version label differs from the version in the release's sqlite3.h."""
     if release.version != sources.version:
         raise ValueError(f"parser/{release.sources} contains SQLite {sources.version}, but "
-                         f"parser/dialects.json labels it {release.version}")
+                         f"parser/dialects.json labels it {release.version}. Correct the release "
+                         "entry, or point it at the source directory of that release.")
 
 
 def check_dialect(dialect: Dialect, release: ReleaseSources, identity: str) -> None:
