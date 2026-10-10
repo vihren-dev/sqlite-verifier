@@ -111,6 +111,22 @@ def test_report_binds_runtime_profiles_shards_evidence(inputs: tuple[Path, Path,
     assert progress(*inputs)["runtimeSha256"] != report["runtimeSha256"]
 
 
+def test_loaded_progress_uses_the_supplied_records(inputs: tuple[Path, Path, Path],
+                                                  monkeypatch: pytest.MonkeyPatch) -> None:
+    """`conformance.progress.loaded_progress` reports the caller's records and does not load the corpus."""
+    corpus, requirements, runtime = inputs
+    module = importlib.import_module("conformance.progress")
+    manifest, records = module.load(corpus)
+    expected = progress(*inputs)
+
+    def refuse(directory: Path) -> tuple[dict[str, Json], list[dict[str, Json]]]:
+        """Fail the test when the report loads the corpus again."""
+        raise AssertionError(f"corpus loaded again: {directory}")
+
+    monkeypatch.setattr("conformance.progress.load", refuse)
+    assert loaded_progress(corpus, manifest, records, requirements, runtime) == expected
+
+
 @pytest.mark.parametrize("relative", RUNTIME_FILES)
 def test_absent_binary_cannot_produce_progress(inputs: tuple[Path, Path, Path], relative: str) -> None:
     """Unsupported cases still require exact compiled runtime identity."""
@@ -140,7 +156,11 @@ def test_cli_defaults_to_frozen_v5(tmp_path: Path, monkeypatch: pytest.MonkeyPat
 @pytest.mark.requires_native("parser-library")
 @pytest.mark.parametrize("version", [4, 5])
 def test_actual_frozen_partition_requirement_inventory_and_identities(runtime_root: Path, version: int) -> None:
-    """All final cases appear once while the full inventory and native Unsupported boundary remain explicit."""
+    """`conformance.progress.loaded_progress` on the frozen corpora: each case appears once.
+
+    The test also checks the part, label and shard denominators, the complete
+    requirement inventory, and that no case disagrees or has a harness error.
+    """
     corpus = ROOT / f"conformance/corpus-v{version}"
     manifest, records = load(corpus)
     report = loaded_progress(corpus, manifest, records, ROOT / "conformance/requirements-3.51.0.json", runtime_root)
