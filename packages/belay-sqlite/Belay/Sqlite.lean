@@ -16,6 +16,7 @@ import Belay.Sqlite.Syntax
 import Belay.Sqlite.Catalog
 import Belay.Sqlite.Resolved
 import Belay.Sqlite.ResolveValues
+import Belay.Sqlite.ResolveContext
 import Belay.Sqlite.ResolveDefinitions
 import Belay.Sqlite.ResolveWrites
 import Belay.Sqlite.Resolve
@@ -26,6 +27,7 @@ import Belay.Sqlite.ResolveNamesSpec
 import Belay.Sqlite.ResolveErrorKinds
 import Belay.Sqlite.ResolvePrepareSpec
 import Belay.Sqlite.ResolvePrepareRules
+import Belay.Sqlite.ResolveUpdateRules
 import Belay.Sqlite.ResolveDefinitionRules
 import Belay.Sqlite.ResolveTransactionSpec
 

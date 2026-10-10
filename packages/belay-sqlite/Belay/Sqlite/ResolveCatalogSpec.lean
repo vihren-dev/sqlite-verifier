@@ -7,7 +7,8 @@ set_option doc.verso true
 namespace Belay.Sqlite
 
 /-- For every test and list, {name}`findPosition` finds nothing exactly when every
-element fails the test. -/
+element fails the test. Proof sketch: induction on the list; a passing head is found
+at position zero, and a failing head leaves the search to the tail. -/
 theorem findPosition_eq_none_iff (test : α → Bool) (items : List α) :
     findPosition test items = none ↔ ∀ item ∈ items, test item = false := by
   induction items with
@@ -18,7 +19,9 @@ theorem findPosition_eq_none_iff (test : α → Bool) (items : List α) :
     · simp [findPosition, passes, ih]
 
 /-- For every catalog and name, {name}`Catalog.find` finds nothing exactly when the
-folded name is not among the catalog's folded names. -/
+folded name is not among the catalog's folded names. Proof sketch: rewrite with
+{name}`findPosition_eq_none_iff`; the folded-name test fails for every object exactly
+when the folded name is not in the mapped list. -/
 theorem Catalog.find_eq_none_iff (catalog : Catalog) (name : String) :
     catalog.find name = none ↔ normalizeIdentifier name ∉ catalog.foldedNames := by
   rw [Catalog.find, findPosition_eq_none_iff]
@@ -26,7 +29,9 @@ theorem Catalog.find_eq_none_iff (catalog : Catalog) (name : String) :
 
 /-- For every catalog, name, position and table entry that {name}`Catalog.findTable`
 returns, the catalog has an object at that position with the table entry, whose
-folded name is the folded given name. -/
+folded name is the folded given name. Proof sketch: the result comes from
+{name}`Catalog.find`, and {name}`findPosition_eq_some_iff` gives the object at the
+position and its passing name test. -/
 theorem Catalog.findTable_some (catalog : Catalog) (name : String) (position : Nat) (table : CatalogTable)
     (found : catalog.findTable name = some (position, table)) :
     ∃ object, catalog[position]? = some object ∧ object.entry = .table table ∧
@@ -53,7 +58,10 @@ inductive CatalogStep (catalog : Catalog) : Catalog → Prop where
       CatalogStep catalog (catalog.set position { name := object.name, entry := entry })
 
 /-- For all catalogs related by {name}`CatalogStep`, unique folded names before give
-unique folded names after. -/
+unique folded names after. Proof sketch: an unchanged catalog keeps its names; an
+appended object has a folded name outside the list, by
+{name}`Catalog.find_eq_none_iff`; a replaced object keeps its name, so the list of
+folded names is the same. -/
 theorem CatalogStep.namesUnique (step : CatalogStep catalog after) (unique : catalog.NamesUnique) :
     after.NamesUnique := by
   cases step with

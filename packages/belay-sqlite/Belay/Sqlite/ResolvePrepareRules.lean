@@ -7,7 +7,9 @@ set_option doc.verso true
 
 namespace Belay.Sqlite
 
-/-- An error of the table definition steps of CREATE TABLE names no catalog object. -/
+/-- For every column limit, name, columns and constraints, an error of the table
+definition steps of CREATE TABLE names no catalog object. Proof sketch: the error
+comes from {name}`addDefinitions_error` or from {name}`addTableConstraints_error`. -/
 theorem tableDefinition_error (limit : Nat) (name : String) (columns : List Syntax.ColumnDefinition)
     (constraints : List Syntax.TableConstraint) (error : PrepareError)
     (failed : (addDefinitions limit name { columns := [] } columns >>= (addTableConstraints name · constraints))
@@ -50,7 +52,9 @@ theorem resolveCreateTable_used (context : ResolveContext) (catalog : Catalog) (
     obtain ⟨_, object⟩ := result
     cases entry : object.entry <;> cases object <;> simp_all [PrepareError.namesObject]
 
-/-- An issue of the VALUES rows of INSERT names no catalog object. -/
+/-- For every setting and VALUES rows, an issue of the INSERT value conversion names no
+catalog object. Proof sketch: each row's issue is an issue of {name}`literalValue`
+with a prefixed path, by {name}`resolveAll_issue` twice. -/
 theorem insertValues_issue (dqs : Bool) (rows : List (List Syntax.Expr)) (issue : ValueIssue)
     (failed : resolveAll (fun row values => (resolveAll (fun _ => literalValue dqs) values).mapError
       (·.under [row])) rows = .error issue) : issue.namesNoObject := by
@@ -60,7 +64,9 @@ theorem insertValues_issue (dqs : Bool) (rows : List (List Syntax.Expr)) (issue 
   exact ValueIssue.under_namesNoObject _ _
     (resolveAll_issue _ _ _ (fun _ _ _ h => literalValue_issue _ _ _ h) (by assumption))
 
-/-- For every column list and names, an error of {name}`insertPositions` names no catalog object. -/
+/-- For every column list and names, an error of {name}`insertPositions` names no
+catalog object. Proof sketch: induction on the names; the only error is
+{name}`PrepareError.tableHasNoColumn`. -/
 theorem insertPositions_error (tableName : String) (columns : List CatalogColumn) (names : List String)
     (error : PrepareError) (failed : insertPositions tableName columns names = .error error) :
     error.namesObject = false := by
@@ -74,7 +80,9 @@ theorem insertPositions_error (tableName : String) (columns : List CatalogColumn
 
 /-- For every INSERT whose resolution is a prepare error that names a catalog object:
 the error is {lit}`no such table` for the statement's table, no table has the folded
-name, and the catalog is unchanged. -/
+name, and the catalog is unchanged. Proof sketch: split every branch of the
+resolver; the branches after the table lookup give errors that name no catalog
+object, by the lemmas on column lists, values and full rows. -/
 theorem resolveInsert_named (context : ResolveContext) (catalog after : Catalog) (index : Nat)
     (tableName : String) (names : Option (List String)) (rows : List (List Syntax.Expr))
     (error : PrepareError) (named : error.namesObject = true)
@@ -109,81 +117,5 @@ theorem resolveInsert_missing (context : ResolveContext) (catalog : Catalog) (in
     simpa using same
   unfold resolveInsert
   simp [consistent, missing, prepareError]
-
-/-- An issue of the WHERE filter of UPDATE names no catalog object. -/
-theorem resolveFilter_issue (context : ResolveContext) (columns : List CatalogColumn)
-    (filter : Option Syntax.Expr) (issue : ValueIssue)
-    (failed : resolveFilter context columns filter = .error issue) : issue.namesNoObject := by
-  unfold resolveFilter at failed
-  repeat' split at failed
-  all_goals first
-    | (cases failed; done)
-    | (cases failed; simp [ValueIssue.namesNoObject, PrepareError.namesObject]; done)
-    | (cases failed; trivial)
-    | skip
-  all_goals simp only [bind, Except.bind, Except.mapError] at failed
-  all_goals (repeat' split at failed)
-  all_goals first
-    | (cases failed; done)
-    | (cases failed; trivial)
-    | (rename_i cause; split at cause
-       · rename_i inner hinner
-         cases cause; cases failed
-         exact ValueIssue.under_namesNoObject _ _ (assignedValue_issue _ _ _ _ hinner)
-       · cases cause)
-
-/-- For every column list, an error of the SET column lookup names no catalog object. -/
-theorem assignmentPositions_error (columns : List CatalogColumn) (assignments : List (String × Syntax.Expr))
-    (error : PrepareError)
-    (failed : assignments.mapM (fun (name, _) => (columnPosition columns name).elim
-      (Except.error (PrepareError.noSuchColumn name)) Except.ok) = .error error) :
-    error.namesObject = false := by
-  induction assignments with
-  | nil => cases failed
-  | cons assignment rest ih =>
-    simp only [List.mapM_cons, bind, Except.bind] at failed
-    split at failed
-    · rename_i _ cause
-      cases failed
-      cases h : columnPosition columns assignment.1 <;> simp_all [Option.elim]
-      cases cause; rfl
-    · split at failed
-      · cases failed; exact ih (by assumption)
-      · cases failed
-
-/-- For every UPDATE whose resolution is a prepare error that names a catalog object:
-the error is {lit}`no such table` for the statement's table, no table has the folded
-name, and the catalog is unchanged. -/
-theorem resolveUpdate_named (context : ResolveContext) (catalog after : Catalog) (index : Nat)
-    (tableName : String) (assignments : List (String × Syntax.Expr)) (filter : Option Syntax.Expr)
-    (error : PrepareError) (named : error.namesObject = true)
-    (ok : resolveUpdate context catalog index tableName assignments filter = .ok (.prepareError error, after)) :
-    error = .noSuchTable tableName ∧ catalog.findTable tableName = none ∧ after = catalog := by
-  unfold resolveUpdate at ok
-  simp only [prepareError, restrict, issueResolution] at ok
-  repeat' split at ok
-  all_goals (try (cases ok; done))
-  all_goals cases ok
-  all_goals first
-    | (simp_all; done)
-    | (rename_i cause; simp [assignmentPositions_error _ _ _ cause] at named; done)
-    | (rename_i _ _ cause; have := resolveAll_issue _ _ _ (fun _ _ _ h => by
-         simp only [Except.mapError] at h; split at h <;> cases h
-         exact ValueIssue.under_namesNoObject _ _ (assignedValue_issue _ _ _ _ (by assumption))) cause
-       simp_all [ValueIssue.namesNoObject]; done)
-    | (rename_i _ _ cause; have := resolveFilter_issue _ _ _ _ cause
-       simp_all [ValueIssue.namesNoObject]; done)
-    | (rename_i _ _ cause; have := resolveAll_issue _ _ _ (fun _ _ _ h => storedValue_issue _ _ _ _ h) cause
-       simp_all [ValueIssue.namesNoObject]; done)
-
-/-- For every UPDATE: when no table has the folded name, the resolution is
-{lit}`no such table`, and the catalog is unchanged. -/
-theorem resolveUpdate_missing (context : ResolveContext) (catalog : Catalog) (index : Nat)
-    (tableName : String) (assignments : List (String × Syntax.Expr)) (filter : Option Syntax.Expr)
-    (missing : catalog.findTable tableName = none) :
-    resolveUpdate context catalog index tableName assignments filter =
-      .ok (.prepareError (.noSuchTable tableName), catalog) := by
-  unfold resolveUpdate
-  simp [missing, prepareError]
 
 end Belay.Sqlite

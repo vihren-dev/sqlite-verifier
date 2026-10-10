@@ -13,7 +13,9 @@ def Syntax.Statement.transactionControl : Syntax.Statement → Bool
   | .createTable .. | .createIndex .. | .addColumn .. | .insert .. | .update .. => false
 
 /-- For every statement that is not BEGIN, COMMIT or ROLLBACK and that resolves, the
-saved catalog of the next state is the saved catalog of the state. -/
+saved catalog of the next state is the saved catalog of the state. Proof sketch:
+each such statement goes through {name}`ResolveState.withCatalog`, which changes only
+the current catalog. -/
 theorem resolveStatement_saved (context : ResolveContext) (state next : ResolveState) (index : Nat)
     (statement : Syntax.Statement) (resolved : Resolved.Statement)
     (plain : statement.transactionControl = false)
@@ -24,7 +26,8 @@ theorem resolveStatement_saved (context : ResolveContext) (state next : ResolveS
     split at ok <;> cases ok <;> rfl
 
 /-- For every list of statements without BEGIN, COMMIT or ROLLBACK that resolves, the
-saved catalog of the final state is the saved catalog of the first state. -/
+saved catalog of the final state is the saved catalog of the first state. Proof
+sketch: induction on the list with {name}`resolveStatement_saved`. -/
 theorem resolveFrom_saved (context : ResolveContext) (statements : List Syntax.Statement)
     (plain : ∀ statement ∈ statements, statement.transactionControl = false) :
     ∀ index (state final : ResolveState) resolved,

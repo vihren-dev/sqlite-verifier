@@ -102,7 +102,7 @@ def literalValue (dqs : Bool) : Syntax.Expr → Except ValueIssue Value
   | .negate (.numeric text) => numericLiteral text true [0]
   | .positive operand => (literalValue dqs operand).mapError fun
       | .restriction path reason => .restriction (0 :: path) reason
-      | issue => issue
+      | .prepare error => .prepare error
   | .identifier name doubleQuoted =>
     if doubleQuoted && dqs then .ok (.text name.toUTF8.toList)
     else .error (.prepare (.noSuchColumn name))

@@ -9,7 +9,9 @@ namespace Belay.Sqlite
 
 /-- For every successful resolution of CREATE TABLE, the catalog changes by one
 {name}`CatalogStep`: it is unchanged after a prepare error, and otherwise gets one
-table whose name {name}`Catalog.find` does not find. -/
+table whose name {name}`Catalog.find` does not find. Proof sketch: split every branch
+of the resolver; each prepare error returns the catalog, and the only branch that
+appends is the one where {name}`Catalog.find` found nothing. -/
 theorem resolveCreateTable_step (context : ResolveContext) (catalog after : Catalog) (index : Nat)
     (name : String) (columns : List Syntax.ColumnDefinition) (constraints : List Syntax.TableConstraint)
     (statement : Resolved.Statement)
@@ -25,7 +27,8 @@ theorem resolveCreateTable_step (context : ResolveContext) (catalog after : Cata
 
 /-- For every successful resolution of CREATE INDEX, the catalog changes by one
 {name}`CatalogStep`: unchanged after a prepare error, else one appended index whose
-name {name}`Catalog.find` does not find. -/
+name {name}`Catalog.find` does not find. Proof sketch: as for CREATE TABLE, split
+every branch; only the branch where the name is unused appends. -/
 theorem resolveCreateIndex_step (context : ResolveContext) (catalog after : Catalog) (index : Nat)
     (name : String) (unique : Bool) (tableName : String) (columns : List String)
     (statement : Resolved.Statement)
@@ -41,7 +44,8 @@ theorem resolveCreateIndex_step (context : ResolveContext) (catalog after : Cata
 
 /-- For every successful resolution of ADD COLUMN, the catalog changes by one
 {name}`CatalogStep`: unchanged after a prepare error, else the table's object gets a
-new entry and keeps its name. -/
+new entry and keeps its name. Proof sketch: split every branch; the successful branch
+replaces the object that {name}`Catalog.findTable_some` gives at the table's position. -/
 theorem resolveAddColumn_step (context : ResolveContext) (catalog after : Catalog) (index : Nat)
     (tableName : String) (definition : Syntax.ColumnDefinition) (statement : Resolved.Statement)
     (ok : resolveAddColumn context catalog index tableName definition = .ok (statement, after)) :
@@ -58,7 +62,8 @@ theorem resolveAddColumn_step (context : ResolveContext) (catalog after : Catalo
   simp only [at_, Option.map_some, Option.getD_some]
   exact .replace position object _ at_
 
-/-- For every successful resolution of INSERT, the catalog is unchanged. -/
+/-- For every successful resolution of INSERT, the catalog is unchanged. Proof sketch:
+every branch of the resolver returns the input catalog. -/
 theorem resolveInsert_same (context : ResolveContext) (catalog after : Catalog) (index : Nat)
     (tableName : String) (names : Option (List String)) (rows : List (List Syntax.Expr))
     (statement : Resolved.Statement)
@@ -69,7 +74,8 @@ theorem resolveInsert_same (context : ResolveContext) (catalog after : Catalog) 
   repeat' split at ok
   all_goals first | (cases ok; rfl) | (cases ok)
 
-/-- For every successful resolution of UPDATE, the catalog is unchanged. -/
+/-- For every successful resolution of UPDATE, the catalog is unchanged. Proof sketch:
+every branch of the resolver returns the input catalog. -/
 theorem resolveUpdate_same (context : ResolveContext) (catalog after : Catalog) (index : Nat)
     (tableName : String) (assignments : List (String × Syntax.Expr)) (filter : Option Syntax.Expr)
     (statement : Resolved.Statement)

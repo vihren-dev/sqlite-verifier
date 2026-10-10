@@ -55,7 +55,7 @@ theorem resolveAddColumn_duplicate (context : ResolveContext) (catalog : Catalog
     repeat' split
     all_goals simp_all [restrict]
 
-/-- For every CREATE INDEX of a schema description whose resolution is a prepare error
+/-- For every CREATE INDEX of a catalog description whose resolution is a prepare error
 that names a catalog object: either no table has the folded table name and the error
 is {lit}`no such table`, or an object has the folded index name; and the catalog is
 unchanged. -/
@@ -75,29 +75,29 @@ theorem resolveCreateIndex_named (context : ResolveContext) (catalog after : Cat
     | (simp_all; done)
     | (rename_i cause; simp [keyPositions_error _ _ _ cause] at named; done)
 
-/-- For every CREATE INDEX of a schema description: when no table has the folded
+/-- For every CREATE INDEX of a catalog description: when no table has the folded
 table name, the resolution is {lit}`no such table`, and the catalog is unchanged. -/
 theorem resolveCreateIndex_missing (context : ResolveContext) (catalog : Catalog) (index : Nat)
     (name : String) (unique : Bool) (tableName : String) (columns : List String)
-    (schema : context.mode = .schema) (missing : catalog.findTable tableName = none) :
+    (description : context.mode = .description) (missing : catalog.findTable tableName = none) :
     resolveCreateIndex context catalog index name unique tableName columns =
       .ok (.prepareError (.noSuchTable tableName), catalog) := by
   unfold resolveCreateIndex
-  simp [schema, missing, prepareError]
+  simp [description, missing, prepareError]
 
-/-- For every CREATE INDEX of a schema description, on a table that the folded name
+/-- For every CREATE INDEX of a catalog description, on a table that the folded name
 finds, where SQLite reserves neither name: when an object has the folded index name,
 the resolution is a prepare error that names a catalog object. -/
 theorem resolveCreateIndex_used (context : ResolveContext) (catalog : Catalog) (index : Nat)
     (name : String) (unique : Bool) (tableName : String) (columns : List String)
-    (position : Nat) (table : CatalogTable) (schema : context.mode = .schema)
+    (position : Nat) (table : CatalogTable) (description : context.mode = .description)
     (found : catalog.findTable tableName = some (position, table))
     (tableAllowed : reservedName tableName = false) (nameAllowed : reservedName name = false)
     (used : (catalog.find name).isSome = true) :
     ∃ error, error.namesObject = true ∧
       resolveCreateIndex context catalog index name unique tableName columns = .ok (.prepareError error, catalog) := by
   unfold resolveCreateIndex
-  simp only [schema, found, tableAllowed, nameAllowed, Bool.false_eq_true, ite_false, prepareError]
+  simp only [description, found, tableAllowed, nameAllowed, Bool.false_eq_true, ite_false, prepareError]
   cases hfind : catalog.find name with
   | none => simp [hfind] at used
   | some result =>

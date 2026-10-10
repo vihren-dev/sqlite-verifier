@@ -1,4 +1,4 @@
-import Belay.Sqlite.ResolveValues
+import Belay.Sqlite.ResolveContext
 
 set_option doc.verso true
 
@@ -10,43 +10,6 @@ Model restrictions follow the prepare checks: a statement that SQLite refuses ne
 no model. -/
 
 namespace Belay.Sqlite
-
-/-- Whether statements describe the starting schema or run as a migration. A
-schema description may contain the engine's statistics tables, constraints and
-indexes. A migration CREATE TABLE has plain columns, and a migration has no
-CREATE INDEX, as the execution semantics require. -/
-inductive Mode where
-  /-- The statements describe the starting schema. -/
-  | schema
-  /-- The statements run as a migration. -/
-  | migration
-  deriving Repr, DecidableEq
-
-/-- The inputs of resolution besides the catalog. -/
-structure ResolveContext where
-  /-- The execution profile, which supplies the limits. -/
-  profile : Profile
-  /-- Whether the statements describe the schema or run as a migration. -/
-  mode : Mode
-
-/-- The resolution of one statement: the resolved statement and the catalog after
-it succeeds, or a model restriction. -/
-abbrev StatementResolution := Except Restriction (Resolved.Statement × Catalog)
-
-/-- Whether the folded name starts with {lit}`sqlite_`, which SQLite reserves. -/
-def reservedName (name : String) : Bool := (normalizeIdentifier name).startsWith "sqlite_"
-
-/-- Whether a column name is one of SQLite's rowid names, which the model keeps
-for the physical rowid. -/
-def rowidName (name : String) : Bool :=
-  ["rowid", "_rowid_", "oid"].contains (normalizeIdentifier name)
-
-/-- Whether a DEFAULT expression is constant for SQLite: a literal, a signed
-literal, a time keyword, or an identifier, which SQLite stores as text. -/
-def constantDefault : Syntax.Expr → Bool
-  | .null | .numeric _ | .string _ | .blob _ | .currentTime _ | .identifier .. => true
-  | .negate operand | .positive operand => constantDefault operand
-  | .equals .. => false
 
 /-- The positions of key columns, or {lit}`no such column: %s` for the first name
 that no column has. -/
@@ -108,7 +71,7 @@ def addTableConstraints (tableName : String) (table : CatalogTable) :
     let positions ← keyPositions table.columns names
     addTableConstraints tableName { table with uniqueKeys := table.uniqueKeys ++ [positions] } rest
 
-/-- The exact statistics tables that ANALYZE creates, which a schema may contain. -/
+/-- The exact statistics tables that ANALYZE creates, which a catalog description may contain. -/
 def statisticsTable (name : String) (columns : List Syntax.ColumnDefinition)
     (constraints : List Syntax.TableConstraint) : Bool :=
   let plain := fun (names : List String) => columns == names.map fun column =>
@@ -118,21 +81,13 @@ def statisticsTable (name : String) (columns : List Syntax.ColumnDefinition)
     | "sqlite_stat4" => plain ["tbl", "idx", "neq", "nlt", "ndlt", "sample"]
     | _ => false
 
-/-- A prepare error leaves the catalog unchanged. -/
-def prepareError (catalog : Catalog) (error : PrepareError) : StatementResolution :=
-  .ok (.prepareError error, catalog)
-
-/-- A model restriction at a path of statement {lit}`index`. -/
-def restrict (index : Nat) (path : List Nat) (reason : String) : StatementResolution :=
-  .error { statement := index, path := path, reason := reason }
-
 /-- Resolve CREATE TABLE. Path 1 is the column list and path 2 the table constraints. -/
 def resolveCreateTable (context : ResolveContext) (catalog : Catalog) (index : Nat)
     (name : String) (columns : List Syntax.ColumnDefinition)
     (constraints : List Syntax.TableConstraint) : StatementResolution :=
-  let statistics := context.mode == .schema && statisticsTable name columns constraints
+  let statistics := context.mode == .description && statisticsTable name columns constraints
   if reservedName name && !statistics then
-    if context.mode == .schema then restrict index [0] "engine-managed tables other than sqlite_stat1 and sqlite_stat4 are not modeled"
+    if context.mode == .description then restrict index [0] "engine-managed tables other than sqlite_stat1 and sqlite_stat4 are not modeled"
     else prepareError catalog (.reservedName name)
   else match catalog.find name with
   | some (_, { entry := .table _, .. }) => prepareError catalog (.tableExists name)
@@ -144,16 +99,17 @@ def resolveCreateTable (context : ResolveContext) (catalog : Catalog) (index : N
     | .ok table =>
       if columns.any (rowidName ·.name) then restrict index [1] "column names that hide the rowid are not modeled"
       else if table.rowidAlias.isSome then restrict index [1] "INTEGER PRIMARY KEY rowid aliases are not modeled"
-      else if context.mode == .migration && (!constraints.isEmpty || columns.any (!·.constraints.isEmpty)) then
-        restrict index [1] "constraints and defaults in a migration CREATE TABLE are not modeled"
-      else if columns.any (·.constraints.any fun | .default (.currentTime keyword) => normalizeIdentifier keyword != "current_timestamp" | .default _ => true | _ => false) then
+      else if context.mode == .execution && (!constraints.isEmpty || columns.any (!·.constraints.isEmpty)) then
+        restrict index [1] "constraints and defaults in a CREATE TABLE that runs are not modeled"
+      else if columns.any (!·.constraints.all Syntax.ColumnConstraint.modeledDefault) then
         restrict index [1] "only the CURRENT_TIMESTAMP default is modeled"
       else .ok (.createTable name table, catalog ++ [{ name := name, entry := .table table }])
 
-/-- Resolve CREATE INDEX. A migration has no CREATE INDEX in the model. -/
+/-- Resolve CREATE INDEX of a catalog description. The execution semantics does not
+model CREATE INDEX, so a CREATE INDEX that runs is a model restriction. -/
 def resolveCreateIndex (context : ResolveContext) (catalog : Catalog) (index : Nat)
     (name : String) (unique : Bool) (tableName : String) (columns : List String) : StatementResolution :=
-  if context.mode == .migration then restrict index [] "CREATE INDEX in a migration is not modeled" else
+  if context.mode == .execution then restrict index [] "a CREATE INDEX that runs is not modeled" else
   match catalog.findTable tableName with
   | none => prepareError catalog (.noSuchTable tableName)
   | some (position, table) =>
@@ -178,12 +134,12 @@ def resolveAddColumn (context : ResolveContext) (catalog : Catalog) (index : Nat
       prepareError catalog (.tooManyColumns tableName)
     else if (columnPosition table.columns definition.name).isSome then
       prepareError catalog (.duplicateColumn definition.name)
-    else if definition.constraints.any (· matches .primaryKey _) && !table.primaryKey.isEmpty then
+    else if definition.constraints.any Syntax.ColumnConstraint.isPrimaryKey && !table.primaryKey.isEmpty then
       prepareError catalog (.multiplePrimaryKeys tableName)
-    else if definition.constraints.any (fun | .default value => !constantDefault value | _ => false) then
+    else if definition.constraints.any Syntax.ColumnConstraint.nonconstantDefault then
       prepareError catalog (.defaultNotConstant definition.name)
-    else if definition.constraints.any (· matches .primaryKey _) then prepareError catalog .cannotAddPrimaryKey
-    else if definition.constraints.any (· matches .unique) then prepareError catalog .cannotAddUnique
+    else if definition.constraints.any Syntax.ColumnConstraint.isPrimaryKey then prepareError catalog .cannotAddPrimaryKey
+    else if definition.constraints.any Syntax.ColumnConstraint.isUnique then prepareError catalog .cannotAddUnique
     else if rowidName definition.name then restrict index [1] "column names that hide the rowid are not modeled"
     else if !definition.constraints.isEmpty then
       restrict index [1] "only a nullable column without a default can be added"

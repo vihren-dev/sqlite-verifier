@@ -12,7 +12,7 @@ namespace Belay.Sqlite
 /-- Prefix the paths of model restrictions with the node's position. -/
 def ValueIssue.under (prefix_ : List Nat) : ValueIssue → ValueIssue
   | .restriction path reason => .restriction (prefix_ ++ path) reason
-  | issue => issue
+  | .prepare error => .prepare error
 
 /-- Resolve the items in order from a starting position, and stop at the first issue. -/
 def resolveAllFrom (resolveOne : Nat → α → Except ValueIssue β) (start : Nat) :
@@ -43,7 +43,14 @@ def assignedValue (columns : List CatalogColumn) (dqs : Bool) : Syntax.Expr → 
     if (columnPosition columns name).isSome then
       .error (.restriction [] "column references in values are not modeled")
     else literalValue dqs (.identifier name doubleQuoted)
-  | value => literalValue dqs value
+  | .null => literalValue dqs .null
+  | .numeric text => literalValue dqs (.numeric text)
+  | .string bytes => literalValue dqs (.string bytes)
+  | .blob bytes => literalValue dqs (.blob bytes)
+  | .currentTime keyword => literalValue dqs (.currentTime keyword)
+  | .negate operand => literalValue dqs (.negate operand)
+  | .positive operand => literalValue dqs (.positive operand)
+  | .equals left right => literalValue dqs (.equals left right)
 
 /-- Turn a value issue into the statement's resolution: a prepare error keeps the
 catalog, a restriction refuses the script. -/
@@ -98,6 +105,13 @@ def resolveInsert (context : ResolveContext) (catalog : Catalog) (index : Nat) (
           | .error issue => issueResolution catalog index [2] issue
           | .ok full => .ok (.insert position full, catalog)
 
+/-- Whether the model compares a stored value with an integer literal without a
+conversion: the column has INTEGER, NUMERIC or BLOB affinity, and the execution
+semantics requires its stored values to be integers or NULL. -/
+def integerComparable : Affinity → Bool
+  | .integer | .numeric | .blob => true
+  | .text | .real => false
+
 /-- Resolve the optional WHERE of UPDATE: none, or one column compared with an
 integer. Other filters, and a comparison that would convert values, are model
 restrictions. Path 2 is the filter. -/
@@ -112,10 +126,18 @@ def resolveFilter (context : ResolveContext) (columns : List CatalogColumn) :
     | some position => do
       let value ← (assignedValue columns context.profile.dqsDml right).mapError (·.under [1])
       let affinity := (columns[position]?.map CatalogColumn.affinity).getD .blob
-      if value matches .integer _ && [Affinity.integer, .numeric, .blob].contains affinity then
-        .ok (some (position, value))
-      else .error (.restriction [1] "only an integer equality with an INTEGER, NUMERIC or BLOB column is modeled")
-  | some _ => .error (.restriction [] "only a column equality filter is modeled")
+      match value with
+      | .integer _ =>
+        if integerComparable affinity then .ok (some (position, value))
+        else .error (.restriction [1] "only an integer equality with an INTEGER, NUMERIC or BLOB column is modeled")
+      | .null | .real _ | .text _ | .blob _ =>
+        .error (.restriction [1] "only an integer equality with an INTEGER, NUMERIC or BLOB column is modeled")
+  | some (.equals (.null) _) | some (.equals (.numeric _) _) | some (.equals (.string _) _)
+  | some (.equals (.blob _) _) | some (.equals (.currentTime _) _) | some (.equals (.negate _) _)
+  | some (.equals (.positive _) _) | some (.equals (.equals ..) _) | some .null | some (.numeric _)
+  | some (.string _) | some (.blob _) | some (.currentTime _) | some (.identifier ..)
+  | some (.negate _) | some (.positive _) =>
+    .error (.restriction [] "only a column equality filter is modeled")
 
 /-- Resolve UPDATE. Path 1 is the assignment list and path 2 the filter. -/
 def resolveUpdate (context : ResolveContext) (catalog : Catalog) (index : Nat) (tableName : String)

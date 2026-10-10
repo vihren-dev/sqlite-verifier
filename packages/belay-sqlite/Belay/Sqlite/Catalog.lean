@@ -82,7 +82,8 @@ def Catalog.find (catalog : Catalog) (name : String) : Option (Nat × CatalogObj
 def Catalog.findTable (catalog : Catalog) (name : String) : Option (Nat × CatalogTable) :=
   match catalog.find name with
   | some (position, { entry := .table table, .. }) => some (position, table)
-  | _ => none
+  | some (_, { entry := .index _, .. }) => none
+  | none => none
 
 /-- The position of the first column whose folded name equals the folded given name. -/
 def columnPosition (columns : List CatalogColumn) (name : String) : Option Nat :=

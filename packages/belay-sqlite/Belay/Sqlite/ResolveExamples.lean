@@ -18,13 +18,13 @@ def defaults : Profile := Profile.documented "3.51.0" "2025-11-04 19:38:17 fb2c9
 /-- The same release with the column limit lowered to 3, so a constant limit fails. -/
 def lowered : Profile := { defaults with limits := { defaults.limits with columns := 3 } }
 
-/-- Resolve a migration script from a catalog. -/
+/-- Resolve statements that the execution semantics runs, from a catalog. -/
 def migration (catalog : Catalog) (script : List Syntax.Statement) (profile : Profile := defaults) : ResolveResult :=
-  resolve { profile, mode := .migration } catalog script
+  resolve { profile, mode := .execution } catalog script
 
-/-- Resolve a schema description from the empty catalog. -/
+/-- Resolve a catalog description from the empty catalog. -/
 def schema (script : List Syntax.Statement) : ResolveResult :=
-  resolve { profile := defaults, mode := .schema } [] script
+  resolve { profile := defaults, mode := .description } [] script
 
 /-- A column definition without constraints. -/
 def column (name : String) (declaredType : Option String := some "TEXT") : ColumnDefinition :=
@@ -121,7 +121,7 @@ def tableT : Catalog := catalogOf (migration [] [.createTable "t" [column "a", c
 #guard statements (migration tableT [.createTable "t" [column "x"] [], .addColumn "t" (column "c")])
   matches [.prepareError (.tableExists "t"), .addColumn 0 _]
 
--- Migrations keep the model scope; schemas may contain the statistics tables.
+-- Statements that run keep the model scope; descriptions may contain the statistics tables.
 #guard restricted (migration [] [.createTable "t" [{ name := "a", declaredType := none, constraints := [.notNull] }] []])
 #guard restricted (migration tableT [.createIndex "i" false "t" ["a"]])
 #guard statements (migration [] [.createTable "sqlite_x" [column "a"] []]) == [.prepareError (.reservedName "sqlite_x")]

@@ -32,7 +32,7 @@ theorem resolveAllFrom_ok (resolveOne : Nat → α → Except ValueIssue β) (st
       exact ⟨v, by simpa using hv, by simpa [Nat.add_assoc, Nat.add_comm 1 index] using hr⟩
 
 /-- For every affinity, value and path, a successful {name}`storedValue` returns the
-same value. -/
+same value. Proof sketch: the only successful branch returns its input. -/
 theorem storedValue_ok (affinity : Affinity) (value stored : Value) (path : List Nat)
     (ok : storedValue affinity value path = .ok stored) : stored = value := by
   unfold storedValue at ok
@@ -44,8 +44,12 @@ theorem storedValue_ok (affinity : Affinity) (value stored : Value) (path : List
 for the table columns, the table positions of the written columns, a written row
 and a full row:
 * The full row has one value for each table column.
-* A column written at index {lit}`k` has the {lit}`k`-th written value.
-* Every other column has the value of its default, as {name}`defaultValue` gives it. -/
+* For each table column, when its position occurs in the written positions, the
+  first occurrence {lit}`k` decides: the column has the {lit}`k`-th written value, or
+  NULL when the written row has no {lit}`k`-th value.
+* Every other table column has the value of its default, as {name}`defaultValue`
+  gives it.
+Written positions outside the table impose nothing. -/
 def RowWidth (dqs : Bool) (columns : List CatalogColumn) (positions : List Nat)
     (written full : List Value) : Prop :=
   full.length = columns.length ∧ ∀ index (h : index < columns.length),
@@ -82,7 +86,9 @@ theorem fullRow_rowWidth (dqs : Bool) (columns : List CatalogColumn) (positions 
 unchanged, the statement names the position of the table that the name finds, and
 for every resolved row there are table positions of the written columns and a
 written row such that the resolved row satisfies {name}`RowWidth` for the table's
-columns. So every resolved row has one value for each table column. -/
+columns. So every resolved row has one value for each table column. Proof sketch:
+split the resolver down to its successful branch; each row is a result of
+{name}`fullRow` by {name}`resolveAllFrom_ok`, and {name}`fullRow_rowWidth` gives the rule. -/
 theorem resolveInsert_rowWidth (context : ResolveContext) (catalog after : Catalog) (index : Nat)
     (tableName : String) (names : Option (List String)) (rows : List (List Syntax.Expr))
     (position : Nat) (full : List (List Value))
