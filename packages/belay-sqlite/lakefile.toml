@@ -5,7 +5,7 @@ defaultTargets = ["Belay.Sqlite", "Belay.Sqlite.Codec"]
 [[lean_lib]]
 name = "Belay.Sqlite"
 roots = []
-globs = ["Belay.Sqlite", "Belay.Sqlite.Declarations", "Belay.Sqlite.Model", "Belay.Sqlite.Execution", "Belay.Sqlite.LiteralData", "Belay.Sqlite.SqlExecution", "Belay.Sqlite.SqlProofs", "Belay.Sqlite.Preservation", "Belay.Sqlite.ModelFacts", "Belay.Sqlite.SchemaExtension", "Belay.Sqlite.SchemaPreservation", "Belay.Sqlite.LiteralPreservation", "Belay.Sqlite.ModelProjection", "Belay.Sqlite.Laws"]
+globs = ["Belay.Sqlite", "Belay.Sqlite.Declarations", "Belay.Sqlite.Model", "Belay.Sqlite.Execution", "Belay.Sqlite.LiteralData", "Belay.Sqlite.SqlExecution", "Belay.Sqlite.SqlProofs", "Belay.Sqlite.Preservation", "Belay.Sqlite.ModelFacts", "Belay.Sqlite.SchemaExtension", "Belay.Sqlite.SchemaPreservation", "Belay.Sqlite.LiteralPreservation", "Belay.Sqlite.ModelProjection", "Belay.Sqlite.Laws", "Belay.Sqlite.Profile", "Belay.Sqlite.Syntax", "Belay.Sqlite.Catalog", "Belay.Sqlite.Resolved", "Belay.Sqlite.ResolveValues", "Belay.Sqlite.ResolveDefinitions", "Belay.Sqlite.ResolveWrites", "Belay.Sqlite.Resolve", "Belay.Sqlite.ResolveSpec", "Belay.Sqlite.ResolveRowSpec", "Belay.Sqlite.ResolveCatalogSpec", "Belay.Sqlite.ResolveNamesSpec", "Belay.Sqlite.ResolveErrorKinds", "Belay.Sqlite.ResolvePrepareSpec", "Belay.Sqlite.ResolvePrepareRules", "Belay.Sqlite.ResolveDefinitionRules", "Belay.Sqlite.ResolveTransactionSpec", "Belay.Sqlite.ResolveExamples"]
 
 [[lean_lib]]
 name = "Belay.Sqlite.Codec"

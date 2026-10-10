@@ -25,6 +25,29 @@ Relevant files: `packages/belay-sqlite/Belay/Sqlite/`,
 - 2026-10-10: PR #79 merged first (owner decision). Task and status files
   created in the jj workspace `adr8-step1`.
 
+- 2026-10-10: the Lean core layers, all in `packages/belay-sqlite/Belay/Sqlite/`:
+  `Profile`, `Syntax`, `Catalog` (affinity and rowid alias rules), `Resolved`
+  (prepare errors with SQLite's message formats, model restrictions),
+  `ResolveValues`, `ResolveDefinitions`, `ResolveWrites`, `Resolve`, and the
+  specification modules `ResolveSpec` (column reference), `ResolveRowSpec`
+  (row width), `ResolveCatalogSpec` and `ResolveNamesSpec` (unique names, per
+  statement and per script), `ResolveErrorKinds`, `ResolvePrepareSpec`,
+  `ResolvePrepareRules` and `ResolveDefinitionRules` (prepare errors for
+  missing and used names, both directions, for every statement),
+  `ResolveTransactionSpec` (catalog after ROLLBACK): 51 theorems. `ResolveExamples` has 30
+  `#guard` checks. `LiteralData.lossless` takes an affinity, so the old model and
+  `resolve` share it. The prepare checks follow the order of the 3.51.0
+  functions `sqlite3StartTable`, `sqlite3AddColumn`, `sqlite3AddPrimaryKey`,
+  `sqlite3CreateIndex`, `sqlite3AlterBeginAddColumn`,
+  `sqlite3AlterFinishAddColumn`, `sqlite3MultiValues`, `sqlite3Insert` and
+  `sqlite3Update`, read in the vendored `parser/upstream/sqlite3.c`.
+- Findings from the SQLite source: the first error wins, because
+  `sqlite3RunParser` stops at the first error; the rowid alias needs the
+  declared type exactly `INTEGER` (`COLTYPE_INTEGER`, case-insensitive after
+  dequoting) and no `DESC` in the column constraint, while a table
+  `PRIMARY KEY (x DESC)` is still an alias; `DEFAULT name` stores the name as
+  text; COMMIT and ROLLBACK without a transaction fail at step, not at prepare.
+
 ## Remaining
 
-- Everything in the task file.
+- Full checks, the review, the CI time comparison and the pull request.
