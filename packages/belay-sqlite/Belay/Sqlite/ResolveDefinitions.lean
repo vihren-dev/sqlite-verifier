@@ -87,7 +87,7 @@ def resolveCreateTable (context : ResolveContext) (catalog : Catalog) (index : N
     (constraints : List Syntax.TableConstraint) : StatementResolution :=
   let statistics := context.mode == .description && statisticsTable name columns constraints
   if reservedName name && !statistics then
-    if context.mode == .description then restrict index [0] "engine-managed tables other than sqlite_stat1 and sqlite_stat4 are not modeled"
+    if context.mode == .description then restrict index [0] "engine-managed tables other than sqlite_stat1 and sqlite_stat4 are not modeled; remove the table from the schema"
     else prepareError catalog (.reservedName name)
   else match catalog.find name with
   | some (_, { entry := .table _, .. }) => prepareError catalog (.tableExists name)
@@ -97,19 +97,19 @@ def resolveCreateTable (context : ResolveContext) (catalog : Catalog) (index : N
         (addTableConstraints name · constraints) with
     | .error error => prepareError catalog error
     | .ok table =>
-      if columns.any (rowidName ·.name) then restrict index [1] "column names that hide the rowid are not modeled"
-      else if table.rowidAlias.isSome then restrict index [1] "INTEGER PRIMARY KEY rowid aliases are not modeled"
+      if columns.any (rowidName ·.name) then restrict index [1] "column names rowid, _rowid_ and oid are not modeled; rename the column"
+      else if table.rowidAlias.isSome then restrict index [1] "INTEGER PRIMARY KEY rowid aliases are not modeled; declare the key column with another type, such as BIGINT"
       else if context.mode == .execution && (!constraints.isEmpty || columns.any (!·.constraints.isEmpty)) then
-        restrict index [1] "constraints and defaults in a CREATE TABLE that runs are not modeled"
+        restrict index [1] "constraints and defaults in a CREATE TABLE that runs are not modeled; create the table with plain columns"
       else if columns.any (!·.constraints.all Syntax.ColumnConstraint.modeledDefault) then
-        restrict index [1] "only the CURRENT_TIMESTAMP default is modeled"
+        restrict index [1] "only the CURRENT_TIMESTAMP default is modeled; remove the other default"
       else .ok (.createTable name table, catalog ++ [{ name := name, entry := .table table }])
 
 /-- Resolve CREATE INDEX of a catalog description. The execution semantics does not
 model CREATE INDEX, so a CREATE INDEX that runs is a model restriction. -/
 def resolveCreateIndex (context : ResolveContext) (catalog : Catalog) (index : Nat)
     (name : String) (unique : Bool) (tableName : String) (columns : List String) : StatementResolution :=
-  if context.mode == .execution then restrict index [] "a CREATE INDEX that runs is not modeled" else
+  if context.mode == .execution then restrict index [] "a CREATE INDEX that runs is not modeled; remove the CREATE INDEX statement" else
   match catalog.findTable tableName with
   | none => prepareError catalog (.noSuchTable tableName)
   | some (position, table) =>
@@ -140,7 +140,7 @@ def resolveAddColumn (context : ResolveContext) (catalog : Catalog) (index : Nat
       prepareError catalog (.defaultNotConstant definition.name)
     else if definition.constraints.any Syntax.ColumnConstraint.isPrimaryKey then prepareError catalog .cannotAddPrimaryKey
     else if definition.constraints.any Syntax.ColumnConstraint.isUnique then prepareError catalog .cannotAddUnique
-    else if rowidName definition.name then restrict index [1] "column names that hide the rowid are not modeled"
+    else if rowidName definition.name then restrict index [1] "column names rowid, _rowid_ and oid are not modeled; rename the column"
     else if !definition.constraints.isEmpty then
       restrict index [1] "only a nullable column without a default can be added"
     else

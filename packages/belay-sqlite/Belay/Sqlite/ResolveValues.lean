@@ -84,7 +84,7 @@ a hexadecimal literal over 64 bits is SQLite's prepare error. -/
 def numericLiteral (text : String) (negated : Bool) (path : List Nat) : Except ValueIssue Value :=
   match numericValue text negated with
   | .integer value => .ok (.integer value)
-  | .real => .error (.restriction path "REAL values are outside the modeled subset")
+  | .real => .error (.restriction path "REAL values are not modeled; use an integer, text, blob or NULL value")
   | .hexTooBig => .error (.prepare (.hexLiteralTooBig text))
 
 /-- The stored value of a literal expression in a VALUES row or a SET assignment,
@@ -106,14 +106,14 @@ def literalValue (dqs : Bool) : Syntax.Expr → Except ValueIssue Value
   | .identifier name doubleQuoted =>
     if doubleQuoted && dqs then .ok (.text name.toUTF8.toList)
     else .error (.prepare (.noSuchColumn name))
-  | .currentTime _ => .error (.restriction [] "time values are outside the modeled subset")
-  | .negate _ => .error (.restriction [] "only a numeric literal may be negated")
-  | .equals .. => .error (.restriction [] "a comparison is not a literal value")
+  | .currentTime _ => .error (.restriction [] "time values are not modeled; write the time as a text literal")
+  | .negate _ => .error (.restriction [] "only a numeric literal may be negated; write the negated value as a literal")
+  | .equals .. => .error (.restriction [] "a comparison is not a literal value; write a literal value")
 
 /-- Admit a value only when the column's affinity stores it unchanged
 ({name}`LiteralData.lossless`); otherwise the conversion is a model restriction. -/
 def storedValue (affinity : Affinity) (value : Value) (path : List Nat) : Except ValueIssue Value :=
   if LiteralData.lossless affinity value then .ok value
-  else .error (.restriction path "the column affinity would convert this value")
+  else .error (.restriction path "the column affinity would convert this value; write a value of the column's storage class")
 
 end Belay.Sqlite
