@@ -54,7 +54,8 @@ examples, the `belay.sqlite` namespace frontend and the Python CLI.
 The frontend takes explicit parser and profile inputs. It has no dependency on
 the verification application. Application Lean emission lives in
 `migration_check/lean_inputs.py`; conformance calls frontend admission directly. `just build` uses this same runtime and exposes local development
-paths as links; it does not rebuild Lean through Elan or Lake outside Nix. It never caches a user
+paths as links: `.lake/build` and `packages/belay-sqlite/.lake/build` (the
+outputs of the two Lake packages), `lean`, and the parsers in `build/`; it does not rebuild Lean through Elan or Lake outside Nix. It never caches a user
 proof verdict or installed test result. Set
 `SQLITE_VERIFIER_RUNTIME_ROOT` to this immutable output before `just test` or
 `just package`. Fixtures make private writable copies of examples; reports remain
