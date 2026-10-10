@@ -23,13 +23,14 @@ from belay.sqlite.translate import starting_schema, statements  # noqa: E402
 def compile_case(name: str, schema: Path, approved: Path, candidate: Path, version: str) -> Path:
     """Run the same staged compilation as `verify`, into a workspace that is kept."""
     selected = profile(version)
-    runtime = Runtime.locate(selected.engine)
-    start = starting_schema(parse(runtime.parser, schema.read_bytes(), "schema.sql", version))
-    script = statements(parse(runtime.parser, (candidate / "migration.sql").read_bytes(), "migration.sql", version))
+    runtime = Runtime.locate()
+    parser = runtime.sql_parser(selected)
+    start = starting_schema(parse(parser, schema.read_bytes(), "schema.sql"))
+    script = statements(parse(parser, (candidate / "migration.sql").read_bytes(), "migration.sql"))
     workspace = WORK / "compiled" / name
     shutil.rmtree(workspace, ignore_errors=True)
     workspace.mkdir(parents=True)
-    compile_project(sysroot=runtime.sysroot, library=runtime.library,
+    compile_project(sysroot=runtime.sysroot, libraries=runtime.libraries,
                     requirements=approved / "Requirements.lean", interpretation=approved / "Interpretation.lean",
                     next_interpretation=candidate / "NextInterpretation.lean", proofs=candidate / "Proofs.lean",
                     schema_inputs=schema_inputs(start), sql_inputs=sql_inputs(start, script, selected),
