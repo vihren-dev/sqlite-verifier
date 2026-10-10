@@ -75,9 +75,9 @@ example : error (runSql [.insert "records" ["key", "value"] [.integer 2, .null]]
 
 -- Unsupported coercions and random rowid allocation are failed domain obligations,
 -- not modeled native constraint errors. Nullable duplicate keys remain supported.
-example : LiteralData.lossless { name := "x", affinity := .text } (.integer 7) = false := by decide +kernel
-example : LiteralData.lossless { name := "x", affinity := .numeric } (.text [49, 50]) = false := by decide +kernel
-example : LiteralData.lossless { name := "x", affinity := .numeric }
+example : LiteralData.lossless .text (.integer 7) = false := by decide +kernel
+example : LiteralData.lossless .numeric (.text [49, 50]) = false := by decide +kernel
+example : LiteralData.lossless .numeric
     (.text "2026-09-25 00:00:00".toUTF8.toList) = true := by decide +kernel
 example : LiteralData.insertReady { original with rows := [⟨9223372036854775807, [.null, .text []]⟩] }
     ["key", "value"] [.integer 2, .text []] = false := by decide +kernel

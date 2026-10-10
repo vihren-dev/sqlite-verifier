@@ -22,13 +22,14 @@ def nonnumericText (bytes : List UInt8) : Bool :=
 NULL and BLOB pass. Integers must be bounded with INTEGER, NUMERIC or BLOB
 affinity. Text passes with TEXT or BLOB affinity, or with INTEGER or NUMERIC
 affinity when {name}`nonnumericText` holds. REAL values do not pass.
-Use {lean}`Value.null` for NULL; constraint checks remain separate. -/
-def lossless (column : Column) : Value → Bool
+Use {lean}`Value.null` for NULL; constraint checks remain separate. The
+column is given by its affinity, so table columns and catalog columns share it. -/
+def lossless (affinity : Affinity) : Value → Bool
   | .null | .blob _ => true
   | .integer value => boundedInteger value &&
-      [.integer, .numeric, .blob].contains column.affinity
-  | .text bytes => [.text, .blob].contains column.affinity ||
-      ([.integer, .numeric].contains column.affinity && nonnumericText bytes)
+      [.integer, .numeric, .blob].contains affinity
+  | .text bytes => [.text, .blob].contains affinity ||
+      ([.integer, .numeric].contains affinity && nonnumericText bytes)
   | .real _ => false
 
 /-- Read the cell at the first column with the given name. Return
@@ -101,7 +102,7 @@ Supplying every value avoids implicit defaults. This admits evaluation;
 the inserted table's constraint truth is checked separately. -/
 def insertReady (table : Table) (columns : List String) (values : List Value) : Bool :=
   columns == table.shape.columns.map Column.name && values.length == table.shape.columns.length &&
-  (table.shape.columns.zip values).all (fun (column, value) => lossless column value) &&
+  (table.shape.columns.zip values).all (fun (column, value) => lossless column.affinity value) &&
   tableReady table && boundedInteger (nextRowid table.rows) &&
   table.shape.properties.keys.all (fun key => key.all fun name =>
     (read table { rowid := 0, values := values } name).any integerOrNull)
@@ -136,7 +137,7 @@ matching row. This check does not establish the updated constraints. -/
 def updateReady (table : Table) (column : String) (value : Value) (key : String) (equals : Int) : Bool :=
   boundedInteger equals && tableReady table && comparisonReady table key &&
   table.shape.properties.keys.contains [key] &&
-  table.shape.columns.any (fun item => item.name == column && lossless item value) &&
+  table.shape.columns.any (fun item => item.name == column && lossless item.affinity value) &&
   (updated table column value key equals).shape.properties.keys.all (fun names =>
     names.all (comparisonReady (updated table column value key equals)))
 
