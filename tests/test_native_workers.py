@@ -169,3 +169,19 @@ if __name__ == "__main__":
                     assert time.monotonic() < deadline, f"Worker {worker['pid']} still holds its activity lock"
                     time.sleep(0.02)
     assert not list(storage.rglob("*.db"))
+
+
+def test_pinned_development_corpus_loads_without_loading_workers(monkeypatch: pytest.MonkeyPatch) -> None:
+    """`native_workers.load_development_corpus` starts no process pool for a pinned frozen corpus.
+
+    A pinned corpus is only decoded, so loading workers would add process start time.
+    """
+    directory = ROOT / "conformance/synthetic-workload/corpus"
+    expected = native_workers.load(directory)
+
+    def refuse(*_arguments: object, **_options: object) -> None:
+        """Fail the test when development loading creates loading workers."""
+        raise AssertionError("loading workers started for a pinned corpus")
+
+    monkeypatch.setattr(native_workers, "ProcessPoolExecutor", refuse)
+    assert native_workers.load_development_corpus(directory) == expected

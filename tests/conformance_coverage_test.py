@@ -75,7 +75,12 @@ def test_parser_failure_is_not_subset_exclusion(runtime_root: Path, monkeypatch:
 
 
 def test_review_corpus_extends_and_replays(runtime_root: Path) -> None:
-    """V3 retains v2, adds scoped requirement evidence, and separates query-only blockers."""
+    """`conformance.progress.loaded_progress` on corpus v3, which extends v2.
+
+    V3 keeps the v2 records, its new cases replay natively, and the report has
+    no disagreement or harness error, covers more than 40 requirement rows, and
+    counts query-only blockers separately.
+    """
     import gzip
     _, previous = load(ROOT / "conformance/corpus-v2")
     manifest, records = load(ROOT / "conformance/corpus-v3")
