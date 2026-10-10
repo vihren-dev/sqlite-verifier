@@ -4,11 +4,21 @@
 from conformance.case_format import Json, cell_wire
 from conformance.query_window import tokens
 
+NAME_PREFIXES = ("$", ":", "@")
+"""The first character of each named SQLite parameter, as Tcl tests write them."""
+
 
 def named_slots(command: str) -> list[str]:
-    """Find candidate names while keeping comments and quoted SQL text outside binding evidence."""
+    """Find candidate names while keeping comments and quoted SQL text outside binding evidence.
+
+    Each name starts with one of `NAME_PREFIXES`. A command without these
+    characters has no name, so the tokenizer does not run for it. Corpus loading calls this
+    for each setup command of each case, and most commands have none of them.
+    """
+    if not any(prefix in command for prefix in NAME_PREFIXES):
+        return []
     return list(dict.fromkeys(token.text for token in tokens(command) if len(token.text) > 1
-                             and token.text != "::" and token.text.startswith(("$", ":", "@"))))
+                             and token.text != "::" and token.text.startswith(NAME_PREFIXES)))
 
 
 def observation(database: str, sql: str) -> dict[str, Json]:

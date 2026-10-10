@@ -29,6 +29,13 @@ binding checks, native replay of the selected cases, and current-model
 classification. The measurement identifies the selected ordinary-file
 temporary storage and retains actual timing headroom.
 
+Owner decision, 2026-10-10: a pinned frozen corpus
+(`conformance/pinned_corpora.py`) passed complete validation for its exact
+bytes, so the phase loads it with a tree-digest check and decoding only. The
+`frozen` Nix suite runs the complete validation of each pinned corpus. A
+corpus that is not pinned keeps the complete loading and binding checks below.
+Task: [pinned frozen corpora](20261010-pinned-frozen-corpora.task.md).
+
 All authored and synthetic cases remain mandatory. Policy version 1 keeps
 the same 184 v5 selected identities, one case from each nonempty upstream
 source shard, and eight additional cases ranked only by source and name.
@@ -68,8 +75,8 @@ digests, returned records and order remain exact. It records separate serial
 and parallel durations, input/output hashes and process overhead. This
 diagnostic runs no native or model replay and does not establish acceptance.
 The development report may validate independent shards in at most four
-spawned loading processes. Every shard, snapshot, size, profile and global
-binding check remains mandatory before selection. Returned records, nested
+spawned loading processes. For a corpus that is not pinned, every shard,
+snapshot, size, profile and global binding check remains mandatory before selection. Returned records, nested
 mutable independence and failures retain input order. The library loader
 keeps its serial default and can use a caller-supplied standard executor.
 Native replay starts after loading workers finish. Harness tests exercise
@@ -134,7 +141,8 @@ The full-corpus storage evidence in
 Its full native and whole-command timings are separate from this selected
 development phase. Fresh profiling selects optimizations; dropping binding
 checks, caching a prior success, changing SQL or weakening native evidence
-does not satisfy this task. Timing runs use an idle host.
+does not satisfy this task. The pinned frozen corpora above are the one
+owner-approved exception for loading. Timing runs use an idle host.
 Fresh receipts retain host load and OS-cache qualifications. Full identity
 reads occur outside phase timing; cache residency is not claimed. A filesystem
 observation made after a phase is labeled after-only, and does not replace

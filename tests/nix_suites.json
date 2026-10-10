@@ -86,5 +86,8 @@
   ],
   "parserLibrary": [
     "tests/parser_library_test.py"
+  ],
+  "pinned": [
+    "tests/conformance_pinned_corpora_test.py"
   ]
 }

@@ -53,7 +53,7 @@ their per-test limits, described below. The
 [dated evidence](../reports/20261007-darwin-bundle-scheduling/README.md)
 distinguishes the earlier hosted failures from the isolated local pass.
 
-`just test-full` builds ten independent Nix test targets
+`just test-full` builds eleven independent Nix test targets
 with `nix-build -A tests`; the flake exposes the same derivations as
 `checks.<system>`:
 
@@ -62,6 +62,7 @@ with `nix-build -A tests`; the flake exposes the same derivations as
   compared with pinned native SQLite on authored and generated cases.
 - `tests.frozen`: replay and classification of the frozen corpora (v1 to v5)
   and checks of the retained evidence reports.
+- `tests.pinned`: complete validation of each pinned frozen corpus.
 - `tests.harness`: fast acquisition, storage, profile and workload checks of the
   conformance harness.
 - `tests.sample`: all frozen v4 authored and synthetic cases plus a stable
@@ -86,8 +87,21 @@ Each target declares only the inputs that its tests read. The conformance target
 modules listed in `tests/conformance_frontend.json`, so a change to the verification
 application, for example `migration_check/prepare.py`, keeps their results.
 `tests/test_conformance_frontend.py` checks that list against the actual imports.
-Only `tests.frozen` (and the `sample` and `upstream` targets that read them) depend on
+Only `tests.frozen` (and the `pinned`, `sample` and `upstream` targets that read them) depend on
 the large frozen corpora and retained reports.
+
+`conformance/pinned-corpora.json` pins each frozen corpus (v1 to v5 and the
+synthetic workload corpus) by the SHA-256 digest of its complete directory tree.
+`conformance.corpus.load` decodes a pinned corpus without validating it again.
+Any other corpus, including a frozen corpus with a changed, added or removed
+file, gets the complete validation (`conformance.corpus.validated_load`).
+`tests.pinned` (`tests/conformance_pinned_corpora_test.py`) runs the complete
+validation on each pinned corpus. Its inputs are only the pins
+(`conformance/pinned-corpora.json`), the pinned corpora, the SQL frontend and
+the conformance modules that the validation imports. It runs again only when
+one of them changes, so the current validator accepted each pinned corpus. A
+module missing from its input list fails it with an import error. To freeze or
+change a corpus, validate it and update its pin.
 
 Each test has a 300-second limit (`pytest-timeout`), so a hung test fails with its
 own name. Nix runs several targets at the same time, so a target's total time
@@ -103,7 +117,7 @@ sandbox is supplied or tested. Nix daemon and installation tests run on the host
 Cheap unit tests rerun normally. Direct `just test-cases FILE` always executes
 pytest, even if the corresponding Nix target is already cached.
 Development `just test` selects `developmentTests`, the same targets except
-`tests.model` and `tests.frozen`. `tests/nix_suites.json` assigns test files to Nix and supplies the
+`tests.model`, `tests.frozen` and `tests.pinned`. `tests/nix_suites.json` assigns test files to Nix and supplies the
 host `--source-checks` exclusion list. Source-owned conformance checks remain
 fresh. Every scope from `test` up runs all Nix targets.
 

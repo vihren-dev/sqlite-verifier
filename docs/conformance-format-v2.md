@@ -101,7 +101,9 @@ connection controls have null call entries and remain in `sourceSetupCommands`.
 minimization removes setup SQL, vectors, helpers and indices together; it never
 changes the original calls. Both recording kinds retain `setupHelpers`,
 `migrationReadonly`, `migrationReadonlySpans` and `auxiliaryReplay` for fresh
-replay. The loader validates this complete extension before model admission.
+replay. The complete validation (`conformance.corpus.validated_load`) checks
+this extension before model admission. A frozen corpus gets this validation
+once; [Continuous integration](ci.md) describes the pinned frozen corpora.
 Fresh replay checks actual slot names, bound values, source expectations and
 native observations. Historical records retain their original replay shape.
 

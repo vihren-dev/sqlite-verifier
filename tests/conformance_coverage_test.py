@@ -10,7 +10,7 @@ from conformance.corpus import load, native_replay
 from conformance.measure_coverage import gcov_counts
 from conformance.native_connection import Connection, library_path, load_library
 from conformance.native_replay import schema_sql
-from conformance.progress import progress
+from conformance.progress import loaded_progress, progress
 from conformance.record_parser import runtime_library
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -75,7 +75,12 @@ def test_parser_failure_is_not_subset_exclusion(runtime_root: Path, monkeypatch:
 
 
 def test_review_corpus_extends_and_replays(runtime_root: Path) -> None:
-    """V3 retains v2, adds scoped requirement evidence, and separates query-only blockers."""
+    """`conformance.progress.loaded_progress` on corpus v3, which extends v2.
+
+    V3 keeps the v2 records, its new cases replay natively, and the report has
+    no disagreement or harness error, covers more than 40 requirement rows, and
+    counts query-only blockers separately.
+    """
     import gzip
     _, previous = load(ROOT / "conformance/corpus-v2")
     manifest, records = load(ROOT / "conformance/corpus-v3")
@@ -87,7 +92,8 @@ def test_review_corpus_extends_and_replays(runtime_root: Path) -> None:
     extraction = gzip.decompress((ROOT / "conformance/corpus-v3/extraction.json.gz").read_bytes())
     assert hashlib.sha256(extraction).hexdigest() == manifest["upstreamManifestSha256"]
     assert any(record.get("upstream", {}).get("file", "").startswith("e_") and record["requirements"] for record in additions)
-    report = progress(ROOT / "conformance/corpus-v3", ROOT / "conformance/requirements-3.51.0.json", runtime_root)
+    report = loaded_progress(ROOT / "conformance/corpus-v3", manifest, records,
+                             ROOT / "conformance/requirements-3.51.0.json", runtime_root)
     assert report["counts"].get("HARNESS_ERROR", 0) == report["counts"].get("DISAGREE", 0) == 0
     assert sum(report["counts"].values()) == len(records)
     assert sum(any(row["counts"].values()) for row in report["requirementMatrix"]) > 40
