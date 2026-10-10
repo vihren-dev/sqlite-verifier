@@ -143,3 +143,25 @@ def expanded_record(value: Json, *, byte_limit: int | None = None) -> dict[str, 
     if byte_limit is not None:
         check_size(expanded_byte_count, byte_limit)
     return {**result, "initial": restored[0], "trace": restored[1:]}
+
+
+def decoded_record(value: dict[str, Json]) -> dict[str, Json]:
+    """Reconstruct the snapshots of a record that `expanded_record` already accepted.
+
+    The result equals the `expanded_record` result, and each snapshot reference
+    gets an independent mutable tree. This function does no digest, size or
+    shape checks: use it only for pinned frozen corpora
+    (`conformance.pinned_corpora`), whose exact bytes passed those checks.
+    """
+    if "snapshots" not in value:
+        return value
+    copies = {digest: marshal.dumps(snapshot, SNAPSHOT_COPY_VERSION)
+              for digest, snapshot in value["snapshots"].items()}
+    restored: list[dict[str, Json]] = []
+    for observation in observations(value):
+        copied = dict(observation)
+        for field in ("visible", "persisted"):
+            copied[field] = marshal.loads(copies[copied[field]["snapshot"]])
+        restored.append(copied)
+    result = {key: item for key, item in value.items() if key not in {"snapshotStorageVersion", "snapshots"}}
+    return {**result, "initial": restored[0], "trace": restored[1:]}

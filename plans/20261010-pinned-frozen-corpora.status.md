@@ -40,3 +40,12 @@ commands; 4,867 are distinct, and 160,731 contain no `$`, `:` or `@`.
 - 2026-10-10: `conformance.progress.loaded_progress` reports progress for
   records that the caller loaded. The progress view test loads each corpus
   once. Local time of the v5 test: 64.6 s before, 33.3 s after.
+- 2026-10-10: `conformance/pinned_corpora.py` pins v1 to v5 and the synthetic
+  workload corpus by tree digest. `conformance.corpus.load` decodes a pinned
+  corpus with `native_storage.decoded_record`; `validated_load` keeps the
+  complete validation. `tests/conformance_pinned_corpora_test.py` (frozen
+  suite) validates each pinned corpus completely, compares the fast path, and
+  checks refusal of changed copies. The coverage test uses `loaded_progress`.
+  Docs and the development replay task state the owner decision. Local
+  sandboxed suites pass: frozen 161, model 56, sample 22, upstream 117,
+  harness 129. Local frozen suite: 202 s (shared host).

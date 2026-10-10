@@ -31,6 +31,7 @@
   ],
   "frozen": [
     "tests/conformance_progress_views_test.py",
+    "tests/conformance_pinned_corpora_test.py",
     "tests/conformance_coverage_test.py",
     "tests/conformance_tier_bindings_test.py",
     "tests/conformance_authored_test.py",

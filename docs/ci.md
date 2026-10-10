@@ -89,6 +89,16 @@ application, for example `migration_check/prepare.py`, keeps their results.
 Only `tests.frozen` (and the `sample` and `upstream` targets that read them) depend on
 the large frozen corpora and retained reports.
 
+`conformance/pinned_corpora.py` pins each frozen corpus (v1 to v5 and the
+synthetic workload corpus) by the SHA-256 digest of its complete directory tree.
+`conformance.corpus.load` decodes a pinned corpus without validating it again.
+Any other corpus, including a frozen corpus with a changed, added or removed
+file, gets the complete validation (`conformance.corpus.validated_load`).
+`tests/conformance_pinned_corpora_test.py` in `tests.frozen` runs the complete
+validation on each pinned corpus. `tests.frozen` runs again when a corpus or a
+validation module changes, so the current validator accepted each pinned
+corpus. To freeze or change a corpus, validate it and update its pin.
+
 Each test has a 300-second limit (`pytest-timeout`), so a hung test fails with its
 own name. Nix runs several targets at the same time, so a target's total time
 depends on the other targets; its 1200-second limit only guards against a hang

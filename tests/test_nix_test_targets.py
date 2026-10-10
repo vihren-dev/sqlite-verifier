@@ -85,6 +85,7 @@ def source_tree(tmp_path: Path) -> Path:
     ('conformance/replay_tiers.py', {'model', 'frozen', 'harness', 'sample', 'upstream'}),
     ('conformance/native_workers.py', {'model', 'frozen', 'harness', 'sample', 'upstream'}),
     ('conformance/corpus_workers.py', {'model', 'frozen', 'harness', 'sample', 'upstream'}),
+    ('conformance/pinned_corpora.py', {'model', 'frozen', 'harness', 'sample', 'upstream'}),
     ('conformance/corpus-v5/manifest.json', {'frozen', 'sample'}),
     ('conformance/corpus-v4/manifest.json', {'frozen', 'upstream'}),
     ('conformance/corpus-v3/manifest.json', {'frozen', 'upstream'}),
