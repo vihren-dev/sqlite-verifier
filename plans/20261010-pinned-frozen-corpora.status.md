@@ -1,6 +1,6 @@
 # Pinned frozen corpora status
 
-Created 2026-10-10. Status: IN PROGRESS (item 8; [PR #82](https://github.com/vihren-dev/sqlite-verifier/pull/82)).
+Created 2026-10-10. Status: DONE ([PR #82](https://github.com/vihren-dev/sqlite-verifier/pull/82)).
 Task: [20261010-pinned-frozen-corpora.task.md](20261010-pinned-frozen-corpora.task.md).
 
 ## References
@@ -70,3 +70,7 @@ commands; 4,867 are distinct, and 160,731 contain no `$`, `:` or `@`.
   measured by running the complete validation of all pinned corpora.
   `tests/test_pinned_corpora_inventory.py` (host) checks that each
   `corpus-v*` directory is pinned.
+- 2026-10-10: CI run 38079809116 passes on Linux. `pinned` suite: 71.0 s
+  (v5 50.5 s, v4 10.2 s, v3 9.8 s). `frozen` suite: 83.2 s (baseline
+  210.7 s). The local Nix invalidation tests show that model, progress and
+  requirement changes keep the `pinned` result. The task is DONE.
