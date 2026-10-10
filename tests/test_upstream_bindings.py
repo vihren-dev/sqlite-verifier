@@ -8,6 +8,7 @@ shortcut cannot hide a named parameter.
 import pytest
 
 from conformance.query_window import tokens
+from conformance import upstream_bindings
 from conformance.upstream_bindings import named_slots
 
 pytestmark = [pytest.mark.unit, pytest.mark.conformance]
@@ -42,3 +43,13 @@ def test_commands_without_prefix_characters_have_no_names() -> None:
     """The shortcut applies only when the command has none of the three characters."""
     assert named_slots("SELECT a FROM t WHERE b = 'x'") == []
     assert named_slots("SELECT a FROM t WHERE b = $x") == ["$x"]
+
+
+def test_commands_without_prefix_characters_skip_the_tokenizer(monkeypatch: pytest.MonkeyPatch) -> None:
+    """Corpus loading relies on the shortcut: such a command must not reach the tokenizer."""
+    def refuse(command: str) -> list[object]:
+        """Fail the test when the shortcut does not apply."""
+        raise AssertionError(f"tokenizer called for {command!r}")
+
+    monkeypatch.setattr(upstream_bindings, "tokens", refuse)
+    assert named_slots("CREATE TABLE t(a, b DEFAULT 'x')") == []
