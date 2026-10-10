@@ -54,8 +54,9 @@ in rec {
     inherit pkgs leanToolchain leanRuntime runtime native conformance modelPackage root;
     parserLibrary = parserLibrary.testRoot;
   };
-  # `just test` skips the slow model comparisons and the frozen evidence; `just test-full` runs them.
-  developmentTests = pkgs.lib.removeAttrs tests [ "model" "frozen" ];
+  # `just test` skips the slow model comparisons, the frozen evidence and the pinned-corpus validation;
+  # `just test-full` runs them.
+  developmentTests = pkgs.lib.removeAttrs tests [ "model" "frozen" "pinned" ];
   runtime = import ./runtime.nix {
     inherit pkgs sources leanToolchain leanRuntime modelPackage;
     parserLibrary = parserLibrary.library;

@@ -2,8 +2,8 @@
 
 `load` decodes a pinned frozen corpus without validating it again. These tests
 are the single place where each pinned corpus gets the complete validation by
-the current validator. The `frozen` Nix suite runs them again when a corpus or
-a validation module changes.
+the current validator. They form the `pinned` Nix suite, which runs again only
+when a pinned corpus or a module that the validation imports changes.
 """
 
 from concurrent.futures import Executor, ProcessPoolExecutor
@@ -51,12 +51,6 @@ def test_pinned_corpus_passes_complete_validation(digest: str, label: str) -> No
     for shard in manifest["shards"]:
         for line in gzip.decompress((directory / shard["path"]).read_bytes()).splitlines():
             assert serialized(json.loads(line)) == line, f"{label}/{shard['path']} has a non-canonical line"
-
-
-def test_each_frozen_corpus_directory_is_pinned() -> None:
-    """A new frozen corpus version gets a pin, so the pin test validates it."""
-    frozen = {path.relative_to(ROOT).as_posix() for path in (ROOT / "conformance").glob("corpus-v*")}
-    assert frozen | {SMALL} == set(PINNED_TREES.values())
 
 
 def copied(tmp_path: Path, label: str) -> Path:

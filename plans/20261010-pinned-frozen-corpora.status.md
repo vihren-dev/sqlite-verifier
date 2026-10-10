@@ -1,6 +1,6 @@
 # Pinned frozen corpora status
 
-Created 2026-10-10. Status: DONE ([PR #82](https://github.com/vihren-dev/sqlite-verifier/pull/82)).
+Created 2026-10-10. Status: IN PROGRESS (item 8; [PR #82](https://github.com/vihren-dev/sqlite-verifier/pull/82)).
 Task: [20261010-pinned-frozen-corpora.task.md](20261010-pinned-frozen-corpora.task.md).
 
 ## References
@@ -63,3 +63,10 @@ commands; 4,867 are distinct, and 160,731 contain no `$`, `:` or `@`.
   - `frozen` suite: 210.7 s to 152.2 s; `sample` suite: 96.7 s to 46.2 s.
   Unchanged model tests also changed by -3 % to -46 %, because fewer suites
   shared the runner. The task is DONE.
+- 2026-10-10: owner request: move the pin test to its own `pinned` Nix suite.
+  The pins move to `conformance/pinned-corpora.json`, which both Nix and
+  `conformance/pinned_corpora.py` read. The suite inputs are the import
+  closure of the validation (37 conformance modules and the SQL frontend),
+  measured by running the complete validation of all pinned corpora.
+  `tests/test_pinned_corpora_inventory.py` (host) checks that each
+  `corpus-v*` directory is pinned.

@@ -1,6 +1,6 @@
 # Validate frozen corpora once and pin their bytes
 
-Created 2026-10-10. Status: DONE ([PR #82](https://github.com/vihren-dev/sqlite-verifier/pull/82)).
+Created 2026-10-10. Status: IN PROGRESS (item 8; [PR #82](https://github.com/vihren-dev/sqlite-verifier/pull/82)).
 Owner request: CI spends most of the time of the slowest frozen tests in
 `conformance.corpus.load`, which validates the same unchanged corpus again
 in each call. Validate each frozen corpus once; later loads check only that
@@ -33,6 +33,11 @@ the bytes are the validated bytes.
    loading rule: the owner accepted, on 2026-10-10, that the development
    replay phase loads pinned corpora without complete validation.
 
+8. Owner request, 2026-10-10: the pin test is its own Nix suite, `pinned`.
+   Its inputs are only the pins, the pinned corpora, the SQL frontend and the
+   modules that the validation imports, so it runs again only when the corpus
+   or the validator changes. Nix and Python read the same pin file.
+
 ## Tests
 
 - Pin check: complete validation of each pinned corpus passes, each pin equals
@@ -47,6 +52,7 @@ the bytes are the validated bytes.
   and the harness suite keep passing without changes to their expectations.
 - The binding-scan filter: commands with and without the three characters
   give the same `named_slots` result as the tokenizer.
+- Nix invalidation tests show which file changes rerun the `pinned` suite.
 - All Nix suites pass on Linux CI. The PR records the per-test and per-suite
   CI times before and after this change.
 
