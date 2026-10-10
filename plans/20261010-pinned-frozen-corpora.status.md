@@ -49,3 +49,7 @@ commands; 4,867 are distinct, and 160,731 contain no `$`, `:` or `@`.
   Docs and the development replay task state the owner decision. Local
   sandboxed suites pass: frozen 161, model 56, sample 22, upstream 117,
   harness 129. Local frozen suite: 202 s (shared host).
+- 2026-10-10: review findings fixed; `load_development_corpus` has a test of
+  its pinned branch. Host source tests: 467 passed; 6 Lean compilation tests
+  failed only while the Nix suites ran on the same shared host and pass when
+  run alone (28 passed). Next: PR and hosted CI timings.
