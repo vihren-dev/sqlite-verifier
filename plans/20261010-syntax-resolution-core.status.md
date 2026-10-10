@@ -1,6 +1,6 @@
 # Status: syntax and resolution core, step 1a of ADR 0008
 
-Created 2026-10-10. Status: IN PROGRESS.
+Created 2026-10-10. Status: IN REVIEW.
 Task: [task](20261010-syntax-resolution-core.task.md).
 Specification: [ADR 0008](../docs/adr-0008-syntax-and-resolution-in-lean.md).
 
@@ -48,6 +48,35 @@ Relevant files: `packages/belay-sqlite/Belay/Sqlite/`,
   `PRIMARY KEY (x DESC)` is still an alias; `DEFAULT name` stores the name as
   text; COMMIT and ROLLBACK without a transaction fail at step, not at prepare.
 
+- 2026-10-10: commit `aeed622a`. Review `20261010T184131Z-aeed622a`: 18 must
+  findings (R1, R2, R3, R5, R6), all fixed in `9bd0fb3d`: the resolution modes
+  are a catalog description and statements that the execution semantics runs,
+  so the model has no migration concept (R6); every match lists its
+  constructors; the modeled defaults and integer-comparable affinities are named
+  predicates in `ResolveContext`; four docstrings state their formulas exactly;
+  every reused or long proof has a sketch. Review `20261010T184626Z-9bd0fb3d`:
+  one should finding, restriction messages without a next step, fixed for all
+  messages in `f4e4589a`. Review `20261010T184815Z-f4e4589a`: two should
+  findings (affinity advice, no check of the messages), fixed in `351528d5`,
+  whose review has no findings.
+- 2026-10-10: checks. `just test-source`: 461 passed; all ten Nix test suites
+  pass (284 s wall); `apiReferenceBase` and `publicDocumentation` build.
+
+## CI time (Linux amd64, forced rebuild with `nix-build --check`, one run each)
+
+| Target | `main` (`5a813d20`) | This branch | Change |
+| --- | --- | --- | --- |
+| `modelPackage` | 7 s | 16 s | +9 s |
+| `leanRuntime` | 13 s | 17 s | +4 s |
+| `conformanceRuntime` | 17 s | 21 s | +4 s |
+| `publicDocumentation` | 5 s | 6 s | +1 s |
+| `apiReferenceBase` | 29 s | 37 s | +8 s |
+
+No test file changes, so the test suites run the same tests. A CI run that
+changes no Lean source reuses all these builds. A run that changes Lean sources
+rebuilds them; the new modules add about 10 to 20 s to such a run, depending on
+how the builds overlap. Single runs on a shared machine vary by a few seconds.
+
 ## Remaining
 
-- Full checks, the review, the CI time comparison and the pull request.
+- Owner review of the pull request, then step 1b.

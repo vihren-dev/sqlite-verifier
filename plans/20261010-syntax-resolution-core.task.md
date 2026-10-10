@@ -1,6 +1,6 @@
 # Syntax and resolution core, step 1a of ADR 0008
 
-Created 2026-10-10. Status: IN PROGRESS.
+Created 2026-10-10. Status: IN REVIEW.
 Specification: [ADR 0008](../docs/adr-0008-syntax-and-resolution-in-lean.md),
 "Three layers", "Catalog", "Errors from resolution", "Specification of
 resolution", "Execution profile" and "Scope of the first implementation".
