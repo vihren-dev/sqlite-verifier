@@ -6,7 +6,14 @@ from conformance.query_window import tokens
 
 
 def named_slots(command: str) -> list[str]:
-    """Find candidate names while keeping comments and quoted SQL text outside binding evidence."""
+    """Find candidate names while keeping comments and quoted SQL text outside binding evidence.
+
+    Each name starts with `$`, `:` or `@`. A command without these characters
+    has no name, so the tokenizer does not run for it. Corpus loading calls this
+    for each setup command of each case, and most commands have none of them.
+    """
+    if not any(prefix in command for prefix in "$:@"):
+        return []
     return list(dict.fromkeys(token.text for token in tokens(command) if len(token.text) > 1
                              and token.text != "::" and token.text.startswith(("$", ":", "@"))))
 

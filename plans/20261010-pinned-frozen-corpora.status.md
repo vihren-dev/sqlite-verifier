@@ -33,3 +33,7 @@ commands; 4,867 are distinct, and 160,731 contain no `$`, `:` or `@`.
 ## Progress
 
 - 2026-10-10: task and status files created.
+- 2026-10-10: `named_slots` skips the tokenizer for a command without `$`,
+  `:` or `@`. `tests/test_upstream_bindings.py` compares it with the
+  tokenizer. A one-time check over all 5,033 distinct commands of corpora v1
+  to v5 found no difference.
