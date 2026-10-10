@@ -64,8 +64,18 @@ def views(manifest: dict[str, Json], records: list[dict[str, Json]],
 
 
 def progress(corpus: Path, requirements: Path, runtime: Path) -> dict[str, Json]:
-    """Every requirement row keeps zero counts; one case can illustrate multiple requirements."""
+    """Load the corpus, then report its progress with `loaded_progress`."""
     manifest, records = load(corpus)
+    return loaded_progress(corpus, manifest, records, requirements, runtime)
+
+
+def loaded_progress(corpus: Path, manifest: dict[str, Json], records: list[dict[str, Json]],
+                    requirements: Path, runtime: Path) -> dict[str, Json]:
+    """Report progress for a corpus that the caller loaded with `conformance.corpus.load`.
+
+    A caller that also inspects the records loads the corpus only once. Every
+    requirement row keeps zero counts; one case can illustrate multiple requirements.
+    """
     runtime_hashes = {relative: digest(runtime / relative) for relative in RUNTIME_FILES}
     inventory = json.loads(requirements.read_text())
     identities = resolved_ids(records, inventory)

@@ -37,3 +37,6 @@ commands; 4,867 are distinct, and 160,731 contain no `$`, `:` or `@`.
   `:` or `@`. `tests/test_upstream_bindings.py` compares it with the
   tokenizer. A one-time check over all 5,033 distinct commands of corpora v1
   to v5 found no difference.
+- 2026-10-10: `conformance.progress.loaded_progress` reports progress for
+  records that the caller loaded. The progress view test loads each corpus
+  once. Local time of the v5 test: 64.6 s before, 33.3 s after.

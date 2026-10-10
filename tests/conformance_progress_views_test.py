@@ -12,7 +12,7 @@ import pytest
 from conformance.case_format import Json
 from conformance.corpus import load
 from conformance.corpus_evidence import FEATURE_LABEL_VIEWS, feature_counts
-from conformance.progress import RUNTIME_FILES, VERDICTS, progress
+from conformance.progress import RUNTIME_FILES, VERDICTS, loaded_progress, progress
 
 ROOT = Path(__file__).resolve().parents[1]
 pytestmark = [pytest.mark.unit, pytest.mark.conformance]
@@ -143,7 +143,7 @@ def test_actual_frozen_partition_requirement_inventory_and_identities(runtime_ro
     """All final cases appear once while the full inventory and native Unsupported boundary remain explicit."""
     corpus = ROOT / f"conformance/corpus-v{version}"
     manifest, records = load(corpus)
-    report = progress(corpus, ROOT / "conformance/requirements-3.51.0.json", runtime_root)
+    report = loaded_progress(corpus, manifest, records, ROOT / "conformance/requirements-3.51.0.json", runtime_root)
     assert report["denominator"] == manifest["recordedCases"] == len(records)
     assert report["corpusVersion"] == version
     assert [case["name"] for case in report["cases"]] == [record["name"] for record in records]
