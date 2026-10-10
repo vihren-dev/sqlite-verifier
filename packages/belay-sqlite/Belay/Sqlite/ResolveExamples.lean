@@ -45,6 +45,11 @@ def restricted : ResolveResult → Bool
   | .restricted _ => true
   | .resolved .. => false
 
+/-- The reason of a model restriction, or the empty text for a resolution. -/
+def reason : ResolveResult → String
+  | .restricted restriction => restriction.reason
+  | .resolved .. => ""
+
 /-- A catalog with table {lit}`t(a TEXT, b INTEGER)`. -/
 def tableT : Catalog := catalogOf (migration [] [.createTable "t" [column "a", column "b" (some "INTEGER")] []])
 
@@ -126,5 +131,11 @@ def tableT : Catalog := catalogOf (migration [] [.createTable "t" [column "a", c
 #guard restricted (migration tableT [.createIndex "i" false "t" ["a"]])
 #guard statements (migration [] [.createTable "sqlite_x" [column "a"] []]) == [.prepareError (.reservedName "sqlite_x")]
 #guard !restricted (schema [.createTable "sqlite_stat1" [column "tbl" none, column "idx" none, column "stat" none] []])
+
+-- Restriction messages say what to do next.
+#guard reason (schema [.createTable "t" [{ name := "x", declaredType := some "INTEGER", constraints := [.primaryKey false] }] []])
+  == "INTEGER PRIMARY KEY rowid aliases are not modeled; declare the key column with another type, such as BIGINT"
+#guard reason (migration tableT [.insert "t" (some ["b"]) [[.string [49]]]])
+  == "the column affinity would convert this value; write NULL, a blob, or a value that the affinity keeps unchanged"
 
 end Belay.Sqlite.ResolveExamples

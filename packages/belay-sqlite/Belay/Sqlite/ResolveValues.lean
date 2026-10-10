@@ -114,6 +114,6 @@ def literalValue (dqs : Bool) : Syntax.Expr → Except ValueIssue Value
 ({name}`LiteralData.lossless`); otherwise the conversion is a model restriction. -/
 def storedValue (affinity : Affinity) (value : Value) (path : List Nat) : Except ValueIssue Value :=
   if LiteralData.lossless affinity value then .ok value
-  else .error (.restriction path "the column affinity would convert this value; write a value of the column's storage class")
+  else .error (.restriction path "the column affinity would convert this value; write NULL, a blob, or a value that the affinity keeps unchanged")
 
 end Belay.Sqlite
