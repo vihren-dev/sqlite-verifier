@@ -1,6 +1,6 @@
 # Pinned frozen corpora status
 
-Created 2026-10-10. Status: IN PROGRESS.
+Created 2026-10-10. Status: DONE ([PR #82](https://github.com/vihren-dev/sqlite-verifier/pull/82)).
 Task: [20261010-pinned-frozen-corpora.task.md](20261010-pinned-frozen-corpora.task.md).
 
 ## References
@@ -53,3 +53,13 @@ commands; 4,867 are distinct, and 160,731 contain no `$`, `:` or `@`.
   its pinned branch. Host source tests: 467 passed; 6 Lean compilation tests
   failed only while the Nix suites ran on the same shared host and pass when
   run alone (28 passed). Next: PR and hosted CI timings.
+- 2026-10-10: PR #82 CI run 38078661914 passes on Linux. It reran the five
+  conformance suites; the other five came from the cache. Linux times, before
+  (run 37973585320) and after:
+  - v5 progress view test: 102.5 s to 27.8 s; v4: 15.7 s to 8.3 s.
+  - Sample CLI test: 87.5 s to 38.2 s.
+  - v3 coverage test: 41.4 s to 14.2 s.
+  - New pin test: v5 44.1 s, v3 11.6 s, v4 9.0 s.
+  - `frozen` suite: 210.7 s to 152.2 s; `sample` suite: 96.7 s to 46.2 s.
+  Unchanged model tests also changed by -3 % to -46 %, because fewer suites
+  shared the runner. The task is DONE.

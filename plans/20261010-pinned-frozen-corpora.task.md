@@ -1,6 +1,6 @@
 # Validate frozen corpora once and pin their bytes
 
-Created 2026-10-10. Status: IN PROGRESS.
+Created 2026-10-10. Status: DONE ([PR #82](https://github.com/vihren-dev/sqlite-verifier/pull/82)).
 Owner request: CI spends most of the time of the slowest frozen tests in
 `conformance.corpus.load`, which validates the same unchanged corpus again
 in each call. Validate each frozen corpus once; later loads check only that
