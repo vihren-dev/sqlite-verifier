@@ -4,6 +4,6 @@
   "approved/HistoryModel.lean": "993cf739e47962353ee72ba7c99b0af93c020a076b660d4823d57ed4bc9c7af5",
   "approved/Interpretation.lean": "85661922132f39570115c1770eab7b30769928d80c0ce0c02c6d73edfdaaa0f9",
   "approved/Requirements.lean": "dc7da5f0c4d266a76f8728e038c30bc02d657cd5e656fa97154e200ba7e5c515",
-  "approved/SchemaBinding.lean": "d6ceef4abb9e122a1400bd411151e944fe366cd5a2a6c5520aab74b6f169dc9e",
+  "approved/SchemaBinding.lean": "451c214460b2ecc8ab39c2dbec380cc68dcb97472ecc3f3b39ea3c922cc1faef",
   "schema.sql": "b1cb97162debff911afacb6111907d9aa90e67fbfa1f58ba6ef814919969b6a6"
 }

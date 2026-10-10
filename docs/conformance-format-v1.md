@@ -31,6 +31,11 @@ Properties retain `primaryKey`, `uniqueKeys`, and explicit `indexes`; each index
 retains `name`, `columns`, and `unique`. Enum tags use the Lean constructor names.
 `defaultValue` is JSON null or `"currentTimestamp"`.
 
+These flat wire fields are unchanged. The Lean codec constructs one name-free
+`TableShape` from `columns` and `properties`; `Table` adds rows and `TableSchema`
+adds its name. `Conforms` compares complete shapes, so every represented schema
+field is required to agree. Generated Lean modules use the same shared shape.
+
 Values preserve storage classes:
 
 ```json

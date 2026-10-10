@@ -12,9 +12,9 @@ namespace SqliteVerifier.Examples
 
 /-- Duplicate application values still denote distinct physical rows. -/
 def originalTable : Table :=
-  { columns := [{ name := "amount", affinity := .integer }], rows := [⟨-4, [.integer 7]⟩, ⟨9, [.integer 7]⟩] }
+  { shape.columns := [{ name := "amount", affinity := .integer }], rows := [⟨-4, [.integer 7]⟩, ⟨9, [.integer 7]⟩] }
 
-/-- One ordinary table provides a concrete execution witness. -/
+/-- One ordinary shared-shape table provides a concrete execution witness. -/
 def initial : Database := fun name => if name = "invoices" then some originalTable else none
 
 /-- A useful multi-statement addition over an existing table. -/
@@ -36,7 +36,7 @@ def failureInfo : Outcome → Option (Nat × ExecutionError)
 
 /-- The configured column limit is deterministic behavior, not a resource exclusion. -/
 def maximalTable : Table :=
-  { columns := (List.range maximumColumns).map (fun index => { name := s!"column{index}", affinity := .text }), rows := [] }
+  { shape.columns := (List.range maximumColumns).map (fun index => { name := s!"column{index}", affinity := .text }), rows := [] }
 
 -- Physical bounds and identifier comparison are independent admission checks.
 example : validRowid (-9223372036854775808) := by unfold validRowid; decide
@@ -64,7 +64,7 @@ example : ¬validRowid 9223372036854775808 := by unfold validRowid; decide
   some (0, .missingTable "absent")
 #guard failureInfo (runSql [.addColumn "invoices" { name := "amount", affinity := .text }] initial) =
   some (0, .columnExists "invoices" "amount")
-#guard supportedColumns (maximalTable.columns ++ [{ name := "extra", affinity := .text }]) = false
+#guard supportedColumns (maximalTable.shape.columns ++ [{ name := "extra", affinity := .text }]) = false
 #guard failureInfo (runSql [.addColumn "full" { name := "extra", affinity := .text }]
   (Database.set (fun _ => none) "full" maximalTable)) = some (0, .tooManyColumns "full")
 #guard failureInfo (runSql [.addColumn "full" { name := "column0", affinity := .text }]

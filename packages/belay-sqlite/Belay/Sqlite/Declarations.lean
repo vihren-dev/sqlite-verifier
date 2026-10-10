@@ -81,6 +81,17 @@ structure TableProperties where
   indexes : List IndexDefinition := []
   deriving Repr, DecidableEq
 
+/-- Name-free metadata shared by a stored table and its schema entry. Supply
+ordered columns; omit properties when no keys or explicit indexes are retained.
+{lean}`({ columns := [], properties := {} } : TableShape)` is an empty shape,
+whose column support must be checked separately. -/
+structure TableShape where
+  /-- Complete column declarations in physical order. -/
+  columns : List Column
+  /-- Retained primary key, UNIQUE constraints and explicit indexes. -/
+  properties : TableProperties := {}
+  deriving Repr, DecidableEq
+
 /-- Collect primary-key columns when nonempty, all UNIQUE constraints and the
 columns of unique indexes, in that order. Nonunique indexes contribute no key;
 {lean}`TableProperties.keys {}` is the empty list. -/

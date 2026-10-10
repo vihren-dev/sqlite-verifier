@@ -32,26 +32,22 @@ structure Row where
   values : List Value
   deriving Repr, DecidableEq
 
-/-- Stored columns, rows and properties. Use an empty row list for an empty
-table and omit properties when there are no retained keys or indexes. -/
+/-- Stored rows and their complete name-free metadata. Supply one shared shape
+and use an empty row list for an empty table. The database key supplies its name. -/
 structure Table where
-  /-- Column declarations in physical order. -/
-  columns : List Column
+  /-- Columns and retained properties, equal to the declared schema shape. -/
+  shape : TableShape
   /-- Stored rows in observation order, including physical rowids. -/
   rows : List Row
-  /-- Retained keys and indexes; the default has neither. -/
-  properties : TableProperties := {}
   deriving Repr, DecidableEq
 
-/-- One finite schema entry. Supply a decoded, normalized name and ordered
-columns; omit properties when there are no retained keys or indexes. -/
+/-- One finite schema entry. Supply its decoded, normalized name and complete
+name-free shape; stored rows belong to {name}`Table` instead. -/
 structure TableSchema where
   /-- Table identifier, for example {lean}`"items"`. -/
   name : String
-  /-- Column declarations in physical order. -/
-  columns : List Column
-  /-- Retained keys and indexes; the default has neither. -/
-  properties : TableProperties := {}
+  /-- Complete declared columns and properties, shared with stored tables. -/
+  shape : TableShape
   deriving Repr, DecidableEq
 
 /-- Ordered finite {name}`TableSchema` entries for generated artifacts.
@@ -114,8 +110,8 @@ of {lit}`sqlite_stat1` and {lit}`sqlite_stat4` with default properties.
 Ordinary names impose no column or property check in this predicate. -/
 def supportedExistingTable (entry : TableSchema) : Bool :=
   supportedTableName entry.name ||
-    entry == { name := "sqlite_stat1", columns := statisticsColumns ["tbl", "idx", "stat"] } ||
-    entry == { name := "sqlite_stat4", columns := statisticsColumns ["tbl", "idx", "neq", "nlt", "ndlt", "sample"] }
+    entry == { name := "sqlite_stat1", shape.columns := statisticsColumns ["tbl", "idx", "stat"] } ||
+    entry == { name := "sqlite_stat4", shape.columns := statisticsColumns ["tbl", "idx", "neq", "nlt", "ndlt", "sample"] }
 
 /-- For the given rowid, require both signed 64-bit bounds:
 * It is at least negative two to the power 63.
@@ -128,9 +124,9 @@ def validRowid (rowid : Int) : Prop := -(2 ^ 63 : Int) ≤ rowid ∧ rowid < 2 ^
 * Every stored row satisfies {name}`validRowid` and has one cell per column.
 With no rows, the last two conditions impose nothing; column support remains. -/
 def Table.Valid (table : Table) : Prop :=
-  supportedColumns table.columns = true ∧
+  supportedColumns table.shape.columns = true ∧
   (table.rows.map Row.rowid).Nodup ∧
-  ∀ row ∈ table.rows, validRowid row.rowid ∧ row.values.length = table.columns.length
+  ∀ row ∈ table.rows, validRowid row.rowid ∧ row.values.length = table.shape.columns.length
 
 /-- For the given schema, table names have no duplicates. For every entry:
 * {name}`supportedExistingTable` accepts it.
@@ -140,37 +136,41 @@ For an empty schema, all entry requirements are vacuous. -/
 def Schema.Valid (schema : Schema) : Prop :=
   (schema.map TableSchema.name).Nodup ∧
   ∀ entry ∈ schema, supportedExistingTable entry = true ∧
-    supportedColumns entry.columns = true ∧ supportedProperties entry.columns entry.properties = true ∧
-    (schema.flatMap (fun table => table.name :: table.properties.indexes.map IndexDefinition.name)).Nodup
+    supportedColumns entry.shape.columns = true ∧ supportedProperties entry.shape.columns entry.shape.properties = true ∧
+    (schema.flatMap (fun table => table.name :: table.shape.properties.indexes.map IndexDefinition.name)).Nodup
 
-/-- Return the first matching entry's columns, or {lean}`(none : Option (List Column))`.
-This derives a lookup without selecting stored data. -/
+/-- Return the first matching entry's complete shape, or
+{lean}`(none : Option TableShape)`. This selects metadata rather than stored rows;
+the empty schema has no shape for any name. -/
+def Schema.lookupShape (schema : Schema) (name : String) : Option TableShape :=
+  (schema.find? fun entry => entry.name == name).map TableSchema.shape
+
+/-- Derive the first matching entry's columns from {name}`Schema.lookupShape`,
+or {lean}`(none : Option (List Column))`. Use this convenience for column requirements. -/
 def Schema.lookup (schema : Schema) (name : String) : Option (List Column) :=
-  (schema.find? fun entry => entry.name == name).map TableSchema.columns
+  (schema.lookupShape name).map TableShape.columns
 
 /-- Return the first matching entry's properties, or
 {lean}`(none : Option TableProperties)`; absence is distinct from empty properties. -/
 def Schema.lookupProperties (schema : Schema) (name : String) : Option TableProperties :=
-  (schema.find? fun entry => entry.name == name).map TableSchema.properties
+  (schema.lookupShape name).map TableShape.properties
 
 /-- For the given schema and database, require {name}`Schema.Valid`. For every name:
-* Stored column lookup equals {name}`Schema.lookup`, including absence.
-* Every table stored there satisfies {name}`Table.Valid`, and
-  {name}`Schema.lookupProperties` returns {name}`Option.some` of its properties.
-If no table is stored there, the second item is vacuous. Native representability
-is a separate claim. -/
+* Stored shape lookup equals {name}`Schema.lookupShape`, including absence.
+* Every table stored there satisfies {name}`Table.Valid`.
+For an absent table the second item is vacuous, but shape equality still requires
+schema absence. Native representability and constraint truth are separate claims. -/
 def Conforms (schema : Schema) (database : Database) : Prop :=
   schema.Valid ∧ ∀ name,
-    (database name).map Table.columns = schema.lookup name ∧
-    ∀ table, database name = some table → table.Valid ∧
-      schema.lookupProperties name = some table.properties
+    (database name).map Table.shape = schema.lookupShape name ∧
+    ∀ table, database name = some table → table.Valid
 
 /-- Construct a finite empty database for executable schema calculations.
 Use the first entry for each name; missing entries yield no table. Show
 {name}`Conforms`, including schema and table validity, separately. -/
 def Schema.emptyDatabase (schema : Schema) : Database :=
   fun name => (schema.find? fun entry => entry.name == name).map fun entry =>
-    { columns := entry.columns, rows := [], properties := entry.properties }
+    { shape := entry.shape, rows := [] }
 
 /-- Store the given table at exactly the given name; retain every other lookup. -/
 def Database.set (database : Database) (name : String) (table : Table) : Database :=
@@ -185,7 +185,7 @@ def Row.appendNulls (row : Row) (count : Nat) : Row :=
 Preserve existing cells, rowids, row order and table properties. -/
 def Table.appendColumns (table : Table) (columns : List Column) : Table :=
   { table with
-    columns := table.columns ++ columns
+    shape.columns := table.shape.columns ++ columns
     rows := table.rows.map (·.appendNulls columns.length) }
 
 /-- For every row, retain its rowid and select cells in requested-name order.
@@ -193,7 +193,7 @@ Use the first matching column; return {name}`Option.none` when the column or
 corresponding cell is absent. Repeated names repeat their selected cells. -/
 def Table.project (table : Table) (names : List String) : List (Int × List (Option Value)) :=
   table.rows.map fun row => (row.rowid, names.map fun name => do
-    let index ← table.columns.findIdx? (fun column => column.name == name)
+    let index ← table.shape.columns.findIdx? (fun column => column.name == name)
     row.values[index]?)
 
 end Belay.Sqlite

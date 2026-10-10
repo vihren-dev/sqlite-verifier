@@ -123,7 +123,7 @@ explicit indexes. This conservative check avoids an unmodeled global index-name
 collision during CREATE. An empty schema or a script without CREATE passes. -/
 def schemaAllows (schema : Schema) (script : List Statement) : Bool :=
   !(script.any fun statement => match statement with | .createTable .. => true | _ => false) ||
-    schema.all (fun table => table.properties.indexes.isEmpty)
+    schema.all (fun table => table.shape.properties.indexes.isEmpty)
 
 /-- For the supplied schema, script and database, require schema admission and
 the reached-statement data check to both return true. This does not assert native

@@ -81,16 +81,16 @@ def step (statement : Statement) (database : Database) (position : Nat := 0) : O
       .failure position .invalidDefinition database
     else match database name with
       | some _ => .failure position (.tableExists name) database
-      | none => .success (database.set name { columns := columns, rows := [] })
+      | none => .success (database.set name { shape.columns := columns, rows := [] })
   | .addColumn name column =>
     if !(supportedTableName name && supportedColumn column && column.plain) then
       .failure position .invalidDefinition database
     else match database name with
       | none => .failure position (.missingTable name) database
       | some table =>
-        if table.columns.length ≥ maximumColumns then
+        if table.shape.columns.length ≥ maximumColumns then
           .failure position (.tooManyColumns name) database
-        else if table.columns.any (fun old => old.name == column.name) then
+        else if table.shape.columns.any (fun old => old.name == column.name) then
           .failure position (.columnExists name column.name) database
         else .success (database.set name (table.appendColumns [column]))
   | _ => .failure position .invalidDefinition database

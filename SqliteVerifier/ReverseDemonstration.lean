@@ -22,25 +22,25 @@ theorem reverse_runs (database : Database) (admitted : Admitted startSchema (fun
   obtain ⟨table, present, columns, _⟩ := admitted.1.table (name := "invoices") (by rfl)
   have absent : database "audit" = none := by
     have shape := (admitted.1.2 "audit").1
-    simpa [Schema.lookup, startSchema] using shape
+    simpa [Schema.lookupShape, startSchema] using shape
   have invoiceName : supportedTableName "invoices" = true := by decide +kernel
   have noteSupported : supportedColumn note = true := by decide +kernel
   have notePlain : note.plain = true := by decide +kernel
   have auditSupported : (supportedTableName "audit" && supportedColumns [message] && [message].all Column.plain) = true := by decide +kernel
-  have noDuplicate : table.columns.any (fun old => old.name == note.name) = false := by
+  have noDuplicate : table.shape.columns.any (fun old => old.name == note.name) = false := by
     rw [columns]; decide +kernel
-  have belowLimit : table.columns.length < maximumColumns := by rw [columns]; decide
+  have belowLimit : table.shape.columns.length < maximumColumns := by rw [columns]; decide
   simp only [runSql, runSqlFrom, advance, literalStep, SqlState.finish, reverseScript, script, step]
   simp only [invoiceName, noteSupported, auditSupported, notePlain, Bool.true_and, Bool.not_true,
     Bool.false_eq_true, ↓reduceIte, absent, present, noDuplicate, Nat.not_le.mpr belowLimit]
-  have readInvoice : (database.set "audit" { columns := [message], rows := [] }) "invoices" = some table := by
+  have readInvoice : (database.set "audit" { shape.columns := [message], rows := [] }) "invoices" = some table := by
     simp [Database.set, present]
   have readAudit : (database.set "invoices" (table.appendColumns [note])) "audit" = none := by
     simp [Database.set, absent]
   simp only [readInvoice, readAudit, noDuplicate, Nat.not_le.mpr belowLimit,
     Bool.false_eq_true, ↓reduceIte]
   congr 1
-  exact database.set_comm "audit" "invoices" { columns := [message], rows := [] } (table.appendColumns [note]) (by decide)
+  exact database.set_comm "audit" "invoices" { shape.columns := [message], rows := [] } (table.appendColumns [note]) (by decide)
 
 /-- The complete {name}`VerificationConditions` hold for {name}`reverseScript`
 with the same approved schemas, contract and interpretations. The proof reuses

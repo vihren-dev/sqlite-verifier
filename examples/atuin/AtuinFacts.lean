@@ -21,10 +21,10 @@ theorem next_valid : Generated.nextSchema.Valid := by
 /-- Every table with the approved history columns covers every name in
 {name}`SchemaBinding.fields`. The proof turns membership in the column-name
 list into a checked column index; rows impose no premise. -/
-theorem covers {table : Table} (columns : table.columns = SchemaBinding.history.columns) :
+theorem covers {table : Table} (columns : table.shape.columns = SchemaBinding.history.shape.columns) :
     Covers table SchemaBinding.fields := by
   intro name member
-  have names : SchemaBinding.fields = SchemaBinding.history.columns.map Column.name := rfl
+  have names : SchemaBinding.fields = SchemaBinding.history.shape.columns.map Column.name := rfl
   rw [names] at member
   rw [columns]
   obtain ⟨column, named, equal⟩ := List.mem_map.mp member
@@ -36,14 +36,14 @@ SQL result is successful with its NULL extension, and that result conforms to
 {name}`Generated.nextSchema`. The proof recovers the table from conformance,
 checks ADD applicability and applies schema conformance preservation. -/
 theorem payload {database : Database} (conforms : Conforms SchemaBinding.start database) :
-    ∃ table, database "history" = some table ∧ table.columns = SchemaBinding.history.columns ∧
+    ∃ table, database "history" = some table ∧ table.shape.columns = SchemaBinding.history.shape.columns ∧
       table.Valid ∧ runSql Generated.script database =
         .success (database.set "history" (table.appendColumns [added])) ∧
       Conforms Generated.nextSchema (database.set "history" (table.appendColumns [added])) := by
   obtain ⟨table, present, columns, valid⟩ := conforms.table (name := "history") (by rfl)
   refine ⟨table, present, columns, valid, ?_, ?_⟩
-  · have size : ¬table.columns.length ≥ maximumColumns := by rw [columns]; decide +kernel
-    have fresh : table.columns.any (fun old => old.name == added.name) = false := by
+  · have size : ¬table.shape.columns.length ≥ maximumColumns := by rw [columns]; decide +kernel
+    have fresh : table.shape.columns.any (fun old => old.name == added.name) = false := by
       rw [columns]; decide +kernel
     have nameAllowed : supportedTableName "history" = true := by decide +kernel
     have columnAllowed : supportedColumn added = true := by decide +kernel
@@ -57,7 +57,7 @@ before database observes a logical value, setting its NULL extension observes
 the same value. The premise is vacuous for an undefined before observation.
 The proof preserves the named old-field projection and reuses its decoder result. -/
 theorem observed (present : database "history" = some history)
-    (columns : history.columns = SchemaBinding.history.columns) (valid : history.Valid)
+    (columns : history.shape.columns = SchemaBinding.history.shape.columns) (valid : history.Valid)
     (before : HistoryMapping.observe database = some logical) :
     HistoryMapping.observe (database.set "history" (history.appendColumns [added])) = some logical := by
   have unchanged : (history.appendColumns [added]).project SchemaBinding.fields =

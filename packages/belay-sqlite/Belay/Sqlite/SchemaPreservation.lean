@@ -11,17 +11,17 @@ namespace Belay.Sqlite
 /-- For every schema, database, name and table, assume {name}`Conforms` and
 that the table is stored at the name. Then schema property lookup returns its
 properties. An absent table cannot satisfy the premise. Use this for metadata
-reads; the proof selects the property conjunct of conformance. -/
+reads; the proof projects conformance's whole-shape equality to properties. -/
 theorem Conforms.properties {table : Table} (conforms : Conforms schema database)
     (present : database name = some table) :
-    schema.lookupProperties name = some table.properties :=
-  ((conforms.2 name).2 table present).2
+    schema.lookupProperties name = some table.shape.properties := by
+  simp [Schema.lookupProperties, conforms.shape present]
 
 /-- For every before/after table satisfying {name}`TableExtends`, their properties
 are equal, including keys and indexes. No validity or row premise is required.
 Use this for retained metadata. The proof unfolds the column append witness. -/
 theorem TableExtends.properties (extension : TableExtends before after) :
-    after.properties = before.properties := by
+    after.shape.properties = before.shape.properties := by
   obtain ⟨columns, rfl⟩ := extension
   rfl
 
@@ -30,7 +30,7 @@ new columns with the old length equals the complete old declarations. With no
 old columns the equality is between empty lists. Use this for retained types,
 defaults and nullability. The proof takes the prefix of the append witness. -/
 theorem TableExtends.declarations (extension : TableExtends before after) :
-    after.columns.take before.columns.length = before.columns := by
+    after.shape.columns.take before.shape.columns.length = before.shape.columns := by
   obtain ⟨columns, rfl⟩ := extension
   simp [Table.appendColumns]
 
@@ -39,7 +39,7 @@ names and projected rows. With no keys this requires nothing. Supply the desired
 SQLite comparison and NULL meaning, or any other logical key predicate;
 this flexible primitive selects neither a comparator nor a nonnullness rule. -/
 def Table.KeysValid (meaning : List String → List (Int × List (Option Value)) → Prop) (table : Table) : Prop :=
-  ∀ key ∈ table.properties.keys, meaning key (table.project key)
+  ∀ key ∈ table.shape.properties.keys, meaning key (table.project key)
 
 /-- For every before/after table and key predicate, assume {name}`TableExtends`,
 correct old row widths, {name}`Covers` for every old key and old {name}`Table.KeysValid`.
@@ -47,8 +47,8 @@ Then key validity holds after. With no keys, coverage and validity are vacuous;
 with no old rows, widths are vacuous. Use this with the supplied key meaning.
 The proof retains properties and rewrites each key projection to the old one. -/
 theorem TableExtends.keysValid (extension : TableExtends before after)
-    (width : ∀ row ∈ before.rows, row.values.length = before.columns.length)
-    (coverage : ∀ key ∈ before.properties.keys, Covers before key)
+    (width : ∀ row ∈ before.rows, row.values.length = before.shape.columns.length)
+    (coverage : ∀ key ∈ before.shape.properties.keys, Covers before key)
     (valid : before.KeysValid meaning) : after.KeysValid meaning := by
   intro key member
   rw [extension.properties] at member
@@ -64,7 +64,7 @@ vacuous. Use this to retain any fact about this observation.
 The proof rewrites the projection using {name}`TableExtends.project`. -/
 theorem TableExtends.columnInvariant {column : Column}
     {predicate : Column → List (Int × List (Option Value)) → Prop} (extension : TableExtends before after)
-    (width : ∀ row ∈ before.rows, row.values.length = before.columns.length)
+    (width : ∀ row ∈ before.rows, row.values.length = before.shape.columns.length)
     (covered : Covers before [column.name])
     (valid : predicate column (before.project [column.name])) :
     predicate column (after.project [column.name]) := by

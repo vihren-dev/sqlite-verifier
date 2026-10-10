@@ -16,7 +16,7 @@ open Belay.Sqlite SqliteVerifier
 def columns : List Column := [
   { name := "id", affinity := .integer },
   { name := "payload", affinity := .text }]
-def first : Table := { columns := columns, rows := [
+def first : Table := { shape.columns := columns, rows := [
   ⟨4, [.integer 1, .text [65]]⟩, ⟨8, [.integer 2, .text [66]]⟩] }
 def reordered : Table := { first with rows := [
   ⟨900, [.integer 2, .text [66]]⟩, ⟨-5, [.integer 1, .text [65]]⟩] }

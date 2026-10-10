@@ -19,9 +19,9 @@ open Belay.Sqlite Belay.Sqlite.Conformance
 
 def columns : List Column := [{ name := "value", affinity := .integer }]
 def original : Table := {
-  columns := columns
+  shape.columns := columns
   rows := [⟨-4, [.integer 7]⟩, ⟨22, [.integer 8]⟩]
-  properties := { uniqueKeys := [["value"]] } }
+  shape.properties := { uniqueKeys := [["value"]] } }
 def changed : Table := { original with rows := original.rows ++ [⟨23, [.integer 9]⟩] }
 def initial : Database := fun name =>
   if name = "records" then some { original with rows := original.rows.reverse } else none

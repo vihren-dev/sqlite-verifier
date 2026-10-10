@@ -37,7 +37,7 @@ SQL affinity and collation are not evaluated by this logical projection. -/
 def projectApplicationRows (table : Table) (keyNames fields : List String) :
     Option ApplicationKeyRows := do
   if keyNames.isEmpty || keyNames.eraseDups.length != keyNames.length ||
-      !(keyNames ++ fields).all (fun name => table.columns.any (fun column => column.name == name))
+      !(keyNames ++ fields).all (fun name => table.shape.columns.any (fun column => column.name == name))
     then none
     else
       let records : ApplicationKeyRows ← (table.project (keyNames ++ fields)).mapM fun (_, cells) => do
