@@ -115,7 +115,7 @@ def test_constructed_declarations_match_resolver(parity: Callable[..., CommandRe
 @pytest.mark.parametrize("change,diagnostic", [
     (lambda record: record["schema"][0]["createTable"].update(name="other"),
      "differs from the resolution of the script record: Generated.schema"),
-    (lambda record: record.update(version=1), "only version 2 is supported"),
+    (lambda record: record.update(version=1), "only version 3 is supported"),
     (lambda record: record.pop("script"), "bundle checker rejected"),
     (lambda record: record["script"].append("commit"), "value differs from the compiled SqlInputs: Generated.script"),
     (lambda record: record.update(release="3.46.0"),

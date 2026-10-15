@@ -195,6 +195,7 @@ the public launcher from the source runtime (Nix target `tests.bundle`);
 | The application-key example is `VERIFIED` and its preparation is deterministic | End to end | `tests/bundle_test.py::test_application_key_bundle_repeatability` |
 | `sorry`, a forbidden axiom and a proof of another statement are `UNVERIFIED` | End to end | `tests/bundle_test.py::test_invalid_proof_rejected` |
 | A bundle built against an altered approved contract is rejected | End to end | `tests/bundle_test.py::test_bundle_from_altered_contract_rejected` |
+| A changed default is rejected by both source verification and bundle verification | End to end | `tests/constant_default_example_test.py::test_changed_default_rejects_original_certificate` |
 | A bundle is bound to the SQL it was prepared for | End to end | `tests/bundle_test.py::test_bundle_bound_to_prepared_sql` |
 | One file may supply both interpretations: the project's `NextInterpretation` imports the approved one | End to end | `tests/bundle_test.py::test_shared_interpretation_file` |
 | `prepare` compiles only modules affected by a SQL edit, and the bundle still verifies | End to end | `tests/bundle_cache_test.py::test_sql_edit_reuses_modules_without_sql_inputs` |

@@ -1,0 +1,34 @@
+{
+  "caller": "codex",
+  "commit": "d83096eb44f13c0de582da988cfb5abc485b9dfe",
+  "date": "2026-10-15T14:56:25+00:00",
+  "exit": 0,
+  "files": [
+    "plans/20261012-constant-column-defaults.status.md",
+    "reviews/20261015T144236Z-8e646f05/review.json",
+    "tests/test_model_package.py"
+  ],
+  "findings": [],
+  "id": "20261015T145625Z-d83096eb",
+  "kind": "review",
+  "reviewer": "claude",
+  "revision": "d83096eb44f13c0de582da988cfb5abc485b9dfe",
+  "rules": {
+    "R1": "62d446279093",
+    "R10": "638d8cbd1df8",
+    "R11": "5de19cdbbbc1",
+    "R12": "99f66579f467",
+    "R13": "da0926dafb88",
+    "R15": "518eab58f8b5",
+    "R16": "892e77bd2a12",
+    "R17": "62b65b662f79",
+    "R2": "e5e78fb2a52a",
+    "R3": "4f9188eadd60",
+    "R4": "ea7ca17539eb",
+    "R5": "b8613a2d693b",
+    "R6": "fa2475f44035",
+    "R7": "0a38ead152b1",
+    "R9": "5a69196344d0"
+  },
+  "well_formed": true
+}

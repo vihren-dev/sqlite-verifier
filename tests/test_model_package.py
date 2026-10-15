@@ -15,8 +15,8 @@ MODEL_MODULE_PREFIX = "Belay.Sqlite"
 """Only the standalone package namespace supplies project modules to the core."""
 ALLOWED_EXTERNAL_IMPORT_ROOTS = {"Init"}
 """The core uses only Lean's prelude; `Std` and the Lean compiler API add import cost it does not need."""
-EXPECTED_CORE_MODULE_COUNT = 70
-"""The public root reaches seventy core modules, including resolution, query evaluation, joins, number
+EXPECTED_CORE_MODULE_COUNT = 72
+"""The public root reaches 72 core modules, including resolution, query evaluation, joins, number
 conversions, store-time affinity and the preservation of writes; its compiled examples are not imported."""
 pytestmark = [pytest.mark.integration, pytest.mark.requires_nix, pytest.mark.requires_lean("compiler")]
 
@@ -61,13 +61,13 @@ open Belay.Sqlite
 #check Conforms.set
 #check TableExtends.project
 #check Conformance.statement_atomicity
-def sample : ScriptRecord := ⟨2, "3.51.0", "build", [], []⟩
+def sample : ScriptRecord := ⟨3, "3.51.0", "build", [], []⟩
 #eval match decodeScriptRecord (Lean.toJson sample) with
-  | .ok result => result.version == 2 && result.schema.isEmpty && result.script.isEmpty
+  | .ok result => result.version == 3 && result.schema.isEmpty && result.script.isEmpty
   | .error _ => false
 #eval match decodeScriptRecord (Lean.toJson { sample with version := 1 }) with
   | .ok _ => false
-  | .error message => message.contains "1" && message.contains "version 2" && message.contains "Regenerate"
+  | .error message => message.contains "1" && message.contains "version 3" && message.contains "Regenerate"
 #eval match (Lean.fromJson? (Lean.toJson (256 : Nat)) : Except String UInt8) with
   | .ok _ => false
   | .error _ => true

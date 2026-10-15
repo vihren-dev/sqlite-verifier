@@ -36,7 +36,10 @@ def test_native_model(name: str, runtime_root: Path, tmp_path: Path) -> None:
     old, fixture = cases()[index], fixtures()[index]
     case = record(fixture, default_parser(runtime_root))
     frozen = json.loads((Path(__file__).resolve().parents[1] / "conformance/cases" / f"{name}.json").read_text())
-    assert case == frozen, "Native replay differs from the frozen pinned-engine record"
+    assert frozen["version"] == 4
+    # Retained fixtures have no defaults; their syntax and native observations are unchanged.
+    from conformance.case_format import CASE_VERSION
+    assert case == {**frozen, "version": CASE_VERSION}, "Native replay differs from the frozen pinned-engine record"
     expected = [native_expected(table) for table in sorted(old.after, key=lambda table: table.name)]
     assert case["nativeTrace"][-1]["visible"] == expected
     assert old.native_error in dict(cast(list[list[str]], case["provenance"]))["nativeError"]
@@ -69,7 +72,7 @@ def test_version_two_outputs(runtime_root: Path, tmp_path: Path) -> None:
         name="outputs-v2", outputs=True)
     case, error = prepare(native, runtime_library(runtime_root))
     assert case is not None, error
-    assert case["version"] == 4 and case["outputs"] is not None
+    assert case["version"] == 5 and case["outputs"] is not None
     answer = compiled(case, runtime_root, emit_lean=True)
     assert answer["verdict"] == "AGREE", answer
     assert answer["decoded"] == case

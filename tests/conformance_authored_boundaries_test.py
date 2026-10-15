@@ -32,7 +32,8 @@ def test_explicit_catalog_native_replay_and_classification(boundaries: dict[str,
                                                          runtime_root: Path) -> None:
     """Profiles, outputs, requirement tags and bounded shared storage survive fresh replay. The
     model implements the default execution settings of these profiles (`profile_scope`), so the
-    cases whose SQL it models agree and the others stay out of scope."""
+    cases whose SQL it models agree, including NOT NULL additions on empty and
+    populated tables, and the others stay out of scope."""
     catalog = list(boundaries.values())
     inventory = json.loads((Path(__file__).resolve().parents[1] /
                            "conformance/requirements-3.51.0.json").read_text())
@@ -43,7 +44,12 @@ def test_explicit_catalog_native_replay_and_classification(boundaries: dict[str,
         assert expanded_record(shared_record(record)) == record
         assert record["profile"]["engineVersion"] == "3.51.0"
     native_replay(catalog)
-    assert replay(catalog, runtime_root)["counts"] == {"MODEL_UNSUPPORTED": 17, "AGREE": 6}
+    report = replay(catalog, runtime_root)
+    assert report["counts"] == {"MODEL_UNSUPPORTED": 13, "AGREE": 10}
+    additions = {"add-not-null-empty", "add-not-null-populated",
+                 "add-not-null-null-empty", "add-not-null-null-populated"}
+    assert {case["name"] for case in report["cases"]
+            if case["name"] in additions and case["verdict"] == "AGREE"} == additions
 
 
 def test_validity_boundaries_without_profile_gate(runtime_root: Path) -> None:

@@ -19,10 +19,9 @@ deriving instance Lean.FromJson, Lean.ToJson for Conformance.Case
 
 namespace Conformance
 
-/-- The supported case version: {assert}`caseVersion = 4`. Version 4 carries the
-measured profile of the native connection and the phase of each native error;
-version 3 had only the release and the build. -/
-def caseVersion : Nat := 4
+/-- The supported case version: {assert}`caseVersion = 5`. Version 5 retains default
+source spelling in statement syntax. Version 4 lacked that spelling. -/
+def caseVersion : Nat := 5
 
 /-- Check one native table: folded-name uniqueness is checked by the caller; here,
 distinct bounded rowids and one cell per column. -/

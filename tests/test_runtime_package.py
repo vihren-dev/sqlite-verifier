@@ -18,14 +18,23 @@ pytestmark = pytest.mark.packaging
 @pytest.mark.integration
 @pytest.mark.requires_nix
 def test_installer_accepts_uri_special_bundle_path(tmp_path_factory: pytest.TempPathFactory) -> None:
-    """A bundle extracted under spaces, Unicode, `%` and `#` installs from its local Nix cache."""
+    """The installer restores an absent named runtime from a cache under spaces, Unicode, `%` and `#`.
+
+    Nix 2.18.1 imported dummy `-x` names with --all in the T14 offline run;
+    removing this test-owned path prevents an existing store entry from hiding that failure."""
     bundle = tmp_path_factory.mktemp("installer URI % # ü ").resolve()
     (bundle / "nix-cache").mkdir()
     (bundle / "nix-cache/nix-cache-info").write_text("StoreDir: /nix/store\n")
     (bundle / "runtime").mkdir()
-    (bundle / "runtime/marker").write_text("installed")
+    (bundle / "runtime/marker").write_text(str(bundle))
     runtime = subprocess.run(["nix-store", "--add", str(bundle / "runtime")],
                              check=True, capture_output=True, text=True, timeout=15).stdout.strip()
+    subprocess.run(["nix", "--extra-experimental-features", "nix-command", "--offline", "copy",
+                    "--to", (bundle / "nix-cache").as_uri(), runtime],
+                   check=True, capture_output=True, text=True, timeout=30)
+    subprocess.run(["nix-store", "--delete", runtime],
+                   check=True, capture_output=True, text=True, timeout=15)
+    assert not Path(runtime).exists()
     (bundle / "runtime-path").write_text(runtime + "\n")
     (bundle / "nix-paths").write_text(runtime + "\n")
     (bundle / "python-path").write_text(sys.executable + "\n")
@@ -37,7 +46,7 @@ def test_installer_accepts_uri_special_bundle_path(tmp_path_factory: pytest.Temp
     result = subprocess.run([str(bundle / "install.sh"), str(destination)],
                             env=dict(os.environ), capture_output=True, text=True, timeout=30)
     assert result.returncode == 0, result.stdout + result.stderr
-    assert (destination / "marker").read_text() == "installed"
+    assert (destination / "marker").read_text() == str(bundle)
 
 
 @pytest.mark.unit

@@ -50,4 +50,4 @@ print(json.dumps(record))
                           str(installed_library(runtime_root.resolve(), sys.platform))],
                          cwd=tmp_path, timeout=30)
     assert result.returncode == 0, result.diagnostic()
-    assert json.loads(result.stdout)['version'] == 2
+    assert json.loads(result.stdout)['version'] == 3

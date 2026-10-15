@@ -21,11 +21,11 @@ def column (name : String) (declaredType : Option String) (constraints : List Sy
 that matches only after ASCII folding, negative integers, text and blob bytes, a
 default, keys, an index and a prepare error. -/
 def sampleRecord : ScriptRecord where
-  version := 2
+  version := 3
   release := "3.51.0"
   sourceId := "2025-11-04 19:38:17 fb2c931ae597f8d00a37574ff67aeed3eced4e5547f9120744ae4bfa8e74527b"
   schema := [.createTable "Ünit \"q\"" [column "id" (some "BIGINT") [.primaryKey false],
-      column "at" (some "TIMESTAMP") [.default (.currentTime "CURRENT_TIMESTAMP")], column "b" none]
+      column "at" (some "TIMESTAMP") [.default (.currentTime "CURRENT_TIMESTAMP") "CURRENT_TIMESTAMP"], column "b" none]
       [.unique ["b"]], .createIndex "by_at" true "Ünit \"q\"" ["at"]]
   script := [.begin, .addColumn "ÜNIT \"Q\"" (column "n" (some "TEXT")),
     .insert "Ünit \"q\"" (some ["id", "at", "b", "n"]) [[.negate (.numeric "9"), .null, .null, .blob [0, 255]]],
@@ -40,6 +40,7 @@ def sample : Option ResolvedScript := sampleRecord.resolve.toOption
 #guard (decodeScriptRecord (toJson sampleRecord)).toOption.map (·.script) == some sampleRecord.script
 
 #guard (decodeScriptRecord (toJson { sampleRecord with version := 1 })) matches .error _
+#guard (decodeScriptRecord (toJson { sampleRecord with version := 2 })) matches .error _
 
 /-- Elaborate the commands of a generated module after its {lit}`import` lines, and
 stop at the first parse or elaboration error with Lean's messages. -/

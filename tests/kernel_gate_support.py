@@ -16,7 +16,7 @@ import pytest
 from tests.runtime_support import CommandResult, copy_mutable_tree, run_command
 
 FIXTURES = Path(__file__).with_name("kernel_gate")
-RECORD = {"version": 2, "release": "3.51.0",
+RECORD = {"version": 3, "release": "3.51.0",
           "sourceId": "2025-11-04 19:38:17 fb2c931ae597f8d00a37574ff67aeed3eced4e5547f9120744ae4bfa8e74527b",
           "schema": [], "script": []}
 """The structural record of the fixtures' empty schema and script, which the gate resolves again."""

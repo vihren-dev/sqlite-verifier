@@ -77,7 +77,7 @@ def test_neutral_consumer_uses_structural_facts(isolated_model: Path,
     source.write_text("\n".join(f"import {module}" for module in MODEL_ROOTS) + "\n" +
         "#check Belay.Sqlite.Conforms.set\n#check Belay.Sqlite.Database.set_comm\n"
         "#check Belay.Sqlite.TableExtends.project\n#check Belay.Sqlite.Catalog.tableAt_appendAt\n"
-        "#check Belay.Sqlite.Table.project_newNullable\n"
+        "#check Belay.Sqlite.Table.project_newColumn\n"
         "#check Belay.Sqlite.Conformance.statement_atomicity\n")
     result = run_command([str(lean_sysroot / "bin/lean"), str(source)], cwd=isolated_model,
         environment={**os.environ, "LEAN_PATH": str(isolated_model), "LEAN_SRC_PATH": str(isolated_model)},

@@ -36,7 +36,7 @@ OBLIGATIONS: dict[str, tuple[str, str, str]] = {
     "update-keys-after": (ROW_UPDATE, "updateReady",
                           "keys.all (·.all (comparisonReady (updated table assignments filter)))"),
     "create-table-plain": (EXECUTION, "statementReady", "table.plain"),
-    "add-column-plain": (EXECUTION, "statementReady", "column.plain"),
+    "add-column-default-readback": (EXECUTION, "statementReady", "(readDefaultValue column).toOption.isSome"),
     "create-index-refused": (EXECUTION, "statementReady", "| .createIndex .. => false"),
 }
 """Each conjunct of the admission obligations: the file under `packages/`, the declaration
@@ -54,7 +54,7 @@ COVERED_ELSEWHERE: dict[str, str] = {
     "update-table-ready": "reason:overlaps update-keys-after, which checks every key cell after the update, "
                           "and SQLite guarantees the constraints; update_without_key_checks removes both",
     "create-table-plain": "restriction:create-table-constraints",
-    "add-column-plain": "restriction:add-column-constraint",
+    "add-column-default-readback": "restriction:add-column-constraint",
     "create-index-refused": "restriction:create-index-runs",
 }
 """For each conjunct without a mutant: `restriction:ID`, the restriction that resolution

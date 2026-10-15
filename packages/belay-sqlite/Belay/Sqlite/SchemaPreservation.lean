@@ -27,7 +27,7 @@ theorem TableExtends.declarations (extension : TableExtends before after) :
 /-- For every before/after table and position list, assume {name}`TableExtends`,
 one old cell per original column in every old row, and every position below the
 old width. Then the position projections are equal, including rowids. With no
-rows width is vacuous. The proof reads each cell before the appended NULLs. -/
+rows width is vacuous. The proof reads each cell before the appended values. -/
 theorem TableExtends.projectPositions (extension : TableExtends before after)
     (width : ∀ row ∈ before.rows, row.values.length = before.shape.columns.length)
     (inside : ∀ position ∈ positions, position < before.shape.columns.length) :
@@ -41,7 +41,7 @@ theorem TableExtends.projectPositions (extension : TableExtends before after)
   · apply List.map_congr_left
     intro position listed
     have bound : position < row.values.length := by rw [width row member]; exact inside position listed
-    simp [Row.appendNulls, List.getElem?_append_left bound]
+    simp [Row.appendValues, List.getElem?_append_left bound]
 
 /-- For every given key, require the supplied predicate on its column positions and
 their projected rows. With no keys this requires nothing. Supply the desired SQLite

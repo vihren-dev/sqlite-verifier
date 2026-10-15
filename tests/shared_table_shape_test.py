@@ -23,7 +23,7 @@ import Belay.Sqlite
 open Belay.Sqlite
 def idColumn : CatalogColumn := { name := "id", declaredType := some "BIGINT", notNull := true }
 def stamp : CatalogColumn :=
-  { name := "stamp", declaredType := some "TIMESTAMP", defaultValue := some (.currentTime "CURRENT_TIMESTAMP") }
+  { name := "stamp", declaredType := some "TIMESTAMP", defaultValue := some ⟨.currentTime "CURRENT_TIMESTAMP", "CURRENT_TIMESTAMP"⟩ }
 def data : CatalogColumn := { name := "data", declaredType := none }
 def shape : CatalogTable := { columns := [idColumn, stamp, data], primaryKey := [0], uniqueKeys := [[1], [0, 2]] }
 def catalog : Catalog := [{ name := "items", entry := .table shape },

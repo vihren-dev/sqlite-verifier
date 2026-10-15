@@ -163,9 +163,9 @@ def test_installed_model_and_codec_consumer(runtime_root: Path, tmp_path: Path,
     source.write_text('import Belay.Sqlite\nimport Belay.Sqlite.Codec.Resolution\nimport SqliteVerifier\n'
         '#check Belay.Sqlite.Conforms.set\n#check Belay.Sqlite.TableExtends.project\n'
         '#check SqliteVerifier.VerificationConditions\n'
-        'def record : Belay.Sqlite.ScriptRecord := ⟨2, "3.51.0", "build", [], []⟩\n'
+        'def record : Belay.Sqlite.ScriptRecord := ⟨3, "3.51.0", "build", [], []⟩\n'
         '#eval match Belay.Sqlite.decodeScriptRecord (Lean.toJson record) with\n'
-        '  | .ok value => value.version == 2 && value.resolve.toOption.isSome\n  | .error _ => false\n')
+        '  | .ok value => value.version == 3 && value.resolve.toOption.isSome\n  | .error _ => false\n')
     roots = (runtime_root / '.lake/build/lib/lean',
              runtime_root / 'packages/belay-sqlite/.lake/build/lib/lean')
     result = command_runner([str(runtime_root / 'lean/bin/lean'), str(source)],cwd=tmp_path,

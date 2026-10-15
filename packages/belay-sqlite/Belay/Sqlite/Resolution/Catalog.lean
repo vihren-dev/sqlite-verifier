@@ -20,8 +20,8 @@ structure CatalogColumn where
   declaredType : Option String
   /-- Whether the column declares NOT NULL. -/
   notNull : Bool := false
-  /-- The DEFAULT expression as written; omit it for no default. -/
-  defaultValue : Option Syntax.Expr := none
+  /-- The DEFAULT expression and its source spelling; omit it for no default. -/
+  defaultValue : Option Syntax.DefaultExpression := none
   deriving Repr, DecidableEq
 
 /-- One table entry. Keys are lists of column positions. Use

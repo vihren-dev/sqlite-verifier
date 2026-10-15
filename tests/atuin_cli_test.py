@@ -118,8 +118,15 @@ def test_omitted_original_primary_key(pilot: Path, verify: Callable[..., dict[st
 
 def test_unsupported_default(pilot: Path, verify: Callable[..., dict[str, object]]) -> None:
     """Report unsupported default semantics instead of accepting an unmodeled initialization."""
-    replace_bytes(pilot / 'migration.sql', b'add column shell text;', b"add column shell text DEFAULT 'new';")
+    replace_bytes(pilot / 'migration.sql', b'add column shell text;', b"add column shell text DEFAULT CURRENT_TIMESTAMP;")
     verify('UNSUPPORTED')
+
+
+@pytest.mark.kernel
+def test_changed_default_rejects_stale_proof(pilot: Path, verify: Callable[..., dict[str, object]]) -> None:
+    """Reject a modeled literal default when the candidate still proves a column without it."""
+    replace_bytes(pilot / 'migration.sql', b'add column shell text;', b"add column shell text DEFAULT 'new';")
+    verify('UNVERIFIED')
 
 
 @pytest.mark.approval

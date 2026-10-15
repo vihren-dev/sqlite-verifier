@@ -34,13 +34,13 @@ def NoWrites (script : List Resolved.Statement) : Prop :=
     | .createTable .. | .createIndex .. | .addColumn .. | .begin | .commit | .rollback | .prepareError _ | .query _ => True
 
 /-- Each definition in the script is one that the model describes: each CREATE
-TABLE creates a {name}`CatalogTable.plain` table, each ADD COLUMN adds a
-{name}`CatalogColumn.plain` column, and no statement is CREATE INDEX. Other
+TABLE creates a {name}`CatalogTable.plain` table, each ADD COLUMN has a successful
+{name}`readDefaultValue` result, and no statement is CREATE INDEX. Other
 statements are unrestricted; the empty script satisfies it. -/
 def ModeledDefinitions (script : List Resolved.Statement) : Prop :=
   ∀ statement ∈ script, match statement with
     | .createTable _ _ table => table.plain = true
-    | .addColumn _ column => column.plain = true
+    | .addColumn _ column => (readDefaultValue column).toOption.isSome = true
     | .createIndex .. => False
     | .insert .. | .update .. | .delete .. | .begin | .commit | .rollback | .prepareError _ | .query _ => True
 

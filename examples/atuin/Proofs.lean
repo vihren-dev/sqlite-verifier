@@ -30,7 +30,7 @@ theorem migrationCorrect : Generated.expected := by
     exact admitted
   · intro database admitted
     exact supportedSqlFrom_schemaOnly (by simp [SchemaOnly, AtuinFacts.script_bound])
-      (by simp [ModeledDefinitions, AtuinFacts.script_bound, AtuinFacts.added, CatalogColumn.plain])
+      (by simp [ModeledDefinitions, AtuinFacts.script_bound, AtuinFacts.added, CatalogColumn.plain, readDefaultValue, Except.toOption])
   · intro database admitted outcome execution
     obtain ⟨history, present, shape, valid, executed, conforms⟩ := AtuinFacts.payload admitted.1
     have same : runSql Generated.resolved database = outcome := execution.result

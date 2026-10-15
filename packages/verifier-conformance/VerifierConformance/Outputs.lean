@@ -64,6 +64,16 @@ each written row, in order. A write without {lit}`RETURNING` returns no rows. -/
 def returnedRows (returning : List (Resolved.Expr × String)) (written : List (List Value)) : List ResultRow :=
   if returning.isEmpty then [] else written.map fun row => returning.map fun (expression, _) => expression.eval row
 
+/-- Output names of ADD COLUMN's empty-table check. SQLite's
+{lit}`sqlite3AlterFinishAddColumn` calls {lit}`sqlite3ErrorIfNotEmpty` for a
+NOT NULL column without a non-NULL default. That helper compiles a SELECT
+of this RAISE expression (pinned SQLite {lit}`alter.c`), whose name is exposed
+even when the table is empty. Other modeled additions have no output columns. -/
+def addColumnOutputNames (column : CatalogColumn) : List String :=
+  if column.notNull && (readDefaultValue column).toOption == some .null then
+    ["raise(ABORT,'Cannot add a NOT NULL column with default value NULL')"]
+  else []
+
 /-- Observe the literal-DML domain; unsupported output capability is explicit.
 Transitions and failure status come from production advance, never a second
 evaluator. A successful INSERT changes one row per VALUES row and a successful
@@ -112,7 +122,8 @@ def statementOutput (statement : Resolved.Statement) (before : SqlState)
   | .query query =>
     if successful then (query.source before.database).map fun rows => ⟨query.names, query.run rows, none⟩
     else if overflow && query.groupBy.isEmpty then some ⟨query.names, [], none⟩ else none
-  | .createTable .. | .createIndex .. | .addColumn .. | .begin | .commit | .rollback | .prepareError _ =>
+  | .addColumn _ column => some ⟨addColumnOutputNames column, [], none⟩
+  | .createTable .. | .createIndex .. | .begin | .commit | .rollback | .prepareError _ =>
     some ⟨[], [], none⟩
 
 /-- Follow reached production transitions and stop at their first failure. -/

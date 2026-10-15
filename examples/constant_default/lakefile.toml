@@ -1,0 +1,28 @@
+name = "proofs"
+defaultTargets = ["Contract", "GeneratedInputs", "Candidate"]
+enableArtifactCache = true
+restoreAllArtifacts = true
+
+[[require]]
+name = "sqliteVerifier"
+path = ".belay/runtime"
+
+[[lean_lib]]
+name = "Contract"
+srcDir = "approved"
+roots = ["Requirements", "Interpretation"]
+
+[[lean_lib]]
+name = "GeneratedInputs"
+srcDir = "Generated"
+roots = ["SchemaInputs", "SqlInputs", "Generated"]
+
+[[lean_lib]]
+name = "Candidate"
+srcDir = "."
+roots = ["NextInterpretation", "Proofs"]
+
+[[lean_lib]]
+name = "Audit"
+srcDir = "Generated"
+roots = ["Check"]

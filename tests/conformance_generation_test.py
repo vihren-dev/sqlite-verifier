@@ -107,7 +107,11 @@ def test_frozen_regression(runtime_root: Path, tmp_path: Path) -> None:
     assert hashlib.sha256(case_file.read_bytes()).hexdigest() == entry["caseSha256"]
     program = Program([command("insert", "t", key=2, value=0)])
     fresh, error = acquire(program.fixture(), runtime_root)
-    assert fresh == json.loads(case_file.read_text()), error
+    retained = json.loads(case_file.read_text())
+    assert retained["version"] == 4
+    # This fixture has no defaults; only the transport version changed.
+    from conformance.case_format import CASE_VERSION
+    assert fresh == {**retained, "version": CASE_VERSION}, error
     from conformance.model_check import prove
     result = compiled(fresh, runtime_root, emit_lean=True)
     assert result['verdict'] == 'AGREE'

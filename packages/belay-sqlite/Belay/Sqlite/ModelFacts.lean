@@ -149,14 +149,14 @@ theorem TableExtends.covers (extension : TableExtends before after)
   intro name member
   obtain ⟨index, found⟩ := covered name member
   obtain ⟨⟨position, column⟩, located, rfl⟩ := Option.map_eq_some_iff.mp found
-  exact ⟨position, by simp [Table.appendColumns, columnPosition, findPosition_append columns located]⟩
+  exact ⟨position, by simp [Table.appendColumns, columnPosition, findPosition_append (columns.map Prod.fst) located]⟩
 
 /-- For every before/after table and name list, assume {name}`TableExtends`,
 one old cell per original column in every old row, and old {name}`Covers`.
 Then the two projections are equal, including rowids, duplicates and every cell.
 With no rows width is vacuous; with no names coverage is vacuous and rowids remain.
 Use this to prove view preservation. The proof retains old column positions and
-uses row width to read their cells before the appended NULLs. -/
+uses row width to read their cells before the appended values. -/
 theorem TableExtends.project (extension : TableExtends before after)
     (width : ∀ row ∈ before.rows, row.values.length = before.shape.columns.length)
     (covered : Covers before names) : after.project names = before.project names := by
@@ -170,11 +170,11 @@ theorem TableExtends.project (extension : TableExtends before after)
     intro name named
     obtain ⟨index, found⟩ := covered name named
     obtain ⟨⟨position, column⟩, located, rfl⟩ := Option.map_eq_some_iff.mp found
-    have afterFound : columnPosition (before.shape.columns ++ columns) name = some position := by
-      simp [columnPosition, findPosition_append columns located]
+    have afterFound : columnPosition (before.shape.columns ++ columns.map Prod.fst) name = some position := by
+      simp [columnPosition, findPosition_append (columns.map Prod.fst) located]
     have bound : position < row.values.length := by
       rw [width row member]
       exact findPosition_lt located
-    simp [Row.appendNulls, found, afterFound, List.getElem?_append_left bound]
+    simp [Row.appendValues, found, afterFound, List.getElem?_append_left bound]
 
 end Belay.Sqlite
