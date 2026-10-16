@@ -48,13 +48,47 @@ def fullRow (columns : List CatalogColumn) (positions : List Nat) (row : List Va
       | none => defaultValue column
     .ok (storeValue column.affinity value)) columns
 
+/-- The {lit}`ON CONFLICT` algorithm of each key of {name}`Catalog.uniqueKeys`, in its
+order: the primary key's, each UNIQUE constraint's, and ABORT for each unique index. -/
+def Catalog.keyAlgorithms (catalog : Catalog) (position : Nat) (table : CatalogTable) : List ConflictAlgorithm :=
+  (if table.primaryKey.isEmpty then [] else [table.primaryKeyAlgorithm.getD .abort]) ++
+    (table.keyedUniqueAlgorithms.map (·.getD .abort)) ++
+    catalog.filterMap fun object => match object.entry with
+      | .index index => if index.table == position && index.unique then some .abort else none
+      | .table _ => none
+
+/-- The algorithm of each constraint of an INSERT into the table: the statement's
+{lit}`OR` algorithm when it has one (R-33948-22286), else the algorithm of the
+constraint ({lit}`constraints` for the keys, {name}`CatalogColumn.notNullAlgorithm` for
+NOT NULL). -/
+def insertPolicy (table : CatalogTable) (constraints : List ConflictAlgorithm) (algorithm : Option ConflictAlgorithm) :
+    Resolved.ConflictPolicy :=
+  { keys := constraints.map fun own => algorithm.getD own,
+    notNull := table.columns.map fun column => algorithm.getD column.notNullAlgorithm }
+
+/-- Whether the policy gives two keys different algorithms other than REPLACE, whose order
+SQLite decides internally ({name}`RestrictionKind.mixedConflictAlgorithms`). -/
+def Resolved.ConflictPolicy.mixed (policy : Resolved.ConflictPolicy) : Bool :=
+  (policy.keys.filter (· != .replace)).eraseDups.length > 1
+
+/-- Whether a NOT NULL column with a default has REPLACE, which would store the default
+({name}`RestrictionKind.replaceDefault`). -/
+def replacesDefault (table : CatalogTable) (policy : Resolved.ConflictPolicy) : Bool :=
+  (table.columns.zip policy.notNull).any fun (column, algorithm) =>
+    column.notNull && column.defaultValue.isSome && algorithm == .replace
+
+/-- Whether every algorithm of the policy is ABORT, the behavior of a plain INSERT. -/
+def Resolved.ConflictPolicy.aborts (policy : Resolved.ConflictPolicy) : Bool :=
+  policy.keys.all (· == .abort) && policy.notNull.all (· == .abort)
+
 /-- Resolve INSERT. Path 1 is the column list, path 2 the rows, path 3 the
 {lit}`ON CONFLICT` clauses ({name}`resolveConflict`) and path 4 the {lit}`RETURNING`
-columns. An INSERT without clauses is {name}`Resolved.Statement.insert`, one with
-clauses {name}`Resolved.Statement.upsert`. -/
+columns. An INSERT without clauses whose algorithms are all ABORT
+({name}`insertPolicy`) is {name}`Resolved.Statement.insert`; any other INSERT is
+{name}`Resolved.Statement.upsert`. -/
 def resolveInsert (context : ResolveContext) (catalog : Catalog) (index : Nat) (tableName : String)
     (names : Option (List String)) (rows : List (List Syntax.Expr)) (conflicts : List Syntax.ConflictClause)
-    (returning : List Syntax.ResultColumn) : StatementResolution :=
+    (algorithm : Option ConflictAlgorithm) (returning : List Syntax.ResultColumn) : StatementResolution :=
   let width := (rows.head?.map List.length).getD 0
   if rows.any (·.length != width) then prepareError catalog .valuesDiffer else
   match catalog.findTable tableName with
@@ -86,7 +120,10 @@ def resolveInsert (context : ResolveContext) (catalog : Catalog) (index : Nat) (
               match resolveReturning context.profile.dqsDml (Scope.single tableName table.columns) returning with
               | .error issue => issueResolution catalog index [4] issue
               | .ok columns =>
-                if clauses.isEmpty then .ok (.insert position full keys columns, catalog)
-                else .ok (.upsert position full clauses keys columns, catalog)
+                let policy := insertPolicy table (catalog.keyAlgorithms position table) algorithm
+                if policy.mixed then restrict index [] .mixedConflictAlgorithms
+                else if replacesDefault table policy then restrict index [] .replaceDefault
+                else if clauses.isEmpty && policy.aborts then .ok (.insert position full keys columns, catalog)
+                else .ok (.upsert position full clauses keys columns policy, catalog)
 
 end Belay.Sqlite

@@ -39,21 +39,25 @@ def setV (key : List Nat) (value : Resolved.Expr) (filter : Option Resolved.Expr
 /-- {lit}`ON CONFLICT(k) DO NOTHING`. -/
 def nothingOnK : Resolved.ConflictClause := { target := some [0], action := .nothing }
 
+/-- The policy of an INSERT without {lit}`OR` clause into a table without constraint
+algorithms: every constraint is ABORT. -/
+def aborts : Resolved.ConflictPolicy := { keys := [], notNull := [] }
+
 /-- The values of the rows after an UPSERT, or none for an error. -/
 def valuesAfter (clauses : List Resolved.ConflictClause) (rows : List (List Value)) : Option (List (List Value)) :=
-  match LiteralData.upsertRun keys clauses table rows with
+  match LiteralData.upsertRun keys aborts clauses table rows with
   | .ok (result, _) => some (result.rows.map (·.values))
   | .error _ => none
 
 /-- The error of an UPSERT, or none. -/
 def errorOf (clauses : List Resolved.ConflictClause) (rows : List (List Value)) : Option ExecutionError :=
-  match LiteralData.upsertRun keys clauses table rows with
+  match LiteralData.upsertRun keys aborts clauses table rows with
   | .ok _ => none
-  | .error reason => some reason
+  | .error (reason, _, _) => some reason
 
 /-- The values of the rows that {lit}`RETURNING` reads, or none for an error. -/
 def returned (clauses : List Resolved.ConflictClause) (rows : List (List Value)) : Option (List (List Value)) :=
-  match LiteralData.upsertRun keys clauses table rows with
+  match LiteralData.upsertRun keys aborts clauses table rows with
   | .ok (_, written) => some (written.map (·.values))
   | .error _ => none
 

@@ -1,4 +1,5 @@
 import Belay.Sqlite.WritePreservation
+import Belay.Sqlite.UpsertRun
 
 set_option doc.verso true
 
@@ -6,7 +7,8 @@ set_option doc.verso true
 amendment 4, slice 5c): every row of an UPSERT keeps the table's shape and
 {lit}`Table.Valid`. A skipped row keeps the table; an inserted row is
 {lit}`Table.RowsValid.insertRow`; an updated row replaces one row with a row of the same
-conditions. The distinct rowids come from the check of {lit}`LiteralData.checkedRow`. -/
+conditions; a row of REPLACE deletes rows and appends one row. The distinct rowids come
+from the check of {lit}`LiteralData.checkedRow`. -/
 
 namespace Belay.Sqlite
 
@@ -90,5 +92,43 @@ theorem LiteralData.updateExisting_valid {keys : List (List Nat)} {table next : 
       obtain ⟨value, cell⟩ := cellIntegral
       exact Row.Aliased.movedRowid cell position rfl
   · cases step
+
+/-- For every table, algorithm and result: if {name}`LiteralData.failedConstraint`
+succeeds, its table is the input table. Proof sketch: only IGNORE succeeds, and it
+keeps the table. -/
+theorem LiteralData.failedConstraint_ok {table next : Table} {algorithm : ConflictAlgorithm}
+    {written : Option Row} (step : failedConstraint table algorithm = .ok (next, written)) : next = table := by
+  cases algorithm <;> simp only [failedConstraint, failureError, reduceCtorEq] at step
+  cases step
+  rfl
+
+/-- For every valid table, keys, algorithms and proposed row: assume that the proposed
+row has a valid rowid, one cell per column, {name}`Row.Stored` cells and
+{name}`Row.Aliased`. If {name}`LiteralData.insertChecked` succeeds, its table has the same
+shape and is {name}`Table.Valid`. Proof sketch: a skipped row keeps the table; otherwise
+the rows are a sublist of the table's rows followed by the proposed row, and the check
+gives distinct rowids. -/
+theorem LiteralData.insertChecked_valid {keys : List (List Nat)} {algorithms : List ConflictAlgorithm}
+    {table next : Table} {proposed : Row} {written : Option Row} (valid : table.Valid)
+    (row : validRowid proposed.rowid ∧ proposed.values.length = table.shape.columns.length ∧
+      proposed.Stored table.shape.columns ∧ proposed.Aliased table.shape.rowidAlias)
+    (step : insertChecked keys algorithms table proposed = .ok (next, written)) :
+    next.shape = table.shape ∧ next.Valid := by
+  unfold insertChecked at step
+  split at step
+  · obtain rfl := failedConstraint_ok step
+    exact ⟨rfl, valid⟩
+  · dsimp only at step
+    unfold checkedRow at step
+    split at step
+    · rename_i passed
+      cases step
+      refine ⟨rfl, of_decide_eq_true ((Bool.and_eq_true _ _).mp passed).2, ?_⟩
+      intro other member
+      simp only [replaced, List.mem_append, List.mem_filter, List.mem_singleton] at member
+      rcases member with ⟨old, _⟩ | rfl
+      · exact valid.2 other old
+      · exact row
+    · cases step
 
 end Belay.Sqlite

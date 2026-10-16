@@ -1,4 +1,4 @@
-"""The ON CONFLICT clauses of INSERT in `belay.sqlite.syntax_conflicts`.
+"""The ON CONFLICT clauses and the conflict algorithm of INSERT in `belay.sqlite.syntax_conflicts`.
 
 These tests check the JSON that Lean's `Syntax.ConflictClause` decoder reads: the
 target column names as written, or none, and the action, `nothing` or `update` with its
@@ -68,3 +68,16 @@ def test_target_forms_are_refused_at_their_range(parse_sql: Callable[..., Tree],
     with pytest.raises(SqlError) as raised:
         statements(parse_sql(sql))
     assert sql.encode()[raised.value.start:raised.value.end].decode() == refused
+
+
+@pytest.mark.parametrize(("sql", "algorithm"), [
+    ("INSERT INTO t VALUES (1);", None), ("INSERT OR ROLLBACK INTO t VALUES (1);", "rollback"),
+    ("INSERT OR ABORT INTO t VALUES (1);", "abort"), ("INSERT OR FAIL INTO t VALUES (1);", "fail"),
+    ("INSERT OR IGNORE INTO t VALUES (1);", "ignore"), ("INSERT OR REPLACE INTO t VALUES (1);", "replace"),
+    ("REPLACE INTO t VALUES (1);", "replace"),
+    ("INSERT OR IGNORE INTO t VALUES (1) ON CONFLICT DO NOTHING RETURNING 1;", "ignore"),
+])
+def test_insert_keeps_its_algorithm(parse_sql: Callable[..., Tree], sql: str, algorithm: str | None) -> None:
+    """`INSERT OR algorithm` and `REPLACE INTO` give the Lean `ConflictAlgorithm` constructor
+    name; a plain INSERT has none."""
+    assert insert_of(parse_sql, sql)["algorithm"] == algorithm

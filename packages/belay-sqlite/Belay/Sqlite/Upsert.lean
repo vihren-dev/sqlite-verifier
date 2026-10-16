@@ -4,14 +4,11 @@ import Belay.Sqlite.Execution
 
 set_option doc.verso true
 
-/-! The execution of INSERT with {lit}`ON CONFLICT` clauses (ADR 0012, amendment 4,
-slice 5c), checked on native SQLite 3.51.0. The rows are processed one at a time, in
-order, so a later row sees the rows that earlier ones inserted or updated. For each row:
-a rowid alias that is no integer is {lit}`datatype mismatch`; a NULL in a NOT NULL
-column fails before any conflict handling; the first clause whose target key has a
-conflicting row handles the row, and the other keys are not checked for it; without
-such a clause the row is inserted and checked against every key. Each failure is the
-ABORT error of the statement. -/
+/-! The {lit}`ON CONFLICT` clauses of INSERT (ADR 0012, amendment 4, slice 5c), checked
+on native SQLite 3.51.0: the proposed row, the first clause whose target key has a
+conflicting row ({lit}`handlingClause`), and {lit}`DO UPDATE` of that row, which is
+checked with ABORT whatever the conflict algorithms say. {lit}`UpsertRun` processes the
+rows with the clauses and the conflict algorithms of slice 5d. -/
 
 namespace Belay.Sqlite
 namespace LiteralData
@@ -21,10 +18,6 @@ cells of {name}`newCells`, which {name}`insertRow` appends. It is also the row t
 {lit}`excluded` reads, so a NULL alias reads the new rowid. -/
 def proposedRow (table : Table) (values : List Value) : Row :=
   { rowid := newRowid table values, values := newCells table values (newRowid table values) }
-
-/-- Whether no cell is NULL in a NOT NULL column. -/
-def notNullCells (columns : List CatalogColumn) (values : List Value) : Bool :=
-  (columns.zip values).all fun (column, value) => !column.notNull || value != .null
 
 /-- The first row of the table that conflicts with the proposed row on one of the keys
 ({name}`keyEqual`), or none. -/
@@ -76,54 +69,6 @@ def updateExisting (keys : List (List Nat)) (table : Table) (assignments : List 
   let changed := movedRowid table.shape.rowidAlias (assignFrom table.shape.columns assignments context existing)
   if aliasCellMismatch table.shape.rowidAlias changed then .error .datatypeMismatch
   else checkedRow keys (replaceRow table existing changed) changed
-
-/-- One row of an UPSERT: the table after it and the row that it inserted or updated,
-none for a skipped row; or the error of the statement. -/
-def upsertRow (keys : List (List Nat)) (clauses : List Resolved.ConflictClause) (table : Table)
-    (values : List Value) : Except ExecutionError (Table × Option Row) :=
-  if aliasMismatch table.shape values then .error .datatypeMismatch else
-  let proposed := proposedRow table values
-  if !notNullCells table.shape.columns proposed.values then .error .constraintViolation else
-  match handlingClause keys clauses table proposed with
-  | none => checkedRow keys (insertRow table values) proposed
-  | some (clause, existing) => match clause.action with
-    | .nothing => .ok (table, none)
-    | .update assignments filter => updateExisting keys table assignments filter existing proposed
-
-/-- The rows of an UPSERT in order ({name}`upsertRow`): the final table and the inserted
-and updated rows in row order, or the first error. -/
-def upsertRun (keys : List (List Nat)) (clauses : List Resolved.ConflictClause) (table : Table) :
-    List (List Value) → Except ExecutionError (Table × List Row)
-  | [] => .ok (table, [])
-  | values :: rest => match upsertRow keys clauses table values with
-    | .error reason => .error reason
-    | .ok (next, written) => match upsertRun keys clauses next rest with
-      | .error reason => .error reason
-      | .ok (final, later) => .ok (final, written.toList ++ later)
-
-/-- Whether every reached row of an UPSERT has a bounded proposed rowid, and every table
-after a row has bounded rowids. SQLite chooses a random rowid after the largest one,
-which the model does not describe. -/
-def upsertBounded (keys : List (List Nat)) (clauses : List Resolved.ConflictClause) (table : Table) :
-    List (List Value) → Bool
-  | [] => true
-  | values :: rest => boundedInteger (newRowid table values) && match upsertRow keys clauses table values with
-    | .error _ => true
-    | .ok (next, _) => next.rows.all (fun row => boundedInteger row.rowid) && upsertBounded keys clauses next rest
-
-/-- Require {name}`tableReady` before the write, {name}`aliasReady`, one stored value per
-column in each row, a column at every position that a {lit}`DO UPDATE` assigns, and
-{name}`upsertBounded`. This check does not establish the constraints of the result,
-which {name}`checkedRow` checks. -/
-def upsertReady (keys : List (List Nat)) (table : Table) (clauses : List Resolved.ConflictClause)
-    (rows : List (List Value)) : Bool :=
-  tableReady keys table && aliasReady table.shape &&
-  rows.all (fun values => values.length == table.shape.columns.length &&
-    (table.shape.columns.zip values).all (fun (column, value) => storedForm column.affinity value)) &&
-  clauses.all (fun clause => match clause.action with
-    | .nothing => true
-    | .update assignments _ => assignments.all fun (position, _) => (table.shape.columns[position]?).isSome) &&
-  upsertBounded keys clauses table rows
 
 end LiteralData
 end Belay.Sqlite

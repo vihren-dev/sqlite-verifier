@@ -14,7 +14,9 @@ namespace Belay.Sqlite
 {lit}`RETURNING` columns, which resolve last. The assignments resolve in order, then
 the filter as a condition; then a column assigned twice is a model restriction. A
 {lit}`SET` value that reads the row for a key column is the restriction
-{name}`RestrictionKind.rowDependentKey` of its assignment. -/
+{name}`RestrictionKind.rowDependentKey` of its assignment. A table with a constraint
+algorithm other than ABORT is {name}`RestrictionKind.constraintAlgorithmUpdate`, after
+every other check. -/
 def resolveUpdate (context : ResolveContext) (catalog : Catalog) (index : Nat) (tableName : String)
     (assignments : List (String × Syntax.Expr)) (filter : Option Syntax.Expr)
     (returning : List Syntax.ResultColumn) : StatementResolution :=
@@ -38,6 +40,10 @@ def resolveUpdate (context : ResolveContext) (catalog : Catalog) (index : Nat) (
           restrict index [1] .updateColumnTwice
         else match resolveReturning dqs scope returning with
           | .error issue => issueResolution catalog index [4] issue
-          | .ok columns => .ok (.update position resolved resolvedFilter keys columns, catalog)
+          | .ok columns =>
+            if (catalog.keyAlgorithms position table).all (· == .abort) &&
+                table.columns.all (·.notNullAlgorithm == .abort) then
+              .ok (.update position resolved resolvedFilter keys columns, catalog)
+            else restrict index [] .constraintAlgorithmUpdate
 
 end Belay.Sqlite

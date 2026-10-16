@@ -69,6 +69,17 @@ def tableT : Catalog := catalogOf (migration [] [.createTable "t" [column "a", c
   == [.table { columns := [{ name := "x", declaredType := some "INTEGER" }], primaryKey := [0], primaryKeyDescending := true }]
 #guard !restricted (schema [.createTable "t" [{ name := "x", declaredType := some "BIGINT", constraints := [.primaryKey false] }] []])
 
+/-- Column {lit}`a` with one column constraint and no declared type. -/
+def constrained (constraint : ColumnConstraint) : ColumnDefinition :=
+  { name := "a", declaredType := none, constraints := [constraint] }
+
+-- Constraints of one index merge (slice 5d): the explicit algorithm wins; two different
+-- explicit algorithms are SQLite's prepare error.
+#guard (catalogOf (schema [.createTable "t" [constrained (.unique (some .replace))] [.unique ["a"]]])).map (·.entry) ==
+  [.table { columns := [{ name := "a", declaredType := none }], uniqueKeys := [[0]], uniqueAlgorithms := [some .replace] }]
+#guard statements (schema [.createTable "t" [constrained (.primaryKey false (some .ignore))] [.unique ["a"] (some .replace)]])
+  matches [.prepareError .conflictingAlgorithms]
+
 -- ASCII-only folding: "Ab" and "aB" are one name; "É" and "é" are two.
 #guard statements (migration [] [.createTable "Ab" [column "x"] [], .createTable "aB" [column "x"] []])
   matches [_, .prepareError (.tableExists "aB")]

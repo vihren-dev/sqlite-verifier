@@ -74,8 +74,15 @@ def haltError : SqlTransition → Option ExecutionError
 /-- Whether an execution error is a failed write, whose outputs are the {lit}`RETURNING`
 names, no rows and no change: a constraint failure or a rowid alias mismatch. -/
 def ExecutionError.failsWrite : ExecutionError → Bool
-  | .constraintViolation | .datatypeMismatch => true
+  | .constraintViolation | .constraintFail | .constraintRollback | .datatypeMismatch => true
   | .unmodeled | .prepare _ | .transactionAlreadyActive | .noActiveTransaction | .integerOverflow => false
+
+/-- The change count of a failed INSERT with clauses or algorithms: the rows written
+before the failing row for a FAIL failure, which keeps them, and zero for every other
+failure or a success. -/
+def keptCount : Except (ExecutionError × Table × List Row) (Table × List Row) → Nat
+  | .error (reason, _, written) => if reason = .constraintFail then written.length else 0
+  | .ok _ => 0
 
 /-- Observe the literal-DML domain; unsupported output capability is explicit.
 Transitions and failure status come from production advance, never a second
@@ -85,7 +92,8 @@ UPDATE changes each row that its filter selects; their {lit}`RETURNING` rows are
 alias), or of the new values of the selected rows. A successful INSERT with
 {lit}`ON CONFLICT` clauses changes each row that it inserted or updated, and its
 {lit}`RETURNING` rows are {name}`returnedRows` of those rows in row order
-({name}`LiteralData.upsertRun`); skipped rows are not counted. A
+({name}`LiteralData.upsertRun`); skipped and deleted rows are not counted, and a FAIL
+failure counts the rows before the failing one ({name}`keptCount`). A
 successful DELETE changes each row that its filter selects, and its {lit}`RETURNING` rows
 are {name}`returnedRows` of the old values of those rows. A write that fails a
 constraint or a rowid alias ({lit}`datatype mismatch`) returns its {lit}`RETURNING` names
@@ -108,13 +116,13 @@ def statementOutput (statement : Resolved.Statement) (before : SqlState)
       let written := ((LiteralData.inserted table rows).rows.drop table.rows.length).map (·.values)
       return ⟨names, returnedRows returning written, some rows.length⟩
     else if constraintFailure then some ⟨names, [], some 0⟩ else none
-  | .upsert at_ rows clauses keys returning =>
+  | .upsert at_ rows clauses keys returning policy =>
     let names := returning.map (·.2)
+    let run := (before.database at_).map fun table => LiteralData.upsertRun keys policy clauses table rows
     if successful then do
-      let table ← before.database at_
-      let (_, written) ← (LiteralData.upsertRun keys clauses table rows).toOption
+      let (_, written) ← (← run).toOption
       return ⟨names, returnedRows returning (written.map (·.values)), some written.length⟩
-    else if constraintFailure then some ⟨names, [], some 0⟩ else none
+    else if constraintFailure then some ⟨names, [], some ((run.map keptCount).getD 0)⟩ else none
   | .update at_ assignments filter _ returning =>
     let names := returning.map (·.2)
     if successful then do

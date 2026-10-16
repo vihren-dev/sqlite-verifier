@@ -45,18 +45,18 @@ def constantDefault : Syntax.Expr → Bool
 
 /-- Whether the constraint is PRIMARY KEY. -/
 def Syntax.ColumnConstraint.isPrimaryKey : Syntax.ColumnConstraint → Bool
-  | .primaryKey _ => true
-  | .notNull | .unique | .default _ => false
+  | .primaryKey .. => true
+  | .notNull _ | .unique _ | .default _ => false
 
 /-- Whether the constraint is UNIQUE. -/
 def Syntax.ColumnConstraint.isUnique : Syntax.ColumnConstraint → Bool
-  | .unique => true
-  | .notNull | .primaryKey _ | .default _ => false
+  | .unique _ => true
+  | .notNull _ | .primaryKey .. | .default _ => false
 
 /-- Whether the constraint is a DEFAULT that SQLite refuses as not constant. -/
 def Syntax.ColumnConstraint.nonconstantDefault : Syntax.ColumnConstraint → Bool
   | .default value => !constantDefault value
-  | .notNull | .primaryKey _ | .unique => false
+  | .notNull _ | .primaryKey .. | .unique _ => false
 
 /-- Whether the model describes the constraint's default: no default, or the
 {lit}`CURRENT_TIMESTAMP` default, which the model keeps without evaluating it. Other
@@ -68,7 +68,7 @@ def Syntax.ColumnConstraint.modeledDefault : Syntax.ColumnConstraint → Bool
   | .default (.equals ..) | .default (.compare ..) | .default (.and ..) | .default (.or ..)
   | .default (.not _) | .default (.isNull ..) | .default (.callStar _) | .default (.call ..)
   | .default (.arithmetic ..) | .default (.cast ..) | .default (.callPair ..) | .default (.qualified ..) => false
-  | .notNull | .primaryKey _ | .unique => true
+  | .notNull _ | .primaryKey .. | .unique _ => true
 
 /-- A prepare error leaves the catalog unchanged. -/
 def prepareError (catalog : Catalog) (error : PrepareError) : StatementResolution :=

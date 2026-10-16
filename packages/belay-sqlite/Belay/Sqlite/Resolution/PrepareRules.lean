@@ -86,9 +86,10 @@ resolver; the branches after the table lookup give errors that name no catalog
 object, by the lemmas on column lists, values and full rows. -/
 theorem resolveInsert_named (context : ResolveContext) (catalog after : Catalog) (index : Nat)
     (tableName : String) (names : Option (List String)) (rows : List (List Syntax.Expr))
-    (conflicts : List Syntax.ConflictClause) (returning : List Syntax.ResultColumn)
+    (conflicts : List Syntax.ConflictClause) (algorithm : Option ConflictAlgorithm)
+    (returning : List Syntax.ResultColumn)
     (error : PrepareError) (named : error.namesObject = true)
-    (ok : resolveInsert context catalog index tableName names rows conflicts returning =
+    (ok : resolveInsert context catalog index tableName names rows conflicts algorithm returning =
       .ok (.prepareError error, after)) :
     error = .noSuchTable tableName ∧ catalog.findTable tableName = none ∧ after = catalog := by
   unfold resolveInsert at ok
@@ -117,10 +118,11 @@ table has the folded name, the resolution is {lit}`no such table`, and the catal
 is unchanged. -/
 theorem resolveInsert_missing (context : ResolveContext) (catalog : Catalog) (index : Nat)
     (tableName : String) (names : Option (List String)) (rows : List (List Syntax.Expr))
-    (conflicts : List Syntax.ConflictClause) (returning : List Syntax.ResultColumn)
+    (conflicts : List Syntax.ConflictClause) (algorithm : Option ConflictAlgorithm)
+    (returning : List Syntax.ResultColumn)
     (same : ∀ row ∈ rows, row.length = (rows.head?.map List.length).getD 0)
     (missing : catalog.findTable tableName = none) :
-    resolveInsert context catalog index tableName names rows conflicts returning =
+    resolveInsert context catalog index tableName names rows conflicts algorithm returning =
       .ok (.prepareError (.noSuchTable tableName), catalog) := by
   have consistent : (rows.any fun row => row.length != (rows.head?.map List.length).getD 0) = false := by
     simpa using same

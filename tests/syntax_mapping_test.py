@@ -38,13 +38,15 @@ def test_definitions_keep_names_types_and_constraints_as_written(parse_sql: Call
            "CREATE UNIQUE INDEX i ON `Big T`(a, B); ALTER TABLE t ADD COLUMN z INT DEFAULT y;")
     assert mapped(parse_sql, sql) == [
         {"createTable": {"name": "Big T", "columns": [
-            column("a", "VARCHAR ( 10 )", ["notNull", {"primaryKey": {"descending": True}}]),
-            column("B", "Some", ["unique"]),
+            column("a", "VARCHAR ( 10 )", [{"notNull": {"algorithm": None}},
+                                           {"primaryKey": {"descending": True, "algorithm": None}}]),
+            column("B", "Some", [{"unique": {"algorithm": None}}]),
             column("c", None, [{"default": {"value": {"negate": {"operand": {"numeric": {"text": "1"}}}}}}]),
             column("d", None, [{"default": {"value": {"currentTime": {"keyword": "CURRENT_TIMESTAMP"}}}}]),
             column("e", None, [{"default": {"value": {"string": {"bytes": list(b"x'y")}}}}]),
             column("f", None)],
-            "constraints": [{"primaryKey": {"columns": ["a"]}}, {"unique": {"columns": ["c", "d"]}}]}},
+            "constraints": [{"primaryKey": {"columns": ["a"], "algorithm": None}},
+                            {"unique": {"columns": ["c", "d"], "algorithm": None}}]}},
         {"createIndex": {"name": "i", "unique": True, "table": "Big T", "columns": ["a", "B"]}},
         {"addColumn": {"table": "t", "column": column("z", "INT", [
             {"default": {"value": {"identifier": {"name": "y", "doubleQuoted": False}}}}])}}]
@@ -60,9 +62,9 @@ def test_writes_keep_rows_assignments_and_numeric_text(parse_sql: Callable[..., 
         "begin",
         {"insert": {"table": "t", "columns": None, "rows": [
             [{"numeric": {"text": "0x1F"}}, {"identifier": {"name": "q", "doubleQuoted": True}}],
-            ["null", {"blob": {"bytes": [0, 255]}}]], "conflicts": []}},
+            ["null", {"blob": {"bytes": [0, 255]}}]], "conflicts": [], "algorithm": None}},
         {"insert": {"table": "t", "columns": ["a"], "rows": [
-            [{"positive": {"operand": {"numeric": {"text": "1_000"}}}}]], "conflicts": []}},
+            [{"positive": {"operand": {"numeric": {"text": "1_000"}}}}]], "conflicts": [], "algorithm": None}},
         {"update": {"table": "t", "assignments": [
             ["a", {"negate": {"operand": {"numeric": {"text": "2.5"}}}}],
             ["b", {"string": {"bytes": list("é".encode())}}]],
@@ -79,7 +81,7 @@ def test_writes_keep_rows_assignments_and_numeric_text(parse_sql: Callable[..., 
     ("CREATE TABLE t(a CHECK (a));", "CHECK (a)"), ("CREATE TABLE t(a, PRIMARY KEY(a DESC));", "DESC"),
     ("CREATE TABLE t(a DEFAULT (1));", "DEFAULT (1)"), ("CREATE INDEX i ON t(a) WHERE a;", "WHERE a"),
     ("ALTER TABLE t RENAME TO u;", "ALTER TABLE t RENAME TO u"), ("BEGIN IMMEDIATE;", "IMMEDIATE"),
-    ("INSERT OR REPLACE INTO t VALUES (1);", "OR REPLACE"), ("INSERT INTO t SELECT 1;", "SELECT 1"),
+    ("UPDATE OR REPLACE t SET a = 1;", "OR REPLACE"), ("INSERT INTO t SELECT 1;", "SELECT 1"),
     ("INSERT INTO t VALUES (a || 1);", "a || 1"), ("UPDATE t SET a = 1 WHERE a IN (1);", "a IN (1)"),
     ("UPDATE t SET (a, b) = (1, 2);", "(a, b) = (1, 2)"), ("SELECT 1;", "SELECT 1"),
     ("EXPLAIN SELECT 1;", "EXPLAIN SELECT 1;"),

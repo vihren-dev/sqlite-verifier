@@ -9,15 +9,17 @@ mutant is one text change in a copy of the model, which
 from conformance.resolve_mutants import SQLITE
 
 UPSERT = SQLITE + "Upsert.lean"
-"""The execution of INSERT with ON CONFLICT clauses."""
+"""The ON CONFLICT clauses of INSERT."""
+RUN = SQLITE + "UpsertRun.lean"
+"""The rows of an INSERT with ON CONFLICT clauses."""
 OUTPUTS = "verifier-conformance/VerifierConformance/Outputs.lean"
 """The outputs of statements, with the change count."""
 
 MUTANTS: dict[str, tuple[str, str, str]] = {
-    "update_first_row": (UPSERT,
-        "    | .update assignments filter => updateExisting keys table assignments filter existing proposed",
-        "    | .update assignments filter => updateExisting keys table assignments filter (table.rows.headD existing)"
-        " proposed"),
+    "update_first_row": (RUN,
+        "      | .update assignments filter => updateExisting keys table assignments filter existing proposed",
+        "      | .update assignments filter => updateExisting keys table assignments filter"
+        " (table.rows.headD existing) proposed"),
     "excluded_reads_existing": (UPSERT, "  let context := existing.values ++ proposed.values",
         "  let context := existing.values ++ existing.values"),
     "last_clause_handles": (UPSERT,
@@ -25,8 +27,9 @@ MUTANTS: dict[str, tuple[str, str, str]] = {
         "  clauses.reverse.findSome? fun clause => (conflictingRow (clauseKeys keys clause) table proposed).map"
         " (clause, ·)"),
     "target_checks_every_key": (UPSERT, "  | some key => [key]", "  | some _ => keys"),
-    "later_row_ignores_earlier": (UPSERT, "    | .ok (next, written) => match upsertRun keys clauses next rest with",
-        "    | .ok (_, written) => match upsertRun keys clauses table rest with"),
+    "later_row_ignores_earlier": (RUN,
+        "    | .ok (next, written) => match upsertRun keys policy clauses next rest with",
+        "    | .ok (_, written) => match upsertRun keys policy clauses table rest with"),
     "skipped_row_counted": (OUTPUTS,
         "      return ⟨names, returnedRows returning (written.map (·.values)), some written.length⟩",
         "      return ⟨names, returnedRows returning (written.map (·.values)), some rows.length⟩"),

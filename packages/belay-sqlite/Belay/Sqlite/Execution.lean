@@ -22,8 +22,15 @@ inductive ExecutionError where
   | transactionAlreadyActive
   /-- COMMIT or ROLLBACK encounters no open transaction. -/
   | noActiveTransaction
-  /-- A literal write violates a NOT NULL or unique-key constraint. -/
+  /-- A literal write violates a NOT NULL or unique-key constraint, with ABORT: the
+  statement's changes are undone. -/
   | constraintViolation
+  /-- A row of INSERT violates a NOT NULL or unique-key constraint with FAIL: the
+  statement stops and keeps the changes of its earlier rows. -/
+  | constraintFail
+  /-- A row of INSERT violates a NOT NULL or unique-key constraint with ROLLBACK: the
+  statement fails and the open transaction is rolled back. -/
+  | constraintRollback
   /-- A query's {lit}`SUM` overflows the 64-bit integers: SQLite's {lit}`integer overflow`,
   reported while the statement runs. -/
   | integerOverflow

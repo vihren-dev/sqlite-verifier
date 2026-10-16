@@ -34,10 +34,14 @@ DECLARATIONS = {
     "primary key constraint": "CREATE TABLE t(a TEXT, b TEXT, PRIMARY KEY(b, a));",
     "row id alias": "CREATE TABLE t(id INTEGER PRIMARY KEY, a TEXT);",
     "descending primary key": "CREATE TABLE t(id INTEGER PRIMARY KEY DESC, a TEXT);",
+    "unique before descending primary key": "CREATE TABLE t(a TEXT UNIQUE PRIMARY KEY DESC, b TEXT);",
+    "descending primary key before unique": "CREATE TABLE t(a TEXT PRIMARY KEY DESC UNIQUE, b TEXT);",
+    "merged unique keys": "CREATE TABLE t(a TEXT UNIQUE ON CONFLICT REPLACE, b TEXT, UNIQUE(a), PRIMARY KEY(b), UNIQUE(b));",
 }
 """Table shapes that resolution accepts in a schema and the model represents. A row id
 alias (`INTEGER PRIMARY KEY`) has no key index; `INTEGER PRIMARY KEY DESC` is not an alias,
-and its key index is descending."""
+and its key index is descending. Constraints of one index give one index, with the direction of the first of
+them."""
 
 
 def predict(runtime_root: Path, *records: dict[str, object]) -> list[dict[str, object]]:

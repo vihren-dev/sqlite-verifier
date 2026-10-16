@@ -26,7 +26,11 @@
             "name": "id",
             "declaredType": "INTEGER",
             "constraints": [
-              "notNull"
+              {
+                "notNull": {
+                  "algorithm": null
+                }
+              }
             ]
           },
           {
@@ -40,7 +44,8 @@
             "unique": {
               "columns": [
                 "id"
-              ]
+              ],
+              "algorithm": null
             }
           }
         ]
@@ -69,7 +74,8 @@
             }
           ]
         ],
-        "conflicts": []
+        "conflicts": [],
+        "algorithm": null
       }
     }
   ],

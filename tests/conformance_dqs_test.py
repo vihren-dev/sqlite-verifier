@@ -35,7 +35,7 @@ def test_library_default_and_frontend(version: str, suffix: str, runtime_root: P
     mapped = statements(parse(profile_parser(runtime_root, version), b'INSERT INTO t(id,value) VALUES(2,"fallback");',
                               "dqs.sql"))
     assert mapped[0].value == {"insert": {"table": "t", "columns": ["id", "value"], "rows": [
-        [{"numeric": {"text": "2"}}, {"identifier": {"name": "fallback", "doubleQuoted": True}}]], "conflicts": []}}
+        [{"numeric": {"text": "2"}}, {"identifier": {"name": "fallback", "doubleQuoted": True}}]], "conflicts": [], "algorithm": None}}
 
 
 @pytest.mark.parametrize("migration", [

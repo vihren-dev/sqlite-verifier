@@ -58,8 +58,8 @@ def resolveStatement (context : ResolveContext) (state : ResolveState) (index : 
   | .createIndex name unique table columns =>
     state.withCatalog (resolveCreateIndex context state.catalog index name unique table columns)
   | .addColumn table column => state.withCatalog (resolveAddColumn context state.catalog index table column)
-  | .insert table columns rows conflicts =>
-    state.withCatalog (resolveInsert context state.catalog index table columns rows conflicts [])
+  | .insert table columns rows conflicts algorithm =>
+    state.withCatalog (resolveInsert context state.catalog index table columns rows conflicts algorithm [])
   | .update table assignments filter =>
     state.withCatalog (resolveUpdate context state.catalog index table assignments filter [])
   | .select columns source joins filter groupBy orderBy limit offset =>
@@ -67,8 +67,9 @@ def resolveStatement (context : ResolveContext) (state : ResolveState) (index : 
       (resolveSelect context state.catalog index columns source joins filter groupBy orderBy limit offset)
   | .delete table filter => state.withCatalog (resolveDelete context state.catalog index table filter [])
   | .returning write columns => match write with
-    | .insert table names rows conflicts =>
-      state.withCatalog (returningPaths (resolveInsert context state.catalog index table names rows conflicts columns))
+    | .insert table names rows conflicts algorithm =>
+      state.withCatalog
+        (returningPaths (resolveInsert context state.catalog index table names rows conflicts algorithm columns))
     | .update table assignments filter =>
       state.withCatalog (returningPaths (resolveUpdate context state.catalog index table assignments filter columns))
     | .delete table filter =>

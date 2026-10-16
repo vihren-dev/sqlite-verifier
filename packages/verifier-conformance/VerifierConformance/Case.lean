@@ -62,7 +62,7 @@ def databaseOf (catalog : Catalog) (natives : List NativeTable) : Database :=
 /-- The primary result-code abstraction matches the granularity of ExecutionError. -/
 def primaryCode : Option (Nat × ExecutionError) → Nat
   | none => 0
-  | some (_, .constraintViolation) => 19
+  | some (_, .constraintViolation) | some (_, .constraintFail) | some (_, .constraintRollback) => 19
   | some (_, .datatypeMismatch) => 20
   | some (_, .unmodeled) | some (_, .prepare _) | some (_, .transactionAlreadyActive)
   | some (_, .noActiveTransaction) | some (_, .integerOverflow) => 1
@@ -73,7 +73,8 @@ def errorPhase : Option (Nat × ExecutionError) → Option ErrorPhase
   | none => none
   | some (_, .prepare _) => some .prepare
   | some (_, .unmodeled) | some (_, .transactionAlreadyActive) | some (_, .noActiveTransaction)
-  | some (_, .constraintViolation) | some (_, .integerOverflow) | some (_, .datatypeMismatch) => some .step
+  | some (_, .constraintViolation) | some (_, .constraintFail) | some (_, .constraintRollback)
+  | some (_, .integerOverflow) | some (_, .datatypeMismatch) => some .step
 
 /-- Compare the visible and committed views under their catalogs, the transaction
 status, the primary code and, when the recorder observed it, the error phase; never

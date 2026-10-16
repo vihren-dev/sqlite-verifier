@@ -1,4 +1,5 @@
-"""The SET lists of UPDATE and DO UPDATE, and the ON CONFLICT clauses of INSERT.
+"""The SET lists of UPDATE and DO UPDATE, the ON CONFLICT clauses of INSERT, and the
+conflict algorithms of `INSERT OR algorithm`, `REPLACE INTO` and of constraints.
 
 SQLite's grammar gives the clauses of an INSERT as a right-nested `upsert` node whose
 last part is the next clause, or the RETURNING clause. A clause maps to the Lean
@@ -11,7 +12,7 @@ range.
 
 from .located import Located, constructor, leaf, pair, sequence, structure
 from .sql_tree import Node, Tree
-from .syntax_definitions import absent, left_list, require
+from .syntax_definitions import absent, left_list, require, resolve_type
 from .syntax_expressions import name
 from .syntax_queries import query_expression
 
@@ -77,3 +78,16 @@ def conflict_clauses(tree: Tree, upsert: Node) -> tuple[Located, list[Node]]:
             action = update_action(tree, parts[5], parts[6], parts[2].start, parts[6].end)
         clauses.append(structure([("target", target), ("action", action)], parts[0].start, parts[-2].end))
         current = parts[-1]
+
+
+def insert_algorithm(tree: Tree, operation: Node) -> Located:
+    """The algorithm of an `insert_cmd` node: `REPLACE` for `REPLACE INTO`, the algorithm of
+    `INSERT OR algorithm`, or none for a plain `INSERT`."""
+    parts = tree.children(operation)
+    if [part.symbol for part in parts] == ["REPLACE"]:
+        return leaf("replace", operation.start, operation.end)
+    _, conflict = require(tree, operation, ["INSERT", "orconf"])
+    if not conflict.children:
+        return leaf(None, conflict.start, conflict.end)
+    _, kind = require(tree, conflict, ["OR", "resolvetype"])
+    return resolve_type(tree, kind)

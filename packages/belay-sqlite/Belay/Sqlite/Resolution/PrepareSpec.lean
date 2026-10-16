@@ -23,15 +23,50 @@ theorem keyPositions_error (columns : List CatalogColumn) (names : List String) 
     · cases h : keyPositions columns rest <;> simp_all [Except.map]
     · cases failed; rfl
 
+/-- For all algorithms, an error of {name}`mergeAlgorithm` names no catalog object. Proof
+sketch: the only error is {name}`PrepareError.conflictingAlgorithms`. -/
+theorem mergeAlgorithm_error (first second : Option ConflictAlgorithm) (error : PrepareError)
+    (failed : mergeAlgorithm first second = .error error) : error.namesObject = false := by
+  unfold mergeAlgorithm at failed
+  split at failed <;> (try split at failed) <;> cases failed <;> rfl
+
+/-- For every table, key and algorithm, an error of {name}`addUniqueKey` names no catalog
+object. Proof sketch: every error is an error of {name}`mergeAlgorithm_error`. -/
+theorem addUniqueKey_error (table : CatalogTable) (positions : List Nat) (algorithm : Option ConflictAlgorithm)
+    (error : PrepareError) (failed : addUniqueKey table positions algorithm = .error error) :
+    error.namesObject = false := by
+  unfold addUniqueKey at failed
+  repeat' split at failed
+  all_goals try simp only [bind, Except.bind] at failed
+  all_goals (repeat' split at failed)
+  all_goals first | (cases failed; done) | (cases failed <;> exact mergeAlgorithm_error _ _ _ (by assumption))
+
+/-- For every table, key, alias, direction and algorithm, an error of
+{name}`setPrimaryKey` names no catalog object. Proof sketch: every error is an error of
+{name}`mergeAlgorithm_error`. -/
+theorem setPrimaryKey_error (table : CatalogTable) (positions : List Nat) (alias : Option Nat) (descending : Bool)
+    (algorithm : Option ConflictAlgorithm) (error : PrepareError)
+    (failed : setPrimaryKey table positions alias descending algorithm = .error error) :
+    error.namesObject = false := by
+  unfold setPrimaryKey at failed
+  repeat' split at failed
+  all_goals try simp only [bind, Except.bind] at failed
+  all_goals (repeat' split at failed)
+  all_goals first | (cases failed; done) | (cases failed <;> exact mergeAlgorithm_error _ _ _ (by assumption))
+
 /-- For every table and constraint, an error of {name}`applyConstraint` names no
-catalog object. Proof sketch: the only errors are
-{name}`PrepareError.multiplePrimaryKeys` and {name}`PrepareError.defaultNotConstant`. -/
+catalog object. Proof sketch: the errors are {name}`PrepareError.multiplePrimaryKeys`,
+{name}`PrepareError.defaultNotConstant`, and the errors of {name}`setPrimaryKey_error` and
+{name}`addUniqueKey_error`. -/
 theorem applyConstraint_error (tableName : String) (definition : Syntax.ColumnDefinition)
     (table : CatalogTable) (constraint : Syntax.ColumnConstraint) (error : PrepareError)
     (failed : applyConstraint tableName definition table constraint = .error error) :
     error.namesObject = false := by
-  cases constraint <;> simp only [applyConstraint] at failed <;> (try split at failed) <;>
-    cases failed <;> rfl
+  cases constraint <;> simp only [applyConstraint] at failed <;> (try split at failed)
+  all_goals first
+    | (cases failed <;> rfl)
+    | exact setPrimaryKey_error _ _ _ _ _ _ failed
+    | exact addUniqueKey_error _ _ _ _ failed
 
 /-- If every step's error names no catalog object, so does an error of a fold of the
 steps. Proof sketch: induction on the list; the error comes from the first step or
@@ -67,8 +102,9 @@ theorem addDefinitions_error (limit : Nat) (tableName : String) (table : Catalog
         · exact ih _ failed
 
 /-- For all inputs, an error of {name}`addTableConstraints` names no catalog object.
-Proof sketch: induction on the constraints; the errors are a second primary key and
-the key column errors of {name}`keyPositions_error`. -/
+Proof sketch: induction on the constraints; the errors are a second primary key, the
+key column errors of {name}`keyPositions_error`, and the merged keys of
+{name}`setPrimaryKey_error` and {name}`addUniqueKey_error`. -/
 theorem addTableConstraints_error (tableName : String) (table : CatalogTable)
     (constraints : List Syntax.TableConstraint) (error : PrepareError)
     (failed : addTableConstraints tableName table constraints = .error error) : error.namesObject = false := by
@@ -76,17 +112,21 @@ theorem addTableConstraints_error (tableName : String) (table : CatalogTable)
   | nil => cases failed
   | cons constraint rest ih =>
     cases constraint with
-    | primaryKey names =>
+    | primaryKey names algorithm =>
       simp only [addTableConstraints, bind, Except.bind] at failed
       split at failed
       · cases failed; rfl
       · split at failed
         · rename_i _ cause; cases failed; exact keyPositions_error _ _ _ cause
-        · exact ih _ failed
-    | unique names =>
+        · split at failed
+          · rename_i _ cause; cases failed; exact setPrimaryKey_error _ _ _ _ _ _ cause
+          · exact ih _ failed
+    | unique names algorithm =>
       simp only [addTableConstraints, bind, Except.bind] at failed
       split at failed
       · rename_i _ cause; cases failed; exact keyPositions_error _ _ _ cause
-      · exact ih _ failed
+      · split at failed
+        · rename_i _ cause; cases failed; exact addUniqueKey_error _ _ _ _ cause
+        · exact ih _ failed
 
 end Belay.Sqlite

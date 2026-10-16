@@ -1,4 +1,5 @@
 import Belay.Sqlite.Resolution.QueryForm
+import Belay.Sqlite.Resolution.ConflictAlgorithm
 
 set_option doc.verso true
 
@@ -27,6 +28,17 @@ structure ConflictClause where
   target : Option (List Nat)
   /-- The action. -/
   action : ConflictAction
+  deriving Repr, DecidableEq
+
+/-- The algorithm that applies to each constraint of an INSERT: the statement's
+{lit}`OR` algorithm, else the constraint's own, else ABORT. {lit}`keys` has one entry for
+each key of the statement, in its order, and {lit}`notNull` one for each column. A
+position without an entry is ABORT. -/
+structure ConflictPolicy where
+  /-- The algorithm of each key. -/
+  keys : List ConflictAlgorithm
+  /-- The algorithm of the NOT NULL constraint of each column. -/
+  notNull : List ConflictAlgorithm
   deriving Repr, DecidableEq
 
 end Belay.Sqlite.Resolved

@@ -20,7 +20,8 @@ def PrepareError.namesObject : PrepareError → Bool
   | .cannotAddPrimaryKey | .cannotAddUnique | .hexLiteralTooBig _ | .misuseOfAggregate _
   | .aggregateInGroupBy | .orderByOutOfRange .. | .groupByOutOfRange .. | .wrongArgumentCount _
   | .ambiguousColumn _ | .noSuchSource _ | .tooManyTables | .returningSourceStar
-  | .joinUsingColumn _ | .naturalJoinCondition | .ambiguousUsingReference _ | .conflictTargetMismatch => false
+  | .joinUsingColumn _ | .naturalJoinCondition | .ambiguousUsingReference _ | .conflictTargetMismatch
+  | .conflictingAlgorithms => false
 
 /-- A value issue that is not a prepare error naming a catalog object. -/
 def ValueIssue.namesNoObject : ValueIssue → Prop

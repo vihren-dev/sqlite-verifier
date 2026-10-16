@@ -87,10 +87,11 @@ split the resolver down to its successful branch; each row is a result of
 {name}`fullRow` by {name}`resolveAllFrom_ok`, and {name}`fullRow_rowWidth` gives the rule. -/
 theorem resolveInsert_rowWidth (context : ResolveContext) (catalog after : Catalog) (index : Nat)
     (tableName : String) (names : Option (List String)) (rows : List (List Syntax.Expr))
-    (conflicts : List Syntax.ConflictClause) (returning : List Syntax.ResultColumn)
+    (conflicts : List Syntax.ConflictClause) (algorithm : Option ConflictAlgorithm)
+    (returning : List Syntax.ResultColumn)
     (position : Nat) (full : List (List Value)) (keys : List (List Nat))
     (columns : List (Resolved.Expr × String))
-    (ok : resolveInsert context catalog index tableName names rows conflicts returning =
+    (ok : resolveInsert context catalog index tableName names rows conflicts algorithm returning =
       .ok (.insert position full keys columns, after)) :
     after = catalog ∧ ∃ table, catalog.findTable tableName = some (position, table) ∧
       keys = catalog.uniqueKeys position table ∧ ∀ row ∈ full, ∃ positions written, RowWidth table.columns positions written row := by
@@ -120,6 +121,10 @@ theorem resolveInsert_rowWidth (context : ResolveContext) (catalog after : Catal
   · split at ok <;> cases ok
   split at ok
   · split at ok <;> cases ok
+  split at ok
+  · cases ok
+  split at ok
+  · cases ok
   split at ok
   case isFalse => cases ok
   cases ok

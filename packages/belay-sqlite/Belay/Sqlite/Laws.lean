@@ -1,3 +1,4 @@
+import Belay.Sqlite.SqlProofs
 import Belay.Sqlite.SqlExecution
 
 set_option doc.verso true
@@ -47,15 +48,18 @@ theorem rollback (success : SuccessfulBody 1 body database) :
     runSql (.begin :: body ++ [.rollback]) database = .success database := by
   simpa [runSql, runSqlFrom, advance] using body_rollback (original := database) success
 
-/-- For every statement, database and position, {name}`literalStep` either
-returns success with some database or returns a failure at that position with
-some reason and the unchanged input database.
+/-- For every statement, database and position, {name}`literalStep` returns one of:
+* success with some database;
+* a failure at that position with some reason and the unchanged input database;
+* a FAIL failure ({name}`ExecutionError.constraintFail`) at that position with some
+  database, which keeps the earlier rows of an INSERT.
 
-The proof splits on the statement and table lookup, then follows each
-validation branch. Each failure branch retains the input database. -/
+The proof splits on the statement and table lookup, then follows each validation
+branch. Each failure branch other than FAIL retains the input database. -/
 theorem literal_cases (statement : Resolved.Statement) (database : Database) (position : Nat) :
     (∃ result, literalStep statement database position = .success result) ∨
-    (∃ reason, literalStep statement database position = .failure position reason database) := by
+    (∃ reason, literalStep statement database position = .failure position reason database) ∨
+    (∃ after, literalStep statement database position = .failure position .constraintFail after) := by
   cases statement with
   | createTable at_ name table =>
     cases h : database at_ <;> simp [literalStep, step, h]
@@ -64,9 +68,11 @@ theorem literal_cases (statement : Resolved.Statement) (database : Database) (po
   | insert at_ rows keys _ =>
     cases h : database at_ <;> simp only [literalStep, insertOutcome, checkedWrite, h]
     all_goals (repeat' split) <;> simp
-  | upsert at_ rows clauses keys _ =>
+  | upsert at_ rows clauses keys _ policy =>
     cases h : database at_ <;> simp only [literalStep, h]
-    all_goals (repeat' split) <;> simp
+    all_goals (repeat' split) <;> try simp
+    rename_i reason _ _ _
+    cases reason <;> simp [LiteralData.failedDatabase]
   | update at_ assignments filter keys _ =>
     cases h : database at_ <;> simp only [literalStep, checkedWrite, h]
     all_goals (repeat' split) <;> simp
@@ -83,28 +89,58 @@ theorem literal_cases (statement : Resolved.Statement) (database : Database) (po
   | commit => simp [literalStep, step]
   | rollback => simp [literalStep, step]
 
-/-- For any position, statement, state and outcome, if {name}`advance` halts
-with that outcome, its visible database equals the state's current database.
-Its persisted database equals the saved snapshot when present, and otherwise
-the current database.
+/-- For any position, statement, state and outcome, if {name}`advance` halts with that
+outcome and its error is neither a FAIL failure ({name}`ExecutionError.constraintFail`)
+nor a ROLLBACK failure ({name}`ExecutionError.constraintRollback`), its visible database
+equals the state's current database. Its persisted database equals the saved snapshot
+when present, and otherwise the current database. For FAIL and ROLLBACK the formula
+says nothing; {lit}`constraint_rollback` states ROLLBACK.
 
 The proof splits on the statement and snapshot. {name}`literal_cases` supplies
 the success and failure alternatives for ordinary statements. -/
-theorem statement_atomicity (halted : advance position statement state = .halt outcome) :
+theorem statement_atomicity (halted : advance position statement state = .halt outcome)
+    (atomic : outcome.error? ≠ some .constraintFail ∧ outcome.error? ≠ some .constraintRollback) :
     outcome.database = state.database ∧
     outcome.persistedDatabase = state.snapshot.getD state.database := by
   have possibilities := literal_cases statement state.database position
   cases statement <;> simp only [advance] at halted
-  all_goals try (solve | cases h : state.snapshot <;> simp_all [SqlState.finish,
-    Outcome.database, Outcome.persistedDatabase, Option.getD])
-  all_goals rcases possibilities with ⟨result, h⟩ | ⟨reason, h⟩
-  all_goals try simp only [h] at halted
-  all_goals try contradiction
-  all_goals cases hs : state.snapshot <;>
-    simp_all [SqlState.finish, Outcome.database, Outcome.persistedDatabase, Option.getD]
+  all_goals try (solve | (clear atomic; cases h : state.snapshot <;> simp_all [SqlState.finish,
+    Outcome.database, Outcome.persistedDatabase, Option.getD]))
+  all_goals try (rcases possibilities with ⟨result, h⟩ | ⟨reason, h⟩ | ⟨after, h⟩ <;> rw [h] at halted <;>
+    simp only [reduceCtorEq, SqlTransition.halt.injEq] at halted <;> subst halted)
+  all_goals first
+    | exact absurd (SqlState.failed_error _ _ _ _) atomic.1
+    | (rename_i reason
+       by_cases rolled : reason = .constraintRollback
+       · subst rolled; exact absurd (SqlState.failed_error _ _ _ _) atomic.2
+       · exact SqlState.failed_database _ _ _ _ rolled)
+    | (clear atomic possibilities; cases hs : state.snapshot <;>
+       simp_all [SqlState.finish, Outcome.database, Outcome.persistedDatabase, Option.getD] <;>
+       subst halted <;> simp)
 
-  all_goals rw [← halted]
-  all_goals exact ⟨rfl, rfl⟩
+/-- For any position, statement, state and outcome, if {name}`advance` halts with that
+outcome and its error is a ROLLBACK failure ({name}`ExecutionError.constraintRollback`),
+its visible and its persisted database are the saved snapshot when present, and
+otherwise the current database: the transaction of the snapshot is rolled back.
+
+The proof splits on the statement and snapshot. Only an INSERT fails with ROLLBACK, and
+by {name}`literal_cases` its failure keeps the input database. -/
+theorem constraint_rollback (halted : advance position statement state = .halt outcome)
+    (rolled : outcome.error? = some .constraintRollback) :
+    outcome.database = state.snapshot.getD state.database ∧
+    outcome.persistedDatabase = state.snapshot.getD state.database := by
+  have possibilities := literal_cases statement state.database position
+  cases statement <;> simp only [advance] at halted
+  all_goals try (solve | cases h : state.snapshot <;> simp_all [SqlState.finish,
+    Outcome.database, Outcome.persistedDatabase, Option.getD, Outcome.error?])
+  all_goals try (rcases possibilities with ⟨result, h⟩ | ⟨reason, h⟩ | ⟨after, h⟩ <;> rw [h] at halted <;>
+    simp only [reduceCtorEq, SqlTransition.halt.injEq] at halted <;> subst halted)
+  all_goals first
+    | (rw [SqlState.failed_error] at rolled; simp only [Option.some.injEq, reduceCtorEq] at rolled; done)
+    | (rw [SqlState.failed_error] at rolled; cases rolled; exact SqlState.failed_rollback _ _ _)
+    | (clear possibilities; cases hs : state.snapshot <;>
+       simp_all [SqlState.finish, Outcome.database, Outcome.persistedDatabase, Option.getD, Outcome.error?] <;>
+       subst halted <;> simp_all)
 
 /-- For any position, table position, column and states, if ADD COLUMN advances
 to the next state, some table exists at that table position in the original state.
@@ -128,5 +164,6 @@ theorem add_column_shape
 
 #print axioms rollback
 #print axioms statement_atomicity
+#print axioms constraint_rollback
 #print axioms add_column_shape
 end Belay.Sqlite.Conformance

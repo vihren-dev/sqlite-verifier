@@ -1,0 +1,55 @@
+{
+  "caller": "claude",
+  "commit": "55905e145de36f56cb58361e29442d42b6c40a51",
+  "date": "2026-10-16T12:04:38+00:00",
+  "exit": 1,
+  "files": [
+    "conformance/authored_algorithms.py",
+    "packages/belay-sqlite/Belay/Sqlite/Resolution/Catalog.lean",
+    "packages/belay-sqlite/Belay/Sqlite/Resolution/Definitions.lean",
+    "packages/belay-sqlite/Belay/Sqlite/Resolution/ErrorKinds.lean",
+    "packages/belay-sqlite/Belay/Sqlite/Resolution/Examples.lean",
+    "packages/belay-sqlite/Belay/Sqlite/Resolution/KeyMerge.lean",
+    "packages/belay-sqlite/Belay/Sqlite/Resolution/Messages.lean",
+    "packages/belay-sqlite/Belay/Sqlite/Resolution/PrepareSpec.lean",
+    "packages/belay-sqlite/Belay/Sqlite/Resolution/Resolved.lean",
+    "packages/belay-sqlite/Belay/Sqlite/Resolution/Writes.lean",
+    "plans/20261015-insert-or.status.md",
+    "reviews/20261016T114642Z-1a9639a7/resolution-1-20261016T115223Z.json",
+    "reviews/20261016T114642Z-1a9639a7/review.json",
+    "tests/conformance_predict_test.py",
+    "tests/test_model_package.py"
+  ],
+  "findings": [
+    {
+      "id": "20261016T120438Z-55905e14#1",
+      "line": 48,
+      "path": "packages/belay-sqlite/Belay/Sqlite/Resolution/KeyMerge.lean",
+      "rule": "R7",
+      "severity": "must",
+      "text": "Merging an earlier UNIQUE key into `PRIMARY KEY DESC` retains `primaryKeyDescending := true`, so `CREATE TABLE t(a TEXT UNIQUE PRIMARY KEY DESC)` predicts a descending index although pinned SQLite 3.51.0 retains the earlier ascending index. Fix: preserve the earlier index's direction when merging and add a regression case that compares the predicted catalog with SQLite."
+    }
+  ],
+  "id": "20261016T120438Z-55905e14",
+  "kind": "review",
+  "reviewer": "codex",
+  "revision": "@-",
+  "rules": {
+    "R1": "62d446279093",
+    "R10": "638d8cbd1df8",
+    "R11": "5de19cdbbbc1",
+    "R12": "99f66579f467",
+    "R13": "da0926dafb88",
+    "R15": "518eab58f8b5",
+    "R16": "892e77bd2a12",
+    "R17": "62b65b662f79",
+    "R2": "e5e78fb2a52a",
+    "R3": "4f9188eadd60",
+    "R4": "ea7ca17539eb",
+    "R5": "b8613a2d693b",
+    "R6": "fa2475f44035",
+    "R7": "0a38ead152b1",
+    "R9": "5a69196344d0"
+  },
+  "well_formed": true
+}

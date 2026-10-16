@@ -7,13 +7,14 @@ columns; DELETE keeps its optional WHERE expression and its RETURNING columns. V
 write. A write with RETURNING is a `returning` node around the write, with its
 result columns as in SELECT; a write without RETURNING is the write alone.
 The ON CONFLICT clauses of INSERT are `syntax_conflicts.conflict_clauses`; an INSERT
-without them has an empty list. OR conflict clauses, FROM, SELECT sources and named or
+without them has an empty list. The algorithm of `INSERT OR algorithm` and `REPLACE INTO`
+is `syntax_conflicts.insert_algorithm`. `UPDATE OR`, FROM, SELECT sources and named or
 non-deferred transactions have no constructor and are refused with their source range.
 """
 
 from .located import Located, constructor, leaf, sequence
 from .sql_tree import Node, Tree
-from .syntax_conflicts import assignment_list, conflict_clauses
+from .syntax_conflicts import assignment_list, conflict_clauses, insert_algorithm
 from .syntax_definitions import absent, left_list, require
 from .syntax_expressions import name
 from .syntax_queries import query_expression, result_columns
@@ -67,12 +68,12 @@ def returning(tree: Tree, command: Node, write: Located, parts: list[Node]) -> L
 
 
 def insert(tree: Tree, command: Node) -> Located:
-    """Map INSERT INTO table [(columns)] VALUES rows [ON CONFLICT ...] [RETURNING columns]."""
+    """Map INSERT [OR algorithm] INTO table [(columns)] VALUES rows [ON CONFLICT ...]
+    [RETURNING columns], and REPLACE INTO."""
     with_, operation, _, target, columns, source, upsert = require(
         tree, command, ["with", "insert_cmd", "INTO", "xfullname", "idlist_opt", "select", "upsert"])
     absent(tree, with_, "A WITH clause")
-    _, conflict = require(tree, operation, ["INSERT", "orconf"])
-    absent(tree, conflict, "An OR conflict clause")
+    algorithm = insert_algorithm(tree, operation)
     conflicts, returned = conflict_clauses(tree, upsert)
     (table,) = require(tree, target, ["nm"])
     if columns.children:
@@ -82,7 +83,8 @@ def insert(tree: Tree, command: Node) -> Located:
     else:
         column_list = leaf(None, columns.start, columns.end)
     write = constructor("insert", [("table", name(tree, table)), ("columns", column_list),
-                                   ("rows", value_rows(tree, source)), ("conflicts", conflicts)],
+                                   ("rows", value_rows(tree, source)), ("conflicts", conflicts),
+                                   ("algorithm", algorithm)],
                         command.start, command.end)
     return returning(tree, command, write, returned)
 

@@ -12,9 +12,10 @@ namespace Belay.Sqlite
 every branch of the resolver returns the input catalog. -/
 theorem resolveInsert_same (context : ResolveContext) (catalog after : Catalog) (index : Nat)
     (tableName : String) (names : Option (List String)) (rows : List (List Syntax.Expr))
-    (conflicts : List Syntax.ConflictClause) (returning : List Syntax.ResultColumn)
+    (conflicts : List Syntax.ConflictClause) (algorithm : Option ConflictAlgorithm)
+    (returning : List Syntax.ResultColumn)
     (statement : Resolved.Statement)
-    (ok : resolveInsert context catalog index tableName names rows conflicts returning = .ok (statement, after)) :
+    (ok : resolveInsert context catalog index tableName names rows conflicts algorithm returning = .ok (statement, after)) :
     after = catalog := by
   unfold resolveInsert at ok
   simp only [prepareError, restrict, issueResolution] at ok

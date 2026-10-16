@@ -7,7 +7,7 @@ import subprocess
 
 from belay.sqlite.errors import SqlError
 from conformance.case_format import Json
-from conformance.model_assertions import assertions, audit_axioms
+from conformance.model_assertions import assertions, audit_axioms, batch_assertions
 from conformance.native_trace import Fixture, record
 from conformance.record_parser import default_parser
 
@@ -63,6 +63,21 @@ def prove(term: str, runtime: Path, destination: Path, *, case: dict[str, Json],
           failure: str | None = None) -> str:
     """Kernel-check the runner's decoded closed term, keeping native code out of the proof."""
     destination.write_text(assertions(term, json.dumps(case, ensure_ascii=False), expected=expected, failure=failure))
+    return kernel_check(runtime, destination)
+
+
+def prove_batch(terms: list[str], runtime: Path, destination: Path, *, cases: list[dict[str, Json]]) -> str:
+    """Kernel-check that several agreeing cases are true in one Lean process (`batch_assertions`)."""
+    destination.write_text(batch_assertions([(term, json.dumps(case, ensure_ascii=False))
+                                             for term, case in zip(terms, cases, strict=True)]))
+    output = kernel_check(runtime, destination)
+    if output.count("checkedCase' depends on axioms") != len(terms):
+        raise AssertionError(f"Expected one checked proof for each of the {len(terms)} cases:\n{output}")
+    return output
+
+
+def kernel_check(runtime: Path, destination: Path) -> str:
+    """Run the pinned Lean on a proof file over the runtime's modules and audit its axioms."""
     checked = subprocess.run([str(runtime / "lean/bin/lean"), str(destination)],
                              env={**os.environ, "LEAN_PATH": os.pathsep.join(str(runtime / path) for path in (".lake/build/lib/lean", "packages/belay-sqlite/.lake/build/lib/lean"))},
                              capture_output=True, text=True, timeout=120)

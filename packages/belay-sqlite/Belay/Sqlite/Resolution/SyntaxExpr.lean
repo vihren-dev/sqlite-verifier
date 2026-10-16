@@ -1,5 +1,6 @@
 import Belay.Sqlite.Declarations
 import Belay.Sqlite.Operators
+import Belay.Sqlite.Resolution.ConflictAlgorithm
 
 set_option doc.verso true
 
@@ -70,12 +71,14 @@ inductive Expr where
 /-- A column constraint as written. For example, {lit}`PRIMARY KEY DESC` is
 {lean}`ColumnConstraint.primaryKey true`. -/
 inductive ColumnConstraint where
-  /-- {lit}`NOT NULL`. -/
-  | notNull
-  /-- {lit}`PRIMARY KEY`; the flag is true for {lit}`DESC`. -/
-  | primaryKey (descending : Bool)
-  /-- {lit}`UNIQUE`. -/
-  | unique
+  /-- {lit}`NOT NULL [ON CONFLICT algorithm]`; {lean}`(none : Option ConflictAlgorithm)`
+  without the clause. -/
+  | notNull (algorithm : Option ConflictAlgorithm := none)
+  /-- {lit}`PRIMARY KEY [ASC | DESC] [ON CONFLICT algorithm]`; the flag is true for
+  {lit}`DESC`. -/
+  | primaryKey (descending : Bool) (algorithm : Option ConflictAlgorithm := none)
+  /-- {lit}`UNIQUE [ON CONFLICT algorithm]`. -/
+  | unique (algorithm : Option ConflictAlgorithm := none)
   /-- {lit}`DEFAULT` with its expression. -/
   | default (value : Expr)
   deriving Repr, DecidableEq
@@ -93,10 +96,10 @@ structure ColumnDefinition where
 
 /-- A table constraint of CREATE TABLE, with column names as written. -/
 inductive TableConstraint where
-  /-- {lit}`PRIMARY KEY (columns)`. -/
-  | primaryKey (columns : List String)
-  /-- {lit}`UNIQUE (columns)`. -/
-  | unique (columns : List String)
+  /-- {lit}`PRIMARY KEY (columns) [ON CONFLICT algorithm]`. -/
+  | primaryKey (columns : List String) (algorithm : Option ConflictAlgorithm := none)
+  /-- {lit}`UNIQUE (columns) [ON CONFLICT algorithm]`. -/
+  | unique (columns : List String) (algorithm : Option ConflictAlgorithm := none)
   deriving Repr, DecidableEq
 
 /-- One result column of a {lit}`SELECT`: {lit}`*`, or an expression with an

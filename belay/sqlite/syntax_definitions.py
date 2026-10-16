@@ -61,22 +61,41 @@ def sort_names(tree: Tree, node: Node) -> Located:
     return sequence(names, node.start, node.end)
 
 
+ALGORITHMS = {"ROLLBACK": "rollback", "ABORT": "abort", "FAIL": "fail", "IGNORE": "ignore", "REPLACE": "replace"}
+"""SQLite's conflict algorithm keywords and the Lean constructors of `ConflictAlgorithm`."""
+
+
+def resolve_type(tree: Tree, node: Node) -> Located:
+    """Map a `resolvetype` node, `raisetype`, `IGNORE` or `REPLACE`, to its algorithm."""
+    (part,) = tree.children(node)
+    if part.symbol == "raisetype":
+        (part,) = tree.children(part)
+    return leaf(ALGORITHMS[part.symbol], node.start, node.end)
+
+
+def constraint_algorithm(tree: Tree, node: Node) -> Located:
+    """Map an `onconf` node: the algorithm of `ON CONFLICT algorithm`, or none."""
+    if not node.children:
+        return leaf(None, node.start, node.end)
+    _, _, kind = require(tree, node, ["ON", "CONFLICT", "resolvetype"])
+    return resolve_type(tree, kind)
+
+
 def column_constraint(tree: Tree, node: Node) -> Located:
-    """Map NOT NULL, PRIMARY KEY with its sort order, UNIQUE and the DEFAULT forms."""
+    """Map NOT NULL, PRIMARY KEY with its sort order, UNIQUE, each with its ON CONFLICT
+    algorithm, and the DEFAULT forms."""
     children = tree.children(node)
     symbols = [child.symbol for child in children]
     if symbols == ["NOT", "NULL", "onconf"]:
-        absent(tree, children[2], "An ON CONFLICT clause")
-        return leaf("notNull", node.start, node.end)
+        return constructor("notNull", [("algorithm", constraint_algorithm(tree, children[2]))], node.start, node.end)
     if symbols == ["PRIMARY", "KEY", "sortorder", "onconf", "autoinc"]:
-        absent(tree, children[3], "An ON CONFLICT clause")
         absent(tree, children[4], "AUTOINCREMENT")
         order = [child.symbol for child in tree.children(children[2])]
-        return constructor("primaryKey", [("descending", leaf(order == ["DESC"], children[2].start,
-                                                                   children[2].end))], node.start, node.end)
+        return constructor("primaryKey", [("descending", leaf(order == ["DESC"], children[2].start, children[2].end)),
+                                          ("algorithm", constraint_algorithm(tree, children[3]))],
+                           node.start, node.end)
     if symbols == ["UNIQUE", "onconf"]:
-        absent(tree, children[1], "An ON CONFLICT clause")
-        return leaf("unique", node.start, node.end)
+        return constructor("unique", [("algorithm", constraint_algorithm(tree, children[1]))], node.start, node.end)
     if symbols == ["DEFAULT", "scantok", "term"]:
         value = term(tree, children[2])
     elif symbols in (["DEFAULT", "MINUS", "scantok", "term"], ["DEFAULT", "PLUS", "scantok", "term"]):
@@ -102,16 +121,17 @@ def column_definition(tree: Tree, column: Node, constraints: Node) -> Located:
 
 
 def table_constraint(tree: Tree, node: Node) -> Located:
-    """Map a table PRIMARY KEY or UNIQUE constraint over plain column names."""
+    """Map a table PRIMARY KEY or UNIQUE constraint over plain column names, with its
+    ON CONFLICT algorithm."""
     children = tree.children(node)
     symbols = [child.symbol for child in children]
     if symbols == ["PRIMARY", "KEY", "LP", "sortlist", "autoinc", "RP", "onconf"]:
         absent(tree, children[4], "AUTOINCREMENT")
-        absent(tree, children[6], "An ON CONFLICT clause")
-        return constructor("primaryKey", [("columns", sort_names(tree, children[3]))], node.start, node.end)
+        return constructor("primaryKey", [("columns", sort_names(tree, children[3])),
+                                          ("algorithm", constraint_algorithm(tree, children[6]))], node.start, node.end)
     if symbols == ["UNIQUE", "LP", "sortlist", "RP", "onconf"]:
-        absent(tree, children[4], "An ON CONFLICT clause")
-        return constructor("unique", [("columns", sort_names(tree, children[2]))], node.start, node.end)
+        return constructor("unique", [("columns", sort_names(tree, children[2])),
+                                      ("algorithm", constraint_algorithm(tree, children[4]))], node.start, node.end)
     raise tree.unsupported(node, "Unsupported table constraint; use PRIMARY KEY or UNIQUE over column names")
 
 

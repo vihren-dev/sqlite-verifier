@@ -33,6 +33,15 @@ inductive RestrictionKind where
   /-- {lit}`ON CONFLICT DO UPDATE` without a target on a table with more than one key:
   SQLite then chooses the key of the conflict by its internal order of indexes. -/
   | conflictWithoutTarget
+  /-- Keys of one INSERT with different conflict algorithms other than REPLACE: SQLite's
+  internal order of keys decides which one applies to a row that conflicts on both. -/
+  | mixedConflictAlgorithms
+  /-- UPDATE of a table with a constraint algorithm other than ABORT: {lit}`UPDATE OR` and
+  the algorithms of UPDATE are not modeled (ADR 0012, amendment 4). -/
+  | constraintAlgorithmUpdate
+  /-- REPLACE of a NOT NULL column with a default: REPLACE stores the default for a NULL,
+  and the model does not evaluate defaults in writes. -/
+  | replaceDefault
   /-- A column named twice in INSERT is not modeled (ADR 0008). -/
   | insertColumnTwice
   /-- A column assigned twice in UPDATE is not modeled (ADR 0008). -/

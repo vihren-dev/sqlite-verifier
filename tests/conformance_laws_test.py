@@ -22,7 +22,7 @@ def test_laws_kernel(runtime_root: Path) -> None:
         capture_output=True, text=True, timeout=30)
     assert checked.returncode == 0, checked.stdout + checked.stderr
     audit_axioms(checked.stdout)
-    for name in ("rollback", "statement_atomicity", "add_column_shape"):
+    for name in ("rollback", "statement_atomicity", "constraint_rollback", "add_column_shape"):
         assert f"Belay.Sqlite.Conformance.{name}' depends on axioms" in checked.stdout
 
 

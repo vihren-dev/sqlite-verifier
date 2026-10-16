@@ -1,0 +1,63 @@
+{
+  "caller": "claude",
+  "commit": "1a9639a7eaa8c7b2f86a5df257e7ba644e4ea0ca",
+  "date": "2026-10-16T11:46:42+00:00",
+  "exit": 1,
+  "files": [
+    "belay/sqlite/syntax_conflicts.py",
+    "belay/sqlite/syntax_definitions.py",
+    "conformance/algorithm_mutants.py",
+    "conformance/authored_algorithms.py",
+    "conformance/cases/integer_key_desc.json",
+    "conformance/regressions/injected-literal-corruption/case.json",
+    "conformance/regressions/injected-literal-corruption/mismatch.json",
+    "conformance/restriction_examples.py",
+    "docs/semantic-subset.md",
+    "packages/belay-sqlite/Belay/Sqlite/Codec/Resolution.lean",
+    "packages/belay-sqlite/Belay/Sqlite/Resolution/Catalog.lean",
+    "packages/belay-sqlite/Belay/Sqlite/Resolution/Context.lean",
+    "packages/belay-sqlite/Belay/Sqlite/Resolution/Definitions.lean",
+    "packages/belay-sqlite/Belay/Sqlite/Resolution/RestrictionText.lean",
+    "packages/belay-sqlite/Belay/Sqlite/Resolution/Restrictions.lean",
+    "packages/belay-sqlite/Belay/Sqlite/Resolution/RowSpec.lean",
+    "packages/belay-sqlite/Belay/Sqlite/Resolution/SyntaxExpr.lean",
+    "packages/belay-sqlite/Belay/Sqlite/Resolution/Updates.lean",
+    "packages/belay-sqlite/Belay/Sqlite/Resolution/Writes.lean",
+    "plans/20261015-insert-or.status.md",
+    "reviews/20261016T105048Z-b01444bb/review.json",
+    "tests/conformance_pipeline_test.py",
+    "tests/syntax_mapping_test.py"
+  ],
+  "findings": [
+    {
+      "id": "20261016T114642Z-1a9639a7#1",
+      "line": 77,
+      "path": "packages/belay-sqlite/Belay/Sqlite/Resolution/Definitions.lean",
+      "rule": "R7",
+      "severity": "must",
+      "text": "Duplicate UNIQUE constraints get separate algorithms, so `CREATE TABLE t(a UNIQUE ON CONFLICT REPLACE, UNIQUE(a))` makes the model predict ABORT for a duplicate INSERT where SQLite performs REPLACE. Fix: merge equivalent constraints with SQLite's algorithm rules, or reject these schemas in the supported-subset check as a documented model restriction."
+    }
+  ],
+  "id": "20261016T114642Z-1a9639a7",
+  "kind": "review",
+  "reviewer": "codex",
+  "revision": "@-",
+  "rules": {
+    "R1": "62d446279093",
+    "R10": "638d8cbd1df8",
+    "R11": "5de19cdbbbc1",
+    "R12": "99f66579f467",
+    "R13": "da0926dafb88",
+    "R15": "518eab58f8b5",
+    "R16": "892e77bd2a12",
+    "R17": "62b65b662f79",
+    "R2": "e5e78fb2a52a",
+    "R3": "4f9188eadd60",
+    "R4": "ea7ca17539eb",
+    "R5": "b8613a2d693b",
+    "R6": "fa2475f44035",
+    "R7": "0a38ead152b1",
+    "R9": "5a69196344d0"
+  },
+  "well_formed": true
+}

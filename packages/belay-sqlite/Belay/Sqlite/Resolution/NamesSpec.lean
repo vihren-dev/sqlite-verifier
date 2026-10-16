@@ -108,10 +108,10 @@ theorem resolveStatement_namesUnique (context : ResolveContext) (state next : Re
     simp only [resolveStatement, ResolveState.withCatalog, Except.map] at ok
     split at ok <;> cases ok
     exact keep _ (resolveAddColumn_step _ _ _ _ _ _ _ (by assumption))
-  | insert table columns rows conflicts =>
+  | insert table columns rows conflicts algorithm =>
     simp only [resolveStatement, ResolveState.withCatalog, Except.map] at ok
     split at ok <;> cases ok
-    exact keep _ (resolveInsert_same _ _ _ _ _ _ _ _ _ _ (by assumption) ▸ .same)
+    exact keep _ (resolveInsert_same _ _ _ _ _ _ _ _ _ _ _ (by assumption) ▸ .same)
   | update table assignments filter =>
     simp only [resolveStatement, ResolveState.withCatalog, Except.map] at ok
     split at ok <;> cases ok
@@ -131,7 +131,7 @@ theorem resolveStatement_namesUnique (context : ResolveContext) (state next : Re
       | (cases ok; done)
       | (split at ok <;> cases ok
          first
-           | exact keep _ (resolveInsert_same _ _ _ _ _ _ _ _ _ _ (returningPaths_ok _ _ (by assumption)) ▸ .same)
+           | exact keep _ (resolveInsert_same _ _ _ _ _ _ _ _ _ _ _ (returningPaths_ok _ _ (by assumption)) ▸ .same)
            | exact keep _ (resolveUpdate_same _ _ _ _ _ _ _ _ _ (returningPaths_ok _ _ (by assumption)) ▸ .same)
            | exact keep _ (resolveDelete_same _ _ _ _ _ _ _ _ (returningPaths_ok _ _ (by assumption)) ▸ .same))
 

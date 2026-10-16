@@ -50,7 +50,7 @@ def test_wrong_trace_and_unsupported(runtime_root: Path, tmp_path: Path) -> None
     with pytest.raises(AssertionError, match="false|failed"):
         prove(rejected["caseLean"], runtime_root, tmp_path / "FalseProof.lean", case=wrong)
     invalid = deepcopy(case)
-    invalid["script"][0]["addColumn"]["column"]["constraints"] = ["notNull"]
+    invalid["script"][0]["addColumn"]["column"]["constraints"] = [{"notNull": {"algorithm": None}}]
     result = compiled(invalid, runtime_root, emit_lean=True)
     assert result["verdict"] == "MODEL_UNSUPPORTED"
     prove(result["caseLean"], runtime_root, tmp_path / "RestrictedDefinition.lean", case=invalid, expected=False)

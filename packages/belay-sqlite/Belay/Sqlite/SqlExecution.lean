@@ -1,13 +1,13 @@
 import Belay.Sqlite.Execution
 import Belay.Sqlite.RowDelete
-import Belay.Sqlite.Upsert
+import Belay.Sqlite.UpsertRun
 
 set_option doc.verso true
 
 /-! Script-directed SQL execution of resolved statements. BEGIN records the
-committed snapshot; only an explicit COMMIT/ROLLBACK changes transaction state.
-Statement errors stop execution without inferring connection closure, framework
-cleanup, or transaction rollback. -/
+committed snapshot; an explicit COMMIT/ROLLBACK, or an INSERT that fails with the
+ROLLBACK algorithm, changes transaction state. Other statement errors stop execution
+without inferring connection closure, framework cleanup, or transaction rollback. -/
 namespace Belay.Sqlite
 
 /-- The current connection view and optional transaction snapshot. Supply a
@@ -27,6 +27,16 @@ def SqlState.finish (state : SqlState) (outcome : Outcome) : Outcome :=
   | some original, .success result => .pending original result none
   | some original, .failure index reason result => .pending original result (some (index, reason))
   | _, .pending .. => outcome
+
+/-- The outcome of a statement that fails: a ROLLBACK failure in an open transaction
+rolls it back, so it is the failure over the snapshot outside a transaction; every other
+failure, and a ROLLBACK failure without a transaction, is {name}`SqlState.finish` of the
+failure. -/
+def SqlState.failed (state : SqlState) (position : Nat) (reason : ExecutionError) (database : Database) : Outcome :=
+  if reason = .constraintRollback then match state.snapshot with
+    | some original => .failure position reason original
+    | none => state.finish (.failure position reason database)
+  else state.finish (.failure position reason database)
 
 /-- One SQL transition either continues with a connection state or halts with an
 {name}`Outcome`. Evaluate a supplied statement to obtain a transition. -/
@@ -71,11 +81,11 @@ def literalStep (statement : Resolved.Statement) (database : Database) (position
   | .insert at_ rows keys _ => match database at_ with
     | none => .failure position .unmodeled database
     | some table => insertOutcome database at_ keys table rows position
-  | .upsert at_ rows clauses keys _ => match database at_ with
+  | .upsert at_ rows clauses keys _ policy => match database at_ with
     | none => .failure position .unmodeled database
-    | some table => match LiteralData.upsertRun keys clauses table rows with
+    | some table => match LiteralData.upsertRun keys policy clauses table rows with
       | .ok (result, _) => .success (database.set at_ result)
-      | .error reason => .failure position reason database
+      | .error (reason, reached, _) => .failure position reason (LiteralData.failedDatabase database at_ reason reached)
   | .update at_ assignments filter keys _ => match database at_ with
     | none => .failure position .unmodeled database
     | some table =>
@@ -96,7 +106,8 @@ reached-statement script support check. -/
 def statementReady (statement : Resolved.Statement) (database : Database) : Bool :=
   match statement with
   | .insert at_ rows keys _ => (database at_).all fun table => LiteralData.insertReady keys table rows
-  | .upsert at_ rows clauses keys _ => (database at_).all fun table => LiteralData.upsertReady keys table clauses rows
+  | .upsert at_ rows clauses keys _ policy => (database at_).all fun table =>
+      LiteralData.upsertReady keys policy table clauses rows
   | .update at_ assignments filter keys _ => (database at_).all fun table =>
       LiteralData.updateReady keys table assignments filter
   | .delete .. => true
@@ -108,8 +119,8 @@ def statementReady (statement : Resolved.Statement) (database : Database) : Bool
 /-- Evaluate one statement at its supplied zero-based position. BEGIN records a
 snapshot; COMMIT clears it; ROLLBACK restores it. Repeated BEGIN or transaction
 closure without a snapshot halts with an error. Other statements use
-{name}`literalStep`; an error retains any open transaction through
-{name}`SqlState.finish`. -/
+{name}`literalStep`; an error retains any open transaction, except a ROLLBACK failure,
+which rolls it back ({name}`SqlState.failed`). -/
 def advance (position : Nat) (statement : Resolved.Statement) (state : SqlState) : SqlTransition :=
   match statement with
   | .begin => match state.snapshot with
@@ -125,7 +136,7 @@ def advance (position : Nat) (statement : Resolved.Statement) (state : SqlState)
   | .prepareError _ | .query _ =>
     match literalStep statement state.database position with
     | .success database => .next { state with database := database }
-    | .failure failed reason database => .halt (state.finish (.failure failed reason database))
+    | .failure failed reason database => .halt (state.failed failed reason database)
     | .pending persisted visible error => .halt (state.finish (.pending persisted visible error))
 
 /-- Execute the script from a supplied position and connection state. A halt stops
