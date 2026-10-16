@@ -201,6 +201,8 @@ specification, semantics, conformance cases, mutants and a judge change.
    (5a, 5b) and conflicts (5c, 5d).
 6. **Functions.** Time and date functions, which need the controlled clock of
    ADR 0005, section 3.2, and the JSON functions `json_extract` and `json_each`.
+   Amendment 5 splits it into queries without `FROM` (6a), JSON slices (6b to 6d) and
+   time slices (6e to 6g).
 
 The order puts the shared value and expression work first and the functions
 with the most separate rules last. A slice may change the order of later slices
@@ -774,3 +776,146 @@ conflict features, all checked on native 3.51.0: the UPSERT clause, the `OR` cla
 4. **Two key slices.** Decided on 2026-10-15: the keys work is two slices, 5a (key
    values) and 5b (rowid aliases). They change different parts of the model: key
    equality and its obligations, and the storage of a row.
+
+## Amendment 5: Functions and queries without FROM (slices 6a to 6g)
+
+Date: 2026-10-16. Status: ACCEPTED (2026-10-16, #141).
+Related: "Slices", item 6; "Not decided here" (table-valued functions); ADR 0005,
+section 3.2 (the controlled clock); ADR 0006 (levels); ADR 0008 (restrictions).
+
+### Context
+
+Item 6 of "Slices" names the date and time functions and the JSON functions
+`json_extract` and `json_each`. Today the model evaluates literals, column references,
+comparisons, logic, arithmetic, `CAST`, `COALESCE` and the aggregates of slice 2. Every
+other function is the restriction `unmodeled-function`. The time keywords and a
+`CURRENT_TIMESTAMP` default are the restriction `time-value`. The frontend refuses a
+`SELECT` without `FROM` and a table-valued function in `FROM`.
+
+The verdict of 2026-10-16 (after slice 5d) has 5,777 cases outside the model's scope in
+the claimed corpora. Of the reasons that this amendment addresses, a `SELECT` without
+`FROM` keeps 485 cases out, the upstream `json101` cases 219, `func2` 131, `func7` 72,
+and other unmodeled functions 100. Many upstream tests of functions use `SELECT`
+without `FROM`, so that form comes first.
+
+All facts below were checked on native SQLite 3.51.0.
+
+### Queries without FROM (slice 6a)
+
+- **Form.** `SELECT result-columns [WHERE condition] [ORDER BY ...] [LIMIT ...]`
+  without `FROM`. The source is one row with no columns: the query returns one row, or no
+  row when the `WHERE` condition is not true. Aggregates read that one row:
+  `SELECT count(*)` is 1. A column name is `no such column`.
+- **Model.** A source with one empty row at the Queries level; resolution has a scope
+  with no sources. No new evaluator.
+- **Why first.** It is small, it admits the upstream tests that call functions without a
+  table, and it gives slices 6b to 6g their cases.
+
+### JSON reading and `json_extract` (slice 6b)
+
+- **Functions.** `json_extract(json, path, ...)` and the operators `->` and `->>`.
+- **Reading.** The model reads JSON text as SQLite does, also JSON5 (unquoted keys,
+  hexadecimal numbers, trailing commas; owner decision 4). A BLOB argument, which SQLite
+  reads as JSONB, is a model restriction.
+- **Values.** A JSON scalar is an SQL value: an integer or a real as the JSON number
+  text gives it, a string as text, `true` and `false` as 1 and 0, and `null` as NULL. An
+  object or an array is JSON text. A path that selects nothing is NULL. Several paths
+  give a JSON array of the selected values. `->` returns JSON text, and `->>` an SQL
+  value; on their right, a bare label or an integer is a path (`'[5,6]' ->> 1` is 6).
+  Of duplicate keys, the first one is selected.
+- **JSON text.** Returned JSON text has no whitespace, keeps each number as written
+  (`1.50`, `1e2`) and decodes escapes (`"a\u0041"` gives `"aA"`). The model must render
+  JSON text exactly as SQLite does; its rules are part of this slice.
+- **Errors.** Malformed JSON is `malformed JSON`, and a bad path is
+  `bad JSON path: '%s'`, both reported while the statement runs.
+
+### Further JSON functions (slice 6c)
+
+- **Functions.** `json_type`, `json_valid`, `json_array_length` and `json` (owner
+  decision 1), over the reading and the text rendering of slice 6b.
+
+### `json_each` in FROM (slice 6d)
+
+- **Form.** `json_each(json [, path])` as a source of `FROM`, alone, after tables in a
+  comma list or an inner join. Its arguments may read the columns of earlier sources,
+  so it is evaluated once for each row of those sources (SQLite's nested loop).
+- **Rows.** One row for each element of the array or member of the object, in document
+  order, with the columns `key`, `value`, `type`, `atom`, `fullkey` and `path`. A
+  scalar JSON value gives one row.
+- **Model.** The Queries level gets a source whose rows are a function of the earlier
+  row. This is the first table-valued function; "Not decided here" lists them, and this
+  amendment decides `json_each` only. `json_tree` and other table-valued functions stay
+  refused.
+- **Node positions.** The columns `id` and `parent` are SQLite's node positions (1, 4
+  and 9 for `[10,{"x":1},30]`). The model computes them as SQLite does (owner decision 5);
+  their rules are part of this slice.
+- **Restrictions.** A `LEFT` or `RIGHT` join with `json_each` stays refused.
+
+### The clock (slice 6e)
+
+- **Input.** The recorder supplies one clock value to each statement and stores it
+  (ADR 0005, section 3.2); within a statement, `now` does not change. The execution
+  semantics takes the clock value of each statement as an input, and a migration must be
+  correct for every clock value: the verification target quantifies over the clock value
+  of each statement (owner decision 2).
+- **Forms.** The keywords `CURRENT_TIME`, `CURRENT_DATE` and `CURRENT_TIMESTAMP`, and a
+  `CURRENT_TIMESTAMP` default, which give the statement's clock value as text. The
+  restriction `time-value` leaves the registry.
+
+### Date and time functions (slice 6f)
+
+- **Functions.** `date`, `time`, `datetime`, `julianday`, `unixepoch` and `strftime`
+  with all of SQLite's formats (owner decision 3), over every time value that SQLite
+  reads, `now` included. A time value that SQLite cannot read gives NULL.
+- **Restrictions.** A modifier argument is a model restriction until slice 6g.
+
+### Date and time modifiers (slice 6g)
+
+- **Modifiers.** All of SQLite's modifiers (owner decision 3), with SQLite's
+  normalization: `date('2024-01-31', '+1 month')` is `2024-03-02`. `localtime` and `utc`
+  use the time zone of the execution profile, which the profile records; the recorder
+  runs SQLite in UTC (owner decision 6).
+
+### Order
+
+6a first. 6c and 6d need the JSON reading of 6b. 6e changes the inputs of the execution
+semantics and the verification target; 6f needs it for `now`, and 6g needs 6f. The JSON
+slices and the time slices do not depend on each other, so their order may change.
+
+### Testing
+
+- **Cases.** Each rule above with native SQLite as the oracle: a query without `FROM`
+  with and without a true `WHERE`, with aggregates, `ORDER BY` and `LIMIT`; each JSON
+  value kind, missing paths, several paths, the operators, duplicate keys, JSON text
+  rendering, JSON5 input, each further JSON function, and both errors; `json_each` over
+  arrays, objects and scalars, alone and correlated with a table, with its node positions;
+  each date function, modifier and format, `localtime` and `utc` in the profile's time
+  zone, the clock in each function and keyword, and unreadable time values.
+- **Mutants.** For each slice, one per rule that a wrong model could change, such as a
+  query without `FROM` that returns no row, `true` returned as text, a number re-rendered
+  in returned JSON text, `json_each` rows in key order, `now` read once per script, and a
+  month added without SQLite's normalization.
+- **Proofs.** Each write keeps `Conforms`; a statement without the new forms keeps its
+  current semantics.
+
+### Open questions
+
+None; see "Owner decisions".
+
+### Owner decisions
+
+1. **JSON functions.** Decided on 2026-10-16: `json_extract`, `->`, `->>`, `json_type`,
+   `json_valid`, `json_array_length` and `json` (slices 6b and 6c).
+2. **Clock.** Decided on 2026-10-16: a migration must be correct for every clock value;
+   the verification target quantifies over the clock value of each statement.
+3. **Modifiers and formats.** Decided on 2026-10-16: all of SQLite's date and time
+   modifiers and formats.
+4. **JSON5 and JSONB.** Decided on 2026-10-16: the model reads JSON5 text; a BLOB
+   argument (JSONB) is a model restriction.
+5. **`json_each` node positions.** Decided on 2026-10-16: the model computes `id` and
+   `parent` as SQLite does.
+6. **Time zone.** Decided on 2026-10-16: the time zone is part of the execution profile;
+   `localtime` and `utc` use it, and the recorder runs SQLite in UTC.
+7. **Split.** Decided on 2026-10-16: the JSON work is three slices (6b reading and
+   `json_extract`, 6c further functions, 6d `json_each`), and the time work three (6e the
+   clock, 6f the functions, 6g the modifiers).
