@@ -69,9 +69,11 @@ inductive Statement where
   | delete (table : String) (filter : Option Expr)
   /-- {lit}`SELECT columns FROM source joins [WHERE filter] [GROUP BY terms] [ORDER BY terms]
   [LIMIT limit [OFFSET offset]]`: the first table of {lit}`FROM` and the joins after it, in
-  order; one table has no joins. An omitted clause is {lit}`none` or an empty list;
+  order; one table has no joins, and a {lit}`SELECT` without {lit}`FROM` has
+  {lean}`(none : Option TableReference)` and no joins. An omitted clause is {lit}`none` or
+  an empty list;
   {lit}`LIMIT offset, limit` gives both expressions. -/
-  | select (columns : List ResultColumn) (source : TableReference) (joins : List Join) (filter : Option Expr)
+  | select (columns : List ResultColumn) (source : Option TableReference) (joins : List Join) (filter : Option Expr)
       (groupBy : List Expr) (orderBy : List OrderTerm) (limit : Option Expr) (offset : Option Expr)
   /-- A write with {lit}`RETURNING columns`: an {lit}`INSERT`, {lit}`UPDATE` or
   {lit}`DELETE` and its result columns. A write without {lit}`RETURNING` is the statement

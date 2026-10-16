@@ -109,7 +109,7 @@ def test_application_profile_rejected(invoke: Callable[..., dict[str, object]], 
 
 
 @pytest.mark.parametrize("sql,status", [
-    ("-- no statements", "INPUT_ERROR"), ("CREATE TABLE", "INPUT_ERROR"), ("SELECT 1;", "UNSUPPORTED"),
+    ("-- no statements", "INPUT_ERROR"), ("CREATE TABLE", "INPUT_ERROR"), ("SELECT DISTINCT 1;", "UNSUPPORTED"),
     ("ALTER TABLE invoices ADD other TEXT; CREATE TABLE audit(message TEXT);", "UNVERIFIED"),
 ], ids=["empty", "malformed", "unsupported_select", "stale_proof"])
 def test_invalid_migration(invoke: Callable[..., dict[str, object]], candidate: Path, sql: str, status: str) -> None:

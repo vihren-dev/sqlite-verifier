@@ -44,7 +44,7 @@ def rightOnSecond : Resolved.Join := { kind := .right, table := 2, condition := 
 
 /-- A query of every cell of {name}`JoinExamples.left` full joined with table 1. -/
 def fullQuery : Resolved.Query :=
-  { table := 0, joins := [join .full], filter := none, aggregate := false, groupBy := [], columns := [],
+  { table := some 0, joins := [join .full], filter := none, aggregate := false, groupBy := [], columns := [],
     names := [], orderBy := [], offset := 0, limit := none }
 
 -- After an inner join, a right join pads every column of the left input.

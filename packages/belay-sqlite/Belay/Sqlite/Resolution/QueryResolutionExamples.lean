@@ -18,7 +18,7 @@ def catalog : Catalog :=
 /-- A {lit}`SELECT` from {lit}`t` with the given parts. -/
 def select (columns : List ResultColumn) (filter : Option Expr := none) (groupBy : List Expr := [])
     (orderBy : List OrderTerm := []) (limit offset : Option Expr := none) : Syntax.Statement :=
-  .select columns { table := "t", alias := none } [] filter groupBy orderBy limit offset
+  .select columns (some { table := "t", alias := none }) [] filter groupBy orderBy limit offset
 
 /-- A result column written as an expression without an alias. -/
 def written (value : Expr) (text : String) : ResultColumn := .expression value none text
@@ -52,7 +52,7 @@ def restrictedOne (statement : Syntax.Statement) : Bool := restricted (migration
   (·.names) == some ["n", "count(*)"]
 -- Names that SQLite refuses while it prepares the query.
 #guard errorOf (select [written (.identifier "missing" false) "missing"]) == some (.noSuchColumn "missing")
-#guard errorOf (.select [.star] { table := "absent", alias := none } [] none [] [] none none) == some (.noSuchTable "absent")
+#guard errorOf (.select [.star] (some { table := "absent", alias := none }) [] none [] [] none none) == some (.noSuchTable "absent")
 #guard errorOf (select [.star] (filter := some (.equals (.callStar "count") (.numeric "1")))) ==
   some (.misuseOfAggregate "count")
 #guard errorOf (select [written (.call "MAX" (.call "min" (.identifier "b" false))) "MAX(min(b))"]) ==
@@ -62,7 +62,7 @@ def restrictedOne (statement : Syntax.Statement) : Bool := restricted (migration
 #guard errorOf (select [written (.callStar "COUNT") "COUNT(*)"] (groupBy := [.numeric "1"])) == some .aggregateInGroupBy
 #guard restrictedOne (select [written (.call "group_concat" (.identifier "b" false)) "group_concat(b)"])
 -- SQLite's own tables are not in the catalog; querying one is a model restriction.
-#guard restrictedOne (.select [.star] { table := "sqlite_master", alias := none } [] none [] [] none none)
+#guard restrictedOne (.select [.star] (some { table := "sqlite_master", alias := none }) [] none [] [] none none)
 -- A declared type that is a standard type name is kept in capitals, as SQLite reports it.
 #guard reportedType (some "int") == some "INT" && reportedType (some "VarChar(10)") == some "VarChar(10)"
 -- A double-quoted name that names no column is a string literal.
@@ -139,5 +139,30 @@ def restrictedOne (statement : Syntax.Statement) : Bool := restricted (migration
 #guard restrictedOne (.delete "t" (some (.equals (.identifier "rowid" true) (.numeric "1"))))
 -- In VALUES no table is in scope, and SQLite reports `no such column: rowid`.
 #guard errorOf (.insert "t" none [[.identifier "rowid" false, .null]] []) == some (.noSuchColumn "rowid")
+
+
+/-- A {lit}`SELECT` without {lit}`FROM` with the given parts (ADR 0012, amendment 5, slice 6a). -/
+def bare (columns : List ResultColumn) (filter : Option Expr := none) (groupBy : List Expr := []) : Syntax.Statement :=
+  .select columns none [] filter groupBy [] none none
+
+/-- The rows of a resolved query over its source of one row with no cells. -/
+def bareRows (statement : Syntax.Statement) : Option (List (List Value)) :=
+  (queryOf statement).map fun query => query.run [[]]
+
+/-- The condition {lit}`1 = 0`, which is false. -/
+def never : Expr := .equals (.numeric "1") (.numeric "0")
+
+-- A SELECT without FROM has no table and one row, or none when WHERE is not true.
+#guard (queryOf (bare [written (.numeric "1") "1"])).map (·.table) == some none
+#guard bareRows (bare [written (.arithmetic .add (.numeric "1") (.numeric "2")) "1 + 2"]) == some [[.integer 3]]
+#guard bareRows (bare [written (.numeric "1") "1"] (filter := some never)) == some []
+-- Aggregates read the rows that pass WHERE, and GROUP BY gives one group.
+#guard bareRows (bare [written (.callStar "count") "count(*)"]) == some [[.integer 1]]
+#guard bareRows (bare [written (.callStar "count") "count(*)"] (filter := some never)) == some [[.integer 0]]
+#guard bareRows (bare [written (.numeric "1") "1"] (groupBy := [.numeric "1"])) == some [[.integer 1]]
+-- `*` is SQLite's `no tables specified`; a column, also qualified, is `no such column`.
+#guard errorOf (bare [.star]) == some .noTablesSpecified
+#guard errorOf (bare [written (.identifier "a" false) "a"]) == some (.noSuchColumn "a")
+#guard errorOf (bare [written (.qualified "t" "a") "t.a"]) == some (.noSuchColumn "t.a")
 
 end Belay.Sqlite.Resolution.QueryResolutionExamples

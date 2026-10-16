@@ -83,7 +83,7 @@ def test_writes_keep_rows_assignments_and_numeric_text(parse_sql: Callable[..., 
     ("ALTER TABLE t RENAME TO u;", "ALTER TABLE t RENAME TO u"), ("BEGIN IMMEDIATE;", "IMMEDIATE"),
     ("UPDATE OR REPLACE t SET a = 1;", "OR REPLACE"), ("INSERT INTO t SELECT 1;", "SELECT 1"),
     ("INSERT INTO t VALUES (a || 1);", "a || 1"), ("UPDATE t SET a = 1 WHERE a IN (1);", "a IN (1)"),
-    ("UPDATE t SET (a, b) = (1, 2);", "(a, b) = (1, 2)"), ("SELECT 1;", "SELECT 1"),
+    ("UPDATE t SET (a, b) = (1, 2);", "(a, b) = (1, 2)"), ("SELECT DISTINCT 1;", "DISTINCT"),
     ("EXPLAIN SELECT 1;", "EXPLAIN SELECT 1;"),
 ])
 def test_syntax_without_a_constructor_is_unsupported_at_its_range(
@@ -100,7 +100,6 @@ def test_syntax_without_a_constructor_is_unsupported_at_its_range(
     ("UPDATE t SET (a, b) = (1, 2);", "rewrite it with the modeled forms: CREATE TABLE"),
     ("INSERT INTO t SELECT 1;", "write INSERT ... VALUES (...)"),
     ("CREATE TABLE t(a COLLATE NOCASE);", "use NOT NULL, PRIMARY KEY, UNIQUE or DEFAULT with a literal"),
-    ("SELECT 1;", "select from a table"),
     ("VACUUM;", "the model runs CREATE TABLE"),
 ])
 def test_refusals_say_which_form_to_use(parse_sql: Callable[..., Tree], sql: str, advice: str) -> None:

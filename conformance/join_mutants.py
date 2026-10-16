@@ -33,8 +33,8 @@ MUTANTS: dict[str, tuple[str, str, str]] = {
         "{ name := reference.alias.getD reference.table, columns := table.columns }",
         "{ name := reference.table, columns := table.columns }"),
     "star_omits_joined_columns": (QUERIES,
-        "  | .star => .ok (scope.visible.map fun (position, defined) =>",
-        "  | .star => .ok ((Scope.visible (scope.take 1)).map fun (position, defined) =>"),
+        "      .ok (scope.visible.map fun (position, defined) =>",
+        "      .ok ((Scope.visible (scope.take 1)).map fun (position, defined) =>"),
 }
 """Each mutant: the file under `packages/`, the exact text it changes, and the
 replacement. The names follow the list in the amendment: a left join drops the

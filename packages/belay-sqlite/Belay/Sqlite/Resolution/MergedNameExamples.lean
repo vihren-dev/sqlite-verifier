@@ -21,14 +21,14 @@ def merging : Catalog := catalogOf (schema [.createTable "t" [column "a" (some "
 
 /-- The query of a {lit}`SELECT` over {name}`merging`, if it resolves to one. -/
 def query (results : List ResultColumn) (source : TableReference) (joins : List Join) : Option Resolved.Query :=
-  match (statements (migration merging [.select results source joins none [] [] none none])).head? with
+  match (statements (migration merging [.select results (some source) joins none [] [] none none])).head? with
   | some (.query query) => some query
   | some (.createTable ..) | some (.createIndex ..) | some (.addColumn ..) | some .begin | some .commit
   | some .rollback | some (.insert ..) | some (.upsert ..) | some (.update ..) | some (.delete ..) | some (.prepareError _) | none => none
 
 /-- The prepare error of a {lit}`SELECT` over {name}`merging`, if it has one. -/
 def error (results : List ResultColumn) (source : TableReference) (joins : List Join) : Option PrepareError :=
-  match (statements (migration merging [.select results source joins none [] [] none none])).head? with
+  match (statements (migration merging [.select results (some source) joins none [] [] none none])).head? with
   | some (.prepareError error) => some error
   | some (.createTable ..) | some (.createIndex ..) | some (.addColumn ..) | some .begin | some .commit
   | some .rollback | some (.insert ..) | some (.upsert ..) | some (.update ..) | some (.delete ..) | some (.query _) | none => none
@@ -79,7 +79,7 @@ def onText : Expr := .equals (qualified "t" "b") (qualified "r" "e")
   (·.joins.map (·.condition)) ==
   some [some (.compare .eq (.column 0) (.column 2)), some (.compare .eq (.column 0) (.column 4))]
 -- A coalesce has no affinity, so against an INTEGER column it would convert text: a restriction.
-#guard reason (migration merging [.select [.star] (table "t") [usingJoin ["FULL"] "r" ["a"], usingJoin [] "v" ["a"]]
+#guard reason (migration merging [.select [.star] (some (table "t")) [usingJoin ["FULL"] "r" ["a"], usingJoin [] "v" ["a"]]
   none [] [] none none]) == RestrictionKind.textToNumber.message
 -- A left table that does not merge the name: also for a join before the right join, and for NATURAL.
 #guard error [.star] (table "t") [joined [] (table "r") (some onText), usingJoin ["RIGHT"] "w" ["a"]] ==

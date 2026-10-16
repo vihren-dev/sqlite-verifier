@@ -17,7 +17,7 @@ def table : Table where
 
 /-- {lit}`SELECT v FROM t`: one row per table row, without a defined order. -/
 def plain : Query where
-  table := 0
+  table := some 0
   filter := none
   aggregate := false
   groupBy := []
@@ -39,7 +39,7 @@ def plain : Query where
   [[.text [97]], [.text [98]]]
 /-- {lit}`SELECT k, COUNT(*), MIN(v), COUNT(k) FROM t GROUP BY k ORDER BY 1`. -/
 def grouped : Query where
-  table := 0
+  table := some 0
   filter := none
   aggregate := true
   groupBy := [.column 0]

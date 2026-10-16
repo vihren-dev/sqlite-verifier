@@ -51,5 +51,6 @@ def PrepareError.message : PrepareError → String
   | .ambiguousUsingReference name => s!"ambiguous reference to {name} in USING()"
   | .conflictTargetMismatch => "ON CONFLICT clause does not match any PRIMARY KEY or UNIQUE constraint"
   | .conflictingAlgorithms => "conflicting ON CONFLICT clauses specified"
+  | .noTablesSpecified => "no tables specified"
 
 end Belay.Sqlite

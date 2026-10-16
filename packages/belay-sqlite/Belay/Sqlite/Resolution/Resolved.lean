@@ -98,6 +98,8 @@ inductive PrepareError where
   /-- {lit}`conflicting ON CONFLICT clauses specified`: two constraints of one index with
   different explicit {lit}`ON CONFLICT` algorithms. -/
   | conflictingAlgorithms
+  /-- {lit}`no tables specified`: {lit}`*` in a {lit}`SELECT` without {lit}`FROM`. -/
+  | noTablesSpecified
   deriving Repr, DecidableEq
 
 /-- A model restriction: SQLite accepts the SQL, but the model does not describe

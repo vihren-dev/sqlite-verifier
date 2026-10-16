@@ -37,8 +37,8 @@ is a scalar. A name is the {lit}`AS` alias, else the defined name of a reference
 ({name}`definedName`), else the source text as written. -/
 def resolveResultColumn (dqs : Bool) (scope : Scope) (column : Nat) :
     Syntax.ResultColumn → Except ValueIssue (List (Resolved.Output × String))
-  | .star => .ok (scope.visible.map fun (position, defined) =>
-      (.scalar (scope.starOperand position defined).1, defined.name))
+  | .star => if scope.isEmpty then .error (.prepare .noTablesSpecified) else
+      .ok (scope.visible.map fun (position, defined) => (.scalar (scope.starOperand position defined).1, defined.name))
   | .sourceStar source => (sourceStarColumns scope source).map fun columns =>
       columns.map fun (expression, name) => (.scalar expression, name)
   | .expression value alias text => do
@@ -100,7 +100,7 @@ def windowSkipsFailure (groupBy : List Syntax.Expr) (limit offset : Option Synta
 
 /-- Resolve a {lit}`SELECT`; see the module documentation for the steps. -/
 def resolveSelect (context : ResolveContext) (catalog : Catalog) (index : Nat)
-    (results : List Syntax.ResultColumn) (source : Syntax.TableReference) (joins : List Syntax.Join)
+    (results : List Syntax.ResultColumn) (source : Option Syntax.TableReference) (joins : List Syntax.Join)
     (filter : Option Syntax.Expr) (groupBy : List Syntax.Expr) (orderBy : List Syntax.OrderTerm)
     (limit offset : Option Syntax.Expr) : StatementResolution :=
   let dqs := context.profile.dqsDml
@@ -168,7 +168,7 @@ def resolveSelect (context : ResolveContext) (catalog : Catalog) (index : Nat)
 /-- For every successful resolution of a {lit}`SELECT`, the catalog is unchanged.
 Proof sketch: every branch of the resolver returns the input catalog. -/
 theorem resolveSelect_same (context : ResolveContext) (catalog after : Catalog) (index : Nat)
-    (results : List Syntax.ResultColumn) (source : Syntax.TableReference) (joins : List Syntax.Join)
+    (results : List Syntax.ResultColumn) (source : Option Syntax.TableReference) (joins : List Syntax.Join)
     (filter : Option Syntax.Expr) (groupBy : List Syntax.Expr) (orderBy : List Syntax.OrderTerm)
     (limit offset : Option Syntax.Expr) (statement : Resolved.Statement)
     (ok : resolveSelect context catalog index results source joins filter groupBy orderBy limit offset =

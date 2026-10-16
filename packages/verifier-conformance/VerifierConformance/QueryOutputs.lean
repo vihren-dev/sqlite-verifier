@@ -20,7 +20,7 @@ def database : Database := fun position => if position = 0 then some table else 
 #guard outputTraceFrom 0 [.query Resolved.QueryExamples.plain] { database } ==
   [some ⟨["v"], [[.text [97]], [.text [98]], [.text [99]], [.text [100]]], none⟩]
 -- A query whose table is missing has no output.
-#guard outputTraceFrom 0 [.query { Resolved.QueryExamples.plain with table := 5 }] { database } == [none]
+#guard outputTraceFrom 0 [.query { Resolved.QueryExamples.plain with table := some 5 }] { database } == [none]
 -- INSERT ... RETURNING v, k + 1 returns the inserted row.
 #guard outputTraceFrom 0 [.insert 0 [[.integer 5, .text [101]]] []
     [(.column 1, "v"), (.arithmetic .add (.column 0) (.literal (.integer 1)), "k + 1")]] { database } ==

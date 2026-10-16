@@ -116,8 +116,10 @@ it, the {lit}`WHERE` condition, whether it is an aggregate query with its groupi
 the result columns with their names, the {lit}`ORDER BY` terms with a flag for
 {lit}`DESC`, and the window. Use {lean}`(none : Option Nat)` for no {lit}`LIMIT`. -/
 structure Query where
-  /-- The catalog position of the first source table. -/
-  table : Nat
+  /-- The catalog position of the first source table, or
+  {lean}`(none : Option Nat)` for a {lit}`SELECT` without {lit}`FROM`, whose source is one
+  row with no columns. -/
+  table : Option Nat
   /-- The joins after the first table, in order; empty for a query of one table. An
   expression names a cell by its position in the concatenated row of all tables. -/
   joins : List Join := []

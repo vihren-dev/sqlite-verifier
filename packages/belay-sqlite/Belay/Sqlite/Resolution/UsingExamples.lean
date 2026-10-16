@@ -19,7 +19,7 @@ def sources : Catalog := catalogOf (schema [.createTable "t" [column "a" (some "
 
 /-- The single statement of a resolution of a {lit}`SELECT` over {name}`sources`. -/
 def over (results : List ResultColumn) (source : TableReference) (joins : List Join) : Option Resolved.Statement :=
-  (statements (migration sources [.select results source joins none [] [] none none])).head?
+  (statements (migration sources [.select results (some source) joins none [] [] none none])).head?
 
 /-- The query of a resolution over {name}`sources`, if it is one. -/
 def queryOver (results : List ResultColumn) (source : TableReference) (joins : List Join) : Option Resolved.Query :=
@@ -59,9 +59,9 @@ def bare (name : String) : ResultColumn := .expression (.identifier name false) 
 #guard (queryOver [.star] (table "t") [usingJoin [] "u" ["a", "A"]]).map (·.names) == some ["a", "b", "c"]
 -- The generated comparison has the rules of a written one: INTEGER `t.a` against TEXT `w.a`
 -- would convert a value, which is the same model restriction for USING as for ON.
-#guard reason (migration sources [.select [.star] (table "t") [usingJoin [] "w" ["a"]] none [] [] none none]) ==
+#guard reason (migration sources [.select [.star] (some (table "t")) [usingJoin [] "w" ["a"]] none [] [] none none]) ==
   RestrictionKind.mixedAffinityComparison.message
-#guard reason (migration sources [.select [.star] (table "t")
+#guard reason (migration sources [.select [.star] (some (table "t"))
   [joined [] (table "w") (some (.equals (qualified "t" "a") (qualified "w" "a")))] none [] [] none none]) ==
   RestrictionKind.mixedAffinityComparison.message
 -- A merged name stays ambiguous with a third source that has the name.

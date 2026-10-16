@@ -56,7 +56,7 @@ def test_postfix_null_tests_map_to_is_null(parse_sql: Callable[..., Tree], sql: 
 
 
 @pytest.mark.parametrize(("sql", "refused"), [
-    ("SELECT 1;", "SELECT 1"), ("SELECT DISTINCT a FROM t;", "DISTINCT"),
+    ("SELECT 1 HAVING 1;", "HAVING 1"), ("SELECT DISTINCT a FROM t;", "DISTINCT"),
     ("SELECT a FROM t GROUP BY a HAVING a > 1;", "HAVING a > 1"), ("SELECT main.t.a FROM t;", "main.t.a"),
     ("SELECT a FROM main.t;", ".t"), ("SELECT a FROM t ORDER BY a NULLS LAST;", "NULLS LAST"),
     ("SELECT random() FROM t;", "random()"), ("SELECT count(DISTINCT a) FROM t;", "DISTINCT"),
@@ -141,3 +141,13 @@ def test_joins_map_sources_kinds_and_conditions(parse_sql: Callable[..., Tree]) 
         {"operator": [], "source": {"table": "v", "alias": None}, "condition": None, "usingColumns": None},
         {"operator": ["NATURAL"], "source": {"table": "w", "alias": None}, "condition": None, "usingColumns": None},
         {"operator": ["CROSS"], "source": {"table": "y", "alias": None}, "condition": None, "usingColumns": ["b"]}]
+
+
+def test_select_without_from_has_no_source(parse_sql: Callable[..., Tree]) -> None:
+    """`syntax_select.select`: a SELECT without FROM has a null source and no joins, and
+    keeps its other clauses (ADR 0012, amendment 5, slice 6a)."""
+    [statement] = [item.value for item in statements(parse_sql("SELECT 1 WHERE 1 = 1 LIMIT 2;"))]
+    select = statement["select"]
+    assert select["source"] is None and select["joins"] == []
+    assert select["filter"] == {"equals": {"left": {"numeric": {"text": "1"}}, "right": {"numeric": {"text": "1"}}}}
+    assert select["limit"] == {"numeric": {"text": "2"}}

@@ -50,9 +50,10 @@ def joinRows (width : Nat) (left : List (List Value)) (join : Join) (table : Tab
 /-- The source rows of a query over a database: the rows of the first table in rowid
 order, joined with each join's table in order ({name}`joinRows`), with the width of the
 tables so far; none when a table is missing. A query of one table has the rows of
-{name}`sourceRows`. -/
+{name}`sourceRows`, and a query without a table one row with no cells. -/
 def Query.source (query : Query) (database : Database) : Option (List (List Value)) := do
-  let first ← database query.table
+  let some table := query.table | pure [[]]
+  let first ← database table
   let (rows, _) ← query.joins.foldlM (fun (rows, width) join => (database join.table).map fun table =>
     (joinRows width rows join table, width + table.shape.columns.length)) (sourceRows first, first.shape.columns.length)
   pure rows

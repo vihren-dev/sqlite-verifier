@@ -84,7 +84,7 @@ def test_version_two_outputs(runtime_root: Path, tmp_path: Path) -> None:
     assert compiled(wrong, runtime_root)["verdict"] == "DISAGREE"
     wrong["outputs"].pop()
     assert compiled(wrong, runtime_root)["verdict"] == "HARNESS_ERROR"
-    for sql, parameters in (("SELECT 1;", None), ("INSERT INTO t(id,v) VALUES(?,?);", [((1, 3), (1, 4))])):
+    for sql, parameters in (("SELECT DISTINCT 1;", None), ("INSERT INTO t(id,v) VALUES(?,?);", [((1, 3), (1, 4))])):
         unsupported = record_sql("CREATE TABLE t(id INTEGER,v BLOB);", sql,
                                  name="unsupported-output", outputs=True, parameters=parameters)
         assert prepare(unsupported, runtime_library(runtime_root))[1]["verdict"] == "MODEL_UNSUPPORTED"

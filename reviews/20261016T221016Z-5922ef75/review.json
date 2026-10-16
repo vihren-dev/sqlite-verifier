@@ -1,0 +1,37 @@
+{
+  "caller": "claude",
+  "commit": "5922ef75b1d0ae1393d1b8e069050fc8f00800ab",
+  "date": "2026-10-16T22:10:16+00:00",
+  "exit": 0,
+  "files": [
+    "docs/semantic-subset.md",
+    "plans/20261016-select-without-from.status.md",
+    "reviews/20261016T215543Z-072b3f9c/resolution-1-20261016T215609Z.json",
+    "reviews/20261016T215543Z-072b3f9c/review.json",
+    "tests/conformance_authored_test.py",
+    "tests/conformance_profile_test.py"
+  ],
+  "findings": [],
+  "id": "20261016T221016Z-5922ef75",
+  "kind": "review",
+  "reviewer": "codex",
+  "revision": "@-",
+  "rules": {
+    "R1": "62d446279093",
+    "R10": "638d8cbd1df8",
+    "R11": "5de19cdbbbc1",
+    "R12": "99f66579f467",
+    "R13": "da0926dafb88",
+    "R15": "518eab58f8b5",
+    "R16": "892e77bd2a12",
+    "R17": "62b65b662f79",
+    "R2": "e5e78fb2a52a",
+    "R3": "4f9188eadd60",
+    "R4": "ea7ca17539eb",
+    "R5": "b8613a2d693b",
+    "R6": "fa2475f44035",
+    "R7": "0a38ead152b1",
+    "R9": "5a69196344d0"
+  },
+  "well_formed": true
+}

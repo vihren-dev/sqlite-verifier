@@ -28,7 +28,10 @@ The frontend maps these statements, and refuses every other statement as
   `RETURNING` is a model restriction;
 - `SELECT columns FROM tables [WHERE …] [GROUP BY …] [ORDER BY … [ASC|DESC]]
   [LIMIT n [OFFSET m]]`, whose result columns are `*`, `source.*` or expressions
-  with an optional alias (ADR 0012, slice 1). `FROM` is one table, or tables joined
+  with an optional alias (ADR 0012, slice 1). Without `FROM`, the source is one row
+  with no columns (slice 6a), which `WHERE` keeps or removes; aggregation, grouping,
+  `ORDER BY` and `LIMIT` then apply as for any query, so `SELECT count(*) WHERE 0` is one
+  row with 0. `*` is SQLite's `no tables specified`. `FROM` is one table, or tables joined
   left to right with `,`, `JOIN`, `INNER JOIN`, `CROSS JOIN` (with an optional `ON`)
   and `LEFT [OUTER] JOIN … ON`, and `RIGHT [OUTER] JOIN` and `FULL [OUTER] JOIN`
   with an optional `ON` (slice 4c), which add each right row that no row of the left

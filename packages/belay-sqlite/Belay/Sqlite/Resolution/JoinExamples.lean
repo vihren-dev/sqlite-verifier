@@ -31,11 +31,11 @@ def onA : Expr := .equals (qualified "t" "a") (qualified "u" "a")
 /-- The single statement of a resolution of a {lit}`SELECT *` with these sources. -/
 def resolvedOne (results : List ResultColumn) (source : TableReference) (joins : List Join)
     (filter : Option Expr := none) : Option Resolved.Statement :=
-  (statements (migration tables [.select results source joins filter [] [] none none])).head?
+  (statements (migration tables [.select results (some source) joins filter [] [] none none])).head?
 
 /-- Whether the resolution is a model restriction. -/
 def restrictedOne (results : List ResultColumn) (source : TableReference) (joins : List Join) : Bool :=
-  restricted (migration tables [.select results source joins none [] [] none none])
+  restricted (migration tables [.select results (some source) joins none [] [] none none])
 
 /-- The resolved join of {lit}`u` on {lit}`t.a = u.a`: the cell of {lit}`u.a` follows the two
 cells of {lit}`t`. -/
@@ -43,7 +43,7 @@ def joinU : Resolved.Join := { kind := .inner, table := 1, condition := some (.c
 
 -- An inner join: `*` names the columns of both tables, and ON reads the joined row.
 #guard resolvedOne [.star] (table "t") [joined [] (table "u") (some onA)] ==
-  some (.query { table := 0, joins := [joinU], filter := none, aggregate := false, groupBy := [],
+  some (.query { table := some 0, joins := [joinU], filter := none, aggregate := false, groupBy := [],
                  columns := [.scalar (.column 0), .scalar (.column 1), .scalar (.column 2), .scalar (.column 3)],
                  names := ["a", "b", "a", "c"], orderBy := [], offset := 0, limit := none })
 -- An unqualified name of a column of both tables is SQLite's ambiguous column name.

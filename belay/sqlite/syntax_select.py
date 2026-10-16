@@ -1,9 +1,9 @@
 """Map a SELECT to statement syntax (ADR 0012, slice 1, and amendment 2 for joins).
 
-A query keeps its result columns, its first table and its joins (`syntax_sources`),
-and its WHERE, GROUP BY, ORDER BY, LIMIT and OFFSET clauses. Compound SELECT, WITH,
-DISTINCT, HAVING, NULLS FIRST or LAST and a SELECT without FROM have no constructor
-and are refused with their source range.
+A query keeps its result columns, its first table and its joins (`syntax_sources`), or
+none for a SELECT without FROM (ADR 0012, amendment 5, slice 6a), and its WHERE, GROUP BY,
+ORDER BY, LIMIT and OFFSET clauses. Compound SELECT, WITH, DISTINCT, HAVING and NULLS
+FIRST or LAST have no constructor and are refused with their source range.
 """
 
 from .located import Located, constructor, leaf, sequence, structure
@@ -33,7 +33,8 @@ def optional(located: Located | None, node: Node) -> Located:
 
 
 def select(tree: Tree, command: Node) -> Located:
-    """Map `SELECT ... FROM tables [WHERE] [GROUP BY] [ORDER BY] [LIMIT [OFFSET]]`."""
+    """Map `SELECT ... [FROM tables] [WHERE] [GROUP BY] [ORDER BY] [LIMIT [OFFSET]]`; without
+    FROM, the source is a null leaf and the joins are empty."""
     (current,) = require(tree, command, ["select"])
     (current,) = require(tree, current, ["selectnowith"])
     (one,) = require(tree, current, ["oneselect"])
@@ -41,10 +42,11 @@ def select(tree: Tree, command: Node) -> Located:
         "SELECT", "distinct", "selcollist", "from", "where_opt", "groupby_opt", "having_opt", "orderby_opt", "limit_opt"])
     absent(tree, distinct, "DISTINCT or ALL")
     absent(tree, having, "HAVING")
-    if not source.children:
-        raise tree.unsupported(one, "A SELECT without FROM is not modeled; select from a table")
-    _, tables = require(tree, source, ["FROM", "seltablist"])
-    first_table, joins = from_clause(tree, tables, query_expression)
+    if source.children:
+        _, tables = require(tree, source, ["FROM", "seltablist"])
+        first_table, joins = from_clause(tree, tables, query_expression)
+    else:
+        first_table, joins = leaf(None, source.start, source.end), sequence([], source.start, source.end)
     condition = query_expression(tree, tree.children(where)[1]) if where.children else None
     grouping = [query_expression(tree, item[-1]) for item in left_list(
         tree, tree.children(group)[2], {1: ["expr"], 3: ["nexprlist", "COMMA", "expr"]})] if group.children else []
