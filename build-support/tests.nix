@@ -133,6 +133,7 @@ let
     (root + /reports/20261001-adr5-c5-authored.json)
     (root + /reports/20261001-adr5-c5-authored-records.jsonl.gz)
     (root + /reports/20261006-grouped-immediate-transactions)
+    (root + /conformance/corpus-v21)
     (root + /conformance/corpus-v20)
     (root + /conformance/corpus-v19)
     (root + /conformance/corpus-v18)

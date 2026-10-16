@@ -1,6 +1,6 @@
 # Queries without FROM, slice 6a of ADR 0012: status
 
-Created 2026-10-16. Status: open.
+Created 2026-10-16. Status: DONE.
 Task: [20261016-select-without-from.task.md](20261016-select-without-from.task.md).
 Specification: [ADR 0012](../docs/adr-0012-query-semantics.md), Amendment 5, "Queries
 without FROM (slice 6a)".
@@ -35,7 +35,9 @@ without FROM (slice 6a)".
   commit, with the review finding on the semantic-subset wording (a false `WHERE` keeps
   no source row, but `count(*) WHERE 0` is one row). `test-full` passes.
 
-## Remaining
-
-- Full checks, review, CI time, pull request A; then pull request B (claim corpus 21,
-  `mustAgree`).
+- 2026-10-16: CI time (local, `--check` rebuilds, base vs branch): harness 22/21 s,
+  mutants 276/275 s, model 241/240 s, frozen 137/138 s. Pull request A opened as #142.
+- 2026-10-16: pull request B: corpus 21 (22 cases, all AGREE) is claimed, and the 7
+  upstream cases that now agree join `mustAgree` (v3 59 to 60, v4 27 to 28, v5 481 to
+  486). New judge lock. Slice 6a is DONE; slice 6b (JSON reading and `json_extract`)
+  follows.

@@ -1,6 +1,6 @@
 # Queries without FROM, slice 6a of ADR 0012
 
-Created 2026-10-16. Status: open.
+Created 2026-10-16. Status: DONE (pull requests #142 and B).
 Specification: [ADR 0012](../docs/adr-0012-query-semantics.md), "Amendment 5: Functions and
 queries without FROM (slices 6a to 6g)", "Queries without FROM (slice 6a)", with the owner
 decisions of 2026-10-16 (#141). Related: slices 6b to 6g follow and use this form for
