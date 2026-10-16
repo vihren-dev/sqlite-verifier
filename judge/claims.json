@@ -343,6 +343,44 @@
    ],
    "path": "conformance/corpus-v2"
   },
+  "corpus-v20": {
+   "forbidden": [
+    "DISAGREE",
+    "HARNESS_ERROR"
+   ],
+   "mustAgree": [
+    "constraint-fail-table",
+    "constraint-ignore",
+    "constraint-merged-index",
+    "constraint-not-null-ignore",
+    "constraint-or-overrides",
+    "constraint-replace-after-abort",
+    "constraint-replace-alias",
+    "constraint-replace-other",
+    "constraint-upsert-target-first",
+    "or-abort",
+    "or-abort-transaction",
+    "or-fail",
+    "or-fail-mismatch",
+    "or-fail-not-null",
+    "or-fail-returning",
+    "or-fail-transaction",
+    "or-ignore",
+    "or-ignore-do-update",
+    "or-ignore-do-update-fails",
+    "or-ignore-mismatch",
+    "or-ignore-not-null",
+    "or-replace-alias",
+    "or-replace-not-null",
+    "or-replace-null-alias",
+    "or-replace-two-rows",
+    "or-replace-untargeted",
+    "or-rollback-idle",
+    "or-rollback-transaction",
+    "replace-into"
+   ],
+   "path": "conformance/corpus-v20"
+  },
   "corpus-v3": {
    "forbidden": [
     "DISAGREE",
@@ -611,6 +649,8 @@
     "index:index-15.1:86",
     "index:index-18.1.2:100",
     "index:index-18.1:99",
+    "index:index-19.2:106",
+    "index:index-19.5:109",
     "index:index-4.10:22",
     "index:index-4.12:24",
     "index:index-4.2:14",
