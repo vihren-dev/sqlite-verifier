@@ -65,7 +65,7 @@ inductive RestrictionKind where
   | laterTableInOn
   /-- Queries of SQLite's own tables, such as {lit}`sqlite_schema`, are not modeled (ADR 0012 slice 1). -/
   | systemTable
-  /-- Only {lit}`COUNT(*)`, {lit}`COUNT`, {lit}`MIN`, {lit}`MAX`, {lit}`SUM` and {lit}`AVG` of one argument, {lit}`COALESCE` of two or more arguments, and {lit}`json_extract` and the operators {lit}`->` and {lit}`->>` are modeled as functions (ADR 0012 slices 1, 2 and 6b). -/
+  /-- Only {lit}`COUNT(*)`, {lit}`COUNT`, {lit}`MIN`, {lit}`MAX`, {lit}`SUM` and {lit}`AVG` of one argument, {lit}`COALESCE` of two or more arguments, {lit}`json_extract`, the operators {lit}`->` and {lit}`->>`, {lit}`json_type`, {lit}`json_valid`, {lit}`json_array_length` and {lit}`json` are modeled as functions (ADR 0012 slices 1, 2, 6b and 6c). -/
   | unmodeledFunction
   /-- An aggregate inside an expression is not modeled (ADR 0012 slice 1). -/
   | aggregateInExpression

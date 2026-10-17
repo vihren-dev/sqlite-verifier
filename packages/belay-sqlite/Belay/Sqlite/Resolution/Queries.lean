@@ -52,7 +52,7 @@ def resolveResultColumn (dqs : Bool) (scope : Scope) (column : Nat) :
         let (resolved, _) ← (resolveOperand dqs scope true operand).mapError (·.under [0, column, 0, 1])
         .ok (named (.aggregate (aggregate resolved)) none)
       | none =>
-        if (jsonFunctionNamed name 1).isSome then do
+        if (jsonFunctionNamed name).isSome then do
           let (resolved, _) ← (resolveOperand dqs scope false value).mapError (·.under [0, column, 0])
           .ok (named (.scalar resolved) none)
         else throw ((callIssue name).under [0, column, 0])

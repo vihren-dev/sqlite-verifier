@@ -154,5 +154,6 @@ def JsonError.message? : JsonError → Option (List UInt8)
   | .malformed => some "malformed JSON".toUTF8.toList
   | .badPath path => some ("bad JSON path: ".toUTF8.toList ++ quoteSqlText path)
   | .blobArgument => none
+  | .badFlags => some "FLAGS parameter to json_valid() must be between 1 and 15".toUTF8.toList
 
 end Belay.Sqlite.Json

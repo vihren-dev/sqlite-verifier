@@ -68,7 +68,7 @@ def RestrictionKind.message : RestrictionKind → String
   | .duplicateSource => "two sources of a query with the same name are not modeled; give each source its own alias"
   | .laterTableInOn => "an ON condition that names a table joined after it is not modeled; move the condition to WHERE or to the later join"
   | .systemTable => "queries of SQLite's own tables, such as sqlite_schema, are not modeled; query an application table"
-  | .unmodeledFunction => "only COUNT(*), COUNT, MIN, MAX, SUM and AVG of one argument, COALESCE of two or more arguments, and json_extract, -> and ->> are modeled as functions"
+  | .unmodeledFunction => "only COUNT(*), COUNT, MIN, MAX, SUM and AVG of one argument, COALESCE of two or more arguments, json_extract, ->, ->>, json_type, json_valid, json_array_length and json are modeled as functions"
   | .aggregateInExpression => "an aggregate inside an expression is not modeled; use the aggregate as a whole result column"
   | .aliasInExpression => "a result column alias inside WHERE or an ORDER BY expression is not modeled; write the column expression"
   | .valueAsCondition => "a value used as a condition is not modeled; write a comparison"

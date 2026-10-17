@@ -824,7 +824,9 @@ All facts below were checked on native SQLite 3.51.0.
   value; on their right, a bare label or an integer is a path (`'[5,6]' ->> 1` is 6).
   Of duplicate keys, the first one is selected.
 - **JSON text.** Returned JSON text has no whitespace, keeps each number as written
-  (`1.50`, `1e2`) and decodes escapes (`"a\u0041"` gives `"aA"`). The model must render
+  (`1.50`, `1e2`) and keeps each string escape as written (`["a\u0041"]` stays
+  `["a\u0041"]`; checked through the library, because the sqlite3 shell converts
+  `\uXXXX` in its input before SQLite reads it). The model must render
   JSON text exactly as SQLite does; its rules are part of this slice.
 - **Errors.** Malformed JSON is `malformed JSON`, and a bad path is
   `bad JSON path: '%s'`, both reported while the statement runs.

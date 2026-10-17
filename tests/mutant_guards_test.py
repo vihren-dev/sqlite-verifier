@@ -12,9 +12,9 @@ from types import ModuleType
 import pytest
 
 from conformance import (algorithm_mutants, alias_mutants, delete_mutants, fromless_mutants, join_mutants,
-                         json_mutants, key_mutants, merged_mutants, number_mutants, obligation_mutants,
-                         query_mutants, resolve_mutants, right_mutants, row_write_mutants, upsert_mutants,
-                         using_mutants, write_mutants)
+                         json_function_mutants, json_mutants, key_mutants, merged_mutants, number_mutants,
+                         obligation_mutants, query_mutants, resolve_mutants, right_mutants, row_write_mutants,
+                         upsert_mutants, using_mutants, write_mutants)
 from conformance.mutant_guards import guard_problems, obligation_problems
 from tests.restriction_registry_test import registry_ids
 
@@ -25,7 +25,7 @@ ROOT = Path(__file__).resolve().parents[1]
 @pytest.mark.parametrize("table", [resolve_mutants, query_mutants, number_mutants, write_mutants, row_write_mutants,
                                    delete_mutants, join_mutants, using_mutants, right_mutants, merged_mutants,
                                    key_mutants, alias_mutants, upsert_mutants, algorithm_mutants, fromless_mutants,
-                                   json_mutants, obligation_mutants],
+                                   json_mutants, json_function_mutants, obligation_mutants],
                          ids=lambda table: table.__name__.rsplit(".", 1)[1])
 def test_every_mutant_names_what_it_guards(table: ModuleType) -> None:
     """Every mutant of the table has a guard, and every guard names something that exists."""

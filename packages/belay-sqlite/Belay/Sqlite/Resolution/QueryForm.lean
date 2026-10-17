@@ -10,9 +10,10 @@ already applied to its literal operands, so evaluation needs no catalog. -/
 
 namespace Belay.Sqlite.Resolved
 
-/-- A JSON function of ADR 0012, amendment 5, slice 6b: {lit}`json_extract`, and the
+/-- A JSON function of ADR 0012, amendment 5, slices 6b and 6c: {lit}`json_extract`, the
 operators {lit}`->` and {lit}`->>`, which SQLite's parser makes calls of the functions
-{lit}`->` and {lit}`->>`. -/
+{lit}`->` and {lit}`->>`, {lit}`json_type`, {lit}`json_valid`, {lit}`json_array_length`
+and {lit}`json`. -/
 inductive JsonFunction where
   /-- {lit}`json_extract(json, path, ...)`. -/
   | extract
@@ -20,6 +21,14 @@ inductive JsonFunction where
   | arrowJson
   /-- {lit}`json ->> path`: the selection as an SQL value. -/
   | arrowValue
+  /-- {lit}`json_type(json [, path])`: the JSON type name. -/
+  | typeName
+  /-- {lit}`json_valid(json [, flags])`: 1 or 0. -/
+  | valid
+  /-- {lit}`json_array_length(json [, path])`: the number of elements. -/
+  | arrayLength
+  /-- {lit}`json(json)`: the rendered JSON text. -/
+  | json
   deriving Repr, DecidableEq
 
 mutual

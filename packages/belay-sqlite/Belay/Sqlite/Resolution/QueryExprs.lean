@@ -140,7 +140,7 @@ def resolveOperand (dqs : Bool) (scope : Scope) (misuse : Bool) : Syntax.Expr �
     let affinity := affinityOf (some typeName)
     .ok (.cast affinity a.1, some affinity)
   | .callPair name first rest =>
-    if normalizeIdentifier name == "coalesce" || (jsonFunctionNamed name 2).isSome then do
+    if normalizeIdentifier name == "coalesce" || (jsonFunctionNamed name).isSome then do
       let a ← (resolveOperand dqs scope misuse first).mapError (·.under [1])
       let b ← (resolveOperand dqs scope misuse rest).mapError (·.under [2])
       pairCall name a.1 b.1 (pairIssue name)
@@ -158,10 +158,11 @@ def resolveOperand (dqs : Bool) (scope : Scope) (misuse : Bool) : Syntax.Expr �
     let a ← (resolveOperand dqs scope misuse operand).mapError (·.under [0])
     .ok (a.1, none)
   | .call name operand =>
-    if (jsonFunctionNamed name 1).isSome then do
+    match jsonFunctionNamed name with
+    | some function => do
       let a ← (resolveOperand dqs scope misuse operand).mapError (·.under [1])
-      .ok (.json .extract (.cons a.1 .nil), none)
-    else .error (if aggregateCall (.call name operand) then aggregateIssue misuse name else callIssue name)
+      jsonCall name function (.cons a.1 .nil)
+    | none => .error (if aggregateCall (.call name operand) then aggregateIssue misuse name else callIssue name)
   | call@(.callStar name) => .error (if aggregateCall call then aggregateIssue misuse name else callIssue name)
   | .null => .ok (.literal .null, none)
   | .string bytes => .ok (.literal (.text bytes), none)

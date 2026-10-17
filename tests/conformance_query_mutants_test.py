@@ -1,5 +1,6 @@
 """Each mutant of the query, number, key, write, row-write, DELETE, join, alias, UPSERT,
-algorithm, query-without-FROM and JSON mutant tables changes the verdict of an authored case.
+algorithm, query-without-FROM, JSON and JSON function mutant tables changes the verdict of
+an authored case.
 
 ADR 0012 requires that the conformance suite tests each rule of query semantics and
 resolution, and its slices add the number, write, join and key rules: a changed copy of
@@ -7,8 +8,8 @@ the model that no case notices shows a missing case. The cases are the authored 
 `conformance.authored_queries`, `authored_numbers`, `authored_keys`, `authored_writes`,
 `authored_row_writes`, `authored_deletes`, `authored_joins`, `authored_using`,
 `authored_right`, `authored_merged`, `authored_aliases`, `authored_upserts`,
-`authored_algorithms`, `authored_fromless` and `authored_json`, recorded natively with their
-outputs. Four measurements, one for queries and numbers, one for JSON, one for writes and
+`authored_algorithms`, `authored_fromless`, `authored_json` and `authored_json_functions`,
+recorded natively with their outputs. Four measurements, one for queries and numbers, one for JSON, one for writes and
 joins, and one for keys, rowid aliases, UPSERT and conflict algorithms, each build one base
 copy for their mutants, which keeps each test within its time limit on a hosted runner; every case must agree with the base copy. Each
 mutant copy then classifies the case that the mutant names as its target, which keeps the
@@ -21,9 +22,10 @@ from types import ModuleType
 import pytest
 
 from conformance import (algorithm_mutants, alias_mutants, authored_algorithms, authored_aliases, authored_deletes,
-                         authored_fromless, authored_joins, authored_json, authored_keys, authored_merged,
-                         authored_numbers, authored_queries, authored_right, authored_row_writes, authored_upserts,
-                         authored_using, authored_writes, fromless_mutants, json_mutants, upsert_mutants)
+                         authored_fromless, authored_joins, authored_json, authored_json_functions, authored_keys,
+                         authored_merged, authored_numbers, authored_queries, authored_right, authored_row_writes,
+                         authored_upserts, authored_using, authored_writes, fromless_mutants, json_function_mutants,
+                         json_mutants, upsert_mutants)
 from conformance.native_replay import prepare
 from conformance import (delete_mutants, join_mutants, key_mutants, merged_mutants, number_mutants, query_mutants,
                          right_mutants, row_write_mutants, using_mutants, write_mutants)
@@ -75,11 +77,13 @@ def test_every_query_and_number_mutant_changes_a_verdict(runtime_root: Path) -> 
 
 
 def test_every_json_mutant_changes_a_verdict(runtime_root: Path) -> None:
-    """The authored JSON cases notice every changed rule of the JSON functions
-    (`conformance.json_mutants`), so these rules are tested. The JSON mutants have their own
-    measurement: with the query mutants, the measurement took 265 s of its 300 s limit on a
-    hosted runner, and went over it once."""
-    measure_set(runtime_root, [authored_json], [(json_mutants.MUTANTS, json_mutants.TARGETS)])
+    """The authored JSON and JSON function cases notice every changed rule of the JSON
+    functions (`conformance.json_mutants`, `conformance.json_function_mutants`), so these rules
+    are tested. The JSON mutants have their own measurement: with the query mutants, the
+    measurement took 265 s of its 300 s limit on a hosted runner, and went over it once."""
+    measure_set(runtime_root, [authored_json, authored_json_functions],
+                [(json_mutants.MUTANTS, json_mutants.TARGETS),
+                 (json_function_mutants.MUTANTS, json_function_mutants.TARGETS)])
 
 
 def test_every_key_alias_upsert_and_algorithm_mutant_changes_a_verdict(runtime_root: Path) -> None:

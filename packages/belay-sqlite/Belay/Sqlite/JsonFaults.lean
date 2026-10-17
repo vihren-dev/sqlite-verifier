@@ -14,10 +14,10 @@ certain. -/
 
 namespace Belay.Sqlite.Resolved
 
-/-- Whether a JSON function fails with an error that the model describes: malformed JSON
-or a bad path, not a JSONB argument. -/
+/-- Whether a JSON function fails with an error that the model describes: malformed JSON,
+a bad path or bad {lit}`json_valid` flags, not a JSONB argument. -/
 def describedFailure : Except Json.JsonError Value → Bool
-  | .error .malformed | .error (.badPath _) => true
+  | .error .malformed | .error (.badPath _) | .error .badFlags => true
   | .error .blobArgument | .ok _ => false
 
 /-- Whether a JSON function fails at all, also on a JSONB argument. -/

@@ -53,6 +53,8 @@ inductive JsonError where
   | badPath (path : List UInt8)
   /-- A BLOB argument (JSONB): the model does not describe it. -/
   | blobArgument
+  /-- The error {lit}`FLAGS parameter to json_valid() must be between 1 and 15`. -/
+  | badFlags
   deriving Repr, DecidableEq
 
 /-- The label text of an object member and whether it has no escapes, as

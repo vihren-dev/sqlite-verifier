@@ -26,9 +26,18 @@ theorem callIssues (misuse : Bool) (name : String) :
   unfold aggregateIssue callIssue pairIssue unmodeledFunction
   refine ⟨?_, ?_, ?_⟩ <;> split <;> simp [ValueIssue.namesNoObject, PrepareError.namesObject]
 
+/-- For every name, JSON function and argument list, the issues of {name}`jsonCall` name
+no catalog object: its only error is {name}`PrepareError.wrongArgumentCount`. -/
+theorem jsonCall_issues (name : String) (function : Resolved.JsonFunction) (arguments : Resolved.Arguments) :
+    IssuesNameNoObject (jsonCall name function arguments) := by
+  intro issue failed
+  unfold jsonCall at failed
+  split at failed <;> cases failed
+  simp [ValueIssue.namesNoObject, PrepareError.namesObject]
+
 /-- For every misuse flag, name and resolved operands, the issues of {name}`pairCall`
-with the issue {name}`pairIssue` name no catalog object. Proof sketch: its only error is
-that issue, which {name}`callIssues` covers. -/
+with the issue {name}`pairIssue` name no catalog object. Proof sketch: its errors are that
+issue, which {name}`callIssues` covers, and those of {name}`jsonCall_issues`. -/
 theorem pairCall_issues (misuse : Bool) (name : String) (first rest : Resolved.Expr) :
     IssuesNameNoObject (pairCall name first rest (pairIssue name)) := by
   intro issue failed
@@ -37,7 +46,7 @@ theorem pairCall_issues (misuse : Bool) (name : String) (first rest : Resolved.E
   split at failed
   · cases failed
   · split at failed
-    · cases failed
+    · exact jsonCall_issues name _ _ issue failed
     · cases failed; exact (callIssues misuse name).2.2
 
 /-- For every setting, column list, flag and expression, the issues of
@@ -79,7 +88,7 @@ theorem resolveOperand_issue (dqs : Bool) (scope : Scope) (misuse : Bool)
     intro issue failed
     simp only [resolveOperand] at failed
     split at failed
-    · exact bind_issues (under_issues _ ih) (fun _ _ failed => by cases failed) issue failed
+    · exact bind_issues (under_issues _ ih) (fun _ => jsonCall_issues name _ _) issue failed
     · cases failed
       split
       · exact (callIssues misuse name).1

@@ -56,8 +56,8 @@ comparisons, `IS` and `IS NOT`, `AND`, `OR`, `NOT`, `IS NULL` and its forms,
 parentheses, `COUNT(*)`, `COUNT`, `MIN`, `MAX`, `SUM` and `AVG` of one argument, the arithmetic
 operators `+`, `-`, `*`, `/` and `%`, unary `-` and `+` of any expression,
 `CAST(expression AS type)`, and `COALESCE` of two or more arguments (ADR 0012,
-slice 2), and `json_extract` with one or more paths and the operators `->` and `->>`
-(slice 6b). In a write, a `VALUES` item may be any of these expressions that names no
+slice 2), `json_extract` with one or more paths and the operators `->` and `->>`
+(slice 6b), and `json_type`, `json_valid`, `json_array_length` and `json` (slice 6c). In a write, a `VALUES` item may be any of these expressions that names no
 column: resolution computes its value (slice 3a). A `SET` value may be any of these
 expressions over the table's columns, evaluated on the old row, and the `WHERE` of an
 `UPDATE` any condition of a `SELECT` (slice 3b). Each written value is then stored as SQLite
@@ -173,7 +173,7 @@ of frontend refusal, the cases of the claimed corpora that it keeps out of scope
 | `duplicate-source` | Two sources of a query with the same name are not modeled | ADR 0012 amendment 2 (question 3) |
 | `later-table-in-on` | An ON condition that names a table joined after it is not modeled | ADR 0012 amendment 2 |
 | `system-table` | Queries of SQLite's own tables, such as `sqlite_schema`, are not modeled | ADR 0012 slice 1 |
-| `unmodeled-function` | Only `COUNT(*)`, `COUNT`, `MIN`, `MAX`, `SUM` and `AVG` of one argument, `COALESCE` of two or more arguments, and `json_extract`, `->` and `->>` are modeled as functions | ADR 0012 slices 1, 2 and 6b |
+| `unmodeled-function` | Only `COUNT(*)`, `COUNT`, `MIN`, `MAX`, `SUM` and `AVG` of one argument, `COALESCE` of two or more arguments, `json_extract`, `->`, `->>`, `json_type`, `json_valid`, `json_array_length` and `json` are modeled as functions | ADR 0012 slices 1, 2, 6b and 6c |
 | `aggregate-in-expression` | An aggregate inside an expression is not modeled | ADR 0012 slice 1 |
 | `alias-in-expression` | A result column alias inside WHERE or an ORDER BY expression is not modeled | ADR 0012 slice 1 |
 | `value-as-condition` | A value used as a condition is not modeled | ADR 0012 slice 1 |
@@ -205,7 +205,7 @@ rounded; and `SUM` and `AVG` with SQLite's summation. A `SUM` that overflows the
 64-bit integers stops the query with `integer overflow`, unless a later REAL input
 makes the sum approximate. JSON functions read JSON and JSON5 text as SQLite 3.51.0
 does, and give SQLite's values and rendered JSON text (slice 6b). A JSON function that
-fails with `malformed JSON` or `bad JSON path` stops a query without `FROM` where SQLite
+fails with `malformed JSON`, `bad JSON path` or the `json_valid` flags error stops a query without `FROM` where SQLite
 certainly evaluates it. Every other statement in which a JSON function may fail is
 outside the supported subset for that data, because SQLite skips or folds some
 expressions and evaluates a constant `WHERE` term before it reads the rows: a query with
