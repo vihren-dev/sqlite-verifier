@@ -59,7 +59,7 @@ operators `+`, `-`, `*`, `/` and `%`, unary `-` and `+` of any expression,
 slice 2), `json_extract` with one or more paths and the operators `->` and `->>`
 (slice 6b), `json_type`, `json_valid`, `json_array_length` and `json` (slice 6c), and
 `date`, `time`, `datetime`, `julianday`, `unixepoch` and `strftime` with one time value
-or none, which is `now`, and without modifiers (slice 6f). A
+or none, which is `now` (slice 6f), and any modifiers, in UTC (slice 6g). A
 `FROM` may end with `json_each(json [, path])` sources, joined by a comma or an inner
 `JOIN` with an optional `ON` condition, whose arguments read the sources before them
 (slice 6d). In a write, a `VALUES` item may be any of these expressions that names no
@@ -208,7 +208,6 @@ of frontend refusal, the cases of the claimed corpora that it keeps out of scope
 | `function-join` | Only an inner join without NATURAL or USING is modeled with `json_each` | ADR 0012 slice 6d |
 | `later-source-in-arguments` | An argument of `json_each` that reads a later source is not modeled | ADR 0012 slice 6d |
 | `boolean-name` | `TRUE` or `FALSE` that names no column is not modeled | ADR 0012 slice 6e2 |
-| `date-modifier` | A modifier of a date and time function is not modeled | ADR 0012 slice 6f |
 
 ## Execution
 
@@ -240,7 +239,8 @@ may see different values (slice 6e2). `CURRENT_TIME`, `CURRENT_DATE` and
 NULL, and a value after the year 9999 gives SQLite's zero date. The date and time
 functions read the time value `now`, written or read from a column, as the statement's
 clock value, and give SQLite's value for every other time value, NULL for one that SQLite
-cannot read (slice 6f). A verification target holds for every clock value of every
+cannot read (slice 6f). They apply their modifiers from left to right as SQLite does;
+`localtime` and `utc` use UTC, the time zone of every execution profile (slice 6g). A verification target holds for every clock value of every
 statement. Literal writes
 have checked data-domain obligations: existing key cells and filter cells must
 be integers or NULL, existing constraints must hold, and the random-search branch

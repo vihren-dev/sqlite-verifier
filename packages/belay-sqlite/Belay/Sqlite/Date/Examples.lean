@@ -117,8 +117,7 @@ def call (function : Resolved.DateFunction) (arguments : List Value) : Value :=
 #guard call .unixepoch [textOf "1969-12-31 23:59:59.999"] == .integer (-1)
 #guard call .unixepoch [textOf "2038-01-19 03:14:08"] == .integer 2147483648
 #guard call .unixepoch [] == .integer 946684800
--- Modifiers: resolution refuses them until slice 6g. This is the model value, not the
--- value of native SQLite, which is 2023-06-16.
-#guard call .date [textOf "2023-06-15", textOf "+1 day"] == .null
+-- A modifier after the time value; ModifierExamples has the modifiers.
+#guard call .date [textOf "2023-06-15", textOf "+1 day"] == textOf "2023-06-16"
 
 end Belay.Sqlite.DateExamples

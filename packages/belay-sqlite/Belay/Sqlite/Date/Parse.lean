@@ -45,12 +45,13 @@ def onlySpaces (bytes : List UInt8) : Bool := (dropSpaces bytes).isEmpty
 /-- {lit}`parseTimezone`: the time zone offset in minutes after the time. Spaces come
 first. {lit}`Z` or {lit}`z` is UTC; {lit}`+HH:MM` and {lit}`-HH:MM` with an hour to 14
 and a minute to 59 give an offset; no text gives 0. Only spaces can follow. Other text
-gives {lit}`none`. -/
-def parseTimezone (bytes : List UInt8) : Option Int :=
+gives {lit}`none`. The flag is true when the text marks the time as UTC: {lit}`Z`, or
+an offset of zero. -/
+def parseTimezone (bytes : List UInt8) : Option (Int × Bool) :=
   match dropSpaces bytes with
-  | [] => some 0
+  | [] => some (0, false)
   | marker :: rest =>
-    if marker == 90 || marker == 122 then (if onlySpaces rest then some 0 else none)
+    if marker == 90 || marker == 122 then (if onlySpaces rest then some (0, true) else none)
     else if marker == 45 || marker == 43 then
       match readDateField 2 0 14 (some 58) rest with
       | none => none
@@ -58,7 +59,7 @@ def parseTimezone (bytes : List UInt8) : Option Int :=
         | none => none
         | some (minutes, rest) =>
           let offset : Int := (minutes : Int) + hours * 60
-          if onlySpaces rest then some (if marker == 45 then -offset else offset) else none
+          if onlySpaces rest then some (if marker == 45 then -offset else offset, offset == 0) else none
     else none
 
 /-- The fraction of the seconds in {lit}`parseHhMmSs`, digit by digit: the double
@@ -101,14 +102,15 @@ def parseTimeOfDay (bytes : List UInt8) : Option DateTime :=
       | none => none
       | some (seconds, rest) => match parseTimezone rest with
         | none => none
-        | some offset => some { hour, minute, seconds, timezoneMinutes := offset, validTime := true }
+        | some (offset, isUtc) => some { hour, minute, seconds, timezoneMinutes := offset, validTime := true, isUtc }
 
 /-- Whether a byte is skipped between a date and its time: a space or {lit}`T`. -/
 def isDateTimeSeparator (byte : UInt8) : Bool := isSpaceByte byte || byte == 84
 
 /-- {lit}`parseYyyyMmDd`: a date {lit}`YYYY-MM-DD` with an optional minus, a month 1 to
-12 and a day 1 to 31, then spaces and {lit}`T` bytes, then a time or the end. With a time
-zone offset it calls {name}`DateTime.computeJulianDay` at once. -/
+12 and a day 1 to 31, then spaces and {lit}`T` bytes, then a time or the end. It sets
+{name}`DateTime.dayOverflow` by {name}`DateTime.computeFloor`. With a time zone offset
+it calls {name}`DateTime.computeJulianDay` at once. -/
 def parseCalendarDate (bytes : List UInt8) : Option DateTime :=
   let (negative, body) := match bytes with
     | 45 :: rest => (true, rest)
@@ -127,7 +129,8 @@ def parseCalendarDate (bytes : List UInt8) : Option DateTime :=
         match time? with
         | none => none
         | some time =>
-          let date := { time with year := if negative then -(year : Int) else year, month, day, validDate := true }
+          let date := { time with year := if negative then -(year : Int) else year, month, day,
+                                  validDate := true }.computeFloor
           some (if date.timezoneMinutes != 0 then date.computeJulianDay else date)
 
 /-- The ASCII lower case of a byte, as {lit}`sqlite3UpperToLower` maps it. -/

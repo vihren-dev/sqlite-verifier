@@ -77,20 +77,12 @@ def dateFunctionNamed (name : String) : Option Resolved.DateFunction :=
   | "strftime" => some .strftime
   | _ => none
 
-/-- The number of arguments of a date and time function without modifiers: the format and
-one time value for {lit}`strftime`, one time value for each other function. -/
-def Resolved.DateFunction.argumentsWithoutModifiers : Resolved.DateFunction → Nat
-  | .strftime => 2
-  | .date | .time | .datetime | .julianday | .unixepoch => 1
-
 /-- A date and time call over resolved arguments, with the clock value 0 until the
-execution sets it. SQLite accepts any number of arguments; one after
-{name}`Resolved.DateFunction.argumentsWithoutModifiers` is a modifier, which is a model
-restriction until slice 6g ({lit}`date-modifier`). -/
+execution sets it. SQLite accepts any number of arguments, so the call never fails: the
+arguments after the time value are modifiers (slice 6g). -/
 def dateCall (function : Resolved.DateFunction) (arguments : Resolved.Arguments) :
     Except ValueIssue Operand :=
-  if arguments.length ≤ function.argumentsWithoutModifiers then .ok (.date function arguments 0, none)
-  else .error (.restriction [] .dateModifier)
+  .ok (.date function arguments 0, none)
 
 /-- Whether a folded name names a scalar function of the model that resolution resolves
 from its arguments: a JSON function or a date and time function. -/
