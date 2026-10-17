@@ -1,6 +1,6 @@
 # JSON reading and json_extract, slice 6b of ADR 0012: status
 
-Created 2026-10-16. Status: open.
+Created 2026-10-16. Status: DONE.
 Task: [20261016-json-extract.task.md](20261016-json-extract.task.md).
 Specification: [ADR 0012](../docs/adr-0012-query-semantics.md), Amendment 5, "JSON reading
 and `json_extract` (slice 6b)".
@@ -61,7 +61,14 @@ and `json_extract` (slice 6b)".
   never reports a JSON error (it is unsupported for that data instead), because the
   model does not describe when SQLite evaluates constants in writes.
 
-## Remaining
-
-- Full checks, review, CI time, pull request A; then pull request B (claim corpus 22,
-  `mustAgree`).
+- 2026-10-17: review findings (two catch-all matches over project types) fixed in a
+  refactor commit; its review was clean. CI time (local, `--check` rebuilds, base vs
+  branch): harness 23/22 s, mutants 215/251 s, model 223/229 s, frozen 138/140 s. The
+  mutant growth is the 8 JSON mutants (about 22 s; each rebuilds most of the model) and
+  a slower rebuild of the larger model in every mutant test; the measurements run one
+  after another, so moving the JSON mutants does not change the total. Pull request A
+  opened as #144.
+- 2026-10-17: pull request B: corpus 22 (21 cases, all AGREE) is claimed, and the 45
+  upstream JSON cases that now agree join `mustAgree` (v5 486 to 531). New judge lock.
+  Slice 6b is DONE; slice 6c (`json_type`, `json_valid`, `json_array_length`, `json`)
+  follows.

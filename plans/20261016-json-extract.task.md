@@ -1,6 +1,6 @@
 # JSON reading and json_extract, slice 6b of ADR 0012
 
-Created 2026-10-16. Status: open.
+Created 2026-10-16. Status: DONE (pull requests #144 and B).
 Specification: [ADR 0012](../docs/adr-0012-query-semantics.md), "Amendment 5", "JSON
 reading and `json_extract` (slice 6b)", with the owner decisions of 2026-10-16 (#141).
 Related: slice 6a ([task](20261016-select-without-from.task.md)), whose queries without
