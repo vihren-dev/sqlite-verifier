@@ -36,15 +36,11 @@ theorem jsonCall_issues (name : String) (function : Resolved.JsonFunction) (argu
   simp [ValueIssue.namesNoObject, PrepareError.namesObject]
 
 /-- For every date and time function and argument list, the issues of {name}`dateCall`
-name no catalog object: its only error is the restriction
-{name}`RestrictionKind.dateModifier`. Proof sketch: split the check of the number of
-arguments; the failing branch is that restriction, and the other branch cannot fail. -/
+name no catalog object: it has none. Proof sketch: {name}`dateCall` always succeeds. -/
 theorem dateCall_issues (function : Resolved.DateFunction) (arguments : Resolved.Arguments) :
     IssuesNameNoObject (dateCall function arguments) := by
   intro issue failed
-  unfold dateCall at failed
-  split at failed <;> cases failed
-  trivial
+  cases failed
 
 /-- For every misuse flag, name and resolved operands, the issues of {name}`pairCall`
 with the issue {name}`pairIssue` name no catalog object. Proof sketch: its errors are that

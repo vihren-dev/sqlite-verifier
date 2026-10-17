@@ -4,15 +4,14 @@ set_option doc.verso true
 
 /-! The {lit}`DateTime` structure of the pinned SQLite 3.51.0 {lit}`date.c` and its three
 conversions {lit}`computeJD`, {lit}`computeYMD` and {lit}`computeHMS` (ADR 0012,
-amendment 5, slice 6f). Each function returns the new structure in place of the C
+amendment 5, slices 6f and 6g). Each function returns the new structure in place of the C
 mutation. The arithmetic follows the C code step by step: 64-bit integers wrap as the
 compiled x86-64 SQLite gives, and the seconds are a double. -/
 
 namespace Belay.Sqlite
 
-/-- The fields of {lit}`DateTime` that the date and time functions read without
-modifiers. The flags {lit}`isUtc`, {lit}`isLocal` and {lit}`nFloor` are left out: only
-modifiers read them. The default value is the cleared structure of {lit}`memset`. -/
+/-- The fields of {lit}`DateTime`. The default value is the cleared structure of
+{lit}`memset`. -/
 structure DateTime where
   /-- {lit}`iJD`: the Julian day number times 86400000. -/
   julianMilliseconds : Int := 0
@@ -42,6 +41,15 @@ structure DateTime where
   isError : Bool := false
   /-- {lit}`useSubsec`: the output shows milliseconds. -/
   useSubsecond : Bool := false
+  /-- {lit}`nFloor`: the days that the {lit}`floor` modifier subtracts to go back from a
+  day after the end of the month to the last day of the month. -/
+  dayOverflow : Int := 0
+  /-- {lit}`isUtc`: the time is known to be UTC, so the {lit}`utc` modifier does
+  nothing. -/
+  isUtc : Bool := false
+  /-- {lit}`isLocal`: the time is known to be local time, so the {lit}`localtime`
+  modifier does nothing. -/
+  isLocal : Bool := false
 
 /-- The structure after {lit}`datetimeError`: all fields cleared, and the error flag set. -/
 def DateTime.error : DateTime := { isError := true }
@@ -85,7 +93,8 @@ def julianMillisecondsOfDate (year month day : Int) : Int :=
 /-- {lit}`computeJD`: set the Julian day field from the date and the time. Without a
 valid date it takes 2000-01-01. A year outside {name}`minimumYear` to
 {name}`maximumYear`, or a raw number, gives {name}`DateTime.error`. With a time zone
-offset it moves the time to UTC and clears the date and the time. -/
+offset it moves the time to UTC, clears the date and the time, and marks the time as
+UTC. -/
 def DateTime.computeJulianDay (p : DateTime) : DateTime :=
   if p.validJulianMilliseconds then p else
   let (year, month, day) := if p.validDate then (p.year, p.month, p.day) else (2000, 1, 1)
@@ -97,7 +106,7 @@ def DateTime.computeJulianDay (p : DateTime) : DateTime :=
     doubleToInt64 (p.seconds * 1000 + 0.5))
   if p.timezoneMinutes == 0 then { p with julianMilliseconds := withTime } else
     { p with julianMilliseconds := wrapInt64 (withTime - p.timezoneMinutes * 60000),
-             validDate := false, validTime := false, timezoneMinutes := 0 }
+             validDate := false, validTime := false, timezoneMinutes := 0, isUtc := true, isLocal := false }
 
 /-- {lit}`computeYMD`: set the date from the Julian day field by
 {name}`civilDateOfValidClock`. Without a valid Julian day it takes 2000-01-01; a Julian
@@ -127,21 +136,42 @@ def DateTime.computeTimeOfDay (p : DateTime) : DateTime :=
 Julian-day milliseconds, or {lit}`none` when the clock is zero or less and the call
 fails. -/
 def DateTime.current (clock : Int) : Option DateTime :=
-  if clock > 0 then some { julianMilliseconds := clock, validJulianMilliseconds := true } else none
+  if clock > 0 then some { julianMilliseconds := clock, validJulianMilliseconds := true, isUtc := true } else none
 
 /-- The Julian day number of 9999-12-31 24:00:00. {lit}`setRawDateNumber` accepts a
 number below it as a Julian day number. -/
 def julianDayNumberLimit : Float := 5373484.5
 
 /-- {lit}`setRawDateNumber`: keep the number as raw seconds and, when it is from 0 to
-below {name}`julianDayNumberLimit`, also as the Julian day field. Without modifiers a
-number outside that range has no Julian day, so {name}`DateTime.computeJulianDay`
-gives an error. -/
+below {name}`julianDayNumberLimit`, also as the Julian day field. A number outside that
+range has no Julian day: {name}`DateTime.computeJulianDay` gives an error, unless a
+modifier such as {lit}`unixepoch` reads the raw number first. -/
 def DateTime.ofRawNumber (number : Float) : DateTime :=
   let raw : DateTime := { seconds := number, rawSeconds := true }
   if number ≥ 0 && number < julianDayNumberLimit then
     { raw with julianMilliseconds := doubleToInt64 (number * 86400000.0 + 0.5),
                validJulianMilliseconds := true }
   else raw
+
+/-- {lit}`clearYMD_HMS_TZ`: mark the date and the time as not valid and clear the time
+zone offset, so that later conversions start from the Julian day field. -/
+def DateTime.clearDateTimeZone (p : DateTime) : DateTime :=
+  { p with validDate := false, validTime := false, timezoneMinutes := 0 }
+
+/-- The bit mask of the months with 31 days ({lit}`0x15aa`): bit {lit}`M` is set for
+January, March, May, July, August, October and December. -/
+def thirtyOneDayMonthMask : Nat := 0x15aa
+
+/-- {lit}`computeFloor`: set {name}`DateTime.dayOverflow` to the days by which the day of
+the month is past the end of the month, or 0. February has 28 days, or 29 in a leap
+year of the Gregorian calendar. -/
+def DateTime.computeFloor (p : DateTime) : DateTime :=
+  let overflow :=
+    if p.day ≤ 28 then 0
+    else if (1 <<< p.month.toNat) &&& thirtyOneDayMonthMask != 0 then 0
+    else if p.month != 2 then (if p.day == 31 then 1 else 0)
+    else if p.year.tmod 4 != 0 || (p.year.tmod 100 == 0 && p.year.tmod 400 != 0) then p.day - 28
+    else p.day - 29
+  { p with dayOverflow := overflow }
 
 end Belay.Sqlite

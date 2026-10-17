@@ -39,26 +39,44 @@ def readDateField (count minimum maximum : Nat) (separator : Option UInt8) (byte
 four digits never exceeds it. -/
 def yearFieldMaximum : Nat := 14712
 
+/-- The greatest month of a date field ({lit}`21a` in {lit}`getDigits`); a date offset
+modifier also refuses this value. -/
+def monthFieldMaximum : Nat := 12
+
+/-- The greatest day of a date field ({lit}`21d`); a date offset modifier also refuses
+this value. -/
+def dayFieldMaximum : Nat := 31
+
+/-- The greatest hour of a time field ({lit}`20c`): SQLite accepts {lit}`24`. -/
+def hourFieldMaximum : Nat := 24
+
+/-- The greatest minute or second of a time field ({lit}`20e`). -/
+def minuteFieldMaximum : Nat := 59
+
+/-- The greatest hour of a time zone suffix ({lit}`20b` in {lit}`parseTimezone`). -/
+def timezoneHourMaximum : Nat := 14
+
 /-- The text after trailing spaces is empty: the end check of {lit}`parseTimezone`. -/
 def onlySpaces (bytes : List UInt8) : Bool := (dropSpaces bytes).isEmpty
 
 /-- {lit}`parseTimezone`: the time zone offset in minutes after the time. Spaces come
 first. {lit}`Z` or {lit}`z` is UTC; {lit}`+HH:MM` and {lit}`-HH:MM` with an hour to 14
 and a minute to 59 give an offset; no text gives 0. Only spaces can follow. Other text
-gives {lit}`none`. -/
-def parseTimezone (bytes : List UInt8) : Option Int :=
+gives {lit}`none`. The flag is true when the text marks the time as UTC: {lit}`Z`, or
+an offset of zero. -/
+def parseTimezone (bytes : List UInt8) : Option (Int × Bool) :=
   match dropSpaces bytes with
-  | [] => some 0
+  | [] => some (0, false)
   | marker :: rest =>
-    if marker == 90 || marker == 122 then (if onlySpaces rest then some 0 else none)
+    if marker == 90 || marker == 122 then (if onlySpaces rest then some (0, true) else none)
     else if marker == 45 || marker == 43 then
-      match readDateField 2 0 14 (some 58) rest with
+      match readDateField 2 0 timezoneHourMaximum (some 58) rest with
       | none => none
-      | some (hours, rest) => match readDateField 2 0 59 none rest with
+      | some (hours, rest) => match readDateField 2 0 minuteFieldMaximum none rest with
         | none => none
         | some (minutes, rest) =>
           let offset : Int := (minutes : Int) + hours * 60
-          if onlySpaces rest then some (if marker == 45 then -offset else offset) else none
+          if onlySpaces rest then some (if marker == 45 then -offset else offset, offset == 0) else none
     else none
 
 /-- The fraction of the seconds in {lit}`parseHhMmSs`, digit by digit: the double
@@ -77,7 +95,7 @@ def maximumSecondFraction : Float := 0.999
 /-- The seconds after {lit}`HH:MM` in {lit}`parseHhMmSs`: {lit}`:SS` with an optional
 fraction, or 0 when no colon follows. A fraction is a point and one or more digits. -/
 def parseSeconds : List UInt8 → Option (Float × List UInt8)
-  | 58 :: rest => match readDateField 2 0 59 none rest with
+  | 58 :: rest => match readDateField 2 0 minuteFieldMaximum none rest with
     | none => none
     | some (seconds, 46 :: digit :: after) =>
       if isDigitByte digit then
@@ -93,31 +111,32 @@ def parseSeconds : List UInt8 → Option (Float × List UInt8)
 an hour to 24, then {name}`parseTimezone`. The result has a valid time and no valid
 Julian day. -/
 def parseTimeOfDay (bytes : List UInt8) : Option DateTime :=
-  match readDateField 2 0 24 (some 58) bytes with
+  match readDateField 2 0 hourFieldMaximum (some 58) bytes with
   | none => none
-  | some (hour, rest) => match readDateField 2 0 59 none rest with
+  | some (hour, rest) => match readDateField 2 0 minuteFieldMaximum none rest with
     | none => none
     | some (minute, rest) => match parseSeconds rest with
       | none => none
       | some (seconds, rest) => match parseTimezone rest with
         | none => none
-        | some offset => some { hour, minute, seconds, timezoneMinutes := offset, validTime := true }
+        | some (offset, isUtc) => some { hour, minute, seconds, timezoneMinutes := offset, validTime := true, isUtc }
 
 /-- Whether a byte is skipped between a date and its time: a space or {lit}`T`. -/
 def isDateTimeSeparator (byte : UInt8) : Bool := isSpaceByte byte || byte == 84
 
 /-- {lit}`parseYyyyMmDd`: a date {lit}`YYYY-MM-DD` with an optional minus, a month 1 to
-12 and a day 1 to 31, then spaces and {lit}`T` bytes, then a time or the end. With a time
-zone offset it calls {name}`DateTime.computeJulianDay` at once. -/
+12 and a day 1 to 31, then spaces and {lit}`T` bytes, then a time or the end. It sets
+{name}`DateTime.dayOverflow` by {name}`DateTime.computeFloor`. With a time zone offset
+it calls {name}`DateTime.computeJulianDay` at once. -/
 def parseCalendarDate (bytes : List UInt8) : Option DateTime :=
   let (negative, body) := match bytes with
     | 45 :: rest => (true, rest)
     | _ => (false, bytes)
   match readDateField 4 0 yearFieldMaximum (some 45) body with
   | none => none
-  | some (year, rest) => match readDateField 2 1 12 (some 45) rest with
+  | some (year, rest) => match readDateField 2 1 monthFieldMaximum (some 45) rest with
     | none => none
-    | some (month, rest) => match readDateField 2 1 31 none rest with
+    | some (month, rest) => match readDateField 2 1 dayFieldMaximum none rest with
       | none => none
       | some (day, rest) =>
         let rest := rest.dropWhile isDateTimeSeparator
@@ -127,7 +146,8 @@ def parseCalendarDate (bytes : List UInt8) : Option DateTime :=
         match time? with
         | none => none
         | some time =>
-          let date := { time with year := if negative then -(year : Int) else year, month, day, validDate := true }
+          let date := { time with year := if negative then -(year : Int) else year, month, day,
+                                  validDate := true }.computeFloor
           some (if date.timezoneMinutes != 0 then date.computeJulianDay else date)
 
 /-- The ASCII lower case of a byte, as {lit}`sqlite3UpperToLower` maps it. -/

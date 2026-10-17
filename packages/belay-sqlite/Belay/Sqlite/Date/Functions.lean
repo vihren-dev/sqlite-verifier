@@ -1,12 +1,11 @@
 import Belay.Sqlite.Arithmetic
-import Belay.Sqlite.Date.Parse
-import Belay.Sqlite.Date.Strftime
+import Belay.Sqlite.Date.Modifier
 import Belay.Sqlite.Resolution.DateFunction
 
 set_option doc.verso true
 
-/-! The six date and time functions without modifiers, ported from the pinned SQLite
-3.51.0 {lit}`date.c` (ADR 0012, amendment 5, slice 6f): {lit}`isDate`, then
+/-! The six date and time functions with their modifiers, ported from the pinned SQLite
+3.51.0 {lit}`date.c` (ADR 0012, amendment 5, slices 6f and 6g): {lit}`isDate`, then
 {lit}`juliandayFunc`, {lit}`unixepochFunc`, {lit}`datetimeFunc`, {lit}`timeFunc`,
 {lit}`dateFunc` and {lit}`strftimeFunc`. The model calls these functions only where
 SQLite's {lit}`sqlite3NotPureFunc` passes, so {lit}`now` always reads the clock. -/
@@ -33,22 +32,34 @@ def DateTime.ofArgument (clock : Int) : Value → Option DateTime
   | .text bytes | .blob bytes => parseDateOrTime clock (bytesBeforeNul bytes)
   | .null => none
 
-/-- {lit}`isDate` with no modifiers: the date and time of zero or one time value
-argument, or {lit}`none`, which makes the function NULL. With no argument it is
-{lit}`now` and has no range check, so a clock after 9999 still gives a value. With one
-argument, {name}`DateTime.computeJulianDay` must succeed and {name}`validJulianDay` must
-accept the result. A parsed date with a day after 28 is marked as not valid, so that
-{name}`DateTime.computeCivilDate` normalizes it: {lit}`2023-02-31` is
+/-- The modifier loop of {lit}`isDate`: apply each modifier in order by
+{name}`DateTime.applyModifier`, with its position from {lit}`index`. A NULL modifier or
+a refused modifier gives {lit}`none`. -/
+def DateTime.applyModifiers : Nat → List Value → DateTime → Option DateTime
+  | _, [], p => some p
+  | index, modifier :: rest, p => match modifier.sqliteValueText? with
+    | none => none
+    | some text => match p.applyModifier index text with
+      | none => none
+      | some p => DateTime.applyModifiers (index + 1) rest p
+
+/-- {lit}`isDate`: the date and time of the time value argument after its modifiers, or
+{lit}`none`, which makes the function NULL. With no argument it is {lit}`now` and has no
+range check, so a clock after 9999 still gives a value. Else, after the modifiers,
+{name}`DateTime.computeJulianDay` must succeed and {name}`validJulianDay` must accept the
+result. Without modifiers, a parsed date with a day after 28 is marked as not valid, so
+that {name}`DateTime.computeCivilDate` normalizes it: {lit}`2023-02-31` is
 {lit}`2023-03-03`. -/
 def DateTime.ofArguments (clock : Int) : List Value → Option DateTime
   | [] => DateTime.current clock
-  | [argument] => match DateTime.ofArgument clock argument with
+  | argument :: modifiers => match DateTime.ofArgument clock argument with
     | none => none
-    | some parsed =>
-      let p := parsed.computeJulianDay
-      if p.isError || !validJulianDay p.julianMilliseconds then none
-      else some (if p.validDate && p.day > 28 then { p with validDate := false } else p)
-  | _ :: _ :: _ => none
+    | some parsed => match DateTime.applyModifiers 1 modifiers parsed with
+      | none => none
+      | some modified =>
+        let p := modified.computeJulianDay
+        if p.isError || !validJulianDay p.julianMilliseconds then none
+        else some (if modifiers.isEmpty && p.validDate && p.day > 28 then { p with validDate := false } else p)
 
 /-- The time text {lit}`HH:MM:SS`, or {lit}`HH:MM:SS.SSS` with {lit}`subsec`, of
 {lit}`timeFunc` and {lit}`datetimeFunc` after {lit}`computeHMS`. The seconds are
@@ -68,8 +79,8 @@ def DateTime.dateText (x : DateTime) : List UInt8 := Belay.Sqlite.dateText ⟨x.
 
 /-- {lit}`strftimeFunc`: the format text of the first argument with the date and time of
 the rest, after {lit}`computeJD` and {lit}`computeYMD_HMS`. NULL when there is no
-argument, the format is NULL, the time value cannot be read, or the format has an
-unknown specifier. An empty result is the empty text. -/
+argument, the format is NULL, the time value or a modifier cannot be read, or the format
+has an unknown specifier. An empty result is the empty text. -/
 def strftimeValue (clock : Int) : List Value → Value
   | [] => .null
   | format :: timeValues => match format.sqliteValueText?, DateTime.ofArguments clock timeValues with
@@ -82,13 +93,10 @@ def strftimeValue (clock : Int) : List Value → Value
 /-- The value that SQLite 3.51.0 gives for a call of the date and time function with
 these SQL argument values, when the statement's clock ({lit}`xCurrentTimeInt64`) is
 {lit}`clock` Julian-day milliseconds. The arguments are, for {lit}`strftime`, the format
-and then at most one time value; for the other functions, at most one time value. No
-time value is {lit}`now`. Text results are TEXT, {lit}`julianday` is a REAL and
+and then the time value and its modifiers; for the other functions, the time value and
+its modifiers. No time value is {lit}`now`. Text results are TEXT, {lit}`julianday` is a REAL and
 {lit}`unixepoch` is an INTEGER, or a REAL with {lit}`subsec`. A value that SQLite cannot
-read gives NULL.
-
-More arguments are modifiers. The model gives NULL for them, but resolution refuses
-modifiers until slice 6g, so this case is not reached. For example,
+read, or a modifier that SQLite refuses, gives NULL. For example,
 {lean}`Resolved.DateFunction.date.value 0 [.integer 2451545]` is the text
 {lit}`2000-01-01`. -/
 def Resolved.DateFunction.value (function : Resolved.DateFunction) (clock : Int) (arguments : List Value) : Value :=

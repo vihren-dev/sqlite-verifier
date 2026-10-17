@@ -16,15 +16,15 @@ from types import ModuleType
 import pytest
 
 from conformance import (algorithm_evidence, alias_evidence, authored_algorithms, authored_aliases, authored_clock,
-                         authored_date_functions, date_function_evidence,
-                         authored_default_writes, authored_deletes, authored_fromless, authored_joins,
-                         authored_json, authored_json_each, authored_json_functions, authored_keys, authored_merged,
-                         authored_numbers, authored_obligations, authored_queries, authored_right,
-                         authored_row_writes, authored_upserts, authored_using, authored_writes,
-                         clock_evidence, default_write_evidence, delete_evidence, fromless_evidence, join_evidence, json_evidence,
-                         json_each_evidence, json_function_evidence, key_evidence, merged_evidence, number_evidence,
-                         obligation_evidence, query_evidence, right_evidence, row_write_evidence, upsert_evidence,
-                         using_evidence, write_evidence)
+                         authored_date_functions, authored_date_modifiers, authored_default_writes,
+                         authored_deletes, authored_fromless, authored_joins, authored_json, authored_json_each,
+                         authored_json_functions, authored_keys, authored_merged, authored_numbers,
+                         authored_obligations, authored_queries, authored_right, authored_row_writes,
+                         authored_upserts, authored_using, authored_writes, clock_evidence, date_function_evidence,
+                         date_modifier_evidence, default_write_evidence, delete_evidence, fromless_evidence,
+                         join_evidence, json_each_evidence, json_evidence, json_function_evidence, key_evidence,
+                         merged_evidence, number_evidence, obligation_evidence, query_evidence, right_evidence,
+                         row_write_evidence, upsert_evidence, using_evidence, write_evidence)
 from conformance.authored_resolution import definitions as resolution_definitions
 from conformance.corpus import load
 
@@ -52,11 +52,12 @@ pytestmark = [pytest.mark.integration, pytest.mark.conformance,
                                                             (json_each_evidence, authored_json_each, 24),
                                                             (default_write_evidence, authored_default_writes, 25),
                                                             (clock_evidence, authored_clock, 26),
-                                                            (date_function_evidence, authored_date_functions, 27)],
+                                                            (date_function_evidence, authored_date_functions, 27),
+                                                            (date_modifier_evidence, authored_date_modifiers, 28)],
                          ids=["queries", "numbers", "writes", "obligations", "row-writes", "deletes", "joins", "using",
                               "right", "merged", "keys", "aliases", "upserts", "algorithms", "fromless", "json",
                               "json-functions", "json-each", "default-writes", "clock",
-                              "date-functions"])
+                              "date-functions", "date-modifiers"])
 def test_coverage_corpus_round_trips(evidence: ModuleType, cases: ModuleType, version: int, tmp_path: Path) -> None:
     """The corpus writer records the cases of its case module and writes a corpus of version 5
     records that reads back unchanged and replays natively, and refuses to replace an existing

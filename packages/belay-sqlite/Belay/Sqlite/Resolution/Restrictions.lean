@@ -103,9 +103,6 @@ inductive RestrictionKind where
   unquoted one as 1 or 0, but a bracket or backtick quoted one is no column, and the syntax
   does not keep that quoting (ADR 0012 slice 6e2). -/
   | booleanName
-  /-- A modifier argument of a date and time function is not modeled until slice 6g (ADR
-  0012 slice 6f). -/
-  | dateModifier
   deriving Repr, DecidableEq
 
 end Belay.Sqlite
