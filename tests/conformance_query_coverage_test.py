@@ -1,4 +1,4 @@
-"""The authored coverage cases of queries, numbers and writes (ADR 0012, slices 1 to 6d).
+"""The authored coverage cases of queries, numbers and writes (ADR 0012, slices 1 to 6e1).
 
 The cases of `conformance.authored_queries`, `conformance.authored_numbers`,
 `conformance.authored_writes`, `conformance.authored_row_writes`,
@@ -7,8 +7,8 @@ The cases of `conformance.authored_queries`, `conformance.authored_numbers`,
 `conformance.authored_merged`, `conformance.authored_keys`,
 `conformance.authored_aliases`, `conformance.authored_upserts`,
 `conformance.authored_algorithms`, `conformance.authored_fromless`,
-`conformance.authored_json`, `conformance.authored_json_functions` and
-`conformance.authored_json_each` are
+`conformance.authored_json`, `conformance.authored_json_functions`,
+`conformance.authored_json_each` and `conformance.authored_default_writes` are
 recorded natively as version 5 records with statement outputs, name requirement
 identifiers of the pinned documentation, and replay through resolution, the
 execution semantics and query evaluation. Every case agrees with the model, and the
@@ -17,19 +17,18 @@ on the same cases. The corpus writers that publish each set as a new corpus are
 checked in `tests/conformance_corpus_writers_test.py`, a scheduled suite.
 """
 
-from concurrent.futures import ThreadPoolExecutor
 import json
-import os
 from pathlib import Path
 from types import ModuleType
 
 import pytest
 
-from conformance import (authored_algorithms, authored_aliases, authored_deletes, authored_fromless, authored_joins,
-                         authored_json, authored_json_each, authored_json_functions, authored_keys, authored_merged,
-                         authored_numbers, authored_queries, authored_right, authored_row_writes, authored_upserts,
-                         authored_using, authored_writes)
-from conformance.model_check import compiled_many, prove_batch
+from conformance import (authored_algorithms, authored_aliases, authored_default_writes, authored_deletes,
+                         authored_fromless, authored_joins, authored_json, authored_json_each,
+                         authored_json_functions, authored_keys, authored_merged, authored_numbers,
+                         authored_queries, authored_right, authored_row_writes, authored_upserts, authored_using,
+                         authored_writes)
+from conformance.model_check import compiled_many, prove_all
 from conformance.native_replay import prepare
 from conformance.record_parser import runtime_library
 from conformance.requirement_coverage import resolved_ids
@@ -40,11 +39,9 @@ ROOT = Path(__file__).resolve().parents[1]
 CASE_SETS = [authored_queries, authored_numbers, authored_writes, authored_row_writes, authored_deletes, authored_joins,
              authored_using, authored_right, authored_merged, authored_keys, authored_aliases, authored_upserts,
              authored_algorithms, authored_fromless, authored_json,
-             authored_json_functions, authored_json_each]
+             authored_json_functions, authored_json_each,
+             authored_default_writes]
 """The authored case modules: each has `definitions` and `records`."""
-PROOF_BATCH = 8
-"""Cases per kernel proof file: Lean loads the imports once for each file, about 0.7 s, which
-is most of the time of a one-case proof."""
 
 
 @pytest.mark.parametrize("cases", CASE_SETS, ids=lambda module: module.__name__.rsplit(".", 1)[-1])
@@ -65,8 +62,4 @@ def test_coverage_cases_agree_with_kernel_proofs(cases: ModuleType, runtime_root
         prepared.append(case)
     answers = compiled_many(prepared, runtime_root, emit_lean=True)
     assert {answer["verdict"] for answer in answers} == {"AGREE"}, answers
-    starts = range(0, len(prepared), PROOF_BATCH)
-    with ThreadPoolExecutor(max_workers=os.cpu_count() or 1) as pool:
-        list(pool.map(lambda start: prove_batch(
-            [answer["caseLean"] for answer in answers[start:start + PROOF_BATCH]], runtime_root,
-            tmp_path / f"Cases{start}.lean", cases=prepared[start:start + PROOF_BATCH]), starts))
+    prove_all([answer["caseLean"] for answer in answers], runtime_root, tmp_path, cases=prepared)

@@ -22,8 +22,8 @@ structure CatalogColumn where
   notNull : Bool := false
   /-- The {lit}`ON CONFLICT` algorithm of the NOT NULL constraint; ABORT without one. -/
   notNullAlgorithm : ConflictAlgorithm := .abort
-  /-- The DEFAULT expression as written; omit it for no default. -/
-  defaultValue : Option Syntax.Expr := none
+  /-- The DEFAULT expression and its source spelling; omit it for no default. -/
+  defaultValue : Option Syntax.DefaultExpression := none
   deriving Repr, DecidableEq
 
 /-- One table entry. Keys are lists of column positions. Use

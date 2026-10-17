@@ -7,7 +7,7 @@ application values. They do not assume a fixed fixture or prove native refinemen
 
 namespace Belay.Sqlite
 
-/-- There exists a list of trailing columns whose NULL extension of the before
+/-- There exists a list of trailing column/value pairs whose affinity-applied extension of the before
 table equals the after table. This includes equality through an empty extension.
 Use it to preserve old cells and physical row identities. -/
 def TableExtends (before after : Table) : Prop :=
@@ -24,13 +24,13 @@ def DatabaseExtends (before after : Database) : Prop :=
 rows and keys. The proof unfolds the table and row operations. -/
 theorem Table.appendColumns_nil (table : Table) : table.appendColumns [] = table := by
   cases table
-  simp [Table.appendColumns, Row.appendNulls]
+  simp [Table.appendColumns, Row.appendValues]
 
-/-- For every table and two column lists, consecutive NULL extensions equal one
+/-- For every table and two column/value lists, consecutive extensions equal one
 extension by their concatenation. The proof distributes row mapping over append. -/
-theorem Table.appendColumns_append (table : Table) (first second : List CatalogColumn) :
+theorem Table.appendColumns_append (table : Table) (first second : List (CatalogColumn × Value)) :
     (table.appendColumns first).appendColumns second = table.appendColumns (first ++ second) := by
-  simp [Table.appendColumns, Row.appendNulls, List.map_map,
+  simp [Table.appendColumns, Row.appendValues, List.map_map,
     List.append_assoc, Function.comp_def]
 
 /-- Every table extends itself, witnessed by an empty list of appended columns. -/
@@ -73,11 +73,11 @@ theorem DatabaseExtends.create (database : Database) (position : Nat) (table : T
     simp [absent] at present
   · exact ⟨old, by simp [Database.set, same, present], TableExtends.refl old⟩
 
-/-- For every present table and any column list, setting its NULL extension at
+/-- For every present table and any column/value list, setting its extension at
 its existing position extends the database. Other tables are unchanged. The proof
 uses the supplied presence equality for the selected position. -/
 theorem DatabaseExtends.add (database : Database) (position : Nat) (table : Table)
-    (columns : List CatalogColumn) (present : database position = some table) :
+    (columns : List (CatalogColumn × Value)) (present : database position = some table) :
     DatabaseExtends database (database.set position (table.appendColumns columns)) := by
   intro other old oldPresent
   by_cases same : other = position
@@ -104,7 +104,15 @@ theorem step_extends (statement : Resolved.Statement) (database : Database) (pos
     simp only [step]
     cases h : database at_ with
     | none => exact DatabaseExtends.refl database
-    | some table => exact DatabaseExtends.add database at_ table [column] h
+    | some table =>
+      simp only []
+      cases readDefaultValue column with
+      | error _ => exact DatabaseExtends.refl database
+      | ok value =>
+        simp only []
+        split
+        · exact DatabaseExtends.refl database
+        · exact DatabaseExtends.add database at_ table [(column, value)] h
   | createIndex _ _ _ => exact DatabaseExtends.refl database
   | query query =>
     have same : (step (.query query) database position).database = database := by
@@ -156,16 +164,16 @@ theorem runSql_extends (guard : SchemaOnly script) (database : Database) :
   runSqlFrom_extends guard
 
 /-- For every table extension, the ordered list of after rowids equals the
-before list. The proof unfolds NULL extension; duplicate rowids are not excluded
+before list. The proof unfolds value extension; duplicate rowids are not excluded
 by this statement. -/
 theorem TableExtends.rowids (extension : TableExtends before after) :
     after.rows.map Row.rowid = before.rows.map Row.rowid := by
   obtain ⟨columns, rfl⟩ := extension
-  simp [Table.appendColumns, Row.appendNulls, List.map_map, Function.comp_def]
+  simp [Table.appendColumns, Row.appendValues, List.map_map, Function.comp_def]
 
 /-- For every table extension whose before rows each have the before column
 width, taking that many values from every after row gives the exact ordered
-before value lists. With no rows the claim is vacuous. The proof unfolds NULL
+before value lists. With no rows the claim is vacuous. The proof unfolds value
 extension and uses the width assumption for each row. -/
 theorem TableExtends.oldValues (extension : TableExtends before after)
     (width : ∀ row ∈ before.rows, row.values.length = before.shape.columns.length) :
@@ -175,6 +183,6 @@ theorem TableExtends.oldValues (extension : TableExtends before after)
   simp only [Table.appendColumns, List.map_map]
   apply List.map_congr_left
   intro row member
-  simp [Row.appendNulls, ← width row member]
+  simp [Row.appendValues, ← width row member]
 
 end Belay.Sqlite

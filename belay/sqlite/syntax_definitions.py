@@ -106,7 +106,9 @@ def column_constraint(tree: Tree, node: Node) -> Located:
     else:
         raise tree.unsupported(node, "Unsupported column constraint; use NOT NULL, PRIMARY KEY, UNIQUE or "
                                "DEFAULT with a literal")
-    return constructor("default", [("value", value)], node.start, node.end)
+    source_text = tree.sql[value.start:value.end].decode("utf-8")
+    return constructor("default", [("value", value),
+                                   ("sourceText", leaf(source_text, value.start, value.end))], node.start, node.end)
 
 
 def column_definition(tree: Tree, column: Node, constraints: Node) -> Located:

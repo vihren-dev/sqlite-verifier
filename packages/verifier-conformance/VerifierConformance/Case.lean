@@ -9,7 +9,7 @@ compares each step's catalog and tables with the native ones. -/
 
 namespace Belay.Sqlite.Conformance
 
-/-- A version 4 case: the measured profile of the native connection, the SQL
+/-- A version 5 case: the measured profile of the native connection, the SQL
 texts, their statement syntax, the native tables before the migration, and native
 truth after each executed statement. {lit}`outputs` is present when the record has
 statement outputs; it then has one entry per executed statement. -/
@@ -36,14 +36,24 @@ inductive Verdict where
   deriving Repr, DecidableEq
 
 /-- The resolution state before the first statement and after each statement, until
-the first model restriction. Observation {lit}`j` of a trace uses state {lit}`j`: a
-statement that fails leaves the catalog as it was, in resolution and in SQLite. -/
+the first model restriction. These states assume successful execution of each
+resolved statement. Execution can fail after resolution, so observation consumers
+select the preceding state for a failed statement. -/
 def resolveStates (context : ResolveContext) (index : Nat) (state : ResolveState) :
     List Syntax.Statement → List ResolveState
   | [] => [state]
   | statement :: rest => match resolveStatement context state index statement with
     | .ok (_, next) => state :: resolveStates context (index + 1) next rest
     | .error _ => [state]
+
+/-- Select the catalog state for a zero-based trace observation. Index zero
+is the initial observation. Success uses the state at the observation index;
+a failed statement uses the preceding state, preserving its visible catalog and
+saved transaction catalog. At index zero the preceding index is also zero.
+An absent index uses the last state, or an empty catalog for an empty state list. -/
+def observationState (states : List ResolveState) (index : Nat) (observation : Observation) : ResolveState :=
+  let selected := if observation.error.isSome then index - 1 else index
+  states[selected]?.getD (states.getLastD { catalog := [] })
 
 /-- The number of catalog positions that any of the states uses, in its catalog or in
 its saved catalog: the bound up to which a trace observes tables. -/
@@ -65,7 +75,8 @@ def primaryCode : Option (Nat × ExecutionError) → Nat
   | some (_, .constraintViolation) | some (_, .constraintFail) | some (_, .constraintRollback) => 19
   | some (_, .datatypeMismatch) => 20
   | some (_, .unmodeled) | some (_, .prepare _) | some (_, .transactionAlreadyActive)
-  | some (_, .noActiveTransaction) | some (_, .integerOverflow) | some (_, .functionError) => 1
+  | some (_, .noActiveTransaction) | some (_, .integerOverflow) | some (_, .functionError)
+  | some (_, .nullColumnDefault) => 1
 
 /-- The phase in which SQLite reports a modeled error: a prepare error of resolution
 in {lit}`sqlite3_prepare_v2`, and every other modeled error in {lit}`sqlite3_step`. -/
@@ -74,7 +85,8 @@ def errorPhase : Option (Nat × ExecutionError) → Option ErrorPhase
   | some (_, .prepare _) => some .prepare
   | some (_, .unmodeled) | some (_, .transactionAlreadyActive) | some (_, .noActiveTransaction)
   | some (_, .constraintViolation) | some (_, .constraintFail) | some (_, .constraintRollback)
-  | some (_, .integerOverflow) | some (_, .datatypeMismatch) | some (_, .functionError) => some .step
+  | some (_, .integerOverflow) | some (_, .datatypeMismatch) | some (_, .functionError)
+  | some (_, .nullColumnDefault) => some .step
 
 /-- Compare the visible and committed views under their catalogs, the transaction
 status, the primary code and, when the recorder observed it, the error phase; never
@@ -90,7 +102,7 @@ def compareSteps (states : List ResolveState) (position : Nat) :
     List Observation → List NativeObservation → Verdict
   | [], [] => .agree
   | model :: models, native :: natives =>
-    let state := states[position + 1]?.getD (states.getLastD { catalog := [] })
+    let state := observationState states (position + 1) model
     if matchesObservation state model native then compareSteps states (position + 1) models natives
     else .disagree (some position)
   | _, _ => .disagree (some position)

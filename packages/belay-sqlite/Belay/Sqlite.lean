@@ -6,6 +6,7 @@ import Belay.Sqlite.QueryFunctions
 import Belay.Sqlite.QueryLaws
 import Belay.Sqlite.QueryJoinLaws
 import Belay.Sqlite.StoreValueLaws
+import Belay.Sqlite.Resolution.ReadDefaultLaws
 import Belay.Sqlite.Model
 import Belay.Sqlite.Execution
 import Belay.Sqlite.LiteralData

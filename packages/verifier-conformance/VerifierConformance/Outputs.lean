@@ -76,7 +76,7 @@ names, no rows and no change: a constraint failure or a rowid alias mismatch. -/
 def ExecutionError.failsWrite : ExecutionError → Bool
   | .constraintViolation | .constraintFail | .constraintRollback | .datatypeMismatch => true
   | .unmodeled | .prepare _ | .transactionAlreadyActive | .noActiveTransaction | .integerOverflow
-  | .functionError => false
+  | .functionError | .nullColumnDefault => false
 
 /-- The change count of a failed INSERT with clauses or algorithms: the rows written
 before the failing row for a FAIL failure, which keeps them, and zero for every other
@@ -84,6 +84,16 @@ failure or a success. -/
 def keptCount : Except (ExecutionError × Table × List Row) (Table × List Row) → Nat
   | .error (reason, _, written) => if reason = .constraintFail then written.length else 0
   | .ok _ => 0
+
+/-- Output names of ADD COLUMN's empty-table check. SQLite's
+{lit}`sqlite3AlterFinishAddColumn` calls {lit}`sqlite3ErrorIfNotEmpty` for a
+NOT NULL column without a non-NULL default. That helper compiles a SELECT
+of this RAISE expression (pinned SQLite {lit}`alter.c`), whose name is exposed
+even when the table is empty. Other modeled additions have no output columns. -/
+def addColumnOutputNames (column : CatalogColumn) : List String :=
+  if column.notNull && (readDefaultValue column).toOption == some .null then
+    ["raise(ABORT,'Cannot add a NOT NULL column with default value NULL')"]
+  else []
 
 /-- Observe the literal-DML domain; unsupported output capability is explicit.
 Transitions and failure status come from production advance, never a second
@@ -147,7 +157,8 @@ def statementOutput (statement : Resolved.Statement) (before : SqlState)
     if successful then (query.source before.database).map fun rows => ⟨query.names, query.run rows, none⟩
     else if (overflow && query.groupBy.isEmpty) || functionFailure then some ⟨query.names, [], none⟩
     else none
-  | .createTable .. | .createIndex .. | .addColumn .. | .begin | .commit | .rollback | .prepareError _ =>
+  | .addColumn _ column => some ⟨addColumnOutputNames column, [], none⟩
+  | .createTable .. | .createIndex .. | .begin | .commit | .rollback | .prepareError _ =>
     some ⟨[], [], none⟩
 
 /-- Follow reached production transitions and stop at their first failure. -/

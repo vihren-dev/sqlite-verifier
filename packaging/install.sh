@@ -14,6 +14,8 @@ esac
 cache_uri=$(printf '%s' "$bundle/nix-cache" | od -An -v -tx1 | awk '
   { for (i = 1; i <= NF; i++) if ($i == "2f") printf "/"; else printf "%%%s", toupper($i) }
 ')
-nix --extra-experimental-features nix-command --offline copy --all --from "file://$cache_uri"
+# Nix 2.18.1 can import --all entries with dummy names; copy the declared closure instead.
+IFS= read -r runtime < "$bundle/runtime-path"
+nix --extra-experimental-features nix-command --offline copy --from "file://$cache_uri" "$runtime"
 IFS= read -r python < "$bundle/python-path"
 exec "$python" -I "$bundle/install.py" "$1"

@@ -135,17 +135,19 @@ def Catalog.emptyDatabase (catalog : Catalog) : Database :=
 def Database.set (database : Database) (position : Nat) (table : Table) : Database :=
   fun other => if other = position then some table else database other
 
-/-- Append the given number of {name}`Value.null` cells; preserve the physical rowid.
-A count of zero leaves the row unchanged. -/
-def Row.appendNulls (row : Row) (count : Nat) : Row :=
-  { row with values := row.values ++ List.replicate count .null }
+/-- Append the supplied cells and preserve the physical rowid. An empty list
+leaves the row unchanged. This primitive applies no affinity or width checks. -/
+def Row.appendValues (row : Row) (values : List Value) : Row :=
+  { row with values := row.values ++ values }
 
-/-- Append the given columns and one NULL per new column to every row. Preserve
-existing cells, rowids, row order and keys. -/
-def Table.appendColumns (table : Table) (columns : List CatalogColumn) : Table :=
+/-- Append each column and its supplied value to every row. Apply each new
+column's affinity to its value; preserve existing cells, rowids, row order and
+keys. Supply {lean}`Value.null` for a column without a default. An empty list
+leaves the table unchanged. -/
+def Table.appendColumns (table : Table) (columns : List (CatalogColumn × Value)) : Table :=
   { table with
-    shape.columns := table.shape.columns ++ columns
-    rows := table.rows.map (·.appendNulls columns.length) }
+    shape.columns := table.shape.columns ++ columns.map Prod.fst
+    rows := table.rows.map (·.appendValues (columns.map fun (column, value) => storeValue column.affinity value)) }
 
 /-- For every row, retain its rowid and select cells in requested-name order. A
 name selects the first column with the same folded name, as SQLite's name lookup

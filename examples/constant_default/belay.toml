@@ -1,0 +1,12 @@
+# Preserve invoice amounts while initializing a required priority.
+[project]
+profile = "3.51.0"
+schema = "approved/schema.sql"
+migration = "migration.sql"
+contract = "approved"
+baseline = "approved/baseline.json"
+proofs = "."
+proof_modules = ["NextInterpretation", "Proofs"]
+
+[test]
+status = "VERIFIED"

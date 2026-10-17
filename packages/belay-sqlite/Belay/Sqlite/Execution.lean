@@ -1,4 +1,5 @@
 import Belay.Sqlite.Model
+import Belay.Sqlite.Resolution.ReadDefaults
 import Belay.Sqlite.Resolution.Resolved
 import Belay.Sqlite.QueryFunctions
 import Belay.Sqlite.JsonFaults
@@ -42,6 +43,9 @@ inductive ExecutionError where
   /-- A JSON function of a query fails: SQLite's {lit}`malformed JSON` or
   {lit}`bad JSON path`, reported while the statement runs. -/
   | functionError
+  /-- ADD COLUMN would give existing rows NULL in a NOT NULL column. SQLite reports
+  this during execution with primary code 1; an empty table permits the addition. -/
+  | nullColumnDefault
   deriving Repr, DecidableEq
 
 /-- The final database and transaction status. Use {lean}`Outcome.success`
@@ -83,7 +87,11 @@ def CatalogTable.plain (table : CatalogTable) : Bool :=
 
 /-- Perform CREATE TABLE or ADD COLUMN at the supplied position, or fail with the
 prepare error of a statement that SQLite refuses. CREATE TABLE stores an empty
-table at its catalog position; ADD COLUMN appends NULL to each existing row.
+table at its catalog position. ADD COLUMN reads the literal default and appends
+its affinity-applied value to each existing row. A NOT NULL column with a NULL
+default fails with {lean}`ExecutionError.nullColumnDefault` when rows exist;
+an empty table succeeds. Unsupported default readback returns
+{lean}`ExecutionError.unmodeled` and is excluded by the support check.
 CREATE TABLE at an occupied position, ADD COLUMN at a position without a table,
 and CREATE INDEX fail with {lean}`ExecutionError.unmodeled`: {lit}`resolve` gives
 no such statement for a conforming database, and the supported-subset check
@@ -100,7 +108,12 @@ def step (statement : Resolved.Statement) (database : Database) (position : Nat 
     | none => .success (database.set at_ { shape := table, rows := [] })
   | .addColumn at_ column => match database at_ with
     | none => .failure position .unmodeled database
-    | some table => .success (database.set at_ (table.appendColumns [column]))
+    | some table => match readDefaultValue column with
+      | .error _ => .failure position .unmodeled database
+      | .ok value =>
+        if column.notNull && value == .null && !table.rows.isEmpty then
+          .failure position .nullColumnDefault database
+        else .success (database.set at_ (table.appendColumns [(column, value)]))
   | .prepareError error => .failure position (.prepare error) database
   | .query query => match query.source database with
     | some rows =>

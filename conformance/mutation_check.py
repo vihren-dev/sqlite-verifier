@@ -14,7 +14,7 @@ from conformance.model_check import compiled_many
 
 MUTANTS = {
     "update_ignored": ("SqlExecution", "(LiteralData.updated table assignments filter)", "table"),
-    "add_unpadded": ("Execution", "table.appendColumns [column]", "{ table with shape.columns := table.shape.columns ++ [column] }"),
+    "add_unpadded": ("Execution", "table.appendColumns [(column, value)]", "{ table with shape.columns := table.shape.columns ++ [column] }"),
     "rollback_ignored": ("SqlExecution", ".next { database := original }", ".next { database := state.database }"),
     "unique_disabled": ("LiteralData", "keys.all (fun key => uniqueRows key table.rows)", "true"),
 }

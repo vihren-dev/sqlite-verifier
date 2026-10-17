@@ -11,7 +11,7 @@ namespace Belay.Sqlite
 
 deriving instance Lean.FromJson, Lean.ToJson for Comparison, ArithmeticOperator
 deriving instance Lean.FromJson, Lean.ToJson for ConflictAlgorithm
-deriving instance Lean.FromJson, Lean.ToJson for Syntax.Expr, Syntax.ColumnConstraint
+deriving instance Lean.FromJson, Lean.ToJson for Syntax.Expr, Syntax.DefaultExpression, Syntax.ColumnConstraint
 deriving instance Lean.FromJson, Lean.ToJson for Syntax.ResultColumn, Syntax.OrderTerm
 deriving instance Lean.FromJson, Lean.ToJson for Syntax.ColumnDefinition, Syntax.TableConstraint
 deriving instance Lean.FromJson, Lean.ToJson for Syntax.TableReference, Syntax.Join
@@ -37,6 +37,7 @@ deriving instance Lean.ToExpr for ConflictAlgorithm
 deriving instance Lean.ToExpr for Syntax.Expr
 deriving instance Lean.ToExpr for Syntax.ResultColumn
 deriving instance Lean.ToExpr for Syntax.OrderTerm
+deriving instance Lean.ToExpr for Syntax.DefaultExpression
 deriving instance Lean.ToExpr for Syntax.ColumnConstraint
 deriving instance Lean.ToExpr for Syntax.ColumnDefinition
 deriving instance Lean.ToExpr for Syntax.TableConstraint
@@ -69,9 +70,9 @@ deriving instance Lean.ToExpr for Resolved.ConflictPolicy
 deriving instance Lean.ToExpr for Resolved.Statement
 
 /-- The supported version of {lit}`ScriptRecord`, the structural record of a schema
-and a script: {assert}`scriptRecordVersion = 2`. Version 1 carried resolved
-statements, which the record no longer contains. -/
-def scriptRecordVersion : Nat := 2
+and a script: {assert}`scriptRecordVersion = 3`. Version 3 retains each default's
+source spelling. Earlier versions do not carry this metadata. -/
+def scriptRecordVersion : Nat := 3
 
 /-- The structural record of a schema and a script: the SQLite release and build of
 the profile, and the schema and script statements as written. Use an empty schema

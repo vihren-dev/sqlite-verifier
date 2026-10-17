@@ -60,3 +60,8 @@ The [application-key variant](application_keys/README.md) uses complete records
 without physical rowids and compares them with permutation. Its logical key
 policy requires defined, distinct, non-NULL keys. This separate engineering
 example explains how to choose the flexible interpretation and contract helpers.
+
+The [constant-default example](constant_default/README.md) adds a required
+priority with default 7 and preserves every invoice rowid and amount. It has
+its own contract and proofs project. Supply
+`examples/constant_default/approved/baseline.json` with `--approved-baseline`.

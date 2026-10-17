@@ -73,6 +73,23 @@ inductive Expr where
   | more (first rest : Expr)
   deriving Repr, DecidableEq
 
+/-- A DEFAULT expression and its source spelling. The expression determines the
+value; the text preserves metadata such as {lit}`X'00ff'` versus {lit}`x'00FF'`.
+For example, {lean}`({ expression := .numeric "7", sourceText := "7" } : DefaultExpression)`
+is the default written as {lit}`7`. -/
+structure DefaultExpression where
+  /-- The expression evaluated when a column value is omitted. -/
+  expression : Expr
+  /-- The expression text reported by SQLite, excluding DEFAULT and its outer parentheses. -/
+  sourceText : String
+  deriving DecidableEq
+
+/-- Print a default as a constructor application so generated nested catalog terms
+keep valid Lean indentation when an expression spans several lines. -/
+instance : Repr DefaultExpression where
+  reprPrec value prec := Repr.addAppParen
+    ("Belay.Sqlite.Syntax.DefaultExpression.mk " ++ reprArg value.expression ++ " " ++ reprArg value.sourceText) prec
+
 /-- A column constraint as written. For example, {lit}`PRIMARY KEY DESC` is
 {lean}`ColumnConstraint.primaryKey true`. -/
 inductive ColumnConstraint where
@@ -84,8 +101,9 @@ inductive ColumnConstraint where
   | primaryKey (descending : Bool) (algorithm : Option ConflictAlgorithm := none)
   /-- {lit}`UNIQUE [ON CONFLICT algorithm]`. -/
   | unique (algorithm : Option ConflictAlgorithm := none)
-  /-- {lit}`DEFAULT` with its expression. -/
-  | default (value : Expr)
+  /-- {lit}`DEFAULT` with its expression and its source text, excluding DEFAULT
+  and any outer parentheses belonging to the DEFAULT production. -/
+  | default (value : Expr) (sourceText : String)
   deriving Repr, DecidableEq
 
 /-- One column of CREATE TABLE or ADD COLUMN. Use {lean}`(none : Option String)`

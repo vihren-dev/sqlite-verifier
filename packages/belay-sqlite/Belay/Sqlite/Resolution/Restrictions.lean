@@ -19,11 +19,11 @@ inductive RestrictionKind where
   | rowidColumnName
   /-- Constraints and defaults in a CREATE TABLE that runs are not modeled (ADR 0008). -/
   | createTableConstraints
-  /-- Only the {lit}`CURRENT_TIMESTAMP` default is modeled (ADR 0008). -/
+  /-- Only literal defaults and {lit}`CURRENT_TIMESTAMP` are modeled (ADR 0008, T14). -/
   | unmodeledDefault
   /-- A CREATE INDEX that runs is not modeled (ADR 0008). -/
   | createIndexRuns
-  /-- Only a nullable column without a default can be added (ADR 0008). -/
+  /-- The added column requires unmodeled default evaluation. -/
   | addColumnConstraint
   /-- Time values are not modeled (ADR 0008). -/
   | timeValue

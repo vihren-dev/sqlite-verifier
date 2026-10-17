@@ -3,6 +3,7 @@ import Belay.Sqlite.Resolution.Syntax
 import Belay.Sqlite.Resolution.Catalog
 import Belay.Sqlite.Resolution.Resolved
 import Belay.Sqlite.Resolution.Values
+import Belay.Sqlite.Resolution.ReadDefaults
 import Belay.Sqlite.Resolution.Context
 import Belay.Sqlite.Resolution.Definitions
 import Belay.Sqlite.Resolution.Writes

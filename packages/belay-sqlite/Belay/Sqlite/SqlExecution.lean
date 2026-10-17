@@ -101,9 +101,10 @@ def literalStep (statement : Resolved.Statement) (database : Database) (position
 /-- Check that the model describes the statement against the current table.
 INSERT/UPDATE must pass the data domain of the table, and every write and query the
 JSON checks of {lit}`JsonReady`; a position without a table passes and fails during
-execution instead. CREATE TABLE and ADD COLUMN must be plain, and CREATE INDEX fails:
-these are model restrictions, because SQLite accepts such statements. Other statement
-forms pass. Use it through the reached-statement script support check. -/
+execution instead. CREATE TABLE must be plain; ADD COLUMN must have modeled default
+readback; CREATE INDEX fails: these are model restrictions, because SQLite accepts such
+statements. Other statement forms pass. Use it through the reached-statement script
+support check. -/
 def statementReady (statement : Resolved.Statement) (database : Database) : Bool :=
   match statement with
   | .insert at_ rows keys returning => (database at_).all fun table => LiteralData.insertReady keys table rows &&
@@ -114,7 +115,7 @@ def statementReady (statement : Resolved.Statement) (database : Database) : Bool
       LiteralData.updateReady keys table assignments filter && updateJsonReady table assignments filter returning
   | .delete at_ filter returning => (database at_).all fun table => deleteJsonReady table filter returning
   | .createTable _ _ table => table.plain
-  | .addColumn _ column => column.plain
+  | .addColumn _ column => (readDefaultValue column).toOption.isSome
   | .createIndex .. => false
   | .query query => queryJsonReady query database
   | .begin | .commit | .rollback | .prepareError _ => true

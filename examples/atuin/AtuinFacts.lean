@@ -42,15 +42,15 @@ conformance preservation. -/
 theorem payload {database : Database} (conforms : Conforms Generated.profile SchemaBinding.start database) :
     ∃ table, database 0 = some table ∧ table.shape = SchemaBinding.history ∧
       table.Valid ∧ runSql Generated.resolved database =
-        .success (database.set 0 (table.appendColumns [added])) ∧
-      Conforms Generated.profile Generated.nextCatalog (database.set 0 (table.appendColumns [added])) := by
+        .success (database.set 0 (table.appendColumns [(added, .null)])) ∧
+      Conforms Generated.profile Generated.nextCatalog (database.set 0 (table.appendColumns [(added, .null)])) := by
   obtain ⟨table, present, shape, valid⟩ := conforms.table (position := 0) (shape := SchemaBinding.history)
     (by decide +kernel)
   refine ⟨table, present, shape, valid, ?_, ?_⟩
-  · simp [runSql, runSqlFrom, advance, literalStep, SqlState.finish, script_bound, step, present,
+  · simp [runSql, runSqlFrom, advance, literalStep, SqlState.finish, script_bound, step, readDefaultValue, Except.toOption, present,
       added]
   · rw [next_bound]
-    exact conforms.appendAt present (next_bound ▸ next_valid)
+    exact conforms.appendAt (columns := [(added, .null)]) present (next_bound ▸ next_valid)
 
 /-- For every present, valid history table with the approved columns, if the
 before database observes a logical value, setting its NULL extension observes
@@ -59,10 +59,10 @@ The proof preserves the named old-field projection and reuses its decoder result
 theorem observed (present : database 0 = some history)
     (columns : history.shape.columns = SchemaBinding.history.columns) (valid : history.Valid)
     (before : HistoryMapping.observe database = some logical) :
-    HistoryMapping.observe (database.set 0 (history.appendColumns [added])) = some logical := by
-  have unchanged : (history.appendColumns [added]).project SchemaBinding.fields =
+    HistoryMapping.observe (database.set 0 (history.appendColumns [(added, .null)])) = some logical := by
+  have unchanged : (history.appendColumns [(added, .null)]).project SchemaBinding.fields =
       history.project SchemaBinding.fields :=
-    TableExtends.project ⟨[added], rfl⟩ (fun row member => (valid.2 row member).2.1) (covers columns)
+    TableExtends.project ⟨[(added, .null)], rfl⟩ (fun row member => (valid.2 row member).2.1) (covers columns)
   simpa [HistoryMapping.observe, located, Database.set, unchanged] using
     (show HistoryDecoding.decodeRows (history.project SchemaBinding.fields) = some logical by
       simpa [HistoryMapping.observe, located, present] using before)

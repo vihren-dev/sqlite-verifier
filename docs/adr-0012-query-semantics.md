@@ -863,6 +863,8 @@ All facts below were checked on native SQLite 3.51.0.
 - **Forms.** The keywords `CURRENT_TIME`, `CURRENT_DATE` and `CURRENT_TIMESTAMP`, and a
   `CURRENT_TIMESTAMP` default, which give the statement's clock value as text. The
   restriction `time-value` leaves the registry.
+- **Defaults.** Column defaults come from draft #130, which slice 6e1 integrates first
+  (owner decision 9); slice 6e2 adds the clock, the keywords and the default.
 
 ### Date and time functions (slice 6f)
 
@@ -921,3 +923,13 @@ None; see "Owner decisions".
 7. **Split.** Decided on 2026-10-16: the JSON work is three slices (6b reading and
    `json_extract`, 6c further functions, 6d `json_each`), and the time work three (6e the
    clock, 6f the functions, 6g the modifiers).
+8. **Clock domain and form.** Decided on 2026-10-17: a migration must be correct for every
+   64-bit clock value that SQLite's VFS can return, also where SQLite's date code fails;
+   and the execution relation relates a script to the outcome of every assignment of clock
+   values to its statements, so that the verification target quantifies over them without
+   a change to `Contract.lean`.
+9. **Defaults.** Decided on 2026-10-17: slice 6e models the `CURRENT_TIMESTAMP` default
+   and so needs column defaults, which the model refuses today. It builds on draft #130
+   (literal defaults for added columns and omitted `INSERT` values): slice 6e1 integrates
+   #130 into this stack, and slice 6e2 adds the clock, the time keywords and the
+   `CURRENT_TIMESTAMP` default.

@@ -38,9 +38,9 @@ def test_transaction_observation(ending: str, runtime_root: Path) -> None:
 
 
 def test_wrong_trace_and_unsupported(runtime_root: Path, tmp_path: Path) -> None:
-    """Wrong traces fail both tiers; restricted definitions stay unsupported; a key column that
-    holds text, which SQLite stores and the model compares as SQLite does (slice 5a), agrees
-    and has a kernel proof."""
+    """Wrong traces and changed constraints fail both tiers; restricted definitions stay
+    unsupported; a key column that holds text, which SQLite stores and the model compares as
+    SQLite does (slice 5a), agrees and has a kernel proof."""
     case = record(fixtures()[0], default_parser(runtime_root))
     wrong = deepcopy(case)
     wrong["nativeTrace"][-1]["visible"] = []
@@ -52,8 +52,8 @@ def test_wrong_trace_and_unsupported(runtime_root: Path, tmp_path: Path) -> None
     invalid = deepcopy(case)
     invalid["script"][0]["addColumn"]["column"]["constraints"] = [{"notNull": {"algorithm": None}}]
     result = compiled(invalid, runtime_root, emit_lean=True)
-    assert result["verdict"] == "MODEL_UNSUPPORTED"
-    prove(result["caseLean"], runtime_root, tmp_path / "RestrictedDefinition.lean", case=invalid, expected=False)
+    assert result["verdict"] == "DISAGREE"
+    prove(result["caseLean"], runtime_root, tmp_path / "ChangedConstraint.lean", case=invalid, expected=False)
     fixture = Fixture("CREATE TABLE records(id INTEGER,UNIQUE(id));",
         "UPDATE records SET id=2 WHERE id=1;",
         {"records": [(1, ((3, b"not-a-number"),))]}, "text-in-integer-key")

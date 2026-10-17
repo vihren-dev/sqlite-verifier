@@ -1,5 +1,6 @@
 import Belay.Sqlite.Resolution.Context
 import Belay.Sqlite.Resolution.KeyMerge
+import Belay.Sqlite.Resolution.ReadDefaults
 
 set_option doc.verso true
 
@@ -35,9 +36,9 @@ def applyConstraint (tableName : String) (definition : Syntax.ColumnDefinition)
     let position := table.columns.length - 1
     let alias := if aliasesRowid definition.declaredType && !descending then some position else none
     setPrimaryKey table [position] alias descending algorithm
-  | .default value =>
+  | .default value sourceText =>
     if !constantDefault value then .error (.defaultNotConstant definition.name) else
-    .ok { table with columns := updateLast table.columns fun column => { column with defaultValue := some value } }
+    .ok { table with columns := updateLast table.columns fun column => { column with defaultValue := some ⟨value, sourceText⟩ } }
   | .notNull algorithm => .ok { table with columns := updateLast table.columns fun column =>
       { column with notNull := true, notNullAlgorithm := algorithm.getD .abort } }
   | .unique algorithm => addUniqueKey table [table.columns.length - 1] algorithm
@@ -126,6 +127,18 @@ def resolveCreateIndex (context : ResolveContext) (catalog : Catalog) (index : N
       | .ok positions => .ok (.createIndex catalog.length name { table := position, columns := positions, unique },
           catalog ++ [{ name := name, entry := .index { table := position, columns := positions, unique } }])
 
+/-- Construct added-column metadata after PRIMARY KEY and UNIQUE have been
+rejected. NOT NULL sets nullability and its {lit}`ON CONFLICT` algorithm (ABORT without
+one), as in CREATE TABLE, and each written DEFAULT replaces the preceding default, as in
+SQLite. Key constraints leave this metadata unchanged;
+callers must reject them before using this helper. -/
+def addedColumn (definition : Syntax.ColumnDefinition) : CatalogColumn :=
+  definition.constraints.foldl (fun column constraint => match constraint with
+    | .notNull algorithm => { column with notNull := true, notNullAlgorithm := algorithm.getD .abort }
+    | .default expression sourceText => { column with defaultValue := some ⟨expression, sourceText⟩ }
+    | .primaryKey .. | .unique _ => column)
+    { name := definition.name, declaredType := reportedType definition.declaredType }
+
 /-- Resolve ALTER TABLE ADD COLUMN. Path 1 is the column definition. -/
 def resolveAddColumn (context : ResolveContext) (catalog : Catalog) (index : Nat)
     (tableName : String) (definition : Syntax.ColumnDefinition) : StatementResolution :=
@@ -144,10 +157,9 @@ def resolveAddColumn (context : ResolveContext) (catalog : Catalog) (index : Nat
     else if definition.constraints.any Syntax.ColumnConstraint.isPrimaryKey then prepareError catalog .cannotAddPrimaryKey
     else if definition.constraints.any Syntax.ColumnConstraint.isUnique then prepareError catalog .cannotAddUnique
     else if rowidName definition.name then restrict index [1] .rowidColumnName
-    else if !definition.constraints.isEmpty then
-      restrict index [1] .addColumnConstraint
     else
-      let column : CatalogColumn := { name := definition.name, declaredType := reportedType definition.declaredType }
+      let column := addedColumn definition
+      if (readDefaultValue column).toOption.isNone then restrict index [1] .addColumnConstraint else
       let object := { name := (catalog[position]?.map (·.name)).getD tableName,
                       entry := .table { table with columns := table.columns ++ [column] } }
       .ok (.addColumn position column, catalog.set position object)

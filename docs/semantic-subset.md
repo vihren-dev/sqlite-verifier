@@ -105,12 +105,21 @@ statement. An empty starting schema is allowed.
 and `CREATE INDEX`, in an order that SQLite can run: an index follows its table.
 A schema statement that SQLite refuses to prepare, for example a second table
 with the same name, is `INPUT_ERROR` with SQLite's message. The description may
-contain keys, `NOT NULL`, the `CURRENT_TIMESTAMP` default, indexes and the exact
-native `sqlite_stat1` and `sqlite_stat4` tables, and `INTEGER PRIMARY KEY` rowid
+contain keys, `NOT NULL`, literal defaults, the `CURRENT_TIMESTAMP` default, indexes and
+the exact native `sqlite_stat1` and `sqlite_stat4` tables, and `INTEGER PRIMARY KEY` rowid
 aliases (slice 5b): the column is the rowid; INSERT of NULL or no value gives the next
 rowid, another value must be an integer after INTEGER affinity, else SQLite's
 `datatype mismatch`, and UPDATE of the alias moves the row. Other defaults and other
 reserved names are model restrictions.
+Omitted INSERT columns use their literal defaults and column affinities. A
+`CURRENT_TIMESTAMP` value remains unsupported when an INSERT needs to evaluate it.
+
+ADD COLUMN supports literal defaults, with optional NOT NULL. Existing rows
+read the default under the column affinity. Without a default they read NULL.
+NOT NULL with NULL succeeds on an empty table and fails during execution on a
+populated table, retaining the prior catalog and rows. Nonconstant and time
+defaults remain unsupported. Old-row readback can differ from INSERT default
+evaluation: TEXT DEFAULT 1.50 reads as 1.50 for old rows.
 
 ## Resolution
 
@@ -126,7 +135,7 @@ successful prefix. Predicting an error alone never establishes `VIOLATED`.
 SQL that SQLite accepts but the model does not describe is a model restriction:
 the whole request is `UNSUPPORTED` at the byte range of the refused node. In the
 migration these are, among others: `CREATE INDEX`; `CREATE TABLE` with
-constraints or defaults; `ADD COLUMN` with a constraint or default; rowid column
+constraints or defaults; `ADD COLUMN` with an unmodeled default expression; rowid column
 names; time values; a `SET` value that reads the row for a column of a unique key; a
 column named twice. In a `SELECT`: a comparison whose affinity rule would convert a value; a
 column, literal, `COALESCE`, or `CAST` to TEXT or BLOB used as a condition; an aggregate inside an expression; a result column
@@ -160,9 +169,9 @@ of frontend refusal, the cases of the claimed corpora that it keeps out of scope
 | `engine-table` | Engine-managed tables other than sqlite_stat1 and sqlite_stat4 are not modeled | ADR 0008 |
 | `rowid-column-name` | Column names `rowid`, `_rowid_` and `oid` are not modeled | ADR 0008 |
 | `create-table-constraints` | Constraints and defaults in a CREATE TABLE that runs are not modeled | ADR 0008 |
-| `unmodeled-default` | Only the `CURRENT_TIMESTAMP` default is modeled | ADR 0008 |
+| `unmodeled-default` | Only literal defaults and `CURRENT_TIMESTAMP` are modeled | ADR 0008 |
 | `create-index-runs` | A CREATE INDEX that runs is not modeled | ADR 0008 |
-| `add-column-constraint` | Only a nullable column without a default can be added | ADR 0008 |
+| `add-column-constraint` | The added column requires unmodeled default evaluation | ADR 0008 |
 | `time-value` | Time values are not modeled | ADR 0008 |
 | `row-dependent-key` | A SET value that reads the row is not modeled for a column of a unique key | ADR 0012 amendment 1 (question 1) |
 | `conflict-without-target` | DO UPDATE without a conflict target is not modeled for a table with more than one key | ADR 0012 amendment 4 (owner decision 2) |

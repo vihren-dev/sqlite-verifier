@@ -62,11 +62,19 @@ theorem ValueIssue.under_namesNoObject (prefix_ : List Nat) (issue : ValueIssue)
   cases issue <;> simp_all [ValueIssue.under, ValueIssue.namesNoObject]
 
 /-- For every column, an issue of {name}`defaultValue` names no catalog object.
-Proof sketch: the function fails only with model restrictions. -/
+Proof sketch: split the default forms. Failures are model restrictions or
+{name}`PrepareError.hexLiteralTooBig`, which names no catalog object. -/
 theorem defaultValue_issue (column : CatalogColumn) (issue : ValueIssue)
     (failed : defaultValue column = .error issue) : issue.namesNoObject := by
   unfold defaultValue at failed
-  split at failed <;> cases failed <;> trivial
+  split at failed
+  · cases failed
+  · unfold writtenDefault at failed
+    repeat' first | split at failed | unfold literalDefault at failed
+    all_goals first
+      | (cases failed <;> trivial)
+      | (unfold queryNumeric at failed; dsimp only at failed
+         split at failed <;> cases failed <;> rfl)
 
 /-- For all inputs, an issue of {name}`fullRow` names no catalog object. Proof sketch:
 by {name}`resolveAll_issue`, the issue comes from one column, where only

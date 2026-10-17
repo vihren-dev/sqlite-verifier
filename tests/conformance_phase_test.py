@@ -1,4 +1,4 @@
-"""The error phase of case version 4 (ADR 0008, "How `resolve` is tested").
+"""The error phase of case version 5 (ADR 0008, "How `resolve` is tested").
 
 `conformance.native_trace.record` records whether each native error came from
 `sqlite3_prepare_v2` or from `sqlite3_step`, and `VerifierConformance.Case`
@@ -29,7 +29,7 @@ ROWS = {"t": [(1, ((1, 1),))]}
 def test_recorded_phase_must_match_the_model(runtime_root: Path, migration: str, phase: str, other: str) -> None:
     """The recorded phase agrees with the model's phase, and the other phase disagrees."""
     case = record(Fixture(SCHEMA, migration, ROWS, "phase"), default_parser(runtime_root))
-    assert case["version"] == 4 and case["nativeTrace"][-1]["phase"] == phase
+    assert case["version"] == 5 and case["nativeTrace"][-1]["phase"] == phase
     assert all(observation["phase"] is None for observation in case["nativeTrace"][:-1])
     assert compiled(case, runtime_root)["verdict"] == "AGREE", case["provenance"]
     changed = deepcopy(case)

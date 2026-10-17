@@ -37,7 +37,7 @@ OBLIGATIONS: dict[str, tuple[str, str, str]] = {
     "update-rowid-bounded": (ROW_UPDATE, "updateReady",
                              "(updated table assignments filter).rows.all (fun row => boundedInteger row.rowid)"),
     "create-table-plain": (EXECUTION, "statementReady", "table.plain"),
-    "add-column-plain": (EXECUTION, "statementReady", "column.plain"),
+    "add-column-default-readback": (EXECUTION, "statementReady", "(readDefaultValue column).toOption.isSome"),
     "create-index-refused": (EXECUTION, "statementReady", "| .createIndex .. => false"),
 }
 """Each conjunct of the admission obligations: the file under `packages/`, the declaration
@@ -63,7 +63,7 @@ COVERED_ELSEWHERE: dict[str, str] = {
     "update-table-ready": "reason:SQLite keeps the NOT NULL cells and unique keys of every table that it stores, "
                           "so every native state passes tableReady",
     "create-table-plain": "restriction:create-table-constraints",
-    "add-column-plain": "restriction:add-column-constraint",
+    "add-column-default-readback": "restriction:add-column-constraint",
     "create-index-refused": "restriction:create-index-runs",
 }
 """For each conjunct without a mutant: `restriction:ID`, the restriction that resolution

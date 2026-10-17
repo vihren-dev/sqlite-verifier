@@ -13,7 +13,7 @@ from .syntax_definitions import add_column, create_index, create_table
 from .syntax_select import select
 from .syntax_writes import delete, insert, transaction, update
 
-SCRIPT_RECORD_VERSION = 2
+SCRIPT_RECORD_VERSION = 3
 """The version of the structural record that Lean's `decodeScriptRecord` accepts."""
 
 

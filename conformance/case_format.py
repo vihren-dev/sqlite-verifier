@@ -1,4 +1,4 @@
-"""The version 4 conformance case: the measured profile, statement syntax and native truth.
+"""The version 5 conformance case: the measured profile, statement syntax and native truth.
 
 A case carries the profile of the native connection (`case_profile`), the schema
 and migration as the Lean `Syntax` JSON of `belay.sqlite.syntax`, and each native
@@ -13,7 +13,7 @@ from belay.sqlite.located import Json
 
 __all__ = ["CASE_VERSION", "Cell", "Json", "case_profile", "cell_wire", "literal_cell", "row_wire"]
 
-CASE_VERSION = 4
+CASE_VERSION = 5
 """The case version that Lean's `decodeCase` accepts."""
 
 Cell: TypeAlias = tuple[int, int | bytes | None]

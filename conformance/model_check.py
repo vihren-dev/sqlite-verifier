@@ -1,5 +1,6 @@
 """One-case native acquisition, compiled classification and kernel proof checking."""
 
+from concurrent.futures import ThreadPoolExecutor
 import json
 import os
 from pathlib import Path
@@ -74,6 +75,22 @@ def prove_batch(terms: list[str], runtime: Path, destination: Path, *, cases: li
     if output.count("checkedCase' depends on axioms") != len(terms):
         raise AssertionError(f"Expected one checked proof for each of the {len(terms)} cases:\n{output}")
     return output
+
+
+PROOF_BATCH = 8
+"""Cases per kernel proof file of `prove_all`: Lean loads the imports once for each file, about
+0.7 s, which is most of the time of a one-case proof."""
+
+
+def prove_all(terms: list[str], runtime: Path, directory: Path, *, cases: list[dict[str, Json]],
+              name: str = "Cases") -> None:
+    """Kernel-check that every agreeing case is true, `PROOF_BATCH` cases per Lean process
+    (`prove_batch`) and the processes in parallel, writing the proof files to `directory`."""
+    starts = range(0, len(terms), PROOF_BATCH)
+    with ThreadPoolExecutor(max_workers=os.cpu_count() or 1) as pool:
+        list(pool.map(lambda start: prove_batch(terms[start:start + PROOF_BATCH], runtime,
+                                                directory / f"{name}{start}.lean",
+                                                cases=cases[start:start + PROOF_BATCH]), starts))
 
 
 def kernel_check(runtime: Path, destination: Path) -> str:

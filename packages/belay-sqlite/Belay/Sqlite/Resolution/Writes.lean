@@ -10,20 +10,6 @@ column gets the written value and every other column its default. -/
 
 namespace Belay.Sqlite
 
-/-- The value of a column's DEFAULT when INSERT omits the column: NULL without a
-default. The only default that a catalog holds is {lit}`CURRENT_TIMESTAMP`
-(resolution refuses the others with {name}`RestrictionKind.unmodeledDefault`), and
-its time value is a model restriction. -/
-def defaultValue (column : CatalogColumn) : Except ValueIssue Value :=
-  match column.defaultValue with
-  | none => .ok .null
-  | some (.currentTime _) => .error (.restriction [] .timeValue)
-  | some .null | some (.numeric _) | some (.string _) | some (.blob _) | some (.identifier ..)
-  | some (.negate _) | some (.positive _) | some (.equals ..) | some (.compare ..) | some (.and ..)
-  | some (.or ..) | some (.not _) | some (.isNull ..) | some (.callStar _) | some (.call ..)
-  | some (.arithmetic ..) | some (.cast ..) | some (.callPair ..) | some (.more ..) | some (.qualified ..) =>
-    .error (.restriction [] .unmodeledDefault)
-
 /-- Turn a value issue into the statement's resolution: a prepare error keeps the
 catalog, a restriction refuses the script. -/
 def issueResolution (catalog : Catalog) (index : Nat) (path : List Nat) : ValueIssue → StatementResolution

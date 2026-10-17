@@ -85,16 +85,16 @@ theorem migrationCorrect (profile : Profile) (columns : 2 ≤ profile.limits.col
       exact ⟨0, by rw [shape]; decide +kernel⟩⟩
   · intro database _
     exact supportedSqlFrom_schemaOnly (by simp [SchemaOnly, script])
-      (by simp [ModeledDefinitions, script, CatalogTable.plain, CatalogColumn.plain, note, message])
+      (by simp [ModeledDefinitions, script, CatalogTable.plain, CatalogColumn.plain, readDefaultValue, Except.toOption, note, message])
   · intro database admitted
     obtain ⟨table, present, shape, valid, absent⟩ := admitted_invoices admitted
-    have middleConforms : Conforms profile middleCatalog (database.set 0 (table.appendColumns [note])) :=
+    have middleConforms : Conforms profile middleCatalog (database.set 0 (table.appendColumns [(note, .null)])) :=
       admitted.1.set middleValid valid.appendColumns (by
         intro other
         cases other with
         | zero => simp [middleCatalog, Catalog.tableAt, Table.appendColumns, shape]
         | succ other => simp [middleCatalog, startCatalog, Catalog.tableAt])
-    have finalConforms : Conforms profile nextCatalog ((database.set 0 (table.appendColumns [note])).set 1
+    have finalConforms : Conforms profile nextCatalog ((database.set 0 (table.appendColumns [(note, .null)])).set 1
         { shape := { columns := [message] }, rows := [] }) :=
       middleConforms.set nextValid (by exact ⟨by simp, fun _ member => by simp at member⟩) (by
         intro other
@@ -102,11 +102,11 @@ theorem migrationCorrect (profile : Profile) (columns : 2 ≤ profile.limits.col
         | 0 => simp [nextCatalog, middleCatalog, Catalog.tableAt]
         | 1 => simp [nextCatalog, middleCatalog, Catalog.tableAt]
         | other + 2 => simp [nextCatalog, middleCatalog, Catalog.tableAt])
-    have readAudit : (database.set 0 (table.appendColumns [note])) 1 = none := by simp [Database.set, absent]
-    have executed : runSql script database = .success ((database.set 0 (table.appendColumns [note])).set 1
+    have readAudit : (database.set 0 (table.appendColumns [(note, .null)])) 1 = none := by simp [Database.set, absent]
+    have executed : runSql script database = .success ((database.set 0 (table.appendColumns [(note, .null)])).set 1
         { shape := { columns := [message] }, rows := [] }) := by
       simp only [note, message] at readAudit ⊢
-      simp [runSql, runSqlFrom, advance, literalStep, SqlState.finish, script, step, present, readAudit,
+      simp [runSql, runSqlFrom, advance, literalStep, SqlState.finish, script, step, readDefaultValue, Except.toOption, present, readAudit,
         note, message]
     rw [executed]
     refine ⟨trivial, ?_⟩
@@ -116,15 +116,15 @@ theorem migrationCorrect (profile : Profile) (columns : 2 ≤ profile.limits.col
       simp only [List.mem_singleton] at member
       subst name
       exact ⟨0, by rw [shape]; decide +kernel⟩
-    have growth : TableExtends table (table.appendColumns [note]) := ⟨[note], rfl⟩
+    have growth : TableExtends table (table.appendColumns [(note, .null)]) := ⟨[(note, .null)], rfl⟩
     have sameProjection := growth.project (fun row member => (valid.2 row member).2.1) covered
-    have stored : ((database.set 0 (table.appendColumns [note])).set 1
-        { shape := { columns := [message] }, rows := [] }) 0 = some (table.appendColumns [note]) := by
+    have stored : ((database.set 0 (table.appendColumns [(note, .null)])).set 1
+        { shape := { columns := [message] }, rows := [] }) 0 = some (table.appendColumns [(note, .null)]) := by
       simp [Database.set]
     have required : requirements.catalogRequirement nextCatalog := by
       show nextCatalog.columnsOf "invoices" = some [amount, note]
       decide +kernel
-    refine ⟨⟨finalConforms, 0, table.appendColumns [note], by decide +kernel, stored, growth.covers covered⟩,
+    refine ⟨⟨finalConforms, 0, table.appendColumns [(note, .null)], by decide +kernel, stored, growth.covers covered⟩,
       required, table.project ["amount"], ?_, ?_⟩
     · have located : tablePosition nextCatalog "invoices" = some 0 := by decide +kernel
       simpa [next, projectedInterpretation, observeTable, located, stored] using congrArg some sameProjection

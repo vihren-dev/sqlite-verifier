@@ -1,0 +1,37 @@
+{
+  "caller": "codex",
+  "commit": "80873314038cdfbf702dad617aa46a36e94b39d6",
+  "date": "2026-10-14T16:15:40+00:00",
+  "exit": 0,
+  "files": [
+    "packages/belay-sqlite/Belay/Sqlite/Resolution/Defaults.lean",
+    "plans/20261012-constant-column-defaults.status.md",
+    "reviews/20261014T161238Z-4c9108df/resolution-1-20261014T161456Z.json",
+    "reviews/20261014T161238Z-4c9108df/resolution-2-20261014T161456Z.json",
+    "reviews/20261014T161238Z-4c9108df/review.json",
+    "tests/column_default_value_test.py"
+  ],
+  "findings": [],
+  "id": "20261014T161540Z-80873314",
+  "kind": "review",
+  "reviewer": "claude",
+  "revision": "80873314038cdfbf702dad617aa46a36e94b39d6",
+  "rules": {
+    "R1": "62d446279093",
+    "R10": "638d8cbd1df8",
+    "R11": "5de19cdbbbc1",
+    "R12": "99f66579f467",
+    "R13": "da0926dafb88",
+    "R15": "518eab58f8b5",
+    "R16": "892e77bd2a12",
+    "R17": "62b65b662f79",
+    "R2": "e5e78fb2a52a",
+    "R3": "4f9188eadd60",
+    "R4": "ea7ca17539eb",
+    "R5": "b8613a2d693b",
+    "R6": "fa2475f44035",
+    "R7": "0a38ead152b1",
+    "R9": "5a69196344d0"
+  },
+  "well_formed": true
+}
