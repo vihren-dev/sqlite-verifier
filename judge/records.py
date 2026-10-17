@@ -1,7 +1,8 @@
 """Read frozen corpora and split each record into the subject's input and the recorded truth.
 
 The subject input holds only what exists before the migration runs: the profile and the
-SQLite source id that select the SQL dialect, the initial schema SQL and rows, the migration SQL and the statement parameters. Every later
+SQLite source id that select the SQL dialect, the initial schema SQL and rows, the migration SQL,
+the statement parameters and, under a controlled clock, the clock value of each statement. Every later
 observation stays with the judge, so the subject cannot copy the answer.
 """
 
@@ -92,6 +93,10 @@ def subject_input(record: dict[str, Json]) -> dict[str, Json]:
         # Bound parameters are statement inputs. Their list has one entry per executed statement,
         # which tells the subject how far SQLite got; records before version 3 have none.
         given["parameters"] = [event["parameters"] for event in trace]
+    if trace and all("clockUnixMilliseconds" in event for event in trace):
+        # The recorder's controlled clock is a statement input too: the Unix milliseconds that
+        # each executed statement saw. Records without a controlled clock have none.
+        given["clockUnixMilliseconds"] = [event["clockUnixMilliseconds"] for event in trace]
     return given
 
 
