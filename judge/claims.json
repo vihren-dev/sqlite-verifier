@@ -549,6 +549,25 @@
    ],
    "path": "conformance/corpus-v27"
   },
+  "corpus-v28": {
+   "forbidden": [
+    "DISAGREE",
+    "HARNESS_ERROR"
+   ],
+   "mustAgree": [
+    "date-modifiers-amounts",
+    "date-modifiers-columns",
+    "date-modifiers-local-time",
+    "date-modifiers-numbers",
+    "date-modifiers-offsets",
+    "date-modifiers-order",
+    "date-modifiers-refused",
+    "date-modifiers-start-of",
+    "date-modifiers-weekday",
+    "date-modifiers-writes"
+   ],
+   "path": "conformance/corpus-v28"
+  },
   "corpus-v3": {
    "forbidden": [
     "DISAGREE",
