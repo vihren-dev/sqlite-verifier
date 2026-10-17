@@ -1,6 +1,6 @@
 # Date and time modifiers, slice 6g of ADR 0012
 
-Created 2026-10-17. Status: open.
+Created 2026-10-17. Status: DONE (pull requests #156 and its claim).
 Specification: [ADR 0012](../docs/adr-0012-query-semantics.md), "Amendment 5", "Date and
 time modifiers (slice 6g)", owner decisions 3 and 6. Related: slice 6f
 ([task](20261017-date-functions.task.md)), whose functions these modifiers extend.
