@@ -59,7 +59,7 @@ def test_postfix_null_tests_map_to_is_null(parse_sql: Callable[..., Tree], sql: 
     ("SELECT 1 HAVING 1;", "HAVING 1"), ("SELECT DISTINCT a FROM t;", "DISTINCT"),
     ("SELECT a FROM t GROUP BY a HAVING a > 1;", "HAVING a > 1"), ("SELECT main.t.a FROM t;", "main.t.a"),
     ("SELECT a FROM main.t;", ".t"), ("SELECT a FROM t ORDER BY a NULLS LAST;", "NULLS LAST"),
-    ("SELECT random() FROM t;", "random()"), ("SELECT count(DISTINCT a) FROM t;", "DISTINCT"),
+    ("SELECT count(DISTINCT a) FROM t;", "DISTINCT"),
     ("SELECT a FROM t UNION SELECT a FROM t;", "SELECT a FROM t UNION SELECT a FROM t"),
     ("SELECT a || 1 FROM t;", "a || 1"), ("SELECT a FROM (SELECT 1 AS a);", "(SELECT 1 AS a)"),
 ])
@@ -70,6 +70,14 @@ def test_query_syntax_outside_the_slice_is_unsupported_at_its_range(
         statements(parse_sql(sql))
     assert raised.value.status == "UNSUPPORTED"
     assert sql.encode()[raised.value.start:raised.value.end].decode() == refused
+
+
+def test_call_without_arguments_maps_to_call_empty(parse_sql: Callable[..., Tree]) -> None:
+    """A call without arguments, such as `date()` or `random()`, is a `callEmpty` with its name
+    as written (ADR 0012, slice 6f); resolution decides whether the model has the function."""
+    [select] = [item.value for item in statements(parse_sql("SELECT Date(), random();"))]
+    assert [column["expression"]["value"] for column in select["select"]["columns"]] == [
+        {"callEmpty": {"name": "Date"}}, {"callEmpty": {"name": "random"}}]
 
 
 def test_numbers_map_arithmetic_cast_and_call_chains(parse_sql: Callable[..., Tree]) -> None:

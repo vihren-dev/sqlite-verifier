@@ -35,9 +35,20 @@ theorem jsonCall_issues (name : String) (function : Resolved.JsonFunction) (argu
   split at failed <;> cases failed
   simp [ValueIssue.namesNoObject, PrepareError.namesObject]
 
+/-- For every date and time function and argument list, the issues of {name}`dateCall`
+name no catalog object: its only error is the restriction
+{name}`RestrictionKind.dateModifier`. -/
+theorem dateCall_issues (function : Resolved.DateFunction) (arguments : Resolved.Arguments) :
+    IssuesNameNoObject (dateCall function arguments) := by
+  intro issue failed
+  unfold dateCall at failed
+  split at failed <;> cases failed
+  trivial
+
 /-- For every misuse flag, name and resolved operands, the issues of {name}`pairCall`
 with the issue {name}`pairIssue` name no catalog object. Proof sketch: its errors are that
-issue, which {name}`callIssues` covers, and those of {name}`jsonCall_issues`. -/
+issue, which {name}`callIssues` covers, and those of {name}`jsonCall_issues` and
+{name}`dateCall_issues`. -/
 theorem pairCall_issues (misuse : Bool) (name : String) (first rest : Resolved.Expr) :
     IssuesNameNoObject (pairCall name first rest (pairIssue name)) := by
   intro issue failed
@@ -47,6 +58,7 @@ theorem pairCall_issues (misuse : Bool) (name : String) (first rest : Resolved.E
   · cases failed
   · split at failed
     · exact jsonCall_issues name _ _ issue failed
+    · exact dateCall_issues _ _ issue failed
     · cases failed; exact (callIssues misuse name).2.2
 
 /-- For every setting, column list, flag and expression, the issues of
@@ -54,7 +66,7 @@ theorem pairCall_issues (misuse : Bool) (name : String) (first rest : Resolved.E
 expression. A compound expression sequences its operands with {name}`bind_issues`,
 {name}`under_issues` and {name}`condition_issues`, and fails itself only with a
 restriction; a leaf gives {lit}`no such column`, {lit}`ambiguous column name`, a restriction,
-{name}`queryNumeric_issues` or {name}`callIssues`. -/
+{name}`queryNumeric_issues`, {name}`callIssues` or {name}`dateCall_issues`. -/
 theorem resolveOperand_issue (dqs : Bool) (scope : Scope) (misuse : Bool)
     (expression : Syntax.Expr) : IssuesNameNoObject (resolveOperand dqs scope misuse expression) := by
   have pair_match : ∀ (a b : Operand) (build : Resolved.Expr → Resolved.Expr → Resolved.Expr)
@@ -89,10 +101,18 @@ theorem resolveOperand_issue (dqs : Bool) (scope : Scope) (misuse : Bool)
     simp only [resolveOperand] at failed
     split at failed
     · exact bind_issues (under_issues _ ih) (fun _ => jsonCall_issues name _ _) issue failed
-    · cases failed
-      split
-      · exact (callIssues misuse name).1
-      · exact (callIssues misuse name).2.1
+    · split at failed
+      · exact bind_issues (under_issues _ ih) (fun _ => dateCall_issues _ _) issue failed
+      · cases failed
+        split
+        · exact (callIssues misuse name).1
+        · exact (callIssues misuse name).2.1
+  | callEmpty name =>
+    intro issue failed
+    simp only [resolveOperand] at failed
+    split at failed
+    · exact dateCall_issues _ _ issue failed
+    · cases failed; exact (callIssues misuse name).2.1
   | equals left right ihl ihr =>
     exact bind_issues (under_issues _ ihl) fun a => bind_issues (under_issues _ ihr) fun b =>
       pair_match a b (Resolved.Expr.compare .eq) id

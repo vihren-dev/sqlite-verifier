@@ -52,6 +52,9 @@ inductive Expr where
   /-- A function call with {lit}`*` as its argument, such as {lit}`COUNT(*)`, with the
   function name as written. -/
   | callStar (name : String)
+  /-- A function call without arguments, such as {lit}`date()`, with the function name as
+  written. -/
+  | callEmpty (name : String)
   /-- A function call with one argument, such as {lit}`MIN(x)`, with the function
   name as written. Resolution folds the name and decides the function. -/
   | call (name : String) (operand : Expr)

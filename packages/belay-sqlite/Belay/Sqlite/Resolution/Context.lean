@@ -46,7 +46,7 @@ def constantDefaultExpression : Syntax.Expr → Bool
   | .negate operand | .positive operand => constantDefaultExpression operand
   | .qualified .. => false
   | .equals left right => constantDefaultExpression left && constantDefaultExpression right
-  | .compare .. | .and .. | .or .. | .not _ | .isNull .. | .callStar _ | .call .. => true
+  | .compare .. | .and .. | .or .. | .not _ | .isNull .. | .callStar _ | .callEmpty _ | .call .. => true
   | .arithmetic .. | .cast .. | .callPair .. | .more .. => true
 
 /-- SQLite's constant-default preparation check for a written DEFAULT, with the
@@ -60,7 +60,7 @@ def constantDefault (expression : Syntax.Expr) : Bool :=
   match expression with
   | .identifier .. => true
   | .null | .numeric _ | .string _ | .blob _ | .currentTime _ | .negate _ | .positive _
-  | .equals .. | .compare .. | .and .. | .or .. | .not _ | .isNull .. | .callStar _ | .call ..
+  | .equals .. | .compare .. | .and .. | .or .. | .not _ | .isNull .. | .callStar _ | .callEmpty _ | .call ..
   | .arithmetic .. | .cast .. | .callPair .. | .more .. | .qualified .. => constantDefaultExpression expression
 
 /-- Whether the constraint is PRIMARY KEY. -/

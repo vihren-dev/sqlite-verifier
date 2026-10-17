@@ -21,7 +21,7 @@ def definedName (scope : Scope) : Syntax.Expr → Option String
     | .found .. | .missing | .ambiguous => none
   | .qualified source column => (scope.qualified source column).bind (scope.columns[·]?.map CatalogColumn.name)
   | .null | .numeric _ | .string _ | .blob _ | .currentTime _ | .negate _ | .positive _ | .equals ..
-  | .compare .. | .and .. | .or .. | .not _ | .isNull .. | .callStar _ | .call .. | .arithmetic ..
+  | .compare .. | .and .. | .or .. | .not _ | .isNull .. | .callStar _ | .callEmpty _ | .call .. | .arithmetic ..
   | .cast .. | .callPair .. | .more .. => none
 
 /-- One {lit}`RETURNING` column at position {lit}`item`: the expressions and names it

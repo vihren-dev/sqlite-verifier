@@ -57,7 +57,9 @@ parentheses, `COUNT(*)`, `COUNT`, `MIN`, `MAX`, `SUM` and `AVG` of one argument,
 operators `+`, `-`, `*`, `/` and `%`, unary `-` and `+` of any expression,
 `CAST(expression AS type)`, and `COALESCE` of two or more arguments (ADR 0012,
 slice 2), `json_extract` with one or more paths and the operators `->` and `->>`
-(slice 6b), and `json_type`, `json_valid`, `json_array_length` and `json` (slice 6c). A
+(slice 6b), `json_type`, `json_valid`, `json_array_length` and `json` (slice 6c), and
+`date`, `time`, `datetime`, `julianday`, `unixepoch` and `strftime` with one time value
+or none, which is `now`, and without modifiers (slice 6f). A
 `FROM` may end with `json_each(json [, path])` sources, joined by a comma or an inner
 `JOIN` with an optional `ON` condition, whose arguments read the sources before them
 (slice 6d). In a write, a `VALUES` item may be any of these expressions that names no
@@ -206,6 +208,7 @@ of frontend refusal, the cases of the claimed corpora that it keeps out of scope
 | `function-join` | Only an inner join without NATURAL or USING is modeled with `json_each` | ADR 0012 slice 6d |
 | `later-source-in-arguments` | An argument of `json_each` that reads a later source is not modeled | ADR 0012 slice 6d |
 | `boolean-name` | `TRUE` or `FALSE` that names no column is not modeled | ADR 0012 slice 6e2 |
+| `date-modifier` | A modifier of a date and time function is not modeled | ADR 0012 slice 6f |
 
 ## Execution
 
@@ -234,8 +237,11 @@ Julian-day milliseconds from the VFS method `xCurrentTimeInt64`, and different s
 may see different values (slice 6e2). `CURRENT_TIME`, `CURRENT_DATE` and
 `CURRENT_TIMESTAMP` give it as SQLite's text `HH:MM:SS`, `YYYY-MM-DD` and
 `YYYY-MM-DD HH:MM:SS`, with the seconds truncated; a clock value of zero or less gives
-NULL, and a value after the year 9999 gives SQLite's zero date. A verification target
-holds for every clock value of every statement. Literal writes
+NULL, and a value after the year 9999 gives SQLite's zero date. The date and time
+functions read the time value `now`, written or read from a column, as the statement's
+clock value, and give SQLite's value for every other time value, NULL for one that SQLite
+cannot read (slice 6f). A verification target holds for every clock value of every
+statement. Literal writes
 have checked data-domain obligations: existing key cells and filter cells must
 be integers or NULL, existing constraints must hold, and the random-search branch
 at the maximum rowid is outside the admitted domain. New NOT NULL and uniqueness

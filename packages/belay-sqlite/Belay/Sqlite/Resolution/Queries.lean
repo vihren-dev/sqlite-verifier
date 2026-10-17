@@ -23,10 +23,10 @@ def integerLiteral : Syntax.Expr → Option Int
   | .negate operand => match operand with
     | .numeric text => (numericValue text true).integer?
     | .null | .string _ | .blob _ | .currentTime _ | .identifier .. | .negate _ | .positive _ | .equals ..
-    | .compare .. | .and .. | .or .. | .not _ | .isNull .. | .callStar _ | .call .. | .arithmetic .. | .cast ..
+    | .compare .. | .and .. | .or .. | .not _ | .isNull .. | .callStar _ | .callEmpty _ | .call .. | .arithmetic .. | .cast ..
     | .callPair .. | .more .. | .qualified .. => none
   | .null | .string _ | .blob _ | .currentTime _ | .identifier .. | .positive _ | .equals .. | .compare ..
-  | .and .. | .or .. | .not _ | .isNull .. | .callStar _ | .call .. | .arithmetic .. | .cast .. | .callPair ..
+  | .and .. | .or .. | .not _ | .isNull .. | .callStar _ | .callEmpty _ | .call .. | .arithmetic .. | .cast .. | .callPair ..
   | .more .. | .qualified .. => none
 
 /-- One resolved result column with its names: {lit}`*` gives every column of every
@@ -52,13 +52,13 @@ def resolveResultColumn (dqs : Bool) (scope : Scope) (column : Nat) :
         let (resolved, _) ← (resolveOperand dqs scope true operand).mapError (·.under [0, column, 0, 1])
         .ok (named (.aggregate (aggregate resolved)) none)
       | none =>
-        if (jsonFunctionNamed name).isSome then do
+        if scalarFunctionName name then do
           let (resolved, _) ← (resolveOperand dqs scope false value).mapError (·.under [0, column, 0])
           .ok (named (.scalar resolved) none)
         else throw ((callIssue name).under [0, column, 0])
     | .null | .numeric _ | .string _ | .blob _ | .currentTime _ | .identifier .. | .qualified .. | .negate _
     | .positive _ | .equals .. | .compare .. | .and .. | .or .. | .not _ | .isNull .. | .arithmetic .. | .cast ..
-    | .callPair .. | .more .. =>
+    | .callEmpty _ | .callPair .. | .more .. =>
       let (resolved, _) ← (resolveOperand dqs scope false value).mapError (·.under [0, column, 0])
       .ok (named (.scalar resolved) (definedName scope value))
 
@@ -81,7 +81,7 @@ def namedResult (names : List (Option String)) : Syntax.Expr → Option (Except 
   | .identifier name _ => (aliasIndex names name).map .ok
   | term@.null | term@(.numeric _) | term@(.string _) | term@(.blob _) | term@(.currentTime _)
   | term@(.negate _) | term@(.positive _) | term@(.equals ..) | term@(.compare ..) | term@(.and ..)
-  | term@(.or ..) | term@(.not _) | term@(.isNull ..) | term@(.callStar _) | term@(.call ..)
+  | term@(.or ..) | term@(.not _) | term@(.isNull ..) | term@(.callStar _) | term@(.callEmpty _) | term@(.call ..)
   | term@(.arithmetic ..) | term@(.cast ..) | term@(.callPair ..) | term@(.more ..) | term@(.qualified ..) =>
     (integerLiteral term).map fun (number : Int) =>
       if 1 ≤ number ∧ number ≤ (names.length : Int) then .ok (number.toNat - 1) else .error ()
@@ -134,7 +134,7 @@ def resolveSelect (context : ResolveContext) (catalog : Catalog) (index : Nat)
         | .missing, some column => grouped column
         | .missing, none | .ambiguous, _ =>
           (resolveOperand dqs scope true term).map (·.1) |>.mapError (·.under [4, item])
-      | .callStar name | .call name _ =>
+      | .callStar name | .callEmpty name | .call name _ =>
         .error (if aggregateCall term then .prepare .aggregateInGroupBy else (callIssue name).under [4, item])
       | .numeric _ | .negate _ => match namedResult aliases term with
         | some (.ok column) => grouped column

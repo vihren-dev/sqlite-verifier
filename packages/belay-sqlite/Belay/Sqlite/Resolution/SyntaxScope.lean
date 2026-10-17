@@ -21,7 +21,7 @@ def namesAlias (scope : Scope) (aliases : List String) : Syntax.Expr → Bool
     namesAlias scope aliases left || namesAlias scope aliases right
   | .not operand | .isNull operand _ | .call _ operand | .negate operand | .positive operand | .cast operand _ =>
     namesAlias scope aliases operand
-  | .null | .numeric _ | .string _ | .blob _ | .currentTime _ | .callStar _ | .qualified .. => false
+  | .null | .numeric _ | .string _ | .blob _ | .currentTime _ | .callStar _ | .callEmpty _ | .qualified .. => false
 
 /-- Whether an expression names a column in scope: an identifier with the folded name of
 a column, or a qualified name of one, anywhere in the expression. A write value that names a column
@@ -34,6 +34,6 @@ def mentionsColumn (scope : Scope) : Syntax.Expr → Bool
     mentionsColumn scope left || mentionsColumn scope right
   | .not operand | .isNull operand _ | .call _ operand | .negate operand | .positive operand | .cast operand _ =>
     mentionsColumn scope operand
-  | .null | .numeric _ | .string _ | .blob _ | .currentTime _ | .callStar _ => false
+  | .null | .numeric _ | .string _ | .blob _ | .currentTime _ | .callStar _ | .callEmpty _ => false
 
 end Belay.Sqlite

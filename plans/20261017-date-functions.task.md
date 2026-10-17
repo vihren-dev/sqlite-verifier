@@ -46,8 +46,9 @@ these functions.
   without FROM, over a column, in `WHERE`, `SET`, `VALUES` and `RETURNING`; `now` written
   and read from a column under the controlled clock; two calls in one statement; every
   `strftime` specifier; unreadable values; the restriction for a modifier.
-- Mutants, each changing the verdict of an authored case: `now` read once per script;
-  `julianday` as an integer; `%W` as `%U`; a time zone suffix ignored; a number read as
+- Mutants, each changing the verdict of an authored case: `now` without the statement's
+  clock value (`now` read once per script is slice 6e2's mutant `clock_one_for_script`,
+  which the clock cases already kill); `julianday` as an integer; `%W` as `%U`; a time zone suffix ignored; a number read as
   Unix seconds instead of a Julian day number.
 
 ## Key points for the implementer

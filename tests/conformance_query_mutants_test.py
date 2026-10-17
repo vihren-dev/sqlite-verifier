@@ -1,6 +1,6 @@
 """Each mutant of the query, number, key, write, row-write, DELETE, join, alias, UPSERT,
-algorithm, query-without-FROM, JSON, JSON function, `json_each` and clock mutant tables changes
-the verdict of an authored case.
+algorithm, query-without-FROM, JSON, JSON function, `json_each`, clock and date function mutant
+tables changes the verdict of an authored case.
 
 ADR 0012 requires that the conformance suite tests each rule of query semantics and
 resolution, and its slices add the number, write, join and key rules: a changed copy of the
@@ -9,8 +9,9 @@ model that no case notices shows a missing case. The cases are the authored case
 `authored_row_writes`, `authored_deletes`, `authored_joins`, `authored_using`,
 `authored_right`, `authored_merged`, `authored_aliases`, `authored_upserts`,
 `authored_algorithms`, `authored_fromless`, `authored_json`, `authored_json_functions`,
-`authored_json_each` and `authored_clock`, recorded natively with their outputs. Four
-measurements, one for queries and numbers, one for JSON and the clock, one for writes and joins, and one for keys, rowid
+`authored_json_each`, `authored_clock` and `authored_date_functions`, recorded natively with
+their outputs. Five measurements, one for queries and numbers, one for JSON and the clock,
+one for the date and time functions, one for writes and joins, and one for keys, rowid
 aliases, UPSERT and conflict algorithms, each build one base copy for their mutants, which
 keeps each test within its time limit on a hosted runner; every case must agree with the
 base copy. Each mutant copy then classifies the case that the mutant names as its target,
@@ -23,11 +24,11 @@ from types import ModuleType
 import pytest
 
 from conformance import (algorithm_mutants, alias_mutants, authored_algorithms, authored_aliases, authored_clock,
-                         authored_deletes, authored_fromless, authored_joins, authored_json, authored_json_each,
-                         authored_json_functions, authored_keys, authored_merged, authored_numbers,
-                         authored_queries, authored_right, authored_row_writes, authored_upserts, authored_using,
-                         authored_writes, clock_mutants, fromless_mutants, json_each_mutants, json_function_mutants, json_mutants,
-                         upsert_mutants)
+                         authored_date_functions, authored_deletes, authored_fromless, authored_joins,
+                         authored_json, authored_json_each, authored_json_functions, authored_keys,
+                         authored_merged, authored_numbers, authored_queries, authored_right, authored_row_writes,
+                         authored_upserts, authored_using, authored_writes, clock_mutants, date_function_mutants,
+                         fromless_mutants, json_each_mutants, json_function_mutants, json_mutants, upsert_mutants)
 from conformance.native_replay import prepare
 from conformance import (delete_mutants, join_mutants, key_mutants, merged_mutants, number_mutants, query_mutants,
                          right_mutants, row_write_mutants, using_mutants, write_mutants)
@@ -90,6 +91,15 @@ def test_every_json_and_clock_mutant_changes_a_verdict(runtime_root: Path) -> No
                  (json_function_mutants.MUTANTS, json_function_mutants.TARGETS),
                  (json_each_mutants.MUTANTS, json_each_mutants.TARGETS),
                  (clock_mutants.MUTANTS, clock_mutants.TARGETS)])
+
+
+def test_every_date_function_mutant_changes_a_verdict(runtime_root: Path) -> None:
+    """The authored date and time function cases notice every changed rule of the date and
+    time functions (`conformance.date_function_mutants`), so these rules are tested. They
+    have their own measurement, so that the JSON and clock measurement stays within its time
+    limit."""
+    measure_set(runtime_root, [authored_date_functions],
+                [(date_function_mutants.MUTANTS, date_function_mutants.TARGETS)])
 
 
 def test_every_key_alias_upsert_and_algorithm_mutant_changes_a_verdict(runtime_root: Path) -> None:
