@@ -8,13 +8,15 @@ not read the clock is unchanged at every clock value. -/
 namespace Belay.Sqlite.Resolved
 
 /-- For every list, predicate and member: if the predicate is false for every member of the
-list ({lit}`List.any`), it is false for this member. -/
+list ({lit}`List.any`), it is false for this member. Proof sketch: {lit}`List.any` is false
+exactly when the predicate is false for every member. -/
 theorem quietOf {p : α → Bool} {list : List α} {item : α} (free : list.any p = false) (member : item ∈ list) :
     p item = false := by
   simpa using List.any_eq_false.mp free item member
 
 /-- For every list and function that keeps each member of the list, mapping the function
-over the list keeps the list. -/
+over the list keeps the list. Proof sketch: induction on the list; the head is kept by the
+premise and the tail by the induction hypothesis. -/
 theorem map_of_fixed {f : α → α} {list : List α} (fixed : ∀ item ∈ list, f item = item) : list.map f = list := by
   induction list with
   | nil => rfl
@@ -22,14 +24,16 @@ theorem map_of_fixed {f : α → α} {list : List α} (fixed : ∀ item ∈ list
     simp only [List.map_cons, fixed head (by simp), ih fun item member => fixed item (by simp [member])]
 
 /-- For every clock value and optional expression that does not read the clock, the
-expression at the clock value is unchanged. -/
+expression at the clock value is unchanged. Proof sketch: case split on the option; a
+present expression is kept by {name}`Expr.atClock_of_readsClock`. -/
 theorem option_atClock (clock : Int) : ∀ (term : Option Expr), term.any Expr.readsClock = false →
     term.map (·.atClock clock) = term
   | none, _ => rfl
   | some term, free => by simp_all [Expr.atClock_of_readsClock]
 
 /-- For every clock value and list of {lit}`RETURNING` columns that do not read the clock,
-the columns at the clock value are unchanged. -/
+the columns at the clock value are unchanged. Proof sketch: {name}`map_of_fixed`, with each
+column's expression kept by {name}`Expr.atClock_of_readsClock`. -/
 theorem returningAtClock_of_readsClock (clock : Int) (returning : List (Expr × String))
     (free : returningReadsClock returning = false) : returningAtClock clock returning = returning :=
   map_of_fixed fun (term, name) member => by
@@ -38,7 +42,8 @@ theorem returningAtClock_of_readsClock (clock : Int) (returning : List (Expr × 
     simp [Expr.atClock_of_readsClock _ _ quiet]
 
 /-- For every clock value and list of assignments that do not read the clock, the
-assignments at the clock value are unchanged. -/
+assignments at the clock value are unchanged. Proof sketch: {name}`map_of_fixed`, with each
+assigned expression kept by {name}`Expr.atClock_of_readsClock`. -/
 theorem assignments_atClock (clock : Int) (assignments : List (Nat × Expr))
     (free : assignments.any (·.2.readsClock) = false) :
     assignments.map (fun (position, value) => (position, value.atClock clock)) = assignments :=
@@ -48,7 +53,8 @@ theorem assignments_atClock (clock : Int) (assignments : List (Nat × Expr))
     simp [Expr.atClock_of_readsClock _ _ quiet]
 
 /-- For every clock value and list of expressions that do not read the clock, the
-expressions at the clock value are unchanged. -/
+expressions at the clock value are unchanged. Proof sketch: {name}`map_of_fixed` with
+{name}`Expr.atClock_of_readsClock` for each member. -/
 theorem expressions_atClock (clock : Int) (terms : List Expr) (free : terms.any Expr.readsClock = false) :
     terms.map (·.atClock clock) = terms :=
   map_of_fixed fun term member => Expr.atClock_of_readsClock _ _ (by simpa using quietOf free member)
@@ -84,7 +90,8 @@ theorem Query.atClock_of_readsClock (clock : Int) (query : Query) (free : query.
     expressions_atClock _ _ groupBy]
 
 /-- For every clock value and {lit}`ON CONFLICT` clauses that do not read the clock, the
-clauses at the clock value are unchanged. -/
+clauses at the clock value are unchanged. Proof sketch: {name}`map_of_fixed`; in each
+clause, {name}`assignments_atClock` and {name}`option_atClock` keep the action. -/
 theorem clauses_atClock (clock : Int) (clauses : List ConflictClause)
     (free : clauses.any ConflictClause.readsClock = false) : clauses.map (·.atClock clock) = clauses :=
   map_of_fixed fun clause member => by

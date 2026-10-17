@@ -91,8 +91,9 @@ def NoWrites (script : List Resolved.Statement) : Prop :=
     | .createTable .. | .createIndex .. | .addColumn .. | .begin | .commit | .rollback | .prepareError _ => True
 
 /-- Each definition in the script is one that the model describes: each CREATE
-TABLE creates a {name}`CatalogTable.plain` table, each ADD COLUMN has a successful
-{name}`readDefaultValue` result, and no statement is CREATE INDEX. Other
+TABLE creates a {name}`CatalogTable.plain` table, each ADD COLUMN has a time default
+({name}`CatalogColumn.clockDefault`) or a successful {name}`readDefaultValue` result, and no
+statement is CREATE INDEX. Other
 statements are unrestricted; the empty script satisfies it. -/
 def ModeledDefinitions (script : List Resolved.Statement) : Prop :=
   ∀ statement ∈ script, match statement with

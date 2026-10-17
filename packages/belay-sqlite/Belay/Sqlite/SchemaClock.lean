@@ -8,7 +8,8 @@ it, so their support check holds at every clock assignment. -/
 namespace Belay.Sqlite
 
 /-- For every {name}`SchemaOnly` script, no statement reads the clock
-({name}`scriptReadsClock`): CREATE TABLE and ADD COLUMN have no expressions. -/
+({name}`scriptReadsClock`). Proof sketch: every statement of the script is CREATE TABLE or
+ADD COLUMN, and {name}`Resolved.Statement.readsClock` is false for both. -/
 theorem SchemaOnly.readsClock (guard : SchemaOnly script) : scriptReadsClock script = false := by
   simp only [scriptReadsClock, List.any_eq_false]
   intro statement member

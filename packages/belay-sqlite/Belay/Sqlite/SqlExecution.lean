@@ -59,7 +59,8 @@ theorem ProfileExecutes.result (execution : ProfileExecutes profile script datab
   cases execution with
   | evaluated clock => exact ⟨clock, rfl⟩
 
-/-- Whether no statement of the script reads the clock ({name}`Resolved.Statement.readsClock`). -/
+/-- Whether at least one statement of the script reads the clock
+({name}`Resolved.Statement.readsClock`). -/
 def scriptReadsClock (script : List Resolved.Statement) : Bool :=
   script.any Resolved.Statement.readsClock
 
