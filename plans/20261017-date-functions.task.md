@@ -1,6 +1,6 @@
 # Date and time functions, slice 6f of ADR 0012
 
-Created 2026-10-17. Status: open.
+Created 2026-10-17. Status: DONE (pull requests #154 and its claim).
 Specification: [ADR 0012](../docs/adr-0012-query-semantics.md), "Amendment 5", "Date and
 time functions (slice 6f)", owner decisions 2, 3 and 8. Related: slice 6e2
 ([task](20261017-clock.task.md)), whose clock gives `now`; slice 6g (modifiers) builds on
