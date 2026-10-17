@@ -16,7 +16,8 @@ def argumentsOf : Resolved.Expr → Resolved.Arguments
   | .arguments list => list
   | expression@(.column _) | expression@(.literal _) | expression@(.compare ..) | expression@(.and ..)
   | expression@(.or ..) | expression@(.not _) | expression@(.isNull ..) | expression@(.arithmetic ..)
-  | expression@(.cast ..) | expression@(.coalesce ..) | expression@(.json ..) => .cons expression .nil
+  | expression@(.cast ..) | expression@(.coalesce ..) | expression@(.json ..) | expression@(.now _) =>
+    .cons expression .nil
 
 /-- The resolved {lit}`Syntax.Expr.more` node of an argument and the arguments after it. -/
 def moreArguments (first rest : Resolved.Expr) : Operand := (.arguments (.cons first (argumentsOf rest)), none)

@@ -159,7 +159,7 @@ def resolveAddColumn (context : ResolveContext) (catalog : Catalog) (index : Nat
     else if rowidName definition.name then restrict index [1] .rowidColumnName
     else
       let column := addedColumn definition
-      if (readDefaultValue column).toOption.isNone then restrict index [1] .addColumnConstraint else
+      if !column.clockDefault && (readDefaultValue column).toOption.isNone then restrict index [1] .addColumnConstraint else
       let object := { name := (catalog[position]?.map (·.name)).getD tableName,
                       entry := .table { table with columns := table.columns ++ [column] } }
       .ok (.addColumn position column, catalog.set position object)

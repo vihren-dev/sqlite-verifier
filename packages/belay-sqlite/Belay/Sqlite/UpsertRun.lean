@@ -139,7 +139,8 @@ def failedDatabase (database : Database) (at_ : Nat) (reason : ExecutionError) (
   match reason with
   | .constraintFail => database.set at_ reached
   | .unmodeled | .prepare _ | .transactionAlreadyActive | .noActiveTransaction | .constraintViolation
-  | .constraintRollback | .integerOverflow | .datatypeMismatch | .functionError | .nullColumnDefault => database
+  | .constraintRollback | .integerOverflow | .datatypeMismatch | .functionError | .nullColumnDefault
+  | .nonConstantColumnDefault => database
 
 end LiteralData
 end Belay.Sqlite

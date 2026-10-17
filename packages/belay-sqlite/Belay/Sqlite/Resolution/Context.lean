@@ -30,13 +30,6 @@ structure ResolveContext where
 it succeeds, or a model restriction. -/
 abbrev StatementResolution := Except Restriction (Resolved.Statement × Catalog)
 
-/-- Whether a name is SQLite's TRUE or FALSE keyword, ignoring ASCII letter case.
-Recognize boolean literals without treating ordinary column names as constants.
-For example, {lean}`booleanKeywordName "TrUe"` is true. This predicate checks only
-spelling; callers check the expression's quote flag. -/
-def booleanKeywordName (name : String) : Bool :=
-  ["true", "false"].contains (normalizeIdentifier name)
-
 /-- SQLite's constant-default preparation check for the forms classified here:
 literals, time keywords, signs, equality and qualified column references.
 Unquoted TRUE and FALSE are constant keywords; other nested identifiers are
@@ -86,11 +79,11 @@ def Syntax.ColumnConstraint.nonconstantDefault : Syntax.ColumnConstraint → Boo
   | .notNull _ | .primaryKey .. | .unique _ => false
 
 /-- Whether the model describes a catalog default: a literal whose value or
-SQLite preparation error is modeled, or {lit}`CURRENT_TIMESTAMP`, which is kept
+SQLite preparation error is modeled, or a time keyword such as {lit}`CURRENT_TIMESTAMP`, which is kept
 without evaluating it. Compound expressions remain model restrictions. Constraints
 without a default pass this check. -/
 def Syntax.ColumnConstraint.modeledDefault : Syntax.ColumnConstraint → Bool
-  | .default (.currentTime keyword) _ => normalizeIdentifier keyword == "current_timestamp"
+  | .default (.currentTime _) _ => true
   | .default expression _ => match literalDefault expression with
     | .ok _ | .error (.prepare _) => true
     | .error (.restriction ..) => false

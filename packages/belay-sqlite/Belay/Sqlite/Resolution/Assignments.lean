@@ -23,11 +23,11 @@ def resolveAll (resolveOne : Nat → α → Except ValueIssue β) (items : List 
 
 /-- The resolved value of one {lit}`SET` assignment for the column at
 {lit}`position`: the literal of its stored value ({name}`storeValue`) when the
-expression names no column, otherwise the expression, which the execution evaluates on
-the old row and stores. -/
+expression names no column and reads no clock, otherwise the expression, which the
+execution evaluates on the old row, at the statement's clock value, and stores. -/
 def assignedExpression (scope : Scope) (position : Nat) (expression : Syntax.Expr)
     (resolved : Resolved.Expr) : Resolved.Expr :=
-  if mentionsColumn scope expression then resolved
+  if mentionsColumn scope expression || resolved.readsClock then resolved
   else .literal (storeValue (columnAffinity scope.columns position) (resolved.eval []))
 
 /-- Resolve one {lit}`SET` assignment at item {lit}`item`, in SQLite's order
@@ -45,7 +45,7 @@ def resolveAssignment (dqs : Bool) (scope : Scope) (keyColumns : List Nat) (item
       | none => .error (.prepare (.noSuchColumn name))) >>= fun position =>
     if mentionsColumn scope value && keyColumns.contains position then
       .error (.restriction [item, 1] .rowDependentKey)
-    else if !mentionsColumn scope value && operand.1.mayFail [] then
+    else if !mentionsColumn scope value && !operand.1.readsClock && operand.1.mayFail [] then
       .error (.restriction [item, 1] .constantFunctionError)
     else .ok (position, assignedExpression scope position value operand.1)
 

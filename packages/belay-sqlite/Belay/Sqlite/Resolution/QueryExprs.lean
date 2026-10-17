@@ -3,6 +3,7 @@ import Belay.Sqlite.Resolution.MergedNames
 import Belay.Sqlite.Resolution.Calls
 import Belay.Sqlite.Resolution.SyntaxScope
 import Belay.Sqlite.JsonFaults
+import Belay.Sqlite.ClockSubstitution
 
 set_option doc.verso true
 
@@ -20,7 +21,7 @@ conversion: a comparison, a logical operator, {lit}`IS NULL`, arithmetic, or a
 def Resolved.Expr.isCondition : Resolved.Expr â†’ Bool
   | .compare .. | .and .. | .or .. | .not _ | .isNull .. | .arithmetic .. => true
   | .cast affinity _ => numericAffinity affinity
-  | .column _ | .literal _ | .coalesce .. | .json .. | .arguments _ => false
+  | .column _ | .literal _ | .coalesce .. | .json .. | .arguments _ | .now _ => false
 
 /-- The issue of an aggregate where only a row value can be: SQLite's
 {lit}`misuse of aggregate function` when {lit}`misuse` is true (in {lit}`WHERE`, or
@@ -85,7 +86,8 @@ or the coalesce of the columns that full joins merged; two columns that no join 
 are SQLite's {lit}`ambiguous column name: %s`. With none: a rowid name
 ({name}`rowidName`) is a model restriction when a table is in scope, because SQLite reads
 the rowid; a name written in double quotes is a string literal when {lit}`dqs` is on;
-else it is SQLite's {lit}`no such column: %s`. A qualified name {lit}`x.c` is column
+{lit}`TRUE` or {lit}`FALSE` without double quotes is a model restriction
+({name}`RestrictionKind.booleanName`); else it is SQLite's {lit}`no such column: %s`. A qualified name {lit}`x.c` is column
 {lit}`c` of the source named {lit}`x` ({name}`Scope.qualified`), else
 {lit}`no such column: x.c`. The operands of {lit}`AND`, {lit}`OR` and {lit}`NOT` must be
 conditions. An aggregate gives {name}`aggregateIssue`. A numeric literal has the value of
@@ -98,6 +100,7 @@ def resolveOperand (dqs : Bool) (scope : Scope) (misuse : Bool) : Syntax.Expr â†
     | .missing =>
       if rowidName name && !scope.isEmpty then .error (.restriction [] .rowidName)
       else if doubleQuoted && dqs then .ok (.literal (.text name.toUTF8.toList), none)
+      else if !doubleQuoted && booleanKeywordName name then .error (.restriction [] .booleanName)
       else .error (.prepare (.noSuchColumn name))
     | .ambiguous => .error (.prepare (.ambiguousColumn name))
   | .qualified source column => match scope.qualified source column with
@@ -167,17 +170,6 @@ def resolveOperand (dqs : Bool) (scope : Scope) (misuse : Bool) : Syntax.Expr â†
   | .null => .ok (.literal .null, none)
   | .string bytes => .ok (.literal (.text bytes), none)
   | .blob bytes => .ok (.literal (.blob bytes), none)
-  | .currentTime _ => .error (.restriction [] .timeValue)
-
-/-- The value of a constant expression in a write (ADR 0012, slice 3a): the expression
-resolved as a query expression with no column in scope and an aggregate as SQLite's
-{lit}`misuse of aggregate function`, then evaluated. So {lit}`1 + 2` is 3 and
-{lit}`CAST('7' AS INTEGER)` is 7; an identifier, a rowid name included, is a
-double-quoted string or {lit}`no such column`, as in a {lit}`VALUES` row, where no table
-is in scope. A value whose JSON function may fail is a model restriction, because the
-model does not describe when SQLite evaluates a constant. -/
-def constantValue (dqs : Bool) (expression : Syntax.Expr) : Except ValueIssue Value :=
-  resolveOperand dqs [] true expression >>= fun operand =>
-    if operand.1.mayFail [] then .error (.restriction [] .constantFunctionError) else .ok (operand.1.eval [])
+  | .currentTime keyword => .ok (.now (Resolved.timeKeywordNamed keyword), none)
 
 end Belay.Sqlite

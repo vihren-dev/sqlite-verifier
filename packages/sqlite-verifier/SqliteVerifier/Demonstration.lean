@@ -1,5 +1,6 @@
 import SqliteVerifier.Library
 import Belay.Sqlite.SchemaExtension
+import Belay.Sqlite.SchemaClock
 
 set_option doc.verso true
 
@@ -84,7 +85,7 @@ theorem migrationCorrect (profile : Profile) (columns : 2 ≤ profile.limits.col
       subst name
       exact ⟨0, by rw [shape]; decide +kernel⟩⟩
   · intro database _
-    exact supportedSqlFrom_schemaOnly (by simp [SchemaOnly, script])
+    exact SupportedSql.schemaOnly (by simp [SchemaOnly, script])
       (by simp [ModeledDefinitions, script, CatalogTable.plain, CatalogColumn.plain, readDefaultValue, Except.toOption, note, message])
   · intro database admitted
     obtain ⟨table, present, shape, valid, absent⟩ := admitted_invoices admitted
@@ -106,7 +107,7 @@ theorem migrationCorrect (profile : Profile) (columns : 2 ≤ profile.limits.col
     have executed : runSql script database = .success ((database.set 0 (table.appendColumns [(note, .null)])).set 1
         { shape := { columns := [message] }, rows := [] }) := by
       simp only [note, message] at readAudit ⊢
-      simp [runSql, runSqlFrom, advance, literalStep, SqlState.finish, script, step, readDefaultValue, Except.toOption, present, readAudit,
+      simp [runSql, runSqlFrom, advance, literalStep, SqlState.finish, script, step, CatalogColumn.clockDefault, readDefaultValue, Except.toOption, present, readAudit,
         note, message]
     rw [executed]
     refine ⟨trivial, ?_⟩
@@ -130,6 +131,7 @@ theorem migrationCorrect (profile : Profile) (columns : 2 ≤ profile.limits.col
       simpa [next, projectedInterpretation, observeTable, located, stored] using congrArg some sameProjection
     · have located : tablePosition startCatalog "invoices" = some 0 := by decide +kernel
       simpa [current, projectedInterpretation, observeTable, located, present, requirements] using originalRead.symm
+  · decide
 
 #print axioms migrationCorrect
 

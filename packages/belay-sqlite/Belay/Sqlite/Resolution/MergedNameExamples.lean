@@ -24,14 +24,14 @@ def query (results : List ResultColumn) (source : TableReference) (joins : List 
   match (statements (migration merging [.select results (some source) joins none [] [] none none])).head? with
   | some (.query query) => some query
   | some (.createTable ..) | some (.createIndex ..) | some (.addColumn ..) | some .begin | some .commit
-  | some .rollback | some (.insert ..) | some (.upsert ..) | some (.update ..) | some (.delete ..) | some (.prepareError _) | none => none
+  | some .rollback | some (.insert ..) | some (.upsert ..) | some (.update ..) | some (.delete ..) | some (.prepareError _) | some (.clocked ..) | none => none
 
 /-- The prepare error of a {lit}`SELECT` over {name}`merging`, if it has one. -/
 def error (results : List ResultColumn) (source : TableReference) (joins : List Join) : Option PrepareError :=
   match (statements (migration merging [.select results (some source) joins none [] [] none none])).head? with
   | some (.prepareError error) => some error
   | some (.createTable ..) | some (.createIndex ..) | some (.addColumn ..) | some .begin | some .commit
-  | some .rollback | some (.insert ..) | some (.upsert ..) | some (.update ..) | some (.delete ..) | some (.query _) | none => none
+  | some .rollback | some (.insert ..) | some (.upsert ..) | some (.update ..) | some (.delete ..) | some (.query _) | some (.clocked ..) | none => none
 
 /-- The result columns of {lit}`SELECT a` over the joins from {lit}`t`. -/
 def bareA (joins : List Join) : Option (List Resolved.Output) := (query [bare "a"] (table "t") joins).map (·.columns)

@@ -46,6 +46,8 @@ def decodeCase (json : Lean.Json) : Except String Case := do
     unless n.primaryCode != 0 || n.phase.isNone do
       throw s!"native observation {position} has an error phase but result code 0; record the case again, \
         so that a successful observation has a null phase"
+  unless c.clocks.isEmpty || c.clocks.length + 1 == c.nativeTrace.length do
+    throw "clock trace length mismatch: give one clock value for each executed statement, or none"
   match c.outputs with
   | none => unless c.parameters.isEmpty do throw "parameters require outputs"
   | some outputs =>

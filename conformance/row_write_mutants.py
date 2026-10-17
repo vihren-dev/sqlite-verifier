@@ -11,11 +11,11 @@ ROW_UPDATE = SQLITE + "RowUpdate.lean"
 """The execution of UPDATE."""
 STORE = SQLITE + "StoreValue.lean"
 """Store-time affinity."""
-WRITES = SQLITE + "Resolution/Writes.lean"
-"""The resolution of INSERT, which stores each value."""
+ROWS = SQLITE + "Resolution/ClockRows.lean"
+"""The rows of INSERT, which store each value."""
 UPDATES = SQLITE + "Resolution/Updates.lean"
 """The resolution of UPDATE, which stores each constant value."""
-EXECUTION = SQLITE + "SqlExecution.lean"
+EXECUTION = SQLITE + "StatementStep.lean"
 """The checked write of INSERT and UPDATE."""
 OUTPUTS = "verifier-conformance/VerifierConformance/Outputs.lean"
 """The outputs of statements, with the change count."""
@@ -30,8 +30,8 @@ MUTANTS: dict[str, tuple[str, str, str]] = {
     "no_store_affinity": (ROW_UPDATE,
         "values.set position (storeValue (positionAffinity columns position) (expression.eval context))) row.values }",
         "values.set position (expression.eval context)) row.values }"),
-    "cast_as_store_affinity": (WRITES,
-        "    .ok (storeValue column.affinity value)) columns", "    .ok (castValue column.affinity value)) columns"),
+    "cast_as_store_affinity": (ROWS,
+        "      .ok (storeValue column.affinity value, clock)", "      .ok (castValue column.affinity value, clock)"),
     "real_column_keeps_integer": (STORE,
         "  | .integer whole => .real (positiveZero (Float.ofInt whole).toBits)", "  | .integer whole => .integer whole"),
     "text_column_keeps_number": (STORE,
@@ -62,7 +62,7 @@ TARGETS: dict[str, tuple[str, ...]] = {
 GUARDS: dict[str, str] = {
     "set_reads_new_row": "rule:assignFrom", "null_filter_selects": "rule:selected",
     "no_store_affinity": "rule:assignFrom",
-    "cast_as_store_affinity": "rule:fullRow", "real_column_keeps_integer": "rule:realRead",
+    "cast_as_store_affinity": "rule:fullCells", "real_column_keeps_integer": "rule:realRead",
     "text_column_keeps_number": "rule:storeValue", "failed_update_keeps_rows": "rule:checkedWrite",
     "change_count_every_row": "rule:statementOutput",
 }

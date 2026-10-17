@@ -75,10 +75,11 @@ example : ¬validRowid 9223372036854775808 := by unfold validRowid; decide
   some (0, .unmodeled)
 #guard failureInfo (runSql [.addColumn 1 { name := "x", declaredType := none }] initial) = some (0, .unmodeled)
 
-/-- For every profile, script and starting database, the computed SQL result
-is a related execution, including errors and open transactions. -/
-theorem all_scripts_execute (profile : Profile) (script : List Resolved.Statement) (database : Database) :
-    ProfileExecutes profile script database (runSql script database) := .evaluated
+/-- For every profile, script, starting database and clock assignment, the computed SQL
+result at the clock assignment is a related execution, including errors and open
+transactions. -/
+theorem all_scripts_execute (profile : Profile) (script : List Resolved.Statement) (database : Database)
+    (clock : Clock) : ProfileExecutes profile script database (runSqlAt clock script database) := .evaluated clock
 
 /-- For every schema-only script and starting database, the computed SQL result
 extends the original database, including failure prefixes. The guard excludes

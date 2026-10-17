@@ -32,7 +32,9 @@ keeps NULL. Arithmetic and {lit}`CAST` follow {name}`ArithmeticOperator.apply` a
 {name}`castValue`; {lit}`COALESCE` gives its first operand unless that is NULL. A JSON
 function gives the value of {name}`Json.apply` over the values of its arguments, and
 NULL when it fails: whether and where SQLite reports that failure is
-{lit}`Expr.mayFail` and {lit}`Expr.mustFail` of {lit}`JsonFaults`. -/
+{lit}`Expr.mayFail` and {lit}`Expr.mustFail` of {lit}`JsonFaults`. A time keyword is NULL
+here: the execution replaces it with the statement's clock text first
+({lit}`Statement.atClock`). -/
 def Expr.eval (row : List Value) : Expr → Value
   | .column position => row.getD position .null
   | .literal value => value
@@ -55,7 +57,7 @@ def Expr.eval (row : List Value) : Expr → Value
   | .json function arguments => match Json.apply function (arguments.eval row) with
     | .ok value => value
     | .error _ => .null
-  | .arguments _ => .null
+  | .arguments _ | .now _ => .null
 
 /-- The values of the arguments of a call over one row, in written order. -/
 def Arguments.eval (row : List Value) : Arguments → List Value

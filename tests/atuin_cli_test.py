@@ -117,8 +117,9 @@ def test_omitted_original_primary_key(pilot: Path, verify: Callable[..., dict[st
 
 
 def test_unsupported_default(pilot: Path, verify: Callable[..., dict[str, object]]) -> None:
-    """Report unsupported default semantics instead of accepting an unmodeled initialization."""
-    replace_bytes(pilot / 'migration.sql', b'add column shell text;', b"add column shell text DEFAULT CURRENT_TIMESTAMP;")
+    """Report unsupported default semantics instead of accepting an unmodeled initialization:
+    the model does not read back a signed text default (`add-column-constraint`)."""
+    replace_bytes(pilot / 'migration.sql', b'add column shell text;', b"add column shell text DEFAULT +'x';")
     verify('UNSUPPORTED')
 
 

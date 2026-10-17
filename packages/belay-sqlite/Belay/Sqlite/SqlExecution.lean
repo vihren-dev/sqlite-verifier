@@ -1,200 +1,107 @@
-import Belay.Sqlite.Execution
-import Belay.Sqlite.RowDelete
-import Belay.Sqlite.UpsertRun
-import Belay.Sqlite.JsonReady
+import Belay.Sqlite.StatementStep
+import Belay.Sqlite.StatementClockLaws
 
 set_option doc.verso true
 
-/-! Script-directed SQL execution of resolved statements. BEGIN records the
-committed snapshot; an explicit COMMIT/ROLLBACK, or an INSERT that fails with the
-ROLLBACK algorithm, changes transaction state. Other statement errors stop execution
-without inferring connection closure, framework cleanup, or transaction rollback. -/
+/-! Script-directed SQL execution of resolved statements with the clock (ADR 0012, amendment
+5, slice 6e2). Each statement sees one clock value, which a clock assignment gives for its
+position; the execution applies it to each statement ({lit}`Statement.atClock`) and then
+runs the script as {lit}`runSql` of {lit}`StatementStep.lean` does. The execution relation relates a
+script to the outcome of every clock assignment, so a verification target quantifies over
+every clock value of every statement (ADR 0012, owner decision 8). A script that does not
+read the clock has the outcome of {lit}`runSql` at every clock assignment. -/
+
 namespace Belay.Sqlite
 
-/-- The current connection view and optional transaction snapshot. Supply a
-database and omit the snapshot for an idle connection. -/
-structure SqlState where
-  /-- Current connection-visible storage. -/
-  database : Database
-  /-- Pre-BEGIN committed storage; omit it outside a transaction. -/
-  snapshot : Option Database := none
+/-- A clock assignment: the clock value that the statement at each zero-based position
+sees, in SQLite's Julian-day milliseconds (what the VFS method {lit}`xCurrentTimeInt64`
+returns). Use {lean}`(fun _ => 0 : Clock)` when no statement reads the clock. -/
+abbrev Clock := Nat → Int
 
-/-- Attach an open transaction to a terminal result. A success becomes pending
-without an error; a failure becomes pending with its position/error. An existing
-pending result is retained. With no snapshot, return the supplied outcome. -/
-def SqlState.finish (state : SqlState) (outcome : Outcome) : Outcome :=
-  match state.snapshot, outcome with
-  | none, _ => outcome
-  | some original, .success result => .pending original result none
-  | some original, .failure index reason result => .pending original result (some (index, reason))
-  | _, .pending .. => outcome
+/-- A script under a clock assignment: each statement at the clock value of its position
+({name}`Resolved.Statement.atClock`). The statements of the result read no clock. -/
+def scriptAtClock (clock : Clock) (script : List Resolved.Statement) : List Resolved.Statement :=
+  script.mapIdx fun position (statement : Resolved.Statement) => statement.atClock (clock position)
 
-/-- The outcome of a statement that fails: a ROLLBACK failure in an open transaction
-rolls it back, so it is the failure over the snapshot outside a transaction; every other
-failure, and a ROLLBACK failure without a transaction, is {name}`SqlState.finish` of the
-failure. -/
-def SqlState.failed (state : SqlState) (position : Nat) (reason : ExecutionError) (database : Database) : Outcome :=
-  if reason = .constraintRollback then match state.snapshot with
-    | some original => .failure position reason original
-    | none => state.finish (.failure position reason database)
-  else state.finish (.failure position reason database)
+/-- Execute a resolved script from position zero outside a transaction under a clock
+assignment: {name}`runSql` of the script under the clock assignment ({name}`scriptAtClock`). -/
+def runSqlAt (clock : Clock) (script : List Resolved.Statement) (database : Database) : Outcome :=
+  runSql (scriptAtClock clock script) database
 
-/-- One SQL transition either continues with a connection state or halts with an
-{name}`Outcome`. Evaluate a supplied statement to obtain a transition. -/
-inductive SqlTransition where
-  /-- Continue with this updated connection state. -/
-  | next (state : SqlState)
-  /-- Stop with this error or terminal result. -/
-  | halt (outcome : Outcome)
-
-/-- Store a write's result when it satisfies the constraints of the given keys and its
-rowids are distinct ({name}`LiteralData.rowidsDistinct`), or fail at the position with
-{lean}`ExecutionError.constraintViolation` and the input database. -/
-def checkedWrite (database : Database) (at_ : Nat) (keys : List (List Nat)) (result : Table)
-    (position : Nat) : Outcome :=
-  if LiteralData.constraints keys result && LiteralData.rowidsDistinct result then
-    .success (database.set at_ result)
-  else .failure position .constraintViolation database
-
-/-- The outcome of INSERT: SQLite inserts the rows in order, and refuses a rowid alias
-that is not an integer before the constraints of its row
-({name}`LiteralData.aliasMismatch`), so the first such row is
-{lean}`ExecutionError.datatypeMismatch` unless the rows before it already fail; with no
-such row, {name}`checkedWrite` of all rows. A failure keeps the input database. -/
-def insertOutcome (database : Database) (at_ : Nat) (keys : List (List Nat)) (table : Table)
-    (rows : List (List Value)) (position : Nat) : Outcome :=
-  match rows.findIdx? (LiteralData.aliasMismatch table.shape) with
-  | some index =>
-    let before := LiteralData.inserted table (rows.take index)
-    if LiteralData.constraints keys before && LiteralData.rowidsDistinct before then
-      .failure position .datatypeMismatch database
-    else .failure position .constraintViolation database
-  | none => checkedWrite database at_ keys (LiteralData.inserted table rows) position
-
-/-- Apply INSERT/UPDATE with ABORT constraints over the statement's keys, INSERT with
-{lit}`ON CONFLICT` clauses row by row ({name}`LiteralData.upsertRun`), and DELETE,
-which removes rows and cannot fail a constraint. A position without a table fails as
-{lean}`ExecutionError.unmodeled`; a failed constraint retains the input database.
-Other statements use {name}`step`. This
-computation does not establish the separate stored-value support obligation. -/
-def literalStep (statement : Resolved.Statement) (database : Database) (position : Nat) : Outcome :=
-  match statement with
-  | .insert at_ rows keys _ => match database at_ with
-    | none => .failure position .unmodeled database
-    | some table => insertOutcome database at_ keys table rows position
-  | .upsert at_ rows clauses keys _ policy => match database at_ with
-    | none => .failure position .unmodeled database
-    | some table => match LiteralData.upsertRun keys policy clauses table rows with
-      | .ok (result, _) => .success (database.set at_ result)
-      | .error (reason, reached, _) => .failure position reason (LiteralData.failedDatabase database at_ reason reached)
-  | .update at_ assignments filter keys _ => match database at_ with
-    | none => .failure position .unmodeled database
-    | some table =>
-      if LiteralData.updateMismatch table assignments filter then .failure position .datatypeMismatch database
-      else checkedWrite database at_ keys (LiteralData.updated table assignments filter) position
-  | .delete at_ filter _ => match database at_ with
-    | none => .failure position .unmodeled database
-    | some table => .success (database.set at_ (LiteralData.deleted table filter))
-  | .createTable .. | .createIndex .. | .addColumn .. | .begin | .commit | .rollback | .prepareError _ | .query _ =>
-    step statement database position
-
-/-- Check that the model describes the statement against the current table.
-INSERT/UPDATE must pass the data domain of the table, and every write and query the
-JSON checks of {lit}`JsonReady`; a position without a table passes and fails during
-execution instead. CREATE TABLE must be plain; ADD COLUMN must have modeled default
-readback; CREATE INDEX fails: these are model restrictions, because SQLite accepts such
-statements. Other statement forms pass. Use it through the reached-statement script
-support check. -/
-def statementReady (statement : Resolved.Statement) (database : Database) : Bool :=
-  match statement with
-  | .insert at_ rows keys returning => (database at_).all fun table => LiteralData.insertReady keys table rows &&
-      !(returningExpressions returning).any Resolved.Expr.callsJson
-  | .upsert at_ rows clauses keys returning policy => (database at_).all fun table =>
-      LiteralData.upsertReady keys policy table clauses rows && upsertJsonReady clauses returning
-  | .update at_ assignments filter keys returning => (database at_).all fun table =>
-      LiteralData.updateReady keys table assignments filter && updateJsonReady table assignments filter returning
-  | .delete at_ filter returning => (database at_).all fun table => deleteJsonReady table filter returning
-  | .createTable _ _ table => table.plain
-  | .addColumn _ column => (readDefaultValue column).toOption.isSome
-  | .createIndex .. => false
-  | .query query => queryJsonReady query database
-  | .begin | .commit | .rollback | .prepareError _ => true
-
-/-- Evaluate one statement at its supplied zero-based position. BEGIN records a
-snapshot; COMMIT clears it; ROLLBACK restores it. Repeated BEGIN or transaction
-closure without a snapshot halts with an error. Other statements use
-{name}`literalStep`; an error retains any open transaction, except a ROLLBACK failure,
-which rolls it back ({name}`SqlState.failed`). -/
-def advance (position : Nat) (statement : Resolved.Statement) (state : SqlState) : SqlTransition :=
-  match statement with
-  | .begin => match state.snapshot with
-    | some _ => .halt (state.finish (.failure position .transactionAlreadyActive state.database))
-    | none => .next { state with snapshot := some state.database }
-  | .commit => match state.snapshot with
-    | none => .halt (.failure position .noActiveTransaction state.database)
-    | some _ => .next { state with snapshot := none }
-  | .rollback => match state.snapshot with
-    | none => .halt (.failure position .noActiveTransaction state.database)
-    | some original => .next { database := original }
-  | .createTable .. | .createIndex .. | .addColumn .. | .insert .. | .upsert .. | .update .. | .delete ..
-  | .prepareError _ | .query _ =>
-    match literalStep statement state.database position with
-    | .success database => .next { state with database := database }
-    | .failure failed reason database => .halt (state.failed failed reason database)
-    | .pending persisted visible error => .halt (state.finish (.pending persisted visible error))
-
-/-- Execute the script from a supplied position and connection state. A halt stops
-the script; a continuing transition advances the position. EOF finishes the
-current state and preserves an open transaction. The idle wrapper starts at position zero. -/
-def runSqlFrom (position : Nat) (script : List Resolved.Statement) (state : SqlState) : Outcome :=
-  match script with
-  | [] => state.finish (.success state.database)
-  | statement :: rest => match advance position statement state with
-    | .halt outcome => outcome
-    | .next next => runSqlFrom (position + 1) rest next
-
-/-- Execute a resolved script from position zero outside a transaction. Use
-{name}`runSqlFrom` for an explicit position/state. A file is not implicitly atomic;
-transaction control must be supplied in its statements. -/
-def runSql (script : List Resolved.Statement) (database : Database) : Outcome :=
-  runSqlFrom 0 script { database := database }
-
-/-- Check {name}`statementReady` at every reached statement and follow the actual
-transition. After a halt, unreachable statements impose no obligation. An empty
-script passes. -/
-def supportedSqlFrom (position : Nat) (script : List Resolved.Statement) (state : SqlState) : Bool :=
-  match script with
-  | [] => true
-  | statement :: rest => statementReady statement state.database &&
-    match advance position statement state with
-    | .halt _ => true
-    | .next next => supportedSqlFrom (position + 1) rest next
-
-/-- For the supplied script and database, the reached-statement data check returns
-true. This does not assert native refinement or successful execution. A
-verification target proves this obligation for every admitted database; it is not
-an extra unproved premise. -/
+/-- For the supplied script and database, and every clock assignment, the reached-statement
+data check {name}`supportedSqlFrom` of the script under the clock assignment
+({name}`scriptAtClock`) returns true. This does not assert native refinement or successful
+execution. A verification target proves this obligation for every admitted database; it
+is not an extra unproved premise. -/
 def SupportedSql (script : List Resolved.Statement) (database : Database) : Prop :=
-  supportedSqlFrom 0 script { database := database } = true
+  ∀ clock : Clock, supportedSqlFrom 0 (scriptAtClock clock script) { database := database } = true
 
-/-- Relate each profile, script and starting database to its computed
-{name}`runSql` outcome. Every profile currently has this same deterministic
-semantics; the profile remains bound into verification inputs. -/
+/-- Relate each profile, script and starting database to the outcome of every clock
+assignment ({name}`runSqlAt`). Every profile currently has this same semantics; the profile
+remains bound into verification inputs. -/
 inductive ProfileExecutes : Profile → List Resolved.Statement → Database → Outcome → Prop where
-  /-- The computed SQL result is related for every profile, script and database. -/
-  | evaluated : ProfileExecutes profile script database (runSql script database)
+  /-- The computed SQL result under a clock assignment is related for every profile, script
+  and database. -/
+  | evaluated (clock : Clock) : ProfileExecutes profile script database (runSqlAt clock script database)
 
-/-- For every profile, script and starting database, there exists a related
-outcome. The computed result supplies the witness, including empty scripts,
+/-- For every profile, script and starting database, there exists a related outcome. The
+computed result at any clock assignment supplies the witness, including empty scripts,
 errors and pending transactions; outcome coverage is never vacuous. -/
 theorem ProfileExecutes.total (profile : Profile) (script : List Resolved.Statement)
     (database : Database) : ∃ outcome, ProfileExecutes profile script database outcome :=
-  ⟨_, .evaluated⟩
+  ⟨_, .evaluated fun _ => 0⟩
 
-/-- For every related execution, its outcome equals the computed {name}`runSql`
-result for the same script and starting database. The proof inspects the relation
-constructor; there are no additional hypotheses. -/
+/-- For every related execution, there is a clock assignment under which its outcome is the
+computed {name}`runSqlAt` result for the same script and starting database. The proof
+inspects the relation constructor; there are no additional hypotheses. -/
 theorem ProfileExecutes.result (execution : ProfileExecutes profile script database outcome) :
-    runSql script database = outcome := by cases execution; rfl
+    ∃ clock, runSqlAt clock script database = outcome := by
+  cases execution with
+  | evaluated clock => exact ⟨clock, rfl⟩
+
+/-- Whether no statement of the script reads the clock ({name}`Resolved.Statement.readsClock`). -/
+def scriptReadsClock (script : List Resolved.Statement) : Bool :=
+  script.any Resolved.Statement.readsClock
+
+/-- For every clock assignment and every script that does not read the clock, the script
+under the clock assignment is the script itself. Proof sketch: the two lists have the same
+length, and each statement is unchanged at its clock value
+({name}`Resolved.Statement.atClock_of_readsClock`). -/
+theorem scriptAtClock_of_readsClock (clock : Clock) (script : List Resolved.Statement)
+    (free : scriptReadsClock script = false) : scriptAtClock clock script = script := by
+  simp only [scriptAtClock, scriptReadsClock, List.any_eq_false, Bool.not_eq_true] at free ⊢
+  apply List.ext_getElem (by simp)
+  intro index _ _
+  simp only [List.getElem_mapIdx]
+  exact Resolved.Statement.atClock_of_readsClock _ _ (free _ (List.getElem_mem _))
+
+/-- For every clock assignment, database and script that does not read the clock, the
+execution under the clock assignment is {name}`runSql`. -/
+theorem runSqlAt_of_readsClock (clock : Clock) (script : List Resolved.Statement) (database : Database)
+    (free : scriptReadsClock script = false) : runSqlAt clock script database = runSql script database := by
+  rw [runSqlAt, scriptAtClock_of_readsClock clock script free]
+
+/-- For every script that does not read the clock and every database: if the support check
+{name}`supportedSqlFrom` passes, the script is supported at every clock assignment. -/
+theorem SupportedSql.of_readsClock {script : List Resolved.Statement} {database : Database}
+    (free : scriptReadsClock script = false) (supported : supportedSqlFrom 0 script { database := database } = true) :
+    SupportedSql script database := fun clock => by
+  rw [scriptAtClock_of_readsClock clock script free]
+  exact supported
+
+/-- For every related execution of a script that does not read the clock, its outcome is
+the computed {name}`runSql` result. -/
+theorem ProfileExecutes.result_of_readsClock (free : scriptReadsClock script = false)
+    (execution : ProfileExecutes profile script database outcome) : runSql script database = outcome := by
+  obtain ⟨clock, executed⟩ := execution.result
+  rw [← executed]
+  exact (runSqlAt_of_readsClock clock script database free).symm
+
+/-- For every profile, database and script that does not read the clock, the computed
+{name}`runSql` result is a related execution: it is the outcome at every clock assignment. -/
+theorem ProfileExecutes.of_readsClock (free : scriptReadsClock script = false) :
+    ProfileExecutes profile script database (runSql script database) := by
+  rw [← runSqlAt_of_readsClock (fun _ => 0) script database free]
+  exact .evaluated _
 
 end Belay.Sqlite

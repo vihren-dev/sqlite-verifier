@@ -38,8 +38,10 @@ def test_native_model(name: str, runtime_root: Path, tmp_path: Path) -> None:
     frozen = json.loads((Path(__file__).resolve().parents[1] / "conformance/cases" / f"{name}.json").read_text())
     assert frozen["version"] == 4
     # Retained fixtures have no defaults; their syntax and native observations are unchanged.
+    # They predate the clock, and their recorder controlled none, so a replay has no clock values.
     from conformance.case_format import CASE_VERSION
-    assert case == {**frozen, "version": CASE_VERSION}, "Native replay differs from the frozen pinned-engine record"
+    assert case == {**frozen, "version": CASE_VERSION, "clocks": []}, \
+        "Native replay differs from the frozen pinned-engine record"
     expected = [native_expected(table) for table in sorted(old.after, key=lambda table: table.name)]
     assert case["nativeTrace"][-1]["visible"] == expected
     assert old.native_error in dict(cast(list[list[str]], case["provenance"]))["nativeError"]

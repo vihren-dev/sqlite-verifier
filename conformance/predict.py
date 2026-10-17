@@ -20,7 +20,7 @@ from belay.sqlite.located import Located
 from belay.sqlite.sql_tree import ParserResourceLimit, parse
 from belay.sqlite.syntax import statements
 from conformance import native_bindings
-from conformance.case_format import Json, row_wire
+from conformance.case_format import UNIX_EPOCH_JULIAN_MILLISECONDS, Json, row_wire
 from conformance.predict_render import output_record, view_record
 from conformance.profile_scope import modeled_profile
 from conformance.record_parser import NO_PARSER_REASON, record_parser, runtime_library
@@ -37,6 +37,16 @@ def initial_rows(rows: dict[str, Json]) -> list[Json]:
             for name, table_rows in sorted(rows.items())]
 
 
+
+def julian_clocks(given: dict[str, Json]) -> list[int]:
+    """The clock value of each executed statement in Julian-day milliseconds, from the Unix
+    milliseconds that the judge supplies; empty when it supplies none."""
+    clocks = given.get("clockUnixMilliseconds") or []
+    if not isinstance(clocks, list) or not all(type(clock) is int for clock in clocks):
+        raise ValueError("clockUnixMilliseconds must be a list of integers")
+    return [clock + UNIX_EPOCH_JULIAN_MILLISECONDS for clock in clocks]
+
+
 def mapped(given: dict[str, Json], library: object) -> tuple[dict[str, Json], list[Located]]:
     """The model input of one case and its statements; frontend refusals and execution
     settings that the model does not implement raise `SqlError` (`profile_scope`)."""
@@ -45,7 +55,7 @@ def mapped(given: dict[str, Json], library: object) -> tuple[dict[str, Json], li
     schema = statements(parse(parser, given["initialSchemaSql"].encode(), "corpus-schema.sql"))
     script = statements(parse(parser, given["migrationSql"].encode(), "corpus-migration.sql"))
     return {"profile": profile, "schema": [item.value for item in schema], "script": [item.value for item in script],
-            "initial": initial_rows(given["initialRows"])}, script
+            "initial": initial_rows(given["initialRows"]), "clocks": julian_clocks(given)}, script
 
 
 def refusal(given: dict[str, Json], error: Exception) -> dict[str, Json]:

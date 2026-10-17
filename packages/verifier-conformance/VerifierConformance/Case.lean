@@ -26,6 +26,9 @@ structure Case where
   provenance : List (String × String) := []
   parameters : List (List Value) := []
   outputs : Option (List NativeOutput) := none
+  /-- The clock value of each statement of the script, in SQLite's Julian-day milliseconds,
+  as the recorder supplied it; empty for a record without a controlled clock. -/
+  clocks : List Int := []
   deriving Repr
 
 /-- Unsupported cases cannot be mistaken for either agreement or a model bug. -/
@@ -76,7 +79,7 @@ def primaryCode : Option (Nat × ExecutionError) → Nat
   | some (_, .datatypeMismatch) => 20
   | some (_, .unmodeled) | some (_, .prepare _) | some (_, .transactionAlreadyActive)
   | some (_, .noActiveTransaction) | some (_, .integerOverflow) | some (_, .functionError)
-  | some (_, .nullColumnDefault) => 1
+  | some (_, .nullColumnDefault) | some (_, .nonConstantColumnDefault) => 1
 
 /-- The phase in which SQLite reports a modeled error: a prepare error of resolution
 in {lit}`sqlite3_prepare_v2`, and every other modeled error in {lit}`sqlite3_step`. -/
@@ -86,7 +89,7 @@ def errorPhase : Option (Nat × ExecutionError) → Option ErrorPhase
   | some (_, .unmodeled) | some (_, .transactionAlreadyActive) | some (_, .noActiveTransaction)
   | some (_, .constraintViolation) | some (_, .constraintFail) | some (_, .constraintRollback)
   | some (_, .integerOverflow) | some (_, .datatypeMismatch) | some (_, .functionError)
-  | some (_, .nullColumnDefault) => some .step
+  | some (_, .nullColumnDefault) | some (_, .nonConstantColumnDefault) => some .step
 
 /-- Compare the visible and committed views under their catalogs, the transaction
 status, the primary code and, when the recorder observed it, the error phase; never
@@ -123,16 +126,22 @@ def compareOutputs (position : Nat) : List (Option StatementOutput) → List Nat
     else .disagree (some position)
   | _, _ => .disagree (some position)
 
+/-- The clock assignment of a case: the recorded clock value of each statement, and 0
+beyond them, where SQLite's time keywords give NULL. -/
+def Case.clock (c : Case) : Clock := fun position => c.clocks.getD position 0
+
 /-- Resolve the case under its recorded profile, then check the initial state first,
-admission second, and the complete execution trace and outputs last. A model
-restriction is unsupported; a schema that SQLite prepared but resolution refuses is
+admission second, and the complete execution trace and outputs last. Each statement
+runs at its recorded clock value ({name}`scriptAtClock`); a script that reads the clock is
+unsupported for a record without clock values. A model restriction is unsupported; a schema that SQLite prepared but resolution refuses is
 a disagreement. -/
 def classifyCase (c : Case) : Verdict :=
   let profile := c.profile
   match resolveSchemaAndScript profile c.schema c.script with
   | .error (.schemaRestricted _) | .error (.scriptRestricted _) => .modelUnsupported
   | .error (.schemaPrepareError ..) => .disagree none
-  | .ok resolution =>
+  | .ok unclocked =>
+    let resolution := { unclocked with resolved := scriptAtClock c.clock unclocked.resolved }
     let states := resolveStates { profile, mode := .execution } 0 { catalog := resolution.startCatalog } c.script
     let count := stateBound states
     let initial := databaseOf resolution.startCatalog c.initial
@@ -141,7 +150,8 @@ def classifyCase (c : Case) : Verdict :=
     match observed, c.nativeTrace with
     | first :: rest, expected :: expectations =>
       if !matchesObservation { catalog := resolution.startCatalog } first expected then .disagree none
-      else if !supportedSqlFrom 0 resolution.resolved { database := initial } || observed.any invalidObservation ||
+      else if (c.clocks.isEmpty && scriptReadsClock unclocked.resolved) ||
+          !supportedSqlFrom 0 resolution.resolved { database := initial } || observed.any invalidObservation ||
           c.parameters.any (fun values => !values.isEmpty) || (c.outputs.isSome && outputs.any Option.isNone) then
         .modelUnsupported
       else
@@ -156,7 +166,7 @@ def classifyCase (c : Case) : Verdict :=
 from the native starting tables; {name}`Option.none` when the model refuses the case. -/
 def modelOutcome (c : Case) : Option Outcome :=
   match resolveSchemaAndScript c.profile c.schema c.script with
-  | .ok resolution => some (runSql resolution.resolved (databaseOf resolution.startCatalog c.initial))
+  | .ok resolution => some (runSqlAt c.clock resolution.resolved (databaseOf resolution.startCatalog c.initial))
   | .error _ => none
 
 /-- Both compiled testing and concrete kernel proofs use the same classification. -/

@@ -106,13 +106,17 @@ theorem step_extends (statement : Resolved.Statement) (database : Database) (pos
     | none => exact DatabaseExtends.refl database
     | some table =>
       simp only []
-      cases readDefaultValue column with
-      | error _ => exact DatabaseExtends.refl database
-      | ok value =>
-        simp only []
-        split
+      split
+      · split
+        · exact DatabaseExtends.add database at_ table [(column, .null)] h
         · exact DatabaseExtends.refl database
-        · exact DatabaseExtends.add database at_ table [(column, value)] h
+      · cases readDefaultValue column with
+        | error _ => exact DatabaseExtends.refl database
+        | ok value =>
+          simp only []
+          split
+          · exact DatabaseExtends.refl database
+          · exact DatabaseExtends.add database at_ table [(column, value)] h
   | createIndex _ _ _ => exact DatabaseExtends.refl database
   | query query =>
     have same : (step (.query query) database position).database = database := by
@@ -131,6 +135,7 @@ theorem step_extends (statement : Resolved.Statement) (database : Database) (pos
   | update _ _ _ _ _ => exact DatabaseExtends.refl database
   | delete _ _ _ => exact DatabaseExtends.refl database
   | prepareError _ => exact DatabaseExtends.refl database
+  | clocked _ _ => exact DatabaseExtends.refl database
 
 /-- For every script containing only CREATE/ADD, idle starting database and
 position, the computed SQL result extends the starting database. Invalid schema

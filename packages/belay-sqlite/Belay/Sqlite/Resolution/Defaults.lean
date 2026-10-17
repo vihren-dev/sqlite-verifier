@@ -22,7 +22,7 @@ def literalDefault : Syntax.Expr → Except ValueIssue Value
     if !quoted && normalizeIdentifier name == "true" then .ok (.integer 1)
     else if !quoted && normalizeIdentifier name == "false" then .ok (.integer 0)
     else .ok (.text name.toUTF8.toList)
-  | .currentTime _ => .error (.restriction [] .timeValue)
+  | .currentTime _ => .error (.restriction [] .unmodeledDefault)
   | .negate _ | .positive _ | .equals .. | .compare .. | .and .. | .or .. | .not _
   | .isNull .. | .callStar _ | .call .. | .arithmetic .. | .cast .. | .callPair .. | .more .. | .qualified .. =>
     .error (.restriction [] .unmodeledDefault)

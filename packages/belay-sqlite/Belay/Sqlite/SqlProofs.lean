@@ -74,9 +74,10 @@ def SchemaOnly (script : List Resolved.Statement) : Prop :=
     | .delete .. => False
     | .prepareError _ => False
     | .query _ => False
+    | .clocked .. => False
 
-/-- No statement in the script is INSERT (with or without {lit}`ON CONFLICT`), UPDATE or
-DELETE, and no query has a JSON call in its expressions
+/-- No statement in the script is INSERT (with or without {lit}`ON CONFLICT`, or with
+cells that read the clock), UPDATE or DELETE, and no query has a JSON call in its expressions
 ({name}`Resolved.Query.expressions`, {name}`Resolved.Expr.callsJson`) or a {lit}`json_each`
 source. This is a syntax guard, not a success claim; the empty script satisfies it. -/
 def NoWrites (script : List Resolved.Statement) : Prop :=
@@ -85,6 +86,7 @@ def NoWrites (script : List Resolved.Statement) : Prop :=
     | .upsert .. => False
     | .update .. => False
     | .delete .. => False
+    | .clocked .. => False
     | .query query => query.expressions.all (!·.callsJson) = true ∧ query.functions = []
     | .createTable .. | .createIndex .. | .addColumn .. | .begin | .commit | .rollback | .prepareError _ => True
 
@@ -95,9 +97,9 @@ statements are unrestricted; the empty script satisfies it. -/
 def ModeledDefinitions (script : List Resolved.Statement) : Prop :=
   ∀ statement ∈ script, match statement with
     | .createTable _ _ table => table.plain = true
-    | .addColumn _ column => (readDefaultValue column).toOption.isSome = true
+    | .addColumn _ column => (column.clockDefault || (readDefaultValue column).toOption.isSome) = true
     | .createIndex .. => False
-    | .insert .. | .upsert .. | .update .. | .delete .. | .begin | .commit | .rollback | .prepareError _
+    | .insert .. | .upsert .. | .update .. | .delete .. | .clocked .. | .begin | .commit | .rollback | .prepareError _
     | .query _ => True
 
 /-- For every position and connection state, a {name}`NoWrites` script with
@@ -121,7 +123,7 @@ theorem supportedSqlFrom_noWrites (guard : NoWrites script) (modeled : ModeledDe
         simp [statementReady, queryJsonReady, Resolved.Query.mayFail_of_callsJson query _ plain,
           eachJsonReady_plain query _ noFunctions]
       | createTable | createIndex | addColumn | begin | commit | rollback | insert | upsert | update | delete
-      | prepareError => simp_all [statementReady]
+      | prepareError | clocked => simp_all [statementReady]
     simp only [supportedSqlFrom, ready, Bool.true_and]
     cases advance position statement state with
     | halt outcome => rfl

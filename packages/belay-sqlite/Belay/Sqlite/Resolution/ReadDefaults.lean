@@ -34,6 +34,15 @@ def readNumericDefault (affinity : Affinity) (token : String) (negated : Bool) :
       else .text bytes
   storeValue affinity value
 
+/-- Whether the column's default is a time keyword, such as {lit}`DEFAULT CURRENT_TIMESTAMP`,
+whose value depends on the statement's clock. ADD COLUMN with such a default fails on a
+populated table ({lit}`Cannot add a column with non-constant default`), and INSERT gives an
+omitted value the statement's clock text. -/
+def CatalogColumn.clockDefault (column : CatalogColumn) : Bool :=
+  match column.defaultValue with
+  | some { expression := .currentTime _, .. } => true
+  | _ => false
+
 /-- Read a column's default for a field absent from an old record, applying its
 column affinity. No default supplies NULL. Numeric tokens use
 {name}`readNumericDefault`; other literal forms use {name}`writtenDefault`.

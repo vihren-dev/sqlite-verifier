@@ -24,10 +24,9 @@ EXAMPLES: dict[str, tuple[str, str]] = {
     "engine-table": ("CREATE TABLE t(a INTEGER); CREATE TABLE sqlite_sequence(name, seq);", "SELECT a FROM t;"),
     "rowid-column-name": ("CREATE TABLE t(a INTEGER);", "CREATE TABLE u(rowid TEXT);"),
     "create-table-constraints": ("CREATE TABLE t(a INTEGER);", "CREATE TABLE u(a INTEGER NOT NULL);"),
-    "unmodeled-default": ("CREATE TABLE t(a INTEGER DEFAULT CURRENT_DATE);", "SELECT a FROM t;"),
+    "unmodeled-default": ("CREATE TABLE t(a INTEGER DEFAULT -'a');", "SELECT a FROM t;"),
     "create-index-runs": ("CREATE TABLE t(a INTEGER);", "CREATE INDEX i ON t(a);"),
-    "add-column-constraint": ("CREATE TABLE t(a INTEGER);", "ALTER TABLE t ADD COLUMN b TEXT DEFAULT CURRENT_TIMESTAMP;"),
-    "time-value": ("CREATE TABLE t(a INTEGER, b TEXT DEFAULT CURRENT_TIMESTAMP);", "INSERT INTO t(a) VALUES (1);"),
+    "add-column-constraint": ("CREATE TABLE t(a INTEGER);", "ALTER TABLE t ADD COLUMN b TEXT DEFAULT +'x';"),
     "row-dependent-key": ("CREATE TABLE t(a INTEGER UNIQUE);", "UPDATE t SET a = a + 1;"),
     "conflict-without-target": ("CREATE TABLE t(a INTEGER UNIQUE, b INTEGER UNIQUE);",
                                 "INSERT INTO t VALUES (1, 2) ON CONFLICT DO UPDATE SET b = 3;"),
@@ -63,6 +62,7 @@ EXAMPLES: dict[str, tuple[str, str]] = {
     "table-after-function": ("CREATE TABLE t(a);", "SELECT * FROM json_each('[1]'), t;"),
     "function-join": ("CREATE TABLE t(a);", "SELECT * FROM t LEFT JOIN json_each('[1]');"),
     "later-source-in-arguments": ("CREATE TABLE t(a);", "SELECT * FROM t, json_each(b.value) AS a, json_each('[1]') AS b;"),
+    "boolean-name": ("CREATE TABLE t(a);", "SELECT a IS NOT FALSE FROM t;"),
 }
 """For each restriction id: a schema and a migration that the resolver refuses with it."""
 

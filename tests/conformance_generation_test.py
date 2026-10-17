@@ -109,9 +109,10 @@ def test_frozen_regression(runtime_root: Path, tmp_path: Path) -> None:
     fresh, error = acquire(program.fixture(), runtime_root)
     retained = json.loads(case_file.read_text())
     assert retained["version"] == 4
-    # This fixture has no defaults; only the transport version changed.
+    # This fixture has no defaults and no controlled clock: only the transport version
+    # changed, and the case now has its empty clock values.
     from conformance.case_format import CASE_VERSION
-    assert fresh == {**retained, "version": CASE_VERSION}, error
+    assert fresh == {**retained, "version": CASE_VERSION, "clocks": []}, error
     from conformance.model_check import prove
     result = compiled(fresh, runtime_root, emit_lean=True)
     assert result['verdict'] == 'AGREE'

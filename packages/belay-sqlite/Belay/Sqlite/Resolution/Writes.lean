@@ -1,5 +1,6 @@
 import Belay.Sqlite.Resolution.Definitions
 import Belay.Sqlite.Resolution.Upserts
+import Belay.Sqlite.Resolution.ClockRows
 
 set_option doc.verso true
 
@@ -24,16 +25,6 @@ def insertPositions (tableName : String) (columns : List CatalogColumn) :
   | name :: rest => match columnPosition columns name with
     | some position => (insertPositions tableName columns rest).map (position :: ·)
     | none => .error (.tableHasNoColumn tableName name)
-
-/-- One full row in table order: the written value of a named column, or its default,
-stored with the column's affinity ({name}`storeValue`). -/
-def fullRow (columns : List CatalogColumn) (positions : List Nat) (row : List Value) :
-    Except ValueIssue (List Value) :=
-  resolveAll (fun position column => do
-    let value ← match positions.idxOf? position with
-      | some written => .ok (row[written]?.getD .null)
-      | none => defaultValue column
-    .ok (storeValue column.affinity value)) columns
 
 /-- The {lit}`ON CONFLICT` algorithm of each key of {name}`Catalog.uniqueKeys`, in its
 order: the primary key's, each UNIQUE constraint's, and ABORT for each unique index. -/
@@ -87,7 +78,7 @@ def resolveInsert (context : ResolveContext) (catalog : Catalog) (index : Nat) (
     match positions with
     | .error error => prepareError catalog error
     | .ok positions =>
-      match resolveAll (fun row values => (resolveAll (fun _ => constantValue context.profile.dqsDml)
+      match resolveAll (fun row values => (resolveAll (fun _ => constantCell context.profile.dqsDml)
           values).mapError (·.under [row])) rows with
       | .error issue => issueResolution catalog index [2] issue
       | .ok values =>
@@ -97,7 +88,7 @@ def resolveInsert (context : ResolveContext) (catalog : Catalog) (index : Nat) (
           prepareError catalog (.valuesForColumns width positions.length)
         else if positions.eraseDups.length != positions.length then
           restrict index [1] .insertColumnTwice
-        else match resolveAll (fun _ row => fullRow table.columns positions row) values with
+        else match resolveAll (fun _ row => fullCells table.columns positions row) values with
           | .error issue => issueResolution catalog index [2] issue
           | .ok full =>
             let keys := catalog.uniqueKeys position table
@@ -110,7 +101,8 @@ def resolveInsert (context : ResolveContext) (catalog : Catalog) (index : Nat) (
                 let policy := insertPolicy table (catalog.keyAlgorithms position table) algorithm
                 if policy.mixed then restrict index [] .mixedConflictAlgorithms
                 else if replacesDefault table policy then restrict index [] .replaceDefault
-                else if clauses.isEmpty && policy.aborts then .ok (.insert position full keys columns, catalog)
-                else .ok (.upsert position full clauses keys columns policy, catalog)
+                else if clauses.isEmpty && policy.aborts then
+                  .ok (withClockCells table.columns full (.insert position · keys columns), catalog)
+                else .ok (withClockCells table.columns full (.upsert position · clauses keys columns policy), catalog)
 
 end Belay.Sqlite
