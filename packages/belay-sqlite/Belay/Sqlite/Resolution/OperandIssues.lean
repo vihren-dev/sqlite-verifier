@@ -37,7 +37,8 @@ theorem jsonCall_issues (name : String) (function : Resolved.JsonFunction) (argu
 
 /-- For every date and time function and argument list, the issues of {name}`dateCall`
 name no catalog object: its only error is the restriction
-{name}`RestrictionKind.dateModifier`. -/
+{name}`RestrictionKind.dateModifier`. Proof sketch: split the check of the number of
+arguments; the failing branch is that restriction, and the other branch cannot fail. -/
 theorem dateCall_issues (function : Resolved.DateFunction) (arguments : Resolved.Arguments) :
     IssuesNameNoObject (dateCall function arguments) := by
   intro issue failed
