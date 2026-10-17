@@ -1,7 +1,8 @@
 import Belay.Sqlite.Resolution.Values
 import Belay.Sqlite.Resolution.MergedNames
-import Belay.Sqlite.Resolution.QueryAffinity
-import Belay.Sqlite.QueryEval
+import Belay.Sqlite.Resolution.Calls
+import Belay.Sqlite.Resolution.SyntaxScope
+import Belay.Sqlite.JsonFaults
 
 set_option doc.verso true
 
@@ -19,7 +20,7 @@ conversion: a comparison, a logical operator, {lit}`IS NULL`, arithmetic, or a
 def Resolved.Expr.isCondition : Resolved.Expr → Bool
   | .compare .. | .and .. | .or .. | .not _ | .isNull .. | .arithmetic .. => true
   | .cast affinity _ => numericAffinity affinity
-  | .column _ | .literal _ | .coalesce .. => false
+  | .column _ | .literal _ | .coalesce .. | .json .. | .arguments _ => false
 
 /-- The issue of an aggregate where only a row value can be: SQLite's
 {lit}`misuse of aggregate function` when {lit}`misuse` is true (in {lit}`WHERE`, or
@@ -47,7 +48,7 @@ def aggregateCall : Syntax.Expr → Bool
   | .call name _ => (aggregateNamed name).isSome
   | .null | .numeric _ | .string _ | .blob _ | .currentTime _ | .identifier .. | .negate _ | .positive _
   | .equals .. | .compare .. | .and .. | .or .. | .not _ | .isNull .. | .arithmetic .. | .cast .. | .callPair ..
-  | .qualified .. => false
+  | .more .. | .qualified .. => false
 
 /-- The restriction for a function call that the model does not evaluate. -/
 def unmodeledFunction : ValueIssue :=
@@ -65,20 +66,6 @@ else {name}`unmodeledFunction`. {lit}`MIN` and {lit}`MAX` with two or more argum
 scalar functions, which the model does not evaluate. -/
 def pairIssue (name : String) : ValueIssue :=
   if normalizeIdentifier name == "count" then .prepare (.wrongArgumentCount name) else unmodeledFunction
-
-/-- Whether an expression names a result column alias: an identifier that names no
-column in scope but, after ASCII folding, is one of {lit}`aliases`. SQLite
-resolves such a name in {lit}`WHERE` and inside {lit}`ORDER BY` expressions to the
-aliased result expression, before the double-quoted string fallback. -/
-def namesAlias (scope : Scope) (aliases : List String) : Syntax.Expr → Bool
-  | .identifier name _ => (scope.matches name).isEmpty &&
-      aliases.any (normalizeIdentifier · == normalizeIdentifier name)
-  | .equals left right | .compare _ left right | .and left right | .or left right =>
-    namesAlias scope aliases left || namesAlias scope aliases right
-  | .arithmetic _ left right | .callPair _ left right => namesAlias scope aliases left || namesAlias scope aliases right
-  | .not operand | .isNull operand _ | .call _ operand | .negate operand | .positive operand | .cast operand _ =>
-    namesAlias scope aliases operand
-  | .null | .numeric _ | .string _ | .blob _ | .currentTime _ | .callStar _ | .qualified .. => false
 
 /-- The restriction for a result column alias inside an expression. -/
 def aliasInExpression : ValueIssue :=
@@ -153,11 +140,15 @@ def resolveOperand (dqs : Bool) (scope : Scope) (misuse : Bool) : Syntax.Expr �
     let affinity := affinityOf (some typeName)
     .ok (.cast affinity a.1, some affinity)
   | .callPair name first rest =>
-    if normalizeIdentifier name == "coalesce" then do
+    if normalizeIdentifier name == "coalesce" || (jsonFunctionNamed name 2).isSome then do
       let a ← (resolveOperand dqs scope misuse first).mapError (·.under [1])
       let b ← (resolveOperand dqs scope misuse rest).mapError (·.under [2])
-      .ok (.coalesce a.1 b.1, none)
+      pairCall name a.1 b.1 (pairIssue name)
     else .error (pairIssue name)
+  | .more first rest => do
+    let a ← (resolveOperand dqs scope misuse first).mapError (·.under [0])
+    let b ← (resolveOperand dqs scope misuse rest).mapError (·.under [1])
+    .ok (moreArguments a.1 b.1)
   | .numeric text => (queryNumeric text false).map fun value => (.literal value, none)
   | .negate (.numeric text) => (queryNumeric text true).map fun value => (.literal value, none)
   | .negate operand => do
@@ -166,32 +157,26 @@ def resolveOperand (dqs : Bool) (scope : Scope) (misuse : Bool) : Syntax.Expr �
   | .positive operand => do
     let a ← (resolveOperand dqs scope misuse operand).mapError (·.under [0])
     .ok (a.1, none)
-  | call@(.callStar name) | call@(.call name _) =>
-    .error (if aggregateCall call then aggregateIssue misuse name else callIssue name)
+  | .call name operand =>
+    if (jsonFunctionNamed name 1).isSome then do
+      let a ← (resolveOperand dqs scope misuse operand).mapError (·.under [1])
+      .ok (.json .extract (.cons a.1 .nil), none)
+    else .error (if aggregateCall (.call name operand) then aggregateIssue misuse name else callIssue name)
+  | call@(.callStar name) => .error (if aggregateCall call then aggregateIssue misuse name else callIssue name)
   | .null => .ok (.literal .null, none)
   | .string bytes => .ok (.literal (.text bytes), none)
   | .blob bytes => .ok (.literal (.blob bytes), none)
   | .currentTime _ => .error (.restriction [] .timeValue)
-
-/-- Whether an expression names a column in scope: an identifier with the folded name of
-a column, or a qualified name of one, anywhere in the expression. A write value that names a column
-depends on the row. -/
-def mentionsColumn (scope : Scope) : Syntax.Expr → Bool
-  | .identifier name _ => !(scope.matches name).isEmpty
-  | .qualified source column => (scope.qualified source column).isSome
-  | .equals left right | .compare _ left right | .and left right | .or left right
-  | .arithmetic _ left right | .callPair _ left right => mentionsColumn scope left || mentionsColumn scope right
-  | .not operand | .isNull operand _ | .call _ operand | .negate operand | .positive operand | .cast operand _ =>
-    mentionsColumn scope operand
-  | .null | .numeric _ | .string _ | .blob _ | .currentTime _ | .callStar _ => false
 
 /-- The value of a constant expression in a write (ADR 0012, slice 3a): the expression
 resolved as a query expression with no column in scope and an aggregate as SQLite's
 {lit}`misuse of aggregate function`, then evaluated. So {lit}`1 + 2` is 3 and
 {lit}`CAST('7' AS INTEGER)` is 7; an identifier, a rowid name included, is a
 double-quoted string or {lit}`no such column`, as in a {lit}`VALUES` row, where no table
-is in scope. -/
+is in scope. A value whose JSON function may fail is a model restriction, because the
+model does not describe when SQLite evaluates a constant. -/
 def constantValue (dqs : Bool) (expression : Syntax.Expr) : Except ValueIssue Value :=
-  (resolveOperand dqs [] true expression).map fun operand => operand.1.eval []
+  resolveOperand dqs [] true expression >>= fun operand =>
+    if operand.1.mayFail [] then .error (.restriction [] .constantFunctionError) else .ok (operand.1.eval [])
 
 end Belay.Sqlite

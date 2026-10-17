@@ -94,7 +94,7 @@ theorem literalStep_upsert_conforms (conforms : Conforms profile catalog databas
   | some table =>
     simp only [literalStep, present]
     simp only [statementReady, present, Option.all_some, LiteralData.upsertReady, Bool.and_eq_true] at ready
-    obtain ⟨⟨⟨⟨_, aliasOk⟩, each⟩, _⟩, bounded⟩ := ready
+    obtain ⟨⟨⟨⟨⟨_, aliasOk⟩, each⟩, _⟩, bounded⟩, _⟩ := ready
     have run := LiteralData.upsertRun_valid ((conforms.2 at_).2 table present) aliasOk
       (fun values member => by
         have check := List.all_eq_true.mp each values member

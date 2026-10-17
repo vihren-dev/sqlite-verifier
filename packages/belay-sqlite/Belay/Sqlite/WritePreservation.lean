@@ -89,7 +89,7 @@ theorem literalStep_insert_conforms (conforms : Conforms profile catalog databas
   | some table =>
     simp only [literalStep, present, insertOutcome]
     simp only [statementReady, present, Option.all_some, LiteralData.insertReady, Bool.and_eq_true] at ready
-    obtain ⟨⟨⟨_, aliasOk⟩, each⟩, bounded⟩ := ready
+    obtain ⟨⟨⟨⟨_, aliasOk⟩, each⟩, bounded⟩, _⟩ := ready
     have valid := (conforms.2 at_).2 table present
     split
     · split <;> exact conforms
@@ -114,7 +114,7 @@ theorem literalStep_update_conforms (conforms : Conforms profile catalog databas
   | some table =>
     simp only [literalStep, present]
     simp only [statementReady, present, Option.all_some, LiteralData.updateReady, Bool.and_eq_true] at ready
-    obtain ⟨⟨⟨_, aliasOk⟩, _⟩, bounded⟩ := ready
+    obtain ⟨⟨⟨⟨_, aliasOk⟩, _⟩, bounded⟩, _⟩ := ready
     split
     · exact conforms
     · rename_i fits

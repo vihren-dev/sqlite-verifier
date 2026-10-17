@@ -41,7 +41,7 @@ def constantDefault : Syntax.Expr → Bool
   | .negate operand | .positive operand => constantDefault operand
   | .equals .. | .qualified .. => false
   | .compare .. | .and .. | .or .. | .not _ | .isNull .. | .callStar _ | .call .. => true
-  | .arithmetic .. | .cast .. | .callPair .. => true
+  | .arithmetic .. | .cast .. | .callPair .. | .more .. => true
 
 /-- Whether the constraint is PRIMARY KEY. -/
 def Syntax.ColumnConstraint.isPrimaryKey : Syntax.ColumnConstraint → Bool
@@ -67,7 +67,8 @@ def Syntax.ColumnConstraint.modeledDefault : Syntax.ColumnConstraint → Bool
   | .default (.identifier ..) | .default (.negate _) | .default (.positive _)
   | .default (.equals ..) | .default (.compare ..) | .default (.and ..) | .default (.or ..)
   | .default (.not _) | .default (.isNull ..) | .default (.callStar _) | .default (.call ..)
-  | .default (.arithmetic ..) | .default (.cast ..) | .default (.callPair ..) | .default (.qualified ..) => false
+  | .default (.arithmetic ..) | .default (.cast ..) | .default (.callPair ..) | .default (.more ..)
+  | .default (.qualified ..) => false
   | .notNull _ | .primaryKey .. | .unique _ => true
 
 /-- A prepare error leaves the catalog unchanged. -/

@@ -24,10 +24,10 @@ def integerLiteral : Syntax.Expr → Option Int
     | .numeric text => (numericValue text true).integer?
     | .null | .string _ | .blob _ | .currentTime _ | .identifier .. | .negate _ | .positive _ | .equals ..
     | .compare .. | .and .. | .or .. | .not _ | .isNull .. | .callStar _ | .call .. | .arithmetic .. | .cast ..
-    | .callPair .. | .qualified .. => none
+    | .callPair .. | .more .. | .qualified .. => none
   | .null | .string _ | .blob _ | .currentTime _ | .identifier .. | .positive _ | .equals .. | .compare ..
   | .and .. | .or .. | .not _ | .isNull .. | .callStar _ | .call .. | .arithmetic .. | .cast .. | .callPair ..
-  | .qualified .. => none
+  | .more .. | .qualified .. => none
 
 /-- One resolved result column with its names: {lit}`*` gives every column of every
 source that is not merged ({name}`Scope.visible`) under its defined name, a merged pair as
@@ -51,10 +51,14 @@ def resolveResultColumn (dqs : Bool) (scope : Scope) (column : Nat) :
       | some aggregate =>
         let (resolved, _) ← (resolveOperand dqs scope true operand).mapError (·.under [0, column, 0, 1])
         .ok (named (.aggregate (aggregate resolved)) none)
-      | none => throw ((callIssue name).under [0, column, 0])
+      | none =>
+        if (jsonFunctionNamed name 1).isSome then do
+          let (resolved, _) ← (resolveOperand dqs scope false value).mapError (·.under [0, column, 0])
+          .ok (named (.scalar resolved) none)
+        else throw ((callIssue name).under [0, column, 0])
     | .null | .numeric _ | .string _ | .blob _ | .currentTime _ | .identifier .. | .qualified .. | .negate _
     | .positive _ | .equals .. | .compare .. | .and .. | .or .. | .not _ | .isNull .. | .arithmetic .. | .cast ..
-    | .callPair .. =>
+    | .callPair .. | .more .. =>
       let (resolved, _) ← (resolveOperand dqs scope false value).mapError (·.under [0, column, 0])
       .ok (named (.scalar resolved) (definedName scope value))
 
@@ -78,7 +82,7 @@ def namedResult (names : List (Option String)) : Syntax.Expr → Option (Except 
   | term@.null | term@(.numeric _) | term@(.string _) | term@(.blob _) | term@(.currentTime _)
   | term@(.negate _) | term@(.positive _) | term@(.equals ..) | term@(.compare ..) | term@(.and ..)
   | term@(.or ..) | term@(.not _) | term@(.isNull ..) | term@(.callStar _) | term@(.call ..)
-  | term@(.arithmetic ..) | term@(.cast ..) | term@(.callPair ..) | term@(.qualified ..) =>
+  | term@(.arithmetic ..) | term@(.cast ..) | term@(.callPair ..) | term@(.more ..) | term@(.qualified ..) =>
     (integerLiteral term).map fun (number : Int) =>
       if 1 ≤ number ∧ number ≤ (names.length : Int) then .ok (number.toNat - 1) else .error ()
 
@@ -137,7 +141,7 @@ def resolveSelect (context : ResolveContext) (catalog : Catalog) (index : Nat)
         | none => .error (.restriction [4, item] .groupByTerm)
       | .qualified .. => (resolveOperand dqs scope true term).map (·.1) |>.mapError (·.under [4, item])
       | .null | .string _ | .blob _ | .currentTime _ | .positive _ | .equals .. | .compare .. | .and .. | .or ..
-      | .not _ | .isNull .. | .arithmetic .. | .cast .. | .callPair .. =>
+      | .not _ | .isNull .. | .arithmetic .. | .cast .. | .callPair .. | .more .. =>
         .error (.restriction [4, item] .groupByTerm)) groupBy
     if aggregate && !outputs.all (groupedOutput terms ·.1) then
       throw (.restriction [0] .bareColumn)

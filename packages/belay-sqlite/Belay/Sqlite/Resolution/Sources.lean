@@ -11,6 +11,7 @@ child 3 its {lit}`USING` list. -/
 
 namespace Belay.Sqlite
 
+mutual
 /-- Whether every column that the expression reads has a position below the bound: the
 expression reads only the tables whose cells come before it in the joined row. -/
 def Resolved.Expr.readsBelow (bound : Nat) : Resolved.Expr → Bool
@@ -19,6 +20,13 @@ def Resolved.Expr.readsBelow (bound : Nat) : Resolved.Expr → Bool
   | .compare _ left right | .and left right | .or left right | .arithmetic _ left right | .coalesce left right =>
     left.readsBelow bound && right.readsBelow bound
   | .not operand | .isNull operand _ | .cast _ operand => operand.readsBelow bound
+  | .json _ arguments | .arguments arguments => arguments.readsBelow bound
+
+/-- Whether every argument reads only columns below the bound. -/
+def Resolved.Arguments.readsBelow (bound : Nat) : Resolved.Arguments → Bool
+  | .nil => true
+  | .cons head tail => head.readsBelow bound && tail.readsBelow bound
+end
 
 /-- The columns of {lit}`source.*` with their expansions ({name}`Scope.starOperand`) and
 their names, or SQLite's {lit}`no such table: source` when no source has the name. -/

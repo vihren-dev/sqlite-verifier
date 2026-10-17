@@ -65,7 +65,7 @@ inductive RestrictionKind where
   | laterTableInOn
   /-- Queries of SQLite's own tables, such as {lit}`sqlite_schema`, are not modeled (ADR 0012 slice 1). -/
   | systemTable
-  /-- Only {lit}`COUNT(*)`, {lit}`COUNT`, {lit}`MIN`, {lit}`MAX`, {lit}`SUM` and {lit}`AVG` of one argument, and {lit}`COALESCE` of two or more arguments are modeled as functions (ADR 0012 slices 1 and 2). -/
+  /-- Only {lit}`COUNT(*)`, {lit}`COUNT`, {lit}`MIN`, {lit}`MAX`, {lit}`SUM` and {lit}`AVG` of one argument, {lit}`COALESCE` of two or more arguments, and {lit}`json_extract` and the operators {lit}`->` and {lit}`->>` are modeled as functions (ADR 0012 slices 1, 2 and 6b). -/
   | unmodeledFunction
   /-- An aggregate inside an expression is not modeled (ADR 0012 slice 1). -/
   | aggregateInExpression
@@ -91,6 +91,8 @@ inductive RestrictionKind where
   | negativeOffset
   /-- SUM in a grouped query with LIMIT or OFFSET is not modeled, because SQLite may stop before an overflowing group (ADR 0012 slice 2). -/
   | windowedGroupSum
+  /-- A constant value in {lit}`VALUES` or {lit}`SET` whose JSON function fails is not modeled, because the model does not describe when SQLite evaluates it (ADR 0012 slice 6b). -/
+  | constantFunctionError
   deriving Repr, DecidableEq
 
 end Belay.Sqlite

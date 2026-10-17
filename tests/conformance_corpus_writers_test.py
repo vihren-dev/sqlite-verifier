@@ -16,12 +16,12 @@ from types import ModuleType
 import pytest
 
 from conformance import (algorithm_evidence, alias_evidence, authored_algorithms, authored_aliases,
-                         authored_deletes, authored_fromless, authored_joins, authored_keys, authored_merged,
-                         authored_numbers, authored_obligations, authored_queries, authored_right,
+                         authored_deletes, authored_fromless, authored_joins, authored_json, authored_keys,
+                         authored_merged, authored_numbers, authored_obligations, authored_queries, authored_right,
                          authored_row_writes, authored_upserts, authored_using, authored_writes, delete_evidence,
-                         fromless_evidence, join_evidence, key_evidence, merged_evidence, number_evidence,
-                         obligation_evidence, query_evidence, right_evidence, row_write_evidence, upsert_evidence,
-                         using_evidence, write_evidence)
+                         fromless_evidence, join_evidence, json_evidence, key_evidence, merged_evidence,
+                         number_evidence, obligation_evidence, query_evidence, right_evidence, row_write_evidence,
+                         upsert_evidence, using_evidence, write_evidence)
 from conformance.authored_resolution import definitions as resolution_definitions
 from conformance.corpus import load
 
@@ -43,9 +43,10 @@ pytestmark = [pytest.mark.integration, pytest.mark.conformance,
                                                             (alias_evidence, authored_aliases, 18),
                                                             (upsert_evidence, authored_upserts, 19),
                                                             (algorithm_evidence, authored_algorithms, 20),
-                                                            (fromless_evidence, authored_fromless, 21)],
+                                                            (fromless_evidence, authored_fromless, 21),
+                                                            (json_evidence, authored_json, 22)],
                          ids=["queries", "numbers", "writes", "obligations", "row-writes", "deletes", "joins", "using",
-                              "right", "merged", "keys", "aliases", "upserts", "algorithms", "fromless"])
+                              "right", "merged", "keys", "aliases", "upserts", "algorithms", "fromless", "json"])
 def test_coverage_corpus_round_trips(evidence: ModuleType, cases: ModuleType, version: int, tmp_path: Path) -> None:
     """The corpus writer records the cases of its case module and writes a corpus of version 5
     records that reads back unchanged and replays natively, and refuses to replace an existing

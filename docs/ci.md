@@ -66,8 +66,6 @@ with `nix-build -A tests`, among them these; the flake exposes the same derivati
 - `tests.frozen`: replay and classification of the frozen corpora (v1 to v21)
   and checks of the retained evidence reports.
 - `tests.corpora`: complete validation of each locked frozen corpus.
-- `tests.mutants`: mutants of name resolution, each built as a changed copy of the
-  Lean packages; every mutant must change the verdict of an authored model case.
 - `tests.harness`: fast acquisition, storage, profile and workload checks of the
   conformance harness.
 - `tests.sample`: all frozen v4 authored and synthetic cases plus a stable
@@ -83,7 +81,11 @@ with `nix-build -A tests`, among them these; the flake exposes the same derivati
   harness or documentation change reuses the result.
 
 `just test-scheduled` builds the scheduled suites of `tests/nix_scheduled_suites.json`
-with `nix-build -A scheduledTests`. `just package` runs it, so main pushes, tags,
+with `nix-build -A scheduledTests`: `scheduledTests.mutants`, the mutants of the model, each
+built as a changed copy of the Lean packages, where every mutant must change the verdict of
+an authored model case; and `scheduledTests.writers`, the round trips of the corpus writers.
+Each mutant copy rebuilds the model modules that depend on its change, so the suite grows
+with each slice of the model and does not fit the time of a pull request. `just package` runs it, so main pushes, tags,
 manual and nightly runs check these suites, and so does a pull request with the
 `package` scope. Pull requests with a smaller scope do not, so that their CI time
 does not grow. The flake checks exclude them.
@@ -144,7 +146,7 @@ sandbox is supplied or tested. Nix daemon and installation tests run on the host
 Cheap unit tests rerun normally. Direct `just test-cases FILE` always executes
 pytest, even if the corresponding Nix target is already cached.
 Development `just test` selects `developmentTests`, the same targets except
-`tests.model`, `tests.frozen`, `tests.corpora` and `tests.mutants`. `tests/nix_suites.json` assigns test files to Nix and supplies the
+`tests.model`, `tests.frozen` and `tests.corpora`. `tests/nix_suites.json` assigns test files to Nix and supplies the
 host `--source-checks` exclusion list. Source-owned conformance checks remain
 fresh. Every scope from `test` up runs all Nix targets of `tests`.
 

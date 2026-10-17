@@ -27,9 +27,9 @@ MUTANTS: dict[str, tuple[str, str, str]] = {
     "returning_names_ignore_definition": (RETURNING,
         "      .ok [(resolved, alias.getD ((definedName scope value).getD text))]", "      .ok [(resolved, alias.getD text)]"),
     "constant_not_evaluated": (EXPRESSIONS,
-        "  (resolveOperand dqs [] true expression).map fun operand => operand.1.eval []",
-        "  (resolveOperand dqs [] true expression).map fun operand => match operand.1 with\n"
-        "    | .arithmetic _ left _ => left.eval []\n    | other => other.eval []"),
+        "else .ok (operand.1.eval [])",
+        "else .ok (match operand.1 with\n"
+        "    | .arithmetic _ left _ => left.eval []\n    | other => other.eval [])"),
 }
 """Each mutant: the file under `packages/`, the exact text it changes, and the
 replacement. The names follow the list in the task of slice 3a; `constant_not_evaluated`

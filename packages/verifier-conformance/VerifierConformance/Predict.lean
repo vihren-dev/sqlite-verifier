@@ -38,7 +38,7 @@ def nativeColumn (column : CatalogColumn) : NativeColumn :=
       | some .null | some (.numeric _) | some (.string _) | some (.blob _) | some (.identifier ..)
       | some (.negate _) | some (.positive _) | some (.equals ..) | some (.compare ..) | some (.and ..)
       | some (.or ..) | some (.not _) | some (.isNull ..) | some (.callStar _) | some (.call ..)
-      | some (.arithmetic ..) | some (.cast ..) | some (.callPair ..) | some (.qualified ..) => none }
+      | some (.arithmetic ..) | some (.cast ..) | some (.callPair ..) | some (.more ..) | some (.qualified ..) => none }
 
 /-- The table at a catalog position, under its catalog object name, as native metadata. -/
 def nativeTableOf (catalog : Catalog) (position : Nat) (name : String) (table : Table) : NativeTable where

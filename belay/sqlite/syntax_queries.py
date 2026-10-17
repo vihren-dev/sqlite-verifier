@@ -6,7 +6,10 @@ name `source.column`,  a comparison, AND, OR, NOT,
 IS NULL, arithmetic, unary minus or plus of any expression, CAST with its type
 name as written, or a function call with `*` or with one or more arguments, with
 the function name as written: Lean folds the name and decides the function. A call
-with two or more arguments is a chain of `callPair` nodes. Other statements keep
+with two or more arguments is a `callPair`, whose arguments after the second are `more`
+nodes. The operators `->` and `->>`
+are a `callPair` of the function named `->` or `->>`, as SQLite's parser makes them
+calls of those functions (ADR 0012, amendment 5, slice 6b). Other statements keep
 the expressions of `syntax_expressions.expression`. A schema-qualified column and a
 call without arguments have no constructor and are refused with their source range;
 `syntax_select` maps the SELECT statement.
@@ -45,13 +48,20 @@ def is_null(tree: Tree, node: Node, operand: Node, negated: bool) -> Located:
                                   ("negated", leaf(negated, node.start, node.end))], node.start, node.end)
 
 
+def argument_rest(tree: Tree, start: int, end: int, arguments: list[Node]) -> Located:
+    """The arguments after the first over a byte range: the last argument, or a `more` node
+    of the next argument and the arguments after it."""
+    if len(arguments) == 1:
+        return query_expression(tree, arguments[0])
+    return constructor("more", [("first", query_expression(tree, arguments[0])),
+                                ("rest", argument_rest(tree, arguments[1].start, end, arguments[1:]))], start, end)
+
+
 def call_pairs(tree: Tree, start: int, end: int, function: Located, arguments: list[Node]) -> Located:
-    """Two or more arguments as a chain of `callPair` nodes over a byte range: the first
-    argument, then the rest as another pair from the second argument on, or the last argument."""
-    rest = (query_expression(tree, arguments[1]) if len(arguments) == 2
-            else call_pairs(tree, arguments[1].start, end, function, arguments[1:]))
+    """Two or more arguments as a `callPair` over a byte range: the first argument, and the
+    others (`argument_rest`), so that `f(a, b, c)` and `f(a, g(b, c))` stay distinct."""
     return constructor("callPair", [("name", function), ("first", query_expression(tree, arguments[0])),
-                                    ("rest", rest)], start, end)
+                                    ("rest", argument_rest(tree, arguments[1].start, end, arguments[1:]))], start, end)
 
 
 def function_call(tree: Tree, node: Node, children: list[Node]) -> Located:
@@ -88,6 +98,10 @@ def query_expression(tree: Tree, node: Node) -> Located:
             return binary(tree, node, CONNECTIVES[symbols[1]], children[0], children[2])
         if symbols[1] in ARITHMETIC:
             return compare(tree, node, ARITHMETIC[symbols[1]], children[0], children[2], "arithmetic")
+    if symbols == ["expr", "PTR", "expr"]:
+        operator = leaf(tree.text(children[1]), children[1].start, children[1].end)
+        return constructor("callPair", [("name", operator), ("first", query_expression(tree, children[0])),
+                                        ("rest", query_expression(tree, children[2]))], node.start, node.end)
     if symbols == ["expr", "IS", "NOT", "expr"]:
         return compare(tree, node, "isNot", children[0], children[3])
     if symbols in (["MINUS", "expr"], ["PLUS", "expr"]):

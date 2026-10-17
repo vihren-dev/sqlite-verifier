@@ -1,6 +1,7 @@
 import Belay.Sqlite.Execution
 import Belay.Sqlite.RowDelete
 import Belay.Sqlite.UpsertRun
+import Belay.Sqlite.JsonReady
 
 set_option doc.verso true
 
@@ -98,23 +99,25 @@ def literalStep (statement : Resolved.Statement) (database : Database) (position
     step statement database position
 
 /-- Check that the model describes the statement against the current table.
-INSERT/UPDATE must pass the data domain of the table; a position without a table
-passes and fails during execution instead. CREATE TABLE and ADD COLUMN must be
-plain, and CREATE INDEX fails: these are model restrictions, because SQLite
-accepts such statements. Other statement forms pass. Use it through the
-reached-statement script support check. -/
+INSERT/UPDATE must pass the data domain of the table, and every write and query the
+JSON checks of {lit}`JsonReady`; a position without a table passes and fails during
+execution instead. CREATE TABLE and ADD COLUMN must be plain, and CREATE INDEX fails:
+these are model restrictions, because SQLite accepts such statements. Other statement
+forms pass. Use it through the reached-statement script support check. -/
 def statementReady (statement : Resolved.Statement) (database : Database) : Bool :=
   match statement with
-  | .insert at_ rows keys _ => (database at_).all fun table => LiteralData.insertReady keys table rows
-  | .upsert at_ rows clauses keys _ policy => (database at_).all fun table =>
-      LiteralData.upsertReady keys policy table clauses rows
-  | .update at_ assignments filter keys _ => (database at_).all fun table =>
-      LiteralData.updateReady keys table assignments filter
-  | .delete .. => true
+  | .insert at_ rows keys returning => (database at_).all fun table => LiteralData.insertReady keys table rows &&
+      !(returningExpressions returning).any Resolved.Expr.callsJson
+  | .upsert at_ rows clauses keys returning policy => (database at_).all fun table =>
+      LiteralData.upsertReady keys policy table clauses rows && upsertJsonReady clauses returning
+  | .update at_ assignments filter keys returning => (database at_).all fun table =>
+      LiteralData.updateReady keys table assignments filter && updateJsonReady table assignments filter returning
+  | .delete at_ filter returning => (database at_).all fun table => deleteJsonReady table filter returning
   | .createTable _ _ table => table.plain
   | .addColumn _ column => column.plain
   | .createIndex .. => false
-  | .begin | .commit | .rollback | .prepareError _ | .query _ => true
+  | .query query => queryJsonReady query database
+  | .begin | .commit | .rollback | .prepareError _ => true
 
 /-- Evaluate one statement at its supplied zero-based position. BEGIN records a
 snapshot; COMMIT clears it; ROLLBACK restores it. Repeated BEGIN or transaction

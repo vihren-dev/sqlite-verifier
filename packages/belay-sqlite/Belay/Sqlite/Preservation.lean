@@ -110,7 +110,8 @@ theorem step_extends (statement : Resolved.Statement) (database : Database) (pos
     have same : (step (.query query) database position).database = database := by
       simp only [step]
       split
-      · split <;> rfl
+      · repeat' split
+        all_goals rfl
       · rfl
     rw [same]
     exact DatabaseExtends.refl database

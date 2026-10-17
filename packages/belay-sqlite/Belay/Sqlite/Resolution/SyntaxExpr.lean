@@ -61,11 +61,16 @@ inductive Expr where
   /-- {lit}`CAST(operand AS typeName)`, with the type name as written. -/
   | cast (operand : Expr) (typeName : String)
   /-- A function call with two or more arguments, with the function name as written:
-  the first argument, then the others as another {lit}`callPair` with the same name, or
-  as the last argument. {lit}`COALESCE(a, b, c)` is
-  {lean}`Expr.callPair "COALESCE" (.identifier "a" false) (.callPair "COALESCE" (.identifier "b" false) (.identifier "c" false))`.
+  the first argument, then the last argument or, for three or more, the others as
+  {lit}`more` nodes. {lit}`COALESCE(a, b, c)` is
+  {lean}`Expr.callPair "COALESCE" (.identifier "a" false) (.more (.identifier "b" false) (.identifier "c" false))`.
   Resolution folds the name and decides the function. -/
   | callPair (name : String) (first rest : Expr)
+  /-- The rest of an argument list of three or more arguments, the last operand of a
+  {lit}`callPair`: one argument and the arguments after it. {lit}`f(a, b, c)` is
+  {lit}`callPair f a (more b c)`, and {lit}`f(a, g(b, c))` stays
+  {lit}`callPair f a (callPair g b c)`. -/
+  | more (first rest : Expr)
   deriving Repr, DecidableEq
 
 /-- A column constraint as written. For example, {lit}`PRIMARY KEY DESC` is

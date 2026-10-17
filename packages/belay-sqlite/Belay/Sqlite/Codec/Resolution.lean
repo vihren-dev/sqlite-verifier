@@ -54,7 +54,8 @@ deriving instance Lean.ToExpr for CatalogIndex
 deriving instance Lean.ToExpr for CatalogEntry
 deriving instance Lean.ToExpr for CatalogObject
 deriving instance Lean.ToExpr for PrepareError
-deriving instance Lean.ToExpr for Resolved.Expr
+deriving instance Lean.ToExpr for Resolved.JsonFunction
+deriving instance Lean.ToExpr for Resolved.Expr, Resolved.Arguments
 deriving instance Lean.ToExpr for Resolved.Aggregate
 deriving instance Lean.ToExpr for Resolved.Output
 deriving instance Lean.ToExpr for Resolved.SortKey

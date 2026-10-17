@@ -75,7 +75,8 @@ def haltError : SqlTransition → Option ExecutionError
 names, no rows and no change: a constraint failure or a rowid alias mismatch. -/
 def ExecutionError.failsWrite : ExecutionError → Bool
   | .constraintViolation | .constraintFail | .constraintRollback | .datatypeMismatch => true
-  | .unmodeled | .prepare _ | .transactionAlreadyActive | .noActiveTransaction | .integerOverflow => false
+  | .unmodeled | .prepare _ | .transactionAlreadyActive | .noActiveTransaction | .integerOverflow
+  | .functionError => false
 
 /-- The change count of a failed INSERT with clauses or algorithms: the rows written
 before the failing row for a FAIL failure, which keeps them, and zero for every other
@@ -102,12 +103,15 @@ names and the rows of {name}`Resolved.Query.run` over the table before it, and n
 change count; a query whose table is missing has no output. A query that fails with
 {lit}`integer overflow` has its column names and no rows when it has no
 {lit}`GROUP BY`; with {lit}`GROUP BY`, SQLite may return the rows of other groups
-before the failing one, in an order the model does not describe, so it has no output. -/
+before the failing one, in an order the model does not describe, so it has no output. A
+query whose JSON function fails, which has no {lit}`FROM` and so at most one row, has its
+column names and no rows. -/
 def statementOutput (statement : Resolved.Statement) (before : SqlState)
     (transition : SqlTransition) : Option StatementOutput :=
   let successful := match transition with | .next _ => true | .halt _ => false
   let constraintFailure := (haltError transition).any ExecutionError.failsWrite
   let overflow := haltError transition == some .integerOverflow
+  let functionFailure := haltError transition == some .functionError
   match statement with
   | .insert at_ rows _ returning =>
     let names := returning.map (·.2)
@@ -141,7 +145,8 @@ def statementOutput (statement : Resolved.Statement) (before : SqlState)
     else none
   | .query query =>
     if successful then (query.source before.database).map fun rows => ⟨query.names, query.run rows, none⟩
-    else if overflow && query.groupBy.isEmpty then some ⟨query.names, [], none⟩ else none
+    else if (overflow && query.groupBy.isEmpty) || functionFailure then some ⟨query.names, [], none⟩
+    else none
   | .createTable .. | .createIndex .. | .addColumn .. | .begin | .commit | .rollback | .prepareError _ =>
     some ⟨[], [], none⟩
 

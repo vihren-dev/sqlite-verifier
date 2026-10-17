@@ -10,6 +10,19 @@ already applied to its literal operands, so evaluation needs no catalog. -/
 
 namespace Belay.Sqlite.Resolved
 
+/-- A JSON function of ADR 0012, amendment 5, slice 6b: {lit}`json_extract`, and the
+operators {lit}`->` and {lit}`->>`, which SQLite's parser makes calls of the functions
+{lit}`->` and {lit}`->>`. -/
+inductive JsonFunction where
+  /-- {lit}`json_extract(json, path, ...)`. -/
+  | extract
+  /-- {lit}`json -> path`: the selection as JSON text. -/
+  | arrowJson
+  /-- {lit}`json ->> path`: the selection as an SQL value. -/
+  | arrowValue
+  deriving Repr, DecidableEq
+
+mutual
 /-- A scalar expression over one row of the source table. Its value is a stored
 value; the comparisons and logical operators give the integers 1 and 0, or NULL. -/
 inductive Expr where
@@ -33,7 +46,23 @@ inductive Expr where
   | cast (affinity : Affinity) (operand : Expr)
   /-- {lit}`COALESCE`: the first operand when it is not NULL, else the second. -/
   | coalesce (first rest : Expr)
+  /-- A call of a JSON function with its arguments in written order. -/
+  | json (function : JsonFunction) (arguments : Arguments)
+  /-- The resolved arguments after the second of a call of three or more arguments, which
+  resolution passes from a {lit}`Syntax.Expr.more` node to its call. A resolved
+  statement does not contain it; its value is NULL. -/
+  | arguments (list : Arguments)
   deriving Repr, DecidableEq
+
+/-- The arguments of a call in written order, as a list that is mutual with
+{lit}`Expr`, so equality stays derivable and recursion stays structural. -/
+inductive Arguments where
+  /-- No more arguments. -/
+  | nil
+  /-- An argument and the arguments after it. -/
+  | cons (head : Expr) (tail : Arguments)
+  deriving Repr, DecidableEq
+end
 
 /-- An aggregate function of slice 1, over the rows of one group. -/
 inductive Aggregate where

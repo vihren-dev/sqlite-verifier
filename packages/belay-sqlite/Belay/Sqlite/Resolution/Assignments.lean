@@ -33,7 +33,8 @@ def assignedExpression (scope : Scope) (position : Nat) (expression : Syntax.Exp
 /-- Resolve one {lit}`SET` assignment at item {lit}`item`, in SQLite's order
 ({lit}`sqlite3Update`): the expression first, then the column name. The column name
 must name a column of the table ({lit}`no such column: %s`). A value that reads the
-row for a column of a unique key ({lit}`keyColumns`) is a model restriction. Paths are
+row for a column of a unique key ({lit}`keyColumns`) is a model restriction, and so is a
+value that names no column and whose JSON function may fail. Paths are
 relative to the assignment list. -/
 def resolveAssignment (dqs : Bool) (scope : Scope) (keyColumns : List Nat) (item : Nat) :
     String × Syntax.Expr → Except ValueIssue (Nat × Resolved.Expr)
@@ -44,6 +45,8 @@ def resolveAssignment (dqs : Bool) (scope : Scope) (keyColumns : List Nat) (item
       | none => .error (.prepare (.noSuchColumn name))) >>= fun position =>
     if mentionsColumn scope value && keyColumns.contains position then
       .error (.restriction [item, 1] .rowDependentKey)
+    else if !mentionsColumn scope value && operand.1.mayFail [] then
+      .error (.restriction [item, 1] .constantFunctionError)
     else .ok (position, assignedExpression scope position value operand.1)
 
 end Belay.Sqlite

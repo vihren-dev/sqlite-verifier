@@ -15,9 +15,10 @@ MODEL_MODULE_PREFIX = "Belay.Sqlite"
 """Only the standalone package namespace supplies project modules to the core."""
 ALLOWED_EXTERNAL_IMPORT_ROOTS = {"Init"}
 """The core uses only Lean's prelude; `Std` and the Lean compiler API add import cost it does not need."""
-EXPECTED_CORE_MODULE_COUNT = 82
-"""The public root reaches eighty-two core modules, including resolution, query evaluation, joins, UPSERT, number
-conversions, store-time affinity and the preservation of writes; its compiled examples are not imported."""
+EXPECTED_CORE_MODULE_COUNT = 97
+"""The public root reaches ninety-seven core modules, including resolution, query evaluation, joins, UPSERT, number
+conversions, store-time affinity, JSON reading and the preservation of writes; its compiled examples are not
+imported."""
 pytestmark = [pytest.mark.integration, pytest.mark.requires_nix, pytest.mark.requires_lean("compiler")]
 
 

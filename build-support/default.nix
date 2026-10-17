@@ -53,10 +53,9 @@ in rec {
   scheduledSuites = builtins.fromJSON (builtins.readFile ../tests/nix_scheduled_suites.json);
   tests = pkgs.lib.removeAttrs allTests scheduledSuites;
   scheduledTests = pkgs.lib.getAttrs scheduledSuites allTests;
-  # `just test` skips the slow model comparisons, the frozen evidence, the locked-corpus validation
-  # and the resolution mutants;
-  # `just test-full` runs them.
-  developmentTests = pkgs.lib.removeAttrs tests [ "model" "frozen" "corpora" "mutants" ];
+  # `just test` skips the slow model comparisons, the frozen evidence and the locked-corpus
+  # validation; `just test-full` runs them.
+  developmentTests = pkgs.lib.removeAttrs tests [ "model" "frozen" "corpora" ];
   runtime = import ./runtime.nix {
     inherit pkgs sources leanToolchain verifierLibrary leanRuntime modelPackage;
     parserLibrary = parserLibrary.library;

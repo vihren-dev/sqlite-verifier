@@ -2,6 +2,7 @@ import Belay.Sqlite.Model
 import Belay.Sqlite.Resolution.QueryForm
 import Belay.Sqlite.Comparison
 import Belay.Sqlite.Summation
+import Belay.Sqlite.Json.JsonApply
 
 set_option doc.verso true
 
@@ -23,11 +24,15 @@ def truthy : Value → Bool
 /-- Whether a value is false as a condition: not NULL and not true. -/
 def falsy (value : Value) : Bool := !value.isNull && !truthy value
 
+mutual
 /-- The value of an expression over the cells of one row, in column order. A column
 past the end of the row reads as NULL. {lit}`AND` is false when an operand is false,
 else NULL when an operand is NULL, else true; {lit}`OR` is the dual; {lit}`NOT`
 keeps NULL. Arithmetic and {lit}`CAST` follow {name}`ArithmeticOperator.apply` and
-{name}`castValue`; {lit}`COALESCE` gives its first operand unless that is NULL. -/
+{name}`castValue`; {lit}`COALESCE` gives its first operand unless that is NULL. A JSON
+function gives the value of {name}`Json.apply` over the values of its arguments, and
+NULL when it fails: whether and where SQLite reports that failure is
+{lit}`Expr.mayFail` and {lit}`Expr.mustFail` of {lit}`JsonFaults`. -/
 def Expr.eval (row : List Value) : Expr → Value
   | .column position => row.getD position .null
   | .literal value => value
@@ -47,6 +52,16 @@ def Expr.eval (row : List Value) : Expr → Value
   | .coalesce first rest =>
     let value := first.eval row
     if value.isNullCell then rest.eval row else value
+  | .json function arguments => match Json.apply function (arguments.eval row) with
+    | .ok value => value
+    | .error _ => .null
+  | .arguments _ => .null
+
+/-- The values of the arguments of a call over one row, in written order. -/
+def Arguments.eval (row : List Value) : Arguments → List Value
+  | .nil => []
+  | .cons head tail => head.eval row :: tail.eval row
+end
 
 /-- The first value of a list that no later value improves on, ignoring NULL; NULL
 when every value is NULL. A tie keeps the earlier value, as SQLite's {lit}`min()` and

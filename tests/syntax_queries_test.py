@@ -74,7 +74,8 @@ def test_query_syntax_outside_the_slice_is_unsupported_at_its_range(
 
 def test_numbers_map_arithmetic_cast_and_call_chains(parse_sql: Callable[..., Tree]) -> None:
     """Arithmetic, unary minus of an expression, CAST with its type name as written, and a
-    call with three arguments as a chain of `callPair` nodes (ADR 0012, slice 2)."""
+    call with three arguments as a `callPair` whose arguments after the second are a `more`
+    node (ADR 0012, slices 2 and 6b)."""
     [select] = [item.value for item in statements(parse_sql(
         "SELECT -(a % 2) * b, CAST(a AS Varchar(10)), Coalesce(a, b, 3) FROM t;"))]
     values = [column["expression"]["value"] for column in select["select"]["columns"]]
@@ -83,7 +84,22 @@ def test_numbers_map_arithmetic_cast_and_call_chains(parse_sql: Callable[..., Tr
                                         "right": column("b")}}
     assert values[1] == {"cast": {"operand": column("a"), "typeName": "Varchar(10)"}}
     assert values[2] == {"callPair": {"name": "Coalesce", "first": column("a"), "rest": {
-        "callPair": {"name": "Coalesce", "first": column("b"), "rest": {"numeric": {"text": "3"}}}}}}
+        "more": {"first": column("b"), "rest": {"numeric": {"text": "3"}}}}}}
+
+
+def test_json_operators_and_nested_calls_map_to_call_pairs(parse_sql: Callable[..., Tree]) -> None:
+    """`->` and `->>` are a `callPair` of the function with the operator's text as its name, and
+    a nested call of two arguments stays a `callPair`, distinct from a `more` node of three
+    arguments (`syntax_queries.query_expression`, `argument_rest`; ADR 0012, slice 6b)."""
+    [select] = [item.value for item in statements(parse_sql(
+        "SELECT a -> '$.x', a ->> 'y', json_extract(a, json_extract(b, c)), json_extract(a, b, c) FROM t;"))]
+    values = [column["expression"]["value"] for column in select["select"]["columns"]]
+    assert values[0] == {"callPair": {"name": "->", "first": column("a"), "rest": {"string": {"bytes": list(b"$.x")}}}}
+    assert values[1] == {"callPair": {"name": "->>", "first": column("a"), "rest": {"string": {"bytes": list(b"y")}}}}
+    assert values[2] == {"callPair": {"name": "json_extract", "first": column("a"), "rest": {
+        "callPair": {"name": "json_extract", "first": column("b"), "rest": column("c")}}}}
+    assert values[3] == {"callPair": {"name": "json_extract", "first": column("a"), "rest": {
+        "more": {"first": column("b"), "rest": column("c")}}}}
 
 
 def test_writes_map_query_expressions_and_returning(parse_sql: Callable[..., Tree]) -> None:

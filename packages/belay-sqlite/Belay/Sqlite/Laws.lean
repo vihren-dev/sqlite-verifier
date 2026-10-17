@@ -83,7 +83,7 @@ theorem literal_cases (statement : Resolved.Statement) (database : Database) (po
     simp only [literalStep, step]
     cases query.source database with
     | none => simp
-    | some rows => cases h : query.fails rows <;> simp [h]
+    | some rows => cases h : query.fails rows <;> cases h' : query.mustFail rows <;> simp [h, h']
   | prepareError _ => simp [literalStep, step]
   | begin => simp [literalStep, step]
   | commit => simp [literalStep, step]

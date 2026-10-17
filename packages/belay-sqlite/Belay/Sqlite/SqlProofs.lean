@@ -76,15 +76,17 @@ def SchemaOnly (script : List Resolved.Statement) : Prop :=
     | .query _ => False
 
 /-- No statement in the script is INSERT (with or without {lit}`ON CONFLICT`), UPDATE or
-DELETE. This is a syntax guard, not
-a success claim; the empty script satisfies it. -/
+DELETE, and no query has a JSON call in its expressions
+({name}`Resolved.Query.expressions`, {name}`Resolved.Expr.callsJson`). This is a syntax
+guard, not a success claim; the empty script satisfies it. -/
 def NoWrites (script : List Resolved.Statement) : Prop :=
   ∀ statement ∈ script, match statement with
     | .insert .. => False
     | .upsert .. => False
     | .update .. => False
     | .delete .. => False
-    | .createTable .. | .createIndex .. | .addColumn .. | .begin | .commit | .rollback | .prepareError _ | .query _ => True
+    | .query query => query.expressions.all (!·.callsJson) = true
+    | .createTable .. | .createIndex .. | .addColumn .. | .begin | .commit | .rollback | .prepareError _ => True
 
 /-- Each definition in the script is one that the model describes: each CREATE
 TABLE creates a {name}`CatalogTable.plain` table, each ADD COLUMN adds a
@@ -100,7 +102,7 @@ def ModeledDefinitions (script : List Resolved.Statement) : Prop :=
 
 /-- For every position and connection state, a {name}`NoWrites` script with
 {name}`ModeledDefinitions` passes the reached-statement support check, because
-only writes have a data check. The proof inducts over the script and follows
+only writes and queries have a data check, and a query without a JSON call passes it. The proof inducts over the script and follows
 each actual transition. -/
 theorem supportedSqlFrom_noWrites (guard : NoWrites script) (modeled : ModeledDefinitions script) :
     supportedSqlFrom position script state = true := by
@@ -112,7 +114,11 @@ theorem supportedSqlFrom_noWrites (guard : NoWrites script) (modeled : ModeledDe
     have tail : NoWrites rest := fun item member => guard item (by simp [member])
     have tailModeled : ModeledDefinitions rest := fun item member => modeled item (by simp [member])
     have ready : statementReady statement state.database = true := by
-      cases statement <;> simp_all [statementReady]
+      cases statement with
+      | query query =>
+        simp [statementReady, queryJsonReady, Resolved.Query.mayFail_of_callsJson query _ first]
+      | createTable | createIndex | addColumn | begin | commit | rollback | insert | upsert | update | delete
+      | prepareError => simp_all [statementReady]
     simp only [supportedSqlFrom, ready, Bool.true_and]
     cases advance position statement state with
     | halt outcome => rfl

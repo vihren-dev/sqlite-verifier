@@ -11,7 +11,8 @@ namespace Belay.Sqlite
 /-- For every setting, scope, key columns, item and assignment, the issues of
 {name}`resolveAssignment` name no catalog object. Proof sketch: the expression's issues
 are issues of {name}`resolveOperand`; the column lookup fails only with
-{name}`PrepareError.noSuchColumn`, and the key check only with a restriction. -/
+{name}`PrepareError.noSuchColumn`, and the key and constant checks only with a
+restriction. -/
 theorem resolveAssignment_issues (dqs : Bool) (scope : Scope) (keyColumns : List Nat)
     (item : Nat) (assignment : String × Syntax.Expr) :
     IssuesNameNoObject (resolveAssignment dqs scope keyColumns item assignment) := by
@@ -24,8 +25,10 @@ theorem resolveAssignment_issues (dqs : Bool) (scope : Scope) (keyColumns : List
     split at failed <;> cases failed
     simp [ValueIssue.namesNoObject, PrepareError.namesObject]
   · intro position issue failed
-    split at failed <;> cases failed
-    trivial
+    split at failed
+    · cases failed; trivial
+    · split at failed <;> cases failed
+      trivial
 
 /-- For every setting, scope and optional filter, the issues of the filter of
 UPDATE, resolved as a condition, name no catalog object. Proof sketch: by
