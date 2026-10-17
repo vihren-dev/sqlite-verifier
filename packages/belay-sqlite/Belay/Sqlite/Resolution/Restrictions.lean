@@ -25,8 +25,6 @@ inductive RestrictionKind where
   | createIndexRuns
   /-- The added column requires unmodeled default evaluation. -/
   | addColumnConstraint
-  /-- Time values are not modeled (ADR 0008). -/
-  | timeValue
   /-- A {lit}`SET` value that reads the row is not modeled for a column of a unique key
   (ADR 0012, amendment 1, owner decision on question 1). -/
   | rowDependentKey
@@ -101,6 +99,10 @@ inductive RestrictionKind where
   | functionJoin
   /-- An argument of {lit}`json_each` that reads a later source is not modeled (ADR 0012 slice 6d). -/
   | laterSourceInArguments
+  /-- {lit}`TRUE` or {lit}`FALSE` that names no column is not modeled: SQLite reads an
+  unquoted one as 1 or 0, but a bracket or backtick quoted one is no column, and the syntax
+  does not keep that quoting (ADR 0012 slice 6e2). -/
+  | booleanName
   deriving Repr, DecidableEq
 
 end Belay.Sqlite

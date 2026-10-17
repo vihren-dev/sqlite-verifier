@@ -12,7 +12,7 @@ namespace Belay.Sqlite.Conformance
 def nonControl : Resolved.Statement → Bool
   | .begin | .commit | .rollback => false
   | .createTable .. | .createIndex .. | .addColumn .. | .insert .. | .upsert .. | .update .. | .delete ..
-  | .prepareError _ | .query _ => true
+  | .prepareError _ | .query _ | .clocked .. => true
 
 /-- Each statement in the body is non-control and succeeds at its position.
 The remaining body starts from its resulting database. An empty body requires
@@ -69,11 +69,13 @@ theorem literal_cases (statement : Resolved.Statement) (database : Database) (po
     | none => simp
     | some table =>
       simp only []
-      cases readDefaultValue column with
-      | error _ => simp
-      | ok value =>
-        simp only []
-        split <;> simp
+      split
+      · split <;> simp
+      · cases readDefaultValue column with
+        | error _ => simp
+        | ok value =>
+          simp only []
+          split <;> simp
   | insert at_ rows keys _ =>
     cases h : database at_ <;> simp only [literalStep, insertOutcome, checkedWrite, h]
     all_goals (repeat' split) <;> simp
@@ -88,6 +90,7 @@ theorem literal_cases (statement : Resolved.Statement) (database : Database) (po
   | delete at_ filter _ =>
     cases h : database at_ <;> simp [literalStep, h]
   | createIndex _ _ _ => simp [literalStep, step]
+  | clocked _ _ => simp [literalStep, step]
   | query query =>
     simp only [literalStep, step]
     cases query.source database with
@@ -151,15 +154,16 @@ theorem constraint_rollback (halted : advance position statement state = .halt o
        simp_all [SqlState.finish, Outcome.database, Outcome.persistedDatabase, Option.getD, Outcome.error?] <;>
        subst halted <;> simp_all)
 
-/-- For any position, table position, column and states, if ADD COLUMN advances
-to the next state, some table exists at that table position in the original state.
+/-- For any position, table position, column without a time default
+({name}`CatalogColumn.clockDefault`) and states, if ADD COLUMN advances to the next state,
+some table exists at that table position in the original state.
 The next database contains that table with the column appended. This table has
 the same row count and rowids, and each original row gains the affinity-applied
 value returned by {name}`readDefaultValue`.
 
 The proof follows the successful ADD branch and unfolds column extension
 and its row mapping. -/
-theorem add_column_shape
+theorem add_column_shape (constant : column.clockDefault = false)
     (success : advance position (.addColumn at_ column) state = .next next) :
     ∃ table value, state.database at_ = some table ∧
       readDefaultValue column = .ok value ∧

@@ -1,6 +1,7 @@
 import Belay.Sqlite.Resolution.Catalog
 import Belay.Sqlite.Resolution.ConflictForm
 import Belay.Sqlite.Resolution.RestrictionText
+import Belay.Sqlite.Resolution.ClockCell
 
 set_option doc.verso true
 
@@ -165,6 +166,11 @@ inductive Statement where
   | prepareError (error : PrepareError)
   /-- Run a query: it reads the database, changes nothing, and has result rows. -/
   | query (query : Query)
+  /-- An INSERT ({lit}`insert` or {lit}`upsert`) with cells whose values read the
+  statement's clock. Its rows hold NULL in those cells; the execution sets each cell to
+  its value at the statement's clock value before it runs the statement
+  ({lit}`Statement.atClock`). -/
+  | clocked (statement : Statement) (cells : List ClockCell)
   deriving Repr, DecidableEq
 
 end Resolved

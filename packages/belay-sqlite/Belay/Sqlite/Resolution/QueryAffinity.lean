@@ -25,7 +25,7 @@ def numericAffinity : Affinity → Bool
 def Resolved.Expr.literal? : Resolved.Expr → Option Value
   | .literal value => some value
   | .column _ | .compare .. | .and .. | .or .. | .not _ | .isNull .. | .arithmetic .. | .cast .. | .coalesce ..
-  | .json .. | .arguments _ => none
+  | .json .. | .arguments _ | .now _ => none
 
 /-- Whether a value is TEXT. -/
 def Value.isText : Value → Bool
@@ -38,7 +38,7 @@ def Value.keepsText : Value → Bool
   | .integer _ | .real _ => false
 
 /-- Whether an expression without affinity may give a TEXT value: a TEXT literal, a
-column, a JSON function, or a {lit}`COALESCE` with such an operand. Comparisons, logical operators,
+column, a JSON function, a time keyword, or a {lit}`COALESCE` with such an operand. Comparisons, logical operators,
 arithmetic and {lit}`CAST` to INTEGER, REAL or NUMERIC give numbers or NULL. A
 {lit}`CAST` to TEXT or BLOB has an affinity, so this question does not arise for it;
 it counts as possibly TEXT. -/
@@ -47,7 +47,7 @@ def Resolved.Expr.mayBeText : Resolved.Expr → Bool
   | .column _ => true
   | .coalesce first rest => first.mayBeText || rest.mayBeText
   | .cast affinity _ => !numericAffinity affinity
-  | .json .. => true
+  | .json .. | .now _ => true
   | .arguments _ => false
   | .compare .. | .and .. | .or .. | .not _ | .isNull .. | .arithmetic .. => false
 

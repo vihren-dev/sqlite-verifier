@@ -11,7 +11,8 @@ theorem sound : SoundRepresentation Requirements.contract Generated.profile [] I
   exact ⟨conforms, (), rfl, True.intro⟩
 /-- The complete {name}`Generated.expected` target holds for this empty script.
 The proof provides an admitted witness, sound representations, explicit SQL support
-and the computed successful outcome; no extra execution premise is assumed. -/
+and the computed successful outcome at every clock assignment, because the script reads no
+clock; no extra execution premise is assumed. -/
 theorem migrationCorrect : Generated.expected := by
   apply VerificationConditions.of_runSql
   · exact ⟨Catalog.emptyDatabase [], Catalog.emptyDatabase_conforms (by decide), trivial⟩
@@ -21,11 +22,12 @@ theorem migrationCorrect : Generated.expected := by
     exact sound
   · intro database admitted
     exact admitted.1
-  · intro database _
+  · intro database _ _
     rfl
   · intro database admitted
     constructor
     · trivial
     · intro original observed
       exact ⟨admitted.1, True.intro, (), rfl, True.intro⟩
+  · rfl
 end Proofs

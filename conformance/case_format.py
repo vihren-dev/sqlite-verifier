@@ -11,10 +11,12 @@ from typing import TypeAlias
 
 from belay.sqlite.located import Json
 
-__all__ = ["CASE_VERSION", "Cell", "Json", "case_profile", "cell_wire", "literal_cell", "row_wire"]
+__all__ = ["CASE_VERSION", "UNIX_EPOCH_JULIAN_MILLISECONDS", "Cell", "Json", "case_profile", "cell_wire", "literal_cell", "row_wire"]
 
 CASE_VERSION = 5
 """The case version that Lean's `decodeCase` accepts."""
+UNIX_EPOCH_JULIAN_MILLISECONDS = 210866760000000
+"""The Unix epoch in SQLite's Julian-day milliseconds, the unit of the VFS clock."""
 
 Cell: TypeAlias = tuple[int, int | bytes | None]
 """A typed SQLite cell: fundamental datatype code and payload."""

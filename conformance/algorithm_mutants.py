@@ -10,7 +10,7 @@ from conformance.resolve_mutants import SQLITE
 
 RUN = SQLITE + "UpsertRun.lean"
 """The rows of an INSERT with conflict algorithms."""
-EXECUTION = SQLITE + "SqlExecution.lean"
+EXECUTION = SQLITE + "StatementStep.lean"
 """The SQL step, which rolls back a transaction."""
 WRITES = SQLITE + "Resolution/Writes.lean"
 """The resolution of INSERT, which gives each constraint its algorithm."""

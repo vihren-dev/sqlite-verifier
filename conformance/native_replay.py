@@ -2,7 +2,7 @@
 
 from conformance.record_parser import NO_PARSER_REASON, record_parser
 
-from conformance.case_format import CASE_VERSION, Json, row_wire
+from conformance.case_format import CASE_VERSION, UNIX_EPOCH_JULIAN_MILLISECONDS, Json, row_wire
 from conformance.profile_scope import modeled_profile
 from conformance.record_versions import PROFILED, WITH_OUTPUTS
 from conformance.native_connection import SOURCE_ID
@@ -14,6 +14,7 @@ from belay.sqlite.errors import SqlError
 from belay.sqlite.parser_library import ParserLibrary, ParserLibraryError
 from belay.sqlite.sql_tree import ParserResourceLimit, parse
 from belay.sqlite.syntax import commands, statements
+
 
 
 def schema_sql(observation: dict[str, Json]) -> str:
@@ -119,7 +120,9 @@ def model_case(record: dict[str, Json], library: ParserLibrary) -> dict[str, Jso
             "schema": [item.value for item in schema], "script": [item.value for item in script],
             "initial": observations[0]["visible"], "nativeTrace": observations,
             "requirements": record["requirements"], "provenance": [["fixture", record["name"]], ["sourceId", str(profile["sourceId"])]],
-            "outputs": outputs, "parameters": [event["parameters"] for event in trace] if outputs is not None else []}
+            "outputs": outputs, "parameters": [event["parameters"] for event in trace] if outputs is not None else [],
+            "clocks": [event["clockUnixMilliseconds"] + UNIX_EPOCH_JULIAN_MILLISECONDS for event in trace]
+            if trace and all("clockUnixMilliseconds" in event for event in trace) else []}
 
 
 def prepare(record: dict[str, Json], library: ParserLibrary) -> tuple[dict[str, Json] | None, dict[str, Json]]:

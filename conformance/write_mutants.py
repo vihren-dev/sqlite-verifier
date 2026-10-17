@@ -10,8 +10,8 @@ OUTPUTS = "verifier-conformance/VerifierConformance/Outputs.lean"
 """The outputs of statements, with the RETURNING rows."""
 RETURNING = "belay-sqlite/Belay/Sqlite/Resolution/Returning.lean"
 """The resolution of RETURNING columns."""
-EXPRESSIONS = "belay-sqlite/Belay/Sqlite/Resolution/QueryExprs.lean"
-"""The constant values of writes."""
+CELLS = "belay-sqlite/Belay/Sqlite/Resolution/ClockRows.lean"
+"""The constant values of INSERT rows."""
 
 MUTANTS: dict[str, tuple[str, str, str]] = {
     "update_returning_old_values": (OUTPUTS,
@@ -26,10 +26,10 @@ MUTANTS: dict[str, tuple[str, str, str]] = {
         "    else if constraintFailure then some ⟨names, returnedRows returning rows, some 0⟩ else none"),
     "returning_names_ignore_definition": (RETURNING,
         "      .ok [(resolved, alias.getD ((definedName scope value).getD text))]", "      .ok [(resolved, alias.getD text)]"),
-    "constant_not_evaluated": (EXPRESSIONS,
-        "else .ok (operand.1.eval [])",
-        "else .ok (match operand.1 with\n"
-        "    | .arithmetic _ left _ => left.eval []\n    | other => other.eval [])"),
+    "constant_not_evaluated": (CELLS,
+        "    else .ok (operand.1.eval [], none)",
+        "    else .ok (match operand.1 with\n"
+        "      | .arithmetic _ left _ => left.eval []\n      | other => other.eval [], none)"),
 }
 """Each mutant: the file under `packages/`, the exact text it changes, and the
 replacement. The names follow the list in the task of slice 3a; `constant_not_evaluated`
@@ -49,7 +49,7 @@ GUARDS: dict[str, str] = {
     "update_returning_every_row": "rule:statementOutput",
     "returning_rows_on_failure": "rule:statementOutput",
     "returning_names_ignore_definition": "rule:returningColumn",
-    "constant_not_evaluated": "rule:constantValue",
+    "constant_not_evaluated": "rule:constantCell",
 }
 """What each mutant guards: `rule:` and the Lean declaration of its file that the mutant
 changes. `conformance.mutant_guards` checks every entry."""

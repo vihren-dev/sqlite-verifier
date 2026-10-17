@@ -29,11 +29,12 @@ theorem migrationCorrect : Generated.expected := by
   · intro database admitted
     exact admitted
   · intro database admitted
-    exact supportedSqlFrom_schemaOnly (by simp [SchemaOnly, AtuinFacts.script_bound])
-      (by simp [ModeledDefinitions, AtuinFacts.script_bound, AtuinFacts.added, CatalogColumn.plain, readDefaultValue, Except.toOption])
+    exact SupportedSql.schemaOnly (by simp [SchemaOnly, AtuinFacts.script_bound])
+      (by simp [ModeledDefinitions, AtuinFacts.script_bound, AtuinFacts.added, CatalogColumn.plain, readDefaultValue, Except.toOption, CatalogColumn.clockDefault])
   · intro database admitted outcome execution
     obtain ⟨history, present, shape, valid, executed, conforms⟩ := AtuinFacts.payload admitted.1
-    have same : runSql Generated.resolved database = outcome := execution.result
+    have same : runSql Generated.resolved database = outcome :=
+      execution.result_of_readsClock (by simp [scriptReadsClock, AtuinFacts.script_bound, Resolved.Statement.readsClock])
     rw [executed] at same
     subst outcome
     refine ⟨True.intro, ?_⟩

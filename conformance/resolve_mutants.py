@@ -60,7 +60,7 @@ MUTANTS: dict[str, tuple[str, str, str]] = {
         "    if reservedName tableName then prepareError catalog (.tableMayNotBeAltered tableName)",
         "  | none => restrict index [] .createIndexRuns\n  | some (position, table) =>\n"
         "    if reservedName tableName then prepareError catalog (.tableMayNotBeAltered tableName)"),
-    "commit_without_transaction": (SQLITE + "SqlExecution.lean",
+    "commit_without_transaction": (SQLITE + "StatementStep.lean",
         "    | none => .halt (.failure position .noActiveTransaction state.database)\n"
         "    | some _ => .next { state with snapshot := none }",
         "    | none => .next state\n    | some _ => .next { state with snapshot := none }"),

@@ -1,4 +1,4 @@
-"""Compare omitted INSERT values from fullRow with pinned native SQLite storage."""
+"""Compare omitted INSERT values from fullCells with pinned native SQLite storage."""
 
 import json
 from pathlib import Path
@@ -34,7 +34,7 @@ AFFINITIES = ["INTEGER", "NUMERIC", "REAL", "TEXT", "BLOB"]
 @pytest.mark.parametrize("version", ["3.51.0", "3.46.0"])
 def test_omitted_default_values(version: str, tmp_path: Path,
         lean_sysroot: Path, lean_libraries: tuple[Path, Path]) -> None:
-    """fullRow evaluates omitted defaults and applies the delivered storeValue conversion,
+    """fullCells evaluates omitted defaults and applies the delivered storeValue conversion,
     for each affinity of `AFFINITIES`.
 
     SQL catalog admission and ADD COLUMN execution are separate acceptance checks.
@@ -59,14 +59,14 @@ def test_omitted_default_values(version: str, tmp_path: Path,
     expressions = ", ".join(f"⟨({expression}), {quoted_string(sql)}⟩" for sql, expression in CASES)
     affinities = ", ".join(quoted_string(affinity) for affinity in AFFINITIES)
     source = f'''import Belay.Sqlite.Codec
-import Belay.Sqlite.Resolution.Writes
+import Belay.Sqlite.Resolution.ClockRows
 open Belay.Sqlite Lean
 #eval do
   let inputs : List Syntax.DefaultExpression := [{expressions}]
   let tables ← [{affinities}].mapM fun affinity => inputs.mapM fun expression => do
     let columns : List CatalogColumn := [{{name := "id", declaredType := some "BLOB"}},
       {{name := "added", declaredType := some affinity, defaultValue := some expression}}]
-    IO.ofExcept ((fullRow columns [0] [.integer 7]).mapError reprStr)
+    IO.ofExcept (((fullCells columns [0] [(.integer 7, none)]).map fun (cells : List RowCell) => cells.map Prod.fst).mapError reprStr)
   IO.println (toJson tables).compress
 '''
     actual = json.loads(compile_checks(source, tmp_path, lean_sysroot, lean_libraries))
@@ -77,7 +77,7 @@ open Belay.Sqlite Lean
 @pytest.mark.parametrize("negated", [False, True])
 def test_oversized_hex_default_prepare_error(version: str, negated: bool, tmp_path: Path,
         lean_sysroot: Path, lean_libraries: tuple[Path, Path]) -> None:
-    """fullRow preserves SQLite's prepare error for an oversized hexadecimal default."""
+    """fullCells preserves SQLite's prepare error for an oversized hexadecimal default."""
     token = "0x1ffffffffffffffff"
     sql = ("-" if negated else "") + token
     connection = Connection(load_library(library_path(library_binary(version)), version),
@@ -95,13 +95,13 @@ def test_oversized_hex_default_prepare_error(version: str, negated: bool, tmp_pa
     if negated:
         expression = f".negate ({expression})"
     source = f'''import Belay.Sqlite.Codec
-import Belay.Sqlite.Resolution.Writes
+import Belay.Sqlite.Resolution.ClockRows
 import Belay.Sqlite.Resolution.Messages
 open Belay.Sqlite Lean
 #eval do
   let columns : List CatalogColumn := [{{name := "id", declaredType := none}},
     {{name := "added", declaredType := none, defaultValue := some ⟨({expression}), {quoted_string(sql)}⟩}}]
-  match fullRow columns [0] [.integer 7] with
+  match fullCells columns [0] [(.integer 7, none)] with
   | .error (.prepare error) =>
     IO.println (toJson ["prepare", error.message]).compress
   | _ => throw (IO.userError "expected the default's preparation error")

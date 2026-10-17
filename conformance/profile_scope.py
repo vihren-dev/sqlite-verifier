@@ -2,8 +2,9 @@
 
 A native record of version 4 or 5 names its execution profile. Name resolution reads
 the release, the build, the limits and the double-quoted-string settings (ADR 0008,
-"Execution profile"); the execution semantics implements only SQLite's defaults for
-the other settings. A record whose profile changes such a setting stays out of the
+"Execution profile"); the execution semantics takes the clock value of each statement
+as an input, so it implements a controlled clock, and it implements only SQLite's
+defaults for the other settings. A record whose profile changes such a setting stays out of the
 model's scope, with the setting named, so that the model never predicts behavior it
 does not implement. Records before version 4 have no profile: their recorder used
 the pinned build with its documented default limits.
@@ -24,7 +25,6 @@ def unsupported_setting(profile: ExecutionProfile) -> str | None:
     """The first execution setting of the profile that the model does not implement, or `None`."""
     settings = (("foreign keys", profile.foreign_keys), ("recursive triggers", profile.recursive_triggers),
                 ("IMMEDIATE transactions", profile.transaction_mode != "deferred"),
-                ("a controlled clock", profile.clock != "excluded"),
                 ("read-only access", profile.access_mode != "read-write"),
                 ("untrusted schema mode", not profile.trusted_schema),
                 ("other writers", bool(profile.other_writers)))

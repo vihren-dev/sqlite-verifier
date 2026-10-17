@@ -26,6 +26,9 @@ structure PredictInput where
   schema : List Syntax.Statement
   script : List Syntax.Statement
   initial : List NamedRows
+  /-- The clock value of each statement, in SQLite's Julian-day milliseconds, as the judge
+  supplies it; empty when the judge supplies none. -/
+  clocks : List Int
   deriving FromJson
 
 /-- A catalog column as {lit}`PRAGMA table_xinfo` reports it. Defaults retain
@@ -86,7 +89,8 @@ def predictedSteps (states : List ResolveState) (observed : List Observation) : 
 that resolution refuses although SQLite prepared it gives an empty initial step, which
 the judge reports as a disagreement. Otherwise the case is in scope when the reached
 statements pass the support check and none is unmodeled, the rule that
-{name}`classifyCase` applies. -/
+{name}`classifyCase` applies; each statement runs at its supplied clock value, and a script
+that reads the clock is out of scope without clock values. -/
 def predict (p : PredictInput) : Json :=
   let profile := p.profile
   match resolveSchemaAndScript profile p.schema p.script with
@@ -97,13 +101,16 @@ def predict (p : PredictInput) : Json :=
       Json.mkObj [("visible", toJson ([] : List Json)), ("persisted", toJson ([] : List Json)),
         ("transactionOpen", toJson false), ("primaryCode", toJson (0 : Nat)),
         ("phase", toJson (none : Option ErrorPhase))]])]
-  | .ok resolution =>
+  | .ok unclocked =>
+    let clock : Clock := fun position => p.clocks.getD position 0
+    let resolution := { unclocked with resolved := scriptAtClock clock unclocked.resolved }
     let states := resolveStates { profile, mode := .execution } 0 { catalog := resolution.startCatalog } p.script
     let count := stateBound states
     let start : SqlState := { database := databaseOf resolution.startCatalog (p.initial.map NamedRows.native) }
     let observed := trace count resolution.resolved start.database
     let steps := predictedSteps states observed
-    let supported := supportedSqlFrom 0 resolution.resolved start && !observed.any invalidObservation
+    let supported := !(p.clocks.isEmpty && scriptReadsClock unclocked.resolved) &&
+      supportedSqlFrom 0 resolution.resolved start && !observed.any invalidObservation
     Json.mkObj [("supported", toJson supported), ("steps", toJson steps),
       ("outputs", toJson (outputTraceFrom 0 resolution.resolved start))]
 

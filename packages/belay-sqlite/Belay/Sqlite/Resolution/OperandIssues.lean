@@ -126,19 +126,6 @@ theorem resolveOperand_issue (dqs : Bool) (scope : Scope) (misuse : Bool)
     | numeric text => exact map_issues _ (queryNumeric_issues _ _)
     | _ => exact bind_issues (under_issues _ ih) fun _ _ failed => by cases failed
 
-/-- For every setting and expression, an issue of {name}`constantValue` names no
-catalog object. Proof sketch: the issue is one of {name}`resolveOperand`. -/
-theorem constantValue_issue (dqs : Bool) (expression : Syntax.Expr) (issue : ValueIssue)
-    (failed : constantValue dqs expression = .error issue) : issue.namesNoObject := by
-  unfold constantValue at failed
-  cases h : resolveOperand dqs [] true expression with
-  | error cause => rw [h] at failed; cases failed; exact resolveOperand_issue dqs [] true expression _ h
-  | ok operand =>
-    rw [h] at failed
-    simp only [bind, Except.bind] at failed
-    split at failed <;> cases failed
-    trivial
-
 /-- For every list of computations whose issues name no catalog object, the issues of
 their concatenation in order name none. Proof sketch: induction on the list, with
 {name}`bind_issues` at each element. -/

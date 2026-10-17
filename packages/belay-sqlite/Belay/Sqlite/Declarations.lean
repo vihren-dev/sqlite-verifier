@@ -52,4 +52,11 @@ name that has a capital, and the list takes milliseconds. -/
 def normalizeIdentifier (name : String) : String :=
   String.ofList (name.toList.map fun c => if 'A' ≤ c ∧ c ≤ 'Z' then Char.ofNat (c.toNat + 32) else c)
 
+/-- Whether a name is SQLite's TRUE or FALSE keyword, ignoring ASCII letter case.
+Recognize boolean literals without treating ordinary column names as constants.
+For example, {lean}`booleanKeywordName "TrUe"` is true. This predicate checks only
+spelling; callers check the expression's quote flag. -/
+def booleanKeywordName (name : String) : Bool :=
+  ["true", "false"].contains (normalizeIdentifier name)
+
 end Belay.Sqlite

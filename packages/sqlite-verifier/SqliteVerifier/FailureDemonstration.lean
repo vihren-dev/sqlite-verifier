@@ -58,11 +58,11 @@ theorem failureMigrationCorrect (profile : Profile) (columns : 2 ≤ profile.lim
     exact checked.afterSound
   · exact checked.starting
   · intro database _
-    exact supportedSqlFrom_noWrites (by simp [NoWrites, failureScript, script])
-      (by simp [ModeledDefinitions, failureScript, script, CatalogTable.plain, CatalogColumn.plain, readDefaultValue, Except.toOption, note, message])
+    exact SupportedSql.of_readsClock (by decide) (supportedSqlFrom_noWrites (by simp [NoWrites, failureScript, script])
+      (by simp [ModeledDefinitions, failureScript, script, CatalogTable.plain, CatalogColumn.plain, readDefaultValue, Except.toOption, note, message]))
   · intro database admitted
     obtain ⟨logical, read, _⟩ := (checked.beforeSound database (checked.starting database admitted)).2
-    have obligations := checked.outcomes database admitted _ .evaluated
+    have obligations := checked.outcomes database admitted _ (ProfileExecutes.of_readsClock (by decide))
     simp only [runSql] at obligations
     cases executed : runSqlFrom 0 script { database := database } with
     | failure position reason result =>
@@ -74,7 +74,7 @@ theorem failureMigrationCorrect (profile : Profile) (columns : 2 ≤ profile.lim
       have failed : runSql failureScript database = .failure 2 (.prepare (.tableExists "audit")) result := by
         simp only [runSql, failureScript]
         rw [runSqlFrom_schemaOnly_append (initial := script) (by simp [SchemaOnly, script]), executed]
-        simp [runSqlFrom, advance, literalStep, SqlState.finish, script, step]
+        simp [runSqlFrom, advance, literalStep, SqlState.finish, script, step, CatalogColumn.clockDefault]
       rw [failed]
       refine ⟨trivial, ?_⟩
       intro original observed
@@ -83,6 +83,7 @@ theorem failureMigrationCorrect (profile : Profile) (columns : 2 ≤ profile.lim
     | pending persisted visible error =>
       have impossible := obligations.1
       simp [executed, requirements, requiresSuccess] at impossible
+  · decide
 
 #print axioms failureMigrationCorrect
 

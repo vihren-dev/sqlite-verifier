@@ -81,7 +81,7 @@ theorem migrationCorrect (profile : Profile) (columns : 2 ≤ profile.limits.col
     have oldAdmission : Admitted profile Demonstration.startCatalog (fun _ => True) database :=
       ⟨allowed.1, trivial⟩
     have originalObligations := checked.outcomes database oldAdmission
-      (runSql Demonstration.script database) .evaluated
+      (runSql Demonstration.script database) (ProfileExecutes.of_readsClock (by decide))
     obtain ⟨old, oldRead, _⟩ := (checked.beforeSound database (checked.starting database oldAdmission)).2
     have oldPost := originalObligations.2 old oldRead
     obtain ⟨table, present, shape, valid, _⟩ := Demonstration.admitted_invoices oldAdmission
@@ -116,5 +116,6 @@ theorem migrationCorrect (profile : Profile) (columns : 2 ≤ profile.limits.col
         simpa [current, applicationKeyInterpretation, Outcome.database] using preserved.trans beforeRead
       refine ⟨⟨oldPost.1.1, records, observed⟩, oldPost.2.1, records, observed, ?_⟩
       exact List.Perm.refl records
+  · decide
 
 end SqliteVerifier.ApplicationKeyDemonstration

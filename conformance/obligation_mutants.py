@@ -1,7 +1,7 @@
 """The admission obligations, and the evidence for each obligation conjunct.
 
 The verification target admits a write only when `LiteralData.insertReady` or
-`LiteralData.updateReady` holds, through `statementReady` (`SqlExecution.lean`). Each
+`LiteralData.updateReady` holds, through `statementReady` (`StatementStep.lean`). Each
 conjunct either keeps a state out of the model that the model would describe wrongly,
 or repeats a guarantee made elsewhere. `OBLIGATIONS` lists the conjuncts. A conjunct
 that a native state could violate after resolution would need a mutant that removes it
@@ -18,7 +18,7 @@ from conformance.resolve_mutants import SQLITE
 
 LITERAL_DATA = SQLITE + "LiteralData.lean"
 """The admission obligations of literal writes."""
-EXECUTION = SQLITE + "SqlExecution.lean"
+EXECUTION = SQLITE + "StatementStep.lean"
 """The admission obligation of each statement."""
 ROW_UPDATE = SQLITE + "RowUpdate.lean"
 """The admission obligation of UPDATE."""

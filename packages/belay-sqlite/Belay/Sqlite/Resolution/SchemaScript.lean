@@ -53,7 +53,7 @@ def schemaStatementRestriction (schema : List Syntax.Statement) : Option Restric
 def Resolved.Statement.prepareError? : Resolved.Statement → Option PrepareError
   | .prepareError error => some error
   | .createTable .. | .createIndex .. | .addColumn .. | .begin | .commit | .rollback
-  | .insert .. | .upsert .. | .update .. | .delete .. | .query _ => none
+  | .insert .. | .upsert .. | .update .. | .delete .. | .query _ | .clocked .. => none
 
 /-- The zero-based index and error of the first prepare error in a list of
 resolved statements, from a starting index. -/

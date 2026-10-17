@@ -105,20 +105,23 @@ statement. An empty starting schema is allowed.
 and `CREATE INDEX`, in an order that SQLite can run: an index follows its table.
 A schema statement that SQLite refuses to prepare, for example a second table
 with the same name, is `INPUT_ERROR` with SQLite's message. The description may
-contain keys, `NOT NULL`, literal defaults, the `CURRENT_TIMESTAMP` default, indexes and
+contain keys, `NOT NULL`, literal defaults, time keyword defaults, indexes and
 the exact native `sqlite_stat1` and `sqlite_stat4` tables, and `INTEGER PRIMARY KEY` rowid
 aliases (slice 5b): the column is the rowid; INSERT of NULL or no value gives the next
 rowid, another value must be an integer after INTEGER affinity, else SQLite's
 `datatype mismatch`, and UPDATE of the alias moves the row. Other defaults and other
 reserved names are model restrictions.
-Omitted INSERT columns use their literal defaults and column affinities. A
-`CURRENT_TIMESTAMP` value remains unsupported when an INSERT needs to evaluate it.
+Omitted INSERT columns use their literal defaults and column affinities. A column
+with `DEFAULT CURRENT_TIMESTAMP`, `CURRENT_DATE` or `CURRENT_TIME` gives an omitted
+value the text of the INSERT's clock value, stored with the column affinity (slice 6e2).
 
 ADD COLUMN supports literal defaults, with optional NOT NULL. Existing rows
 read the default under the column affinity. Without a default they read NULL.
 NOT NULL with NULL succeeds on an empty table and fails during execution on a
-populated table, retaining the prior catalog and rows. Nonconstant and time
-defaults remain unsupported. Old-row readback can differ from INSERT default
+populated table, retaining the prior catalog and rows. A time keyword default
+succeeds on an empty table and fails during execution on a populated table with
+SQLite's `Cannot add a column with non-constant default` (slice 6e2). Other
+nonconstant defaults remain unsupported. Old-row readback can differ from INSERT default
 evaluation: TEXT DEFAULT 1.50 reads as 1.50 for old rows.
 
 ## Resolution
@@ -169,10 +172,9 @@ of frontend refusal, the cases of the claimed corpora that it keeps out of scope
 | `engine-table` | Engine-managed tables other than sqlite_stat1 and sqlite_stat4 are not modeled | ADR 0008 |
 | `rowid-column-name` | Column names `rowid`, `_rowid_` and `oid` are not modeled | ADR 0008 |
 | `create-table-constraints` | Constraints and defaults in a CREATE TABLE that runs are not modeled | ADR 0008 |
-| `unmodeled-default` | Only literal defaults and `CURRENT_TIMESTAMP` are modeled | ADR 0008 |
+| `unmodeled-default` | Only literal defaults and the time keywords are modeled | ADR 0008 |
 | `create-index-runs` | A CREATE INDEX that runs is not modeled | ADR 0008 |
 | `add-column-constraint` | The added column requires unmodeled default evaluation | ADR 0008 |
-| `time-value` | Time values are not modeled | ADR 0008 |
 | `row-dependent-key` | A SET value that reads the row is not modeled for a column of a unique key | ADR 0012 amendment 1 (question 1) |
 | `conflict-without-target` | DO UPDATE without a conflict target is not modeled for a table with more than one key | ADR 0012 amendment 4 (owner decision 2) |
 | `mixed-conflict-algorithms` | Keys of one INSERT with different conflict algorithms other than REPLACE are not modeled | ADR 0012 amendment 4, slice 5d |
@@ -203,6 +205,7 @@ of frontend refusal, the cases of the claimed corpora that it keeps out of scope
 | `table-after-function` | A table after a `json_each` source in FROM is not modeled | ADR 0012 slice 6d |
 | `function-join` | Only an inner join without NATURAL or USING is modeled with `json_each` | ADR 0012 slice 6d |
 | `later-source-in-arguments` | An argument of `json_each` that reads a later source is not modeled | ADR 0012 slice 6d |
+| `boolean-name` | `TRUE` or `FALSE` that names no column is not modeled | ADR 0012 slice 6e2 |
 
 ## Execution
 
@@ -226,7 +229,13 @@ certainly evaluates it. Every other statement in which a JSON function may fail 
 outside the supported subset for that data, because SQLite skips or folds some
 expressions and evaluates a constant `WHERE` term before it reads the rows: a query with
 `FROM`, a write, a failure under `AND`, `OR` or `COALESCE`, and a JSONB (BLOB)
-argument. Literal writes
+argument. Each statement sees one clock value, SQLite's
+Julian-day milliseconds from the VFS method `xCurrentTimeInt64`, and different statements
+may see different values (slice 6e2). `CURRENT_TIME`, `CURRENT_DATE` and
+`CURRENT_TIMESTAMP` give it as SQLite's text `HH:MM:SS`, `YYYY-MM-DD` and
+`YYYY-MM-DD HH:MM:SS`, with the seconds truncated; a clock value of zero or less gives
+NULL, and a value after the year 9999 gives SQLite's zero date. A verification target
+holds for every clock value of every statement. Literal writes
 have checked data-domain obligations: existing key cells and filter cells must
 be integers or NULL, existing constraints must hold, and the random-search branch
 at the maximum rowid is outside the admitted domain. New NOT NULL and uniqueness

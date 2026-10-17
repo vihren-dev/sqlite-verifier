@@ -19,6 +19,10 @@ theorem catalog_bound : Generated.nextCatalog =
 /-- The literal default reads as integer seven. The kernel computes the default reader. -/
 theorem default_value : readDefaultValue Requirements.priority = .ok (.integer 7) := by rfl
 
+/-- The default is a literal, not a time keyword, so ADD COLUMN does not depend on the
+clock. The kernel computes the check. -/
+theorem constant_default : Requirements.priority.clockDefault = false := by rfl
+
 /-- For every admitted starting database, the generated migration succeeds and
 preserves every invoice rowid and amount under the exact resulting catalog.
 The proof constructs a starting witness, obtains the invoice table from
@@ -41,8 +45,8 @@ theorem migrationCorrect : Generated.expected := by
       subst name
       exact ⟨0, by rw [shape]; decide +kernel⟩⟩
   · intro database _
-    exact supportedSqlFrom_schemaOnly (by simp [SchemaOnly, script_bound])
-      (by simp [ModeledDefinitions, script_bound, default_value, Except.toOption])
+    exact SupportedSql.schemaOnly (by simp [SchemaOnly, script_bound])
+      (by simp [ModeledDefinitions, script_bound, default_value, Except.toOption, constant_default])
   · intro database admitted
     obtain ⟨table, present, shape, valid⟩ := admitted.1.table (position := 0) (by rfl)
     let extended := table.appendColumns [(Requirements.priority, .integer 7)]
@@ -52,7 +56,7 @@ theorem migrationCorrect : Generated.expected := by
         (catalog_bound ▸ nextValid)
     have executed : runSql Generated.resolved database = .success (database.set 0 extended) := by
       simp [runSql, runSqlFrom, advance, literalStep, SqlState.finish, script_bound, step,
-        present, default_value, extended]
+        constant_default, present, default_value, extended]
     rw [executed]
     refine ⟨trivial, ?_⟩
     intro original originalRead
@@ -72,6 +76,7 @@ theorem migrationCorrect : Generated.expected := by
     · have located : tablePosition Generated.startCatalog "invoices" = some 0 := by decide +kernel
       simpa [Interpretation.current, projectedInterpretation, observeTable, located, present,
         Requirements.contract] using originalRead.symm
+  · simp [scriptReadsClock, script_bound, Resolved.Statement.readsClock]
 
 #print axioms migrationCorrect
 end Proofs

@@ -1,5 +1,6 @@
 import Belay.Sqlite.Resolution.PrepareSpec
 import Belay.Sqlite.Resolution.UpsertRules
+import Belay.Sqlite.Resolution.ClockRowRules
 
 set_option doc.verso true
 
@@ -54,16 +55,16 @@ theorem resolveCreateTable_used (context : ResolveContext) (catalog : Catalog) (
     cases entry : object.entry <;> cases object <;> simp_all [PrepareError.namesObject]
 
 /-- For every setting and VALUES rows, an issue of the INSERT value conversion names no
-catalog object. Proof sketch: each row's issue is an issue of {name}`constantValue`
+catalog object. Proof sketch: each row's issue is an issue of {name}`constantCell`
 with a prefixed path, by {name}`resolveAll_issue` twice. -/
 theorem insertValues_issue (dqs : Bool) (rows : List (List Syntax.Expr)) (issue : ValueIssue)
-    (failed : resolveAll (fun row values => (resolveAll (fun _ => constantValue dqs) values).mapError
+    (failed : resolveAll (fun row values => (resolveAll (fun _ => constantCell dqs) values).mapError
       (·.under [row])) rows = .error issue) : issue.namesNoObject := by
   refine resolveAll_issue _ _ _ (fun row values inner h => ?_) failed
   simp only [Except.mapError] at h
   split at h <;> cases h
   exact ValueIssue.under_namesNoObject _ _
-    (resolveAll_issue _ _ _ (fun _ _ _ h => constantValue_issue _ _ _ h) (by assumption))
+    (resolveAll_issue _ _ _ (fun _ _ _ h => constantCell_issue _ _ _ h) (by assumption))
 
 /-- For every column list and names, an error of {name}`insertPositions` names no
 catalog object. Proof sketch: induction on the names; the only error is
@@ -93,7 +94,7 @@ theorem resolveInsert_named (context : ResolveContext) (catalog after : Catalog)
       .ok (.prepareError error, after)) :
     error = .noSuchTable tableName ∧ catalog.findTable tableName = none ∧ after = catalog := by
   unfold resolveInsert at ok
-  simp only [prepareError, restrict, issueResolution] at ok
+  simp only [prepareError, restrict, issueResolution, withClockCells] at ok
   repeat' split at ok
   all_goals (try (cases ok; done))
   all_goals cases ok
@@ -108,7 +109,7 @@ theorem resolveInsert_named (context : ResolveContext) (catalog after : Catalog)
     | (rename_i _ _ cause; have := insertValues_issue _ _ _ cause
        simp_all [ValueIssue.namesNoObject]; done)
     | (rename_i _ _ cause; have := resolveAll_issue _ _ _
-         (fun _ row _ h => fullRow_issue _ _ row _ h) cause
+         (fun _ row _ h => fullCells_issue _ _ row _ h) cause
        simp_all [ValueIssue.namesNoObject]; done)
     | (rename_i cause; cases names <;> simp only at cause <;>
         first | cases cause | simp [insertPositions_error _ _ _ _ cause] at named)

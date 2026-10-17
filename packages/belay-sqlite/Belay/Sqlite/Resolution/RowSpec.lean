@@ -1,4 +1,5 @@
 import Belay.Sqlite.Resolution.ColumnSpec
+import Belay.Sqlite.Resolution.ClockRows
 
 set_option doc.verso true
 
@@ -50,32 +51,56 @@ def RowWidth (columns : List CatalogColumn) (positions : List Nat)
     (positions.idxOf? index = none →
       (defaultValue columns[index]).map (storeValue columns[index].affinity) = .ok (full[index]?.getD .null))
 
-/-- For all inputs, a successful {name}`fullRow` gives a full row that satisfies
-{name}`RowWidth`. Proof sketch: {name}`resolveAllFrom_ok` gives the length and the
-value of each column, which is the stored written value or the stored default. -/
-theorem fullRow_rowWidth (columns : List CatalogColumn) (positions : List Nat)
-    (written full : List Value) (ok : fullRow columns positions written = .ok full) :
-    RowWidth columns positions written full := by
-  unfold fullRow resolveAll at ok
-  obtain ⟨length, each⟩ := resolveAllFrom_ok _ 0 columns full ok
-  refine ⟨length, fun index h => ?_⟩
-  obtain ⟨value, hvalue, step⟩ := each index columns[index] (List.getElem?_eq_getElem h)
-  simp only [Nat.zero_add, bind, Except.bind] at step
+/-- For all inputs, a successful {name}`fullCells` without a clock cell gives values that
+satisfy {name}`RowWidth` for the values of the written cells. Proof sketch:
+{name}`resolveAllFrom_ok` gives the length and the cell of each column, which is the
+stored written value or the stored default; a time default would give a clock cell,
+which the premise excludes. -/
+theorem fullCells_rowWidth (columns : List CatalogColumn) (positions : List Nat)
+    (written cells : List RowCell) (ok : fullCells columns positions written = .ok cells)
+    (plain : ∀ cell ∈ cells, cell.2 = none) :
+    RowWidth columns positions (written.map Prod.fst) (cells.map Prod.fst) := by
+  unfold fullCells resolveAll at ok
+  obtain ⟨length, each⟩ := resolveAllFrom_ok _ 0 columns cells ok
+  refine ⟨by simpa using length, fun index h => ?_⟩
+  obtain ⟨cell, hcell, step⟩ := each index columns[index] (List.getElem?_eq_getElem h)
+  simp only [Nat.zero_add] at step
   constructor
   · intro k hk
     rw [hk] at step
     simp only at step
     cases step
-    exact hvalue
+    cases hw : written[k]? <;> simp [hcell, hw, List.getElem?_map]
   · intro hk
     rw [hk] at step
     simp only at step
-    cases hdefault : defaultValue columns[index] with
-    | error cause => rw [hdefault] at step; cases step
-    | ok default =>
-      rw [hdefault] at step
-      cases step
-      simp [hvalue, Except.map]
+    unfold omittedCell at step
+    split at step
+    · cases step
+      exact absurd (plain _ (List.mem_of_getElem? hcell)) (by simp)
+    · cases hdefault : defaultValue columns[index] with
+      | error cause => rw [hdefault] at step; cases step
+      | ok default =>
+        rw [hdefault] at step
+        cases step
+        simp [hcell, Except.map, List.getElem?_map]
+
+/-- For all columns and rows of cells: if they have no clock cells ({name}`clockCells`),
+no cell of a row has a clock expression. -/
+theorem clockCells_empty (columns : List CatalogColumn) (rows : List (List RowCell))
+    (empty : (clockCells columns rows).isEmpty = true) : ∀ row ∈ rows, ∀ cell ∈ row, cell.2 = none := by
+  intro row member cell inRow
+  cases hclock : cell.2 with
+  | none => rfl
+  | some value =>
+    obtain ⟨r, hr⟩ := List.getElem?_of_mem member
+    obtain ⟨c, hc⟩ := List.getElem?_of_mem inRow
+    have found : ({ row := r, column := c, value, affinity := (columns[c]?.map (·.affinity)).getD .blob } :
+        Resolved.ClockCell) ∈ clockCells columns rows :=
+      List.mem_flatMap.mpr ⟨(row, r), List.mem_zipIdx_iff_getElem?.mpr hr,
+        List.mem_filterMap.mpr ⟨(cell, c), List.mem_zipIdx_iff_getElem?.mpr hc, by simp [hclock]⟩⟩
+    simp only [List.isEmpty_iff] at empty
+    simp [empty] at found
 
 /-- For a successful resolution of INSERT, with any {lit}`ON CONFLICT` clauses, to an
 insert statement, the catalog is
@@ -84,7 +109,7 @@ carries that table's {name}`Catalog.uniqueKeys`, and for every resolved row ther
 written row such that the resolved row satisfies {name}`RowWidth` for the table's
 columns. So every resolved row has one value for each table column. Proof sketch:
 split the resolver down to its successful branch; each row is a result of
-{name}`fullRow` by {name}`resolveAllFrom_ok`, and {name}`fullRow_rowWidth` gives the rule. -/
+{name}`fullCells` by {name}`resolveAllFrom_ok`, and {name}`fullCells_rowWidth` gives the rule. -/
 theorem resolveInsert_rowWidth (context : ResolveContext) (catalog after : Catalog) (index : Nat)
     (tableName : String) (names : Option (List String)) (rows : List (List Syntax.Expr))
     (conflicts : List Syntax.ConflictClause) (algorithm : Option ConflictAlgorithm)
@@ -96,7 +121,7 @@ theorem resolveInsert_rowWidth (context : ResolveContext) (catalog after : Catal
     after = catalog ∧ ∃ table, catalog.findTable tableName = some (position, table) ∧
       keys = catalog.uniqueKeys position table ∧ ∀ row ∈ full, ∃ positions written, RowWidth table.columns positions written row := by
   unfold resolveInsert at ok
-  simp only [prepareError, restrict, issueResolution] at ok
+  simp only [prepareError, restrict, issueResolution, withClockCells] at ok
   split at ok
   · cases ok
   split at ok
@@ -126,17 +151,23 @@ theorem resolveInsert_rowWidth (context : ResolveContext) (catalog after : Catal
   split at ok
   · cases ok
   split at ok
+  case isFalse => split at ok <;> cases ok
+  split at ok
   case isFalse => cases ok
+  rename_i empty
   cases ok
   refine ⟨rfl, table, found, rfl, fun row member => ?_⟩
   unfold resolveAll at rows_ok
-  obtain ⟨length, each⟩ := resolveAllFrom_ok _ 0 written full rows_ok
-  obtain ⟨r, hr⟩ := List.getElem?_of_mem member
+  obtain ⟨cellRow, cellMember, rowEq⟩ := List.mem_map.mp member
+  subst rowEq
+  obtain ⟨length, each⟩ := resolveAllFrom_ok _ 0 written _ rows_ok
+  obtain ⟨r, hr⟩ := List.getElem?_of_mem cellMember
   have hlen : r < written.length := by
     have := (List.getElem?_eq_some_iff.mp hr).1; omega
   obtain ⟨value, hvalue, step⟩ := each r written[r] (List.getElem?_eq_getElem hlen)
   rw [hr] at hvalue
   cases hvalue
-  exact ⟨positions, written[r], fullRow_rowWidth _ _ _ _ step⟩
+  exact ⟨positions, written[r].map Prod.fst, fullCells_rowWidth _ _ _ _ step
+    (clockCells_empty _ _ empty _ cellMember)⟩
 
 end Belay.Sqlite

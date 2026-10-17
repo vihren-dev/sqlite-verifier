@@ -71,11 +71,10 @@ example : (step (.addColumn 0 { name := "shell", declaredType := some "TEXT" })
     some (table.appendColumns [({ name := "shell", declaredType := some "TEXT" }, .null)]) := by
   decide +kernel
 
-/-- The supported-subset check refuses ADD COLUMN of {name}`timestamp`, a model
-restriction, because SQLite accepts the column but the model does not describe its
-default. Resolution never gives such a statement for a statement that runs. The
+/-- The supported-subset check admits ADD COLUMN of {name}`timestamp`, whose default is
+{lit}`CURRENT_TIMESTAMP`: the model describes it (ADR 0012, amendment 5, slice 6e2). The
 proof computes the check in the kernel. -/
-example : statementReady (.addColumn 0 timestamp) (fun _ => none) = false := by
+example : statementReady (.addColumn 0 timestamp) (fun _ => none) = true := by
   decide +kernel
 
 /-- {name}`step` runs a CREATE TABLE of a keyed table, which is not plain: it
@@ -87,12 +86,15 @@ example : (step (.createTable 0 "items" { columns := [textKey], primaryKey := [0
     statementReady (.createTable 0 "items" { columns := [textKey], primaryKey := [0] }) (fun _ => none) = false := by
   decide +kernel
 
-/-- ADD COLUMN of {name}`timestamp` has unsupported default evaluation.
-{name}`step` retains the original table, and {name}`statementReady` refuses the
-statement. The proof computes both in the kernel. -/
+/-- ADD COLUMN of {name}`timestamp` on a table with a row fails as SQLite does, with
+{lit}`Cannot add a column with non-constant default`, because its default reads the clock:
+{name}`step` gives {name}`ExecutionError.nonConstantColumnDefault` and retains the original
+table. The proof computes both in the kernel. -/
 example : (step (.addColumn 0 timestamp) (fun position => if position = 0 then some table else none)).database 0 =
       some table ∧
-    statementReady (.addColumn 0 timestamp) (fun position => if position = 0 then some table else none) = false := by
+    (match step (.addColumn 0 timestamp) (fun position => if position = 0 then some table else none) with
+      | .failure _ reason _ => reason == .nonConstantColumnDefault
+      | .success _ | .pending .. => false) = true := by
   decide +kernel
 
 end SqliteVerifier.SchemaExamples
