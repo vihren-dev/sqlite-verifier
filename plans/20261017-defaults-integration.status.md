@@ -1,6 +1,6 @@
 # Literal defaults in the ADR 0012 stack, slice 6e1 of ADR 0012: status
 
-Created 2026-10-17. Status: open.
+Created 2026-10-17. Status: DONE.
 Task: [20261017-defaults-integration.task.md](20261017-defaults-integration.task.md).
 Specification: [ADR 0012](../docs/adr-0012-query-semantics.md), Amendment 5, owner
 decisions 8 and 9.
@@ -37,7 +37,13 @@ decisions 8 and 9.
   `conformance/default_write_evidence.py` (corpus 25). `test-full`, `test-nix` and
   `test-scheduled` pass.
 
-## Remaining
-
-- Review, CI time, pull request A; then pull request B (corpus 25 and cases that newly
-  agree). Then slice 6e2 (the clock).
+- 2026-10-17: the review of the merge was clean. #130's default tests doubled
+  `tests.model` (244 s to 568 s locally): one Lean program and one kernel proof per case.
+  A test commit checks every affinity in one Lean program per SQLite version and runs the
+  kernel proofs in parallel batches (`conformance.model_check.prove_all`); `tests.model`
+  takes 311 s, the rest being #130's checks against both pinned engines. CI time (local,
+  base vs branch): harness 22/22 s, model 244/311 s, frozen 139/139 s, scheduled mutants
+  304/308 s. Pull request A opened as #150.
+- 2026-10-17: pull request B: corpus 25 (8 cases, all AGREE) is claimed, and the 55
+  upstream cases that now agree join `mustAgree` (v3 60 to 62, v4 28 to 32, v5 671 to
+  719, v6 37 to 38). New judge lock. Slice 6e1 is DONE; slice 6e2 (the clock) follows.
