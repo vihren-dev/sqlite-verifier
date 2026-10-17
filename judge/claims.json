@@ -529,6 +529,26 @@
    ],
    "path": "conformance/corpus-v26"
   },
+  "corpus-v27": {
+   "forbidden": [
+    "DISAGREE",
+    "HARNESS_ERROR"
+   ],
+   "mustAgree": [
+    "date-functions-columns",
+    "date-functions-fromless",
+    "date-functions-now",
+    "date-functions-numbers",
+    "date-functions-per-statement",
+    "date-functions-returning",
+    "date-functions-set",
+    "date-functions-specifiers",
+    "date-functions-time-zones",
+    "date-functions-unreadable",
+    "date-functions-where"
+   ],
+   "path": "conformance/corpus-v27"
+  },
   "corpus-v3": {
    "forbidden": [
     "DISAGREE",

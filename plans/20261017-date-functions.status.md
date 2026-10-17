@@ -1,6 +1,6 @@
 # Date and time functions, slice 6f of ADR 0012: status
 
-Created 2026-10-17. Status: open.
+Created 2026-10-17. Status: DONE.
 Task: [20261017-date-functions.task.md](20261017-date-functions.task.md).
 Specification: [ADR 0012](../docs/adr-0012-query-semantics.md), Amendment 5, "Date and
 time functions (slice 6f)", owner decisions 2, 3 and 8.
@@ -34,7 +34,11 @@ time functions (slice 6f)", owner decisions 2, 3 and 8.
     `conformance/date_function_evidence.py` (corpus 27). The core has 123 modules.
     `test-full`, `test-nix` and `test-scheduled` pass (model suite 381 s).
 
+- 2026-10-17: pull request A is #154 (CI time: `tests.model` 316 s to 326 s,
+  `tests.harness` 22 s to 23 s, `tests.frozen` 141 s, scheduled mutants 343 s to 381 s).
+  No upstream case changes its verdict.
+- 2026-10-17: pull request B. Corpus 27 (11 cases, all AGREE) is frozen and claimed.
+
 ## Remaining
 
-- Implementation, full checks, review, CI time, pull request A; then pull request B
-  (claim corpus 27, `mustAgree`).
+- None. Slice 6g (modifiers) builds on these functions.
