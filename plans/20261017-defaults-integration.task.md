@@ -1,6 +1,6 @@
 # Literal defaults in the ADR 0012 stack, slice 6e1 of ADR 0012
 
-Created 2026-10-17. Status: open.
+Created 2026-10-17. Status: DONE (pull requests #150 and B).
 Specification: [ADR 0012](../docs/adr-0012-query-semantics.md), "Amendment 5", "The clock
 (slice 6e)", owner decision 9 of 2026-10-17; draft #130 and its task
 (`plans/20261012-constant-column-defaults.task.md` on `tasks/constant-column-defaults`),
