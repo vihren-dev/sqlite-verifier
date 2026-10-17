@@ -933,3 +933,9 @@ None; see "Owner decisions".
    (literal defaults for added columns and omitted `INSERT` values): slice 6e1 integrates
    #130 into this stack, and slice 6e2 adds the clock, the time keywords and the
    `CURRENT_TIMESTAMP` default.
+
+## Structure after the slices
+
+The structure of the model after slices 1 to 6g, including the reading of ADR 0006's
+rule against catch-all arms and the clock as an evaluation parameter, is decided in
+[ADR 0013](adr-0013-model-structure.md).
