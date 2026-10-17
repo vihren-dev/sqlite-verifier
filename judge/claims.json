@@ -469,6 +469,31 @@
    ],
    "path": "conformance/corpus-v23"
   },
+  "corpus-v24": {
+   "forbidden": [
+    "DISAGREE",
+    "HARNESS_ERROR"
+   ],
+   "mustAgree": [
+    "each-ambiguous-name",
+    "each-array",
+    "each-correlated",
+    "each-group-by",
+    "each-header-sizes",
+    "each-hidden-columns",
+    "each-join-on",
+    "each-json5",
+    "each-no-rows",
+    "each-object",
+    "each-path",
+    "each-qualified-name",
+    "each-scalar",
+    "each-too-many-arguments",
+    "each-twice",
+    "each-where-order"
+   ],
+   "path": "conformance/corpus-v24"
+  },
   "corpus-v3": {
    "forbidden": [
     "DISAGREE",
@@ -875,6 +900,12 @@
     "json101:json101-10.9:91",
     "json101:json101-12.100:188",
     "json101:json101-12.120:191",
+    "json101:json101-14.100:195",
+    "json101:json101-14.110:196",
+    "json101:json101-14.120:197",
+    "json101:json101-14.130:198",
+    "json101:json101-15.100:203",
+    "json101:json101-15.110:204",
     "json101:json101-18.1:211",
     "json101:json101-18.2:212",
     "json101:json101-18.3:213",
@@ -884,6 +915,7 @@
     "json101:json101-21.10:231",
     "json101:json101-21.21:242",
     "json101:json101-21.22:243",
+    "json101:json101-21.24:245",
     "json101:json101-21.3:224",
     "json101:json101-21.5:226",
     "json101:json101-21.7:228",

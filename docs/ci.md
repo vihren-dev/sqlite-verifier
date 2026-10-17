@@ -63,7 +63,7 @@ with `nix-build -A tests`, among them these; the flake exposes the same derivati
 - `tests.kernel`: real Lean compilation and proof-checker replay attacks.
 - `tests.model`: production SQL translation and concrete Lean model assertions,
   compared with pinned native SQLite on authored and generated cases.
-- `tests.frozen`: replay and classification of the frozen corpora (v1 to v23)
+- `tests.frozen`: replay and classification of the frozen corpora (v1 to v24)
   and checks of the retained evidence reports.
 - `tests.corpora`: complete validation of each locked frozen corpus.
 - `tests.harness`: fast acquisition, storage, profile and workload checks of the

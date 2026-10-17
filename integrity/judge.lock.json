@@ -15,6 +15,7 @@
  "corpus corpus-v21": "/nix/store/9d8bi736i88cld4myy8jwhwm35p2c23w-source",
  "corpus corpus-v22": "/nix/store/9gfhjjsc7viijsnyl5g78yfr519azikb-source",
  "corpus corpus-v23": "/nix/store/js4ij0mllsbq8dy6i723kgaxkpbjn0lw-source",
+ "corpus corpus-v24": "/nix/store/5qp79wxrqj9b9lg06mi5xjnkivl15am1-source",
  "corpus corpus-v3": "/nix/store/pmrhsrhh7y0ggg9j3zl4z0yvgzrbb894-source",
  "corpus corpus-v4": "/nix/store/653vyvp3p77jg3pc4pwcy11zvgjap0ax-source",
  "corpus corpus-v5": "/nix/store/6fs7vidhnk7pj9pp24bnzi02j2ap1lnc-source",
@@ -23,6 +24,6 @@
  "corpus corpus-v8": "/nix/store/z1ldsnlp6wslz1gr57k5db4mah5xsmxs-source",
  "corpus corpus-v9": "/nix/store/kinavd8bnp1dhayvg93rpnzlm84h34xa-source",
  "corpus synthetic-workload": "/nix/store/s4qyby377gydlfyswyclc8qb2sl3cn8k-source",
- "judge": "/nix/store/c0j2q3414b8ikrw09icizm5hx492sk26-source",
+ "judge": "/nix/store/w2s4y29f8mk0mx18frv7bvw9d9h4l68p-source",
  "oracle": "/nix/store/r4sm4f8pa49g5kr78d2sk2xbnibp4v3w-source"
 }
