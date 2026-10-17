@@ -2,6 +2,7 @@ import Belay.Sqlite.Declarations
 import Belay.Sqlite.Comparison
 import Belay.Sqlite.QueryEval
 import Belay.Sqlite.QueryJoins
+import Belay.Sqlite.QueryFunctions
 import Belay.Sqlite.QueryLaws
 import Belay.Sqlite.QueryJoinLaws
 import Belay.Sqlite.StoreValueLaws

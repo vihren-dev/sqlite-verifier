@@ -1,5 +1,5 @@
 import Belay.Sqlite.Resolution.Examples
-import Belay.Sqlite.QueryJoins
+import Belay.Sqlite.QueryFunctions
 
 set_option doc.verso true
 

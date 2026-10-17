@@ -79,13 +79,27 @@ def identifier(tree: Tree, node: Node) -> Located:
                        node.start, node.end)
 
 
+IDENTIFIER_TOKENS = frozenset("""
+    ID INDEXED JOIN_KW
+    ABORT ACTION AFTER ANALYZE ASC ATTACH BEFORE BEGIN BY CASCADE CAST COLUMNKW CONFLICT DATABASE DEFERRED DESC
+    DETACH DO EACH END EXCLUSIVE EXPLAIN FAIL FOR IGNORE IMMEDIATE INITIALLY INSTEAD LIKE_KW MATCH NO PLAN QUERY
+    KEY OF OFFSET PRAGMA RAISE RECURSIVE RELEASE REPLACE RESTRICT ROW ROWS ROLLBACK SAVEPOINT TEMP TRIGGER VACUUM
+    VIEW VIRTUAL WITH WITHOUT NULLS FIRST LAST CURRENT FOLLOWING PARTITION PRECEDING RANGE UNBOUNDED EXCLUDE GROUPS
+    OTHERS TIES GENERATED ALWAYS MATERIALIZED REINDEX RENAME IF
+""".split())
+"""The tokens of SQLite's `expr ::= ID|INDEXED|JOIN_KW` production: those three and the
+keywords of `%fallback ID` in the pinned `parse.y` of 3.51.0, with its compile options. The
+parse tree keeps a fallback keyword's own symbol, so a column named `key` is an `expr` of
+one `KEY` token."""
+
+
 def expression(tree: Tree, node: Node) -> Located:
     """Map an `expr` production that has a syntax constructor, or refuse it with its range."""
     children = tree.children(node)
     symbols = [child.symbol for child in children]
     if symbols == ["term"]:
         return term(tree, children[0])
-    if symbols == ["ID"]:
+    if len(symbols) == 1 and symbols[0] in IDENTIFIER_TOKENS:
         return identifier(tree, children[0])
     if symbols in (["MINUS", "expr"], ["PLUS", "expr"]):
         kind = "negate" if symbols[0] == "MINUS" else "positive"

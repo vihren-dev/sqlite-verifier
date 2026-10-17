@@ -36,6 +36,10 @@ structure Source where
   /-- How the source's join changes an unqualified name of a merged column; the rule of
   an inner join for a source that merges nothing. -/
   mergeRule : MergeRule := .keepLeft
+  /-- The positions in {name}`Source.columns` of the hidden columns, which {lit}`*` and
+  {lit}`x.*` do not show and names do see: the {lit}`json` and {lit}`root` columns of
+  {lit}`json_each`. Empty for a table. -/
+  hidden : List Nat := []
   deriving Repr, DecidableEq
 
 /-- The sources in scope, in {lit}`FROM` order; empty where no table is in scope, as in
@@ -49,11 +53,13 @@ def Scope.single (name : String) (columns : List CatalogColumn) : Scope := [{ na
 def Scope.columns (scope : Scope) : List CatalogColumn := scope.flatMap (·.columns)
 
 /-- The columns that {lit}`*` reads, with their positions in the concatenated row: every
-column of every source that is not merged ({name}`Source.merged`). -/
+column of every source that is not merged ({name}`Source.merged`) or hidden
+({name}`Source.hidden`). -/
 def Scope.visible (scope : Scope) : List (Nat × CatalogColumn) :=
   (scope.foldl (fun (offset, found) source =>
     (offset + source.columns.length, found ++ ((source.columns.mapIdx fun index column => (index, column)).filter
-      (!source.merged.contains ·.1)).map fun (index, column) => (offset + index, column)))
+      fun (index, _) => !source.merged.contains index && !source.hidden.contains index).map
+        fun (index, column) => (offset + index, column)))
     (0, [])).2
 
 /-- The positions in the concatenated row of the columns that an unqualified name
@@ -78,6 +84,22 @@ def Scope.sourceFrom (name : String) (offset : Nat) : Scope → Option (Nat × L
 name is the given name, as {lit}`source.*` and qualified names need. -/
 def Scope.source? (scope : Scope) (name : String) : Option (Nat × List CatalogColumn) :=
   Scope.sourceFrom name 0 scope
+
+/-- The offset in the concatenated row and the first source whose folded name is the
+given name, where the first source of the scope starts at {lit}`offset`. -/
+def Scope.recordFrom (name : String) (offset : Nat) : Scope → Option (Nat × Source)
+  | [] => none
+  | source :: rest =>
+    if normalizeIdentifier source.name == normalizeIdentifier name then some (offset, source)
+    else Scope.recordFrom name (offset + source.columns.length) rest
+
+/-- The columns of {lit}`source.*` with their positions in the concatenated row: every
+column of the first source with the name that is not hidden ({name}`Source.hidden`),
+merged columns included; none when no source has the name. -/
+def Scope.starColumns? (scope : Scope) (name : String) : Option (List (Nat × CatalogColumn)) :=
+  (Scope.recordFrom name 0 scope).map fun (offset, source) =>
+    ((source.columns.mapIdx fun index column => (index, column)).filter (!source.hidden.contains ·.1)).map
+      fun (index, column) => (offset + index, column)
 
 /-- The position in the concatenated row of {lit}`source.column`, or none when no source
 has the name or the source has no such column. -/

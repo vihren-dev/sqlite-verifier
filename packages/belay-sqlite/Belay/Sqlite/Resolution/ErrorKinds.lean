@@ -21,7 +21,7 @@ def PrepareError.namesObject : PrepareError → Bool
   | .aggregateInGroupBy | .orderByOutOfRange .. | .groupByOutOfRange .. | .wrongArgumentCount _
   | .ambiguousColumn _ | .noSuchSource _ | .tooManyTables | .returningSourceStar
   | .joinUsingColumn _ | .naturalJoinCondition | .ambiguousUsingReference _ | .conflictTargetMismatch
-  | .conflictingAlgorithms | .noTablesSpecified => false
+  | .conflictingAlgorithms | .noTablesSpecified | .tooManyEachArguments => false
 
 /-- A value issue that is not a prepare error naming a catalog object. -/
 def ValueIssue.namesNoObject : ValueIssue → Prop

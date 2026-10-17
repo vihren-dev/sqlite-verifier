@@ -105,14 +105,22 @@ def Query.keptExpressions (query : Query) : List Expr :=
   query.columns.flatMap Output.scalars ++ query.columns.flatMap Output.operands ++ query.groupBy ++
     query.orderBy.flatMap (·.1.expressions)
 
-/-- Every expression of a query: {lit}`WHERE`, the {lit}`ON` conditions and
-{name}`Query.keptExpressions`. -/
+/-- The expressions of a {lit}`json_each` source: its arguments and its {lit}`ON`
+condition. -/
+def EachSource.expressions (each : EachSource) : List Expr :=
+  each.json :: each.path.toList ++ each.condition.toList
+
+/-- Every expression of a query: {lit}`WHERE`, the {lit}`ON` conditions, the expressions of
+its {lit}`json_each` sources and {name}`Query.keptExpressions`. -/
 def Query.expressions (query : Query) : List Expr :=
-  query.filter.toList ++ query.joins.filterMap (·.condition) ++ query.keptExpressions
+  query.filter.toList ++ query.joins.filterMap (·.condition) ++ query.functions.flatMap EachSource.expressions ++
+    query.keptExpressions
 
 /-- Whether some JSON call of the query may fail over its source rows. The row with no
-cells, {lit}`[]`, reads NULL in every column. A query with joins and a JSON call may
-fail, because SQLite may evaluate a condition over a part of a joined row. Otherwise:
+cells, {lit}`[]`, reads NULL in every column. A query with joins or {lit}`json_each`
+sources and a JSON call may fail, because SQLite may evaluate a condition over a part of
+a joined row. The failures of {lit}`json_each` itself are not JSON calls of an
+expression; {lit}`JsonReady.lean` checks them. Otherwise:
 
 * {lit}`WHERE` over every source row and over {lit}`[]`, because SQLite evaluates a
   constant term once before it reads the rows (checked: {lit}`DELETE FROM t WHERE
@@ -121,7 +129,7 @@ fail, because SQLite may evaluate a condition over a part of a joined row. Other
   over every row that passes {lit}`WHERE`, and in an aggregate query also over {lit}`[]`,
   because SQLite evaluates the result row of an empty group over NULL cells. -/
 def Query.mayFail (query : Query) (rows : List (List Value)) : Bool :=
-  if !query.joins.isEmpty then query.expressions.any Expr.callsJson
+  if !query.joins.isEmpty || !query.functions.isEmpty then query.expressions.any Expr.callsJson
   else
     let kept := filtered query rows ++ if query.aggregate then [[]] else []
     anyMayFail ([] :: rows) query.filter.toList ||
@@ -152,12 +160,12 @@ theorem Query.mayFail_of_callsJson (query : Query) (rows : List (List Value))
       exact Expr.mayFail_of_callsJson _ _ (plain _ (by simp_all [Query.expressions]))
 
 /-- Whether SQLite certainly reports a JSON failure of the query over its source rows,
-which the model describes only for a query without {lit}`FROM` and without {lit}`LIMIT 0`
-(checked natively): its {lit}`WHERE` fails on the one row; or the row passes
+which the model describes only for a query without {lit}`FROM` (no table and no
+{lit}`json_each` source) and without {lit}`LIMIT 0` (checked natively): its {lit}`WHERE` fails on the one row; or the row passes
 {lit}`WHERE` and an aggregate operand fails, also with {lit}`OFFSET`; or the row passes,
 no {lit}`OFFSET` skips it, and a scalar result column fails. -/
 def Query.mustFail (query : Query) (rows : List (List Value)) : Bool :=
-  query.table.isNone && query.limit != some 0 && rows.any fun row =>
+  query.table.isNone && query.functions.isEmpty && query.limit != some 0 && rows.any fun row =>
     query.filter.any (·.mustFail row) ||
     (query.filter.all (fun condition => truthy (condition.eval row)) &&
       ((query.columns.flatMap Output.operands).any (·.mustFail row) ||

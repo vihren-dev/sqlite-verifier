@@ -119,13 +119,17 @@ inductive ResultColumn where
   | expression (value : Expr) (alias : Option String) (text : String)
   deriving Repr, DecidableEq
 
-/-- A table in {lit}`FROM`: its name and its optional alias, both as written. Use
-{lean}`(none : Option String)` for no alias. -/
+/-- A table in {lit}`FROM`, or a table-valued function such as {lit}`json_each(json)`: its
+name and its optional alias, both as written, and the arguments of a function. Use
+{lean}`(none : Option String)` for no alias, and {lean}`(none : Option (List Expr))` for a
+table. -/
 structure TableReference where
-  /-- The table name. -/
+  /-- The table name, or the function name. -/
   table : String
   /-- The alias of {lit}`table AS alias` or {lit}`table alias`. -/
   alias : Option String
+  /-- The arguments of a table-valued function in written order; none for a table. -/
+  arguments : Option (List Expr) := none
   deriving Repr, DecidableEq
 
 /-- One join of {lit}`FROM` after the first table: the keywords of its operator, the

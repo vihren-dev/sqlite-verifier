@@ -19,8 +19,9 @@ MUTANTS: dict[str, tuple[str, str, str]] = {
     "fromless_two_rows": (JOINS, "  let some table := query.table | pure [[]]",
         "  let some table := query.table | pure [[], []]"),
     "fromless_where_ignored": (QUERIES,
-        "    return { table := first, joins := resolvedJoins, filter := condition,",
-        "    return { table := first, joins := resolvedJoins, filter := if first.isNone then none else condition,"),
+        "    return { table := first, joins := resolvedJoins, functions, filter := condition,",
+        "    return { table := first, joins := resolvedJoins, functions,\n"
+        "             filter := if first.isNone then none else condition,"),
     "fromless_star_accepted": (QUERIES, "  | .star => if scope.isEmpty then .error (.prepare .noTablesSpecified) else",
         "  | .star => if false then .error (.prepare .noTablesSpecified) else"),
 }
@@ -36,7 +37,7 @@ TARGETS: dict[str, tuple[str, ...]] = {
 """The authored case of `conformance.authored_fromless` that each mutant changes."""
 
 GUARDS: dict[str, str] = {
-    "fromless_no_row": "rule:Query.source", "fromless_two_rows": "rule:Query.source",
+    "fromless_no_row": "rule:Query.tableSource", "fromless_two_rows": "rule:Query.tableSource",
     "fromless_where_ignored": "rule:resolveSelect", "fromless_star_accepted": "rule:resolveResultColumn",
 }
 """What each mutant guards: `rule:` and the Lean declaration of its file that the mutant

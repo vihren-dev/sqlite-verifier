@@ -44,6 +44,10 @@ def RestrictionKind.id : RestrictionKind → String
   | .negativeOffset => "negative-offset"
   | .windowedGroupSum => "windowed-group-sum"
   | .constantFunctionError => "constant-function-error"
+  | .tableFunction => "table-function"
+  | .tableAfterFunction => "table-after-function"
+  | .functionJoin => "function-join"
+  | .laterSourceInArguments => "later-source-in-arguments"
 
 /-- The message of a restriction that users read: what the model does not describe,
 and what to write instead. -/
@@ -82,10 +86,14 @@ def RestrictionKind.message : RestrictionKind → String
   | .negativeOffset => "a negative OFFSET is not modeled; write OFFSET 0 or more"
   | .windowedGroupSum => "SUM in a grouped query with LIMIT or OFFSET is not modeled, because SQLite may stop before an overflowing group; remove the window or the SUM"
   | .constantFunctionError => "a constant value in VALUES or SET whose JSON function fails is not modeled; correct the JSON text or the path"
+  | .tableFunction => "only json_each with one or two arguments is modeled as a table-valued function in FROM; use json_each or a table"
+  | .tableAfterFunction => "a table after json_each in FROM is not modeled; write the tables before json_each"
+  | .functionJoin => "only an inner join without NATURAL or USING is modeled with json_each; write a comma, JOIN or JOIN ... ON"
+  | .laterSourceInArguments => "an argument of json_each that reads a later source is not modeled; write the source before json_each"
 
 /-- Every restriction, in the order of the registry. -/
 def RestrictionKind.all : List RestrictionKind :=
-  [.schemaStatement, .engineTable, .rowidColumnName, .createTableConstraints, .unmodeledDefault, .createIndexRuns, .addColumnConstraint, .timeValue, .rowDependentKey, .conflictWithoutTarget, .mixedConflictAlgorithms, .constraintAlgorithmUpdate, .replaceDefault, .insertColumnTwice, .updateColumnTwice, .rowidName, .joinOperator, .duplicateSource, .laterTableInOn, .systemTable, .unmodeledFunction, .aggregateInExpression, .aliasInExpression, .valueAsCondition, .mixedAffinityComparison, .textToNumber, .numberToText, .groupByTerm, .bareColumn, .aggregateOrderBy, .windowValue, .negativeOffset, .windowedGroupSum, .constantFunctionError]
+  [.schemaStatement, .engineTable, .rowidColumnName, .createTableConstraints, .unmodeledDefault, .createIndexRuns, .addColumnConstraint, .timeValue, .rowDependentKey, .conflictWithoutTarget, .mixedConflictAlgorithms, .constraintAlgorithmUpdate, .replaceDefault, .insertColumnTwice, .updateColumnTwice, .rowidName, .joinOperator, .duplicateSource, .laterTableInOn, .systemTable, .unmodeledFunction, .aggregateInExpression, .aliasInExpression, .valueAsCondition, .mixedAffinityComparison, .textToNumber, .numberToText, .groupByTerm, .bareColumn, .aggregateOrderBy, .windowValue, .negativeOffset, .windowedGroupSum, .constantFunctionError, .tableFunction, .tableAfterFunction, .functionJoin, .laterSourceInArguments]
 
 /-- For every restriction, it is in {name}`RestrictionKind.all`. Proof sketch: case
 analysis on the restriction. -/

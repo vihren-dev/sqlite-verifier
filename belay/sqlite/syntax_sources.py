@@ -3,8 +3,11 @@
 A table reference is a table name with an optional alias. Each join after the first
 table has the keywords of its operator as written, its table, and its optional ON
 condition and USING column names. Lean reads the kind of the join from the keywords
-and decides which joins the model describes, so this module does not fold their case. Schema names, INDEXED BY, table-valued functions and subqueries in FROM have
-no constructor and are refused with their source range.
+and decides which joins the model describes, so this module does not fold their case. A
+table-valued function such as `json_each(json, path)` is a reference with its arguments
+(ADR 0012, amendment 5, slice 6d); Lean decides which functions the model describes.
+Schema names, INDEXED BY and subqueries in FROM have no constructor and are refused with
+their source range.
 """
 
 from collections.abc import Callable
@@ -24,11 +27,39 @@ def alias(tree: Tree, node: Node) -> Located:
     return leaf(None, node.start, node.end)
 
 
-def table_reference(tree: Tree, table: Node, schema: Node, alias_node: Node) -> Located:
-    """A table name with its optional alias; a schema name is refused."""
+def table_reference(tree: Tree, table: Node, schema: Node, alias_node: Node, arguments: Located | None) -> Located:
+    """A table name, or a table-valued function name with its arguments, with its optional
+    alias; a schema name is refused. `arguments` is none for a table."""
     absent(tree, schema, "A schema name")
-    return structure([("table", name(tree, table)), ("alias", alias(tree, alias_node))],
+    return structure([("table", name(tree, table)), ("alias", alias(tree, alias_node)),
+                      ("arguments", arguments if arguments is not None else leaf(None, table.start, table.end))],
                      table.start, max(table.end, alias_node.end))
+
+
+TABLE = ["stl_prefix", "nm", "dbnm", "as", "on_using"]
+"""The parts of a table in FROM."""
+FUNCTION = ["stl_prefix", "nm", "dbnm", "LP", "exprlist", "RP", "as", "on_using"]
+"""The parts of a table-valued function in FROM."""
+
+
+def source_parts(tree: Tree, node: Node, condition: Callable[[Tree, Node], Located]) -> tuple[Node, Node, Node, Node,
+                                                                                               Node, Located | None]:
+    """The prefix, name, schema, alias and constraint of one source of a `seltablist`, and
+    the mapped arguments of a table-valued function, or none for a table. A subquery or
+    INDEXED BY is refused."""
+    parts = tree.children(node)
+    symbols = [part.symbol for part in parts]
+    if symbols == TABLE:
+        prefix, table, schema, alias_node, constraint = parts
+        return prefix, table, schema, alias_node, constraint, None
+    if symbols == FUNCTION:
+        prefix, table, schema, _, listed, closing, alias_node, constraint = parts
+        items = left_list(tree, tree.children(listed)[0], {1: ["expr"], 3: ["nexprlist", "COMMA", "expr"]}) \
+            if listed.children else []
+        return prefix, table, schema, alias_node, constraint, sequence(
+            [condition(tree, item[-1]) for item in items], listed.start, closing.start)
+    raise tree.unsupported(node, "Only tables and table-valued functions, with optional aliases, are modeled in "
+                           "FROM; write table names and joins")
 
 
 def join_operator(tree: Tree, node: Node) -> Located:
@@ -54,30 +85,27 @@ def join_constraint(tree: Tree, node: Node, condition: Callable[[Tree, Node], Lo
 
 def from_clause(tree: Tree, tables: Node,
                 condition: Callable[[Tree, Node], Located]) -> tuple[Located, Located]:
-    """The first table of a `seltablist` and its joins in order; `condition` maps an ON
-    expression. A table-valued function or a subquery is refused."""
-    items: list[tuple[Node, list[Node]]] = []
+    """The first source of a `seltablist` and its joins in order; `condition` maps an ON
+    expression and the arguments of a table-valued function. A subquery is refused."""
+    items: list[tuple[Node, tuple[Node, Node, Node, Node, Node, Located | None]]] = []
     current = tables
     while True:
-        parts = tree.children(current)
-        if [part.symbol for part in parts] != ["stl_prefix", "nm", "dbnm", "as", "on_using"]:
-            raise tree.unsupported(current, "Only tables, with optional aliases, are modeled in FROM; "
-                                   "write table names and joins")
+        parts = source_parts(tree, current, condition)
         items.append((current, parts))
-        prefix = tree.children(parts[0])
-        if not prefix:
+        if not tree.children(parts[0]):
             break
         current = require(tree, parts[0], ["seltablist", "joinop"])[0]
     items.reverse()
-    first_node, (_, table, schema, alias_node, constraint) = items[0]
+    first_node, (_, table, schema, alias_node, constraint, arguments) = items[0]
     absent(tree, constraint, "ON or USING on the first table")
-    first = table_reference(tree, table, schema, alias_node)
+    first = table_reference(tree, table, schema, alias_node, arguments)
     joins: list[Located] = []
-    for index, (node, (prefix, table, schema, alias_node, constraint)) in enumerate(items[1:], start=1):
+    for node, (prefix, table, schema, alias_node, constraint, arguments) in items[1:]:
         operator = require(tree, prefix, ["seltablist", "joinop"])[1]
         on, using = join_constraint(tree, constraint, condition)
         joins.append(structure([
-            ("operator", join_operator(tree, operator)), ("source", table_reference(tree, table, schema, alias_node)),
+            ("operator", join_operator(tree, operator)),
+            ("source", table_reference(tree, table, schema, alias_node, arguments)),
             ("condition", on),
             ("usingColumns", using)], operator.start, node.end))
     return first, sequence(joins, first_node.end, tables.end)

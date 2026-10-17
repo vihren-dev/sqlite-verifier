@@ -1,5 +1,5 @@
 import Belay.Sqlite.SqlExecution
-import Belay.Sqlite.QueryJoins
+import Belay.Sqlite.QueryFunctions
 
 /-! ADR 0005 output comparison uses native tie groups, without evaluating SQL. -/
 

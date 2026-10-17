@@ -1,4 +1,4 @@
-"""The authored coverage cases of queries, numbers and writes (ADR 0012, slices 1 to 6c).
+"""The authored coverage cases of queries, numbers and writes (ADR 0012, slices 1 to 6d).
 
 The cases of `conformance.authored_queries`, `conformance.authored_numbers`,
 `conformance.authored_writes`, `conformance.authored_row_writes`,
@@ -7,7 +7,8 @@ The cases of `conformance.authored_queries`, `conformance.authored_numbers`,
 `conformance.authored_merged`, `conformance.authored_keys`,
 `conformance.authored_aliases`, `conformance.authored_upserts`,
 `conformance.authored_algorithms`, `conformance.authored_fromless`,
-`conformance.authored_json` and `conformance.authored_json_functions` are
+`conformance.authored_json`, `conformance.authored_json_functions` and
+`conformance.authored_json_each` are
 recorded natively as version 5 records with statement outputs, name requirement
 identifiers of the pinned documentation, and replay through resolution, the
 execution semantics and query evaluation. Every case agrees with the model, and the
@@ -25,9 +26,9 @@ from types import ModuleType
 import pytest
 
 from conformance import (authored_algorithms, authored_aliases, authored_deletes, authored_fromless, authored_joins,
-                         authored_json, authored_json_functions, authored_keys, authored_merged, authored_numbers,
-                         authored_queries, authored_right, authored_row_writes, authored_upserts, authored_using,
-                         authored_writes)
+                         authored_json, authored_json_each, authored_json_functions, authored_keys, authored_merged,
+                         authored_numbers, authored_queries, authored_right, authored_row_writes, authored_upserts,
+                         authored_using, authored_writes)
 from conformance.model_check import compiled_many, prove_batch
 from conformance.native_replay import prepare
 from conformance.record_parser import runtime_library
@@ -39,7 +40,7 @@ ROOT = Path(__file__).resolve().parents[1]
 CASE_SETS = [authored_queries, authored_numbers, authored_writes, authored_row_writes, authored_deletes, authored_joins,
              authored_using, authored_right, authored_merged, authored_keys, authored_aliases, authored_upserts,
              authored_algorithms, authored_fromless, authored_json,
-             authored_json_functions]
+             authored_json_functions, authored_json_each]
 """The authored case modules: each has `definitions` and `records`."""
 PROOF_BATCH = 8
 """Cases per kernel proof file: Lean loads the imports once for each file, about 0.7 s, which

@@ -1,6 +1,6 @@
 import Belay.Sqlite.Model
 import Belay.Sqlite.Resolution.Resolved
-import Belay.Sqlite.QueryJoins
+import Belay.Sqlite.QueryFunctions
 import Belay.Sqlite.JsonFaults
 
 set_option doc.verso true

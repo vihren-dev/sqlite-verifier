@@ -17,10 +17,8 @@ JOIN_USING = SQLITE + "Resolution/JoinUsing.lean"
 
 MUTANTS: dict[str, tuple[str, str, str]] = {
     "star_keeps_merged": (SCOPE,
-        "found ++ ((source.columns.mapIdx fun index column => (index, column)).filter\n"
-        "      (!source.merged.contains ·.1)).map",
-        "found ++ ((source.columns.mapIdx fun index column => (index, column)).filter\n"
-        "      (fun _ => true)).map"),
+        "      fun (index, _) => !source.merged.contains index && !source.hidden.contains index).map",
+        "      fun (index, _) => !source.hidden.contains index).map"),
     "unqualified_sees_merged": (SCOPE, "      if source.merged.contains index then match source.mergeRule with",
         "      if false then match source.mergeRule with"),
     "condition_uses_right_most": (MERGED_LEFT, "  scope.findSome? fun source =>", "  scope.reverse.findSome? fun source =>"),

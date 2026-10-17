@@ -100,6 +100,9 @@ inductive PrepareError where
   | conflictingAlgorithms
   /-- {lit}`no tables specified`: {lit}`*` in a {lit}`SELECT` without {lit}`FROM`. -/
   | noTablesSpecified
+  /-- {lit}`too many arguments on json_each() - max 2`: a {lit}`json_each` source in
+  {lit}`FROM` with three or more arguments. -/
+  | tooManyEachArguments
   deriving Repr, DecidableEq
 
 /-- A model restriction: SQLite accepts the SQL, but the model does not describe

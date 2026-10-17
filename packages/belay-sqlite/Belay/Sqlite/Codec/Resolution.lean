@@ -61,6 +61,7 @@ deriving instance Lean.ToExpr for Resolved.Output
 deriving instance Lean.ToExpr for Resolved.SortKey
 deriving instance Lean.ToExpr for Resolved.JoinKind
 deriving instance Lean.ToExpr for Resolved.Join
+deriving instance Lean.ToExpr for Resolved.EachSource
 deriving instance Lean.ToExpr for Resolved.Query
 deriving instance Lean.ToExpr for Resolved.ConflictAction
 deriving instance Lean.ToExpr for Resolved.ConflictClause

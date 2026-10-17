@@ -47,11 +47,12 @@ def joinRows (width : Nat) (left : List (List Value)) (join : Join) (table : Tab
     | .right | .full => (unmatchedRight left join table).map (List.replicate width .null ++ ·)
     | .inner | .left => []
 
-/-- The source rows of a query over a database: the rows of the first table in rowid
+/-- The rows of the tables of a query over a database: the rows of the first table in rowid
 order, joined with each join's table in order ({name}`joinRows`), with the width of the
 tables so far; none when a table is missing. A query of one table has the rows of
-{name}`sourceRows`, and a query without a table one row with no cells. -/
-def Query.source (query : Query) (database : Database) : Option (List (List Value)) := do
+{name}`sourceRows`, and a query without a table one row with no cells. The
+{lit}`json_each` sources join these rows ({lit}`Query.source`). -/
+def Query.tableSource (query : Query) (database : Database) : Option (List (List Value)) := do
   let some table := query.table | pure [[]]
   let first ← database table
   let (rows, _) ← query.joins.foldlM (fun (rows, width) join => (database join.table).map fun table =>

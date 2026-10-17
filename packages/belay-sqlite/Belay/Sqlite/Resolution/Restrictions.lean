@@ -93,6 +93,14 @@ inductive RestrictionKind where
   | windowedGroupSum
   /-- A constant value in {lit}`VALUES` or {lit}`SET` whose JSON function fails is not modeled, because the model does not describe when SQLite evaluates it (ADR 0012 slice 6b). -/
   | constantFunctionError
+  /-- Only {lit}`json_each` with one or two arguments is modeled as a table-valued function in {lit}`FROM` (ADR 0012 slice 6d). -/
+  | tableFunction
+  /-- A table after a {lit}`json_each` source in {lit}`FROM` is not modeled (ADR 0012 slice 6d). -/
+  | tableAfterFunction
+  /-- Only an inner join without {lit}`NATURAL` or {lit}`USING` is modeled with {lit}`json_each` (ADR 0012 slice 6d). -/
+  | functionJoin
+  /-- An argument of {lit}`json_each` that reads a later source is not modeled (ADR 0012 slice 6d). -/
+  | laterSourceInArguments
   deriving Repr, DecidableEq
 
 end Belay.Sqlite

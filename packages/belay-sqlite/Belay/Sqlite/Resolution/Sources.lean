@@ -28,12 +28,11 @@ def Resolved.Arguments.readsBelow (bound : Nat) : Resolved.Arguments → Bool
   | .cons head tail => head.readsBelow bound && tail.readsBelow bound
 end
 
-/-- The columns of {lit}`source.*` with their expansions ({name}`Scope.starOperand`) and
-their names, or SQLite's {lit}`no such table: source` when no source has the name. -/
+/-- The columns of {lit}`source.*` ({name}`Scope.starColumns?`) with their expansions
+({name}`Scope.starOperand`) and their names, or SQLite's {lit}`no such table: source` when no source has the name. -/
 def sourceStarColumns (scope : Scope) (source : String) : Except ValueIssue (List (Resolved.Expr × String)) :=
-  match scope.source? source with
-  | some (offset, columns) => .ok (columns.mapIdx fun position column =>
-      ((scope.starOperand (offset + position) column).1, column.name))
+  match scope.starColumns? source with
+  | some columns => .ok (columns.map fun (position, column) => ((scope.starOperand position column).1, column.name))
   | none => .error (.prepare (.noSuchSource source))
 
 /-- The number of tables in a join that SQLite accepts ({lit}`SQLITE_MAX_SRCLIST`). -/

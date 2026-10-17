@@ -1,4 +1,4 @@
-import Belay.Sqlite.Resolution.Sources
+import Belay.Sqlite.Resolution.FunctionSources
 
 set_option doc.verso true
 
@@ -109,11 +109,11 @@ def resolveSelect (context : ResolveContext) (catalog : Catalog) (index : Nat)
     (limit offset : Option Syntax.Expr) : StatementResolution :=
   let dqs := context.profile.dqsDml
   let resolved : Except ValueIssue Resolved.Query := do
-    let (first, tables, scope) ← resolveTables catalog source joins
+    let (first, tables, scope, items) ← resolveSources catalog source joins
     let outputs := (← resolveAll (resolveResultColumn dqs scope) results).flatten
     let aliases := results.flatMap fun
       | .star => scope.visible.map fun _ => none
-      | .sourceStar name => ((scope.source? name).map (·.2.map fun _ => none)).getD []
+      | .sourceStar name => ((scope.starColumns? name).map (·.map fun _ => none)).getD []
       | .expression _ alias _ => [alias]
     let condition ← match filter with
       | none => pure none
@@ -121,6 +121,7 @@ def resolveSelect (context : ResolveContext) (catalog : Catalog) (index : Nat)
         if namesAlias scope (aliases.filterMap id) term then throw (aliasInExpression.under [3])
         else some <$> condition [3] (resolveOperand dqs scope true term)
     let conditions ← resolveAll (fun item (_, term) => resolveJoinCondition dqs scope item term) tables
+    let functions ← resolveFunctions dqs scope items
     let aggregate := !groupBy.isEmpty || outputs.any fun (output, _) => match output with
       | .aggregate _ => true
       | .scalar _ => false
@@ -161,7 +162,7 @@ def resolveSelect (context : ResolveContext) (catalog : Catalog) (index : Nat)
       throw (.restriction [6] .windowedGroupSum)
     let resolvedJoins := (joins.zip ((tables.map Prod.fst).zip conditions)).map fun (join, table, on) =>
       ({ kind := join.resolvedKind, table, condition := on } : Resolved.Join)
-    return { table := first, joins := resolvedJoins, filter := condition, aggregate, groupBy := terms,
+    return { table := first, joins := resolvedJoins, functions, filter := condition, aggregate, groupBy := terms,
              columns := outputs.map (·.1), names := outputs.map (·.2), orderBy := order,
              offset := (offsetValue.getD 0).toNat,
              limit := limitValue.bind fun value => if value < 0 then none else some value.toNat }

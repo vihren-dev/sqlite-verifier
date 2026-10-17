@@ -59,6 +59,10 @@ EXAMPLES: dict[str, tuple[str, str]] = {
     "negative-offset": ("CREATE TABLE t(a INTEGER);", "SELECT a FROM t LIMIT 1 OFFSET -1;"),
     "windowed-group-sum": ("CREATE TABLE t(a INTEGER);", "SELECT sum(a) FROM t GROUP BY a LIMIT 1;"),
     "constant-function-error": ("CREATE TABLE t(a);", "INSERT INTO t VALUES (json_extract('x', '$'));"),
+    "table-function": ("CREATE TABLE t(a);", "SELECT * FROM json_tree('[1]');"),
+    "table-after-function": ("CREATE TABLE t(a);", "SELECT * FROM json_each('[1]'), t;"),
+    "function-join": ("CREATE TABLE t(a);", "SELECT * FROM t LEFT JOIN json_each('[1]');"),
+    "later-source-in-arguments": ("CREATE TABLE t(a);", "SELECT * FROM t, json_each(b.value) AS a, json_each('[1]') AS b;"),
 }
 """For each restriction id: a schema and a migration that the resolver refuses with it."""
 

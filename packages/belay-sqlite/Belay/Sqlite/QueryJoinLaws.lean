@@ -1,28 +1,30 @@
 import Belay.Sqlite.QueryLaws
-import Belay.Sqlite.QueryJoins
+import Belay.Sqlite.QueryFunctions
 
 set_option doc.verso true
 
 /-! Laws of joined sources (ADR 0012, amendments 2 and 3, "Proofs"): a query without
-joins reads the rows of its one table, every joined row has the width of its tables
+joins and {lit}`json_each` sources reads the rows of its one table, every joined row has the width of its tables
 together, a left or full join keeps every left row, and a right or full join keeps every
 right row. -/
 
 namespace Belay.Sqlite.Resolved
 
-/-- For every query of a table without joins and every database, the source rows of the
-query are the rows of its table in rowid order ({name}`sourceRows`), or none when the
-table is missing: the query of one table is the special case of a join. -/
+/-- For every query of a table without joins and without {lit}`json_each` sources, and every
+database, the source rows of the query are the rows of its table in rowid order
+({name}`sourceRows`), or none when the table is missing: the query of one table is the
+special case of a join. -/
 theorem Query.source_single (query : Query) (database : Database) (table : Nat) (first : query.table = some table)
-    (single : query.joins = []) : query.source database = (database table).map sourceRows := by
-  simp only [Query.source, first, single]
+    (single : query.joins = []) (plain : query.functions = []) :
+    query.source database = (database table).map sourceRows := by
+  simp only [Query.source, Query.tableSource, first, single, plain, joinFunctions]
   cases database table <;> rfl
 
-/-- For every query without a table ({lit}`SELECT` without {lit}`FROM`) and every
-database, the source is one row with no cells. -/
-theorem Query.source_none (query : Query) (database : Database) (none_ : query.table = none) :
-    query.source database = some [[]] := by
-  simp only [Query.source, none_]
+/-- For every query without a table and without {lit}`json_each` sources ({lit}`SELECT`
+without {lit}`FROM`) and every database, the source is one row with no cells. -/
+theorem Query.source_none (query : Query) (database : Database) (none_ : query.table = none)
+    (plain : query.functions = []) : query.source database = some [[]] := by
+  simp only [Query.source, Query.tableSource, none_, plain, joinFunctions]
   rfl
 
 /-- For every valid table, every row of {name}`sourceRows` has one cell per column.

@@ -149,8 +149,20 @@ structure Join where
   condition : Option Expr
   deriving Repr, DecidableEq
 
+/-- A {lit}`json_each(json [, path])` source after the tables of {lit}`FROM` (ADR 0012,
+amendment 5, slice 6d), an inner join: its arguments over the joined row before it, and
+its optional {lit}`ON` condition over the joined row with its cells. -/
+structure EachSource where
+  /-- The JSON argument. -/
+  json : Expr
+  /-- The path argument; {lean}`(none : Option Expr)` for {lit}`json_each(json)`. -/
+  path : Option Expr
+  /-- The {lit}`ON` condition, or {lean}`(none : Option Expr)` for every row. -/
+  condition : Option Expr
+  deriving Repr, DecidableEq
+
 /-- A resolved {lit}`SELECT`: the first table's catalog position and the joins after
-it, the {lit}`WHERE` condition, whether it is an aggregate query with its grouping terms,
+it, the {lit}`json_each` sources after them, the {lit}`WHERE` condition, whether it is an aggregate query with its grouping terms,
 the result columns with their names, the {lit}`ORDER BY` terms with a flag for
 {lit}`DESC`, and the window. Use {lean}`(none : Option Nat)` for no {lit}`LIMIT`. -/
 structure Query where
@@ -161,6 +173,10 @@ structure Query where
   /-- The joins after the first table, in order; empty for a query of one table. An
   expression names a cell by its position in the concatenated row of all tables. -/
   joins : List Join := []
+  /-- The {lit}`json_each` sources after the tables, in order; empty without one. A query
+  whose first source is {lit}`json_each` has no table: its sources join the one empty row
+  of a query without {lit}`FROM`. -/
+  functions : List EachSource := []
   /-- The {lit}`WHERE` condition, or {lean}`(none : Option Expr)` for every row. -/
   filter : Option Expr
   /-- Whether the query is an aggregate query: it has {lit}`GROUP BY` or an aggregate. -/

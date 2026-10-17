@@ -35,7 +35,7 @@ def test_select_keeps_columns_text_and_clauses(parse_sql: Callable[..., Tree]) -
                     {"expression": {"value": {"compare": {"operator": "ne", "left": column("b"),
                                                           "right": {"numeric": {"text": "1"}}}},
                                     "alias": None, "text": "b  <>  1"}}],
-        "source": {"table": "t", "alias": None}, "joins": [],
+        "source": {"table": "t", "alias": None, "arguments": None}, "joins": [],
         "filter": {"and": {"left": {"compare": {"operator": "isNot", "left": column("a"), "right": "null"}},
                            "right": {"not": {"operand": {"compare": {"operator": "lt", "left": column("b"),
                                                                      "right": {"numeric": {"text": "2"}}}}}}}},
@@ -147,16 +147,44 @@ def test_joins_map_sources_kinds_and_conditions(parse_sql: Callable[..., Tree]) 
     [query] = [item.value for item in statements(parse_sql(
         "SELECT x.a, u.* FROM t AS x Left JOIN u ON x.a = u.a, v NATURAL join w CROSS JOIN y USING (b);"))]
     select = query["select"]
-    assert select["source"] == {"table": "t", "alias": "x"}
+    assert select["source"] == {"table": "t", "alias": "x", "arguments": None}
     assert select["columns"][0]["expression"]["value"] == {"qualified": {"source": "x", "column": "a"}}
     assert select["columns"][1] == {"sourceStar": {"source": "u"}}
     on = {"equals": {"left": {"qualified": {"source": "x", "column": "a"}},
                      "right": {"qualified": {"source": "u", "column": "a"}}}}
     assert select["joins"] == [
-        {"operator": ["Left"], "source": {"table": "u", "alias": None}, "condition": on, "usingColumns": None},
-        {"operator": [], "source": {"table": "v", "alias": None}, "condition": None, "usingColumns": None},
-        {"operator": ["NATURAL"], "source": {"table": "w", "alias": None}, "condition": None, "usingColumns": None},
-        {"operator": ["CROSS"], "source": {"table": "y", "alias": None}, "condition": None, "usingColumns": ["b"]}]
+        {"operator": ["Left"], "source": {"table": "u", "alias": None, "arguments": None}, "condition": on, "usingColumns": None},
+        {"operator": [], "source": {"table": "v", "alias": None, "arguments": None}, "condition": None, "usingColumns": None},
+        {"operator": ["NATURAL"], "source": {"table": "w", "alias": None, "arguments": None}, "condition": None, "usingColumns": None},
+        {"operator": ["CROSS"], "source": {"table": "y", "alias": None, "arguments": None}, "condition": None, "usingColumns": ["b"]}]
+
+
+def test_table_valued_functions_map_with_their_arguments(parse_sql: Callable[..., Tree]) -> None:
+    """`syntax_sources.from_clause`: a table-valued function in FROM is a source with its name
+    as written, its alias and its arguments as query expressions; a table has no arguments
+    (ADR 0012, amendment 5, slice 6d)."""
+    [query] = [item.value for item in statements(parse_sql(
+        "SELECT * FROM t, Json_Each(t.j, '$.a') AS e JOIN json_each('[1]') ON 1 = 1, json_each();"))]
+    select = query["select"]
+    assert select["source"] == {"table": "t", "alias": None, "arguments": None}
+    assert [join["source"] for join in select["joins"]] == [
+        {"table": "Json_Each", "alias": "e",
+         "arguments": [{"qualified": {"source": "t", "column": "j"}}, {"string": {"bytes": list(b"$.a")}}]},
+        {"table": "json_each", "alias": None, "arguments": [{"string": {"bytes": list(b"[1]")}}]},
+        {"table": "json_each", "alias": None, "arguments": []}]
+    assert select["joins"][1]["condition"] == {"equals": {"left": {"numeric": {"text": "1"}},
+                                                          "right": {"numeric": {"text": "1"}}}}
+
+
+def test_fallback_keywords_are_column_names(parse_sql: Callable[..., Tree]) -> None:
+    """`syntax_expressions.expression`: a keyword that SQLite's grammar falls back to an
+    identifier, such as `key`, names a column; the parse tree keeps the keyword's own
+    symbol (`IDENTIFIER_TOKENS`, ADR 0012, amendment 5, slice 6d)."""
+    [query] = [item.value for item in statements(parse_sql("SELECT key, path, id, Replace FROM t WHERE key = 1;"))]
+    select = query["select"]
+    assert [column["expression"]["value"] for column in select["columns"]] == [
+        column("key"), column("path"), column("id"), column("Replace")]
+    assert select["filter"] == {"equals": {"left": column("key"), "right": {"numeric": {"text": "1"}}}}
 
 
 def test_select_without_from_has_no_source(parse_sql: Callable[..., Tree]) -> None:

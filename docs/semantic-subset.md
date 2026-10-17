@@ -57,7 +57,10 @@ parentheses, `COUNT(*)`, `COUNT`, `MIN`, `MAX`, `SUM` and `AVG` of one argument,
 operators `+`, `-`, `*`, `/` and `%`, unary `-` and `+` of any expression,
 `CAST(expression AS type)`, and `COALESCE` of two or more arguments (ADR 0012,
 slice 2), `json_extract` with one or more paths and the operators `->` and `->>`
-(slice 6b), and `json_type`, `json_valid`, `json_array_length` and `json` (slice 6c). In a write, a `VALUES` item may be any of these expressions that names no
+(slice 6b), and `json_type`, `json_valid`, `json_array_length` and `json` (slice 6c). A
+`FROM` may end with `json_each(json [, path])` sources, joined by a comma or an inner
+`JOIN` with an optional `ON` condition, whose arguments read the sources before them
+(slice 6d). In a write, a `VALUES` item may be any of these expressions that names no
 column: resolution computes its value (slice 3a). A `SET` value may be any of these
 expressions over the table's columns, evaluated on the old row, and the `WHERE` of an
 `UPDATE` any condition of a `SELECT` (slice 3b). Each written value is then stored as SQLite
@@ -187,6 +190,10 @@ of frontend refusal, the cases of the claimed corpora that it keeps out of scope
 | `negative-offset` | A negative OFFSET is not modeled | ADR 0012 slice 1 |
 | `windowed-group-sum` | SUM in a grouped query with LIMIT or OFFSET is not modeled, because SQLite may stop before an overflowing group | ADR 0012 slice 2 |
 | `constant-function-error` | A constant value in VALUES or SET whose JSON function fails is not modeled, because the model does not describe when SQLite evaluates it | ADR 0012 slice 6b |
+| `table-function` | Only `json_each` with one or two arguments is modeled as a table-valued function in FROM | ADR 0012 slice 6d |
+| `table-after-function` | A table after a `json_each` source in FROM is not modeled | ADR 0012 slice 6d |
+| `function-join` | Only an inner join without NATURAL or USING is modeled with `json_each` | ADR 0012 slice 6d |
+| `later-source-in-arguments` | An argument of `json_each` that reads a later source is not modeled | ADR 0012 slice 6d |
 
 ## Execution
 
