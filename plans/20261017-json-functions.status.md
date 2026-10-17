@@ -1,6 +1,6 @@
 # Further JSON functions, slice 6c of ADR 0012: status
 
-Created 2026-10-17. Status: open.
+Created 2026-10-17. Status: DONE.
 Task: [20261017-json-functions.task.md](20261017-json-functions.task.md).
 Specification: [ADR 0012](../docs/adr-0012-query-semantics.md), Amendment 5, "Further JSON
 functions (slice 6c)".
@@ -43,7 +43,13 @@ functions (slice 6c)".
   "`json` re-rendering numbers" of the task is "`json` returning its argument as written":
   re-rendering numbers is already the mutant of slice 6b.
 
-## Remaining
-
-- Full checks, review, CI time, pull request A; then pull request B (claim corpus 23,
-  `mustAgree`).
+- 2026-10-17: review finding (name the accepted flags) fixed in a refactor commit; its
+  review was clean. The CI of #145 then failed twice: the query mutant measurement over its
+  300 s limit, then `nix-build -A tests` over the 900 s limit of `test-full`. #144 now
+  measures the JSON mutants in their own test and, on the owner's decision, runs the
+  mutant suite on the schedule; this slice's mutants join the JSON measurement. CI time
+  (local, `--check`, base vs branch): harness 22/23 s, model 227/236 s, frozen 138/138 s,
+  scheduled mutants 263/281 s. Pull request A opened as #146.
+- 2026-10-17: pull request B: corpus 23 (18 cases, all AGREE) is claimed, and the 133
+  upstream JSON cases that now agree join `mustAgree` (v5 531 to 664). New judge lock.
+  Slice 6c is DONE; slice 6d (`json_each`) follows.

@@ -1,6 +1,6 @@
 # Further JSON functions, slice 6c of ADR 0012
 
-Created 2026-10-17. Status: open.
+Created 2026-10-17. Status: DONE (pull requests #146 and B).
 Specification: [ADR 0012](../docs/adr-0012-query-semantics.md), "Amendment 5", "Further
 JSON functions (slice 6c)", with the owner decisions of 2026-10-16 (#141). Related: slice
 6b ([task](20261016-json-extract.task.md)), whose reading, paths, rendering and failure
