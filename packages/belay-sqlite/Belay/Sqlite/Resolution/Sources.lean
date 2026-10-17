@@ -20,7 +20,7 @@ def Resolved.Expr.readsBelow (bound : Nat) : Resolved.Expr → Bool
   | .compare _ left right | .and left right | .or left right | .arithmetic _ left right | .coalesce left right =>
     left.readsBelow bound && right.readsBelow bound
   | .not operand | .isNull operand _ | .cast _ operand => operand.readsBelow bound
-  | .json _ arguments | .arguments arguments => arguments.readsBelow bound
+  | .json _ arguments | .arguments arguments | .date _ arguments _ => arguments.readsBelow bound
 
 /-- Whether every argument reads only columns below the bound. -/
 def Resolved.Arguments.readsBelow (bound : Nat) : Resolved.Arguments → Bool

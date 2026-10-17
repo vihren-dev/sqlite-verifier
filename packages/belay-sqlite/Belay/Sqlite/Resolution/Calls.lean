@@ -3,8 +3,9 @@ import Belay.Sqlite.Resolution.Values
 
 set_option doc.verso true
 
-/-! The calls of two or more arguments, after their arguments are resolved: {lit}`COALESCE`
-and the JSON functions of ADR 0012, amendment 5, slices 6b and 6c. A call keeps its arguments in
+/-! The calls of two or more arguments, after their arguments are resolved: {lit}`COALESCE`,
+the JSON functions of ADR 0012, amendment 5, slices 6b and 6c, and the date and time
+functions of slice 6f. A call keeps its arguments in
 written order; its arguments after the second come from {lit}`Syntax.Expr.more` nodes as
 {lit}`Resolved.Expr.arguments`. -/
 
@@ -16,7 +17,8 @@ def argumentsOf : Resolved.Expr → Resolved.Arguments
   | .arguments list => list
   | expression@(.column _) | expression@(.literal _) | expression@(.compare ..) | expression@(.and ..)
   | expression@(.or ..) | expression@(.not _) | expression@(.isNull ..) | expression@(.arithmetic ..)
-  | expression@(.cast ..) | expression@(.coalesce ..) | expression@(.json ..) | expression@(.now _) =>
+  | expression@(.cast ..) | expression@(.coalesce ..) | expression@(.json ..) | expression@(.now _)
+  | expression@(.date ..) =>
     .cons expression .nil
 
 /-- The resolved {lit}`Syntax.Expr.more` node of an argument and the arguments after it. -/
@@ -64,14 +66,46 @@ def jsonCall (name : String) (function : Resolved.JsonFunction) (arguments : Res
   if function.accepts arguments.length then .ok (.json function arguments, none)
   else .error (.prepare (.wrongArgumentCount name))
 
+/-- The date and time function that a folded name names, if any. -/
+def dateFunctionNamed (name : String) : Option Resolved.DateFunction :=
+  match normalizeIdentifier name with
+  | "date" => some .date
+  | "time" => some .time
+  | "datetime" => some .datetime
+  | "julianday" => some .julianday
+  | "unixepoch" => some .unixepoch
+  | "strftime" => some .strftime
+  | _ => none
+
+/-- The number of arguments of a date and time function without modifiers: the format and
+one time value for {lit}`strftime`, one time value for each other function. -/
+def Resolved.DateFunction.argumentsWithoutModifiers : Resolved.DateFunction → Nat
+  | .strftime => 2
+  | .date | .time | .datetime | .julianday | .unixepoch => 1
+
+/-- A date and time call over resolved arguments, with the clock value 0 until the
+execution sets it. SQLite accepts any number of arguments; one after
+{name}`Resolved.DateFunction.argumentsWithoutModifiers` is a modifier, which is a model
+restriction until slice 6g ({lit}`date-modifier`). -/
+def dateCall (function : Resolved.DateFunction) (arguments : Resolved.Arguments) :
+    Except ValueIssue Operand :=
+  if arguments.length ≤ function.argumentsWithoutModifiers then .ok (.date function arguments 0, none)
+  else .error (.restriction [] .dateModifier)
+
+/-- Whether a folded name names a scalar function of the model that resolution resolves
+from its arguments: a JSON function or a date and time function. -/
+def scalarFunctionName (name : String) : Bool :=
+  (jsonFunctionNamed name).isSome || (dateFunctionNamed name).isSome
+
 /-- A call of two or more arguments over its resolved first operand and the rest: a
-{lit}`COALESCE`, a JSON function ({name}`jsonCall`), or the issue of {lit}`issue` for any
-other name. -/
+{lit}`COALESCE`, a JSON function ({name}`jsonCall`), a date and time function
+({name}`dateCall`), or the issue of {lit}`issue` for any other name. -/
 def pairCall (name : String) (first rest : Resolved.Expr) (issue : ValueIssue) : Except ValueIssue Operand :=
   let arguments := Resolved.Arguments.cons first (argumentsOf rest)
   if normalizeIdentifier name == "coalesce" then .ok (coalesceOf arguments, none)
-  else match jsonFunctionNamed name with
-    | some function => jsonCall name function arguments
-    | none => .error issue
+  else match jsonFunctionNamed name, dateFunctionNamed name with
+    | some function, _ => jsonCall name function arguments
+    | none, some function => dateCall function arguments
+    | none, none => .error issue
 
 end Belay.Sqlite

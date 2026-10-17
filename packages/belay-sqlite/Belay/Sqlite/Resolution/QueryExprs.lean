@@ -21,7 +21,7 @@ conversion: a comparison, a logical operator, {lit}`IS NULL`, arithmetic, or a
 def Resolved.Expr.isCondition : Resolved.Expr → Bool
   | .compare .. | .and .. | .or .. | .not _ | .isNull .. | .arithmetic .. => true
   | .cast affinity _ => numericAffinity affinity
-  | .column _ | .literal _ | .coalesce .. | .json .. | .arguments _ | .now _ => false
+  | .column _ | .literal _ | .coalesce .. | .json .. | .arguments _ | .now _ | .date .. => false
 
 /-- The issue of an aggregate where only a row value can be: SQLite's
 {lit}`misuse of aggregate function` when {lit}`misuse` is true (in {lit}`WHERE`, or
@@ -47,7 +47,7 @@ of one operand. -/
 def aggregateCall : Syntax.Expr → Bool
   | .callStar name => normalizeIdentifier name == "count"
   | .call name _ => (aggregateNamed name).isSome
-  | .null | .numeric _ | .string _ | .blob _ | .currentTime _ | .identifier .. | .negate _ | .positive _
+  | .callEmpty _ | .null | .numeric _ | .string _ | .blob _ | .currentTime _ | .identifier .. | .negate _ | .positive _
   | .equals .. | .compare .. | .and .. | .or .. | .not _ | .isNull .. | .arithmetic .. | .cast .. | .callPair ..
   | .more .. | .qualified .. => false
 
@@ -143,7 +143,7 @@ def resolveOperand (dqs : Bool) (scope : Scope) (misuse : Bool) : Syntax.Expr �
     let affinity := affinityOf (some typeName)
     .ok (.cast affinity a.1, some affinity)
   | .callPair name first rest =>
-    if normalizeIdentifier name == "coalesce" || (jsonFunctionNamed name).isSome then do
+    if normalizeIdentifier name == "coalesce" || scalarFunctionName name then do
       let a ← (resolveOperand dqs scope misuse first).mapError (·.under [1])
       let b ← (resolveOperand dqs scope misuse rest).mapError (·.under [2])
       pairCall name a.1 b.1 (pairIssue name)
@@ -165,8 +165,15 @@ def resolveOperand (dqs : Bool) (scope : Scope) (misuse : Bool) : Syntax.Expr �
     | some function => do
       let a ← (resolveOperand dqs scope misuse operand).mapError (·.under [1])
       jsonCall name function (.cons a.1 .nil)
-    | none => .error (if aggregateCall (.call name operand) then aggregateIssue misuse name else callIssue name)
+    | none => match dateFunctionNamed name with
+      | some function => do
+        let a ← (resolveOperand dqs scope misuse operand).mapError (·.under [1])
+        dateCall function (.cons a.1 .nil)
+      | none => .error (if aggregateCall (.call name operand) then aggregateIssue misuse name else callIssue name)
   | call@(.callStar name) => .error (if aggregateCall call then aggregateIssue misuse name else callIssue name)
+  | .callEmpty name => match dateFunctionNamed name with
+    | some function => dateCall function .nil
+    | none => .error (callIssue name)
   | .null => .ok (.literal .null, none)
   | .string bytes => .ok (.literal (.text bytes), none)
   | .blob bytes => .ok (.literal (.blob bytes), none)

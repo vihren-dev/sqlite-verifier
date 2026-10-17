@@ -65,7 +65,8 @@ def call_pairs(tree: Tree, start: int, end: int, function: Located, arguments: l
 
 
 def function_call(tree: Tree, node: Node, children: list[Node]) -> Located:
-    """A call with `*` or with one or more arguments, with the function name as written."""
+    """A call with `*`, without arguments, or with one or more arguments, with the function
+    name as written."""
     function = name(tree, children[0])
     if [child.symbol for child in children] == ["ID", "LP", "STAR", "RP"]:
         return constructor("callStar", [("name", function)], node.start, node.end)
@@ -73,6 +74,8 @@ def function_call(tree: Tree, node: Node, children: list[Node]) -> Located:
         absent(tree, children[2], "DISTINCT in a function call")
         arguments = left_list(tree, children[3], {1: ["nexprlist"]})
         items = left_list(tree, arguments[0][0], {1: ["expr"], 3: ["nexprlist", "COMMA", "expr"]}) if arguments else []
+        if not items:
+            return constructor("callEmpty", [("name", function)], node.start, node.end)
         if len(items) == 1:
             return constructor("call", [("name", function), ("operand", query_expression(tree, items[0][-1]))],
                                node.start, node.end)

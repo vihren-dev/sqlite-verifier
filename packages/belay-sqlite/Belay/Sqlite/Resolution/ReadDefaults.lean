@@ -56,7 +56,7 @@ def readDefaultValue (column : CatalogColumn) : Except ValueIssue Value :=
     | .negate (.numeric text) => .ok (readNumericDefault column.affinity text true)
     | .null | .string _ | .blob _ | .currentTime _ | .identifier ..
     | .negate _ | .positive _ | .equals .. | .compare .. | .and .. | .or .. | .not _
-    | .isNull .. | .callStar _ | .call .. | .arithmetic .. | .cast .. | .callPair .. | .more .. | .qualified .. =>
+    | .isNull .. | .callStar _ | .callEmpty _ | .call .. | .arithmetic .. | .cast .. | .callPair .. | .more .. | .qualified .. =>
       (writtenDefault written).map (storeValue column.affinity)
 
 end Belay.Sqlite

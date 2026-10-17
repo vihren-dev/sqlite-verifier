@@ -24,7 +24,7 @@ def literalDefault : Syntax.Expr → Except ValueIssue Value
     else .ok (.text name.toUTF8.toList)
   | .currentTime _ => .error (.restriction [] .unmodeledDefault)
   | .negate _ | .positive _ | .equals .. | .compare .. | .and .. | .or .. | .not _
-  | .isNull .. | .callStar _ | .call .. | .arithmetic .. | .cast .. | .callPair .. | .more .. | .qualified .. =>
+  | .isNull .. | .callStar _ | .callEmpty _ | .call .. | .arithmetic .. | .cast .. | .callPair .. | .more .. | .qualified .. =>
     .error (.restriction [] .unmodeledDefault)
 
 /-- Evaluate a written default before affinity applies. Bracket and backtick
@@ -39,7 +39,7 @@ def writtenDefault (written : Syntax.DefaultExpression) : Except ValueIssue Valu
     else literalDefault written.expression
   | .null | .numeric _ | .string _ | .blob _ | .currentTime _
   | .negate _ | .positive _ | .equals .. | .compare .. | .and .. | .or .. | .not _
-  | .isNull .. | .callStar _ | .call .. | .arithmetic .. | .cast .. | .callPair .. | .more .. | .qualified .. =>
+  | .isNull .. | .callStar _ | .callEmpty _ | .call .. | .arithmetic .. | .cast .. | .callPair .. | .more .. | .qualified .. =>
     literalDefault written.expression
 
 /-- The value of a column's DEFAULT before affinity applies; NULL when it is

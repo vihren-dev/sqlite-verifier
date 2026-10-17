@@ -98,12 +98,12 @@ def profile() -> ExecutionProfile:
             connection.close()
 
 
-def records(cases: list[ClockCase] | None = None) -> list[dict[str, Json]]:
+def records(cases: list[ClockCase] | None = None, part: str = "clock") -> list[dict[str, Json]]:
     """Record each case natively under the controlled clock as a version 5 record with
-    outputs, in the part `clock`."""
+    outputs, in the part, `clock` for these cases."""
     selected = definitions() if cases is None else cases
     measured = profile()
     return [{**record_sql(case.setup, case.sql, name=case.name, requirements=list(case.requirements), outputs=True,
                           profile=measured, setup_clock=SETUP_CLOCK, clock_values=list(case.clocks)),
-             "part": "clock", "features": list(case.features)}
+             "part": part, "features": list(case.features)}
             for case in selected]

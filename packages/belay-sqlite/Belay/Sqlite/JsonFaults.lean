@@ -34,7 +34,7 @@ def Expr.mayFail (row : List Value) : Expr → Bool
     left.mayFail row || right.mayFail row
   | .not operand | .isNull operand _ | .cast _ operand => operand.mayFail row
   | .json function arguments => arguments.mayFail row || anyFailure (Json.apply function (arguments.eval row))
-  | .arguments arguments => arguments.mayFail row
+  | .arguments arguments | .date _ arguments _ => arguments.mayFail row
 
 /-- Whether some argument may fail over the row ({name}`Expr.mayFail`). -/
 def Arguments.mayFail (row : List Value) : Arguments → Bool
@@ -52,7 +52,7 @@ def Expr.mustFail (row : List Value) : Expr → Bool
   | .not operand | .isNull operand _ | .cast _ operand => operand.mustFail row
   | .json function arguments =>
     arguments.mustFail row || describedFailure (Json.apply function (arguments.eval row))
-  | .arguments arguments => arguments.mustFail row
+  | .arguments arguments | .date _ arguments _ => arguments.mustFail row
 
 /-- Whether some argument certainly fails over the row ({name}`Expr.mustFail`). -/
 def Arguments.mustFail (row : List Value) : Arguments → Bool
@@ -69,7 +69,7 @@ def Expr.callsJson : Expr → Bool
     left.callsJson || right.callsJson
   | .not operand | .isNull operand _ | .cast _ operand => operand.callsJson
   | .json .. => true
-  | .arguments arguments => arguments.callsJson
+  | .arguments arguments | .date _ arguments _ => arguments.callsJson
 
 /-- Whether some argument has a JSON call ({name}`Expr.callsJson`). -/
 def Arguments.callsJson : Arguments → Bool

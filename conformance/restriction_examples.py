@@ -63,6 +63,7 @@ EXAMPLES: dict[str, tuple[str, str]] = {
     "function-join": ("CREATE TABLE t(a);", "SELECT * FROM t LEFT JOIN json_each('[1]');"),
     "later-source-in-arguments": ("CREATE TABLE t(a);", "SELECT * FROM t, json_each(b.value) AS a, json_each('[1]') AS b;"),
     "boolean-name": ("CREATE TABLE t(a);", "SELECT a IS NOT FALSE FROM t;"),
+    "date-modifier": ("CREATE TABLE t(a);", "SELECT date(a, '+1 day') FROM t;"),
 }
 """For each restriction id: a schema and a migration that the resolver refuses with it."""
 

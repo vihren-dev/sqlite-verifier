@@ -3,6 +3,7 @@ import Belay.Sqlite.Resolution.QueryForm
 import Belay.Sqlite.Comparison
 import Belay.Sqlite.Summation
 import Belay.Sqlite.Json.JsonApply
+import Belay.Sqlite.Date.Functions
 
 set_option doc.verso true
 
@@ -34,7 +35,8 @@ function gives the value of {name}`Json.apply` over the values of its arguments,
 NULL when it fails: whether and where SQLite reports that failure is
 {lit}`Expr.mayFail` and {lit}`Expr.mustFail` of {lit}`JsonFaults`. A time keyword is NULL
 here: the execution replaces it with the statement's clock text first
-({lit}`Statement.atClock`). -/
+({lit}`Statement.atClock`). A date and time function gives the value of
+{lit}`DateFunction.value` at its stored clock value. -/
 def Expr.eval (row : List Value) : Expr → Value
   | .column position => row.getD position .null
   | .literal value => value
@@ -57,6 +59,7 @@ def Expr.eval (row : List Value) : Expr → Value
   | .json function arguments => match Json.apply function (arguments.eval row) with
     | .ok value => value
     | .error _ => .null
+  | .date function arguments clock => function.value clock (arguments.eval row)
   | .arguments _ | .now _ => .null
 
 /-- The values of the arguments of a call over one row, in written order. -/

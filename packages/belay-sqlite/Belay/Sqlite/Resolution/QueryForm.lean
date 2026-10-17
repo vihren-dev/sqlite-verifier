@@ -1,6 +1,7 @@
 import Belay.Sqlite.Declarations
 import Belay.Sqlite.Operators
 import Belay.Sqlite.Resolution.JsonFunction
+import Belay.Sqlite.Resolution.DateFunction
 import Belay.Sqlite.ClockText
 
 set_option doc.verso true
@@ -46,6 +47,10 @@ inductive Expr where
   value as text. The execution replaces it with that text before it evaluates a statement
   ({lit}`Statement.atClock`). -/
   | now (keyword : TimeKeyword)
+  /-- A call of a date and time function with its arguments in written order, and the
+  statement's clock value, which {lit}`now` gives. Resolution stores 0; the execution sets
+  the statement's clock value before it evaluates a statement ({lit}`Statement.atClock`). -/
+  | date (function : DateFunction) (arguments : Arguments) (clock : Int)
   deriving Repr, DecidableEq
 
 /-- The arguments of a call in written order, as a list that is mutual with
