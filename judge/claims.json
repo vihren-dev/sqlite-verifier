@@ -5074,6 +5074,36 @@
    ],
    "path": "conformance/corpus-v50"
   },
+  "corpus-v51": {
+   "forbidden": [
+    "DISAGREE",
+    "HARNESS_ERROR"
+   ],
+   "mustAgree": [
+    "abort-in-transaction",
+    "column-on-conflict-rollback",
+    "fail-in-transaction",
+    "failed-add-column-leaves-no-column",
+    "failed-create-table-leaves-the-name",
+    "failed-unique-index-leaves-the-name",
+    "immediate-foreign-key-in-transaction",
+    "insert-or-rollback-in-transaction",
+    "or-rollback-in-autocommit",
+    "outer-or-rollback-in-trigger",
+    "prepare-errors-in-autocommit",
+    "prepare-errors-in-the-middle",
+    "prepare-errors-in-transaction",
+    "raise-abort-in-transaction",
+    "raise-fail-in-transaction",
+    "raise-rollback-in-transaction",
+    "sum-overflow-in-transaction",
+    "transaction-control-errors",
+    "trigger-body-constraint-failure",
+    "trigger-body-names-a-dropped-table",
+    "trigger-body-or-rollback"
+   ],
+   "path": "conformance/corpus-v51"
+  },
   "corpus-v6": {
    "forbidden": [
     "DISAGREE",

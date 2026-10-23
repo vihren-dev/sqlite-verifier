@@ -26,7 +26,8 @@ slices 1 to 6; the foreign keys and the triggers under a profile with foreign ke
 `conformance.authored_parameters` (ADR 0019, slice 1), which bind values to parameters,
 `conformance.authored_pragmas` (ADR 0019, slice 2; its recursive trigger case under a profile
 with recursive triggers on) and `conformance.authored_compound` (ADR 0019, slice 3) are
-recorded natively as version 5 records with statement outputs, name requirement
+recorded natively as version 5 records with statement outputs, and the cases of
+`conformance.authored_after_error` as version 6 records, which run on after an error; they name requirement
 identifiers of the pinned documentation, and replay through resolution, the
 execution semantics and query evaluation. Every case agrees with the model, and the
 kernel checks each verdict, so the query and number semantics and their proofs run
@@ -40,7 +41,7 @@ from types import ModuleType
 
 import pytest
 
-from conformance import (authored_algorithms, authored_aliases, authored_checks, authored_clock, authored_collations,
+from conformance import (authored_after_error, authored_algorithms, authored_aliases, authored_checks, authored_clock, authored_collations,
                          authored_date_functions, authored_date_modifiers, authored_default_writes, authored_deletes,
                          authored_drops, authored_generated,
                          authored_fromless, authored_indexes, authored_joins, authored_json, authored_json_each,
@@ -69,19 +70,21 @@ CASE_SETS = [authored_queries, authored_numbers, authored_writes, authored_row_w
              authored_strict, authored_drops, authored_text_functions, authored_numeric_functions,
              authored_json_edits, authored_jsonb, authored_aggregates, authored_printf, authored_subqueries,
              authored_expression_forms, authored_distinct_having, authored_foreign_keys, authored_triggers,
-             authored_possible_results, authored_parameters, authored_compound, authored_pragmas]
+             authored_possible_results, authored_parameters, authored_compound, authored_pragmas,
+             authored_after_error]
 """The authored case modules: each has `definitions` and `records`."""
 
 
 @pytest.mark.parametrize("cases", CASE_SETS, ids=lambda module: module.__name__.rsplit(".", 1)[-1])
 def test_coverage_cases_agree_with_kernel_proofs(cases: ModuleType, runtime_root: Path, tmp_path: Path) -> None:
-    """Every case is a version 5 record with outputs and resolvable requirements, has a phase on
-    each error, agrees in the compiled classifier, and has a kernel proof of its verdict."""
+    """Every case is a version 5 record with outputs, or a version 6 record of
+    `conformance.authored_after_error`, with resolvable requirements, has a phase on each error,
+    agrees in the compiled classifier, and has a kernel proof of its verdict."""
     records = cases.records()
     assert [record["name"] for record in records] == [case.name for case in cases.definitions()]
     resolved_ids(records, json.loads((ROOT / "conformance/requirements-3.51.0.json").read_text()))
     for record in records:
-        assert record["nativeVersion"] == 5 and record["requirements"]
+        assert record["nativeVersion"] == (6 if cases is authored_after_error else 5) and record["requirements"]
         assert all((event["phase"] is None) == (event["primaryCode"] == 0) for event in record["trace"])
     translator = runtime_translator(runtime_root)
     prepared = []

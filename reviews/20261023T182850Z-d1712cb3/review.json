@@ -1,0 +1,60 @@
+{
+  "caller": "claude",
+  "commit": "d1712cb3006326f23ee2feda1e10bbd1e791b56a",
+  "date": "2026-10-23T18:28:50+00:00",
+  "exit": 1,
+  "files": [
+    "conformance/corpus.py",
+    "conformance/native_library.py",
+    "conformance/native_record.py",
+    "conformance/native_statement_end.py",
+    "conformance/native_statements.py",
+    "docs/native-corpus-format.md",
+    "plans/20261023-evidence-after-error.status.md",
+    "reviews/20261023T182651Z-ca3208c0/review.json",
+    "tests/conformance_run_on_test.py",
+    "tests/nix_suites.json"
+  ],
+  "findings": [
+    {
+      "id": "20261023T182850Z-d1712cb3#1",
+      "line": 13,
+      "path": "docs/native-corpus-format.md",
+      "rule": "R19",
+      "severity": "must",
+      "text": "The one-event-per-statement claim is false for `; CREATE TABLE t(a,a,b); SELECT 1;`, which records the duplicate-column error twice, first against `;`. Fix: document the empty-statement limitation and qualify this guarantee until the recorder handles empty prefixes correctly."
+    },
+    {
+      "id": "20261023T182850Z-d1712cb3#2",
+      "line": 88,
+      "path": "conformance/native_statements.py",
+      "rule": "R10",
+      "severity": "must",
+      "text": "The boundary-mismatch rejection leaves the prepared statement open, so recorder cleanup replaces its actionable diagnostic with `unable to close due to unfinalized statements or unfinished backups`. Fix: put the boundary check inside the statement's finalization scope so cleanup preserves the intended diagnostic."
+    }
+  ],
+  "id": "20261023T182850Z-d1712cb3",
+  "kind": "review",
+  "reviewer": "codex",
+  "revision": "@-",
+  "rules": {
+    "R1": "62d446279093",
+    "R10": "638d8cbd1df8",
+    "R11": "5de19cdbbbc1",
+    "R12": "99f66579f467",
+    "R13": "da0926dafb88",
+    "R15": "518eab58f8b5",
+    "R16": "892e77bd2a12",
+    "R17": "62b65b662f79",
+    "R18": "5159f20b166b",
+    "R19": "6a24b671568c",
+    "R2": "e5e78fb2a52a",
+    "R3": "4f9188eadd60",
+    "R4": "ea7ca17539eb",
+    "R5": "b8613a2d693b",
+    "R6": "8d1d4631e888",
+    "R7": "59a21b0bec7f",
+    "R9": "5a69196344d0"
+  },
+  "well_formed": true
+}

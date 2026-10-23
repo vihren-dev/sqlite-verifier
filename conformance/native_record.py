@@ -30,11 +30,14 @@ def record_sql(setup: str | list[str | dict[str, Json]], migration: str, *, name
                setup_parameter_names: list[list[list[str | None]]] | None = None,
                setup_call_indices: list[int] | None = None,
                source_setup_commands: list[str | dict[str, Json]] | None = None,
-               temporary_root: Path | None = None, fixture_paths: list[Path] | None = None) -> dict[str, Json]:
+               temporary_root: Path | None = None, fixture_paths: list[Path] | None = None,
+               run_on: bool = False) -> dict[str, Json]:
     """Keep exact call inputs and native evidence with fixed or per-statement clocks.
 
     An explicit root places ordinary file fixtures there; an optional path list
     records their actual database paths without adding them to native evidence.
+    With `run_on`, the migration runs on after an SQL error, so that every statement gives an
+    event; such a record has version 6 and needs a measured profile.
     """
     if parameters is not None and not outputs:
         raise ValueError("Bound parameters require output recording")
@@ -54,6 +57,9 @@ def record_sql(setup: str | list[str | dict[str, Json]], migration: str, *, name
             auxiliaryReplay=auxiliary_replay)
     if profile is not None and not outputs:
         raise ValueError("Explicit profiles require output recording")
+    if run_on and not measured:
+        raise ValueError(f"A recording that runs on after an error needs a measured profile: {name}; "
+                         "give a profile of format 3")
     if controlled != (setup_clock is not None and clock_values is not None):
         raise ValueError("Controlled profile requires setup and statement clock inputs")
     if not controlled and (setup_clock is not None or clock_values is not None):
@@ -155,8 +161,8 @@ def record_sql(setup: str | list[str | dict[str, Json]], migration: str, *, name
             transaction_mode=profile.transaction_mode if profile else None, select_only=migration_readonly,
             readonly_spans=migration_readonly_spans, committed_reads=auxiliary_replay,
             record_bindings=recording is not None, parameter_names=parameter_names,
-            tcl_calls=tcl_calls["assertion"] if tcl_calls is not None else None, phases=measured)]
-    result = {"nativeVersion": 5 if measured else 4 if profile is not None else 3 if outputs else 2 if isinstance(setup, list) and any(isinstance(item, dict) for item in setup) else 1, "name": name, "setupSql": setup if isinstance(setup, str) else "\n".join(item for item in setup if isinstance(item, str)),
+            tcl_calls=tcl_calls["assertion"] if tcl_calls is not None else None, phases=measured, run_on=run_on)]
+    result = {"nativeVersion": 6 if run_on else 5 if measured else 4 if profile is not None else 3 if outputs else 2 if isinstance(setup, list) and any(isinstance(item, dict) for item in setup) else 1, "name": name, "setupSql": setup if isinstance(setup, str) else "\n".join(item for item in setup if isinstance(item, str)),
             "setupCommands": [setup] if isinstance(setup, str) else setup, "setupOutcomes": setup_outcomes,
             "setupResults": setup_results, "setupErrors": setup_errors, "migrationSql": migration,
             "sourceId": engine.sqlite3_sourceid().decode(), "requirements": requirements or [], "initial": initial, "trace": trace,

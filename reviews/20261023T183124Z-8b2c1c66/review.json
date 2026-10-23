@@ -1,0 +1,58 @@
+{
+  "caller": "claude",
+  "commit": "8b2c1c6678f40504b5d0a9c54fa2ccb708302c13",
+  "date": "2026-10-23T18:31:24+00:00",
+  "exit": 1,
+  "files": [
+    "conformance/native_statement_end.py",
+    "conformance/native_statements.py",
+    "docs/native-corpus-format.md",
+    "plans/20261023-evidence-after-error.status.md",
+    "reviews/20261023T182850Z-d1712cb3/resolution-1-20261023T182946Z.json",
+    "reviews/20261023T182850Z-d1712cb3/resolution-2-20261023T182946Z.json",
+    "reviews/20261023T182850Z-d1712cb3/review.json",
+    "tests/conformance_run_on_test.py"
+  ],
+  "findings": [
+    {
+      "id": "20261023T183124Z-8b2c1c66#1",
+      "line": 17,
+      "path": "docs/native-corpus-format.md",
+      "rule": "R19",
+      "severity": "must",
+      "text": "The empty-prefix rule assumes the tokenizer identifies what SQLite skips, but `\\u00a0; SELECT 1;` now produces one error event and skips the SELECT because `tokens` discards the nonbreaking space. Fix: document this limitation and qualify the one-event guarantee until empty-prefix detection follows SQLite’s token rules."
+    },
+    {
+      "id": "20261023T183124Z-8b2c1c66#2",
+      "line": 94,
+      "path": "conformance/native_statements.py",
+      "rule": "R11",
+      "severity": "should",
+      "text": "Moving the boundary check into the finalization scope has no regression test that fails without this cleanup fix. Fix: add a boundary-mismatch test that checks the actionable diagnostic survives connection cleanup."
+    }
+  ],
+  "id": "20261023T183124Z-8b2c1c66",
+  "kind": "review",
+  "reviewer": "codex",
+  "revision": "@-",
+  "rules": {
+    "R1": "62d446279093",
+    "R10": "638d8cbd1df8",
+    "R11": "5de19cdbbbc1",
+    "R12": "99f66579f467",
+    "R13": "da0926dafb88",
+    "R15": "518eab58f8b5",
+    "R16": "892e77bd2a12",
+    "R17": "62b65b662f79",
+    "R18": "5159f20b166b",
+    "R19": "6a24b671568c",
+    "R2": "e5e78fb2a52a",
+    "R3": "4f9188eadd60",
+    "R4": "ea7ca17539eb",
+    "R5": "b8613a2d693b",
+    "R6": "8d1d4631e888",
+    "R7": "59a21b0bec7f",
+    "R9": "5a69196344d0"
+  },
+  "well_formed": true
+}

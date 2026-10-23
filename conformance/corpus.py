@@ -18,7 +18,7 @@ from conformance.native_storage import expanded_record
 from conformance.native_call_recording import replay_arguments, validate_recording
 from conformance.locked_corpora import is_locked, locked_records
 from conformance.record_parser import NO_PARSER_REASON
-from conformance.record_versions import PROFILED, WITH_OUTPUTS
+from conformance.record_versions import CONTINUING, PROFILED, WITH_OUTPUTS
 from conformance.sql_text import runtime_translator
 
 
@@ -137,7 +137,8 @@ def native_replay(records: list[dict[str, Json]], *, profile: ExecutionProfile |
         fresh = record_sql(record["setupCommands"], record["migrationSql"], name=record["name"],
             outputs=outputs, parameters=parameters, profile=selected_profile,
             setup_clock=record.get("setupClockUnixMilliseconds"), clock_values=clock_values,
-            temporary_root=temporary_root, fixture_paths=fixture_paths, **recording)
+            temporary_root=temporary_root, fixture_paths=fixture_paths,
+            run_on=record["nativeVersion"] in CONTINUING, **recording)
         if (fresh["initial"], fresh["trace"]) != (record["initial"], record["trace"]):
             raise ValueError(f"Native replay changed: {record['name']}")
         if recording and fresh["setupBindings"] != record["setupBindings"]:

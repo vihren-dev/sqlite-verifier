@@ -11,7 +11,8 @@ from types import ModuleType
 
 import pytest
 
-from conformance import (algorithm_mutants, alias_mutants, clock_mutants, date_function_mutants,
+from conformance import (after_error_mutants, algorithm_mutants, alias_mutants, clock_mutants,
+                         date_function_mutants,
                          date_modifier_mutants, delete_mutants, fromless_mutants, index_mutants, join_mutants,
                          check_mutants, collation_mutants, generated_mutants, json_each_mutants,
                          without_rowid_mutants,
@@ -36,7 +37,8 @@ ROOT = Path(__file__).resolve().parents[1]
                                    numeric_function_mutants, json_edit_mutants, jsonb_mutants, aggregate_mutants,
                                    printf_mutants, subquery_mutants, expression_form_mutants,
                                    distinct_having_mutants, foreign_key_mutants, trigger_mutants,
-                                   possible_result_mutants, parameter_mutants, compound_mutants, pragma_mutants],
+                                   possible_result_mutants, parameter_mutants, compound_mutants, pragma_mutants,
+                                   after_error_mutants],
                          ids=lambda table: table.__name__.rsplit(".", 1)[1])
 def test_every_mutant_names_what_it_guards(table: ModuleType) -> None:
     """Every mutant of the table has a guard, and every guard names something that exists."""

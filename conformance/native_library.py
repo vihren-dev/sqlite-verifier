@@ -56,6 +56,7 @@ def load_library(path: Path, version: str = DEFAULT_ENGINE_VERSION) -> c.CDLL:
         "column_blob": ([c.c_void_p, c.c_int], c.c_void_p),
         "column_bytes": ([c.c_void_p, c.c_int], c.c_int),
         "progress_handler": ([c.c_void_p, c.c_int, c.c_void_p, c.c_void_p], None),
+        "complete": ([c.c_char_p], c.c_int),
     }
     for name, (arguments, result) in signatures.items():
         function = getattr(library, "sqlite3_" + name)

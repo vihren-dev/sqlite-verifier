@@ -155,3 +155,34 @@ def test_error_phase_is_compared_when_recorded() -> None:
     disagreement = predicted_verdict(phased, {**prediction, "steps": [steps[0], *({**step, "phase": "step"}
                                                                                 for step in steps[1:])]})
     assert (disagreement.name, disagreement.position, disagreement.detail) == ("DISAGREE", 0, "error phase differs")
+
+
+def continuing_record() -> dict[str, object]:
+    """A version 6 record by hand: a prepare error, then a query that gives one row."""
+    empty = {"schema": [], "tables": []}
+    def event(sql: str, code: int, phase: str | None, rows: list[object], columns: list[str]) -> dict[str, object]:
+        """One event of the record, with the empty database after it."""
+        return {"sql": sql, "primaryCode": code, "phase": phase, "visible": empty, "persisted": empty,
+                "transactionOpen": False, "rows": rows, "columns": columns, "changes": None, "groups": None,
+                "parameters": []}
+    return {"name": "continuing", "nativeVersion": 6, "migrationSql": "SELECT x FROM missing; SELECT 1;",
+            "initial": {"visible": empty, "persisted": empty, "transactionOpen": False},
+            "trace": [event("SELECT x FROM missing;", 1, "prepare", [], []),
+                      event(" SELECT 1;", 0, None, [[{"integer": {"value": 1}}]], ["1"])]}
+
+
+@pytest.mark.unit
+def test_output_after_a_failed_statement_is_compared() -> None:
+    """`judge.compare.predicted_verdict`: for a version 6 record, the output of the statement
+    after a failed one is compared, so another row there is DISAGREE at that statement."""
+    from judge.compare import predicted_verdict
+    record = continuing_record()
+    steps, offset = [record["initial"]], 0
+    for event in record["trace"]:
+        steps.append({**event, "start": offset})
+        offset += len(event["sql"].encode())
+    outputs = [{key: event[key] for key in ("rows", "columns", "changes")} for event in record["trace"]]
+    assert predicted_verdict(record, {"supported": True, "steps": steps, "outputs": outputs}).name == "AGREE"
+    changed = [outputs[0], {**outputs[1], "rows": [[{"integer": {"value": 2}}]]}]
+    disagreement = predicted_verdict(record, {"supported": True, "steps": steps, "outputs": changed})
+    assert (disagreement.name, disagreement.position, disagreement.detail) == ("DISAGREE", 1, "output differs")

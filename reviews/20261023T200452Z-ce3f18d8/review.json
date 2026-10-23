@@ -1,0 +1,57 @@
+{
+  "caller": "claude",
+  "commit": "ce3f18d8e204938b278fdb95618291243b745fb6",
+  "date": "2026-10-23T20:04:52+00:00",
+  "exit": 1,
+  "files": [
+    "packages/belay-sqlite-model/Belay/Sqlite/Model/Resolution/SchemaScript.lean",
+    "packages/belay-sqlite-model/Belay/Sqlite/Model/ScriptRun.lean",
+    "packages/belay-sqlite-model/Belay/Sqlite/Model/ScriptRunClock.lean",
+    "packages/belay-sqlite-model/Belay/Sqlite/Model/ScriptRunFailure.lean",
+    "packages/belay-sqlite-model/Belay/Sqlite/Model/ScriptRunIndex.lean",
+    "packages/belay-sqlite-model/Belay/Sqlite/Model/ScriptRunLaws.lean",
+    "plans/20261023-evidence-after-error.status.md"
+  ],
+  "findings": [
+    {
+      "id": "20261023T200452Z-ce3f18d8#1",
+      "line": 98,
+      "path": "packages/belay-sqlite-model/Belay/Sqlite/Model/ScriptRun.lean",
+      "rule": "R6",
+      "severity": "must",
+      "text": "The model docstring describes the conformance runner and its evidence, contrary to the requirement that model documentation describe SQLite independently of its users. Fix: describe how callers choose the result through `ended` and `ran`, and remove the conformance-specific explanation."
+    },
+    {
+      "id": "20261023T200452Z-ce3f18d8#2",
+      "line": 106,
+      "path": "plans/20261023-evidence-after-error.status.md",
+      "rule": "R19",
+      "severity": "should",
+      "text": "The status cites a successful local build, contradicting AGENTS.md and ADR 0020, which permit only Nix results as recorded evidence. Fix: retain the test command and remove the parenthetical local result."
+    }
+  ],
+  "id": "20261023T200452Z-ce3f18d8",
+  "kind": "review",
+  "reviewer": "codex",
+  "revision": "rwlmrrzx",
+  "rules": {
+    "R1": "62d446279093",
+    "R10": "638d8cbd1df8",
+    "R11": "5de19cdbbbc1",
+    "R12": "99f66579f467",
+    "R13": "da0926dafb88",
+    "R15": "518eab58f8b5",
+    "R16": "892e77bd2a12",
+    "R17": "62b65b662f79",
+    "R18": "5159f20b166b",
+    "R19": "6a24b671568c",
+    "R2": "e5e78fb2a52a",
+    "R3": "4f9188eadd60",
+    "R4": "ea7ca17539eb",
+    "R5": "b8613a2d693b",
+    "R6": "8d1d4631e888",
+    "R7": "59a21b0bec7f",
+    "R9": "5a69196344d0"
+  },
+  "well_formed": true
+}

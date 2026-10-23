@@ -15,8 +15,9 @@ from judge.cells import Json, text
 
 CASES_FILE = "cases.jsonl.gz"
 """Corpora v1 to v3 store one record per line in this file; later corpora use shards."""
-WITH_OUTPUTS = (3, 4, 5)
-"""Native record versions that carry statement parameters and outputs."""
+WITH_OUTPUTS = (3, 4, 5, 6)
+"""Native record versions that carry statement parameters and outputs. Version 6 runs on after an
+SQL error, so its trace has one event for each statement of the migration."""
 
 
 def expanded(record: Json, where: str) -> dict[str, Json]:
@@ -91,7 +92,8 @@ def subject_input(record: dict[str, Json]) -> dict[str, Json]:
                               "initialRows": initial_rows(initial), "migrationSql": record["migrationSql"]}
     if record.get("nativeVersion") in WITH_OUTPUTS:
         # Bound parameters are statement inputs. Their list has one entry per executed statement,
-        # which tells the subject how far SQLite got; records before version 3 have none.
+        # which tells the subject how far SQLite got (up to version 5, SQLite stops at the first
+        # error; version 6 runs every statement); records before version 3 have none.
         given["parameters"] = [event["parameters"] for event in trace]
     if trace and all("clockUnixMilliseconds" in event for event in trace):
         # The recorder's controlled clock is a statement input too: the Unix milliseconds that

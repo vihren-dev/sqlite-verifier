@@ -142,9 +142,10 @@ The guide's run needs model work that this decision did not name, and S2 does it
 - **A run that continues after an error.** The model gets a run that resolves each statement
   against the state at the time that it runs (`resolveStatement`), runs it, and continues
   after an error, as the guide's "Scripts" section describes. A theorem states that it agrees
-  with `runSqlFrom` up to and including the first error. The native oracle stops at the first
-  error, so no corpus case shows the statements after one; that evidence is deferred (see
-  "Deferred, with their triggers").
+  with `runSqlFrom` up to and including the first error. Amended 2026-10-23: corpus-v51 holds
+  the evidence for the statements after an error. Its cases are the authored cases of
+  `conformance/authored_after_error.py`, recorded as version 6 records by the recorder that
+  runs on after a failed statement.
 - **A statement that the model does not describe, found when it runs**, gives
   `Output.unmodeled` with the model's restriction, and the run stops there: the model cannot
   say what SQLite does next, and it never approximates (D4). `sql` does not resolve at
@@ -253,7 +254,6 @@ A slice that finishes one removes it from this table, or moves it to the slice t
 
 | Deferred part | Why | Picked up |
 | --- | --- | --- |
-| Evidence for the statements after an error: the native oracle runs on after a failed statement, and a new corpus records such scripts | The oracle and the corpora stop at the first error; the change is a judge change (ADR 0011), with its own pull request and the owner's approval | Before S4, whose claims quantify over runs that can contain errors; earlier if a guide example depends on it |
 | `withTransaction`, which the guide writes with a savepoint inside an open transaction | The model has no `SAVEPOINT`: a statement is `BEGIN`, `COMMIT` or `ROLLBACK` (owner decision, 2026-10-23) | When the model has `SAVEPOINT` |
 | The choice of profile in the guide's `Env` | The runs of S3 use the pinned profile, and no slice gives the choice | When a second profile is in the model |
 | `random()`, `randomblob()`, `changes()`, `last_insert_rowid()` and `total_changes()`, which the guide's `Env` lists | The model resolves them as unmodeled functions; they need model work | A model ADR, before the slice whose examples use them |

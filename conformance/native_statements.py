@@ -11,6 +11,7 @@ from conformance.native_bindings import is_read_only_tcl_helper
 from conformance.native_clock import NativeClock
 from conformance.native_bindings import statement_bindings
 from conformance.native_call_recording import check_call_end, reached_call
+from conformance.native_statement_end import complete_statement
 
 
 def wire_rows(rows: list[Row]) -> list[Json]:
@@ -27,10 +28,14 @@ def execute(connection: Connection, sql: str, *, outputs: bool = False,
             committed_reads: bool = False, record_bindings: bool = False,
             parameter_names: list[list[str | None]] | None = None,
             tcl_calls: list[dict[str, Json]] | None = None,
-            phases: bool = False) -> Iterator[dict[str, Json]]:
+            phases: bool = False, run_on: bool = False) -> Iterator[dict[str, Json]]:
     """Use SQLite's prepared-statement tail to split SQL, including trigger bodies.
     With `phases`, each event also records where a statement failed: `prepare` for
-    `sqlite3_prepare_v2`, `step` for `sqlite3_step`, and `None` otherwise."""
+    `sqlite3_prepare_v2`, `step` for `sqlite3_step`, and `None` otherwise. Without `run_on`,
+    the first SQL error ends the statements. With `run_on`, every statement runs, also after an
+    error: a statement ends where `complete_statement` says, and a statement that prepares
+    must end there too, so that the boundary after a failed statement is the same rule. The
+    boundary is found after the statement's error is read, as it can prepare again."""
     if parameters is not None and not outputs:
         raise ValueError("Bound parameters require output recording")
     if (record_bindings or parameter_names is not None or tcl_calls is not None) and not outputs:
@@ -140,6 +145,12 @@ def execute(connection: Connection, sql: str, *, outputs: bool = False,
                 if actions & {9, 18, 23} and not actions & ddl and not connection.library.sqlite3_stmt_isexplain(statement):
                     changes = connection.library.sqlite3_changes(connection.handle)
             connection.library.sqlite3_finalize(statement)
+        if run_on:  # After the error message is read and the statement is finalized.
+            whole = complete_statement(connection, remaining)
+            if statement.value and whole != consumed:
+                raise ValueError(f"SQLite's prepare tail and the complete statement end at different places: "
+                                 f"{consumed.decode()!r}; split the statement or record it without running on")
+            consumed, suffix = whole, remaining[len(whole):]
         if statement.value or code:
             if clock is not None and current_clock is None:
                 raise ValueError("Expected one clock value per reached statement")
@@ -158,7 +169,7 @@ def execute(connection: Connection, sql: str, *, outputs: bool = False,
                 event["clockUnixMilliseconds"] = current_clock
                 clock_index += 1
             yield event
-        if code:
+        if code and not run_on:
             if record_bindings and (next(bindings, None) is not None or next(expected_names, None) is not None):
                 raise ValueError("Binding metadata supplied for an unexecuted statement")
             return

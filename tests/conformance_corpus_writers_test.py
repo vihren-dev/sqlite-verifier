@@ -15,7 +15,8 @@ from types import ModuleType
 
 import pytest
 
-from conformance import (algorithm_evidence, alias_evidence, authored_algorithms, authored_aliases, authored_clock,
+from conformance import (after_error_evidence, authored_after_error, algorithm_evidence, alias_evidence,
+                         authored_algorithms, authored_aliases, authored_clock,
                          authored_checks, authored_collations, authored_date_functions, authored_date_modifiers,
                          authored_default_writes, authored_generated,
                          authored_deletes, authored_fromless, authored_indexes, authored_joins, authored_json,
@@ -110,6 +111,19 @@ def test_coverage_corpus_round_trips(evidence: ModuleType, cases: ModuleType, ve
     assert load(tmp_path / "corpus")[0] == manifest
     with pytest.raises(ValueError, match="already exists"):
         evidence.publish(tmp_path / "corpus")
+
+
+def test_after_error_corpus_round_trips(tmp_path: Path) -> None:
+    """`conformance.after_error_evidence.publish` writes corpus version 51 of version 6 records,
+    which run on after an error, that reads back unchanged and replays natively in that mode,
+    and refuses to replace an existing directory."""
+    assert after_error_evidence.CORPUS.records is authored_after_error.records
+    manifest = after_error_evidence.publish(tmp_path / "corpus")
+    assert manifest["nativeVersion"] == 6 and manifest["corpusVersion"] == 51
+    assert manifest["recordedCases"] == len(authored_after_error.definitions())
+    assert load(tmp_path / "corpus")[0] == manifest
+    with pytest.raises(ValueError, match="already exists"):
+        after_error_evidence.publish(tmp_path / "corpus")
 
 
 def test_resolution_corpus_round_trips(tmp_path: Path) -> None:

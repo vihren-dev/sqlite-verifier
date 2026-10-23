@@ -1,5 +1,6 @@
 """Each mutant of the write, row-write, DELETE, join, index, `WITHOUT ROWID`, collation, CHECK,
-generated-column, `STRICT` and DROP mutant tables changes the verdict of an authored case.
+generated-column, `STRICT`, DROP and after-error mutant tables changes the verdict of an authored
+case.
 
 These measurements were in `tests/conformance_query_mutants_test.py`. The Nix suite of that
 file went over its limit of 1200 seconds on a hosted runner (pull request #191), so they have
@@ -7,8 +8,8 @@ their own suite, `tableMutants`. The cases are the authored cases of
 `conformance.authored_writes`, `authored_row_writes`, `authored_deletes`, `authored_joins`,
 `authored_using`, `authored_right`, `authored_merged`, `authored_indexes`,
 `authored_without_rowid`, `authored_collations`, `authored_checks`, `authored_generated`,
-`authored_strict` and `authored_drops`, recorded natively with their outputs. Each test
-builds one base copy for its mutants with `measure_set`, and each mutant copy classifies the
+`authored_strict`, `authored_drops` and `authored_after_error`, recorded natively with their
+outputs. Each test builds one base copy for its mutants with `measure_set`, and each mutant copy classifies the
 case that the mutant names as its target. The writes and the joins are separate measurements of
 at most 22 mutants, so that each test stays far within its limit of 300 seconds while the
 other Nix suite of mutants runs at the same time.
@@ -18,7 +19,8 @@ from pathlib import Path
 
 import pytest
 
-from conformance import (authored_checks, authored_collations, authored_deletes, authored_drops, authored_generated,
+from conformance import (after_error_mutants, authored_after_error, authored_checks, authored_collations,
+                         authored_deletes, authored_drops, authored_generated,
                          authored_indexes, authored_joins, authored_merged, authored_right, authored_row_writes,
                          authored_strict, authored_using, authored_without_rowid, authored_writes, check_mutants,
                          collation_mutants, delete_mutants, drop_mutants, generated_mutants, index_mutants,
@@ -95,3 +97,10 @@ def test_every_join_mutant_changes_a_verdict(runtime_root: Path) -> None:
     measure_set(runtime_root, [authored_joins, authored_using, authored_right, authored_merged],
                 [(join_mutants.MUTANTS, join_mutants.TARGETS), (using_mutants.MUTANTS, using_mutants.TARGETS),
                  (right_mutants.MUTANTS, right_mutants.TARGETS), (merged_mutants.MUTANTS, merged_mutants.TARGETS)])
+
+
+def test_every_after_error_mutant_changes_a_verdict(runtime_root: Path) -> None:
+    """The authored cases of the statements after an error notice every changed rule of the run
+    that continues (`conformance.after_error_mutants`): an error that closes the transaction, an
+    `OR ROLLBACK` that keeps it open, and a failed statement that changes the catalog."""
+    measure_set(runtime_root, [authored_after_error], [(after_error_mutants.MUTANTS, after_error_mutants.TARGETS)])

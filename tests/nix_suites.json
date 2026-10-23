@@ -56,7 +56,8 @@
     "tests/conformance_requirement_coverage_test.py",
     "tests/conformance_authored_transactions_test.py",
     "tests/conformance_predict_test.py",
-    "tests/conformance_continuing_case_test.py"
+    "tests/conformance_continuing_case_test.py",
+    "tests/conformance_run_on_test.py"
   ],
   "sample": [
     "tests/conformance_tiers_test.py",
