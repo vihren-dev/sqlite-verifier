@@ -1,7 +1,7 @@
 # Compound SELECT (ADR 0019, slice 3)
 
-Created 2026-10-23. Status: OPEN (the lead proceeds on the recommendation of the owner
-decisions in the [status file](20261023-compound-select.status.md)). Specification: [ADR
+Created 2026-10-23. Status: DONE (2026-10-23; pull requests #229 and #230). The owner accepted
+the decisions in the [status file](20261023-compound-select.status.md). Specification: [ADR
 0019](../docs/adr-0019-guide-sql.md), D3, and the order of D7 (amended 2026-10-22): before ADR
 0017's S4, which needs `EXCEPT`. Related: [ADR 0018](../docs/adr-0018-surface-sql.md) D1
 (subqueries), D3 (`DISTINCT`, amended 2026-10-21) and D6 (the results that SQLite may give).

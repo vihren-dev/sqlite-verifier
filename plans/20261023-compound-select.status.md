@@ -1,7 +1,7 @@
 # Status: compound SELECT (ADR 0019, slice 3)
 
-Created 2026-10-23. Status: IN PROGRESS (the run, the resolution and the frontend of a compound,
-the authored corpus, the mutants and the surface fixture are in; the judge change is next).
+Created 2026-10-23. Status: DONE (2026-10-23; pull requests #229, the work, and #230, the judge
+change).
 Task file: [task](20261023-compound-select.task.md).
 Specification: [ADR 0019](../docs/adr-0019-guide-sql.md), D3 and D7.
 
@@ -58,6 +58,19 @@ Specification: [ADR 0019](../docs/adr-0019-guide-sql.md), D3 and D7.
   `tests/surface_guide_test.py`.
 - 2026-10-23: review of the corpus (one should) fixed: the status line and "Remaining" give the
   done work and the next steps.
+- 2026-10-23: the judge change: corpus version 49 (`conformance/corpus-v49`, 42 cases) with a claim
+  that each case agrees, and 10 cases of v4 and 189 of v5 added to `mustAgree`.
+  `integrity/judge.lock.json` is not regenerated yet: `just judge-lock` is the lead's step.
+- 2026-10-23: `integrity/judge.lock.json` from `just judge-lock` (corpus-v49 and the new judge
+  hash). Task file, outcome 8: a literal `LIMIT 'x'` is the restriction `window-value`, as for one
+  `SELECT`. The documentation inventory could not classify a `let rec` in `uniqueColumnName`; the
+  attempts are now `uniqueColumnNameAttempt`. Each of the three commits was reviewed with no
+  findings.
+- 2026-10-23: the checks at the end of the slice and of the task pass: `just test-full`,
+  `just verdict` (corpus-v49 AGREE 42, v4 AGREE 650, v5 AGREE 2684, no claimed case leaves AGREE),
+  `tests/conformance_query_mutants_test.py -k compound` and `tests/mutant_guards_test.py` (the
+  mutant tests of the slice's new mutant table; the owner's rule of 2026-10-23), `just test-nix`
+  (67 tests) and `just test-scheduled-checks` (44 tests).
 
 ## Owner decisions
 
@@ -131,8 +144,4 @@ edit of `packages/`.
 
 ## Remaining
 
-- The judge change: corpus version 49 recorded by `conformance/compound_evidence.py`, its claim,
-  the newly agreeing cases in `mustAgree`, and `integrity/judge.lock.json` (owner's approval).
-- `just test-full` and `just verdict` at the end of the slice; `just test-nix` and
-  `just test-scheduled` before the pull requests; the judge change and the work as two pull
-  requests.
+None. The pull requests wait for the owner's review; the judge change needs the owner's approval.
