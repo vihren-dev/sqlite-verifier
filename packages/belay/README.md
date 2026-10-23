@@ -48,7 +48,7 @@ of a program. A script runs as the program `send s`. The result is a `Run α`:
 - `outputs`: one output for each statement that ran;
 - `db` and `start`: the databases at the end and at the start; `db` is `start` when the
   database at the end is not valid;
-- `transaction` and `foreignKeys`: the state of the connection at the end.
+- `transaction`, `foreignKeys` and `recursiveTriggers`: the state of the connection at the end.
 
 The last argument of a run is the environment, `env := e`, with `Env.default` when it is not
 given. `Env.default` has no clock: a statement that reads the clock, such as

@@ -49,4 +49,9 @@ def StrictType.fits : StrictType → Value → Bool
   | .real, .text _ | .real, .blob _ | .text, .integer _ | .text, .real _ | .text, .blob _
   | .blob, .integer _ | .blob, .real _ | .blob, .text _ => false
 
+/-- The name of a {lit}`STRICT` type in SQLite's messages ({lit}`sqlite3StdType`).
+{assert}`StrictType.int.name = "INT"`. -/
+def StrictType.name : StrictType → String
+  | .int => "INT" | .integer => "INTEGER" | .real => "REAL" | .text => "TEXT" | .blob => "BLOB" | .any => "ANY"
+
 end Belay.Sqlite.Model

@@ -19,8 +19,8 @@ MUTANTS: dict[str, tuple[str, str, str]] = {
         "  | first :: rest => if program.trigger ≥ first.trigger then program :: first :: rest else first :: insertNewest program rest",
         "  | first :: rest => if program.trigger ≤ first.trigger then program :: first :: rest else first :: insertNewest program rest"),
     "when_null_passes": (RUN,
-        "      !(program.condition.all fun condition => Resolved.truthy (condition.eval (.plain frame.clock) cells)) then",
-        "      !(program.condition.all fun condition => !Resolved.falsy (condition.eval (.plain frame.clock) cells)) then"),
+        "  if !(program.condition.all fun condition => Resolved.truthy (condition.eval (.plain frame.clock) cells)) then",
+        "  if !(program.condition.all fun condition => !Resolved.falsy (condition.eval (.plain frame.clock) cells)) then"),
     "ignore_runs_later": (RUN,
         "  (frame.fired table time event).foldlM (fun (state, ended) program => if ended then pure (state, true)",
         "  (frame.fired table time event).foldlM (fun (state, _) program => if false then pure (state, true)"),
@@ -28,8 +28,8 @@ MUTANTS: dict[str, tuple[str, str, str]] = {
         "  | .update (some listed), .update set => (set.getD []).any listed.contains",
         "  | .update (some _), .update _ => true"),
     "fires_itself": (RUN,
-        "  if frame.running.contains program.trigger ||",
-        "  if false ||"),
+        "  if !frame.recursive && frame.running.contains program.trigger then return (state, false)",
+        "  if false then return (state, false)"),
 }
 """Each mutant: the file under `packages/`, the exact text it changes, and the replacement.
 The names follow the list in the task of slice 5: triggers that run oldest first, `WHEN` that a

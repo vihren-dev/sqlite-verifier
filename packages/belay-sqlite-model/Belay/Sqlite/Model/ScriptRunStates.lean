@@ -35,12 +35,12 @@ theorem sqlStatesFrom_head (position : Nat) (script : List (Resolved.Statement �
     simp only [sqlStatesFrom]
     split <;> rfl
 
-/-- For every connection, setting and outcome: the database of the connection after the
+/-- For every connection, resolution state and outcome: the database of the connection after the
 outcome ({name}`Connection.afterError`) is the outcome's database ({name}`Outcome.database`).
 Proof sketch: for each constructor of the outcome, both sides are the same database by
 definition. -/
-theorem Connection.afterError_database (connection : Connection) (foreignKeys : Bool) (outcome : Outcome) :
-    (connection.afterError foreignKeys outcome).state.database = outcome.database := by
+theorem Connection.afterError_database (connection : Connection) (after : ResolveState) (outcome : Outcome) :
+    (connection.afterError after outcome).state.database = outcome.database := by
   cases outcome <;> rfl
 
 /-- For every context, optional clock, script of statements with values, index, connection,
@@ -91,7 +91,7 @@ theorem runScriptFrom_states (context : ResolveContext) (clock : Option Clock) :
           split at found
           · simp at found
           · rename_i nextState advanced
-            have nextIs : next = { state := nextState, foreignKeys := headState.foreignKeys } := by
+            have nextIs : next = { state := nextState, foreignKeys := headState.foreignKeys, recursiveTriggers := headState.recursiveTriggers } := by
               rw [afterStep, advanced]; rfl
             rw [← Connection.resolveState_after_next headOk advanced, ← nextIs] at restOk
             simp only [List.getElem?_cons_succ] at found
@@ -151,7 +151,7 @@ theorem runScriptFrom_halt_database (context : ResolveContext) (clock : Option C
             rw [afterStep, advanced]
             exact Connection.afterError_database _ _ _
           | next nextState =>
-            have nextIs : next = { state := nextState, foreignKeys := headState.foreignKeys } := by
+            have nextIs : next = { state := nextState, foreignKeys := headState.foreignKeys, recursiveTriggers := headState.recursiveTriggers } := by
               rw [afterStep, advanced]; rfl
             rw [← Connection.resolveState_after_next headOk advanced, ← nextIs] at restOk
             simp only [sqlStatesFrom, advanced] at halted running ⊢

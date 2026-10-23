@@ -38,15 +38,18 @@ def addUniqueKey (table : CatalogTable) (positions : List Nat) (algorithm : Opti
 /-- Set the primary key with its rowid alias, direction and algorithm. A primary key that
 is no rowid alias, with the columns, in order, of an earlier UNIQUE key, takes that key's
 place, with the merged algorithm ({name}`mergeAlgorithm`) and the ascending direction of
-that earlier index, which SQLite keeps also for {lit}`PRIMARY KEY DESC`. -/
+that earlier index, which SQLite keeps also for {lit}`PRIMARY KEY DESC`. The keys before it
+({name}`CatalogTable.uniqueBeforePrimary`) are the UNIQUE keys written before it, or those
+before the key that it takes the place of. -/
 def setPrimaryKey (table : CatalogTable) (positions : List Nat) (alias : Option Nat) (descending : Bool)
     (algorithm : Option ConflictAlgorithm) : Except ExprError CatalogTable :=
   let keyed := { table with primaryKey := positions, rowidAlias := alias, primaryKeyDescending := descending,
-                            primaryKeyAlgorithm := algorithm }
+                            primaryKeyAlgorithm := algorithm,
+                            uniqueBeforePrimary := if alias.isSome then 0 else table.uniqueKeys.length }
   match alias, table.uniqueKeys.idxOf? positions with
   | none, some index => do
     let merged ← mergeAlgorithm (table.uniqueAlgorithm index) algorithm
-    .ok { keyed with primaryKeyDescending := false, primaryKeyAlgorithm := merged,
+    .ok { keyed with primaryKeyDescending := false, primaryKeyAlgorithm := merged, uniqueBeforePrimary := index,
                      uniqueKeys := table.uniqueKeys.eraseIdx index,
                      uniqueAlgorithms := table.keyedUniqueAlgorithms.eraseIdx index }
   | none, none | some _, _ => .ok keyed

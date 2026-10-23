@@ -34,7 +34,7 @@ def bodyStep : StatementResolution → Except NodeRestriction (Except PrepareErr
   | .ok (.delete table filter _ subqueries _, _) => writeStep (.delete table filter subqueries)
   | .ok (.query query subqueries, _) => .ok (.ok (.query query subqueries))
   | .ok (.createTable .., _) | .ok (.createIndex .., _) | .ok (.createTrigger .., _) | .ok (.addColumn .., _)
-  | .ok (.drop .., _) | .ok (.begin, _) | .ok (.commit, _) | .ok (.rollback, _) | .ok (.setting _, _) =>
+  | .ok (.drop .., _) | .ok (.begin, _) | .ok (.commit, _) | .ok (.rollback, _) | .ok (.setting .., _) =>
     .error (triggerRestriction .triggerForm)
 
 /-- Resolve a SELECT of a trigger's body as {lit}`resolveSelect` does, with the trigger's rows as

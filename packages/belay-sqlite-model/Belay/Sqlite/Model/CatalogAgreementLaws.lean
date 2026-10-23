@@ -50,7 +50,7 @@ theorem runSqlAt_catalog {context : ResolveContext} {catalog next : Catalog} {sc
     (runSqlAt clock (bindValues resolved values) database).database.catalog = next := by
   rw [resolve_after context catalog next script resolved resolution]
   have statements := runSqlFrom_agrees _ 0 { database, clock := scriptClock clock ((bindValues resolved values).map (·.1)) }
-    { catalog, foreignKeys := context.profile.foreignKeys } ⟨start, rfl⟩ _ rfl clean
+    (ResolveState.initial context.profile catalog) ⟨start, rfl⟩ _ rfl clean
   simpa only [runSqlAt, map_fst_bindValues] using statements
 
 end Belay.Sqlite.Model

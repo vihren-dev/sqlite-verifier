@@ -1,10 +1,12 @@
 import Belay.Sqlite.Model.Resolution.Sources
+import Belay.Sqlite.Model.Resolution.PragmaRows
 
 set_option doc.verso true
 
-/-! Resolution of the {lit}`json_each` sources of {lit}`FROM` (ADR 0012, amendment 5, slice
-6d; ADR 0013, D5): the reference and its columns, and its arguments, which read the
-sources before it. The paths follow {lit}`Syntax.Statement.select` as in
+/-! Resolution of the table-valued functions of {lit}`FROM`: the {lit}`json_each` sources
+(ADR 0012, amendment 5, slice 6d; ADR 0013, D5), with the reference and its columns, and its
+arguments, which read the sources before it; and the table-valued pragmas
+{lit}`pragma_table_info` and {lit}`pragma_foreign_key_list` (ADR 0019, D2). The paths follow {lit}`Syntax.Statement.select` as in
 {lit}`Sources.lean`; in a source, child 2 is the list of its arguments. -/
 
 namespace Belay.Sqlite.Model
@@ -50,5 +52,36 @@ def resolveEachArguments (dqs : Bool) (scope : Scope) (index : Nat) (path : List
   match resolved with
   | json :: rest => .ok (.each json rest.head?)
   | [] => .error (.restriction path .tableFunction)
+
+/-- The source of a table-valued pragma with the column names and rows of its pragma: each row
+with the hidden cells {lit}`arg`, the argument, and {lit}`schema`, NULL, whose names are the
+restriction {lit}`table-function` ({name}`ScopeSource.arguments`). The cells have no declared
+type, so they have no affinity and the binary collation. -/
+def pragmaSource (reference : Syntax.TableReference) (argument : List UInt8) (names : List String)
+    (rows : List (List Value)) : Resolved.PragmaRows × ScopeSource :=
+  (.fixed (names.length + 2) (rows.map (· ++ [.text argument, .null])),
+    { name := reference.alias.getD reference.table,
+      columns := (names ++ ["arg", "schema"]).map fun name => { name := .ofString name, declaredType := none },
+      hidden := [names.length, names.length + 1], arguments := [names.length, names.length + 1] })
+
+/-- The source of a table-valued pragma at {lit}`path` with its arguments as written:
+{lit}`pragma_table_info('t')` with the rows of {name}`Catalog.tableInfoRows` and
+{lit}`pragma_foreign_key_list('t')` with those of {name}`Catalog.foreignKeyListRows`, each with
+one text literal as its argument ({name}`pragmaSource`). Every other pragma function, another
+form of argument, and a name of a table of the catalog are the restriction
+{name}`RestrictionKind.tableFunction`; a name of SQLite's own tables that the catalog does not
+have is {name}`RestrictionKind.systemTable`. -/
+def pragmaReference (catalog : Catalog) (path : List Nat) (reference : Syntax.TableReference)
+    (arguments : List Syntax.Expr) : Except ValueIssue (Resolved.PragmaRows × ScopeSource) :=
+  match arguments, catalog.findTable reference.table with
+  | [.string argument], none =>
+    if reference.table.isKeyword (bytes! "pragma_table_info") then
+      match catalog.tableInfoRows ⟨argument⟩ with
+      | some rows => .ok (pragmaSource reference argument tableInfoNames rows)
+      | none => .error (.restriction path .systemTable)
+    else if reference.table.isKeyword (bytes! "pragma_foreign_key_list") then
+      .ok (pragmaSource reference argument foreignKeyListNames (catalog.foreignKeyListRows ⟨argument⟩))
+    else .error (.restriction path .tableFunction)
+  | _, _ => .error (.restriction path .tableFunction)
 
 end Belay.Sqlite.Model

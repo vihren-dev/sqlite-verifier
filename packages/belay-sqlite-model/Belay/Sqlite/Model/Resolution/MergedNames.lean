@@ -28,6 +28,13 @@ def Scope.nameOperand (scope : Scope) : List Nat → Operand
       if scope.triggerCell position then none else scope.columns[position]?.map CatalogColumn.affinity)
   | reads => (coalesceColumns reads, none)
 
+/-- The operand of a name in an expression that reads the columns at the positions
+({name}`Scope.nameOperand`), or the restriction {name}`RestrictionKind.tableFunction` when it
+reads an argument column of a table-valued pragma ({name}`Scope.argumentCell`): SQLite passes a
+condition on such a column to the pragma, which changes the rows. -/
+def Scope.nameRead (scope : Scope) (reads : List Nat) : Except ValueIssue Operand :=
+  if reads.any scope.argumentCell then .error (.restriction [] .tableFunction) else .ok (scope.nameOperand reads)
+
 /-- The index of the source whose cells hold the position of the concatenated row; the
 number of sources for a position after the last cell. -/
 def Scope.sourceOf (scope : Scope) (position : Nat) : Nat :=

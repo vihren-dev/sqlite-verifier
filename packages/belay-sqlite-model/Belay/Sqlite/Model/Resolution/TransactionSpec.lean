@@ -11,13 +11,13 @@ namespace Belay.Sqlite.Model
 def Syntax.Statement.transactionControl : Syntax.Statement → Bool
   | .begin | .commit | .rollback => true
   | .createTable .. | .createIndex .. | .addColumn .. | .dropTable .. | .dropIndex .. | .createTrigger ..
-  | .dropTrigger .. | .insert .. | .update .. | .delete .. | .select .. | .pragmaForeignKeys _ => false
+  | .dropTrigger .. | .insert .. | .update .. | .delete .. | .select .. | .pragma _ => false
 
 /-- For every statement that is not BEGIN, COMMIT or ROLLBACK and that resolves, the
 saved catalog of the next state is the saved catalog of the state. Proof sketch:
 each such statement goes through {name}`ResolveState.withCatalog`, which changes only
 the current catalog, or {name}`ResolveState.withWrite`, which keeps the saved catalog
-({name}`ResolveState.withWrite_cases`); {lit}`PRAGMA foreign_keys` changes only the setting. -/
+({name}`ResolveState.withWrite_cases`); a pragma changes at most the setting ({name}`resolvePragma_cases`). -/
 theorem resolveStatement_saved (context : ResolveContext) (state next : ResolveState)
     (statement : Syntax.Statement) (resolved : Resolved.Statement)
     (plain : statement.transactionControl = false)
@@ -28,13 +28,10 @@ theorem resolveStatement_saved (context : ResolveContext) (state next : ResolveS
     rcases ResolveState.withWrite_cases ok with ⟨_, _, rfl⟩ | ⟨_, _, _, rfl, _, _⟩ <;> rfl
   cases statement <;> simp [Syntax.Statement.transactionControl] at plain
   case dropTable | insert | update | delete => exact written _ ok
-  case pragmaForeignKeys value =>
-    cases value with
-    | some on => cases ok; rfl
-    | none =>
-      simp only [resolveStatement, ResolveState.withCatalog, Except.map] at ok
-      repeat' split at ok
-      all_goals first | (cases ok; done) | (cases ok; rfl)
+  case pragma pragma =>
+    rcases resolvePragma_cases ok with ⟨setting, _, _, rfl⟩ | ⟨rfl, _, _⟩
+    · cases setting <;> rfl
+    · rfl
   all_goals simp only [resolveStatement, ResolveState.withCatalog, Except.map] at ok
   all_goals (repeat' split at ok)
   all_goals first | (cases ok; done) | (cases ok; rfl)

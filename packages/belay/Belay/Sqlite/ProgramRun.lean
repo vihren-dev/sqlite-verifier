@@ -55,6 +55,8 @@ structure Run (α : Type) where
   transaction : Option Database.Raw
   /-- Whether {lit}`PRAGMA foreign_keys` is on at the end. -/
   foreignKeys : Bool
+  /-- Whether {lit}`PRAGMA recursive_triggers` is on at the end. -/
+  recursiveTriggers : Bool
 
 /-- The reason of the output that ends a run whose database at its end is not valid. -/
 def invalidReason : String :=
@@ -66,14 +68,15 @@ def invalidReason : String :=
 database at the end is valid ({name}`Database.Valid`), the decision is the proof of the
 {name}`Database` that the run gives, with the result's value; otherwise the value is none, the
 outputs end with {name}`Output.unmodeled`, with {name}`invalidReason` unless the model's run
-ended already, and the run keeps the start database, idle with foreign keys off. -/
+ended already, and the run keeps the start database, idle with both settings off. -/
 def Run.checked {α : Type} (start : Database) (result : SqlRun α) : Run α :=
   if valid : result.connection.state.database.Valid Profile.pinned then
     { value := result.value, outputs := result.outputs, db := ⟨_, valid⟩, start,
-      transaction := result.connection.state.snapshot, foreignKeys := result.connection.foreignKeys }
+      transaction := result.connection.state.snapshot, foreignKeys := result.connection.foreignKeys,
+      recursiveTriggers := result.connection.recursiveTriggers }
   else
     { value := none, outputs := if result.ended then result.outputs else result.outputs ++ [.unmodeled invalidReason],
-      db := start, start, transaction := none, foreignKeys := false }
+      db := start, start, transaction := none, foreignKeys := false, recursiveTriggers := false }
 
 /-- Run the program on the database in the environment, from the idle connection to the
 database, with the check of the database at the end ({name}`Run.checked` of

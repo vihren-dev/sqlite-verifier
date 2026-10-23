@@ -8,11 +8,12 @@ propositions with them ({lit}`Holds`, {lit}`Empty` and {lit}`Fails`). -/
 
 namespace Belay.Sqlite.Model
 
-/-- Whether the statement only reads: a {lit}`SELECT`, or the query {lit}`PRAGMA foreign_keys`
-without a value. -/
+/-- Whether the statement only reads: a {lit}`SELECT`, or a pragma that only reads
+({name}`Syntax.Pragma.readsOnly`). -/
 def Syntax.Statement.readsOnly : Syntax.Statement → Bool
-  | .select .. | .pragmaForeignKeys none => true
-  | .pragmaForeignKeys (some _) | .createTable .. | .createIndex .. | .addColumn .. | .dropTable ..
+  | .select .. => true
+  | .pragma form => form.readsOnly
+  | .createTable .. | .createIndex .. | .addColumn .. | .dropTable ..
   | .dropIndex .. | .begin | .commit | .rollback | .insert .. | .update .. | .delete ..
   | .createTrigger .. | .dropTrigger .. => false
 

@@ -96,7 +96,7 @@ def runStatement (clock : Int) (parameters : List Value) (statement : Resolved.S
     StatementRun.withKeys (step clock parameters statement database) true
       (rules.map fun rules => dropKeys rules clock positions database)
   | .createIndex .. | .createTrigger .. => { effect := step clock parameters statement database, ready := true }
-  | .begin | .commit | .rollback | .prepareError _ | .setting _ =>
+  | .begin | .commit | .rollback | .prepareError _ | .setting .. =>
     { effect := step clock parameters statement database, ready := true }
 
 /-- The effect of one statement at a clock value with the values bound to its parameters
@@ -132,7 +132,7 @@ def advanceWith (position : Nat) (statement : Resolved.Statement) (state : SqlSt
     | some original => .next { state with database := original, snapshot := none }
   | .createTable .. | .createIndex .. | .createTrigger .. | .addColumn .. | .drop .. | .insert .. | .upsert .. | .update ..
   | .delete ..
-  | .prepareError _ | .query .. | .setting _ =>
+  | .prepareError _ | .query .. | .setting .. =>
     state.publish position effect
 
 /-- Evaluate one statement with the values bound to its parameters at its supplied zero-based

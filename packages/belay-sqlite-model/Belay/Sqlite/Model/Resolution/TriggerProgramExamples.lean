@@ -48,7 +48,7 @@ def programs (script : List Syntax.Statement) : List Resolved.Program :=
   | some (.insert _ _ _ _ none) | some (.upsert _ _ _ _ _ _ none) | some (.update _ _ _ _ _ none)
   | some (.delete _ _ _ _ none) | some (.drop _ none) | some (.createTable ..) | some (.createIndex ..)
   | some (.createTrigger ..) | some (.addColumn ..) | some .begin | some .commit | some .rollback
-  | some (.prepareError _) | some (.query ..) | some (.setting _) | none => []
+  | some (.prepareError _) | some (.query ..) | some (.setting ..) | none => []
 
 /-- Whether the script after the two tables is a restriction of the kind. -/
 def restrictedAs (kind : RestrictionKind) (script : List Syntax.Statement) : Bool :=

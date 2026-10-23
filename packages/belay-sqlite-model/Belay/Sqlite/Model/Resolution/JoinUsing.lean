@@ -83,14 +83,18 @@ def mergedCondition (coalesced : Bool) (left : Scope) (right : ScopeSource) (nam
 /-- The joined source with its merged columns and the merge rule of its join, which also
 tells later expansions of {lit}`*` whether a right or full join follows, and the
 join's condition: the written {lit}`ON` condition at child 2, or the condition of the merged
-names ({name}`mergedCondition`) for {lit}`USING` and {lit}`NATURAL`. The left input is every
-earlier source; {lit}`coalesced` says whether the {lit}`FROM` has a right or full join;
-{lit}`item` is the join's position. -/
+names ({name}`mergedCondition`) for {lit}`USING` and {lit}`NATURAL`. A merged name of an
+argument column of a table-valued pragma on the left ({name}`Scope.argumentCell`) is the
+restriction {name}`RestrictionKind.tableFunction`, as a name of it in an expression is. The left
+input is every earlier source; {lit}`coalesced` says whether the {lit}`FROM` has a right or full
+join; {lit}`item` is the join's position. -/
 def mergeJoin (left : Scope) (right : ScopeSource) (natural coalesced : Bool) (rule : MergeRule) (item : Nat)
     (join : Syntax.Join) : Except ValueIssue (ScopeSource × JoinCondition) := do
   match ← mergedNames coalesced left right natural join with
   | none => .ok ({ right with mergeRule := rule }, .ofWritten item join.condition)
   | some names =>
+    if names.any fun name => (left.namedPositions name).any left.argumentCell then
+      .error (.restriction [2, item] .tableFunction) else
     let merged := names.filterMap (columnPosition right.columns ·)
     .ok ({ right with merged, mergeRule := rule }, .ofMerged (mergedCondition coalesced left right names))
 
@@ -122,32 +126,39 @@ theorem usingNames_checked (left : Scope) (right : ScopeSource) (names : List Id
 
 /-- For every left scope, joined source, rule, item and join with {lit}`USING` names that
 each name a column of the joined source and of the left input, in a {lit}`FROM` without
-right and full joins, {name}`mergeJoin` merges the joined columns of those names under
+right and full joins, when no cell of the left input is an argument column of a table-valued
+pragma ({name}`Scope.argumentCell`), {name}`mergeJoin` merges the joined columns of those names under
 the rule and gives the conjunction of their equalities with the left-most left columns
 ({name}`mergedCondition`), as in slice 4b. -/
 theorem mergeJoin_using (left : Scope) (right : ScopeSource) (rule : MergeRule) (item : Nat) (join : Syntax.Join)
     (names : List Identifier) (written : join.usingColumns = some names)
-    (both : ∀ name ∈ names, (columnPosition right.columns name).isSome ∧ left.hasColumn name) :
+    (both : ∀ name ∈ names, (columnPosition right.columns name).isSome ∧ left.hasColumn name)
+    (plain : ∀ position, left.argumentCell position = false) :
     mergeJoin left right false false rule item join =
       .ok ({ right with merged := names.filterMap (columnPosition right.columns ·), mergeRule := rule },
         .ofMerged (mergedCondition false left right names)) := by
   unfold mergeJoin mergedNames
   simp only [Bool.false_eq_true, ite_false, written]
-  rw [usingNames_checked left right names both]
-  rfl
+  rw [usingNames_checked left right names both, show left.argumentCell = fun _ => false from funext plain]
+  simp [Except.map, bind, Except.bind]
 
 /-- For every left scope, joined source, rule, item and {lit}`NATURAL` join without
-{lit}`ON` and {lit}`USING`, in a {lit}`FROM` without right and full joins, {name}`mergeJoin`
-merges the columns of the joined source whose names the left input also has, under the
+{lit}`ON` and {lit}`USING`, in a {lit}`FROM` without right and full joins, when no cell of
+the left input is an argument column of a table-valued pragma ({name}`Scope.argumentCell`),
+{name}`mergeJoin` merges the columns of the joined source whose names the left input also has, under the
 rule, and gives the conjunction of their equalities with the left-most left columns
 ({name}`mergedCondition`), as in slice 4b; with no common name, there is no condition, a
 cross join. -/
 theorem mergeJoin_natural (left : Scope) (right : ScopeSource) (rule : MergeRule) (item : Nat) (join : Syntax.Join)
-    (noOn : join.condition = none) (noUsing : join.usingColumns = none) :
+    (noOn : join.condition = none) (noUsing : join.usingColumns = none)
+    (plain : ∀ position, left.argumentCell position = false) :
     let names := right.columns.filterMap fun column => if left.hasColumn column.name then some column.name else none
     mergeJoin left right true false rule item join =
       .ok ({ right with merged := names.filterMap (columnPosition right.columns ·), mergeRule := rule },
         .ofMerged (mergedCondition false left right names)) := by
-  simp [mergeJoin, mergedNames, noOn, noUsing, bind, Except.bind]
+  simp only [mergeJoin, mergedNames, noOn, noUsing, show left.argumentCell = fun _ => false from funext plain]
+  simp [bind, Except.bind]
+  intro column _
+  split <;> simp_all [List.any_eq_false]
 
 end Belay.Sqlite.Model

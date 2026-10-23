@@ -20,6 +20,7 @@ deriving instance Lean.FromJson, Lean.ToJson for Syntax.TableReference, Syntax.J
 deriving instance Lean.FromJson, Lean.ToJson for CompoundOperator, Syntax.Compound, Syntax.Subquery
 deriving instance Lean.FromJson, Lean.ToJson for Syntax.ConflictAction, Syntax.ConflictClause
 deriving instance Lean.FromJson, Lean.ToJson for Syntax.TriggerTime, Syntax.TriggerEvent, Syntax.BodyStatement
+deriving instance Lean.FromJson, Lean.ToJson for Syntax.PragmaSetting, Syntax.Pragma
 /-- The table options as JSON, with {lit}`strict` only for a {lit}`STRICT` table, so the
 records of other tables keep their form. -/
 instance : Lean.ToJson Syntax.TableOptions where

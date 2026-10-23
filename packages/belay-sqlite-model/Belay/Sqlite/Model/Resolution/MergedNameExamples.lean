@@ -23,14 +23,14 @@ def merging : Catalog := catalogOf (schema [.createTable (name! "t") [column (na
 def query (results : List ResultColumn) (source : TableReference) (joins : List Join) : Option Resolved.Query :=
   match (statements (migration merging [.select results (some source) joins none [] [] none none])).head? with
   | some (.query query _) => some query
-  | some (.createTable ..) | some (.createIndex ..) | some (.createTrigger ..) | some (.addColumn ..) | some (.drop ..) | some (.setting _) | some .begin | some .commit
+  | some (.createTable ..) | some (.createIndex ..) | some (.createTrigger ..) | some (.addColumn ..) | some (.drop ..) | some (.setting ..) | some .begin | some .commit
   | some .rollback | some (.insert ..) | some (.upsert ..) | some (.update ..) | some (.delete ..) | some (.prepareError _) | none => none
 
 /-- The prepare error of a {lit}`SELECT` over {name}`merging`, if it has one. -/
 def error (results : List ResultColumn) (source : TableReference) (joins : List Join) : Option PrepareError :=
   match (statements (migration merging [.select results (some source) joins none [] [] none none])).head? with
   | some (.prepareError error) => some error
-  | some (.createTable ..) | some (.createIndex ..) | some (.createTrigger ..) | some (.addColumn ..) | some (.drop ..) | some (.setting _) | some .begin | some .commit
+  | some (.createTable ..) | some (.createIndex ..) | some (.createTrigger ..) | some (.addColumn ..) | some (.drop ..) | some (.setting ..) | some .begin | some .commit
   | some .rollback | some (.insert ..) | some (.upsert ..) | some (.update ..) | some (.delete ..) | some (.query ..) | none => none
 
 /-- The result columns of {lit}`SELECT a` over the joins from {lit}`t`. -/

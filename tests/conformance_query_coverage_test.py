@@ -23,8 +23,9 @@ and `conformance.authored_subqueries`, `conformance.authored_expression_forms` a
 `conformance.authored_distinct_having`, `conformance.authored_foreign_keys` and
 `conformance.authored_triggers` and `conformance.authored_possible_results` (ADR 0018,
 slices 1 to 6; the foreign keys and the triggers under a profile with foreign keys on), and
-`conformance.authored_parameters` (ADR 0019, slice 1), which bind values to parameters, and
-`conformance.authored_compound` (ADR 0019, slice 3) are
+`conformance.authored_parameters` (ADR 0019, slice 1), which bind values to parameters,
+`conformance.authored_pragmas` (ADR 0019, slice 2; its recursive trigger case under a profile
+with recursive triggers on) and `conformance.authored_compound` (ADR 0019, slice 3) are
 recorded natively as version 5 records with statement outputs, name requirement
 identifiers of the pinned documentation, and replay through resolution, the
 execution semantics and query evaluation. Every case agrees with the model, and the
@@ -45,7 +46,8 @@ from conformance import (authored_algorithms, authored_aliases, authored_checks,
                          authored_fromless, authored_indexes, authored_joins, authored_json, authored_json_each,
                          authored_aggregates, authored_printf, authored_json_edits, authored_jsonb, authored_json_functions,
                          authored_subqueries, authored_expression_forms, authored_distinct_having,
-                         authored_foreign_keys, authored_triggers, authored_possible_results, authored_parameters, authored_compound, authored_keys,
+                         authored_foreign_keys, authored_triggers, authored_possible_results, authored_parameters,
+                         authored_pragmas, authored_compound, authored_keys,
                          authored_merged, authored_numbers,
                          authored_queries, authored_right, authored_row_writes, authored_strict,
                          authored_text_functions, authored_numeric_functions, authored_upserts,
@@ -67,7 +69,7 @@ CASE_SETS = [authored_queries, authored_numbers, authored_writes, authored_row_w
              authored_strict, authored_drops, authored_text_functions, authored_numeric_functions,
              authored_json_edits, authored_jsonb, authored_aggregates, authored_printf, authored_subqueries,
              authored_expression_forms, authored_distinct_having, authored_foreign_keys, authored_triggers,
-             authored_possible_results, authored_parameters, authored_compound]
+             authored_possible_results, authored_parameters, authored_compound, authored_pragmas]
 """The authored case modules: each has `definitions` and `records`."""
 
 

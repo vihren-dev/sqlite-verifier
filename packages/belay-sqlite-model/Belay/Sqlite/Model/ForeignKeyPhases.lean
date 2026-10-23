@@ -1,4 +1,4 @@
-import Belay.Sqlite.Model.ForeignKeyMatch
+import Belay.Sqlite.Model.ForeignKeySatisfied
 import Belay.Sqlite.Model.Resolution.ForeignKeyPlan
 import Belay.Sqlite.Model.Execution
 
@@ -55,10 +55,6 @@ inductive KeyStop where
 
 /-- The database of the state over the catalog. -/
 def KeyState.database (state : KeyState) (catalog : Catalog) : Database := { catalog, rows := state.rows }
-
-/-- The rows of the table at a position, none for a position without a table. -/
-def Database.rowsAt (database : Database) (position : Nat) : List Row :=
-  (database.table position).map (·.rows) |>.getD []
 
 /-- The state with the rows at a position changed. -/
 def KeyState.changeRows (state : KeyState) (position : Nat) (change : List Row → List Row) : KeyState :=

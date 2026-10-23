@@ -68,6 +68,11 @@ structure CatalogTable where
   primaryKeyAlgorithm : Option ConflictAlgorithm := none
   /-- The column positions of each UNIQUE constraint, in written order. -/
   uniqueKeys : List (List Nat) := []
+  /-- The number of keys of {name}`CatalogTable.uniqueKeys` whose index SQLite creates before
+  the index of the primary key, which numbers the indexes {lit}`sqlite_autoindex_t_N` in that
+  order: the UNIQUE constraints written before the PRIMARY KEY. Use {lean}`0` when the primary
+  key comes first or has no index. -/
+  uniqueBeforePrimary : Nat := 0
   /-- The {lit}`ON CONFLICT` algorithm of each UNIQUE constraint, in the order of
   {lit}`uniqueKeys`, none without the clause; a constraint without an entry has none. -/
   uniqueAlgorithms : List (Option ConflictAlgorithm) := []

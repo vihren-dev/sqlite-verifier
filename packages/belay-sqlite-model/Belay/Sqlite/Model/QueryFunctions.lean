@@ -1,5 +1,6 @@
 import Belay.Sqlite.Model.QueryJoins
 import Belay.Sqlite.Model.Json.Each
+import Belay.Sqlite.Model.PragmaRun
 
 set_option doc.verso true
 
@@ -29,7 +30,8 @@ structure SourceRows where
   fault : Fault
 
 /-- The rows so far joined with one more source ({name}`joinRows`); none for a table that
-the database does not have, or a subquery, which the model does not run yet. The rows of
+the database does not have, a subquery, which the model does not run yet, and a pragma whose
+rows the model does not give ({name}`PragmaRows.rowsOn`). The rows of
 a {lit}`json_each` source are its rows over each row so far ({name}`joinRow`); resolution
 refuses it as the right operand of a right or full join, where this gives the rows of an
 inner or left join. -/
@@ -47,6 +49,9 @@ def QuerySource.join (context : EvalContext) (database : Database) (state : Sour
            width := state.width + eachWidth,
            fault := if failed then state.fault.join .may else state.fault }
   | .subquery => none
+  | .pragma pragma => (pragma.rowsOn database).map fun rows =>
+    { rows := joinRows context state.width state.rows join pragma.width rows, width := state.width + pragma.width,
+      fault := state.fault }
 
 /-- The source rows of a query over a database: its sources joined in written order
 ({name}`QuerySource.join`) from the one row with no cells, which is the source of a query
@@ -57,7 +62,7 @@ def Query.source (context : EvalContext) (query : Query) (database : Database) :
 /-- For every context, database, list of sources without a {lit}`json_each` source and state whose
 fault is {lean}`Fault.none`, a successful fold of {name}`QuerySource.join` ends with the fault
 {lean}`Fault.none`. Proof sketch: induction on the sources; a table source keeps the fault,
-and a subquery stops the fold. -/
+a pragma keeps the fault, and a subquery stops the fold. -/
 theorem source_fault_of_plain (context : EvalContext) (database : Database) :
     ∀ (sources : List QuerySource) (state result : SourceRows), sources.all (!·.source.isEach) = true →
       state.fault = .none → sources.foldlM (QuerySource.join context database) state = some result → result.fault = .none
@@ -80,5 +85,13 @@ theorem source_fault_of_plain (context : EvalContext) (database : Database) :
         exact clean
     | each json path => simp [Source.isEach] at plain
     | subquery => simp [QuerySource.join] at done
+    | pragma pragma =>
+      simp only [QuerySource.join] at done
+      cases found : pragma.rowsOn database with
+      | none => simp [found] at done
+      | some rows =>
+        simp only [found, Option.map_some] at done
+        refine source_fault_of_plain context database rest _ result plain.2 ?_ done
+        exact clean
 
 end Belay.Sqlite.Model.Resolved

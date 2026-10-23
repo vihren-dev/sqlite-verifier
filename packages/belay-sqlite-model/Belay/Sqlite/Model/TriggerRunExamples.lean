@@ -98,12 +98,12 @@ example : run (tables ++ [trigger "s" .after .insert [.insert (name! "t") none [
     insertT [[.null, .numeric "1"]]]) 0 = ([[.integer 1, .integer 1], [.integer 2, .integer 0]], false) := by
   decide +kernel
 
--- REPLACE fires no DELETE trigger.
+-- With recursive triggers off, REPLACE fires no DELETE trigger.
 example : logOf [insertT [[.numeric "1", .numeric "1"]], trigger "d" .after .delete [logged (text "d")],
     insertT [[.numeric "1", .numeric "2"]] (some .replace)] = ([], false) := by decide +kernel
 
 -- A CASCADE of a parent's DELETE fires the child's AFTER DELETE trigger.
-example : run [.pragmaForeignKeys (some true), .createTable (name! "p") [plain "id" none [.primaryKey false]] [],
+example : run [.pragma (.setting .foreignKeys (some true)), .createTable (name! "p") [plain "id" none [.primaryKey false]] [],
     .createTable (name! "c") [plain "x" none [.references (name! "p") [] .cascade .noAction]] [],
     .createTable (name! "log") [plain "x"] [], .insert (name! "p") none [[.numeric "1"]] [],
     .insert (name! "c") none [[.numeric "1"]] [],

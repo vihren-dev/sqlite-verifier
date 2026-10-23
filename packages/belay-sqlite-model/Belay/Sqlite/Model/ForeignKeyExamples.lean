@@ -58,13 +58,13 @@ example : run (schema .noAction .noAction ++ [child .null]) 1 = (some [[.integer
 -- With them off, the same write succeeds; PRAGMA foreign_keys = ON turns them on.
 example : run (schema .noAction .noAction ++ [child (.numeric "9")]) 1 defaults =
     (some [[.integer 1], [.integer 9]], false) := by decide +kernel
-example : run (.pragmaForeignKeys (some true) :: schema .noAction .noAction ++ [child (.numeric "9")]) 1 defaults =
+example : run (.pragma (.setting .foreignKeys (some true)) :: schema .noAction .noAction ++ [child (.numeric "9")]) 1 defaults =
     (some [[.integer 1]], true) := by decide +kernel
 -- Inside a transaction the pragma does nothing: the keys stay on.
-example : run (schema .noAction .noAction ++ [.begin, .pragmaForeignKeys (some false), child (.numeric "9")]) 1 =
+example : run (schema .noAction .noAction ++ [.begin, .pragma (.setting .foreignKeys (some false)), child (.numeric "9")]) 1 =
     (some [[.integer 1]], true) := by decide +kernel
 -- PRAGMA foreign_keys is one row with the column foreign_keys.
-#guard (statements (migration [] [.pragmaForeignKeys none] keysOn)).map (fun
+#guard (statements (migration [] [.pragma (.setting .foreignKeys none)] keysOn)).map (fun
   | .query query _ => query.names
   | _ => []) == [["foreign_keys"]]
 

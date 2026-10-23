@@ -45,14 +45,15 @@ theorem Run.checked_outputs {α : Type} (start : Database) (result : SqlRun α) 
 /-- For every start database and model result of a program: if no output of the checked run ends
 a run ({name}`Output.endsRun`), the database at the end of the result is valid, the model's run
 did not end ({name}`ScriptRun.ended`), and the checked run gives the result's value, that
-database, the result's outputs, its open transaction and its setting. Proof sketch: an invalid
+database, the result's outputs, its open transaction and its settings. Proof sketch: an invalid
 result gives an output {name}`Output.unmodeled`, from the result or from the check. -/
 theorem Run.checked_modeled {α : Type} {start : Database} {result : SqlRun α}
     (modeled : ∀ output ∈ (Run.checked start result).outputs, output.endsRun = false) :
     ∃ valid : result.connection.state.database.Valid Profile.pinned, result.ended = false ∧
       Run.checked start result =
         { value := result.value, outputs := result.outputs, db := ⟨_, valid⟩, start := start,
-          transaction := result.connection.state.snapshot, foreignKeys := result.connection.foreignKeys } := by
+          transaction := result.connection.state.snapshot, foreignKeys := result.connection.foreignKeys,
+          recursiveTriggers := result.connection.recursiveTriggers } := by
   unfold Run.checked at modeled ⊢
   by_cases valid : result.connection.state.database.Valid Profile.pinned
   · rw [dite_eq_left valid] at modeled ⊢
@@ -68,19 +69,20 @@ theorem Run.checked_modeled {α : Type} {start : Database} {result : SqlRun α}
       rw [modeled output member] at ends
       cases ends
 
-/-- For every connection: if no transaction is open, foreign keys are off, and the clock is 0
-at every position, the connection is the idle connection to its database
+/-- For every connection: if no transaction is open, foreign keys and recursive triggers are
+off, and the clock is 0 at every position, the connection is the idle connection to its database
 ({name}`Database.Raw.connection`). Proof sketch: split the connection into its database,
-snapshot, clock and setting; the hypotheses fix all of them except the database. -/
+snapshot, clock and settings; the hypotheses fix all of them except the database. -/
 theorem Connection.eq_idle {connection : Connection} (outside : connection.state.snapshot = none)
-    (setting : connection.foreignKeys = false) (clock : connection.state.clock = fun _ => 0) :
+    (setting : connection.foreignKeys = false) (recursive : connection.recursiveTriggers = false)
+    (clock : connection.state.clock = fun _ => 0) :
     connection = Database.Raw.connection connection.state.database := by
-  rcases connection with ⟨⟨database, snapshot, clockOf⟩, foreignKeys⟩
+  rcases connection with ⟨⟨database, snapshot, clockOf⟩, foreignKeys, recursiveTriggers⟩
   simp_all [Database.Raw.connection]
 
 /-- The guide's form of {lit}`run_append`. For every database and all scripts {lit}`p` and
-{lit}`q`: if the run of {lit}`p` ends with no open transaction, with foreign keys off as at the
-start of a run, and with no output {name}`Output.unmodeled` ({name}`Output.endsRun`), then the
+{lit}`q`: if the run of {lit}`p` ends with no open transaction, with foreign keys and recursive
+triggers off as at the start of a run, and with no output {name}`Output.unmodeled` ({name}`Output.endsRun`), then the
 outputs of the run of {lit}`p ++ q` are the outputs of the run of {lit}`p`, then the outputs of
 the run of {lit}`q` on the database that the run of {lit}`p` gives. Proof sketch: each run of a
 script is the checked run of S2's run ({name}`Database.run_script_default`); the run of
@@ -89,15 +91,15 @@ connection to its database ({name}`Connection.eq_idle`); the plain runs compose
 ({name}`Database.Raw.run_append`), and the check at the end reads the same result on both
 sides ({name}`Run.checked_outputs`). -/
 theorem Script.run_append (db : Database) (p q : Script) (outside : (db.run p).transaction = none)
-    (setting : (db.run p).foreignKeys = false)
+    (setting : (db.run p).foreignKeys = false) (recursive : (db.run p).recursiveTriggers = false)
     (modeled : ∀ output ∈ (db.run p).outputs, output.endsRun = false) :
     (db.run (p ++ q)).outputs = (db.run p).outputs ++ ((db.run p).db.run q).outputs := by
-  simp only [Database.run_script_default] at outside setting modeled ⊢
+  simp only [Database.run_script_default] at outside setting recursive modeled ⊢
   obtain ⟨valid, quiet, checked⟩ := Run.checked_modeled modeled
-  rw [checked] at outside setting ⊢
+  rw [checked] at outside setting recursive ⊢
   rw [Run.checked_outputs, Run.checked_outputs]
-  simp only [SqlRun.ofScript_toScriptRun] at outside setting quiet ⊢
-  have idle := Connection.eq_idle outside setting
+  simp only [SqlRun.ofScript_toScriptRun] at outside setting recursive quiet ⊢
+  have idle := Connection.eq_idle outside setting recursive
     ((Belay.Sqlite.Model.runScriptFrom_clock runContext none 0 db.raw.connection p.statements).trans rfl)
   simp only [Database.Raw.run_append, ScriptRun.andThen, quiet, Bool.false_eq_true, ite_false]
   simp only [Database.Raw.run] at idle quiet ⊢

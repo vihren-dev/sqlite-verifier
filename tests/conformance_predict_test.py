@@ -101,12 +101,16 @@ def test_profiled_records_use_their_limits_and_phases(runtime_root: Path) -> Non
     """`conformance.profile_scope.modeled_profile` and `VerifierConformance.Predict`: a record
     whose profile uses only the default execution settings is predicted under its recorded
     limits, with the error phase; one with foreign keys on is predicted with them on (ADR 0018,
-    D4), so its write without a parent row fails; one with recursive triggers is out of scope,
-    and the reason names the setting."""
+    D4), so its write without a parent row fails; one with recursive triggers on is predicted
+    with them on (ADR 0019, D2), so the row that `INSERT OR REPLACE` deletes fires the DELETE
+    trigger, and the predicted tables are the native ones."""
     default = profiled(runtime_root, "default")
     keyed = profiled(runtime_root, "keyed", "CREATE TABLE p(id PRIMARY KEY); CREATE TABLE c(x REFERENCES p);",
                      "INSERT INTO c VALUES (1);", foreign_keys=True)
-    recursive = profiled(runtime_root, "recursive", recursive_triggers=True)
+    recursive = profiled(runtime_root, "recursive",
+                         "CREATE TABLE t(k UNIQUE, v); CREATE TABLE log(x); INSERT INTO t VALUES (1, 'a'); "
+                         "CREATE TRIGGER d AFTER DELETE ON t BEGIN INSERT INTO log VALUES (old.v); END;",
+                         "INSERT OR REPLACE INTO t VALUES (1, 'b');", recursive_triggers=True)
     assert default["nativeVersion"] == 5 and default["trace"][0]["phase"] == "step"
     first, second, third = predict(runtime_root, default, keyed, recursive)
     assert first["status"] == "predicted" and first["supported"], first
@@ -114,8 +118,10 @@ def test_profiled_records_use_their_limits_and_phases(runtime_root: Path) -> Non
     assert first["steps"][1]["primaryCode"] == 19
     assert second["status"] == "predicted" and second["supported"], second
     assert second["steps"][1]["primaryCode"] == 19 and keyed["trace"][0]["primaryCode"] == 19
-    assert third["status"] == "unsupported"
-    assert third["reason"].startswith("recursive: the model does not implement recursive triggers")
+    assert third["status"] == "predicted" and third["supported"], third
+    assert tables_form(third["steps"][1]["visible"]) == tables_form(recursive["trace"][0]["visible"])
+    [log] = [table for table in third["steps"][1]["visible"]["tables"] if table["name"] == "log"]
+    assert [row["values"] for row in log["rows"]] == [[{"text": {"bytes": list(b"a")}}]]
 
 
 def test_prediction_uses_the_recorded_column_limit(runtime_root: Path) -> None:

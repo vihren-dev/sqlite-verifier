@@ -58,12 +58,12 @@ theorem sqlTraceFrom_final :
       exact sqlTraceFrom_final (position + 1) rest next final ended
 
 /-- For every state and resolution state: if the state agrees with the resolution state
-({name}`SqlState.Agrees`), the connection with the state and the resolution state's setting
+({name}`SqlState.Agrees`), the connection with the state and the resolution state's settings
 has that resolution state. Proof sketch: the catalogs and the saved catalogs are equal by the
-agreement, and the setting is the resolution state's; the structures are then equal field by
+agreement, and the settings are the resolution state's; the structures are then equal field by
 field. -/
 theorem Connection.resolveState_of_agrees {state : SqlState} {target : ResolveState} (agrees : state.Agrees target) :
-    ({ state, foreignKeys := target.foreignKeys } : Connection).resolveState = target := by
+    ({ state, foreignKeys := target.foreignKeys, recursiveTriggers := target.recursiveTriggers } : Connection).resolveState = target := by
   obtain ⟨catalog, saved⟩ := agrees
   cases target
   simp_all [Connection.resolveState]
@@ -74,7 +74,7 @@ state, and the connection's clock assignment gives the statement's clock value
 ({name}`statementClock`) at the index when it has one, then the step of the run with the clock
 and the values either ends, or continues with the output of {name}`Output.ofStep` with the
 values of the transition of {name}`advance` with the values, and the next connection is
-{name}`Connection.afterStep` of that transition with the resolution state's setting. Proof
+{name}`Connection.afterStep` of that transition with the resolution state. Proof
 sketch: unfold the step with the resolution; a statement without a clock value, the support
 check and an {name}`Output.unmodeled` end it; otherwise the clock value is the assignment's, so
 the step's transition is {name}`advance` by definition, and its output and its next connection
@@ -88,7 +88,7 @@ theorem runScriptStep_resolved {context : ResolveContext} {clock : Option Clock}
     ∃ next, runScriptStep context clock index connection statement parameters = .continued
         (Output.ofStep (connection.state.clock index) parameters resolved connection.state
           (advance index resolved parameters connection.state)) next ∧
-      next = connection.afterStep after.foreignKeys (advance index resolved parameters connection.state) := by
+      next = connection.afterStep after (advance index resolved parameters connection.state) := by
   simp only [runScriptStep, ok]
   split
   · exact .inl ⟨_, rfl⟩
@@ -108,14 +108,14 @@ theorem runScriptStep_resolved {context : ResolveContext} {clock : Option Clock}
 /-- For every context, connection, statement, list of values, resolved statement, resolution
 state and state: if the statement resolves against the connection's resolution state to the
 resolution state {lit}`after`, and {name}`advance` with the values continues with the state, then the connection with the state
-and the setting of {lit}`after` has the resolution state {lit}`after`. Proof sketch: the
+and the settings of {lit}`after` has the resolution state {lit}`after`. Proof sketch: the
 transition keeps the state in agreement with the resolution ({name}`advance_agrees`,
 {name}`resolveStatement_after`), and {name}`Connection.resolveState_of_agrees` applies. -/
 theorem Connection.resolveState_after_next {context : ResolveContext} {index : Nat} {connection : Connection}
     {statement : Syntax.Statement} {resolved : Resolved.Statement} {after : ResolveState} {state : SqlState}
     (ok : resolveStatement context connection.resolveState statement = .ok (resolved, after))
     {parameters : List Value} (advanced : advance index resolved parameters connection.state = .next state) :
-    ({ state, foreignKeys := after.foreignKeys } : Connection).resolveState = after := by
+    ({ state, foreignKeys := after.foreignKeys, recursiveTriggers := after.recursiveTriggers } : Connection).resolveState = after := by
   have agrees := advance_agrees (state := connection.resolveState) ⟨rfl, rfl⟩ advanced
   rw [← resolveStatement_after context _ _ statement resolved ok] at agrees
   exact Connection.resolveState_of_agrees agrees
@@ -181,7 +181,7 @@ theorem runScriptFrom_agrees (context : ResolveContext) (clock : Option Clock) :
           split
           · exact .inr ⟨_, rfl, fun _ ended => by cases ended⟩
           · rename_i state advanced
-            have nextState : next = { state, foreignKeys := headState.foreignKeys } := by
+            have nextState : next = { state, foreignKeys := headState.foreignKeys, recursiveTriggers := headState.recursiveTriggers } := by
               rw [afterStep, advanced]; rfl
             rw [← Connection.resolveState_after_next headOk advanced, ← nextState] at restOk
             rw [nextState] at restOk ⊢

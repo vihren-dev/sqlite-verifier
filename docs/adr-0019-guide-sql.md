@@ -110,6 +110,31 @@ What the code has today, after slice 1 of ADR 0018:
   failures that only they cause do not occur. (Amended 2026-10-22: the first text related the
   `ok` row to `LiteralData.constraints`, because `Database.Valid` did not include the
   constraints before ADR 0022.)
+- Amended 2026-10-23 (owner decisions of the slice 2 task file):
+  - **The order of the tables.** The forms without a table name walk SQLite's schema hash
+    table. Its order depends on the hash of the names, on the size of the bucket array and on
+    the history of the connection. The model gives exact rows when at most one table gives
+    rows or has a `foreign key mismatch`. When two or more tables give rows or have a
+    mismatch, the output is `Output.unmodeled`. Thus the order of the tables never shows in
+    the output. (Amended 2026-10-23 during the slice: a `foreign key mismatch` fails the
+    statement at prepare, before SQLite reads a row. Thus one table with a mismatch gives its
+    error, also when other tables give rows; checked natively. The mismatches of two or more
+    tables are the restriction `foreign-key-mismatch-order`, whose output is
+    `Output.unmodeled`.)
+  - **The checks that the laws do not name.** `integrity_check` also checks the stored form of
+    each cell of a table that is not `STRICT` (`NUMERIC value in t.a`, `TEXT value in t.a`),
+    and the key order of a `WITHOUT ROWID` table (`row not in PRIMARY KEY order for t`). Under
+    `Database.Admitted` the first check never fails (`Table.RowsStored`). The second fails
+    only when two rows have the same primary key. A key column of a `WITHOUT ROWID` table is
+    NOT NULL, so `NotNull` and `KeysUnique` together exclude this. Thus the laws above stay
+    true. The model gives the key-order row and not the stored-form rows.
+  - **The evidence.** No modeled statement reaches a database whose constraints fail (ADR 0022,
+    D5). Thus the corpora show only the row `ok`. Lean examples with kernel proofs over
+    databases built in Lean show the failure rows, and native probes are their reference.
+  - **`recursive_triggers` in the corpora.** The model starts from the setting of the profile.
+    The model's profile check accepts a profile with the setting on, and the authored corpus
+    has such a profile. A change of the setting inside a script has Lean examples only,
+    because the recorder accepts a setting only at the value of the profile.
 - `PRAGMA foreign_key_check`, with and without a table name: the rows of SQLite, over the
   foreign keys of the catalog (ADR 0014) and the checks of ADR 0018 D4.
 - `PRAGMA table_info` and `PRAGMA foreign_key_list`, and their table-valued forms

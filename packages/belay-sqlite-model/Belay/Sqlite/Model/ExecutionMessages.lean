@@ -65,7 +65,7 @@ def ExecutionError.message (clock : Int) (parameters : List Value) (statement : 
   | .noActiveTransaction => match statement with
     | .rollback => "cannot rollback - no transaction is active"
     | .createTable .. | .createIndex .. | .createTrigger .. | .addColumn .. | .drop .. | .begin | .commit
-    | .insert .. | .upsert .. | .update .. | .delete .. | .prepareError _ | .query .. | .setting _ =>
+    | .insert .. | .upsert .. | .update .. | .delete .. | .prepareError _ | .query .. | .setting .. =>
       "cannot commit - no transaction is active"
   | .constraintViolation | .constraintFail | .constraintRollback => constraintMessage clock parameters statement database
   | .integerOverflow => "integer overflow"

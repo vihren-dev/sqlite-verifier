@@ -22,11 +22,6 @@ inductive ConstraintFailure where
   | uniqueIndex (name : Identifier) (index : CatalogIndex)
   deriving Repr, DecidableEq
 
-/-- The name of a {lit}`STRICT` type in SQLite's message.
-{assert}`StrictType.int.name = "INT"`. -/
-def StrictType.name : StrictType → String
-  | .int => "INT" | .integer => "INTEGER" | .real => "REAL" | .text => "TEXT" | .blob => "BLOB" | .any => "ANY"
-
 /-- The name of the storage class of a value in SQLite's message about a {lit}`STRICT` column;
 an integer is {lit}`INT`. {assert}`(Value.integer 1).className = "INT"`. -/
 def Value.className : Value → String

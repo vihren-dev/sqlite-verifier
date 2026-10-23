@@ -33,7 +33,7 @@ def Resolved.Statement.writeRules : Resolved.Statement → Option Resolved.Write
   | .insert _ _ _ _ rules | .upsert _ _ _ _ _ _ rules | .update _ _ _ _ _ rules | .delete _ _ _ _ rules
   | .drop _ rules => rules
   | .createTable .. | .createIndex .. | .createTrigger .. | .addColumn .. | .begin | .commit | .rollback
-  | .prepareError _ | .query .. | .setting _ => none
+  | .prepareError _ | .query .. | .setting .. => none
 
 /-- The constraints that SQLite may name when the statement fails on the database at the clock
 value with the values bound to its parameters ({name}`runStatement`). A statement that does not fail with a constraint error
@@ -80,7 +80,7 @@ def failingConstraints (clock : Int) (parameters : List Value) (statement : Reso
   | .createIndex _ name index => { candidates := [.uniqueIndex name index] }
   | .insert _ _ _ _ (some _) | .upsert _ _ _ _ _ _ (some _) | .update _ _ _ _ _ (some _) | .delete .. | .drop ..
   | .createTable .. | .createTrigger .. | .addColumn .. | .begin | .commit | .rollback | .prepareError _ | .query ..
-  | .setting _ => { candidates := [] }
+  | .setting .. => { candidates := [] }
 
 /-- For every table position and optional failure that is some: the candidates of the failure
 ({name}`Catalog.candidates`), or none for no failure, are not empty. Proof sketch: the failure is

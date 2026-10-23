@@ -85,7 +85,7 @@ def Statement.clockExpressions : Statement → List Expr
   | .drop _ rules => WriteRules.expressions rules
   | .query inner subqueries => inner.expressions ++ subqueries.flatMap Query.expressions
   | .createTable .. | .createIndex .. | .createTrigger .. | .addColumn .. | .begin | .commit | .rollback
-  | .prepareError _ | .setting _ => []
+  | .prepareError _ | .setting .. => []
 
 /-- Whether a statement reads the clock: it has an expression that reads it
 ({name}`Expr.readsClock`, {name}`Statement.clockExpressions`). The execution gives a

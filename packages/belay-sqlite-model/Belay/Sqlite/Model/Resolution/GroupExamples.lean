@@ -53,7 +53,7 @@ def rowsOf (statement : Syntax.Statement) : Answer :=
     | some (_, run) => .rows run.rows
     | none => .restricted
   | some (.prepareError error) => .error error
-  | some (.createTable ..) | some (.createIndex ..) | some (.createTrigger ..) | some (.addColumn ..) | some (.drop ..) | some (.setting _) | some .begin | some .commit
+  | some (.createTable ..) | some (.createIndex ..) | some (.createTrigger ..) | some (.addColumn ..) | some (.drop ..) | some (.setting ..) | some .begin | some .commit
   | some .rollback | some (.insert ..) | some (.upsert ..) | some (.update ..) | some (.delete ..) | none => .restricted
 
 /-- {lit}`count(*)`, written as a call. -/

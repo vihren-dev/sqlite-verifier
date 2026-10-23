@@ -1,0 +1,54 @@
+{
+  "caller": "claude",
+  "commit": "e85c46276be7601566e2d34fbea8b44ea0c7693b",
+  "date": "2026-10-23T15:25:25+00:00",
+  "exit": 1,
+  "files": [
+    "docs/adr-0017-user-surface.md",
+    "docs/adr-0019-guide-sql.md",
+    "plans/20261023-pragmas.status.md",
+    "plans/20261023-pragmas.task.md"
+  ],
+  "findings": [
+    {
+      "id": "20261023T152525Z-e85c4627#1",
+      "line": 15,
+      "path": "plans/20261023-pragmas.task.md",
+      "rule": "R19",
+      "severity": "must",
+      "text": "The process claims to follow `AGENTS.md` but replaces its required `just test-scheduled` with `just test-scheduled-checks`, which excludes mutant suites. Fix: restore `just test-scheduled` before the pull requests."
+    },
+    {
+      "id": "20261023T152525Z-e85c4627#2",
+      "line": 124,
+      "path": "docs/adr-0019-guide-sql.md",
+      "rule": "R19",
+      "severity": "must",
+      "text": "The explanation assumes `KeysUnique` excludes all duplicate primary keys, but it permits duplicate keys containing NULL, including `(1, NULL)` keys that trigger the key-order failure. Fix: state that `NotNull` together with `KeysUnique` excludes these failures."
+    }
+  ],
+  "id": "20261023T152525Z-e85c4627",
+  "kind": "review",
+  "reviewer": "codex",
+  "revision": "qnynksvz",
+  "rules": {
+    "R1": "62d446279093",
+    "R10": "638d8cbd1df8",
+    "R11": "5de19cdbbbc1",
+    "R12": "99f66579f467",
+    "R13": "da0926dafb88",
+    "R15": "518eab58f8b5",
+    "R16": "892e77bd2a12",
+    "R17": "62b65b662f79",
+    "R18": "5159f20b166b",
+    "R19": "6a24b671568c",
+    "R2": "e5e78fb2a52a",
+    "R3": "4f9188eadd60",
+    "R4": "ea7ca17539eb",
+    "R5": "b8613a2d693b",
+    "R6": "8d1d4631e888",
+    "R7": "59a21b0bec7f",
+    "R9": "5a69196344d0"
+  },
+  "well_formed": true
+}

@@ -45,7 +45,7 @@ def resolvedOne (statement : Syntax.Statement) : Option Resolved.Statement :=
 def queryOf (statement : Syntax.Statement) : Option (Resolved.Query × List Resolved.Query) :=
   match resolvedOne statement with
   | some (.query query subqueries) => some (query, subqueries)
-  | some (.createTable ..) | some (.createIndex ..) | some (.createTrigger ..) | some (.addColumn ..) | some (.drop ..) | some (.setting _) | some .begin | some .commit
+  | some (.createTable ..) | some (.createIndex ..) | some (.createTrigger ..) | some (.addColumn ..) | some (.drop ..) | some (.setting ..) | some .begin | some .commit
   | some .rollback | some (.insert ..) | some (.upsert ..) | some (.update ..) | some (.delete ..) | some (.prepareError _)
   | none => none
 
@@ -56,7 +56,7 @@ def restrictedOne (statement : Syntax.Statement) : Bool := restricted (migration
 def errorOf (statement : Syntax.Statement) : Option PrepareError :=
   match resolvedOne statement with
   | some (.prepareError error) => some error
-  | some (.createTable ..) | some (.createIndex ..) | some (.createTrigger ..) | some (.addColumn ..) | some (.drop ..) | some (.setting _) | some .begin | some .commit
+  | some (.createTable ..) | some (.createIndex ..) | some (.createTrigger ..) | some (.addColumn ..) | some (.drop ..) | some (.setting ..) | some .begin | some .commit
   | some .rollback | some (.insert ..) | some (.upsert ..) | some (.update ..) | some (.delete ..) | some (.query ..)
   | none => none
 

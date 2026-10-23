@@ -135,7 +135,7 @@ key has two conflicting rows ({lit}`LiteralData.uniqueRows`) fails with
 to the catalog ({name}`Catalog.createTrigger`) with no rows.
 DROP removes the objects at its positions with their rows ({name}`Database.drop`) and does
 not fail; the DELETE that DROP TABLE runs first when foreign keys reference the table is part of
-the statement's run ({lit}`runStatement`). {lit}`PRAGMA foreign_keys = value` changes nothing.
+the statement's run ({lit}`runStatement`). A setting pragma ({lit}`PRAGMA setting = value`) changes nothing.
 CREATE TABLE or CREATE INDEX at a position other than the end of the catalog (or over
 rows that do not match the catalog), CREATE INDEX of a position without a table, and ADD
 COLUMN at a position without a table fail with {lean}`ExecutionError.unmodeled`:
@@ -183,7 +183,7 @@ def step (clock : Int) (parameters : List Value) (statement : Resolved.Statement
       .ok { catalog := database.catalog.createTrigger name trigger, rows := database.rows ++ [[]] }
     else .error (.unmodeled, database)
   | .drop positions _ => .ok (database.drop positions)
-  | .setting _ => .ok database
+  | .setting .. => .ok database
   | .prepareError error => .error (.prepare error, database)
   | .query query subqueries => queryEffect database (query.runOn clock parameters database subqueries)
   | .begin | .commit | .rollback | .insert .. | .upsert .. | .update .. | .delete .. =>

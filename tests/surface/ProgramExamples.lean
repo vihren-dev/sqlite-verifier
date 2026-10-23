@@ -92,5 +92,6 @@ example (env : Env) : insertWhenTwo.run two env = insertWhenTwo.run two := Sql.r
 example (p q : Script) : two.raw.run (p ++ q) = (two.raw.run p).andThen (q.runOn ·) := Database.Raw.run_append two.raw p q
 example (q : Script) : (two.run (sql r"DELETE FROM n" ++ q)).outputs =
     (two.run (sql r"DELETE FROM n")).outputs ++ ((two.run (sql r"DELETE FROM n")).db.run q).outputs :=
-  Script.run_append two _ q (by decide +kernel) (by decide +kernel) (by decide +kernel)
+  Script.run_append two _ q (by decide +kernel) (by decide +kernel)
+    (by decide +kernel) (by decide +kernel)
 example : (failsSecond.runUntilError two).outputs = [.done 1, .error 19] := by decide +kernel

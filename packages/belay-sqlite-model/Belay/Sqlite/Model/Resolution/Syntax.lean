@@ -1,6 +1,7 @@
 import Belay.Sqlite.Model.Resolution.SyntaxDefinitions
 import Belay.Sqlite.Model.Resolution.ConflictAlgorithm
 import Belay.Sqlite.Model.Resolution.SyntaxEquality
+import Belay.Sqlite.Model.Resolution.SyntaxPragma
 
 set_option doc.verso true
 
@@ -137,9 +138,8 @@ inductive Statement where
       (groupBy : List Expr) (orderBy : List OrderTerm) (limit : Option Expr) (offset : Option Expr)
       (subqueries : List Subquery := []) (having : Option Expr := none) (distinct : Bool := false)
       (compound : Option Compound := none)
-  /-- {lit}`PRAGMA foreign_keys = value`, with the value as {lit}`sqlite3GetBoolean` reads it,
-  or the query {lit}`PRAGMA foreign_keys` with {lean}`(none : Option Bool)` (ADR 0018, D4). -/
-  | pragmaForeignKeys (value : Option Bool)
+  /-- A {lit}`PRAGMA` statement ({name}`Pragma`; ADR 0018, D4; ADR 0019, D2). -/
+  | pragma (pragma : Pragma)
   /-- {lit}`CREATE TRIGGER [IF NOT EXISTS] name time event ON table [FOR EACH ROW] [WHEN
   condition] BEGIN body END` (ADR 0018, D5), with the statements of the body in order;
   {lit}`ifNotExists` is true with {lit}`IF NOT EXISTS`. -/

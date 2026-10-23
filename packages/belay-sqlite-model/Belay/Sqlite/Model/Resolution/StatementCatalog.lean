@@ -22,7 +22,7 @@ def Statement.applyCatalog : Statement → Catalog → Catalog
   | .drop positions _, catalog => catalog.drop positions
   | .begin, catalog | .commit, catalog | .rollback, catalog | .insert .., catalog | .update .., catalog
   | .upsert .., catalog | .delete .., catalog | .prepareError _, catalog | .query .., catalog
-  | .setting _, catalog => catalog
+  | .setting .., catalog => catalog
 
 /-- The form of a resolved statement, for the rules that only classify statements (ADR
 0013, D7). -/
@@ -43,7 +43,7 @@ inductive Statement.Kind where
   | query
   /-- A statement that SQLite refuses to prepare. -/
   | prepareError
-  /-- {lit}`PRAGMA foreign_keys = value`: it changes the setting that resolution follows. -/
+  /-- {lit}`PRAGMA setting = value`: it changes the setting that resolution follows. -/
   | setting
   deriving Repr, DecidableEq
 
@@ -58,11 +58,11 @@ a statement has reads it, so a new statement form gets a form here first. -/
   | .insert .. | .upsert .. | .update .. | .delete .. => .write
   | .query .. => .query
   | .prepareError _ => .prepareError
-  | .setting _ => .setting
+  | .setting .. => .setting
 
 /-- Whether the statement is transaction control ({name}`Statement.Kind.control`), BEGIN,
 COMMIT or ROLLBACK, or a setting ({name}`Statement.Kind.setting`). These change the saved
-catalog of a transaction or the setting of foreign keys instead of the catalog; every other
+catalog of a transaction or a setting of the connection instead of the catalog; every other
 statement is not control. -/
 def Statement.isControl (statement : Statement) : Bool :=
   match statement.kind with

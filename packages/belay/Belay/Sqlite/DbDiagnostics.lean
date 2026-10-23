@@ -32,7 +32,7 @@ def failureAction (statement : Resolved.Statement) : ExecutionError → String
   | .constraintViolation | .constraintFail | .constraintRollback => match statement with
     | .createIndex .. => "; remove the rows whose values of the index are equal, or change the index"
     | .insert .. | .upsert .. | .update .. | .delete .. | .drop .. | .createTable .. | .createTrigger ..
-    | .addColumn .. | .begin | .commit | .rollback | .prepareError _ | .query .. | .setting _ =>
+    | .addColumn .. | .begin | .commit | .rollback | .prepareError _ | .query .. | .setting .. =>
       match statement.writeRules with
       | some _ => ""
       | none => "; correct the row, or the statement that writes it"

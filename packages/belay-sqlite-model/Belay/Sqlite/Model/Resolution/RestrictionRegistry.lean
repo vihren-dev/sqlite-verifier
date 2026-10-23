@@ -29,7 +29,8 @@ inductive RestrictionRegistry where
 def RestrictionKind.registry : RestrictionKind → RestrictionRegistry
   | .rowDependentKey | .conflictWithoutTarget | .mixedConflictAlgorithms | .windowedGroupSum
   | .constantFunctionError | .unknownCollation | .upsertGenerated | .subqueryFallibleCall
-  | .subqueryReadsTarget | .distinctOrderBy | .triggerWritesOwnTable | .schemaTriggerOrder => .undecided
+  | .subqueryReadsTarget | .distinctOrderBy | .triggerWritesOwnTable | .schemaTriggerOrder
+  | .foreignKeyMismatchOrder => .undecided
   | .rowidName => .unrepresented
   | .schemaStatement | .engineTable | .rowidColumnName
   | .unmodeledDefault | .indexStringTerm | .indexDateFunction | .indexJsonFunction | .checkFunction

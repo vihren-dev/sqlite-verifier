@@ -1,4 +1,5 @@
 import Belay.Sqlite.Model.Resolution.ResolvedExprForm
+import Belay.Sqlite.Model.Resolution.PragmaSource
 
 set_option doc.verso true
 
@@ -26,7 +27,8 @@ inductive JoinKind where
   deriving Repr, DecidableEq
 
 /-- A source of a {lit}`FROM` clause (ADR 0013, D5): a table, a {lit}`json_each(json [, path])`
-call whose arguments read the joined row before it, or a subquery. -/
+call whose arguments read the joined row before it, a subquery, or the rows of a pragma
+(ADR 0019, D2). -/
 inductive Source where
   /-- The table at the catalog position, with its rows in rowid order. -/
   | table (position : Nat)
@@ -36,12 +38,15 @@ inductive Source where
   /-- A subquery. Resolution does not give it yet (ADR 0013, amendment 2); its payload
   comes with the subquery ADR, and execution treats it as unmodeled. -/
   | subquery
+  /-- The rows of a pragma ({name}`PragmaRows`), as {lit}`PRAGMA table_info(t)` or
+  {lit}`pragma_table_info('t')` gives them. -/
+  | pragma (rows : PragmaRows)
   deriving Repr, DecidableEq
 
 /-- Whether the source is {lit}`json_each`. -/
 def Source.isEach : Source → Bool
   | .each .. => true
-  | .table _ | .subquery => false
+  | .table _ | .subquery | .pragma _ => false
 
 /-- One source of {lit}`FROM` in written order: how it joins the row so far, the source,
 and its {lit}`ON` condition over the row so far and its cells; {lean}`(none : Option Expr)`

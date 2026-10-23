@@ -19,7 +19,7 @@ def Resolved.Statement.resultNames : Resolved.Statement → List String
   | .insert _ _ returning .. | .update _ _ _ returning .. | .upsert _ _ _ returning .. | .delete _ _ returning .. =>
     returning.map (·.2)
   | .createTable .. | .createIndex .. | .createTrigger .. | .addColumn .. | .drop .. | .begin | .commit | .rollback
-  | .prepareError _ | .setting _ => []
+  | .prepareError _ | .setting .. => []
 
 /-- The names of the result columns of each statement, on the connection before it: the
 connection that the run of the statements before it, with their values and the optional

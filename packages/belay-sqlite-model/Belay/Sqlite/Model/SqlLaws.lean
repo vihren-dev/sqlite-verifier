@@ -46,7 +46,7 @@ def ModeledDefinitions (script : List Resolved.Statement) : Prop :=
     | .createIndex .. => False
     | .createTrigger .. | .drop .. => True
     | .insert .. | .upsert .. | .update .. | .delete .. | .begin | .commit | .rollback | .prepareError _
-    | .query .. | .setting _ => True
+    | .query .. | .setting .. => True
 
 /-- For every position and connection state, and every script of statements with values whose
 statements are {name}`NoWrites` with {name}`ModeledDefinitions`, the script passes the

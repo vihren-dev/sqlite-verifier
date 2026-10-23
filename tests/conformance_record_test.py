@@ -89,17 +89,16 @@ def test_native_semantic_errors_are_recorded(tmp_path: Path) -> None:
 
 
 def test_trailing_queries_do_not_hide_migration_progress(runtime_root: Path) -> None:
-    """Report only an agreeing migration prefix as query-blocked; keep queries and settings honest."""
+    """Check that `replay` and `without_trailing_queries` query-block only an agreeing prefix.
+
+    `PRAGMA index_list`, which the model does not describe, ends the first script."""
     records = [record_sql("CREATE TABLE t(v BLOB); INSERT INTO t VALUES(1);", sql, name=str(index))
-               for index, sql in enumerate([
-                   "ALTER TABLE t ADD x TEXT; SELECT * FROM t; PRAGMA table_info(t);",
-                   "ALTER TABLE t RENAME TO renamed; SELECT * FROM renamed;",
-                   "PRAGMA user_version=4;",
+               for index, sql in enumerate(["ALTER TABLE t ADD x TEXT; SELECT * FROM t; PRAGMA index_list(t);",
+                   "ALTER TABLE t RENAME TO renamed; SELECT * FROM renamed;", "PRAGMA user_version=4;",
                    "SELECT * FROM t; ALTER TABLE t ADD x TEXT;", "EXPLAIN SELECT * FROM t;"])]
     report = replay(records, runtime_root)
     assert report["queryDiagnostics"] == {"BLOCKED_ONLY_BY_QUERIES": 1, "PREFIX_MODEL_UNSUPPORTED": 1, "OTHER_UNSUPPORTED": 2}
     assert records[0]["trace"][-2]["rows"] == [[{"integer": {"value": 1}}, "null"]]
-    # A single-table SELECT before a modeled write is in scope since ADR 0012.
     assert report["counts"] == {"MODEL_UNSUPPORTED": 4, "AGREE": 1}
 
 

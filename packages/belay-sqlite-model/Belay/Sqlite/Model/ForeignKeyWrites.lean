@@ -56,10 +56,11 @@ def Resolved.WriteRules.links (rules : Resolved.WriteRules) (catalog : Catalog) 
   if rules.keys then catalog.foreignKeyLinks else []
 
 /-- The frame of a write with the rules at the clock value, with the conflict algorithm of its
-{lit}`OR` clause, which its programs inherit: its programs, with nothing running. -/
+{lit}`OR` clause, which its programs inherit: its programs and the setting of recursive
+triggers, with nothing running. -/
 def Resolved.WriteRules.frame (rules : Resolved.WriteRules) (clock : Int) (algorithm : Option ConflictAlgorithm) :
     RowFrame :=
-  { clock, programs := rules.programs, algorithm }
+  { clock, programs := rules.programs, recursive := rules.recursive, algorithm }
 
 /-- The run of a work with the rules at the clock value ({name}`runRows`), with fuel one more
 than the trigger depth limit, from the rows of the database; its programs inherit the algorithm. -/

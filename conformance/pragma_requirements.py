@@ -1,0 +1,30 @@
+"""The requirement identifiers of SQLite's `pragma.html` and `lang_conflict.html` that the
+authored cases of pragmas cover (`conformance.authored_pragmas`, ADR 0019, slice 2), each with
+the rule it states.
+"""
+
+CHECK_OK = "R-35592-43376"
+"""SQLite: integrity_check gives one row with the value 'ok' when it finds no errors."""
+CHECK_LIMIT = "R-41914-07968"
+"""SQLite: integrity_check gives at most N errors, with N 100 by default."""
+CHECK_LOOKS_FOR = "R-50173-30557"
+"""SQLite: integrity_check looks for UNIQUE, CHECK and NOT NULL constraint errors, and others."""
+QUICK_CHECK = "R-63124-28591"
+"""SQLite: quick_check is like integrity_check, but does not verify UNIQUE constraints."""
+FK_CHECK = "R-41653-15278"
+"""SQLite: foreign_key_check gives one row for each violated foreign key, for the database or
+the named table."""
+FK_CHECK_FORMS = "R-15402-03103"
+"""SQLite: the forms of foreign_key_check, without and with a table name."""
+FK_CHECK_ID = "R-31235-42643"
+"""SQLite: the fourth column of foreign_key_check is the id of foreign_key_list."""
+TABLE_INFO = "R-58425-30487"
+"""SQLite: table_info gives one row for each normal column of the named table."""
+CID_RANK = "R-47374-62206"
+"""SQLite: the cid column is the rank of the column within the current result set."""
+FK_LIST = "R-12507-28763"
+"""SQLite: foreign_key_list gives one row for each foreign key of the table."""
+RECURSIVE = "R-14195-12074"
+"""SQLite: PRAGMA recursive_triggers queries, sets or clears the recursive trigger capability."""
+REPLACE_TRIGGERS = "R-23498-38103"
+"""SQLite: the rows that REPLACE deletes fire the delete triggers only with recursive triggers on."""

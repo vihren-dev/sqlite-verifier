@@ -67,7 +67,7 @@ def Resolved.Statement.returnsRows : Resolved.Statement → Bool
   | .insert _ _ returning .. | .upsert _ _ _ returning .. | .update _ _ _ returning .. | .delete _ _ returning .. =>
     !returning.isEmpty
   | .createTable .. | .createIndex .. | .createTrigger .. | .addColumn .. | .drop .. | .begin | .commit | .rollback
-  | .prepareError _ | .query .. | .setting _ => false
+  | .prepareError _ | .query .. | .setting .. => false
 
 /-- The output of a statement from its transition and from what the model computes for it with
 the values bound to its parameters
@@ -95,7 +95,7 @@ def Output.ofStep (clock : Int) (parameters : List Value) (statement : Resolved.
       | some results => .ofResults results
       | none => .unmodeled "the model gives no result for this query"
     | .createTable .. | .createIndex .. | .createTrigger .. | .addColumn .. | .drop .. | .begin | .commit
-    | .rollback | .insert .. | .upsert .. | .update .. | .delete .. | .prepareError _ | .setting _ =>
+    | .rollback | .insert .. | .upsert .. | .update .. | .delete .. | .prepareError _ | .setting .. =>
       match statementOutput clock parameters statement before transition with
       | some output =>
         if statement.returnsRows then .rows (Resolved.normalForm output.rows) else .done (output.changes.getD 0)

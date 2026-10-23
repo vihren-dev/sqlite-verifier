@@ -76,7 +76,7 @@ def resolveGroupTerm (dqs : Bool) (scope : Scope) (shapes : SubqueryShapes) (ali
     | some (.aggregate _, _) | none => .error (.prepare .aggregateInGroupBy)
   match term with
     | .identifier name _ => match scope.resolveName name, aliasIndex aliases name with
-      | .found _ reads, _ => .ok ((scope.nameOperand reads).1, term.collationIn scope)
+      | .found _ reads, _ => (scope.nameRead reads).map (·.1, term.collationIn scope) |>.mapError (·.under [4, item])
       | .missing, some column => grouped column
       | .missing, none | .ambiguous, _ =>
         (resolveOperand dqs scope shapes true term).map (·.1, term.collationIn scope) |>.mapError (·.under [4, item])

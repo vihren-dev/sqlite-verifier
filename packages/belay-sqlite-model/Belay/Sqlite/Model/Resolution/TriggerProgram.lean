@@ -94,13 +94,16 @@ structure Program where
 
 /-- What a write runs row by row besides its own rows (ADR 0018, D4 and D5): the connection's
 trigger depth limit, which bounds the depth of the nested writes; whether it checks foreign
-keys; and the programs of every trigger that it, or a write that it runs, may fire. A write
-without foreign keys to check and without triggers has none. -/
+keys; whether recursive triggers are on; and the programs of every trigger that it, or a write
+that it runs, may fire. A write without foreign keys to check and without triggers has none. -/
 structure WriteRules where
   /-- The trigger depth limit. -/
   depth : Nat
   /-- Whether the write checks foreign keys. -/
   keys : Bool
+  /-- Whether a trigger fires again while it runs, and the rows that REPLACE deletes fire the
+  DELETE triggers ({lit}`PRAGMA recursive_triggers`); off by default, as in SQLite. -/
+  recursive : Bool := false
   /-- The programs of the triggers that the write may fire, at any depth. -/
   programs : List Program := []
   deriving Repr, DecidableEq

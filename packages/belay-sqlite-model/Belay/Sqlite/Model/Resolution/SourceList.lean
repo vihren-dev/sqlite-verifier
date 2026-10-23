@@ -2,8 +2,8 @@ import Belay.Sqlite.Model.Resolution.FunctionSources
 
 set_option doc.verso true
 
-/-! Resolution of the sources of {lit}`FROM` in written order (ADR 0013, D5): tables and
-{lit}`json_each` sources in any order, each joined to the sources before it. As in
+/-! Resolution of the sources of {lit}`FROM` in written order (ADR 0013, D5): tables,
+{lit}`json_each` sources and table-valued pragmas in any order, each joined to the sources before it. As in
 SQLite, every reference resolves before the forms of the joins, and the {lit}`ON`
 conditions and the {lit}`json_each` arguments resolve after {lit}`WHERE`
 ({lit}`resolveSelect`). The paths follow {lit}`Syntax.Statement.select`: child 1 is the
@@ -13,13 +13,16 @@ source. -/
 namespace Belay.Sqlite.Model
 
 /-- A source of {lit}`FROM` whose reference is resolved: a table at its catalog position,
-or {lit}`json_each` with the path of its reference and its arguments as written, which
-resolve after the scope is complete ({name}`resolveEachArguments`). -/
+{lit}`json_each` with the path of its reference and its arguments as written, which
+resolve after the scope is complete ({name}`resolveEachArguments`), or the rows of a
+table-valued pragma ({name}`pragmaReference`). -/
 inductive SourceItem where
   /-- A table at its position in the catalog. -/
   | table (position : Nat)
   /-- A {lit}`json_each` source: the path of its reference and its arguments. -/
   | each (path : List Nat) (arguments : List Syntax.Expr)
+  /-- A table-valued pragma with its rows. -/
+  | pragma (rows : Resolved.PragmaRows)
 
 /-- A source of {lit}`FROM` before its expressions resolve: the source, the kind of its
 join with the sources before it, and its condition. -/
@@ -32,13 +35,16 @@ structure PendingSource where
   condition : JoinCondition
 
 /-- The item and the source in scope of the reference at {lit}`path`: a table
-({name}`resolveTableReference`), or {lit}`json_each` ({name}`eachReference`). -/
+({name}`resolveTableReference`), a table-valued pragma, whose name starts with
+{lit}`pragma_` ({name}`pragmaReference`), or {lit}`json_each` ({name}`eachReference`). -/
 def resolveReference (catalog : Catalog) (path : List Nat) (reference : Syntax.TableReference) :
     Except SourceIssue (SourceItem × ScopeSource) :=
   match reference.arguments with
   | none => (fun (position, source) => (.table position, source)) <$> resolveTableReference catalog path reference
   | some arguments =>
-    (fun source => (.each path arguments, source)) <$> (eachReference path reference arguments).mapError .value
+    if (bytes! "pragma_").isPrefixOf reference.table.folded then
+      (fun (rows, source) => (.pragma rows, source)) <$> (pragmaReference catalog path reference arguments).mapError .value
+    else (fun source => (.each path arguments, source)) <$> (eachReference path reference arguments).mapError .value
 
 /-- Whether the model refuses the join at {lit}`item` for a {lit}`json_each` source
 ({name}`RestrictionKind.functionJoin`): its source is {lit}`json_each` as the right operand
@@ -90,6 +96,7 @@ def resolvePendingSources (dqs : Bool) (scope : Scope) (sources : List PendingSo
     let resolved ← match source.item with
       | .table position => pure (Resolved.Source.table position)
       | .each path arguments => resolveEachArguments dqs scope index path arguments
+      | .pragma rows => pure (Resolved.Source.pragma rows)
     .ok { kind := source.kind, source := resolved, condition }) (sources.zip conditions)
 
 end Belay.Sqlite.Model

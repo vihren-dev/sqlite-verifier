@@ -15,19 +15,19 @@ catalog: both are absent, or both are present with equal catalogs. -/
 def SqlState.Agrees (sql : SqlState) (state : ResolveState) : Prop :=
   sql.database.catalog = state.catalog ∧ sql.snapshot.map (·.catalog) = state.saved
 
-/-- For every clock value, list of values, statement that is not {lit}`PRAGMA foreign_keys =
-value`, database and result: if {name}`literalStep` with the values succeeds with the result, then the result's catalog is
+/-- For every clock value, list of values, statement that is not a setting pragma
+({lit}`PRAGMA setting = value`), database and result: if {name}`literalStep` with the values succeeds with the result, then the result's catalog is
 {name}`Resolved.Statement.applyCatalog` of the statement on the database's catalog, and the
 statement is not transaction control. Proof sketch: CREATE TABLE, CREATE INDEX, CREATE TRIGGER, ADD
 COLUMN and DROP call the catalog functions, writes store rows only ({name}`Database.setRows`, and the rows
 of a write that checks foreign keys over the input catalog, {name}`keyRun_ok_catalog`), a query
 returns the database, and every other statement fails. -/
 theorem literalStep_success_catalog {clock : Int} {parameters : List Value} {statement : Resolved.Statement}
-    {database result : Database} (notSetting : ∀ on, statement ≠ .setting on)
+    {database result : Database} (notSetting : ∀ setting on, statement ≠ .setting setting on)
     (success : literalStep clock parameters statement database = .ok result) :
     result.catalog = statement.applyCatalog database.catalog ∧ statement.isControl = false := by
   cases statement with
-  | setting on => exact absurd rfl (notSetting on)
+  | setting setting on => exact absurd rfl (notSetting setting on)
   | createTable target name table =>
     simp only [literalStep, runStatement, step] at success
     split at success
@@ -117,7 +117,7 @@ the connection state agrees with the resolution state ({name}`SqlState.Agrees`) 
 {name}`advance` of the statement with the values continues, then the next connection state agrees with
 {name}`ResolveState.after` of the statement. Proof sketch: BEGIN saves the database whose
 catalog the resolution saves, COMMIT drops both, ROLLBACK restores the snapshot whose
-catalog the resolution restores, {lit}`PRAGMA foreign_keys = value` keeps the database, and
+catalog the resolution restores, a setting pragma keeps the database, and
 every other statement follows {name}`literalStep_success_catalog`. -/
 theorem advance_agrees {position : Nat} {statement : Resolved.Statement} {parameters : List Value}
     {sql next : SqlState} {state : ResolveState}
@@ -149,17 +149,17 @@ theorem advance_agrees {position : Nat} {statement : Resolved.Statement} {parame
       rw [some_] at saved
       simp only [Option.map_some] at saved
       simp [SqlState.Agrees, ResolveState.after, ← saved]
-  | setting on =>
+  | setting setting on =>
     simp only [advance, advanceWith] at continued
     obtain ⟨result, stepped, rfl⟩ := Conformance.SqlState.publish_next continued
     simp only [literalStep, runStatement, step] at stepped
     cases stepped
-    exact ⟨catalog, saved⟩
+    cases setting <;> exact ⟨catalog, saved⟩
   | createTable | createIndex | createTrigger | addColumn | drop | insert | update | upsert | delete | prepareError
   | query =>
     simp only [advance, advanceWith] at continued
     obtain ⟨result, stepped, rfl⟩ := Conformance.SqlState.publish_next continued
-    obtain ⟨changed, control⟩ := literalStep_success_catalog (fun _ => by simp) stepped
+    obtain ⟨changed, control⟩ := literalStep_success_catalog (fun _ _ => by simp) stepped
     rw [state.after_of_isControl control]
     exact ⟨changed.trans (catalog ▸ rfl), saved⟩
 

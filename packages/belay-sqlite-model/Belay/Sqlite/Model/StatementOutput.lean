@@ -110,7 +110,7 @@ value of its window is not an integer, which SQLite reads before the first row. 
 checks foreign keys (ADR 0018, D4) has the rows that its keys' run wrote
 ({name}`StatementRun.keyRows`): its {lit}`RETURNING` rows and change count when it succeeds, and
 its {lit}`RETURNING` names, no rows and the rows that a FAIL failure kept when it fails a
-constraint. {lit}`PRAGMA foreign_keys = value` has no output columns. -/
+constraint. A setting pragma ({lit}`PRAGMA setting = value`) has no output columns. -/
 def statementOutput (clock : Int) (parameters : List Value) (statement : Resolved.Statement) (before : SqlState)
     (transition : SqlTransition) : Option StatementOutput :=
   let successful := match transition with | .next _ => true | .halt _ => false
@@ -170,7 +170,7 @@ def statementOutput (clock : Int) (parameters : List Value) (statement : Resolve
     if successful then some ⟨returning.map (·.2), returnedRows context returning (written.map (·.values)), some written.length⟩
     else if constraintFailure then some ⟨returning.map (·.2), [], some written.length⟩ else none
   | .addColumn _ column => some ⟨addColumnOutputNames column, [], none⟩
-  | .createTable .. | .createIndex .. | .createTrigger .. | .drop .. | .begin | .commit | .rollback | .prepareError _ | .setting _ =>
+  | .createTable .. | .createIndex .. | .createTrigger .. | .drop .. | .begin | .commit | .rollback | .prepareError _ | .setting .. =>
     some ⟨[], [], none⟩
 
 end Belay.Sqlite.Model

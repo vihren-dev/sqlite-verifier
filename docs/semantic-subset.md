@@ -181,7 +181,7 @@ row of `DO UPDATE` are always ABORT. In the schema, a `PRIMARY KEY`, `UNIQUE` or
 REPLACE of a NOT NULL column with a default is `replace-default`. `UPDATE OR`, a target with a direction, collation,
 `NULLS` order, qualified name or `WHERE`, `WITH`, `FROM` in writes, sort modifiers in keys,
 partial and expression indexes, `IF NOT EXISTS`, `TEMP`, schema names, table
-options, `AS SELECT`, views, `TEMP` and `INSTEAD OF` triggers, virtual tables, `EXPLAIN`, `PRAGMA`,
+options, `AS SELECT`, views, `TEMP` and `INSTEAD OF` triggers, virtual tables, `EXPLAIN`, the pragmas that the next paragraphs do not name,
 `DISTINCT` inside an aggregate call, subqueries and table-valued functions in
 `FROM`, schema-qualified tables and columns, `NULLS FIRST` and `NULLS LAST`, and
 other functions are refused. Names keep
@@ -247,6 +247,11 @@ record without an execution profile and with a foreign key is out of scope, as i
 have turned foreign keys on. A CREATE TABLE with constraints and defaults runs in the
 migration as in the schema.
 
+Recursive triggers (ADR 0019, D2) are on when the execution profile turns them on.
+`PRAGMA recursive_triggers = value`, with the values of `PRAGMA foreign_keys`, changes the
+setting also inside a transaction, and `PRAGMA recursive_triggers` is one row with the column
+`recursive_triggers`, 1 or 0. The triggers below describe the effect of the setting.
+
 Foreign keys (ADR 0018, D4) are on when the execution profile turns them on.
 `PRAGMA foreign_keys = value` (`on`, `off`, `yes`, `no`, `true`, `false`, `0` or `1`) changes
 the setting outside a transaction and does nothing inside one, and `PRAGMA foreign_keys` is one
@@ -266,6 +271,47 @@ the implicit `DELETE` of `DROP TABLE`. A deferred foreign key is the restriction
 `deferred-foreign-key`, `ON CONFLICT DO UPDATE` on a table with a key to check is
 `foreign-key-upsert`, and a write whose actions nest deeper than the trigger depth limit, or
 whose `REPLACE` deletes more than one row with foreign keys, is not described.
+
+`PRAGMA table_info(t)` and `PRAGMA foreign_key_list(t)` (ADR 0019, D2), also with `= t`, give
+SQLite's rows for the catalog of their time. `table_info` has one row for each column that is
+not generated, with its declared type, its NOT NULL, the text of its default and its position
+in the primary key; `foreign_key_list` has one row for each column of each foreign key, newest
+key first. A missing table gives no rows. For `table_info`, a table of SQLite's own, such as
+`sqlite_schema`, is the restriction `system-table`; `foreign_key_list` gives no rows for it. In
+`FROM`, `pragma_table_info('t')` and `pragma_foreign_key_list('t')` give the same rows, and
+their cells have no affinity. A name of their hidden columns `arg` and `schema` is the
+restriction `table-function`, because SQLite gives a condition on such a column to the pragma
+as an argument.
+
+`PRAGMA integrity_check` and `PRAGMA quick_check` (ADR 0019, D2), alone or with a value in
+parentheses or after `=`, check the rows of every table, or of the named table. A decimal
+integer is a row limit, without its sign, and 0 is the default limit 100; a name or a string
+is a table name, and a missing table fails with `no such table`. The model refuses a real, a
+hex integer, an integer above 2147483647 and the words `ON`, `DELETE` and `DEFAULT`. The one
+row is `ok` when no check fails. Otherwise each failure gives one row, in SQLite's text: a
+`WITHOUT ROWID` row whose primary key equals that of the row before it, a NULL in a NOT NULL
+column, a cell that does not fit its `STRICT` type, a false CHECK constraint, and an index entry
+that has an equal key to the next entry, for each unique index (`sqlite_autoindex_t_N` for a
+constraint). The entries with equal keys are in scan order, except in the index of a UNIQUE
+constraint of a `WITHOUT ROWID` table with `PRIMARY KEY DESC`, where SQLite orders them by the
+primary key in ascending order. `quick_check` does not check the key order or the indexes. A query without
+`ORDER BY` gives the rows in normal form. When two or more tables fail, SQLite's order of the
+tables is that of its schema hash table, and the model gives no result. Over an admitted
+database, the row `ok` means that the NOT NULL, CHECK, `STRICT` and, for `integrity_check`,
+unique constraints of each checked table hold.
+
+`PRAGMA foreign_key_check` (ADR 0019, D2), alone or with a table name, gives one row for each
+child row and foreign key that the row does not satisfy, also when foreign keys are off: the
+table name, the rowid (NULL for a `WITHOUT ROWID` table), the parent table as the key writes it,
+and the `fkid` of the key, in scan order and then in `fkid` order. The child row finds its parent
+as a write does, a NULL in the key satisfies it, and a missing parent table finds no row. A
+foreign key whose parent table has no parent key fails at prepare with
+`foreign key mismatch - "c" referencing "p"`, before any row. A missing table fails with
+`no such table`, and a name of SQLite's own tables is the restriction `system-table`. Without a table name, two or more tables with a mismatch are the restriction
+`foreign-key-mismatch-order`, and two or more tables with rows give no result. When the
+statement does not fail, the form without a table name gives no rows exactly when the foreign
+keys of every table hold (`Database.ForeignKeysHold`), and the form with the name of table t
+exactly when the foreign keys of t hold (`Table.ForeignKeysHold`).
 
 A generated column (ADR 0014, slice 5) is `VIRTUAL` or `STORED`, and `PRAGMA table_xinfo`
 reports it with `hidden` 2 or 3. Its expression resolves over the table's columns after the
@@ -342,13 +388,16 @@ that has one, else with its own; the writes of foreign-key actions pass on ABORT
 `RAISE(IGNORE)` ends the row: the rest of its trigger, the triggers after it, and in a `BEFORE`
 trigger the row's own write. `RAISE(ABORT, ...)`, `RAISE(FAIL, ...)` and `RAISE(ROLLBACK, ...)`
 fail the statement as a constraint failure with that algorithm. With recursive triggers off,
-SQLite's default and the only setting that the model describes, a trigger does not run while it
-already runs. The rows that `REPLACE` deletes and the implicit `DELETE` of `DROP TABLE` fire no
+SQLite's default, a trigger does not run while it already runs, and the rows that `REPLACE`
+deletes fire no `DELETE` trigger. With them on (ADR 0019, D2), a trigger also runs while it
+already runs, and the rows that `REPLACE` deletes fire the `DELETE` triggers, whose body
+statements run with the algorithm REPLACE. The implicit `DELETE` of `DROP TABLE` fires no
 `DELETE` trigger; the writes of foreign-key actions fire the triggers of the child table. The
-change count of a statement counts its own rows only. A write nested deeper than the trigger
-depth limit, an `UPDATE` of a body that fails a constraint under an inherited algorithm other
-than ABORT, and a write whose statement or body statement has subqueries while a trigger or an
-action changes a table are not described. In a trigger, a qualified table
+change count of a statement counts its own rows only. A write whose programs need more nested
+frames than the trigger depth limit is not described: SQLite counts the frame of a program when
+it starts the program, also when its `WHEN` condition is false. An `UPDATE` of a body that
+fails a constraint under an inherited algorithm other than ABORT, and a write whose statement or
+body statement has subqueries while a trigger or an action changes a table are not described. In a trigger, a qualified table
 name, `INDEXED BY`, `UPDATE OR`, `UPDATE FROM`, `INSERT ... SELECT`, `RETURNING` and a subquery
 in `WHEN` are refused.
 
@@ -460,9 +509,9 @@ should shrink.
 | `aggregate-order-by` | An `ORDER BY` term of an aggregate query that reads a column outside `GROUP BY` is not modeled | ADR 0012 slice 1; ADR 0018, slice 3 |
 | `window-value` | Only an integer literal or a lone parameter is modeled as LIMIT or OFFSET | ADR 0012 slice 1; ADR 0019 |
 | `negative-offset` | A negative literal OFFSET is not modeled; a negative bound OFFSET skips no rows | ADR 0012 slice 1; ADR 0019 |
-| `table-function` | Only `json_each` with one or two arguments is modeled as a table-valued function in FROM | ADR 0012 slice 6d |
+| `table-function` | Only `json_each` with one or two arguments, and `pragma_table_info` and `pragma_foreign_key_list` with one text literal and without a name of their hidden columns `arg` and `schema`, are modeled as table-valued functions in FROM | ADR 0012 slice 6d; ADR 0019, D2 |
 | `later-table-in-on` | An ON condition that names a source joined after it is not modeled: SQLite moves it to WHERE without outer joins and refuses it otherwise | ADR 0012 amendment 2; ADR 0013 amendment 2 |
-| `function-join` | `json_each` as the right operand of RIGHT or FULL JOIN, with NATURAL or USING, or before a NATURAL JOIN, is not modeled | ADR 0012 slice 6d; ADR 0013 amendment 2 |
+| `function-join` | A table-valued function as the right operand of RIGHT or FULL JOIN, with NATURAL or USING, or before a NATURAL JOIN, is not modeled | ADR 0012 slice 6d; ADR 0013 amendment 2 |
 | `later-source-in-arguments` | An argument of `json_each` that reads a later source is not modeled, because the model joins in written order | ADR 0012 slice 6d; ADR 0013 amendment 2 |
 | `json-subtype` | A JSON call passed on through `coalesce`, `iif`, `nullif`, `min` or `max` as a value argument of `json_quote`, `json_array`, `json_object`, an edit function or a JSON aggregate is not modeled, because SQLite keeps the JSON subtype through such expressions | ADR 0015, slice 3 |
 | `subquery-here` | A subquery outside the expressions of a `SELECT` that the model resolves, such as in an `ON` condition, a `json_each` argument or another statement, is not modeled | ADR 0018, slice 1 |
@@ -490,6 +539,7 @@ should shrink.
 | `distinct-order-by` | An `ORDER BY` expression of `SELECT DISTINCT` that is no result column is not modeled, because SQLite sorts each kept row by the value of a row that its plan chooses | ADR 0018, slice 3 |
 | `trigger-writes-own-table` | A `BEFORE UPDATE` or `BEFORE DELETE` trigger that writes its own table, also through the triggers and actions that it fires, is not modeled, because SQLite documents the result as undefined | ADR 0018, slice 5 |
 | `schema-trigger-order` | Two triggers of one table, time and event in the starting schema are not modeled, because the schema does not say which one runs first | ADR 0018, slice 5 |
+| `foreign-key-mismatch-order` | `PRAGMA foreign_key_check` without a table name is not modeled when two or more tables have a foreign key mismatch, because SQLite reports the first one in the order of its schema hash table | ADR 0019, D2 |
 
 #### Unrepresented
 

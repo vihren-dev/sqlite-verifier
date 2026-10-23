@@ -45,6 +45,10 @@ structure ScopeSource where
   {lit}`x.*` do not show and names do see: the {lit}`json` and {lit}`root` columns of
   {lit}`json_each`. Empty for a table. -/
   hidden : List Nat := []
+  /-- The positions in {name}`ScopeSource.columns` of the hidden columns whose conditions SQLite
+  passes to a table-valued pragma as its arguments: {lit}`arg` and {lit}`schema`. A name of one
+  is the restriction {lit}`table-function`. Empty for every other source. -/
+  arguments : List Nat := []
   /-- Whether the source has a rowid that {lit}`rowid`, {lit}`_rowid_` and {lit}`oid` name: a
   table that is not {lit}`WITHOUT ROWID`, and {lit}`json_each`. -/
   hasRowid : Bool := true
@@ -84,6 +88,11 @@ def Scope.single (name : Identifier) (columns : List CatalogColumn) (hasRowid : 
 ({name}`ScopeSource.trigger`). -/
 def Scope.triggerCell (scope : Scope) (position : Nat) : Bool :=
   scope.any fun source => source.trigger && source.offset ≤ position && position < source.offset + source.columns.length
+
+/-- Whether the position of the concatenated row is a cell of an argument column of a
+table-valued pragma ({name}`ScopeSource.arguments`). -/
+def Scope.argumentCell (scope : Scope) (position : Nat) : Bool :=
+  scope.any fun source => source.arguments.any (source.offset + · == position)
 
 /-- The columns of all sources, in the order of the concatenated row. -/
 def Scope.columns (scope : Scope) : List CatalogColumn := scope.flatMap (·.columns)

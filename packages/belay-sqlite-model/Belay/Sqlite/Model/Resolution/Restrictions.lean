@@ -1,10 +1,9 @@
 set_option doc.verso true
 
-/-! The registry of model restrictions. A model restriction is SQL that SQLite accepts
-but the model does not describe; resolution refuses it, and the user reads its
-message. Each restriction is one constructor of {lit}`RestrictionKind`, which names the
-decision that introduced it. Its stable id and its message are in
-{lit}`Belay.Sqlite.Model.RestrictionText`, and {lit}`docs/semantic-subset.md` lists every id. -/
+/-! The registry of model restrictions. A model restriction is SQL that SQLite accepts but the model does
+not describe; resolution refuses it, and the user reads its message. Each restriction is one constructor
+of {lit}`RestrictionKind`, which names the decision that introduced it. Its stable id and its message
+are in {lit}`Belay.Sqlite.Model.RestrictionText`, and {lit}`docs/semantic-subset.md` lists every id. -/
 
 namespace Belay.Sqlite.Model
 
@@ -44,7 +43,7 @@ inductive RestrictionKind where
   {lit}`'now'` only when it writes a row, and a JSON function can fail while a row is written
   (ADR 0014, slice 5). -/
   | generatedFunction
-  /-- Generated columns that read each other in a loop: SQLite reports it while CREATE TABLE runs, which the model does not describe. -/
+  /-- Generated columns that read each other in a loop: SQLite reports it while CREATE TABLE runs. -/
   | generatedLoop
   /-- A parameter where SQLite prohibits one, in an expression where SQLite's walk of names can
   also find another error: which error SQLite reports depends on the walk (ADR 0019, D1). -/
@@ -125,10 +124,11 @@ inductive RestrictionKind where
   | windowedGroupSum
   /-- A constant value in {lit}`VALUES` or {lit}`SET` whose JSON function fails is not modeled, because the model does not describe when SQLite evaluates it (ADR 0012 slice 6b). -/
   | constantFunctionError
-  /-- Only {lit}`json_each` with one or two arguments is modeled as a table-valued function in {lit}`FROM` (ADR 0012 slice 6d). -/
+  /-- Only {lit}`json_each` with one or two arguments, and two pragmas with one text literal and no
+  name of {lit}`arg` or {lit}`schema`, are modeled in {lit}`FROM` (ADR 0012 slice 6d; ADR 0019, D2). -/
   | tableFunction
-  /-- {lit}`json_each` as the right operand of a right or full join, or with {lit}`NATURAL`
-  or {lit}`USING`, and a {lit}`NATURAL` join after {lit}`json_each`, are not modeled: a
+  /-- A table-valued function as the right operand of a right or full join, or with
+  {lit}`NATURAL` or {lit}`USING`, and a {lit}`NATURAL` join after one, are not modeled: a
   correlated source has no fixed rows to keep unmatched, and {lit}`NATURAL` skips hidden
   columns (ADR 0012 slice 6d; ADR 0013, amendment 2). -/
   | functionJoin
@@ -194,6 +194,9 @@ inductive RestrictionKind where
   | compoundSubqueryColumn
   /-- An {lit}`ORDER BY` term of a compound {lit}`SELECT` that the model cannot match with a result column as SQLite does is not modeled: an aggregate, an expression that is a result expression of a term after resolution but not as written, or a {lit}`COLLATE` term after which SQLite gives a result column a random name (ADR 0019, D3). -/
   | compoundOrderByTerm
+  /-- {lit}`PRAGMA foreign_key_check` without a table name when two or more tables have a mismatch:
+  SQLite reports the first one in the order of its schema hash table (ADR 0019, D2). -/
+  | foreignKeyMismatchOrder
   deriving Repr, DecidableEq
 
 end Belay.Sqlite.Model

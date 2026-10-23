@@ -6,13 +6,13 @@ set_option doc.verso true
 /-! One row of an INSERT that runs row by row (ADR 0018, D4 and D5), in the order of SQLite's
 {lit}`sqlite3Insert`: the rowid alias, the {lit}`BEFORE INSERT` programs, the constraints of
 the row with their algorithms ({lit}`UpsertRun`), the rows that REPLACE deletes with their
-foreign keys, the foreign keys of the row, the write, and the {lit}`AFTER INSERT` programs. -/
+foreign keys and, with recursive triggers on, their DELETE programs, the foreign keys of the row, the write, and the {lit}`AFTER INSERT` programs. -/
 
 namespace Belay.Sqlite.Model
 
-/-- The most rows that REPLACE may delete for one INSERT row of a table with foreign keys to
-check, in a write that the model describes: SQLite deletes them in an order of its indexes that
-the model does not follow, and the order changes the counts and the actions. -/
+/-- The most rows that REPLACE may delete for one INSERT row of a write that runs row by row, in
+a write that the model describes: SQLite deletes them in an order of its indexes that the model
+does not follow, and the order changes the counts, the actions and the programs. -/
 def replacedRowsDescribed : Nat := 1
 
 /-- The algorithm of a failed constraint of an INSERT row: IGNORE skips the row, FAIL and
@@ -39,8 +39,9 @@ integer is {lit}`datatype mismatch`; with {lit}`BEFORE INSERT` programs, the typ
 the row; then the row as {lit}`UpsertRun` describes its constraints over the table as the
 programs left it: a {lit}`DO NOTHING` clause skips the row, a {lit}`DO UPDATE` clause is not
 described, a row that conflicts on REPLACE keys deletes the conflicting row with its foreign
-keys and actions but no trigger, and more than {name}`replacedRowsDescribed` such rows are not
-described; then {name}`newSteps` checks the row, scanning the child rows only for a write of
+keys and actions, and with recursive triggers on with its DELETE programs, which inherit
+REPLACE, as SQLite's {lit}`sqlite3GenerateConstraintChecks` gives them; more than
+{name}`replacedRowsDescribed` such rows are not described; then {name}`newSteps` checks the row, scanning the child rows only for a write of
 several rows; then the row is inserted, and the {lit}`AFTER INSERT` programs run over its cells. -/
 def insertRow (catalog : Catalog) (links : List ForeignKeyLink) (nested : NestedRun) (frame : RowFrame) (target : Nat)
     (policy : Resolved.ConflictPolicy) (clauses : List Resolved.ConflictClause) (multiWrite record : Bool)
@@ -68,7 +69,8 @@ def insertRow (catalog : Catalog) (links : List ForeignKeyLink) (nested : Nested
   let replaced := table.rows.filter fun row => (List.range keys.length).any fun index =>
     LiteralData.algorithmAt policy.keys index == .replace && (keys[index]?).any (LiteralData.keyEqual · row proposed)
   if replaced.length > replacedRowsDescribed then throw .undescribed
-  let state ← replaced.foldlM (fun state row => deleteRow catalog links nested frame target false false false state row.rowid)
+  let state ← replaced.foldlM (fun state row =>
+    deleteRow catalog links nested { frame with algorithm := some .replace } target false false frame.recursive state row.rowid)
     state
   let state ← newSteps catalog state target proposed (childLinks links target) (parentLinks links target) multiWrite none []
   let some current := (state.database catalog).table target | throw .undescribed

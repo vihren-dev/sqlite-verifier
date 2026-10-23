@@ -20,6 +20,6 @@ def possibleOutput (clock : Int) (parameters : List Value) (statement : Resolved
   | .query .., .halt _ => none
   | .createTable .., _ | .createIndex .., _ | .createTrigger .., _ | .addColumn .., _ | .drop .., _ | .begin, _
   | .commit, _ | .rollback, _ | .insert .., _ | .upsert .., _ | .update .., _ | .delete .., _ | .prepareError _, _
-  | .setting _, _ => none
+  | .setting .., _ => none
 
 end Belay.Sqlite.Model

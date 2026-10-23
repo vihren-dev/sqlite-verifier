@@ -68,12 +68,12 @@ the transition has no failure position ({name}`SqlTransition.atPosition_of_haltE
   | none => rw [SqlTransition.atPosition_of_haltError position error]
   | some failure => simp only [Output.ofStep, haltError_atPosition, error]; cases failure <;> rfl
 
-/-- For every connection, setting, position and transition, the connection after the step
+/-- For every connection, resolution state, position and transition, the connection after the step
 ({name}`Connection.afterStep`) is the same with the failure positions set to the position: it
 reads no failure position. -/
-@[simp] theorem Connection.afterStep_atPosition (connection : Connection) (foreignKeys : Bool) (position : Nat)
+@[simp] theorem Connection.afterStep_atPosition (connection : Connection) (after : ResolveState) (position : Nat)
     (transition : SqlTransition) :
-    connection.afterStep foreignKeys (transition.atPosition position) = connection.afterStep foreignKeys transition := by
+    connection.afterStep after (transition.atPosition position) = connection.afterStep after transition := by
   cases transition with
   | next _ => rfl
   | halt outcome => cases outcome <;> rfl
@@ -121,13 +121,13 @@ theorem advanceWith_clock {position : Nat} {statement : Resolved.Statement} {sta
     | exact SqlState.publish_clock continued
     | (cases snapshot : state.snapshot <;> simp [advanceWith, snapshot] at continued <;> subst continued <;> rfl)
 
-/-- For every connection, setting, position, statement and effect, the connection after the
+/-- For every connection, resolution state, position, statement and effect, the connection after the
 statement's transition ({name}`Connection.afterStep`) has the clock of the connection. Proof
 sketch: a transition that continues keeps the clock ({name}`advanceWith_clock`); after a halt,
 {name}`Connection.afterError` builds the state with the connection's clock. -/
-theorem Connection.afterStep_clock (connection : Connection) (foreignKeys : Bool) (position : Nat)
+theorem Connection.afterStep_clock (connection : Connection) (after : ResolveState) (position : Nat)
     (statement : Resolved.Statement) (effect : Effect) :
-    (connection.afterStep foreignKeys (advanceWith position statement connection.state effect)).state.clock =
+    (connection.afterStep after (advanceWith position statement connection.state effect)).state.clock =
       connection.state.clock := by
   cases transition : advanceWith position statement connection.state effect with
   | next state => exact advanceWith_clock transition

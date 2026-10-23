@@ -31,7 +31,7 @@ def queryOf (expression : Expr) (groupBy : List Expr := []) (orderBy : List Orde
   | some (.query query _) => some query
   | some (.createTable ..) | some (.createIndex ..) | some (.createTrigger ..) | some (.addColumn ..) | some (.drop ..)
   | some .begin | some .commit | some .rollback | some (.insert ..) | some (.update ..) | some (.upsert ..)
-  | some (.delete ..) | some (.prepareError _) | some (.setting _) | none => none
+  | some (.delete ..) | some (.prepareError _) | some (.setting ..) | none => none
 
 /-- The value of an expression in {lit}`SELECT expression FROM t` over the row, with the values
 bound to its parameters, or none when the query does not resolve to one scalar column. -/

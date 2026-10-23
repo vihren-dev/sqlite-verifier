@@ -51,7 +51,7 @@ outside a trigger's statements is {name}`ExprError.raiseOutsideTrigger`. -/
 def resolveOperand (dqs : Bool) (scope : Scope) (shapes : SubqueryShapes) (misuse : Bool) :
     Syntax.Expr → Except ValueIssue Operand
   | .identifier name quote => match scope.resolveName name with
-    | .found _ reads => .ok (scope.nameOperand reads)
+    | .found _ reads => scope.nameRead reads
     | .missing =>
       if rowidName name && scope.any (·.hasRowid) then .error (.restriction [] .rowidName)
       else if quote == .double && dqs then .ok (.literal (.text name.bytes), none)
@@ -60,7 +60,7 @@ def resolveOperand (dqs : Bool) (scope : Scope) (shapes : SubqueryShapes) (misus
       else .error (.prepare (.noSuchColumn name))
     | .ambiguous => .error (.prepare (.ambiguousColumn name))
   | .qualified source column => match scope.resolveQualified source column with
-    | .found _ reads => .ok (scope.nameOperand reads)
+    | .found _ reads => scope.nameRead reads
     | .missing =>
       if rowidName column && scope.rowidSource source then .error (.restriction [] .rowidName)
       else .error (.prepare (.noSuchColumn ⟨source.bytes ++ [46] ++ column.bytes⟩))

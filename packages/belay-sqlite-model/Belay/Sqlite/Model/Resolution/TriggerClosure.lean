@@ -13,8 +13,8 @@ the writes that may fire triggers, with the conflict algorithm that their progra
 namespace Belay.Sqlite.Model
 
 /-- A write that may fire triggers: its table, its event (an UPDATE with its {lit}`SET`
-columns), whether its own triggers fire (not for the rows that REPLACE deletes and not for the
-DELETE of DROP TABLE), the conflict algorithm of the write, which the programs that it fires
+columns), whether its own triggers fire (not for the DELETE of DROP TABLE, and for the rows that
+REPLACE deletes only with recursive triggers on), the conflict algorithm of the write, which the programs that it fires
 inherit, and whether it is a statement of a trigger's body, whose foreign keys resolution checks
 here. -/
 structure FireRequest where
@@ -71,17 +71,36 @@ def FireRequest.write (catalog : Catalog) (request : FireRequest) : ForeignKeyWr
   | .delete => .delete
   | .update set => .update ((shape.map (·.changedColumns (set.getD []))).getD [])
 
-/-- The writes that a request runs with foreign keys on, besides its programs: the writes of the
-actions of its keys, whose programs inherit ABORT, and for an INSERT that may replace rows, the
-DELETE of the replaced rows, which fires no trigger. -/
+/-- The writes of the actions of the foreign keys of a request, which a request runs with foreign
+keys on, besides its programs; their programs inherit ABORT. -/
 def FireRequest.keyRequests (catalog : Catalog) (links : List ForeignKeyLink) (request : FireRequest) : List FireRequest :=
-  let write := request.write catalog
-  let actions := (actionWrites catalog links request.table write).map fun (child, action) => match action with
+  (actionWrites catalog links request.table (request.write catalog)).map fun (child, action) => match action with
     | .update changed => { table := child, event := .update (some changed), algorithm := some .abort }
     | .delete | .insert .. => { table := child, event := .delete, algorithm := some .abort }
-  match write with
-  | .insert _ true => { table := request.table, event := .delete, fire := false } :: actions
-  | .insert _ false | .delete | .update _ => actions
+
+/-- Whether the request is an INSERT or an UPDATE that may delete rows by REPLACE: a key of its
+policy ({name}`Catalog.writePolicy`) has the algorithm REPLACE. -/
+def FireRequest.mayReplace (catalog : Catalog) (request : FireRequest) : Bool :=
+  !(request.event matches .delete) && (catalog.tableAt request.table).any fun shape =>
+    (catalog.writePolicy request.table shape request.algorithm).keys.contains .replace
+
+/-- The DELETE of the rows that a request may delete by REPLACE ({name}`FireRequest.mayReplace`):
+with recursive triggers on, a DELETE that fires the triggers of the table, whose programs
+inherit REPLACE, as SQLite's {lit}`sqlite3GenerateConstraintChecks` gives REPLACE to the delete
+of the row; with them off and foreign keys on, for an INSERT, a DELETE that fires no trigger,
+for the actions of its keys; else none. -/
+def FireRequest.replaceRequests (catalog : Catalog) (keys recursive : Bool) (request : FireRequest) :
+    List FireRequest :=
+  if !request.mayReplace catalog then []
+  else if recursive then [{ table := request.table, event := .delete, algorithm := some .replace }]
+  else if keys && request.event == .insert then [{ table := request.table, event := .delete, fire := false }]
+  else []
+
+/-- The writes that a request runs besides its programs: with foreign keys on, its
+{name}`FireRequest.keyRequests`, and its {name}`FireRequest.replaceRequests`. -/
+def FireRequest.followUps (catalog : Catalog) (keys recursive : Bool) (request : FireRequest) : List FireRequest :=
+  (if keys then request.keyRequests catalog catalog.foreignKeyLinks else []) ++
+    request.replaceRequests catalog keys recursive
 
 /-- Resolve the program of the trigger at the position over the catalog, for a write: its
 condition over the trigger's rows, which may not name a subquery or call a function that can fail ({name}`RestrictionKind.triggerForm`), and its body statements in order
@@ -113,10 +132,10 @@ def resolveProgram (context : ResolveContext) (catalog : Catalog) (position : Na
 
 /-- The programs of the closure of the requests, from the programs so far, with fuel for the
 requests: each request resolves the triggers that it fires and have no program yet, adds the
-writes of their bodies and, with foreign keys on, its {name}`FireRequest.keyRequests`; a request
+writes of their bodies and its {name}`FireRequest.followUps`; a request
 of a body checks its foreign keys ({name}`Catalog.foreignKeyIssues`). Requests left past the fuel
 are {name}`RestrictionKind.triggerForm`. -/
-def triggerClosure (context : ResolveContext) (catalog : Catalog) (keys : Bool) :
+def triggerClosure (context : ResolveContext) (catalog : Catalog) (keys recursive : Bool) :
     Nat → List FireRequest → List FireRequest → List Resolved.Program →
       Except NodeRestriction (Except PrepareError (List Resolved.Program))
   | 0, _, work, programs => if work.isEmpty then pure (.ok programs) else throw (triggerRestriction .triggerForm)
@@ -127,7 +146,7 @@ def triggerClosure (context : ResolveContext) (catalog : Catalog) (keys : Bool) 
       | .error error => return .error error
       | .ok deferred => if deferred then throw (triggerRestriction .deferredForeignKey)
     let mut programs := programs
-    let mut next : List FireRequest := if keys then request.keyRequests catalog catalog.foreignKeyLinks else []
+    let mut next : List FireRequest := request.followUps catalog keys recursive
     for (position, trigger) in catalog.firedTriggers request do
       let program ← match programs.find? (·.trigger == position) with
         | some program => pure (.ok program)
@@ -138,6 +157,6 @@ def triggerClosure (context : ResolveContext) (catalog : Catalog) (keys : Bool) 
         if !programs.any (·.trigger == position) then programs := programs ++ [program]
         next := next ++ program.body.filterMap (·.request request.algorithm)
     let fresh := next.eraseDups.filter fun item => !seen.contains item && !rest.contains item
-    triggerClosure context catalog keys fuel (seen ++ fresh) (rest ++ fresh) programs
+    triggerClosure context catalog keys recursive fuel (seen ++ fresh) (rest ++ fresh) programs
 
 end Belay.Sqlite.Model

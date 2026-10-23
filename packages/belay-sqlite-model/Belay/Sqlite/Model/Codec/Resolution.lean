@@ -69,6 +69,8 @@ deriving instance Lean.ToExpr for Syntax.TableOptions
 deriving instance Lean.ToExpr for Syntax.TriggerTime
 deriving instance Lean.ToExpr for Syntax.TriggerEvent
 deriving instance Lean.ToExpr for Syntax.BodyStatement
+deriving instance Lean.ToExpr for Syntax.PragmaSetting
+deriving instance Lean.ToExpr for Syntax.Pragma
 deriving instance Lean.ToExpr for Syntax.Statement
 deriving instance Lean.ToExpr for Limits
 deriving instance Lean.ToExpr for Profile
@@ -102,6 +104,7 @@ deriving instance Lean.ToExpr for Resolved.Output
 deriving instance Lean.ToExpr for Resolved.SortKey
 deriving instance Lean.ToExpr for Resolved.SortTerm
 deriving instance Lean.ToExpr for Resolved.JoinKind
+deriving instance Lean.ToExpr for Resolved.PragmaRows
 deriving instance Lean.ToExpr for Resolved.Source
 deriving instance Lean.ToExpr for Resolved.QuerySource
 deriving instance Lean.ToExpr for Resolved.Compound

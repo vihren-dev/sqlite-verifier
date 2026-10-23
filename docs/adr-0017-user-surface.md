@@ -259,7 +259,7 @@ A slice that finishes one removes it from this table, or moves it to the slice t
 | `random()`, `randomblob()`, `changes()`, `last_insert_rowid()` and `total_changes()`, which the guide's `Env` lists | The model resolves them as unmodeled functions; they need model work | A model ADR, before the slice whose examples use them |
 | The theorems that replace the check of a run of the bundled database, so that a claim over every database gets the facts of the run's result | S2's run checks `Database.Valid` for each concrete run (D3, amended 2026-10-22) | ADR 0022, slices 2 to 4, before S4 |
 | The name of the failed constraint in a `db!` error for a write that runs a trigger or checks foreign keys; such a write gives `constraint failed` and says that the model does not name it | The model's write with triggers or foreign-key checks does not keep why a row failed, and resolution drops the text of `RAISE`; the work is about 150 to 250 lines (owner decision, 2026-10-22) | When a user needs these messages |
-| `pragma_table_info` and the other table-valued pragma functions, with which the guide states facts of a schema | The model resolves them as a restriction | [ADR 0019](adr-0019-guide-sql.md), slice 2 (D2), before S4, whose claims over every database need schema facts |
+| `pragma_table_info` and `pragma_foreign_key_list`, the table-valued pragma functions with which the guide states facts of a schema (narrowed 2026-10-23: the other table-valued pragma functions stay out of scope, ADR 0019 D2) | The model resolves them as a restriction | [ADR 0019](adr-0019-guide-sql.md), slice 2 (D2), before S4, whose claims over every database need schema facts |
 
 ## Not decided here
 

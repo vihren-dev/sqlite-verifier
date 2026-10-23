@@ -37,12 +37,13 @@ theorem resolveFrom_after (context : ResolveContext) :
 
 /-- For every context, catalog and script with a successful resolution, the resulting
 catalog is the catalog of the fold of {name}`ResolveState.after` over the resolved
-statements from the catalog outside a transaction, with the profile's setting of foreign keys.
+statements from the catalog outside a transaction, with the profile's settings of foreign keys
+and recursive triggers.
 Proof sketch: unfold {name}`resolve`; a restriction contradicts the premise, and a resolution
 is the state of {name}`resolveFrom_after` from position zero outside a transaction. -/
 theorem resolve_after (context : ResolveContext) (catalog next : Catalog) (script : List Syntax.Statement)
     (resolved : List Resolved.Statement) (ok : resolve context catalog script = .resolved resolved next) :
-    next = (resolved.foldl ResolveState.after { catalog, foreignKeys := context.profile.foreignKeys }).catalog := by
+    next = (resolved.foldl ResolveState.after (ResolveState.initial context.profile catalog)).catalog := by
   unfold resolve at ok
   split at ok
   · rename_i result found

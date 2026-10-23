@@ -43,8 +43,8 @@ def Limits.documentedDefaults : Limits where
   triggerDepth := 1000
 
 /-- The parts of an execution profile that name resolution reads. Supply the
-release and source id of the measured build; omit {lit}`foreignKeys` for a profile
-with foreign keys off. When no measured profile exists,
+release and source id of the measured build; omit {lit}`foreignKeys` and
+{lit}`recursiveTriggers` for a profile with the setting off. When no measured profile exists,
 build one from the documented defaults of the release, as below. -/
 structure Profile where
   /-- The release, as {lit}`sqlite_version()` reports it, for example {lit}`3.51.0`. -/
@@ -61,6 +61,10 @@ structure Profile where
   /-- Whether foreign keys are on at the start of the script ({lit}`PRAGMA foreign_keys`);
   {lean}`false`, SQLite's default, when the profile does not turn them on (ADR 0018, D4). -/
   foreignKeys : Bool := false
+  /-- Whether recursive triggers are on at the start of the script
+  ({lit}`PRAGMA recursive_triggers`); {lean}`false`, SQLite's default, when the profile does not
+  turn them on (ADR 0019, D2). -/
+  recursiveTriggers : Bool := false
   deriving Repr, DecidableEq
 
 /-- A profile with the documented default limits and the default double-quoted

@@ -14,11 +14,13 @@ namespace Belay.Sqlite.Model
 /-- A table as {lit}`WITHOUT ROWID` makes it (ADR 0014, D4; {lit}`convertToWithoutRowidTable`):
 no rowid alias, each primary-key column NOT NULL, with ABORT unless it declares its own
 NOT NULL, and a key without the repeated occurrences of a column, which SQLite ignores
-(R-03887-49864). -/
+(R-03887-49864). The index of a key that was a rowid alias comes after the UNIQUE keys
+({name}`CatalogTable.uniqueBeforePrimary`), because SQLite creates it last. -/
 def CatalogTable.asWithoutRowid (table : CatalogTable) : CatalogTable :=
   let columns := table.columns.mapIdx fun position (column : CatalogColumn) =>
     if table.primaryKey.contains position then { column with notNull := true } else column
-  { table with withoutRowid := true, rowidAlias := none, columns, primaryKey := table.primaryKey.eraseDups }
+  { table with withoutRowid := true, rowidAlias := none, columns, primaryKey := table.primaryKey.eraseDups,
+               uniqueBeforePrimary := if table.rowidAlias.isSome then table.uniqueKeys.length else table.uniqueBeforePrimary }
 
 /-- The catalog column of a definition before its constraints apply: its name, its reported
 type ({name}`reportedType`) and, in a {lit}`STRICT` table, its strict type

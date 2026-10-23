@@ -28,7 +28,7 @@ def each (alias : Identifier) (argument : Expr) : TableReference :=
 /-- The query of a resolved statement; none for any other statement and for no statement. -/
 def queryOf : Option Resolved.Statement → Option Resolved.Query
   | some (.query query _) => some query
-  | some (.createTable ..) | some (.createIndex ..) | some (.createTrigger ..) | some (.addColumn ..) | some (.drop ..) | some (.setting _) | some .begin | some .commit
+  | some (.createTable ..) | some (.createIndex ..) | some (.createTrigger ..) | some (.addColumn ..) | some (.drop ..) | some (.setting ..) | some .begin | some .commit
   | some .rollback | some (.insert ..) | some (.update ..) | some (.upsert ..) | some (.delete ..)
   | some (.prepareError _) | none => none
 

@@ -7,7 +7,8 @@ set_option doc.verso true
 /-! A run of statement syntax that continues after an error (ADR 0017, D3, amended
 2026-10-22). It resolves each statement when it runs, against the state of the connection at
 that time: the catalog of the visible database, the catalog at {lit}`BEGIN` of an open
-transaction, and the setting of {lit}`PRAGMA foreign_keys`. It runs the statement with
+transaction, and the settings of {lit}`PRAGMA foreign_keys` and {lit}`PRAGMA recursive_triggers`.
+It runs the statement with
 {name}`Belay.Sqlite.Model.runStatement` and {name}`Belay.Sqlite.Model.advanceWith`, gives its
 {name}`Belay.Sqlite.Model.Output`, and goes on with the next statement after an error, as an
 application that sends one statement at a time does. The run takes an optional clock: a
@@ -18,9 +19,10 @@ the run has no clock. A statement that the model does not describe ends the run.
 namespace Belay.Sqlite.Model
 
 /-- The state of a connection between two statements: the visible database, the snapshot of
-an open transaction and a clock assignment ({name}`SqlState`), and the setting of
-{lit}`PRAGMA foreign_keys`. For example, {lean}`({ state := { database := {} } } : Connection)`
-is an idle connection to the empty database with foreign keys off. The run of this file takes
+an open transaction and a clock assignment ({name}`SqlState`), and the settings of
+{lit}`PRAGMA foreign_keys` and {lit}`PRAGMA recursive_triggers`. For example,
+{lean}`({ state := { database := {} } } : Connection)` is an idle connection to the empty
+database with both settings off. The run of this file takes
 its clock as an argument and does not read the clock assignment of the state; the laws of
 {lit}`ScriptRunLaws.lean` compare the run with {name}`runSqlFrom` on the state, which reads it. -/
 structure Connection where
@@ -29,28 +31,33 @@ structure Connection where
   state : SqlState
   /-- Whether foreign keys are on; off by default, as in SQLite. -/
   foreignKeys : Bool := false
+  /-- Whether recursive triggers are on; off by default, as in SQLite. -/
+  recursiveTriggers : Bool := false
 
 /-- The state of resolution for the next statement: the catalog of the visible database, the
-catalog of the snapshot of an open transaction, and the setting. -/
+catalog of the snapshot of an open transaction, and the settings. -/
 def Connection.resolveState (connection : Connection) : ResolveState :=
   { catalog := connection.state.database.catalog, saved := connection.state.snapshot.map (·.catalog),
-    foreignKeys := connection.foreignKeys }
+    foreignKeys := connection.foreignKeys, recursiveTriggers := connection.recursiveTriggers }
 
 /-- The connection after a statement that stopped with the outcome: an open transaction stays
 open with its snapshot, as in SQLite; a failure outside a transaction, also after the rollback
 of {lit}`OR ROLLBACK` ({name}`SqlState.failed`), leaves the connection idle. The database is
-the outcome's. -/
-def Connection.afterError (connection : Connection) (foreignKeys : Bool) : Outcome → Connection
+the outcome's, and the settings are those of the resolution state {lit}`after` the statement. -/
+def Connection.afterError (connection : Connection) (after : ResolveState) : Outcome → Connection
   | .success database | .failure _ _ database =>
-    { state := { connection.state with database, snapshot := none }, foreignKeys }
+    { state := { connection.state with database, snapshot := none }, foreignKeys := after.foreignKeys,
+      recursiveTriggers := after.recursiveTriggers }
   | .pending persisted visible _ =>
-    { state := { connection.state with database := visible, snapshot := some persisted }, foreignKeys }
+    { state := { connection.state with database := visible, snapshot := some persisted },
+      foreignKeys := after.foreignKeys, recursiveTriggers := after.recursiveTriggers }
 
 /-- The connection after a statement's transition: the state of a transition that continues,
-with the setting that the statement leaves, or {name}`Connection.afterError` of a halt. -/
-def Connection.afterStep (connection : Connection) (foreignKeys : Bool) : SqlTransition → Connection
-  | .next state => { state, foreignKeys }
-  | .halt outcome => connection.afterError foreignKeys outcome
+with the settings of the resolution state {lit}`after` the statement, or
+{name}`Connection.afterError` of a halt. -/
+def Connection.afterStep (connection : Connection) (after : ResolveState) : SqlTransition → Connection
+  | .next state => { state, foreignKeys := after.foreignKeys, recursiveTriggers := after.recursiveTriggers }
+  | .halt outcome => connection.afterError after outcome
 
 /-- The reason of a statement that reads the clock in a run without a clock. -/
 def clockUnmodeled : String :=
@@ -101,7 +108,7 @@ def runScriptStep (context : ResolveContext) (clock : Option Clock) (index : Nat
         match Output.ofStep value parameters resolved connection.state transition with
         | .unmodeled reason => .ended reason
         | output@(.rows _) | output@(.done _) | output@(.error _) | output@(.oneOf _) =>
-          .continued output (connection.afterStep after.foreignKeys transition)
+          .continued output (connection.afterStep after transition)
 
 /-- The result of a run: the output of each statement that ran, in order, and the connection
 at the end. -/

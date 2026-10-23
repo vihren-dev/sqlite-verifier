@@ -79,7 +79,7 @@ def ResolveState.NamesUnique (state : ResolveState) : Prop :=
 context, state and statement, if the state's catalogs have unique folded names
 and the statement resolves, then the next state's catalogs have unique folded names.
 Proof sketch: BEGIN, COMMIT and ROLLBACK only copy catalogs that have unique names, and
-{lit}`PRAGMA foreign_keys = value` keeps them; every other statement changes the catalog by one
+a pragma keeps them ({name}`resolvePragma_cases`); every other statement changes the catalog by one
 {name}`CatalogStep`, or is a prepare error of its foreign keys that keeps the state
 ({name}`ResolveState.withWrite_cases`). -/
 theorem resolveStatement_namesUnique (context : ResolveContext) (state next : ResolveState)
@@ -150,13 +150,10 @@ theorem resolveStatement_namesUnique (context : ResolveContext) (state next : Re
     simp only [resolveStatement] at ok
     exact written _ ok fun _ _ found => (resolveWriteSubqueries_same _ _ _ _ _ _ _ _ _
       (fun _ _ _ _ h => resolveDelete_same _ _ _ _ _ _ _ _ _ h) found).1 ▸ .same
-  | pragmaForeignKeys value =>
-    cases value with
-    | some on => cases ok; exact ⟨current, saved⟩
-    | none =>
-      simp only [resolveStatement, ResolveState.withCatalog, Except.map] at ok
-      split at ok <;> cases ok
-      exact keep _ ((resolveSelect_same _ _ _ _ _ _ (by assumption)).1 ▸ .same)
+  | pragma pragma =>
+    rcases resolvePragma_cases ok with ⟨setting, _, _, rfl⟩ | ⟨rfl, _, _⟩
+    · cases setting <;> exact ⟨current, saved⟩
+    · exact ⟨current, saved⟩
   | select results source joins filter groupBy orderBy limit offset subqueries having distinct =>
     simp only [resolveStatement, ResolveState.withCatalog, Except.map] at ok
     split at ok <;> cases ok
@@ -188,6 +185,6 @@ theorem resolve_namesUnique (context : ResolveContext) (catalog after : Catalog)
   split at ok <;> try contradiction
   rename_i result hresult
   cases ok
-  exact (general _ _ _ _ _ ⟨unique, by simp⟩ hresult).1
+  exact (general _ _ _ _ _ ⟨unique, by simp [ResolveState.initial]⟩ hresult).1
 
 end Belay.Sqlite.Model

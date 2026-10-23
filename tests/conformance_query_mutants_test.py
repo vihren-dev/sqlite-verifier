@@ -32,7 +32,8 @@ from conformance import (algorithm_mutants, alias_mutants, authored_algorithms, 
                          authored_expression_forms, expression_form_mutants, authored_distinct_having,
                          distinct_having_mutants, authored_foreign_keys, foreign_key_mutants,
                          authored_triggers, trigger_mutants, authored_possible_results, possible_result_mutants,
-                         authored_parameters, parameter_mutants, authored_compound, compound_mutants)
+                         authored_parameters, parameter_mutants, authored_compound, compound_mutants,
+                         authored_pragmas, pragma_mutants)
 from conformance import key_mutants, number_mutants, query_mutants
 from tests.mutant_sets import Mutants, Targets, measure_set
 
@@ -176,3 +177,11 @@ def test_every_compound_mutant_changes_a_verdict(runtime_root: Path) -> None:
     `BINARY`, `IN` with the compound collation, the right term of `EXCEPT` run after empty left
     rows, and an `ORDER BY` term sorted under `BINARY`."""
     measure_set(runtime_root, [authored_compound], [(compound_mutants.MUTANTS, compound_mutants.TARGETS)])
+
+
+def test_every_pragma_mutant_changes_a_verdict(runtime_root: Path) -> None:
+    """The authored cases of pragmas (ADR 0019, slice 2) notice every changed rule of the model
+    (`conformance.pragma_mutants`): `fkid` in declaration order, `foreign_key_check` that skips a
+    missing parent table, `table_info` with the `cid` of every column, and REPLACE deletes that
+    fire no trigger with recursive triggers on."""
+    measure_set(runtime_root, [authored_pragmas], [(pragma_mutants.MUTANTS, pragma_mutants.TARGETS)])

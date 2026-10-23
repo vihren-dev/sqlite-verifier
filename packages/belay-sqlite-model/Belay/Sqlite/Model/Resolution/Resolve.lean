@@ -6,6 +6,7 @@ import Belay.Sqlite.Model.Resolution.Deletes
 import Belay.Sqlite.Model.Resolution.Drops
 import Belay.Sqlite.Model.Resolution.ResolveState
 import Belay.Sqlite.Model.Resolution.TriggerDefinitions
+import Belay.Sqlite.Model.Resolution.PragmaResolution
 
 set_option doc.verso true
 
@@ -19,29 +20,20 @@ model restriction there still refuses the script, which is conservative. -/
 
 namespace Belay.Sqlite.Model
 
-/-- The query {lit}`PRAGMA foreign_keys` as a query without {lit}`FROM`: one row with the column
-{lit}`foreign_keys`, 1 with foreign keys on and 0 with them off. -/
-def foreignKeysQuery (on : Bool) : Syntax.Subquery :=
-  let digit := if on then "1" else "0"
-  { columns := [.expression (.numeric digit) (some (name! "foreign_keys")) digit], source := none, joins := [],
-    filter := none, groupBy := [], orderBy := [], limit := none, offset := none, parent := none }
-
 /-- Resolve one statement against the state, with no statement index: a restriction is one
 inside the statement ({name}`NodeRestriction`). BEGIN in an open transaction and
 COMMIT or ROLLBACK without one fail when SQLite runs them, not when it prepares
 them, so they resolve and leave the error to the execution semantics: such a BEGIN
 keeps the first saved catalog, and such a ROLLBACK keeps the current catalog.
-{lit}`PRAGMA foreign_keys` is the query {name}`foreignKeysQuery`; setting it changes the state's
-setting outside a transaction and nothing inside one, as SQLite does. -/
+A pragma resolves with {name}`resolvePragma`: {lit}`PRAGMA foreign_keys = value` changes the
+state's setting outside a transaction and nothing inside one, as SQLite does, and
+{lit}`PRAGMA recursive_triggers = value` changes it also inside one. -/
 def resolveStatement (context : ResolveContext) (state : ResolveState) :
     Syntax.Statement → Except NodeRestriction (Resolved.Statement × ResolveState)
   | .begin => .ok (.begin, { state with saved := state.saved.getD state.catalog })
   | .commit => .ok (.commit, { state with saved := none })
   | .rollback => .ok (.rollback, { state with catalog := state.saved.getD state.catalog, saved := none })
-  | .pragmaForeignKeys none => state.withCatalog (resolveSelect context state.catalog (foreignKeysQuery state.foreignKeys) [])
-  | .pragmaForeignKeys (some on) =>
-    let foreignKeys := if state.saved.isSome then state.foreignKeys else on
-    .ok (.setting foreignKeys, { state with foreignKeys })
+  | .pragma pragma => resolvePragma state pragma
   | .createTable name columns constraints options =>
     state.withCatalog (resolveCreateTable context state.catalog name columns constraints options)
   | .createIndex name unique table terms filter =>
@@ -85,7 +77,7 @@ statement, and the catalog after all of them succeed; or the first model
 restriction. -/
 def resolve (context : ResolveContext) (catalog : Catalog) (script : List Syntax.Statement) :
     ResolveResult :=
-  match resolveFrom context 0 { catalog := catalog, foreignKeys := context.profile.foreignKeys } script with
+  match resolveFrom context 0 (ResolveState.initial context.profile catalog) script with
   | .ok (statements, state) => .resolved statements state.catalog
   | .error restriction => .restricted restriction
 

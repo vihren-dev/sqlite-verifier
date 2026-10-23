@@ -92,6 +92,9 @@ EXAMPLES: dict[str, tuple[str, str]] = {
                              "CREATE TRIGGER r AFTER INSERT ON t BEGIN INSERT INTO log VALUES (1); END; "
                              "CREATE TRIGGER s AFTER INSERT ON t BEGIN INSERT INTO log VALUES (2); END;",
                              "INSERT INTO t VALUES (1);"),
+    "foreign-key-mismatch-order": ("CREATE TABLE p(x); CREATE TABLE c1(a REFERENCES p(x)); "
+                                   "CREATE TABLE c2(a REFERENCES p(x));",
+                                   "PRAGMA foreign_key_check;"),
 }
 """For each restriction id: a schema and a migration that the resolver refuses with it."""
 
