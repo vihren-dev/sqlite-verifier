@@ -7,8 +7,8 @@ notation (`catalog.find`), so a copy of single definitions in a private namespac
 would still call the originals. Each mutant is therefore a real copy of the
 `belay-sqlite-model` and `verifier-conformance` packages with one text change, which Lake
 rebuilds from one shared base build. The build covers only the import closure of
-`VerifierConformance.Case`, which has no proof modules, so a mutant that breaks a
-proof still builds. The Lean interpreter then classifies the cases, given as the
+`VerifierConformance.Classify`, which does not import the law modules, so a mutant that
+breaks a law still builds. The Lean interpreter then classifies the cases, given as the
 Lean terms that the conformance runner emits, with the mutant's `classifyCase`.
 
 The authored model cases must all agree, so a mutant is killed when any case
@@ -110,7 +110,7 @@ def classifier(terms: list[str]) -> str:
     definitions = "".join(f"def case{index} : Case :=\n  " + term.replace("\n", "\n  ") + "\n"
                           for index, term in enumerate(terms))
     names = ", ".join(f"case{index}" for index in range(len(terms)))
-    return ("import VerifierConformance.Case\nopen Belay.Sqlite.Model Belay.Sqlite.Model.Conformance\n"
+    return ("import VerifierConformance.Classify\nopen Belay.Sqlite.Model Belay.Sqlite.Model.Conformance\n"
             f"set_option maxRecDepth {MAX_REC_DEPTH}\n"
             f"{definitions}def cases : List Case := [{names}]\n"
             "def main : IO Unit := for c in cases do IO.println (reprStr (classifyCase c))\n")
@@ -129,7 +129,7 @@ def run(arguments: list[str], cwd: Path, lean: Path, timeout: float) -> str:
 def verdicts(packages: Path, lean: Path, program: str) -> list[str]:
     """Build the case classification of the copy and print one verdict for each case."""
     conformance = packages / "verifier-conformance"
-    run(["lake", "build", "VerifierConformance.Case"], conformance, lean, BUILD_TIMEOUT_SECONDS)
+    run(["lake", "build", "VerifierConformance.Classify"], conformance, lean, BUILD_TIMEOUT_SECONDS)
     (conformance / "Classify.lean").write_text(program)
     return run(["lake", "env", "lean", "--run", "Classify.lean"], conformance, lean, RUN_TIMEOUT_SECONDS).splitlines()
 

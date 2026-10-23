@@ -1,5 +1,5 @@
 import Belay.Sqlite.Model.Codec.Resolution
-import VerifierConformance.Case
+import VerifierConformance.Classify
 
 /-! Conformance-case transport. The structural codecs for model types live in
 `Belay.Sqlite.Model.Codec`, shared with ADR 0003's bundle checker. These codecs are transport,

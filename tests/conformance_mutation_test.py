@@ -43,8 +43,8 @@ def test_model_mutation(runtime_root: Path, tmp_path: Path) -> None:
     proof.write_text("import VerifierConformance.Case\n" + "\n".join(sources) +
         "\nopen Belay.Sqlite.Model Belay.Sqlite.Model.Mutant.Conformance\n"
         "def mutantCase : Case :=\n" + indent(result["caseLean"], "  ") + "\n"
-        "theorem detected : classifyCase mutantCase = .disagree (some 1) := by decide +kernel\n"
-        '#eval if decide (classifyCase mutantCase = .disagree (some 1)) then "MUTANT_DISAGREES" else "MUTANT_SURVIVED"\n'
+        "theorem detected : classifyHaltingCase mutantCase = .disagree (some 1) := by decide +kernel\n"
+        '#eval if decide (classifyHaltingCase mutantCase = .disagree (some 1)) then "MUTANT_DISAGREES" else "MUTANT_SURVIVED"\n'
         "#print axioms detected\n")
     checked = subprocess.run([str(runtime_root / "lean/bin/lean"), str(proof)],
         env={**os.environ, "LEAN_PATH": os.pathsep.join(str(runtime_root / path) for path in (".lake/build/lib/lean", "packages/belay-sqlite-model/.lake/build/lib/lean"))},

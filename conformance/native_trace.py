@@ -140,4 +140,4 @@ def record(fixture: Fixture, parser: TextParser, library: Path | None = None, *,
             "initial": requested(observations[0]["visible"], fixture), "nativeTrace": observations,
             "requirements": [], "provenance": [["fixture", fixture.name], ["sourceId", SOURCE_ID],
                                                 ["nativeError", native_error]],
-            "parameters": [], "outputs": None, "clocks": []}
+            "parameters": [], "outputs": None, "clocks": [], "continues": False}

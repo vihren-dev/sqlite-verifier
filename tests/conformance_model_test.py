@@ -41,7 +41,7 @@ def test_native_model(name: str, runtime_root: Path, tmp_path: Path) -> None:
     # Retained fixtures have no defaults; their syntax and native observations are unchanged.
     # They predate the clock, and their recorder controlled none, so a replay has no clock values.
     from conformance.case_format import CASE_VERSION
-    assert case == {**frozen, "version": CASE_VERSION, "clocks": []}, \
+    assert case == {**frozen, "version": CASE_VERSION, "clocks": [], "continues": False}, \
         "Native replay differs from the frozen pinned-engine record"
     expected = [native_expected(table) for table in sorted(old.after, key=lambda table: table.name)]
     assert case["nativeTrace"][-1]["visible"] == expected

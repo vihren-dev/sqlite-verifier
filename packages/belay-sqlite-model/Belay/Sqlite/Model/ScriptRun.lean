@@ -80,35 +80,52 @@ inductive RunStep where
   /-- The model does not describe the statement; the run ends. -/
   | ended (reason : String)
 
-/-- Run one statement with the values bound to its parameters at its zero-based index on the
-connection, with an optional clock:
+/-- The step of a statement that ran on the connection with the values bound to its parameters,
+as resolved, with the resolution state {lit}`after` it, its clock value and its transition:
+{name}`Output.ofStep` with the values; an output {name}`Output.unmodeled` ends the run, and
+every other output continues with {name}`Connection.afterStep` of the transition. -/
+def ranScriptStep (parameters : List Value) (connection : Connection) (resolved : Resolved.Statement)
+    (after : ResolveState) (value : Int) (transition : SqlTransition) : RunStep :=
+  match Output.ofStep value parameters resolved connection.state transition with
+  | .unmodeled reason => .ended reason
+  | output@(.rows _) | output@(.done _) | output@(.error _) | output@(.oneOf _) =>
+    .continued output (connection.afterStep after transition)
 
-* resolve it against {name}`Connection.resolveState`; a restriction ends the run with its reason
-  ({name}`NodeRestriction.reason`);
+/-- The steps of one statement of a run up to its transition, with the value to give when the
+run ends at the statement ({lit}`ended`, with the reason) and when the statement runs
+({lit}`ran`, with the resolved statement, the resolution state after it,
+its clock value and its transition). {lit}`runScriptStep` is this function with
+{name}`RunStep.ended` and {name}`ranScriptStep`. A caller that needs more of a step than its
+output, such as its transition, gives its own values and takes the same steps:
+
+* resolve the statement against {name}`Connection.resolveState`; a restriction ends the run with
+  its reason ({name}`NodeRestriction.reason`);
 * take its clock value ({name}`statementClock`); a statement that reads the clock in a run
   without a clock ends the run with {name}`clockUnmodeled`;
 * run it with the values at the clock value ({name}`runStatement`); a statement that fails the
-  support check ends the run;
-* advance the connection with {name}`advanceWith`, and give {name}`Output.ofStep` with the
-  values; an output
-  {name}`Output.unmodeled` ends the run;
-* the connection after it is {name}`Connection.afterStep` of the transition. -/
-def runScriptStep (context : ResolveContext) (clock : Option Clock) (index : Nat) (connection : Connection)
-    (statement : Syntax.Statement) (parameters : List Value) : RunStep :=
+  support check ends the run with {name}`unmodeledHere`;
+* otherwise give {lit}`ran` of the transition of {name}`advanceWith` at the index. -/
+def runScriptStepWith {α : Type} (ended : String → α) (ran : Resolved.Statement → ResolveState → Int → SqlTransition → α)
+    (context : ResolveContext) (clock : Option Clock) (index : Nat) (connection : Connection)
+    (statement : Syntax.Statement) (parameters : List Value) : α :=
   match resolveStatement context connection.resolveState statement with
-  | .error restriction => .ended restriction.reason
+  | .error restriction => ended restriction.reason
   | .ok (resolved, after) =>
     match statementClock clock index resolved with
-    | none => .ended clockUnmodeled
+    | none => ended clockUnmodeled
     | some value =>
       let run := runStatement value parameters resolved connection.state.database
-      if !run.ready then .ended unmodeledHere
-      else
-        let transition := advanceWith index resolved connection.state run.effect
-        match Output.ofStep value parameters resolved connection.state transition with
-        | .unmodeled reason => .ended reason
-        | output@(.rows _) | output@(.done _) | output@(.error _) | output@(.oneOf _) =>
-          .continued output (connection.afterStep after transition)
+      if !run.ready then ended unmodeledHere
+      else ran resolved after value (advanceWith index resolved connection.state run.effect)
+
+/-- Run one statement with the values bound to its parameters at its zero-based index on the
+connection, with an optional clock: the steps of {name}`runScriptStepWith`, then
+{name}`ranScriptStep` for a statement that runs. A restriction, a statement that reads the
+clock in a run without a clock, a statement that fails the support check, and an output
+{name}`Output.unmodeled` end the run. -/
+def runScriptStep (context : ResolveContext) (clock : Option Clock) (index : Nat) (connection : Connection)
+    (statement : Syntax.Statement) (parameters : List Value) : RunStep :=
+  runScriptStepWith .ended (ranScriptStep parameters connection) context clock index connection statement parameters
 
 /-- The result of a run: the output of each statement that ran, in order, and the connection
 at the end. -/

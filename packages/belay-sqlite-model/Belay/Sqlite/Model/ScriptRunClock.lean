@@ -74,7 +74,7 @@ theorem runScriptStep_of_ne_clockUnmodeled {context : ResolveContext} {clock : O
     (clockFree : runScriptStep context none index connection statement parameters ≠ .ended clockUnmodeled) :
     runScriptStep context clock index connection statement parameters =
       runScriptStep context none index connection statement parameters := by
-  unfold runScriptStep at clockFree ⊢
+  unfold runScriptStep runScriptStepWith at clockFree ⊢
   cases resolution : resolveStatement context connection.resolveState statement with
   | error restriction => rfl
   | ok pair =>

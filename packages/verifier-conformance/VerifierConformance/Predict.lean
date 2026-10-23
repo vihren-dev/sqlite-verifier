@@ -33,6 +33,10 @@ structure PredictInput where
   /-- The values bound to the parameters of each executed statement, as the judge supplies
   them; empty when the judge supplies none, so that each statement binds no values. -/
   parameters : List (List Value)
+  /-- Whether the recorder ran on after an SQL error (native record version 6), so that the
+  prediction comes from the model's run that continues ({name}`runPassFrom`); false for a
+  recorder that stops at the first error. -/
+  continues : Bool
   deriving FromJson
 
 /-- A catalog column as {lit}`PRAGMA table_xinfo` reports it. Defaults retain
@@ -100,22 +104,29 @@ def stepJson (observation : Observation) : Json :=
     ("phase", toJson (errorPhase observation.error)),
     ("primaryCode", toJson (primaryCode observation.error))]
 
-/-- The model's prediction. A model restriction puts the case out of scope. A schema
-that resolution refuses although SQLite prepared it gives an empty initial step, which
-the judge reports as a disagreement. Otherwise the case is in scope when the reached
-statements pass the support check and none is unmodeled, the rule that
-{name}`classifyCase` applies; each statement runs at its supplied clock value, and a script
-that reads the clock is out of scope without clock values. -/
-def predict (p : PredictInput) : Json :=
-  let profile := p.profile
-  match resolveSchemaAndScript profile p.schema p.script with
-  | .error (.schemaRestricted restriction) | .error (.scriptRestricted restriction) =>
-    Json.mkObj [("restricted", toJson restriction.reason), ("restriction", toJson restriction.kind.id)]
-  | .error (.schemaPrepareError ..) =>
-    Json.mkObj [("supported", toJson true), ("outputs", toJson ([] : List Json)), ("steps", toJson [
-      Json.mkObj [("visible", toJson ([] : List Json)), ("persisted", toJson ([] : List Json)),
-        ("transactionOpen", toJson false), ("primaryCode", toJson (0 : Nat)),
-        ("phase", toJson (none : Option ErrorPhase))]])]
+/-- The prediction of a model restriction: the case is out of scope, with the reason and the
+kind of the restriction. -/
+def restrictedJson (restriction : Restriction) : Json :=
+  Json.mkObj [("restricted", toJson restriction.reason), ("restriction", toJson restriction.kind.id)]
+
+/-- The prediction of a schema that resolution refuses although SQLite prepared it: an empty
+initial step, which the judge reports as a disagreement. -/
+def refusedSchemaJson : Json :=
+  Json.mkObj [("supported", toJson true), ("outputs", toJson ([] : List Json)), ("steps", toJson [
+    Json.mkObj [("visible", toJson ([] : List Json)), ("persisted", toJson ([] : List Json)),
+      ("transactionOpen", toJson false), ("primaryCode", toJson (0 : Nat)),
+      ("phase", toJson (none : Option ErrorPhase))]])]
+
+/-- The prediction of a case whose recorder stops at the first error. A model restriction puts
+the case out of scope ({name}`restrictedJson`), and a schema that resolution refuses although
+SQLite prepared it gives {name}`refusedSchemaJson`. Otherwise the case is in scope when the
+reached statements pass the support check and none is unmodeled, the rule that
+{name}`classifyHaltingCase` applies; each statement runs at its supplied clock value, and a
+script that reads the clock is out of scope without clock values. -/
+def predictHalting (p : PredictInput) : Json :=
+  match resolveSchemaAndScript p.profile p.schema p.script with
+  | .error (.schemaRestricted restriction) | .error (.scriptRestricted restriction) => restrictedJson restriction
+  | .error (.schemaPrepareError ..) => refusedSchemaJson
   | .ok resolution =>
     let clock : Clock := fun position => p.clocks.getD position 0
     let start : SqlState := { database := databaseOf resolution.startCatalog (p.initial.map NamedRows.native),
@@ -125,5 +136,27 @@ def predict (p : PredictInput) : Json :=
     let supported := !(p.clocks.isEmpty && scriptReadsClock resolution.resolved) &&
       pass.supported && !pass.observations.any invalidObservation
     Json.mkObj [("supported", toJson supported), ("steps", toJson steps), ("outputs", toJson pass.outputs)]
+
+/-- The prediction of a case whose recorder runs on after an SQL error, the rule that
+{name}`classifyRunCase` applies: the schema resolves as in {name}`predictHalting`, then the
+model's run that continues ({name}`runPassFrom`) gives the observation after each statement and
+its output. A statement that ends the run puts the case out of scope. -/
+def predictRun (p : PredictInput) : Json :=
+  match resolveSchema p.profile p.schema with
+  | .error (.schemaRestricted restriction) | .error (.scriptRestricted restriction) => restrictedJson restriction
+  | .error (.schemaPrepareError ..) => refusedSchemaJson
+  | .ok catalog =>
+    let connection := startConnection p.profile catalog (p.initial.map NamedRows.native)
+    let pass := runPassFrom { profile := p.profile, mode := .execution } (runClock p.clocks) 0 connection
+      (bindValues p.script p.parameters)
+    let observations := observeState connection.state :: pass.observations
+    let supported := pass.supported && !observations.any invalidObservation
+    Json.mkObj [("supported", toJson supported), ("steps", toJson (observations.map stepJson)),
+      ("outputs", toJson pass.outputs)]
+
+/-- The model's prediction: {name}`predictRun` for a case whose recorder ran on after an error
+({lit}`PredictInput.continues`), and {name}`predictHalting` otherwise. -/
+def predict (p : PredictInput) : Json :=
+  if p.continues then predictRun p else predictHalting p
 
 end Belay.Sqlite.Model.Conformance

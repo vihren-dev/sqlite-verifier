@@ -81,6 +81,13 @@ Acquisition `nativeVersion: 5` is version 4 with a profile of format 3 and a `ph
 in each trace event: `prepare` when `sqlite3_prepare_v2` failed, `step` when
 `sqlite3_step` failed, and `null` otherwise. `conformance/record_versions.py` lists
 what each version carries. No frozen record has version 5 yet.
+Acquisition `nativeVersion: 6` is version 5 from a recorder that runs on after an
+SQL error, so each statement of the migration has one event, also after a failed one.
+The case of such a record has `continues: true`, and `classifyCase` compares it with the
+model's run that continues after an error (`runPassFrom`): each statement resolves
+against the state of the connection when it runs. The prediction of such a record comes
+from the same run. Every other case has `continues: false` and keeps the pass that stops
+at the first error.
 Manifests declare `executionProfiles`, an array of these complete profile records.
 Every v4 record must match a declaration exactly; duplicate name/version identities
 and missing or conflicting declarations are refused. Legacy corpora retain their

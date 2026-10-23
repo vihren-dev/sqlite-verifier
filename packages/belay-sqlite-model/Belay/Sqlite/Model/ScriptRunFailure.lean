@@ -66,7 +66,7 @@ theorem runScriptStep_error_failure {context : ResolveContext} {clock : Option C
     (step : runScriptStep context clock index connection statement parameters = .continued (.error code) next) :
     ∃ resolved failure, runScriptStepFailure context clock index connection statement parameters =
       some (resolved, failure) ∧ failure.primaryCode = code := by
-  unfold runScriptStep at step
+  unfold runScriptStep runScriptStepWith ranScriptStep at step
   unfold runScriptStepFailure
   cases resolution : resolveStatement context connection.resolveState statement with
   | error restriction => simp [resolution] at step
@@ -112,7 +112,7 @@ theorem runScriptStepFailure_continued {context : ResolveContext} {clock : Optio
     ∃ next, runScriptStep context clock index connection statement parameters =
       .continued (.error failure.primaryCode) next := by
   unfold runScriptStepFailure at found
-  unfold runScriptStep
+  unfold runScriptStep runScriptStepWith ranScriptStep
   cases resolution : resolveStatement context connection.resolveState statement with
   | error restriction => simp [resolution] at found
   | ok pair =>

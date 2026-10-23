@@ -98,7 +98,7 @@ theorem runScriptStep_index (context : ResolveContext) (clock : Option Clock) (f
     (same : ∀ assignment ∈ clock, assignment first = assignment second) :
     runScriptStep context clock first connection statement parameters =
       runScriptStep context clock second connection statement parameters := by
-  simp only [runScriptStep, statementClock_index same, advanceWith_atPosition second first, Output.ofStep_atPosition,
+  simp only [runScriptStep, runScriptStepWith, ranScriptStep, statementClock_index same, advanceWith_atPosition second first, Output.ofStep_atPosition,
     Connection.afterStep_atPosition]
 
 /-- For every state, position, effect and next state: if the effect's transition
@@ -143,7 +143,7 @@ theorem runScriptStep_continued {context : ResolveContext} {clock : Option Clock
     {connection next : Connection} {statement : Syntax.Statement} {parameters : List Value} {output : Output}
     (continued : runScriptStep context clock index connection statement parameters = .continued output next) :
     next.state.clock = connection.state.clock ∧ output.endsRun = false := by
-  unfold runScriptStep at continued
+  unfold runScriptStep runScriptStepWith ranScriptStep at continued
   split at continued
   · cases continued
   · split at continued

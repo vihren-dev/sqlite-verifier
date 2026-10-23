@@ -133,3 +133,29 @@ def test_prediction_uses_the_recorded_column_limit(runtime_root: Path) -> None:
     [prediction] = predict(runtime_root, record)
     assert prediction["status"] == "predicted" and prediction["supported"], prediction
     assert (prediction["steps"][1]["primaryCode"], prediction["steps"][1]["phase"]) == (1, "prepare")
+
+
+def test_version_6_input_predicts_the_run_that_continues(runtime_root: Path) -> None:
+    """`conformance.predict.mapped` and `VerifierConformance.Predict.predictRun`: the input of a
+    native record of version 6, whose recorder runs on after an SQL error, is predicted with the
+    model's run that continues: one step after each statement of the migration. A constraint
+    failure inside a transaction keeps it open, `OR ROLLBACK` closes it, `COMMIT` then fails at
+    step, and the query after it gives no row. The same input as version 5 stops at the first
+    error. The version 6 input is written by hand from a version 5 record: only its version and
+    its parameter list (one empty list for each statement) differ."""
+    migration = ("BEGIN; INSERT INTO t VALUES (1); INSERT INTO t VALUES (1); INSERT OR ROLLBACK INTO t VALUES (1);"
+                 " COMMIT; SELECT a FROM t;")
+    stopped = profiled(runtime_root, "stopped", "CREATE TABLE t(a INTEGER PRIMARY KEY);", migration)
+    assert stopped["nativeVersion"] == 5 and len(stopped["trace"]) == 3
+    continued = {**stopped, "name": "continued", "nativeVersion": 6, "trace": [{"parameters": []} for _ in range(6)]}
+    first, second = predict(runtime_root, stopped, continued)
+    assert first["status"] == "predicted" and first["supported"] and len(first["steps"]) == 4, first
+    assert second["status"] == "predicted" and second["supported"], second
+    steps = second["steps"]
+    assert [step["transactionOpen"] for step in steps] == [False, True, True, True, False, False, False]
+    assert [step["primaryCode"] for step in steps] == [0, 0, 0, 19, 19, 1, 0]
+    assert [step["phase"] for step in steps] == [None, None, None, "step", "step", "step", None]
+    assert [step.get("start") for step in steps[1:]] == [migration.index(text) for text in (
+        "BEGIN", "INSERT INTO t VALUES (1); INSERT", "INSERT INTO t VALUES (1); INSERT OR", "INSERT OR", "COMMIT",
+        "SELECT")]
+    assert second["outputs"][-1] == {"columns": ["a"], "changes": None, "rows": []}, second["outputs"]

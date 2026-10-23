@@ -22,6 +22,7 @@ from conformance.case_format import UNIX_EPOCH_JULIAN_MILLISECONDS, Json, cell_w
 from conformance.predict_render import output_record, view_record
 from conformance.profile_scope import foreign_key_scope, modeled_profile
 from conformance.record_parser import NO_PARSER_REASON, record_parser
+from conformance.record_versions import CONTINUING
 from conformance.sql_text import Translator, runtime_translator
 
 RUNNER_TIMEOUT_SECONDS = 600
@@ -65,7 +66,8 @@ def bound_values(given: dict[str, Json]) -> list[Json]:
 def mapped(given: dict[str, Json], translator: Translator) -> tuple[dict[str, Json], list[Located]]:
     """The model input of one case and its statements; frontend refusals, execution
     settings that the model does not implement, and a foreign key in a record without a
-    profile raise `SqlError` (`profile_scope`)."""
+    profile raise `SqlError` (`profile_scope`). The input of a record whose recorder ran on
+    after an error (`CONTINUING`) asks for the model's run that continues."""
     profile = modeled_profile(given)
     parser = record_parser(translator, given)
     schema = parser.translate(given["initialSchemaSql"].encode(), "corpus-schema.sql").statements()
@@ -73,7 +75,7 @@ def mapped(given: dict[str, Json], translator: Translator) -> tuple[dict[str, Js
     foreign_key_scope(given, [*schema, *script])
     return {"profile": profile, "schema": [item.value for item in schema], "script": [item.value for item in script],
             "initial": initial_rows(given["initialRows"]), "clocks": julian_clocks(given),
-            "parameters": bound_values(given)}, script
+            "parameters": bound_values(given), "continues": given.get("nativeVersion") in CONTINUING}, script
 
 
 def refusal(given: dict[str, Json], error: Exception) -> dict[str, Json]:

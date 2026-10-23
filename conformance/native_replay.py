@@ -1,10 +1,10 @@
-"""Derive the version 3 model case from frozen translator-independent evidence."""
+"""Derive the version 5 model case from frozen translator-independent evidence."""
 
 from conformance.record_parser import NO_PARSER_REASON, record_parser
 
 from conformance.case_format import CASE_VERSION, UNIX_EPOCH_JULIAN_MILLISECONDS, Json, row_wire
 from conformance.profile_scope import foreign_key_scope, modeled_profile
-from conformance.record_versions import PROFILED, WITH_OUTPUTS
+from conformance.record_versions import CONTINUING, PROFILED, WITH_OUTPUTS
 from conformance.native_connection import SOURCE_ID
 from conformance import native_bindings
 from conformance.native_call_recording import validate_recording
@@ -111,7 +111,11 @@ def model_case(record: dict[str, Json], translator: Translator) -> dict[str, Jso
     script = migration_text.statements()
     foreign_key_scope(record, [*schema, *script])
     trace = record["trace"]
-    if (len(trace) > len(script) or any(event["primaryCode"] for event in trace[:-1])
+    continues = record["nativeVersion"] in CONTINUING
+    # A recorder that runs on gives one event for each statement; one that stops gives one for
+    # each statement up to and including the first error.
+    if (len(trace) != len(script) if continues else
+            len(trace) > len(script) or any(event["primaryCode"] for event in trace[:-1])
             or (not trace or not trace[-1]["primaryCode"]) and len(trace) != len(script)):
         raise ValueError("Native/frontend statement-count mismatch")
     offset = 0
@@ -135,7 +139,8 @@ def model_case(record: dict[str, Json], translator: Translator) -> dict[str, Jso
             "requirements": record["requirements"], "provenance": [["fixture", record["name"]], ["sourceId", str(profile["sourceId"])]],
             "outputs": outputs, "parameters": [event["parameters"] for event in trace] if outputs is not None else [],
             "clocks": [event["clockUnixMilliseconds"] + UNIX_EPOCH_JULIAN_MILLISECONDS for event in trace]
-            if trace and all("clockUnixMilliseconds" in event for event in trace) else []}
+            if trace and all("clockUnixMilliseconds" in event for event in trace) else [],
+            "continues": continues}
 
 
 def prepare(record: dict[str, Json], translator: Translator) -> tuple[dict[str, Json] | None, dict[str, Json]]:

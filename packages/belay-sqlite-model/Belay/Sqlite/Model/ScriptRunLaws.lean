@@ -89,7 +89,7 @@ theorem runScriptStep_resolved {context : ResolveContext} {clock : Option Clock}
         (Output.ofStep (connection.state.clock index) parameters resolved connection.state
           (advance index resolved parameters connection.state)) next ∧
       next = connection.afterStep after (advance index resolved parameters connection.state) := by
-  simp only [runScriptStep, ok]
+  simp only [runScriptStep, runScriptStepWith, ranScriptStep, ok]
   split
   · exact .inl ⟨_, rfl⟩
   · rename_i value valued

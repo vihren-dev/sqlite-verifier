@@ -12,7 +12,8 @@ namespace Belay.Sqlite.Model.Conformance
 /-- A version 5 case: the measured profile of the native connection, the SQL
 texts, their statement syntax, the native tables before the migration, and native
 truth after each executed statement. {lit}`outputs` is present when the record has
-statement outputs; it then has one entry per executed statement. -/
+statement outputs; it then has one entry per executed statement. {lit}`continues` tells
+whether the run goes on after an error. -/
 structure Case where
   version : Nat
   profile : Profile
@@ -29,6 +30,11 @@ structure Case where
   /-- The clock value of each statement of the script, in SQLite's Julian-day milliseconds,
   as the recorder supplied it; empty for a record without a controlled clock. -/
   clocks : List Int := []
+  /-- Whether the recorder ran on after an SQL error (native record version 6), so that the
+  native trace has one observation after each statement of the script, and the model's run
+  continues after an error too; false for a recorder that stops at the
+  first error. -/
+  continues : Bool := false
   deriving Repr
 
 /-- Unsupported cases cannot be mistaken for either agreement or a model bug. -/
@@ -109,36 +115,41 @@ def compareOutputs (position : Nat) : List (Option StatementOutput) → List Nat
 beyond them, where SQLite's time keywords give NULL. -/
 def Case.clock (c : Case) : Clock := fun position => c.clocks.getD position 0
 
-/-- Resolve the case under its recorded profile, then check the initial state first,
-admission second, and the complete execution trace and outputs last. Each statement
-runs at its recorded clock value as {name}`runSqlAt` gives it ({name}`scriptClock`), with the
-values that the record binds to it ({name}`bindValues` of {lit}`Case.parameters`); a script
-that reads the clock is unsupported for a record without clock values. A model restriction is unsupported; a schema that SQLite prepared but resolution refuses is
-a disagreement. -/
-def classifyCase (c : Case) : Verdict :=
-  let profile := c.profile
-  match resolveSchemaAndScript profile c.schema c.script with
+/-- Compare the model's observations, outputs and possible results of a case with the native
+evidence: the initial state first, admission second ({lit}`supported`, an unmodeled
+observation, and a missing output where the record has outputs), and the execution trace and
+outputs last. -/
+def classifyObserved (c : Case) (observed : List Observation) (outputs : List (Option StatementOutput))
+    (possible : List (Option (List (List ResultRow)))) (supported : Bool) : Verdict :=
+  match observed, c.nativeTrace with
+  | first :: rest, expected :: expectations =>
+    if !matchesObservation first expected then .disagree none
+    else if !supported || observed.any invalidObservation || (c.outputs.isSome && outputs.any Option.isNone) then
+      .modelUnsupported
+    else
+      match compareSteps 0 rest expectations with
+      | .agree => match c.outputs with
+        | none => .agree
+        | some natives => compareOutputs 0 outputs natives possible
+      | verdict => verdict
+  | _, _ => .disagree none
+
+/-- Classify a case whose recorder stops at the first error: resolve the case under its recorded
+profile, then compare its pass that halts ({name}`passFrom`) with {name}`classifyObserved`.
+Each statement runs at its recorded clock value as {name}`runSqlAt` gives it
+({name}`scriptClock`), with the values that the record binds to it ({name}`bindValues` of
+{lit}`Case.parameters`); a script that reads the clock is unsupported for a record without clock
+values. A model restriction is unsupported; a schema that SQLite prepared but resolution refuses
+is a disagreement. -/
+def classifyHaltingCase (c : Case) : Verdict :=
+  match resolveSchemaAndScript c.profile c.schema c.script with
   | .error (.schemaRestricted _) | .error (.scriptRestricted _) => .modelUnsupported
   | .error (.schemaPrepareError ..) => .disagree none
   | .ok resolution =>
-    let initial := databaseOf resolution.startCatalog c.initial
     let pass := passFrom 0 (bindValues resolution.resolved c.parameters)
-      { database := initial, clock := scriptClock c.clock resolution.resolved }
-    let observed := pass.observations
-    let outputs := pass.outputs
-    match observed, c.nativeTrace with
-    | first :: rest, expected :: expectations =>
-      if !matchesObservation first expected then .disagree none
-      else if (c.clocks.isEmpty && scriptReadsClock resolution.resolved) ||
-          !pass.supported || observed.any invalidObservation || (c.outputs.isSome && outputs.any Option.isNone) then
-        .modelUnsupported
-      else
-        match compareSteps 0 rest expectations with
-        | .agree => match c.outputs with
-          | none => .agree
-          | some natives => compareOutputs 0 outputs natives pass.possible
-        | verdict => verdict
-    | _, _ => .disagree none
+      { database := databaseOf resolution.startCatalog c.initial, clock := scriptClock c.clock resolution.resolved }
+    classifyObserved c pass.observations pass.outputs pass.possible
+      (!(c.clocks.isEmpty && scriptReadsClock resolution.resolved) && pass.supported)
 
 /-- The model's outcome for a case: resolve the syntax, then run the resolved script with the
 values that the record binds to each statement from the native starting tables; {name}`Option.none` when the model refuses the case. -/
@@ -147,12 +158,5 @@ def modelOutcome (c : Case) : Option Outcome :=
   | .ok resolution =>
     some (runSqlAt c.clock (bindValues resolution.resolved c.parameters) (databaseOf resolution.startCatalog c.initial))
   | .error _ => none
-
-/-- Both compiled testing and concrete kernel proofs use the same classification. -/
-def checkCase (c : Case) : Bool := decide (classifyCase c = .agree)
-
-/-- No unsupported verdict can supply successful tier-two proof evidence. -/
-theorem unsupported_not_checked (c : Case) (h : classifyCase c = .modelUnsupported) :
-    checkCase c = false := by simp [checkCase, h]
 
 end Belay.Sqlite.Model.Conformance

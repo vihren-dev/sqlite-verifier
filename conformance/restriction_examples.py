@@ -108,6 +108,7 @@ def resolve_example(runtime: Path, schema: str, migration: str) -> dict[str, Jso
     parser = record_parser(runtime_translator(runtime), {"sourceId": SOURCE_ID})
     try:
         model_input = {"profile": modeled_profile({}), "initial": [], "clocks": [], "parameters": [],
+                       "continues": False,
                        "schema": [item.value for item in parser.translate(schema.encode(), "schema.sql").statements()],
                        "script": [item.value for item in parser.translate(migration.encode(), "migration.sql").statements()]}
     except SqlError as error:

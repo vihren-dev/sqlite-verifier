@@ -87,13 +87,12 @@ def firstPrepareErrorFrom (index : Nat) : List Resolved.Statement → Option (Na
     | some error => some (index, error)
     | none => firstPrepareErrorFrom (index + 1) rest
 
-/-- Resolve a schema, then a script. The schema statements resolve in description
-mode against the empty catalog; each must be CREATE TABLE, CREATE INDEX or CREATE TRIGGER and must
-prepare without an error. The script statements resolve in execution mode against
-the resulting catalog; a prepare error there stays in the resolved statements. Two triggers that
-overlap in the schema are a restriction ({name}`schemaTriggerRestriction`). -/
-def resolveSchemaAndScript (profile : Profile) (schema script : List Syntax.Statement) :
-    Except ScriptIssue ResolvedScript :=
+/-- Resolve a schema to the catalog that it describes. The schema statements resolve in
+description mode against the empty catalog; each must be CREATE TABLE, CREATE INDEX or CREATE
+TRIGGER and must prepare without an error. Two triggers that overlap in the schema are a
+restriction ({name}`schemaTriggerRestriction`). The result is never
+{name}`ScriptIssue.scriptRestricted`. -/
+def resolveSchema (profile : Profile) (schema : List Syntax.Statement) : Except ScriptIssue Catalog :=
   match schemaStatementRestriction schema <|> schemaTriggerRestriction 0 [] schema with
   | some restriction => .error (.schemaRestricted restriction)
   | none =>
@@ -102,9 +101,16 @@ def resolveSchemaAndScript (profile : Profile) (schema script : List Syntax.Stat
     | .resolved described startCatalog =>
       match firstPrepareErrorFrom 0 described with
       | some (index, error) => .error (.schemaPrepareError index error)
-      | none =>
-        match resolve { profile, mode := .execution } startCatalog script with
-        | .restricted restriction => .error (.scriptRestricted restriction)
-        | .resolved resolved nextCatalog => .ok { profile, schema, startCatalog, script, resolved, nextCatalog }
+      | none => .ok startCatalog
+
+/-- Resolve a schema ({name}`resolveSchema`), then a script. The script statements resolve in
+execution mode against the catalog of the schema; a prepare error there stays in the resolved
+statements. -/
+def resolveSchemaAndScript (profile : Profile) (schema script : List Syntax.Statement) :
+    Except ScriptIssue ResolvedScript := do
+  let startCatalog ← resolveSchema profile schema
+  match resolve { profile, mode := .execution } startCatalog script with
+  | .restricted restriction => .error (.scriptRestricted restriction)
+  | .resolved resolved nextCatalog => .ok { profile, schema, startCatalog, script, resolved, nextCatalog }
 
 end Belay.Sqlite.Model
