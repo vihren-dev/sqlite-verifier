@@ -1,0 +1,75 @@
+{
+  "caller": "claude",
+  "commit": "92c2bd824047d36cc6299f0070406960ab9a0aa8",
+  "date": "2026-10-23T20:32:00+00:00",
+  "exit": 1,
+  "files": [
+    "packages/belay-sqlite-model/Belay/Sqlite/Model/KeysUniqueRunExamples.lean",
+    "packages/belay-sqlite-model/Belay/Sqlite/Model/KeysUniqueRunStep.lean",
+    "packages/belay-sqlite-model/Belay/Sqlite/Model/KeysUniqueRuns.lean",
+    "packages/belay-sqlite-model/Belay/Sqlite/Model/KeysUniqueScriptRun.lean",
+    "packages/belay-sqlite-model/Belay/Sqlite/Model.lean",
+    "packages/belay-sqlite-model/lakefile.toml",
+    "plans/20261023-keys-unique.status.md",
+    "reviews/20261023T183052Z-4acebfe7/review.json",
+    "tests/keys_unique_theorems_test.py"
+  ],
+  "findings": [
+    {
+      "id": "20261023T203200Z-92c2bd82#1",
+      "line": 35,
+      "path": "packages/belay-sqlite-model/Belay/Sqlite/Model/KeysUniqueScriptRun.lean",
+      "rule": "R2",
+      "severity": "must",
+      "text": "The docstring of `Connection.afterStep_keysUnique` assumes the input connection satisfies `SqlState.KeysUnique`, but the formula requires only the transition invariant. Fix: remove the input-connection assumption from the docstring."
+    },
+    {
+      "id": "20261023T203200Z-92c2bd82#2",
+      "line": 62,
+      "path": "packages/belay-sqlite-model/Belay/Sqlite/Model/KeysUniqueRunStep.lean",
+      "rule": "R3",
+      "severity": "must",
+      "text": "`keysCondition_of_runCondition` is used by other proofs but lacks a proof sketch. Fix: explain that case analysis retains the ADD COLUMN and DROP hypotheses and proves `True` for every other constructor."
+    },
+    {
+      "id": "20261023T203200Z-92c2bd82#3",
+      "line": 79,
+      "path": "packages/belay-sqlite-model/Belay/Sqlite/Model/KeysUniqueRunStep.lean",
+      "rule": "R3",
+      "severity": "must",
+      "text": "`runCondition_of_unconditioned` is used by `RunConditions.of_unconditioned` but lacks a proof sketch. Fix: explain that case analysis excludes the three conditioned constructors and proves `True` for the remaining constructors."
+    },
+    {
+      "id": "20261023T203200Z-92c2bd82#4",
+      "line": 57,
+      "path": "tests/keys_unique_theorems_test.py",
+      "rule": "R1",
+      "severity": "should",
+      "text": "The allowed axioms are a set literal inside the checking loop. Fix: define a named allowed-axiom set with a docstring and reference it in the assertion."
+    }
+  ],
+  "id": "20261023T203200Z-92c2bd82",
+  "kind": "review",
+  "reviewer": "codex",
+  "revision": "utrqpslp",
+  "rules": {
+    "R1": "62d446279093",
+    "R10": "638d8cbd1df8",
+    "R11": "5de19cdbbbc1",
+    "R12": "99f66579f467",
+    "R13": "da0926dafb88",
+    "R15": "518eab58f8b5",
+    "R16": "892e77bd2a12",
+    "R17": "62b65b662f79",
+    "R18": "5159f20b166b",
+    "R19": "6a24b671568c",
+    "R2": "e5e78fb2a52a",
+    "R3": "4f9188eadd60",
+    "R4": "ea7ca17539eb",
+    "R5": "b8613a2d693b",
+    "R6": "8d1d4631e888",
+    "R7": "59a21b0bec7f",
+    "R9": "5a69196344d0"
+  },
+  "well_formed": true
+}

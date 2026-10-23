@@ -1,0 +1,61 @@
+{
+  "caller": "claude",
+  "commit": "54fc3a98b68a9c4f54b979b8890e01e2e42977e9",
+  "date": "2026-10-23T18:24:44+00:00",
+  "exit": 1,
+  "files": [
+    "packages/belay-sqlite-model/Belay/Sqlite/Model/KeysUniqueKeyState.lean",
+    "packages/belay-sqlite-model/Belay/Sqlite/Model/KeysUniqueKeySteps.lean",
+    "packages/belay-sqlite-model/Belay/Sqlite/Model/KeysUniqueRowDelete.lean",
+    "packages/belay-sqlite-model/Belay/Sqlite/Model/KeysUniqueRowEngine.lean",
+    "packages/belay-sqlite-model/Belay/Sqlite/Model/KeysUniqueRowInsert.lean",
+    "packages/belay-sqlite-model/Belay/Sqlite/Model/KeysUniqueRowUpdate.lean",
+    "packages/belay-sqlite-model/Belay/Sqlite/Model/KeysUniqueStatement.lean",
+    "packages/belay-sqlite-model/Belay/Sqlite/Model/KeysUniqueTriggers.lean",
+    "packages/belay-sqlite-model/Belay/Sqlite/Model.lean",
+    "packages/belay-sqlite-model/lakefile.toml",
+    "plans/20261023-keys-unique.status.md"
+  ],
+  "findings": [
+    {
+      "id": "20261023T182444Z-54fc3a98#1",
+      "line": 31,
+      "path": "packages/belay-sqlite-model/Belay/Sqlite/Model/KeysUniqueKeyState.lean",
+      "rule": "R2",
+      "severity": "must",
+      "text": "The restatement of `ResultHolds.bind` omits the assumption that stops returned by the continuation satisfy `stopGood`. Fix: state that each continuation result satisfies both the second value property and the stop property."
+    },
+    {
+      "id": "20261023T182444Z-54fc3a98#2",
+      "line": 156,
+      "path": "packages/belay-sqlite-model/Belay/Sqlite/Model/KeysUniqueKeyState.lean",
+      "rule": "R2",
+      "severity": "must",
+      "text": "The restatement quantifies over every state with the database’s rows, but `KeyState.keysUnique_start` proves the property only for the state constructed with default remaining fields. Fix: describe that constructed start state over `database.catalog`."
+    }
+  ],
+  "id": "20261023T182444Z-54fc3a98",
+  "kind": "review",
+  "reviewer": "codex",
+  "revision": "@-",
+  "rules": {
+    "R1": "62d446279093",
+    "R10": "638d8cbd1df8",
+    "R11": "5de19cdbbbc1",
+    "R12": "99f66579f467",
+    "R13": "da0926dafb88",
+    "R15": "518eab58f8b5",
+    "R16": "892e77bd2a12",
+    "R17": "62b65b662f79",
+    "R18": "5159f20b166b",
+    "R19": "6a24b671568c",
+    "R2": "e5e78fb2a52a",
+    "R3": "4f9188eadd60",
+    "R4": "ea7ca17539eb",
+    "R5": "b8613a2d693b",
+    "R6": "8d1d4631e888",
+    "R7": "59a21b0bec7f",
+    "R9": "5a69196344d0"
+  },
+  "well_formed": true
+}

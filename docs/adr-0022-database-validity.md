@@ -127,6 +127,35 @@ the fact. It is reported to the owner, and no proof assumes it away.
 | 4 | the theorems of the Admitted atoms | ADR 0017 S4, as slice 3 |
 | 5 | the theorem of "foreign keys hold" | ADR 0017 S6: the rebuild that cascades |
 
+Record of slice 2 (2026-10-23, `plans/20261023-keys-unique.task.md`): the statement theorem
+`runStatement_keysUnique` holds for every statement form, foreign keys and triggers included,
+with a condition only for ADD COLUMN (`Database.AddColumnCondition`) and DROP
+(`Catalog.DropCondition`). The run theorems of `runSqlFrom`, `runSql` and `runScriptFrom` assume
+that each CREATE INDEX, ADD COLUMN and DROP that the run reaches meets its condition. This is an
+owner decision of 2026-10-23 after a finding: a resolved CREATE INDEX of an index that
+`CatalogIndex.supported` refuses runs, and a later ADD COLUMN then breaks the atom. Slice 4 also
+proves the resolver facts that give these conditions, and removes the hypothesis from the
+theorem of `runScriptFrom`; the theorem of `runSqlFrom` keeps it.
+
+Record of slice 3 (2026-10-23, `plans/20261023-valid-atoms-theorems.task.md`): the statement
+theorems `runStatement_notNull`, `runStatement_typesFit` and `runStatement_checksHold` hold for
+every statement form, foreign keys and triggers included, and they assume only their own atom.
+The only condition is on ADD COLUMN: the rows of the table are as wide as the table
+(`Database.RowsWideAt`), the stored default fits the strict type (`Database.StrictDefaultFitsAt`,
+"types fit"), and each CHECK reads only columns below the width (`Database.ChecksReadBelowAt`,
+"checks hold"). A counterexample in `RowLocalExamples` shows that each condition is necessary. The
+run theorems of `runSqlFrom`, `runSql` and `runScriptFrom` exist for each atom, and for the four
+constraint atoms together (`Database.ConstraintAtoms`: `runSql_constraintAtoms`,
+`runSqlFrom_constraintAtoms`, `runScriptFrom_constraintAtoms`), where the conditions are the
+conditions of slice 2 and of the three atoms. Slice 4 proves the width condition and the type
+condition as facts of resolved scripts. The CHECK condition is also a fact of the start database,
+which no atom states today (status file, decision 3), so the hypothesis of `runScriptFrom` goes only
+with such an atom; the theorems of `runSqlFrom` keep the hypotheses. By owner decision 1a, the row engine of slice 2 and its run theorems take the atom as a
+parameter (`RowEngineFacts`, `RunHolds`), and slice 2 is the instance for "keys unique". No proof
+failed. The pragma forms of ADR 0019, slice 2 are not in this line of changes; the statement
+theorem of `RowLocalStatement` has a case for each constructor of `Resolved.Statement` and covers
+them when they land.
+
 For the constraint atoms, INSERT, UPDATE and upsert are the easier case: each table that they
 store passed the checks, after the whole write or after each row, and a proof follows those
 steps, also for the rows that a FAIL failure keeps. DELETE removes rows, and each constraint

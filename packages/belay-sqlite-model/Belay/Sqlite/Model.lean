@@ -12,6 +12,44 @@ import Belay.Sqlite.Model.Database
 import Belay.Sqlite.Model.DatabaseFacts
 import Belay.Sqlite.Model.DatabaseConstraints
 import Belay.Sqlite.Model.DatabaseConstraintChecks
+import Belay.Sqlite.Model.KeysUniqueFrame
+import Belay.Sqlite.Model.KeysUniqueLookup
+import Belay.Sqlite.Model.KeysUniqueWrites
+import Belay.Sqlite.Model.KeysUniqueUpsert
+import Belay.Sqlite.Model.KeysUniqueCreate
+import Belay.Sqlite.Model.ExprAppendLaws
+import Belay.Sqlite.Model.KeysUniqueAddColumn
+import Belay.Sqlite.Model.DropPositionLaws
+import Belay.Sqlite.Model.KeysUniqueDrop
+import Belay.Sqlite.Model.RowEngineKeyState
+import Belay.Sqlite.Model.RowEngineKeySteps
+import Belay.Sqlite.Model.RowEngineTriggers
+import Belay.Sqlite.Model.RowEngineDelete
+import Belay.Sqlite.Model.RowEngineUpdate
+import Belay.Sqlite.Model.RowEngineInsert
+import Belay.Sqlite.Model.KeysUniqueRowEngine
+import Belay.Sqlite.Model.KeysUniqueStatement
+import Belay.Sqlite.Model.KeysUniqueRunStep
+import Belay.Sqlite.Model.KeysUniqueRuns
+import Belay.Sqlite.Model.KeysUniqueScriptRun
+import Belay.Sqlite.Model.RowLocalAddColumnTheorems
+import Belay.Sqlite.Model.RowLocalAddColumn
+import Belay.Sqlite.Model.RowLocalSchemaTheorems
+import Belay.Sqlite.Model.RowLocalSchema
+import Belay.Sqlite.Model.RowLocalUpsert
+import Belay.Sqlite.Model.RowLocalWriteTheorems
+import Belay.Sqlite.Model.RowLocalWrites
+import Belay.Sqlite.Model.RowLocalFrame
+import Belay.Sqlite.Model.RowLocalAtoms
+import Belay.Sqlite.Model.ValidAtomsTogether
+import Belay.Sqlite.Model.ValidAtomsRuns
+import Belay.Sqlite.Model.ValidAtomsStatement
+import Belay.Sqlite.Model.RowLocalStatement
+import Belay.Sqlite.Model.ScriptRunHolds
+import Belay.Sqlite.Model.RunHolds
+import Belay.Sqlite.Model.RunHoldsStep
+import Belay.Sqlite.Model.RowEngineWrites
+import Belay.Sqlite.Model.RowEngineFacts
 import Belay.Sqlite.Model.ForeignKeysHold
 import Belay.Sqlite.Model.Execution
 import Belay.Sqlite.Model.LiteralData
@@ -49,8 +87,9 @@ import Belay.Sqlite.Model.Resolution
 import Belay.Sqlite.Model.Resolution.QuerySpec
 import Belay.Sqlite.Model.Resolution.ScopeLaws
 
-/-! SQLite states, the facts of an admitted and of a valid database, supported execution, the
-output of each statement and the results that SQLite may give for it, the laws of the check
-pragmas and of {lit}`foreign_key_check`, a run of statement syntax that continues after an error, the constraints that a failed
-write names, structural preservation facts, and name resolution from statement syntax to
-resolved statements with its specification and laws. -/
+/-! SQLite states, the facts of an admitted and of a valid database, the theorems of the statements
+that keep the unique keys, supported execution, the output of each statement and the results that
+SQLite may give for it, the laws of the check pragmas and of {lit}`foreign_key_check`, a run of
+statement syntax that continues after an error, the constraints that a failed write names,
+structural preservation facts, and name resolution from statement syntax to resolved statements
+with its specification and laws. -/

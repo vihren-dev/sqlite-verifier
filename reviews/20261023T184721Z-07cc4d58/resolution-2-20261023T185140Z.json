@@ -1,0 +1,7 @@
+{
+  "date": "2026-10-23T18:51:40+00:00",
+  "finding": "20261023T184721Z-07cc4d58#2",
+  "kind": "resolution",
+  "outcome": "rejected",
+  "reason": "The entry described the next commit f1d005da, which landed one step after the split; the status file at the head is correct."
+}
