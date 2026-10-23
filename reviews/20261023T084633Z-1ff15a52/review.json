@@ -1,0 +1,51 @@
+{
+  "caller": "claude",
+  "commit": "1ff15a5228905199312a23c3f995adc4619331d3",
+  "date": "2026-10-23T08:46:33+00:00",
+  "exit": 1,
+  "files": [
+    "docs/adr-0023-parser-built-by-lake.md"
+  ],
+  "findings": [
+    {
+      "id": "20261023T084633Z-1ff15a52#1",
+      "line": 119,
+      "path": "docs/adr-0023-parser-built-by-lake.md",
+      "rule": "R19",
+      "severity": "must",
+      "text": "D2 assumes that copying `parser/` into the text package’s Nix workspace is sufficient, but `lean-package.nix` exports only the package directory, so the surface’s separate build lacks the sources that Lake checks when replaying the parser target. Fix: require the parser sources in each Nix workspace that builds or replays the text package."
+    },
+    {
+      "id": "20261023T084633Z-1ff15a52#2",
+      "line": 78,
+      "path": "docs/adr-0023-parser-built-by-lake.md",
+      "rule": "R19",
+      "severity": "should",
+      "text": "The trial claims coverage of all retained corpora, but `parserLibrary.inputs` includes only corpora v1–v5, while v6 alone contains 53 additional SQL texts. Fix: describe the recorded 11,118 inputs as parser test inputs and texts from corpora v1–v5."
+    }
+  ],
+  "id": "20261023T084633Z-1ff15a52",
+  "kind": "review",
+  "reviewer": "codex",
+  "revision": "@-",
+  "rules": {
+    "R1": "62d446279093",
+    "R10": "638d8cbd1df8",
+    "R11": "5de19cdbbbc1",
+    "R12": "99f66579f467",
+    "R13": "da0926dafb88",
+    "R15": "518eab58f8b5",
+    "R16": "892e77bd2a12",
+    "R17": "62b65b662f79",
+    "R18": "5159f20b166b",
+    "R19": "6a24b671568c",
+    "R2": "e5e78fb2a52a",
+    "R3": "4f9188eadd60",
+    "R4": "ea7ca17539eb",
+    "R5": "b8613a2d693b",
+    "R6": "8d1d4631e888",
+    "R7": "59a21b0bec7f",
+    "R9": "5a69196344d0"
+  },
+  "well_formed": true
+}

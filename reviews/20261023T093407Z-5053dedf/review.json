@@ -1,0 +1,43 @@
+{
+  "caller": "claude",
+  "commit": "5053dedf883f12f1ba4a1152d1284d1f8126c480",
+  "date": "2026-10-23T09:34:07+00:00",
+  "exit": 1,
+  "files": [
+    "docs/adr-0023-parser-built-by-lake.md"
+  ],
+  "findings": [
+    {
+      "id": "20261023T093407Z-5053dedf#1",
+      "line": 159,
+      "path": "docs/adr-0023-parser-built-by-lake.md",
+      "rule": "R19",
+      "severity": "must",
+      "text": "D2 assumes `struct tm` can remain incomplete because optimized code does not use it, but SQLite requires its complete definition before optimization, and an incomplete declaration fails compilation with the specified flags. Fix: require complete definitions for types used by the compiled source, including `struct tm`, as the successful trial headers provide."
+    }
+  ],
+  "id": "20261023T093407Z-5053dedf",
+  "kind": "review",
+  "reviewer": "codex",
+  "revision": "@-",
+  "rules": {
+    "R1": "62d446279093",
+    "R10": "638d8cbd1df8",
+    "R11": "5de19cdbbbc1",
+    "R12": "99f66579f467",
+    "R13": "da0926dafb88",
+    "R15": "518eab58f8b5",
+    "R16": "892e77bd2a12",
+    "R17": "62b65b662f79",
+    "R18": "5159f20b166b",
+    "R19": "6a24b671568c",
+    "R2": "e5e78fb2a52a",
+    "R3": "4f9188eadd60",
+    "R4": "ea7ca17539eb",
+    "R5": "b8613a2d693b",
+    "R6": "8d1d4631e888",
+    "R7": "59a21b0bec7f",
+    "R9": "5a69196344d0"
+  },
+  "well_formed": true
+}
