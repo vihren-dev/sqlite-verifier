@@ -32,9 +32,10 @@ def test_guide_databases_examples_hold(runtime_root: Path, tmp_path: Path) -> No
 
 def test_guide_scripts_examples_hold(runtime_root: Path, tmp_path: Path) -> None:
     """The section "Scripts" (`Belay/Sqlite/Script.lean`, `Belay/Sqlite/SqlTerm.lean`): `sql r"..."`
-    gives the statements of the text in order, in plain and `#` raw strings, with no values;
-    `Script.withValues` binds values, `++` with `Script.empty` is a monoid that keeps each
-    statement's values, and a run reads them."""
+    gives the statements of the text in order, in plain and `#` raw strings, with no values for
+    a text without parameters; `sql r"SELECT ?1"` is a function of `p1`; `Script.withValues`
+    binds values, `++` with `Script.empty` is a monoid that keeps each statement's values, and a
+    run reads them."""
     result = run_command(surface_command(runtime_root, FIXTURES / "GuideScripts.lean", tmp_path), cwd=tmp_path,
                          timeout=60)
     assert result.returncode == 0, result.diagnostic()
@@ -69,7 +70,8 @@ def test_guide_run_examples_hold(runtime_root: Path, tmp_path: Path) -> None:
 def test_guide_query_examples_hold(runtime_root: Path, tmp_path: Path) -> None:
     """The guide's "Queries as propositions" over one database (`Belay/Sqlite/Queries.lean`,
     `Belay/Sqlite/QueryLaws.lean`, the model's `Model/QueryOutputs.lean`): `Holds`, `Empty` and `Fails` hold or fail by `decide`, a query
-    with `LIMIT 1` and no `ORDER BY` holds for each result, a query that reads the clock satisfies
+    with `LIMIT 1` and no `ORDER BY` holds for each result, `Empty` of an `EXCEPT` query (ADR 0019,
+    D3) holds or fails by `decide`, a query that reads the clock satisfies
     none of the three, and a script that is not one read-only statement is an error at the term."""
     result = run_command(surface_command(runtime_root, FIXTURES / "GuideQueries.lean", tmp_path), cwd=tmp_path,
                          timeout=60)
@@ -88,11 +90,13 @@ def test_sql_command_shows_tables(runtime_root: Path, tmp_path: Path) -> None:
 
 
 def test_run_examples_hold(runtime_root: Path, tmp_path: Path) -> None:
-    """The run of `db.run` (`Belay/Sqlite/Run.lean`, over the model's `runScriptFrom`), the facts of
-    `Belay/Sqlite/Database.lean` and the display of outputs: errors that do not stop the run,
+    """The run of `db.run` (`Belay/Sqlite/Run.lean`, `Belay/Sqlite/ProgramRun.lean`, over the model's
+    `runScriptFrom`), the facts of `Belay/Sqlite/Database.lean` and the display of outputs: errors
+    that do not stop the run,
     transactions, `PRAGMA foreign_keys`, a table that an earlier statement drops, statements that
     the model does not describe, row order, the facts of a valid database without a hypothesis,
-    and the check that keeps the start database when the database at the end is not valid."""
+    and the check that keeps the start database and gives no value when the database at the end is
+    not valid."""
     result = run_command(surface_command(runtime_root, FIXTURES / "RunExamples.lean", tmp_path), cwd=tmp_path,
                          timeout=120)
     assert result.returncode == 0, result.diagnostic()

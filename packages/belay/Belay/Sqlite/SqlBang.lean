@@ -18,11 +18,11 @@ gives it, after a check of the statements against the database {lit}`db`, which 
 value while the file elaborates. The term does not use {lit}`db`, so
 {lit}`sql! db r"..."` and {lit}`sql r"..."` are equal by {lit}`rfl`. Use {lit}`sql` for a script
 that runs on a database that is a variable. -/
-syntax (name := sqlBangTerm) "sql! " term:max str : term
+syntax:max (name := sqlBangTerm) "sql! " term:max str : term
 
 /-- Elaborate {lit}`sql! db "SQL"`: translate the text, evaluate {lit}`db`
 ({name}`evaluateDatabase`), log each error of {name}`scriptDiagnostics` at its range of the text
-({name}`textRange`), and give the script ({name}`scriptExpr`). When {lit}`db` has an error, which
+({name}`textRange`), and give the term of {lit}`sql "SQL"` ({name}`scriptTerm`). When {lit}`db` has an error, which
 Lean already shows, it gives the script without the check. -/
 @[term_elab sqlBangTerm]
 def elabSqlBang : TermElab := fun term _ => do
@@ -30,8 +30,8 @@ def elabSqlBang : TermElab := fun term _ => do
   let some text := literal.isStrLit? | throwUnsupportedSyntax
   let items ← literalStatements literal
   if let some database ← evaluateDatabase term[1] then
-    for diagnostic in scriptDiagnostics database.raw.connection.resolveState text.toUTF8 items.toList do
+    for diagnostic in scriptDiagnostics database.raw.connection.resolveState text.toUTF8 (items.toList.map (·.statement)) do
       logErrorAt (textRange literal text diagnostic.start diagnostic.stop) diagnostic.message
-  return scriptExpr items
+  scriptTerm literal text items
 
 end Belay.Sqlite

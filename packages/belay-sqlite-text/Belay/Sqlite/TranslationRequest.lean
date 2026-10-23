@@ -86,7 +86,7 @@ def answer (request : Request) : ParseResult → Json
       | .ok items => toJson (items.map (commandJson tree))
       | .error _ => Json.null
     match (statements tree root).run' {} with
-    | .ok items => Json.mkObj [("result", "statements"), ("statements", toJson (items.map statementJson)),
+    | .ok items => Json.mkObj [("result", "statements"), ("statements", toJson (items.map (statementJson ·.statement))),
         ("commands", found)]
     | .error refusal => refusalAnswer "translationRefusal" refusal request.source [("commands", found)]
 

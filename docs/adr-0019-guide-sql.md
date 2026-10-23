@@ -130,6 +130,34 @@ What the code has today, after slice 1 of ADR 0018:
   `INSERT` (D4). Its row order without `ORDER BY` is SQLite's plan, which the harness
   compares as a multiset and which a scalar subquery reads only when every order gives the
   same first value, as in ADR 0018 slice 1.
+- Amended 2026-10-23: the collation of a compound column applies to the duplicate rule and to
+  an `ORDER BY` term without `COLLATE`. Two rules of SQLite differ from it, and the model
+  follows SQLite:
+  - `x IN (q)` over a compound reads the affinity and the collation of the right-most
+    `SELECT`'s column, and a scalar subquery `(q)` reads only its affinity, because SQLite
+    gives a subquery no collation. For example, over `t(n TEXT COLLATE NOCASE)` with `'a'` and
+    `u(m TEXT)`, `'A' IN (SELECT n FROM t UNION SELECT m FROM u WHERE 0)` is 0. The next item
+    gives the exception to this rule.
+  - When an operator is not `UNION ALL` and an `ORDER BY` term has `COLLATE`, SQLite sorts the
+    compound as the subquery of `SELECT * FROM (compound)`. Then a term without `COLLATE` sorts
+    under the collation of the left-most `SELECT`'s expression, `BINARY` when it has none. Also,
+    `x IN (q)` then reads the column of that subquery: the collation of the left-most
+    `SELECT`'s expression, and the affinity that SQLite gives to a column of a subquery in
+    `FROM` (D5). A scalar `(q)` reads only that affinity, and has no collation. For example,
+    `'A' IN (SELECT 'a' COLLATE NOCASE UNION SELECT 'b' WHERE 0 ORDER BY 1 COLLATE BINARY)` is
+    1. Slice 3 refuses such an `IN` or scalar subquery with a restriction, and slice 4 adds it
+    with the columns of a subquery in `FROM`. The result columns of such a statement have the
+    names of that subquery's columns (`sqlite3ColumnsFromExprList`), which SQLite gives before it
+    resolves the names, not the names of the first `SELECT`: a name or `x.c` without `AS` under
+    `COLLATE` has that name as written, and a second column of the same name gets the suffix
+    `:1`. For example,
+    `SELECT a COLLATE NOCASE FROM t EXCEPT SELECT a FROM u ORDER BY 1 COLLATE BINARY` names its
+    column `a`, and the same statement without `COLLATE BINARY` names it `a COLLATE NOCASE`.
+    (Amended 2026-10-23, from a native check.)
+- Amended 2026-10-23: slice 3 does not include a compound `SELECT` as a statement of a trigger
+  body; the frontend refuses it. A compound subquery in a statement of a trigger body is in
+  slice 3. A later slice adds the statement form when a measurement or a guide example needs
+  it.
 
 ### D4. The table rebuild
 

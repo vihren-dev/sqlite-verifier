@@ -165,35 +165,4 @@ structure OrderTerm where
   descending : Bool
   deriving Repr, BEq
 
-/-- A subquery of a statement as written (ADR 0018, D1): its clauses, as those of
-{lit}`Syntax.Statement.select`, and the query around it, an earlier subquery by its index in
-the statement's list or {lean}`(none : Option Nat)` for the statement's query. The frontend
-lists the subqueries in the order of their text, so a subquery comes after the query around
-it; an expression names a subquery by its index ({lit}`Expr.exists`, {lit}`Expr.inQuery`,
-{lit}`Expr.subquery`). -/
-structure Subquery where
-  /-- The result columns. -/
-  columns : List ResultColumn
-  /-- The first table of {lit}`FROM`, or none without {lit}`FROM`. -/
-  source : Option TableReference
-  /-- The joins after the first table, in order. -/
-  joins : List Join
-  /-- The {lit}`WHERE` condition. -/
-  filter : Option Expr
-  /-- The {lit}`GROUP BY` terms. -/
-  groupBy : List Expr
-  /-- The {lit}`ORDER BY` terms. -/
-  orderBy : List OrderTerm
-  /-- The {lit}`LIMIT` expression. -/
-  limit : Option Expr
-  /-- The {lit}`OFFSET` expression. -/
-  offset : Option Expr
-  /-- The index of the subquery around this one, or none for the statement's query. -/
-  parent : Option Nat
-  /-- The {lit}`HAVING` condition (ADR 0018, D3). -/
-  having : Option Expr := none
-  /-- Whether the query is {lit}`SELECT DISTINCT`. -/
-  distinct : Bool := false
-  deriving Repr, BEq
-
 end Belay.Sqlite.Model.Syntax

@@ -1,4 +1,5 @@
 import Belay.Sqlite.Model.Identifier
+import Belay.Sqlite.Model.Operators
 
 set_option doc.verso true
 
@@ -167,6 +168,14 @@ inductive ExprError where
   | parameterInIndex (filter : Bool)
   /-- {lit}`trigger cannot use variables`: a parameter anywhere in CREATE TRIGGER. -/
   | triggerVariables
+  /-- {lit}`SELECTs to the left and right of %s do not have the same number of result columns`:
+  two terms of a compound {lit}`SELECT` with a different number of result columns, with the
+  operator between them ({lit}`sqlite3SelectWrongNumTermsError`; ADR 0019, D3). -/
+  | compoundColumns (operator : CompoundOperator)
+  /-- {lit}`%r ORDER BY term does not match any column in the result set`: an {lit}`ORDER BY`
+  term of a compound {lit}`SELECT` that names no result column, with the one-based term
+  ({lit}`resolveCompoundOrderBy`). -/
+  | orderByNoMatch (term : Nat)
   deriving Repr, DecidableEq
 
 end Belay.Sqlite.Model

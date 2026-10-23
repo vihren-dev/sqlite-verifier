@@ -20,7 +20,8 @@ package's too, as part of this package. -/
 lean_lib Belay where
   roots := #[]
   globs := #[.one `Belay, .one `Belay.Sqlite, .one `Belay.Sqlite.ParseCommand, .one `Belay.Sqlite.Values, .one `Belay.Sqlite.Database,
-    .one `Belay.Sqlite.Script, .one `Belay.Sqlite.SqlLiteral, .one `Belay.Sqlite.SqlTerm, .one `Belay.Sqlite.SqlDiagnostics, .one `Belay.Sqlite.EvalDatabase,
-    .one `Belay.Sqlite.SqlBang, .one `Belay.Sqlite.Run, .one `Belay.Sqlite.RunLaws, .one `Belay.Sqlite.DbDiagnostics,
+    .one `Belay.Sqlite.Script, .one `Belay.Sqlite.SqlLiteral, .one `Belay.Sqlite.SqlParameters, .one `Belay.Sqlite.SqlTerm, .one `Belay.Sqlite.SqlDiagnostics, .one `Belay.Sqlite.EvalDatabase,
+    .one `Belay.Sqlite.SqlBang, .one `Belay.Sqlite.Run, .one `Belay.Sqlite.Program, .one `Belay.Sqlite.Env, .one `Belay.Sqlite.ValueDisplay,
+    .one `Belay.Sqlite.ProgramRun, .one `Belay.Sqlite.ProgramQueries, .one `Belay.Sqlite.ProgramLaws, .one `Belay.Sqlite.RunLaws, .one `Belay.Sqlite.DbDiagnostics,
     .one `Belay.Sqlite.DbBang, .one `Belay.Sqlite.Queries, .one `Belay.Sqlite.QueryLaws, .one `Belay.Sqlite.SqlCommand]
   precompileModules := true

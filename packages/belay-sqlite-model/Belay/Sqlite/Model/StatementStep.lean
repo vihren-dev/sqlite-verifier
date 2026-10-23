@@ -28,7 +28,8 @@ clauses or algorithms, and the input database for every other error. The support
 INSERT and UPDATE pass the data domain of the table, every write and query the JSON
 checks of {lit}`JsonReady`, no expression cell of INSERT may fail ({name}`Resolved.cellsReady`), and a
 statement's subqueries have no fallible call ({name}`Resolved.subqueriesPlain`), because SQLite may
-evaluate a subquery for rows that the model does not reach; a position without a table passes and fails during execution
+evaluate a subquery for rows that the model does not reach, except the terms of a compound query
+({name}`Resolved.Query.nestedSubqueries`), whose run describes their failures; a position without a table passes and fails during execution
 instead. ADD COLUMN must have modeled default readback, a model restriction, because SQLite
 accepts such statements. CREATE TABLE passes, as its table has no rows to violate a
 constraint (ADR 0014, slice 4), and so do CREATE INDEX and the other statement forms. A write
@@ -86,7 +87,7 @@ def runStatement (clock : Int) (parameters : List Value) (statement : Resolved.S
   | .query query subqueries =>
     let ran := query.runOn clock parameters database subqueries
     { effect := queryEffect database ran,
-      ready := Resolved.subqueriesPlain subqueries && ran.all fun (source, run) => source.fault != .may && run.fault != .may }
+      ready := Resolved.subqueriesPlain (query.nestedSubqueries subqueries) && ran.all fun (source, run) => source.fault != .may && run.fault != .may }
   | .createTable .. => { effect := step clock parameters statement database, ready := true }
   | .addColumn _ column =>
     { effect := step clock parameters statement database,

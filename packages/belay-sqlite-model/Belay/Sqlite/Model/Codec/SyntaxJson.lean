@@ -4,7 +4,7 @@ set_option doc.verso true
 
 /-! JSON transport of statement syntax: the derived instances of its types, the table options
 with {lit}`strict` only for a {lit}`STRICT` table, and statements with each default field
-({lit}`subqueries`, {lit}`having`, {lit}`distinct`) only when it differs from its default, so that the records of earlier statements keep their form. -/
+({lit}`subqueries`, {lit}`having`, {lit}`distinct`, {lit}`compound`) only when it differs from its default, so that the records of earlier statements keep their form. -/
 
 namespace Belay.Sqlite.Model
 
@@ -17,7 +17,7 @@ deriving instance Lean.FromJson, Lean.ToJson for Syntax.Expr, Syntax.DefaultExpr
 deriving instance Lean.FromJson, Lean.ToJson for Syntax.ResultColumn, Syntax.OrderTerm
 deriving instance Lean.FromJson, Lean.ToJson for Syntax.ColumnDefinition, Syntax.TableConstraint
 deriving instance Lean.FromJson, Lean.ToJson for Syntax.TableReference, Syntax.Join
-deriving instance Lean.FromJson, Lean.ToJson for Syntax.Subquery
+deriving instance Lean.FromJson, Lean.ToJson for CompoundOperator, Syntax.Compound, Syntax.Subquery
 deriving instance Lean.FromJson, Lean.ToJson for Syntax.ConflictAction, Syntax.ConflictClause
 deriving instance Lean.FromJson, Lean.ToJson for Syntax.TriggerTime, Syntax.TriggerEvent, Syntax.BodyStatement
 /-- The table options as JSON, with {lit}`strict` only for a {lit}`STRICT` table, so the
@@ -42,7 +42,8 @@ their default, so the records of statements without them keep the form that they
 the field existed: each constructor's JSON name, the field, and its default. -/
 def Syntax.Statement.defaultFields : List (String × String × Lean.Json) :=
   [("select", "subqueries", .arr #[]), ("insert", "subqueries", .arr #[]), ("update", "subqueries", .arr #[]),
-   ("delete", "subqueries", .arr #[]), ("select", "having", .null), ("select", "distinct", .bool false)]
+   ("delete", "subqueries", .arr #[]), ("select", "having", .null), ("select", "distinct", .bool false),
+   ("select", "compound", .null)]
 
 /-- The JSON of a statement with each missing field of {name}`Syntax.Statement.defaultFields`
 added with its default to the object of its constructor. Any other JSON stays as it is, so the

@@ -8,17 +8,20 @@ package builds. They check that the run goes on after an error, as SQLite does: 
 and a later query, an error in a transaction and a later COMMIT, {lit}`OR ROLLBACK`, which ends
 the transaction, a query of a dropped table, which SQLite refuses to prepare, a failed
 {lit}`ADD COLUMN`, which leaves the catalog as it was, the results of {lit}`LIMIT 1` without
-{lit}`ORDER BY`, a statement that reads the clock or random values, which ends the run, and
-statements that read the values bound to their parameters. -/
+{lit}`ORDER BY`, a statement that reads random values, which ends the run, a statement that
+reads the clock, which runs with the clock's value at its index in a run with a clock and ends a
+run without one, and statements that read the values bound to their parameters. -/
 
 namespace Belay.Sqlite.Model.ScriptRunExamples
 
 open Belay.Sqlite.Model Syntax Resolution.Examples
 
-/-- A run of the statements from the empty database, with the default profile; statement
-{lit}`i` gets item {lit}`i` of {lit}`values` ({name}`bindValues`). -/
-def outputs (script : List Syntax.Statement) (values : List (List Value) := []) : List Output :=
-  (runScriptFrom { profile := defaults, mode := .execution } 0 { state := { database := {} } }
+/-- A run of the statements from the empty database, with the default profile and an optional
+clock, without a clock by default; statement {lit}`i` gets item {lit}`i` of {lit}`values`
+({name}`bindValues`). -/
+def outputs (script : List Syntax.Statement) (values : List (List Value) := []) (clock : Option Clock := none) :
+    List Output :=
+  (runScriptFrom { profile := defaults, mode := .execution } clock 0 { state := { database := {} } }
     (bindValues script values)).outputs
 
 /-- {lit}`CREATE TABLE t(id INTEGER PRIMARY KEY, name TEXT)`. -/
@@ -66,9 +69,50 @@ def textValue (text : String) : Value := .text text.toUTF8.toList
 -- A query of a dropped table: SQLite refuses to prepare it, with error 1.
 #guard outputs [createT, .dropTable (name! "t") false, selectNames] == [.done 0, .done 0, .error 1]
 
--- A statement that reads the clock ends the run; the statements after it do not run.
-#guard outputs [.select [.expression (.currentTime "CURRENT_TIMESTAMP") none ""] none [] none [] [] none none,
-  selectNames] == [.unmodeled clockUnmodeled]
+/-- {lit}`SELECT expression`, without a table. -/
+def selectOf (expression : Expr) : Syntax.Statement :=
+  .select [.expression expression none ""] none [] none [] [] none none
+
+/-- {lit}`2025-01-01 00:00:00` in Julian-day milliseconds, at every index. -/
+def newYear : Option Clock := some fun _ => 212602449600000
+
+/-- {lit}`CREATE TABLE c(a TEXT, b DEFAULT CURRENT_TIMESTAMP)`. -/
+def createClocked : Syntax.Statement :=
+  .createTable (name! "c") [column (name! "a"),
+    { name := name! "b", declaredType := none,
+      constraints := [.default (.currentTime "CURRENT_TIMESTAMP") "CURRENT_TIMESTAMP"] }] []
+
+/-- {lit}`INSERT INTO c(a) VALUES ('x')`, which gives b its default. -/
+def insertClocked : Syntax.Statement := .insert (name! "c") (some [name! "a"]) [[.string "x".toUTF8.toList]] []
+
+/-- {lit}`SELECT b FROM c`. -/
+def selectClocked : Syntax.Statement :=
+  .select [.expression (.identifier (name! "b") .none) none ""] (some { table := name! "c", alias := none })
+    [] none [] [] none none
+
+-- With a clock, CURRENT_TIMESTAMP and date('now') give the text of the clock's time, as SQLite does.
+example : outputs [selectOf (.currentTime "CURRENT_TIMESTAMP"), selectOf (.call "date" [.string "now".toUTF8.toList])]
+    (clock := newYear) = [.rows [[textValue "2025-01-01 00:00:00"]], .rows [[textValue "2025-01-01"]]] := by
+  decide +kernel
+
+-- With a clock, an INSERT gives a DEFAULT of CURRENT_TIMESTAMP the text of the clock's time.
+example : outputs [createClocked, insertClocked, selectClocked] (clock := newYear) =
+    [.done 0, .done 1, .rows [[textValue "2025-01-01 00:00:00"]]] := by
+  decide +kernel
+
+-- Each statement that reads the clock gets the clock's value at its own index.
+example : outputs [selectOf (.currentTime "CURRENT_DATE"), selectOf (.currentTime "CURRENT_DATE")]
+    (clock := some fun index => if index = 0 then 212602449599999 else 212602449600000) =
+    [.rows [[textValue "2024-12-31"]], .rows [[textValue "2025-01-01"]]] := by
+  decide +kernel
+
+-- Without a clock, each of these statements ends the run; the statements after it do not run.
+example : outputs [selectOf (.currentTime "CURRENT_TIMESTAMP"), selectNames] = [.unmodeled clockUnmodeled] := by
+  decide +kernel
+example : outputs [selectOf (.call "date" [.string "now".toUTF8.toList])] = [.unmodeled clockUnmodeled] := by
+  decide +kernel
+example : outputs [createClocked, insertClocked, selectClocked] = [.done 0, .unmodeled clockUnmodeled] := by
+  decide +kernel
 
 -- random() is a restriction of the model: the run ends at it with the restriction's reason.
 #guard match outputs [.select [.expression (.call "random" []) none ""] none [] none [] [] none none, selectNames] with

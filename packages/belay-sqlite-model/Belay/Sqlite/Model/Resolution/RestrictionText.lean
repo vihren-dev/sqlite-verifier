@@ -64,6 +64,8 @@ def RestrictionKind.id : RestrictionKind → String
   | .triggerForm => "trigger-form"
   | .triggerWritesOwnTable => "trigger-writes-own-table"
   | .schemaTriggerOrder => "schema-trigger-order"
+  | .compoundSubqueryColumn => "compound-subquery-column"
+  | .compoundOrderByTerm => "compound-order-by-term"
 
 /-- The message of a restriction that users read: what the model does not describe,
 and what to write instead. -/
@@ -122,10 +124,13 @@ def RestrictionKind.message : RestrictionKind → String
   | .triggerForm => "a trigger with ON CONFLICT DO UPDATE in its body, with a function that can fail in a write of its body, with a WHEN condition that has a function that can fail or a subquery, or with too many triggers that fire each other, and ON CONFLICT DO UPDATE on a table with a trigger, are not modeled; move the work into separate statements"
   | .triggerWritesOwnTable => "a BEFORE UPDATE or BEFORE DELETE trigger that writes its own table is not modeled, because SQLite documents the result as undefined; use an AFTER trigger"
   | .schemaTriggerOrder => "two triggers of one table, time and event in the starting schema are not modeled, because the schema does not say which one SQLite runs first; create them in the script"
+  | .compoundSubqueryColumn => "x IN (q) and a scalar subquery (q) are not modeled when q is a compound SELECT with an operator other than UNION ALL and an ORDER BY term with COLLATE, because SQLite then reads the column of a derived table; remove the COLLATE from the ORDER BY of q"
+  | .compoundOrderByTerm => "this ORDER BY term of a compound SELECT is not modeled, because the model cannot match it with a result column as SQLite does, or SQLite then names a result column at random; order by a result column number or an AS alias, and give the columns different names"
 
 /-- Every restriction, in the order of the registry. -/
 def RestrictionKind.all : List RestrictionKind :=
-  [.schemaStatement, .engineTable, .rowidColumnName, .unmodeledDefault, .indexStringTerm, .indexDateFunction, .indexJsonFunction, .unknownCollation, .checkFunction, .addColumnCheckError, .generatedFunction, .generatedLoop, .parameterErrorOrder, .upsertGenerated, .addColumnGenerated, .addColumnStrictType, .dropConstraintIndex, .addColumnConstraint, .rowDependentKey, .conflictWithoutTarget, .mixedConflictAlgorithms, .constraintAlgorithmUpdate, .replaceDefault, .insertColumnTwice, .updateColumnTwice, .rowidName, .joinOperator, .laterTableInOn, .systemTable, .unmodeledFunction, .aggregateInExpression, .aliasInExpression, .groupByTerm, .bareColumn, .aggregateOrderBy, .windowValue, .negativeOffset, .windowedGroupSum, .constantFunctionError, .tableFunction, .functionJoin, .laterSourceInArguments, .jsonSubtype, .subqueryHere, .outerAggregate, .subqueryFallibleCall, .subqueryReadsTarget, .distinctOrderBy, .deferredForeignKey, .foreignKeyUpsert, .raiseForm, .triggerForm, .triggerWritesOwnTable, .schemaTriggerOrder]
+  [.schemaStatement, .engineTable, .rowidColumnName, .unmodeledDefault, .indexStringTerm, .indexDateFunction, .indexJsonFunction, .unknownCollation, .checkFunction, .addColumnCheckError, .generatedFunction, .generatedLoop, .parameterErrorOrder, .upsertGenerated, .addColumnGenerated, .addColumnStrictType, .dropConstraintIndex, .addColumnConstraint, .rowDependentKey, .conflictWithoutTarget, .mixedConflictAlgorithms, .constraintAlgorithmUpdate, .replaceDefault, .insertColumnTwice, .updateColumnTwice, .rowidName, .joinOperator, .laterTableInOn, .systemTable, .unmodeledFunction, .aggregateInExpression, .aliasInExpression, .groupByTerm, .bareColumn, .aggregateOrderBy, .windowValue, .negativeOffset, .windowedGroupSum, .constantFunctionError, .tableFunction, .functionJoin, .laterSourceInArguments, .jsonSubtype, .subqueryHere, .outerAggregate, .subqueryFallibleCall, .subqueryReadsTarget, .distinctOrderBy, .deferredForeignKey, .foreignKeyUpsert, .raiseForm, .triggerForm, .triggerWritesOwnTable, .schemaTriggerOrder,
+    .compoundSubqueryColumn, .compoundOrderByTerm]
 
 /-- For every restriction, it is in {name}`RestrictionKind.all`. Proof sketch: case
 analysis on the restriction. -/

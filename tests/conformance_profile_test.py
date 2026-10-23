@@ -138,7 +138,7 @@ def test_profile_selects_its_pinned_engine(tmp_path: Path, runtime_root: Path) -
         profile = measured_profile(connection, name="older-native")
     finally:
         connection.close()
-    record = record_sql("", "SELECT 1 UNION SELECT 2;", name="older-pin", outputs=True, profile=profile)
+    record = record_sql("", "SELECT a FROM (SELECT 1 AS a);", name="older-pin", outputs=True, profile=profile)
     assert record["sourceId"] == profile.source_id
     native_replay([record], profile=profile)
     assert prepare(record, runtime_translator(runtime_root))[1]["verdict"] == "MODEL_UNSUPPORTED"

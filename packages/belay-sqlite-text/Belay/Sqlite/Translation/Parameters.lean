@@ -67,16 +67,39 @@ where
       let number := numbering.largest + 1
       pure (number, { largest := number, names := (text, number) :: numbering.names })
 
-/-- The number of each {lit}`VARIABLE` token of a command, by the token's first byte, or the
-refusal of the first token in text order that SQLite refuses. -/
+/-- One parameter token of a statement: its text, such as {lit}`:id` or {lit}`?`, the number
+that SQLite gives it, and its byte range in the SQL text. The statement syntax holds only the
+number ({name}`Syntax.Expr.parameter`), so the surface reads the text and the range here, to
+give each parameter a Lean argument or variable and to show an error at the parameter. -/
+structure Parameter where
+  /-- The text of the token, with its sign, such as {lit}`$x` or {lit}`?5`. -/
+  text : String
+  /-- The number that SQLite gives the token ({name}`numberToken`). -/
+  number : Nat
+  /-- The first byte of the token. -/
+  start : Nat
+  /-- The byte after the token. -/
+  stop : Nat
+  deriving Inhabited, Repr
+
+/-- The parameter tokens of a command in text order, each with its number, or the refusal of
+the first token in text order that SQLite refuses. -/
 def numberParameters (limit : Nat) (tree : SqlTree) (command : ParseNode) :
-    Except Refusal (List (Nat × Nat)) := do
+    Except Refusal (List Parameter) := do
   let mut numbering : Numbering := {}
-  let mut numbers : List (Nat × Nat) := []
+  let mut parameters : Array Parameter := #[]
   for token in variableTokens tree command do
-    let (number, next) ← numberToken limit numbering token (tree.text token)
+    let text := tree.text token
+    let (number, next) ← numberToken limit numbering token text
     numbering := next
-    numbers := (token.start, number) :: numbers
-  return numbers
+    parameters := parameters.push { text, number, start := token.start, stop := token.stop }
+  return parameters.toList
+
+/-- A statement with its ranges, and its parameter tokens in text order. -/
+structure ParameterizedStatement where
+  /-- The statement with the ranges of its parts. -/
+  statement : Located Syntax.Statement
+  /-- The parameter tokens of the statement, in text order ({name}`numberParameters`). -/
+  parameters : List Parameter
 
 end Belay.Sqlite.Translation

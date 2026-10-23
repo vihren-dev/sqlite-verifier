@@ -1,4 +1,5 @@
 import Belay.Sqlite.Model.QueryEval
+import Belay.Sqlite.Model.CompoundRows
 
 set_option doc.verso true
 
@@ -39,24 +40,32 @@ def records (context : EvalContext) (query : Query) (rows : List (List Value)) :
         | .aggregate aggregate => aggregate.eval context [row]
       (output, sortValues context output row)
 
-/-- Whether two result rows compare equal under the collation of each column, as
-{lit}`SELECT DISTINCT` compares them; NULL equals NULL. -/
-def sameOutput (collations : List Collation) (first second : List Value) : Bool :=
-  first.length == second.length && (collations.zip (first.zip second)).all fun (collation, a, b) =>
-    collation.compare a b == .eq
-
 /-- The records of {lit}`SELECT DISTINCT`: the first record of each set of records whose rows
 compare equal ({name}`sameOutput`), in order. -/
 def distinctRecords (collations : List Collation) (found : List Record) : List Record :=
   found.foldl (fun kept record => if kept.any (sameOutput collations ·.1 record.1) then kept else kept ++ [record]) []
 
+/-- The records of a compound query for an outer row: each row of its terms
+({name}`Compound.rows`) with the values of its {lit}`ORDER BY` terms, which name result columns.
+An expression key, which resolution does not give a compound, reads the outer row. -/
+def Query.compoundRecords (context : EvalContext) (query : Query) (compound : Compound) (outer : List Value) :
+    List Record :=
+  (compound.rows context outer).map fun row => (row, query.orderBy.map fun term => match term.key with
+    | .output index => row.getD index .null
+    | .expression expression => expression.eval context outer)
+
 /-- The records of a query that its sort and window read: {name}`records` of the rows that
-{lit}`WHERE` keeps, with only the first of equal rows for {lit}`SELECT DISTINCT`. -/
+{lit}`WHERE` keeps, with only the first of equal rows for {lit}`SELECT DISTINCT`. The records of
+a compound query are those of its terms for its one source row, the outer row
+({name}`Query.compoundRecords`). -/
 def Query.uniqueRecords (context : EvalContext) (query : Query) (rows : List (List Value)) : List Record :=
-  let found := records context query (filtered context query rows)
-  match query.distinct with
-  | some collations => distinctRecords collations found
-  | none => found
+  match query.compound with
+  | some compound => query.compoundRecords context compound (rows.headD [])
+  | none =>
+    let found := records context query (filtered context query rows)
+    match query.distinct with
+    | some collations => distinctRecords collations found
+    | none => found
 
 /-- Whether {lit}`SELECT DISTINCT` keeps the same rows in every order in which SQLite may read
 them: the rows of each set of equal rows ({name}`sameOutput`) are the same values; always for a
@@ -65,8 +74,7 @@ def Query.distinctCertain (context : EvalContext) (query : Query) (rows : List (
   match query.distinct with
   | none => true
   | some collations =>
-    let found := (records context query (filtered context query rows)).map Prod.fst
-    found.all fun first => found.all fun second => !sameOutput collations first second || first == second
+    equalRowsIdentical collations ((records context query (filtered context query rows)).map Prod.fst)
 
 /-- The result rows of a query over its source rows ({lit}`Query.source`): the records
 ({name}`Query.uniqueRecords`), a stable sort by the {lit}`ORDER BY` terms, then the window.

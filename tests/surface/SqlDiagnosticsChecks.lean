@@ -33,7 +33,7 @@ def comparison : Span :=
 text ({name}`nameRange?`). -/
 def nameRangesOf (text : String) (names : List Identifier) : IO (List (Option (Nat × Nat))) := do
   match ← translateText text with
-  | .ok items => return names.map (nameRange? text.toUTF8 (items[0]?.map (·.span)).get!)
+  | .ok items => return names.map (nameRange? text.toUTF8 (items[0]?.map (·.statement.span)).get!)
   | .error refusal => throw <| IO.userError s!"the translation refuses {text}: {refusal.message}"
 
 -- In a translated text, where a leaf can cover a whole expression: a qualified name in JOIN ... ON,
@@ -49,7 +49,7 @@ def nameRangesOf (text : String) (names : List Identifier) : IO (List (Option (N
 /-- The diagnostics of the text against the empty database, as byte ranges and messages. -/
 def diagnosticsOf (text : String) : IO (List Diagnostic) := do
   match ← translateText text with
-  | .ok items => return scriptDiagnostics Database.empty.raw.connection.resolveState text.toUTF8 items.toList
+  | .ok items => return scriptDiagnostics Database.empty.raw.connection.resolveState text.toUTF8 (items.toList.map (·.statement))
   | .error refusal => throw <| IO.userError s!"the translation refuses {text}: {refusal.message}"
 
 /--

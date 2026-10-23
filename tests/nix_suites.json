@@ -107,6 +107,8 @@
   ],
   "surface": [
     "tests/surface_guide_test.py",
+    "tests/surface_parameters_test.py",
+    "tests/surface_programs_test.py",
     "tests/surface_parser_test.py",
     "tests/surface_layers_test.py",
     "tests/surface_translation_checks_test.py"

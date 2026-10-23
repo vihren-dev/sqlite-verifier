@@ -6,7 +6,9 @@ set_option doc.verso true
 each with the values bound to its parameters (ADR 0019, D1). Scripts form a monoid under
 {lit}`++`, with {lit}`Script.empty` as its unit, and the append keeps each statement's values.
 The term {lit}`sql r"..."` of {lit}`Belay/Sqlite/SqlTerm.lean` gives a script that binds no
-values; {lit}`Script.withValues` binds them. -/
+values for a text without parameters, and otherwise {lit}`Script.withValues` of that script with
+the values of the parameters. {lit}`Script.withValues` also binds values that the notation cannot
+express. -/
 
 namespace Belay.Sqlite
 
@@ -57,8 +59,9 @@ theorem append_assoc (p q r : Script) : p ++ q ++ r = p ++ (q ++ r) := by
 /-- The script with the values bound to the parameters of its statements: statement {lit}`i`
 (from 0) gets item {lit}`i` of {lit}`values`, or the empty list when {lit}`values` has no such
 item, in place of the values that it had ({name}`Belay.Sqlite.Model.bindValues`). For example,
-{lean}`(Script.empty.withValues [[.integer 1]]).statements = []`. A script that binds no values
-does not need it: {lit}`sql "..."` gives each statement the empty list. -/
+{lean}`(Script.empty.withValues [[.integer 1]]).statements = []`. The term {lit}`sql "..."` of a text with
+parameters is this function of the script without values, so a script that the notation does
+not give, such as one with a value list computed from data, uses it directly. -/
 def withValues (script : Script) (values : List (List Belay.Sqlite.Model.Value)) : Script :=
   ⟨Belay.Sqlite.Model.bindValues (script.statements.map (·.1)) values⟩
 

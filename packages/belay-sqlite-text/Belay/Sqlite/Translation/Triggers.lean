@@ -66,15 +66,18 @@ def bodyDelete (tree : SqlTree) (node : ParseNode) : TranslateM (Located Syntax.
   return composite (.delete table.value filter.value subqueries.value) node.start node.stop
     #[table.span, filter.span, subqueries.span]
 
-/-- A SELECT in a trigger body, with every clause of {lit}`Syntax.BodyStatement.select`. -/
+/-- A SELECT in a trigger body, with every clause of {lit}`Syntax.BodyStatement.select`; a
+compound SELECT there is refused. -/
 def bodySelect (tree : SqlTree) (node : ParseNode) : TranslateM (Located Syntax.BodyStatement) := do
   let parts ← require tree node ["scanpt", "select", "scanpt"]
   let (clauses, items) ← statementSubqueries (queryClauses tree parts[1]!)
+  if clauses.compound.value.isSome then
+    unsupported node "A compound SELECT in a trigger body is not modeled; write one SELECT there"
   let subqueries := subqueryList items node
   return composite (.select clauses.columns.value clauses.source.value clauses.joins.value clauses.filter.value
       clauses.groupBy.value clauses.orderBy.value clauses.limit.value clauses.offset.value subqueries.value
       clauses.having.value clauses.distinct.value)
-    node.start node.stop (clauses.selectSpans subqueries)
+    node.start node.stop (clauses.leading ++ #[subqueries.span, clauses.having.span, clauses.distinct.span])
 
 /-- The statements of a {lit}`trigger_cmd_list` node in text order. -/
 def body (tree : SqlTree) (node : ParseNode) : TranslateM (Located (List Syntax.BodyStatement)) := do

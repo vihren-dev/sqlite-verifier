@@ -6,8 +6,8 @@ set_option doc.verso true
 /-! Queries as propositions over one database (ADR 0017, S2): {lit}`Holds q db`, {lit}`Empty q db`
 and {lit}`Fails q db` state what the query {lit}`q` gives on {lit}`db`, for every result that
 SQLite may give for it. Each one is decidable, so {lit}`decide` proves it, or its negation, for
-a concrete database. The query is a script of one read-only statement: the argument
-{lit}`query` checks it when the term elaborates. -/
+a concrete database and query. The query is a script of one read-only statement: the argument
+{lit}`query` checks it when the term elaborates, also for a query with parameters. -/
 
 namespace Belay.Sqlite
 
@@ -26,9 +26,13 @@ def Script.outputOn (script : Script) (db : Database) : Option Output :=
   (db.raw.run script).outputs.head?
 
 /-- The tactic that proves the argument {lit}`query` of {lit}`Holds`, {lit}`Empty` and
-{lit}`Fails`, or gives an error that says what a query is. -/
+{lit}`Fails`, or gives an error that says what a query is. It tries {lit}`decide`, then
+{lit}`rfl`: a script with a value {lit}`$x` or with an argument holds a free variable, which
+{lit}`decide` refuses, and {name}`Script.isQuery` reads only the statements, so {lit}`rfl`
+proves it. The proof {lit}`id rfl` has the type of the goal, so that the instances of
+{lit}`Decidable` below match a proposition that holds it. -/
 elab "check_query" : tactic => do
-  try evalTactic (← `(tactic| decide))
+  try evalTactic (← `(tactic| first | decide | exact id rfl))
   catch _ => throwError "the script must be one read-only statement: a SELECT, or PRAGMA foreign_keys without a value; remove the other statements, or use Database.run"
 
 /-- {lit}`Holds q db`: query {lit}`q` runs on {lit}`db` without error and gives at least one row,

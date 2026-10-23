@@ -36,6 +36,14 @@ example : ¬ Holds (sql r"SELECT 1 FROM invoices WHERE amount < 0") shop :=
 -- `LIMIT 1` without `ORDER BY`: each result that SQLite may give has a row, so the query holds.
 example : Holds (sql r"SELECT id FROM invoices LIMIT 1") shop := by decide +kernel
 
+-- `EXCEPT` compares the rows of two queries: each invoice of amount 0 is open, and some invoice
+-- does not have amount 0.
+example : Empty (sql r"SELECT id FROM invoices WHERE amount = 0 EXCEPT SELECT id FROM invoices WHERE status = 'open'")
+    shop := by decide +kernel
+
+example : ¬ Empty (sql r"SELECT id FROM invoices EXCEPT SELECT id FROM invoices WHERE amount = 0") shop := by
+  decide +kernel
+
 -- A query whose output the model does not describe, here one that reads the clock: none of the
 -- three holds.
 example : ¬ Holds (sql r"SELECT CURRENT_TIMESTAMP") shop ∧ ¬ Empty (sql r"SELECT CURRENT_TIMESTAMP") shop ∧

@@ -23,7 +23,7 @@ instance : Repr Tables where
 /-- The outputs of the script on the database ({name}`Database.Raw.run`), each with the names of
 its result columns ({name}`scriptResultNames`), as {lit}`#sql` shows them ({name}`Output.table`). -/
 def Database.tables (db : Database) (script : Script) : Tables :=
-  let names := scriptResultNames runContext db.raw.connection script.statements
+  let names := scriptResultNames runContext none db.raw.connection script.statements
   { text := "\n\n".intercalate (((db.raw.run script).outputs.zip names).map fun (output, columns) => output.table columns) }
 
 /-- {lit}`#sql db r"..."` shows the output of each statement of the script on the database

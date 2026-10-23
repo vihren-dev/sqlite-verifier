@@ -1,6 +1,6 @@
 """Each mutant of the query, number, key, alias, UPSERT, algorithm, query-without-FROM, JSON,
 JSON function, `json_each`, clock, date function, date modifier, subquery, expression form,
-DISTINCT and HAVING, foreign key, trigger, possible result and parameter mutant tables changes the verdict
+DISTINCT and HAVING, foreign key, trigger, possible result, parameter and compound mutant tables changes the verdict
 of an authored case.
 
 ADR 0012 requires that the conformance suite tests each rule of query semantics and
@@ -32,7 +32,7 @@ from conformance import (algorithm_mutants, alias_mutants, authored_algorithms, 
                          authored_expression_forms, expression_form_mutants, authored_distinct_having,
                          distinct_having_mutants, authored_foreign_keys, foreign_key_mutants,
                          authored_triggers, trigger_mutants, authored_possible_results, possible_result_mutants,
-                         authored_parameters, parameter_mutants)
+                         authored_parameters, parameter_mutants, authored_compound, compound_mutants)
 from conformance import key_mutants, number_mutants, query_mutants
 from tests.mutant_sets import Mutants, Targets, measure_set
 
@@ -167,3 +167,12 @@ def test_every_parameter_mutant_changes_a_verdict(runtime_root: Path) -> None:
     (`conformance.parameter_mutants`): a parameter with an affinity, `ORDER BY ?` as a column
     number, and a `LIMIT ?` that accepts a real with a fraction."""
     measure_set(runtime_root, [authored_parameters], [(parameter_mutants.MUTANTS, parameter_mutants.TARGETS)])
+
+
+def test_every_compound_mutant_changes_a_verdict(runtime_root: Path) -> None:
+    """The authored cases of compound SELECT (ADR 0019, slice 3) notice every changed rule of the
+    model (`conformance.compound_mutants`): operators that group from the right, `EXCEPT` with
+    duplicates, NULL unequal to NULL, the compound collation from the right-most term or always
+    `BINARY`, `IN` with the compound collation, the right term of `EXCEPT` run after empty left
+    rows, and an `ORDER BY` term sorted under `BINARY`."""
+    measure_set(runtime_root, [authored_compound], [(compound_mutants.MUTANTS, compound_mutants.TARGETS)])

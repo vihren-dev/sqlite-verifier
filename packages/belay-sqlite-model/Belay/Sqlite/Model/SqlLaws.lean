@@ -1,5 +1,6 @@
 import Belay.Sqlite.Model.SqlExecution
 import Belay.Sqlite.Model.SqlStateLaws
+import Belay.Sqlite.Model.QueryPlainLaws
 import Belay.Sqlite.Model.Resolution.StatementCatalog
 
 set_option doc.verso true
@@ -25,14 +26,14 @@ source. This is a syntax guard, not a success claim; the empty script satisfies 
 statement:
 * is not a write ({name}`Resolved.Statement.Kind.write`),
 * if it is a DROP, checks no foreign keys, and
-* if it is a query, has no subqueries, no {lit}`DISTINCT`, no fallible call and no
-  {lit}`json_each` source. -/
+* if it is a query, has no subqueries, no {lit}`DISTINCT`, no fallible call, no
+  {lit}`json_each` source and no compound terms ({name}`Resolved.Query.compound`). -/
 def NoWrites (script : List Resolved.Statement) : Prop :=
   ∀ statement ∈ script, statement.kind ≠ .write ∧
     (∀ positions keys, statement = .drop positions keys → keys = none) ∧
     ∀ query subqueries, statement = .query query subqueries →
     subqueries = [] ∧ query.distinct = none ∧ query.expressions.all (!·.any Resolved.Expr.isFallibleCall) = true ∧
-      query.sources.all (!·.source.isEach) = true
+      query.sources.all (!·.source.isEach) = true ∧ query.compound = none
 
 /-- Each definition in the script is one that the model describes: each ADD COLUMN has a time
 default ({name}`CatalogColumn.clockDefault`) or a successful {name}`readDefaultValue` result,
@@ -65,19 +66,19 @@ theorem supportedSqlFrom_noWrites (guard : NoWrites (script.map (·.1)))
     have ready : statementReady (state.clock position) parameters statement state.database = true := by
       cases statement with
       | query query subqueries =>
-        obtain ⟨none, single, plain, noEach⟩ : subqueries = [] ∧ query.distinct = none ∧
+        obtain ⟨none, single, plain, noEach, single_select⟩ : subqueries = [] ∧ query.distinct = none ∧
             (query.expressions.all fun x => !x.any Resolved.Expr.isFallibleCall) = true ∧
-            query.sources.all (!·.source.isEach) = true := first.2.2 query subqueries rfl
+            query.sources.all (!·.source.isEach) = true ∧ query.compound = none := first.2.2 query subqueries rfl
         subst none
-        simp only [statementReady, runStatement, Resolved.Query.runOn, Resolved.statementContext_nil, Resolved.subqueriesPlain, List.all_nil,
-          Bool.true_and]
+        simp only [statementReady, runStatement, Resolved.Query.runOn, Resolved.statementContext_nil,
+          Resolved.Query.nestedSubqueries, single_select, Resolved.subqueriesPlain, List.all_nil, Bool.true_and]
         cases found : query.source { Resolved.EvalContext.plain (state.clock position) with parameters }
             state.database with
         | none => rfl
         | some source =>
           have clean := Resolved.source_fault_of_plain _ state.database query.sources _ source noEach rfl found
           cases window : query.bindWindow parameters with
-          | none => simp [Resolved.Query.run, window, clean]
+          | none => simp [Resolved.Query.run, single_select, window, clean]
           | some bound =>
             obtain ⟨_, _, shape⟩ := Resolved.Query.bindWindow_some parameters query bound window
             have boundSingle : bound.distinct = none := by rw [shape]; exact single
@@ -85,7 +86,7 @@ theorem supportedSqlFrom_noWrites (guard : NoWrites (script.map (·.1)))
               rw [shape]; exact plain
             by_cases must : bound.mustFail { Resolved.EvalContext.plain (state.clock position) with parameters }
                 source.rows = true <;>
-              simp [Resolved.Query.run, window, Resolved.Query.mayFail_of_plain
+              simp [Resolved.Query.run, single_select, window, Resolved.Query.mayFail_of_plain
                   { Resolved.EvalContext.plain (state.clock position) with parameters } (fun _ _ => ⟨rfl, rfl, rfl⟩)
                   bound _ boundPlain, clean, must, Resolved.Query.distinctCertain, boundSingle]
       | drop positions keys =>

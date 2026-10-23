@@ -55,6 +55,9 @@ def ExprError.message : ExprError → String
   | .misuseOfAggregate function => s!"misuse of aggregate function {function}()"
   | .aggregateInGroupBy => "aggregate functions are not allowed in the GROUP BY clause"
   | .orderByOutOfRange term columns => s!"{ordinal term} ORDER BY term out of range - should be between 1 and {columns}"
+  | .orderByNoMatch term => s!"{ordinal term} ORDER BY term does not match any column in the result set"
+  | .compoundColumns operator =>
+    s!"SELECTs to the left and right of {operator.keywords} do not have the same number of result columns"
   | .groupByOutOfRange term columns => s!"{ordinal term} GROUP BY term out of range - should be between 1 and {columns}"
   | .wrongArgumentCount function => s!"wrong number of arguments to function {function}()"
   | .noSuchFunction function => s!"no such function: {function}"

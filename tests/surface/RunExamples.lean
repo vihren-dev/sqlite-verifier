@@ -1,7 +1,7 @@
 import Belay
 
 /-! A fixture of `tests/surface_guide_test.py`. It checks the runs of `db.run`,
-`Database.Raw.run` and `Run.checked` (`Belay/Sqlite/Run.lean`, `Belay/Sqlite/RunLaws.lean`), over
+`Database.Raw.run` and `Run.checked` (`Belay/Sqlite/Run.lean`, `Belay/Sqlite/ProgramRun.lean`, `Belay/Sqlite/RunLaws.lean`), over
 the model's `runScriptFrom` (`Belay/Sqlite/Model/ScriptRun.lean`). It also checks the facts of
 `Belay/Sqlite/Database.lean` and the display of outputs (`Belay/Sqlite/Model/OutputRepr.lean`).
 The examples show these facts:
@@ -162,20 +162,21 @@ def broken : Database.Raw :=
 def deleteZeta : Script := sql r"DELETE FROM invoices WHERE id = 2" ++ ids
 
 -- `Database.Raw.run` gives the result that the run reached, without the check. The check of
--- `Run.checked` gives no database for it: the outputs end with `Output.unmodeled`, and the run
--- keeps the start database, here `shop`.
+-- `Run.checked` gives no database for it: the outputs end with `Output.unmodeled`, the run
+-- keeps the start database, here `shop`, and the value is none.
 example : broken.Admitted Profile.pinned ∧ ¬broken.NotNull ∧ ¬broken.Valid Profile.pinned := by decide +kernel
 example : (broken.run deleteZeta).outputs = [.done 1, .rows [[1]]] := by decide +kernel
-example : (Run.checked shop (broken.run deleteZeta)).outputs = [.done 1, .rows [[1]], .unmodeled invalidReason] := by
+example : (Run.checked shop (SqlRun.ofScript (broken.run deleteZeta))).outputs = [.done 1, .rows [[1]], .unmodeled invalidReason] := by
   decide +kernel
-example : (Run.checked shop (broken.run deleteZeta)).db.raw = shop.raw ∧
-    (Run.checked shop (broken.run deleteZeta)).transaction = none := by decide +kernel
+example : (Run.checked shop (SqlRun.ofScript (broken.run deleteZeta))).db.raw = shop.raw ∧
+    (Run.checked shop (SqlRun.ofScript (broken.run deleteZeta))).transaction = none ∧
+    (Run.checked shop (SqlRun.ofScript (broken.run deleteZeta))).value = none := by decide +kernel
 -- The check reads only the database at the end: after a DELETE of the row with the NULL, the
 -- database is valid, and the outputs do not end with `Output.unmodeled`.
-example : (Run.checked shop (broken.run (sql r"DELETE FROM invoices WHERE id = 1" ++ ids))).outputs =
+example : (Run.checked shop (SqlRun.ofScript (broken.run (sql r"DELETE FROM invoices WHERE id = 1" ++ ids)))).outputs =
     [.done 1, .rows [[2]]] := by decide +kernel
 -- When the model's run ends with `Output.unmodeled`, the check adds no second one.
-example : (Run.checked shop (broken.run (sql r"INSERT INTO invoices (id, customer, amount) VALUES (3, 'kay', 5)"))).outputs =
+example : (Run.checked shop (SqlRun.ofScript (broken.run (sql r"INSERT INTO invoices (id, customer, amount) VALUES (3, 'kay', 5)")))).outputs =
     [.unmodeled Belay.Sqlite.Model.unmodeledHere] := by decide +kernel
 
 /-- A table whose column refers to `invoices`, and a row without its parent. -/

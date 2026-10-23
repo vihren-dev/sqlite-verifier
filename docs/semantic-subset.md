@@ -73,6 +73,21 @@ The frontend maps these statements, and refuses every other statement as
   subquery that reads the written table is a restriction. A subquery in an `ON` condition, a
   `json_each` argument, `RETURNING`, `ON CONFLICT` or a schema statement, and in `FROM`, is
   refused or a restriction.
+- Compound `SELECT` (ADR 0019, D3): `UNION ALL`, `UNION`, `INTERSECT` and `EXCEPT` of
+  `SELECT` terms as above, from left to right, as a statement and as the `q` of `EXISTS`,
+  `IN` and a scalar subquery. Two rows are equal when each column compares equal under the
+  compound column's collation, without affinity, and NULL equals NULL; the collation of a
+  column is that of the left-most term whose expression has one, else `BINARY`. The columns
+  have the names of the left-most term; when SQLite sorts the compound as
+  `SELECT * FROM (compound)` (an operator other than `UNION ALL` and an `ORDER BY` term with
+  `COLLATE`), they have the names of that subquery's columns, such as `a` for `a COLLATE NOCASE`
+  and `a:1` for a second column `a`. `ORDER BY`, `LIMIT` and `OFFSET` apply to the whole
+  compound; an `ORDER BY` term is a column number, an `AS` alias of a term or an expression
+  equal to a result expression of a term, else SQLite's prepare error. `x IN (q)` reads the
+  affinity and the collation of the right-most term's column, and a scalar `(q)` its affinity.
+  When rows that are equal differ, such as `'a'` and `'A'` under `NOCASE`, SQLite's plan
+  chooses the row that `UNION` keeps, and the statement is not described. A `VALUES` term, a
+  compound in `FROM`, as an `INSERT` source and as a statement of a trigger body are refused.
 
 Expressions are `NULL`, numeric, string and blob literals, the time keywords,
 names, unary `-` and `+`, and `=`. Inside a `SELECT`, they may also be the other
@@ -167,7 +182,7 @@ REPLACE of a NOT NULL column with a default is `replace-default`. `UPDATE OR`, a
 `NULLS` order, qualified name or `WHERE`, `WITH`, `FROM` in writes, sort modifiers in keys,
 partial and expression indexes, `IF NOT EXISTS`, `TEMP`, schema names, table
 options, `AS SELECT`, views, `TEMP` and `INSTEAD OF` triggers, virtual tables, `EXPLAIN`, `PRAGMA`,
-compound `SELECT`, `DISTINCT` inside an aggregate call, subqueries and table-valued functions in
+`DISTINCT` inside an aggregate call, subqueries and table-valued functions in
 `FROM`, schema-qualified tables and columns, `NULLS FIRST` and `NULLS LAST`, and
 other functions are refused. Names keep
 their case as written; quotes are removed as SQLite removes them. Numeric literals
@@ -456,6 +471,8 @@ should shrink.
 | `foreign-key-upsert` | With foreign keys on, `INSERT` with `ON CONFLICT DO UPDATE` on a table with a foreign key to check is not modeled | ADR 0018, slice 4 |
 | `raise-form` | `RAISE` in a trigger outside the one result column of a `SELECT` without `FROM`, alone or as a result of its `CASE`, or with a message that can fail, is not modeled | ADR 0018, slice 5 |
 | `trigger-form` | A trigger with `ON CONFLICT DO UPDATE` in its body, with a function that can fail in a write of its body that no other restriction covers, with a `WHEN` condition that has a function that can fail or a subquery, or with too many triggers that fire each other, and `ON CONFLICT DO UPDATE` on a table with a trigger, are not modeled | ADR 0018, slice 5 |
+| `compound-subquery-column` | `x IN (q)` and a scalar subquery `(q)` over a compound `SELECT` with an operator other than `UNION ALL` and an `ORDER BY` term with `COLLATE` are not modeled, because SQLite then reads the column of a derived table | ADR 0019, D3 |
+| `compound-order-by-term` | An `ORDER BY` term of a compound `SELECT` that the model cannot match with a result column as SQLite does, such as an aggregate, or a `COLLATE` term after which SQLite names a result column at random, is not modeled | ADR 0019, D3 |
 
 #### Undecided
 

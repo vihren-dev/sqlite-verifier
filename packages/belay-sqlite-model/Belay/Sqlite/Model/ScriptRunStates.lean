@@ -6,7 +6,8 @@ set_option doc.verso true
 {name}`Belay.Sqlite.Model.runSqlFrom` (ADR 0017, D3, amended 2026-10-22). For a script that
 resolution accepts, the run has the same state as {name}`Belay.Sqlite.Model.runSqlFrom` before
 each statement up to the first error, and the same database after the first error, unless the
-run ends earlier at a statement that the model does not describe. The outputs agree by
+run ends earlier at a statement that the model does not describe, when the clock assignment of
+the state fits the run's clock ({name}`Belay.Sqlite.Model.ClockFits`). The outputs agree by
 {name}`Belay.Sqlite.Model.runScriptFrom_agrees`. -/
 
 namespace Belay.Sqlite.Model
@@ -42,10 +43,12 @@ theorem Connection.afterError_database (connection : Connection) (foreignKeys : 
     (connection.afterError foreignKeys outcome).state.database = outcome.database := by
   cases outcome <;> rfl
 
-/-- For every context, script of statements with values, index, connection, resolved
-statements, final resolution state, count and state: if {name}`resolveFrom` resolves the
-statements of the script from the index against the connection's resolution state with the
-resolved statements, the run of the first {lit}`count` statements gives no
+/-- For every context, optional clock, script of statements with values, index, connection,
+resolved statements, final resolution state, count and state: if {name}`resolveFrom` resolves
+the statements of the script from the index against the connection's resolution state with the
+resolved statements, the clock assignment of the connection's state fits the run with the clock
+from the index over them ({name}`ClockFits`), the run with the clock of the first {lit}`count`
+statements gives no
 {name}`Output.unmodeled`, and the state at position {lit}`count` of {name}`sqlStatesFrom` of
 the resolved statements, each with the values of its statement in the script
 ({name}`bindValues`), on the connection's state is the state, then
@@ -53,22 +56,24 @@ the connection after that run has the state. So the run and {name}`runSqlFrom` h
 state before each statement up to and including the first that halts, and at the end when no
 statement halts. Proof sketch: induction on the script; each step that continues keeps the
 connection's resolution state equal to the next resolution state
-({name}`Connection.resolveState_after_next`), and a step that halts has no later state. -/
-theorem runScriptFrom_states (context : ResolveContext) :
+({name}`Connection.resolveState_after_next`) and keeps the clock assignment, so the rest fits
+({name}`ClockFits.tail`); a step that halts has no later state. -/
+theorem runScriptFrom_states (context : ResolveContext) (clock : Option Clock) :
     ∀ (script : List (Syntax.Statement × List Value)) (index : Nat) (connection : Connection)
       (resolved : List Resolved.Statement) (final : ResolveState) (count : Nat) (state : SqlState),
       resolveFrom context index connection.resolveState (script.map (·.1)) = .ok (resolved, final) →
-      (runScriptFrom context index connection (script.take count)).outputs.all (!·.endsRun) = true →
+      ClockFits clock index resolved connection.state.clock →
+      (runScriptFrom context clock index connection (script.take count)).outputs.all (!·.endsRun) = true →
       (sqlStatesFrom index (bindValues resolved (script.map (·.2))) connection.state).1[count]? = some state →
-      (runScriptFrom context index connection (script.take count)).connection.state = state
-  | script, index, connection, resolved, final, 0, state, _, _, found => by
+      (runScriptFrom context clock index connection (script.take count)).connection.state = state
+  | script, index, connection, resolved, final, 0, state, _, _, _, found => by
     rw [sqlStatesFrom_head, Option.some.injEq] at found
     simp [runScriptFrom, found]
-  | [], index, connection, resolved, final, count + 1, state, ok, _, found => by
+  | [], index, connection, resolved, final, count + 1, state, ok, _, _, found => by
     simp only [List.map_nil, resolveFrom, Except.ok.injEq, Prod.mk.injEq] at ok
     obtain ⟨rfl, rfl⟩ := ok
     simp [sqlStatesFrom, bindValues] at found
-  | (statement, parameters) :: rest, index, connection, resolved, final, count + 1, state, ok, running, found => by
+  | (statement, parameters) :: rest, index, connection, resolved, final, count + 1, state, ok, fits, running, found => by
     simp only [List.map_cons, resolveFrom, bind, Except.bind] at ok
     split at ok
     · cases ok
@@ -78,7 +83,8 @@ theorem runScriptFrom_states (context : ResolveContext) :
       · rename_i later restOk
         simp only [pure, Except.pure, Except.ok.injEq, Prod.mk.injEq] at ok
         obtain ⟨rfl, rfl⟩ := ok
-        rcases runScriptStep_resolved (index := index) (parameters := parameters) headOk with ⟨reason, ended⟩ | ⟨next, continued, afterStep⟩
+        rcases runScriptStep_resolved (index := index) (parameters := parameters) headOk (fun _ => fits.head) with
+          ⟨reason, ended⟩ | ⟨next, continued, afterStep⟩
         · simp [runScriptFrom, ended, Output.endsRun] at running
         · simp only [List.take_succ_cons, runScriptFrom, continued, List.all_cons] at running ⊢
           simp only [List.map_cons, bindValues_cons_cons, sqlStatesFrom] at found
@@ -91,34 +97,38 @@ theorem runScriptFrom_states (context : ResolveContext) :
             simp only [List.getElem?_cons_succ] at found
             rw [show nextState = next.state by rw [nextIs]] at found
             rw [Bool.and_eq_true] at running
-            exact runScriptFrom_states context rest (index + 1) next later.1 later.2 count state restOk
-              running.2 found
+            have restFits : ClockFits clock (index + 1) later.1 next.state.clock := by
+              rw [nextIs]; exact (advanceWith_clock advanced).symm ▸ fits.tail
+            exact runScriptFrom_states context clock rest (index + 1) next later.1 later.2 count state restOk
+              restFits running.2 found
 
-/-- For every context, script of statements with values, index, connection, resolved
-statements, final resolution state and outcome: if {name}`resolveFrom` resolves the statements
-of the script as in {name}`runScriptFrom_states`, a statement of {name}`runSqlFrom` of the
-resolved statements with the values of the script ({name}`bindValues`) halts with the outcome ({name}`sqlStatesFrom`), and the run up
-to and including that statement gives no {name}`Output.unmodeled`, then the database of the
+/-- For every context, optional clock, script of statements with values, index, connection,
+resolved statements, final resolution state and outcome: if {name}`resolveFrom` resolves the
+statements of the script as in {name}`runScriptFrom_states`, the clock assignment of the
+connection's state fits the run with the clock ({name}`ClockFits`), a statement of {name}`runSqlFrom` of the
+resolved statements with the values of the script ({name}`bindValues`) halts with the outcome ({name}`sqlStatesFrom`), and the run with the
+clock up to and including that statement gives no {name}`Output.unmodeled`, then the database of the
 connection after that run is the outcome's database. So the two runs have the same database after
 the first error. Proof sketch: induction on the script; at the statement that halts, the
 connection after it is {name}`Connection.afterError` of the outcome
 ({name}`Connection.afterError_database`). -/
-theorem runScriptFrom_halt_database (context : ResolveContext) :
+theorem runScriptFrom_halt_database (context : ResolveContext) (clock : Option Clock) :
     ∀ (script : List (Syntax.Statement × List Value)) (index : Nat) (connection : Connection)
       (resolved : List Resolved.Statement) (final : ResolveState) (outcome : Outcome),
       resolveFrom context index connection.resolveState (script.map (·.1)) = .ok (resolved, final) →
+      ClockFits clock index resolved connection.state.clock →
       (sqlStatesFrom index (bindValues resolved (script.map (·.2))) connection.state).2 = some outcome →
-      (runScriptFrom context index connection (script.take
+      (runScriptFrom context clock index connection (script.take
         (sqlStatesFrom index (bindValues resolved (script.map (·.2))) connection.state).1.length)).outputs.all
           (!·.endsRun) = true →
-      (runScriptFrom context index connection (script.take
+      (runScriptFrom context clock index connection (script.take
         (sqlStatesFrom index (bindValues resolved (script.map (·.2))) connection.state).1.length)).connection.state.database =
           outcome.database
-  | [], index, connection, resolved, final, outcome, ok, halted, _ => by
+  | [], index, connection, resolved, final, outcome, ok, _, halted, _ => by
     simp only [List.map_nil, resolveFrom, Except.ok.injEq, Prod.mk.injEq] at ok
     obtain ⟨rfl, rfl⟩ := ok
     simp [sqlStatesFrom, bindValues] at halted
-  | (statement, parameters) :: rest, index, connection, resolved, final, outcome, ok, halted, running => by
+  | (statement, parameters) :: rest, index, connection, resolved, final, outcome, ok, fits, halted, running => by
     simp only [List.map_cons, resolveFrom, bind, Except.bind] at ok
     split at ok
     · cases ok
@@ -128,7 +138,8 @@ theorem runScriptFrom_halt_database (context : ResolveContext) :
       · rename_i later restOk
         simp only [pure, Except.pure, Except.ok.injEq, Prod.mk.injEq] at ok
         obtain ⟨rfl, rfl⟩ := ok
-        rcases runScriptStep_resolved (index := index) (parameters := parameters) headOk with ⟨reason, ended⟩ | ⟨next, continued, afterStep⟩
+        rcases runScriptStep_resolved (index := index) (parameters := parameters) headOk (fun _ => fits.head) with
+          ⟨reason, ended⟩ | ⟨next, continued, afterStep⟩
         · simp only [List.map_cons, bindValues_cons_cons, sqlStatesFrom] at running
           split at running <;> simp [runScriptFrom, ended, Output.endsRun] at running
         · simp only [List.map_cons, bindValues_cons_cons] at halted running ⊢
@@ -147,7 +158,9 @@ theorem runScriptFrom_halt_database (context : ResolveContext) :
             simp only [List.length_cons, List.take_succ_cons, runScriptFrom, continued, List.all_cons,
               Bool.and_eq_true] at running ⊢
             rw [show nextState = next.state by rw [nextIs]] at halted running ⊢
-            exact runScriptFrom_halt_database context rest (index + 1) next later.1 later.2 outcome restOk halted
-              running.2
+            have restFits : ClockFits clock (index + 1) later.1 next.state.clock := by
+              rw [nextIs]; exact (advanceWith_clock advanced).symm ▸ fits.tail
+            exact runScriptFrom_halt_database context clock rest (index + 1) next later.1 later.2 outcome restOk
+              restFits halted running.2
 
 end Belay.Sqlite.Model

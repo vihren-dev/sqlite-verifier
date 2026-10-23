@@ -108,6 +108,24 @@ def comparisonOperands : Option Affinity → Value → Value → Value × Value
     if left.isText || right.isText then (Value.store .text left, Value.store .text right) else (left, right)
   | some .blob, left, right | none, left, right => (left, right)
 
+/-- How SQLite ends the run of a query, before the model softens the faults of a subquery
+(ADR 0019, D3): a compound {lit}`SELECT` reads it for each of its terms, because SQLite runs a
+term of a statement's compound as its own query. Use {lean}`RunEnd.done` for a run without a
+failure. -/
+inductive RunEnd where
+  /-- The run ends without a failure. -/
+  | done
+  /-- The run may fail, or fails in a way that the model does not describe. -/
+  | may
+  /-- A function call certainly fails, with {lit}`Fault.must`. -/
+  | function
+  /-- An aggregate certainly overflows. {lit}`grouped` is true for a query with
+  {lit}`GROUP BY`, which may give the rows of earlier groups before the error. -/
+  | overflow (grouped : Bool)
+  /-- A value of {lit}`LIMIT` or {lit}`OFFSET` is not an integer: {lit}`datatype mismatch`. -/
+  | mismatch
+  deriving Repr, DecidableEq
+
 /-- The rows that a subquery gives for one outer row, with the fault of its evaluation
 (ADR 0018, D1), and whether SQLite's plan can change the rows that a scalar subquery or
 {lit}`IN` reads. Use {lean}`true` for both flags when the rows are certain. -/
@@ -122,6 +140,9 @@ structure SubqueryRun where
   /-- Whether the first values of the rows are the same in every order in which SQLite may
   give the rows, as a multiset; {lit}`IN` reads them. -/
   rowsCertain : Bool := true
+  /-- How the run ended without the softened fault ({name}`RunEnd`), which a compound
+  {lit}`SELECT` reads for its terms. -/
+  ending : RunEnd := .done
 
 /-- What the evaluation of an expression reads besides its row (ADR 0018, D1): the
 statement's clock value in Julian-day milliseconds, the results of the statement's

@@ -53,18 +53,24 @@ table, an integer overflow and a value of its window that is not an integer
 ({name}`Query.bindWindow`), which the model does not describe inside a subquery, are
 {lean}`Fault.may` too; the window is bound to the values of the context when the subquery
 runs. Its first row is certain when the window of one row is ({name}`Query.windowCertain`),
-and its rows when its own window is. -/
+and its rows when its own window is. Its end ({name}`RunEnd`) keeps the failure of the run
+without the softening, for a compound that reads it for its terms. -/
 def Query.subqueryRun (context : EvalContext) (database : Database) (outer : List Value) (query : Query) :
     SubqueryRun :=
   match query.sourceAfter context outer database with
-  | none => { rows := [], fault := .may }
+  | none => { rows := [], fault := .may, ending := .may }
   | some source => match query.bindWindow context.parameters with
-    | none => { rows := [], fault := .may }
+    | none => { rows := [], fault := .may, ending := .mismatch }
     | some bound =>
       let run := bound.run context source.rows
       { rows := run.rows, fault := if run.overflow then .may else (source.fault.join run.fault).soften,
         firstCertain := bound.windowCertain context source.rows (some (min 1 (bound.limit.getD 1))),
-        rowsCertain := bound.windowCertain context source.rows bound.limit }
+        rowsCertain := bound.windowCertain context source.rows bound.limit,
+        ending := if run.mismatch then .mismatch else if run.overflow then .overflow !bound.groupBy.isEmpty
+          else match source.fault.join run.fault with
+            | .none => .done
+            | .may => .may
+            | .must => .function }
 
 /-- The context of a statement's subqueries at a nesting depth, with the statement's clock value
 and the values bound to its parameters at every depth: with no depth left, the plain context

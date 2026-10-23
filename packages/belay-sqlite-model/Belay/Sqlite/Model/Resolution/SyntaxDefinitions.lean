@@ -1,4 +1,4 @@
-import Belay.Sqlite.Model.Resolution.SyntaxExpr
+import Belay.Sqlite.Model.Resolution.SyntaxSubquery
 import Belay.Sqlite.Model.Resolution.ForeignKeyAction
 import Belay.Sqlite.Model.Resolution.ConflictAlgorithm
 

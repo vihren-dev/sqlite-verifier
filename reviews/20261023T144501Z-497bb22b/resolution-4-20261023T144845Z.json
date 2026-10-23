@@ -1,0 +1,7 @@
+{
+  "date": "2026-10-23T14:48:45+00:00",
+  "finding": "20261023T144501Z-497bb22b#4",
+  "kind": "resolution",
+  "outcome": "fixed",
+  "reason": "fixed in the next refactor commit"
+}

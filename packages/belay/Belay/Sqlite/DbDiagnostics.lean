@@ -41,17 +41,17 @@ def failureAction (statement : Resolved.Statement) : ExecutionError → String
 /-- The error of a statement of a text, which binds no values, whose output is
 {name}`Output.error` with the code: a prepare
 error at its name ({name}`prepareDiagnostic`), and every other error with its message
-({name}`ExecutionError.message` at the clock value of the statement on the database of the
-connection, then {name}`failureAction`) at the statement. The error comes from
-{name}`runScriptStepFailure`, which runs the statement on the same clock value and database
+({name}`ExecutionError.message` at the clock value 0, which a statement that runs without a
+clock has, on the database of the connection, then {name}`failureAction`) at the statement. The
+error comes from {name}`runScriptStepFailure` without a clock, which runs the statement on the
+same clock value and database
 and gives an error of that code for each such output ({name}`runScriptStep_error_failure`); when
 it gives none, the message is {name}`missingFailureMessage`. -/
 def failureDiagnostic (bytes : ByteArray) (index : Nat) (connection : Connection)
     (item : Located Syntax.Statement) (code : Nat) : Diagnostic :=
   let (start, stop) := statementRange item
-  let clock := connection.state.clock index
   let database := connection.state.database
-  match runScriptStepFailure runContext index connection item.value [] with
+  match runScriptStepFailure runContext none index connection item.value [] with
   | some (_, .prepare error) => prepareDiagnostic bytes item error
   | some (statement, failure@.unmodeled) | some (statement, failure@.transactionAlreadyActive)
   | some (statement, failure@.noActiveTransaction) | some (statement, failure@.constraintViolation)
@@ -59,7 +59,7 @@ def failureDiagnostic (bytes : ByteArray) (index : Nat) (connection : Connection
   | some (statement, failure@.integerOverflow) | some (statement, failure@.datatypeMismatch)
   | some (statement, failure@.functionError) | some (statement, failure@.nullColumnDefault)
   | some (statement, failure@.nonConstantColumnDefault) | some (statement, failure@.checkColumnDefault) =>
-    { start, stop, message := failure.message clock [] statement database ++ failureAction statement failure }
+    { start, stop, message := failure.message 0 [] statement database ++ failureAction statement failure }
   | none => { start, stop, message := missingFailureMessage code }
 
 /-- The errors of a statement with its output: {name}`failureDiagnostic` for
@@ -94,7 +94,7 @@ def endDiagnostics (size : Nat) (connection : Connection) : List Diagnostic :=
   | none => []
 
 /-- Run the statements of a text in order from a zero-based index on the connection, each with
-{name}`runScriptStep`, no values and the surface's context, and give the errors and the connection at the
+{name}`runScriptStep`, no values, no clock and the surface's context, and give the errors and the connection at the
 end. Each statement that fails gives its error ({name}`outputDiagnostics`), and the run goes on.
 A statement that ends the run gives {name}`endedDiagnostic`, and the statements after it give
 no error. A run that reaches the end of the text with an open transaction gives
@@ -103,7 +103,7 @@ can end the transaction. -/
 def runDiagnosticsFrom (bytes : ByteArray) (index : Nat) (connection : Connection) :
     List (Located Syntax.Statement) → List Diagnostic × Connection
   | [] => (endDiagnostics bytes.size connection, connection)
-  | item :: rest => match runScriptStep runContext index connection item.value [] with
+  | item :: rest => match runScriptStep runContext none index connection item.value [] with
     | .ended reason => ([endedDiagnostic connection item reason], connection)
     | .continued output next =>
       let later := runDiagnosticsFrom bytes (index + 1) next rest
@@ -111,17 +111,17 @@ def runDiagnosticsFrom (bytes : ByteArray) (index : Nat) (connection : Connectio
 
 /-- For every text, index, connection and list of statements: the connection at the end of
 {name}`runDiagnosticsFrom` is the connection at the end of {name}`runScriptFrom` over the same
-statements, each with no values, with the surface's context. So the errors come from the model's run, and not from a
+statements, each with no values, without a clock, with the surface's context. So the errors come from the model's run, and not from a
 second definition of it. Proof sketch: induction on the statements; both functions take the
 same step for each statement. -/
 theorem runDiagnosticsFrom_connection (bytes : ByteArray) :
     ∀ (index : Nat) (connection : Connection) (items : List (Located Syntax.Statement)),
       (runDiagnosticsFrom bytes index connection items).2 =
-        (runScriptFrom runContext index connection (items.map fun item => (item.value, []))).connection
+        (runScriptFrom runContext none index connection (items.map fun item => (item.value, []))).connection
   | _, _, [] => rfl
   | index, connection, item :: rest => by
     simp only [runDiagnosticsFrom, runScriptFrom, List.map]
-    cases runScriptStep runContext index connection item.value [] with
+    cases runScriptStep runContext none index connection item.value [] with
     | ended reason => rfl
     | continued output next => exact runDiagnosticsFrom_connection bytes (index + 1) next rest
 

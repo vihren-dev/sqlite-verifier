@@ -59,6 +59,24 @@ structure QuerySource where
 without a condition. -/
 def QuerySource.first (position : Nat) : QuerySource := { kind := .inner, source := .table position, condition := none }
 
+/-- The terms of a resolved compound {lit}`SELECT` (ADR 0019, D3), each a query of the
+statement's list of subqueries by its index: the left-most term, each operator with the term on
+its right from left to right, and the collation of each result column. Two rows are equal when
+each column compares equal under its collation, NULL equal to NULL; the collation of a column is
+that of the left-most term whose expression has one, {lit}`BINARY` when none has one. -/
+structure Compound where
+  /-- The index of the left-most term. -/
+  first : Nat
+  /-- Each operator with the index of the term on its right, from left to right. -/
+  rest : List (CompoundOperator × Nat)
+  /-- The collation of each result column. -/
+  collations : List Collation
+  deriving Repr, DecidableEq
+
+/-- The indexes of the terms of a compound, from left to right. -/
+def Compound.terms (compound : Compound) : List Nat :=
+  compound.first :: compound.rest.map (·.2)
+
 /-- A resolved {lit}`SELECT`: its sources, the {lit}`WHERE` condition, whether it is an
 aggregate query with its grouping terms, the result columns with their names, the
 {lit}`ORDER BY` terms with a flag for {lit}`DESC`, and the window: literal values, or the
@@ -107,6 +125,11 @@ structure Query where
   /-- The collation of each result column of {lit}`SELECT DISTINCT`, under which equal rows are
   one row; {lean}`(none : Option (List Collation))` without {lit}`DISTINCT`. -/
   distinct : Option (List Collation) := none
+  /-- The terms of a compound {lit}`SELECT` ({name}`Compound`), or
+  {lean}`(none : Option Compound)` for one {lit}`SELECT`. A compound query has no sources, no
+  filter and no columns of its own; its rows are those of its terms, its names those of the
+  left-most term, and its {lit}`ORDER BY` terms name result columns. -/
+  compound : Option Compound := none
   deriving Repr, DecidableEq
 
 end Belay.Sqlite.Model.Resolved

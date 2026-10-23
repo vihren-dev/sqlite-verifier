@@ -42,4 +42,24 @@ inductive ArithmeticOperator where
   | remainder
   deriving Repr, DecidableEq
 
+/-- The operator between two {lit}`SELECT` terms of a compound {lit}`SELECT` (ADR 0019, D3). All
+four have the same precedence and apply from left to right. -/
+inductive CompoundOperator where
+  /-- {lit}`UNION ALL`: the left rows, then the right rows. -/
+  | unionAll
+  /-- {lit}`UNION`: the distinct rows of both sides. -/
+  | union
+  /-- {lit}`INTERSECT`: the distinct left rows that equal a right row. -/
+  | intersect
+  /-- {lit}`EXCEPT`: the distinct left rows that equal no right row. -/
+  | except
+  deriving Repr, DecidableEq
+
+/-- The keywords of a compound operator, as SQLite writes them in its messages. -/
+def CompoundOperator.keywords : CompoundOperator → String
+  | .unionAll => "UNION ALL"
+  | .union => "UNION"
+  | .intersect => "INTERSECT"
+  | .except => "EXCEPT"
+
 end Belay.Sqlite.Model

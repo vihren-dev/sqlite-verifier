@@ -3,11 +3,11 @@ import Belay.Sqlite.Model.ScriptRun
 set_option doc.verso true
 
 /-! The run of {lit}`ScriptRun.lean` does not depend on the index at which it starts, when the
-clock of the connection gives the same value at every position. The index reaches a statement's
-step only through its clock value and the position of a failure
+run has no clock or a clock that gives the same value at every index. The index reaches a
+statement's step only through its clock value and the position of a failure
 ({name}`Belay.Sqlite.Model.Outcome.failure`), and a failure position reaches neither the output
-nor the connection after the statement. The surface's runs use the clock of 0 at every
-position, so a script that follows another one runs as from index 0. -/
+nor the connection after the statement. The surface's runs have no clock, so a script that
+follows another one runs as from index 0. -/
 
 namespace Belay.Sqlite.Model
 
@@ -78,17 +78,27 @@ reads no failure position. -/
   | next _ => rfl
   | halt outcome => cases outcome <;> rfl
 
-/-- For every context, two indexes, connection, statement and list of values: if the clock of
-the connection gives the same value at both indexes, the statement's step with the values
-({name}`runScriptStep`) is the same at both. Proof sketch: resolution takes no index; the step at the first index is the step at the
-second with its failure positions set ({name}`advanceWith_atPosition`), and neither the output
-nor the next connection reads a failure position. -/
-theorem runScriptStep_index (context : ResolveContext) (first second : Nat) (connection : Connection)
-    (statement : Syntax.Statement) (parameters : List Value)
-    (clock : connection.state.clock first = connection.state.clock second) :
-    runScriptStep context first connection statement parameters =
-      runScriptStep context second connection statement parameters := by
-  simp only [runScriptStep, clock, advanceWith_atPosition second first, Output.ofStep_atPosition,
+/-- For every optional clock, two indexes and resolved statement: if the clock, when the run
+has one, gives the same value at both indexes, the statement's clock value
+({name}`statementClock`) is the same at both. Proof sketch: case analysis on the clock; without
+one, the value does not depend on the index. -/
+theorem statementClock_index {clock : Option Clock} {first second : Nat}
+    (same : ∀ assignment ∈ clock, assignment first = assignment second) (statement : Resolved.Statement) :
+    statementClock clock first statement = statementClock clock second statement := by
+  cases clock <;> simp_all [statementClock]
+
+/-- For every context, optional clock, two indexes, connection, statement and list of values:
+if the clock, when the run has one, gives the same value at both indexes, the statement's step
+with the values ({name}`runScriptStep`) is the same at both. Proof sketch: resolution takes no
+index, and the clock value is the same ({name}`statementClock_index`); the step at the first
+index is the step at the second with its failure positions set ({name}`advanceWith_atPosition`),
+and neither the output nor the next connection reads a failure position. -/
+theorem runScriptStep_index (context : ResolveContext) (clock : Option Clock) (first second : Nat)
+    (connection : Connection) (statement : Syntax.Statement) (parameters : List Value)
+    (same : ∀ assignment ∈ clock, assignment first = assignment second) :
+    runScriptStep context clock first connection statement parameters =
+      runScriptStep context clock second connection statement parameters := by
+  simp only [runScriptStep, statementClock_index same, advanceWith_atPosition second first, Output.ofStep_atPosition,
     Connection.afterStep_atPosition]
 
 /-- For every state, position, effect and next state: if the effect's transition
@@ -123,15 +133,15 @@ theorem Connection.afterStep_clock (connection : Connection) (foreignKeys : Bool
   | next state => exact advanceWith_clock transition
   | halt outcome => cases outcome <;> rfl
 
-/-- For every context, index, connection, statement and list of values: if the step with the
-values continues with an output and
-a next connection, the next connection has the clock of the connection, and the output does not
-end the run ({name}`Output.endsRun`). Proof sketch: unfold the step; a continuing step's output
-is one of the four outputs that do not end the run, and its connection is
-{name}`Connection.afterStep` of a transition ({name}`Connection.afterStep_clock`). -/
-theorem runScriptStep_continued {context : ResolveContext} {index : Nat} {connection next : Connection}
-    {statement : Syntax.Statement} {parameters : List Value} {output : Output}
-    (continued : runScriptStep context index connection statement parameters = .continued output next) :
+/-- For every context, optional clock, index, connection, statement and list of values: if the
+step with the values continues with an output and a next connection, the next connection has
+the clock assignment of the connection, and the output does not end the run
+({name}`Output.endsRun`). Proof sketch: unfold the step; a continuing step's output is one of
+the four outputs that do not end the run, and its connection is {name}`Connection.afterStep` of
+a transition ({name}`Connection.afterStep_clock`). -/
+theorem runScriptStep_continued {context : ResolveContext} {clock : Option Clock} {index : Nat}
+    {connection next : Connection} {statement : Syntax.Statement} {parameters : List Value} {output : Output}
+    (continued : runScriptStep context clock index connection statement parameters = .continued output next) :
     next.state.clock = connection.state.clock ∧ output.endsRun = false := by
   unfold runScriptStep at continued
   split at continued

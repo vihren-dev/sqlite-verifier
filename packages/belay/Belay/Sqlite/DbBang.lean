@@ -45,16 +45,26 @@ def databaseTerm (raw : Database.Raw) : Except String Expr :=
   | some atom => .error (invalidDatabaseMessage atom)
   | none => .ok (databaseExpr raw)
 
-/-- Elaborate {lit}`db! "SQL"`: translate the text, run it on the empty database and log each
-error of {name}`runDiagnostics` at its range of the text ({name}`textRange`). After an error,
-the term is a {lit}`sorry` that Lean shows no second error for. Otherwise the term is
+/-- The error of a parameter in the text of {lit}`db!`: the database literal has no arguments, so
+the parameter has no value. -/
+def parameterDiagnostic (parameter : Translation.Parameter) : Diagnostic :=
+  { start := parameter.start, stop := parameter.stop,
+    message := s!"the parameter {parameter.text} has no value, because db! has no arguments; " ++
+      "write the value in the SQL text in place of the parameter" }
+
+/-- Elaborate {lit}`db! "SQL"`: translate the text, give an error at each parameter
+({name}`parameterDiagnostic`), or else run the text on the empty database and log each error
+of {name}`runDiagnostics` at its range of the text ({name}`textRange`). After an error, the term
+is a {lit}`sorry` that Lean shows no second error for. Otherwise the term is
 {name}`databaseTerm` of the database, and its error is an error at the literal. -/
 @[term_elab dbBangTerm]
 def elabDbBang : TermElab := fun term _ => do
   let literal := term[1]
   let some text := literal.isStrLit? | throwUnsupportedSyntax
   let items ← literalStatements literal
-  let (diagnostics, connection) := runDiagnostics text.toUTF8 items.toList
+  let parameters := items.toList.flatMap (·.parameters)
+  let (diagnostics, connection) := if parameters.isEmpty then runDiagnostics text.toUTF8 (items.toList.map (·.statement))
+    else (parameters.map parameterDiagnostic, Database.empty.raw.connection)
   for diagnostic in diagnostics do
     logErrorAt (textRange literal text diagnostic.start diagnostic.stop) diagnostic.message
   if !diagnostics.isEmpty then

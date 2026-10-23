@@ -3,7 +3,8 @@ import Belay
 /-! A fixture of `tests/surface_translation_checks_test.py`: checks of the translation of the text
 package (`Belay.Sqlite.Translation`) that need its Lean values, not the program's JSON. A model
 restriction names a statement and a node path, so each statement's ranges must have the shape of
-the path steps: a path selects the range of the node that it names, or of its deepest known part.
+the path steps: a path selects the range of the node that it names, or of its deepest known part,
+also in the terms and the clauses of a compound SELECT.
 `dequote` follows SQLite, `valueRows` refuses a VALUES node of a shape that the grammar does not
 make, and the binding refuses a parse document for another grammar than the one it asked for
 (`decodeParse`). The file fails to elaborate when a check fails. -/
@@ -19,7 +20,7 @@ def textAt (text : String) (item : Located Syntax.Statement) (path : List Nat) :
 def translated (text : String) : IO (Array (Located Syntax.Statement)) := do
   let grammar ← IO.ofExcept ((selectGrammar (← loadedMetadata) Release.default).mapError IO.userError)
   match ← translate grammar text.toUTF8 with
-  | .ok items => return items
+  | .ok items => return items.map (·.statement)
   | .error refusal => throw <| IO.userError s!"the translation refuses {text}: {refusal.message}"
 
 /-- Fail with the check's name when the text at the path is not the expected text. -/
@@ -37,6 +38,15 @@ def expectText (text : String) (item : Located Syntax.Statement) (path : List Na
   let query := "SELECT a FROM t WHERE EXISTS (SELECT 1 FROM u WHERE b = a);"
   let #[selected] ← translated query | throw <| IO.userError "expected one statement"
   expectText query selected [8, 0, 3] "b = a"
+  let compound := "SELECT a FROM t UNION SELECT b FROM u WHERE b = 1 ORDER BY 1 LIMIT 2;"
+  let #[selected] ← translated compound | throw <| IO.userError "expected one statement"
+  expectText compound selected [8, 1, 3] "b = 1"
+  expectText compound selected [5, 0, 0] "1"
+  expectText compound selected [6] "2"
+  let inner := "SELECT 1 IN (SELECT 1 UNION SELECT a FROM t ORDER BY a COLLATE nocase);"
+  let #[selected] ← translated inner | throw <| IO.userError "expected one statement"
+  expectText inner selected [8, 0, 5, 0, 0] "a COLLATE nocase"
+  expectText inner selected [8, 2, 0, 0, 0] "a"
 
 #guard ["\"a\"\"b\"", "[a]]", "`x`", "'it''s'", "\"Some\" Type", "plain"].map dequote ==
   ["a\"b", "a]", "x", "it's", "Some", "plain"]

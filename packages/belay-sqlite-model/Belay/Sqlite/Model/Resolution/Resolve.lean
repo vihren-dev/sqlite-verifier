@@ -58,9 +58,10 @@ def resolveStatement (context : ResolveContext) (state : ResolveState) :
   | .update table assignments filter returning subqueries =>
     state.withWrite context (resolveWriteSubqueries context state.catalog 4 table (writtenScope table) subqueries
       (resolveUpdate context state.catalog table assignments filter returning))
-  | .select columns source joins filter groupBy orderBy limit offset subqueries having distinct =>
+  | .select columns source joins filter groupBy orderBy limit offset subqueries having distinct compound =>
     state.withCatalog (resolveSelect context state.catalog
-      { columns, source, joins, filter, groupBy, orderBy, limit, offset, parent := none, having, distinct } subqueries)
+      { columns, source, joins, filter, groupBy, orderBy, limit, offset, parent := none, having, distinct, compound }
+      subqueries)
   | .delete table filter returning subqueries =>
     state.withWrite context (resolveWriteSubqueries context state.catalog 3 table (writtenScope table) subqueries
       (resolveDelete context state.catalog table filter returning))

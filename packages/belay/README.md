@@ -17,3 +17,50 @@ BELAY_PARSER_LIBRARY=$PWD/build/parser-library lake build Belay Belay:shared
 
 Lake loads the precompiled modules for `lake build`, `lake lean FILE` and the editor's server.
 `lake env lean FILE` does not load them, and `lean` then stops at the first parser call.
+
+## Programs and runs
+
+A script is SQL text as data: `sql r"..."` gives a `Script`. A program can use the output of a
+statement to choose what it sends next. `Sql α` is the type of programs that give a value of type
+`α`, and it is a monad:
+
+```lean
+def closeAndCount : Sql (Option Value) := do
+  sql r"UPDATE invoices SET status = 'closed' WHERE amount = 0"
+  single (sql r"SELECT count(*) FROM invoices WHERE status = 'open'")
+```
+
+- `Sql.pure v` sends no statement. `Sql.exec statement values rest` sends one statement and
+  gives its output to `rest`. All other programs are built from these two.
+- `send s : Sql (List Output)` sends each statement of `s`; the value is their outputs.
+- `query s : Sql (Except Nat (List (List Value)))` sends a script of exactly one statement; the
+  value is its rows, or its error code. For an output `oneOf`, it gives the first result.
+- `single s : Sql (Option Value)` sends a script of exactly one statement; the value is the only
+  value of a result with one row of one column, and `none` otherwise.
+- A script on its own line in a `do` block is sent, and its value is dropped.
+- `outputs.allOk` tells whether no output is an error or `Output.unmodeled`.
+
+`db.run p` runs a program or a script on a database, and `p.run db` (`Sql.run`) is the same run
+of a program. A script runs as the program `send s`. The result is a `Run α`:
+
+- `value : Option α`: the program's value, or `none` when a statement gives `Output.unmodeled`
+  (the rest of the program does not run) or when the database at the end is not valid;
+- `outputs`: one output for each statement that ran;
+- `db` and `start`: the databases at the end and at the start; `db` is `start` when the
+  database at the end is not valid;
+- `transaction` and `foreignKeys`: the state of the connection at the end.
+
+The last argument of a run is the environment, `env := e`, with `Env.default` when it is not
+given. `Env.default` has no clock: a statement that reads the clock, such as
+`CURRENT_TIMESTAMP`, gives `Output.unmodeled`. `clockAt "2026-10-20 12:00:00"` gives that time,
+in UTC, to every statement; Lean checks the text where it is written. `Env.atTime` takes the time
+in Julian-day milliseconds, and `{ clock := some f }` gives the time `f i` to statement `i`.
+
+```lean
+example : (start.run (env := clockAt "2026-10-20 12:00:00") do
+    single (sql r"SELECT date('now')")).value = some (some (("2026-10-20" : String) : Value)) := by
+  decide +kernel
+```
+
+`Script.run_env` states that a run in which no statement reads the clock is the same in every
+environment.

@@ -1,4 +1,4 @@
-import Belay.Sqlite.Translation.Select
+import Belay.Sqlite.Translation.CompoundSelect
 
 set_option doc.verso true
 

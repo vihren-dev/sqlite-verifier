@@ -34,7 +34,8 @@ def ExprError.name? : ExprError → Option Identifier
   | .likelihoodArgument | .tooManyTables | .returningSourceStar | .naturalJoinCondition
   | .conflictTargetMismatch | .noTablesSpecified | .tooManyEachArguments | .subqueryColumns _
   | .havingNonAggregate | .raiseOutsideTrigger | .triggerOnSystemTable | .parameterInCheck
-  | .parameterInGenerated | .parameterInIndex _ | .triggerVariables => none
+  | .parameterInGenerated | .parameterInIndex _ | .triggerVariables | .compoundColumns _
+  | .orderByNoMatch _ => none
 
 /-- The name in the message of the prepare error ({name}`ExprError.name?` for an error that
 names no catalog object). For a foreign key mismatch it is the child table, which the write

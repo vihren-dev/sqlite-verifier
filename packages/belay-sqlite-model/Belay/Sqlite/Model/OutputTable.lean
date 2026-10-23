@@ -22,13 +22,12 @@ def Resolved.Statement.resultNames : Resolved.Statement → List String
   | .prepareError _ | .setting _ => []
 
 /-- The names of the result columns of each statement, on the connection before it: the
-connection that the run of the statements before it, with their values, reaches
-({name}`runScriptFrom`). A statement
-that does not resolve has none. -/
-def scriptResultNames (context : ResolveContext) (connection : Connection)
+connection that the run of the statements before it, with their values and the optional
+clock, reaches ({name}`runScriptFrom`). A statement that does not resolve has none. -/
+def scriptResultNames (context : ResolveContext) (clock : Option Clock) (connection : Connection)
     (statements : List (Syntax.Statement × List Value)) : List (List String) :=
   statements.zipIdx.map fun ((statement, _), index) =>
-    let before := (runScriptFrom context 0 connection (statements.take index)).connection
+    let before := (runScriptFrom context clock 0 connection (statements.take index)).connection
     match resolveStatement context before.resolveState statement with
     | .ok (resolved, _) => resolved.resultNames
     | .error _ => []

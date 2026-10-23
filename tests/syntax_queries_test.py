@@ -59,7 +59,6 @@ def test_postfix_null_tests_map_to_is_null(parse_sql: Callable[..., Translation]
     ("SELECT main.t.a FROM t;", "main.t.a"),
     ("SELECT a FROM main.t;", ".t"), ("SELECT a FROM t ORDER BY a NULLS LAST;", "NULLS LAST"),
     ("SELECT count(DISTINCT a) FROM t;", "DISTINCT"),
-    ("SELECT a FROM t UNION SELECT a FROM t;", "SELECT a FROM t UNION SELECT a FROM t"),
     ("SELECT a & 1 FROM t;", "a & 1"), ("SELECT a FROM (SELECT 1 AS a);", "(SELECT 1 AS a)"),
 ])
 def test_query_syntax_outside_the_slice_is_unsupported_at_its_range(

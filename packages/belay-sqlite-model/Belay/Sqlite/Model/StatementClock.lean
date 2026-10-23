@@ -99,6 +99,15 @@ does not reach, so the model does not describe a failure inside one. -/
 def subqueriesPlain (subqueries : List Resolved.Query) : Bool :=
   subqueries.all (·.expressions.all (!·.any Resolved.Expr.isFallibleCall))
 
+/-- The subqueries of a statement's query without the terms of its compound
+({name}`Resolved.Compound.terms`): SQLite runs each term of the statement's compound once, as a
+query, and the compound describes their failures ({lit}`Compound.ending`). Every subquery for
+a query that is not a compound. -/
+def Query.nestedSubqueries (query : Resolved.Query) (subqueries : List Resolved.Query) : List Resolved.Query :=
+  match query.compound with
+  | none => subqueries
+  | some compound => (subqueries.zipIdx.filter fun (_, index) => !compound.terms.contains index).map (·.1)
+
 /-- Whether no expression cell of the rows of an INSERT may fail in the statement's context,
 over the row without cells that SQLite evaluates them over: a subquery that it names has a
 value that the model describes ({name}`Resolved.Fault.may` otherwise). -/

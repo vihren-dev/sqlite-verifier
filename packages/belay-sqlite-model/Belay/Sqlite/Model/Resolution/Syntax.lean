@@ -129,10 +129,14 @@ inductive Statement where
   {lit}`LIMIT offset, limit` gives both expressions. The subqueries of the statement are
   {lit}`subqueries`, in the order of their text ({name}`Subquery`); empty without one. The
   {lit}`HAVING` condition is {lit}`having` and {lit}`SELECT DISTINCT` has {lit}`distinct`
-  (ADR 0018, D3). -/
+  (ADR 0018, D3). A compound {lit}`SELECT` (ADR 0019, D3) has no columns and no {lit}`FROM`,
+  and {lit}`compound` names its terms among the subqueries ({name}`Compound`), each with the
+  statement's query as its parent; its {lit}`ORDER BY`, {lit}`LIMIT` and {lit}`OFFSET` are
+  those of the compound. Use {lean}`(none : Option Compound)` for one {lit}`SELECT`. -/
   | select (columns : List ResultColumn) (source : Option TableReference) (joins : List Join) (filter : Option Expr)
       (groupBy : List Expr) (orderBy : List OrderTerm) (limit : Option Expr) (offset : Option Expr)
       (subqueries : List Subquery := []) (having : Option Expr := none) (distinct : Bool := false)
+      (compound : Option Compound := none)
   /-- {lit}`PRAGMA foreign_keys = value`, with the value as {lit}`sqlite3GetBoolean` reads it,
   or the query {lit}`PRAGMA foreign_keys` with {lean}`(none : Option Bool)` (ADR 0018, D4). -/
   | pragmaForeignKeys (value : Option Bool)

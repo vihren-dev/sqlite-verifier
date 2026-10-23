@@ -2,9 +2,10 @@ import Belay.Sqlite.Translation.Sources
 
 set_option doc.verso true
 
-/-! The clauses of a SELECT. The port of {lit}`belay/sqlite/syntax_select.py`: result columns,
+/-! The clauses of one SELECT. The port of {lit}`belay/sqlite/syntax_select.py`: result columns,
 the first table and the joins, or none without FROM, and WHERE, GROUP BY, ORDER BY, LIMIT,
-OFFSET, HAVING and DISTINCT. Compound SELECT, WITH and NULLS FIRST or LAST are refused. -/
+OFFSET, HAVING and DISTINCT. A compound SELECT is in {lit}`CompoundSelect.lean`. WITH, a window
+clause and NULLS FIRST or LAST are refused. -/
 
 namespace Belay.Sqlite.Translation
 
@@ -42,11 +43,17 @@ def limitClause (mappers : Mappers) (tree : SqlTree) (limit : ParseNode) :
     return (some (← mappers.expression tree bounds[3]!), some first)
   | _ => unsupported limit "Unsupported LIMIT form; write LIMIT n [OFFSET m]"
 
-/-- The clauses of a {lit}`select` production, mapped in the order of their text, so the
-subqueries of their expressions are listed in that order. -/
-def queryClausesWith (mappers : Mappers) (tree : SqlTree) (selectNode : ParseNode) : TranslateM Clauses := do
-  let current := (← require tree selectNode ["selectnowith"])[0]!
-  let one := (← require tree current ["oneselect"])[0]!
+/-- The ORDER BY, LIMIT and OFFSET of a compound, which the parser puts on its last term: SQLite
+gives a subquery there no place in the model's syntax, so the action refuses it. -/
+def compoundTail : String :=
+  "A subquery in the ORDER BY or LIMIT of a compound SELECT is not modeled; rewrite the clause without it"
+
+/-- The clauses of a {lit}`oneselect` production, mapped in the order of their text, so the
+subqueries of their expressions are listed in that order. With {lit}`tail`, the
+{lit}`ORDER BY`, {lit}`LIMIT` and {lit}`OFFSET` of the last term of a compound refuse a subquery
+({name}`compoundTail`). -/
+def oneSelectClauses (mappers : Mappers) (tree : SqlTree) (one : ParseNode) (tail : Bool := false) :
+    TranslateM Clauses := do
   let parts ← require tree one ["SELECT", "distinct", "selcollist", "from", "where_opt", "groupby_opt",
     "having_opt", "orderby_opt", "limit_opt"]
   let (distinct, source, whereNode, group, having, order, limit) :=
@@ -62,14 +69,17 @@ def queryClausesWith (mappers : Mappers) (tree : SqlTree) (selectNode : ParseNod
   let grouping ← if group.children.isEmpty then pure #[] else do
     let items ← leftList tree (tree.children group)[2]! [(1, ["expr"]), (3, ["nexprlist", "COMMA", "expr"])]
     items.mapM fun item => mappers.expression tree (last item)
-  let ordering ← if order.children.isEmpty then pure #[] else orderTerms mappers tree (tree.children order)[2]!
-  let (count, offset) ← limitClause mappers tree limit
+  let atTail : {β : Type} → TranslateM β → TranslateM β := fun action =>
+    if tail then noSubqueries compoundTail action else action
+  let ordering ← atTail (if order.children.isEmpty then pure #[] else orderTerms mappers tree (tree.children order)[2]!)
+  let (count, offset) ← atTail (limitClause mappers tree limit)
   let havingPart ← if having.children.isEmpty then pure none
     else some <$> mappers.expression tree (tree.children having)[1]!
   return {
     columns := results, source := firstTable, joins, filter := optionalAt condition whereNode,
     groupBy := sequence grouping group.start group.stop, orderBy := sequence ordering order.start order.stop,
     limit := optionalAt count limit, offset := optionalAt offset limit, having := optionalAt havingPart having,
-    distinct := leaf (tree.symbols distinct == ["DISTINCT"]) distinct.start distinct.stop }
+    distinct := leaf (tree.symbols distinct == ["DISTINCT"]) distinct.start distinct.stop,
+    compound := missing one.start one.stop }
 
 end Belay.Sqlite.Translation

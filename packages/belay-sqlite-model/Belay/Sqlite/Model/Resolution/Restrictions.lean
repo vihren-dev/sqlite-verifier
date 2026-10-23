@@ -11,8 +11,7 @@ namespace Belay.Sqlite.Model
 /-- A model restriction of name resolution. The comment of each constructor says what
 the model does not describe and which decision introduced the restriction. -/
 inductive RestrictionKind where
-  /-- A schema contains only CREATE TABLE, CREATE INDEX and CREATE TRIGGER statements (ADR 0008;
-  ADR 0018, D5). -/
+  /-- A schema contains only CREATE TABLE, CREATE INDEX and CREATE TRIGGER statements (ADR 0008; ADR 0018, D5). -/
   | schemaStatement
   /-- Engine-managed tables other than sqlite_stat1 and sqlite_stat4 are not modeled (ADR 0008). -/
   | engineTable
@@ -45,14 +44,12 @@ inductive RestrictionKind where
   {lit}`'now'` only when it writes a row, and a JSON function can fail while a row is written
   (ADR 0014, slice 5). -/
   | generatedFunction
-  /-- Generated columns that read each other in a loop: SQLite reports it while CREATE TABLE
-  runs, which the model does not describe. -/
+  /-- Generated columns that read each other in a loop: SQLite reports it while CREATE TABLE runs, which the model does not describe. -/
   | generatedLoop
   /-- A parameter where SQLite prohibits one, in an expression where SQLite's walk of names can
   also find another error: which error SQLite reports depends on the walk (ADR 0019, D1). -/
   | parameterErrorOrder
-  /-- A {lit}`DO UPDATE` that assigns a generated column: SQLite refuses it only when a row
-  conflicts. -/
+  /-- A {lit}`DO UPDATE` that assigns a generated column: SQLite refuses it only when a row conflicts. -/
   | upsertGenerated
   /-- ADD COLUMN of a generated column: SQLite computes a {lit}`VIRTUAL` one for every
   existing row and refuses a {lit}`STORED` one while the statement runs, which the model
@@ -193,6 +190,10 @@ inductive RestrictionKind where
   case record lists the schema in name order, so it does not say which trigger SQLite created
   last and runs first (ADR 0018, slice 5). -/
   | schemaTriggerOrder
+  /-- {lit}`x IN (q)` and a scalar {lit}`(q)` over a compound {lit}`SELECT` that SQLite sorts as {lit}`SELECT * FROM (compound)`, because an operator is not {lit}`UNION ALL` and an {lit}`ORDER BY` term has {lit}`COLLATE`, are not modeled: they read the column of that derived table (ADR 0019, D3). -/
+  | compoundSubqueryColumn
+  /-- An {lit}`ORDER BY` term of a compound {lit}`SELECT` that the model cannot match with a result column as SQLite does is not modeled: an aggregate, an expression that is a result expression of a term after resolution but not as written, or a {lit}`COLLATE` term after which SQLite gives a result column a random name (ADR 0019, D3). -/
+  | compoundOrderByTerm
   deriving Repr, DecidableEq
 
 end Belay.Sqlite.Model

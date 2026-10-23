@@ -22,6 +22,11 @@ instance (n : Nat) : OfNat Value n := ⟨.integer n⟩
 is the TEXT {lit}`'acme'`. -/
 instance : Coe String Value := ⟨fun text => .text text.toUTF8.toList⟩
 
+/-- A Lean {lean}`Int64` is the INTEGER value of {lean}`Int64.toInt`, so a parameter {lit}`$id` of a
+variable {lit}`id : Int64` binds an INTEGER. For example, {lean}`((-3 : Int64) : Value)` is
+{lean}`Value.integer (-3)`. -/
+instance : Coe Int64 Value := ⟨fun n => .integer n.toInt⟩
+
 /-- A decimal literal is a REAL value with the bits of the nearest double. For example,
 {lean}`(2.5 : Value)` is the REAL 2.5. -/
 instance : OfScientific Value := ⟨fun mantissa negative exponent =>
