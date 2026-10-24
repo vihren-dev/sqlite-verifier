@@ -1,0 +1,52 @@
+{
+  "caller": "codex",
+  "commit": "5fc56924b28261f8dc1b8dc64dac8af5ba5e711b",
+  "date": "2026-10-24T11:59:38+00:00",
+  "exit": 0,
+  "files": [
+    "plans/20261024-text-build-boundaries.status.md",
+    "plans/20261024-text-build-boundaries.task.md"
+  ],
+  "findings": [
+    {
+      "id": "20261024T115938Z-5fc56924#1",
+      "line": 55,
+      "path": "plans/20261024-text-build-boundaries.task.md",
+      "rule": "R19",
+      "severity": "should",
+      "text": "The task ends with `just test-scheduled-checks`, but `AGENTS.md` (\"Checks and their cadence\") requires `just test-nix` and `just test-scheduled` at the end of a task. `just test-scheduled-checks` is a different recipe that skips the mutant suites. Fix: name `just test-scheduled`, or say that this task deliberately uses the narrower recipe and why."
+    },
+    {
+      "id": "20261024T115938Z-5fc56924#2",
+      "line": 17,
+      "path": "plans/20261024-text-build-boundaries.task.md",
+      "rule": "R18",
+      "severity": "should",
+      "text": "The local-loop problem (\"can therefore pass while a model change breaks these laws\") is a possibility with no evidence: no failing check, measured cost or owner request. Fix: cite a case where `dev-build` passed and Nix failed, or an owner request for this change; otherwise reduce it to the one-line `justfile` change and drop the probe test of a temporary law failure."
+    }
+  ],
+  "id": "20261024T115938Z-5fc56924",
+  "kind": "review",
+  "reviewer": "claude",
+  "revision": "@-",
+  "rules": {
+    "R1": "62d446279093",
+    "R10": "638d8cbd1df8",
+    "R11": "5de19cdbbbc1",
+    "R12": "99f66579f467",
+    "R13": "da0926dafb88",
+    "R15": "518eab58f8b5",
+    "R16": "892e77bd2a12",
+    "R17": "62b65b662f79",
+    "R18": "5159f20b166b",
+    "R19": "6a24b671568c",
+    "R2": "e5e78fb2a52a",
+    "R3": "4f9188eadd60",
+    "R4": "ea7ca17539eb",
+    "R5": "b8613a2d693b",
+    "R6": "8d1d4631e888",
+    "R7": "59a21b0bec7f",
+    "R9": "5a69196344d0"
+  },
+  "well_formed": true
+}

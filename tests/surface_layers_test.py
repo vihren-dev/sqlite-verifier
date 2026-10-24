@@ -12,6 +12,8 @@ from the import lines of every Lean package and from the Nix build.
 4. The conformance runtime contains the text package's program but not the surface: in
    `build-support/`, only the surface's own derivation and the `surface` test suite name the
    surface, and the runtime's derivation names the text package.
+5. The translation program does not import the model's umbrella root, even indirectly,
+   so its syntax translation does not depend on that root's proof and example imports.
 """
 
 from pathlib import Path
@@ -55,6 +57,37 @@ def imports(path: Path) -> list[str]:
 def modules(package: Path) -> set[str]:
     """The modules of a package, without its lakefile."""
     return {module_name(package, path) for path in lean_files(package) if path.name != "lakefile.lean"}
+
+
+def import_closure(entrypoint: str, dependencies: dict[str, list[str]]) -> set[str]:
+    """Find every transitive import of an entrypoint, including external leaf modules."""
+    pending = [entrypoint]
+    visited: set[str] = set()
+    while pending:
+        name = pending.pop()
+        if name not in visited:
+            visited.add(name)
+            pending.extend(dependencies.get(name, []))
+    return visited
+
+
+def test_translation_program_avoids_the_model_umbrella() -> None:
+    """Rule 5: follow imports through local modules and public model roots to detect
+    indirect dependencies on the model umbrella, which brings proofs into translation."""
+    dependencies = {module_name(package, path): imports(path)
+                    for package in (TEXT, PACKAGES / "belay-sqlite-model")
+                    for path in lean_files(package) if path.name != "lakefile.lean"}
+    assert "TranslationProgram" in dependencies
+    assert "Belay.Sqlite.Model" not in import_closure("TranslationProgram", dependencies)
+
+
+@pytest.mark.parametrize("indirect", [False, True], ids=["direct", "through-codec"])
+def test_import_closure_finds_a_reintroduced_model_umbrella(indirect: bool) -> None:
+    """The layer check's traversal must detect an umbrella import hidden behind a
+    public codec root, as well as one added directly to the translation program."""
+    umbrella, codec = "Belay.Sqlite.Model", "Belay.Sqlite.Model.Codec"
+    dependencies = {"TranslationProgram": [codec if indirect else umbrella], codec: [umbrella]}
+    assert umbrella in import_closure("TranslationProgram", dependencies)
 
 
 def test_the_surface_and_the_text_package_have_modules() -> None:

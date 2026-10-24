@@ -94,7 +94,7 @@ restriction-costs:
 dev-build: _dev-shell-warning
     cd packages/belay-sqlite-model && lake build Belay.Sqlite.Model Belay.Sqlite.Model.Codec
     cd packages/belay-sqlite-text && lake build BelaySqliteText BelaySqliteText:shared parserShim:shared belay-sqlite-translate
-    cd packages/verifier-conformance && lake build conformance-runner
+    cd packages/verifier-conformance && lake build VerifierConformance conformance-runner
     cd packages/belay && lake build Belay Belay:shared
 
 # Run the judge with locally built programs over all claimed corpora or the named ones; not evidence, `just verdict` decides.

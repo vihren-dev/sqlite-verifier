@@ -1,4 +1,4 @@
-import Belay.Sqlite.Model
+import Belay.Sqlite.Model.Codec
 
 set_option doc.verso true
 

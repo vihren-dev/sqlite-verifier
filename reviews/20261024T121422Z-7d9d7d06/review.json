@@ -1,0 +1,38 @@
+{
+  "caller": "codex",
+  "commit": "7d9d7d06f28f7f40a4e837f5cd3e59652f4768c9",
+  "date": "2026-10-24T12:14:22+00:00",
+  "exit": 0,
+  "files": [
+    "docs/adr-0020-local-build-loop.md",
+    "justfile",
+    "packages/belay-sqlite-text/Belay/Sqlite/Translation/Located.lean",
+    "plans/20261024-text-build-boundaries.status.md",
+    "tests/surface_layers_test.py"
+  ],
+  "findings": [],
+  "id": "20261024T121422Z-7d9d7d06",
+  "kind": "review",
+  "reviewer": "claude",
+  "revision": "@-",
+  "rules": {
+    "R1": "62d446279093",
+    "R10": "638d8cbd1df8",
+    "R11": "5de19cdbbbc1",
+    "R12": "99f66579f467",
+    "R13": "da0926dafb88",
+    "R15": "518eab58f8b5",
+    "R16": "892e77bd2a12",
+    "R17": "62b65b662f79",
+    "R18": "5159f20b166b",
+    "R19": "6a24b671568c",
+    "R2": "e5e78fb2a52a",
+    "R3": "4f9188eadd60",
+    "R4": "ea7ca17539eb",
+    "R5": "b8613a2d693b",
+    "R6": "8d1d4631e888",
+    "R7": "59a21b0bec7f",
+    "R9": "5a69196344d0"
+  },
+  "well_formed": true
+}

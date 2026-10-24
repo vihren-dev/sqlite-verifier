@@ -8,8 +8,12 @@ Changed 2026-10-22: based on the layout of ADR 0021 and the text package (pull r
 #209 to #212). The targets, the runtime root, the shell's parser library and the
 measurements follow that layout. Later the same day: agent sessions load `.envrc` through
 direnv (fact 8), so D1, D5 and D6 rely on it; owner decisions 2 and 3 are decided.
-Implementation: one task file and one pull request; the task is
+Changed 2026-10-24: D2 includes the complete conformance library and the text
+package's narrower model dependency.
+Initial implementation: one task file and one pull request; the task is
 [`plans/20261022-local-build-loop.task.md`](../plans/20261022-local-build-loop.task.md).
+The 2026-10-24 correction is specified in
+[`plans/20261024-text-build-boundaries.task.md`](../plans/20261024-text-build-boundaries.task.md).
 Audience: designers and reviewers.
 Related: [ADR 0010](adr-0010-lake-builds-and-artifact-cache.md) (Lake builds, one Nix
 derivation per Lean package), [ADR 0011](adr-0011-product-trust-and-development-integrity.md)
@@ -167,8 +171,13 @@ It builds these targets, the ones that model work can break:
 | --- | --- |
 | `belay-sqlite-model` | `Belay.Sqlite.Model`, `Belay.Sqlite.Model.Codec` (the targets of `modelPackage`) |
 | `belay-sqlite-text` | `BelaySqliteText`, `BelaySqliteText:shared`, `parserShim:shared`, `belay-sqlite-translate` |
-| `verifier-conformance` | `conformance-runner` |
+| `verifier-conformance` | `VerifierConformance`, `conformance-runner` |
 | `belay` | `Belay`, `Belay:shared` (owner decision 1, decided) |
+
+The complete conformance library includes laws outside the runner's import closure.
+The local loop checks these laws with the same library target as Nix. The text
+package imports the model's public codec root, which supplies syntax and resolution
+definitions without the model root's proof and example imports.
 
 The documentation tool stays with Nix.
 
