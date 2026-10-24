@@ -23,7 +23,8 @@ theorem keysUniqueFacts : TableFacts Table.keysUniqueFact where
     unfold Table.keysUniqueFact at *
     rw [same]
     exact unique.sublist sub
-  constraints catalog position table passed := ((Table.constraints_iff _ table).mp passed).2.2.2
+  constraints catalog position table passed :=
+    ((Table.constraints_iff _ table).mp (Bool.and_eq_true_iff.mp passed).1).2.2.2
 
 /-- For every rules, clock value, target, work, database, flag and algorithm: if the database
 satisfies {name}`Database.KeysUnique`, the database of the effect of {name}`rowsKeys` satisfies
@@ -31,7 +32,7 @@ it. Proof sketch: {name}`rowsKeys_holds` for {name}`keysUniqueFacts`. -/
 theorem rowsKeys_keysUnique (rules : Resolved.WriteRules) (clock : Int) (target : Nat) (work : RowWork)
     {database : Database} (unique : database.KeysUnique) (plain : Bool) (algorithm : Option ConflictAlgorithm) :
     (effectDatabase (rowsKeys rules clock target work database plain algorithm).effect).KeysUnique :=
-  rowsKeys_holds keysUniqueFacts rules clock target work (fact := Table.keysUniqueFact) unique plain algorithm
+  rowsKeys_holds keysUniqueFacts.laws rules clock target work unique plain algorithm
 
 /-- For every rules, clock value, positions and database: if the database satisfies
 {name}`Database.KeysUnique` and its catalog meets the condition of DROP at the positions
@@ -41,7 +42,7 @@ Proof sketch: {name}`dropKeys_holds` for {name}`keysUniqueFacts`, with
 theorem dropKeys_keysUnique (rules : Resolved.WriteRules) (clock : Int) (positions : List Nat)
     {database : Database} (unique : database.KeysUnique) (condition : database.catalog.DropCondition positions) :
     (effectDatabase (dropKeys rules clock positions database).effect).KeysUnique :=
-  dropKeys_holds keysUniqueFacts rules clock positions (fact := Table.keysUniqueFact) unique
+  dropKeys_holds keysUniqueFacts.laws rules clock positions unique
     fun _ same kept => Database.KeysUnique.drop kept (same ▸ condition)
 
 end Belay.Sqlite.Model

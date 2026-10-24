@@ -29,7 +29,7 @@ def ExprError.name? : ExprError → Option Identifier
   | .noSuchFunction text => some (Identifier.ofString text)
   | .valuesForColumns _ _ | .valuesDiffer | .cannotAddPrimaryKey | .cannotAddUnique
   | .conflictingAlgorithms | .foreignKeyColumnCount | .generatedInPrimaryKey | .defaultOnGenerated
-  | .nondeterministicGenerated | .onlyGeneratedColumns | .qualifiedGenerated | .qualifiedIndexTerm
+  | .nondeterministicGenerated | .emptyKeyList | .onlyGeneratedColumns | .qualifiedGenerated | .qualifiedIndexTerm
   | .nondeterministicIndex _ | .aggregateInGroupBy | .orderByOutOfRange _ _ | .groupByOutOfRange _ _
   | .likelihoodArgument | .tooManyTables | .returningSourceStar | .naturalJoinCondition
   | .conflictTargetMismatch | .noTablesSpecified | .tooManyEachArguments | .subqueryColumns _

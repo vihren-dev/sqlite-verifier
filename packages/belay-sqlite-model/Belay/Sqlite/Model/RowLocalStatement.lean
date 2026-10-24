@@ -26,7 +26,7 @@ theorem rowsKeys_rowLocal {atom : Table → Prop} (rowLocal : RowLocalAtom atom)
     (plain : Bool) (algorithm : Option ConflictAlgorithm) :
     (rowsKeys rules clock target work database plain algorithm).effect.Satisfies fun after => after.EachTable atom :=
   Effect.satisfies_of_effectDatabase
-    (rowsKeys_holds rowLocal.facts rules clock target work (fact := fun _ _ table => atom table) every plain algorithm)
+    (rowsKeys_holds rowLocal.facts.laws rules clock target work every plain algorithm)
 
 /-- The statement theorem for every atom. For every atom, clock value, counters, parameter list, resolved
 statement and database: if the atom is a {name}`RowLocalAtom`, every table of the database has it,
@@ -59,7 +59,7 @@ theorem runStatement_rowLocal {atom : Table → Prop} (rowLocal : RowLocalAtom a
     | some rules =>
       simp only [runStatement, Option.map_some, StatementRun.withKeys]
       exact Effect.satisfies_of_effectDatabase
-        (dropKeys_holds rowLocal.facts rules clock positions (fact := fun _ _ table => atom table) every
+        (dropKeys_holds rowLocal.facts.laws rules clock positions every
           fun _ _ kept => Database.EachTable.drop kept positions)
   | begin => exact runStatement_writesNone_rowLocal clock counters parameters every _ (by simp)
   | commit => exact runStatement_writesNone_rowLocal clock counters parameters every _ (by simp)

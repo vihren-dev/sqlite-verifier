@@ -73,6 +73,11 @@ inductive ExprError where
   | errorInGenerated (name : Identifier)
   /-- {lit}`non-deterministic functions prohibited in generated columns`: a time keyword. -/
   | nondeterministicGenerated
+  /-- {lit}`near ")": syntax error`: a list of key terms or key columns with no entry, as in
+  {lit}`CREATE INDEX i ON t()` and {lit}`UNIQUE()`. SQLite's grammar needs at least one entry,
+  so its parser refuses the text before it resolves a name; SQL text cannot give such a list,
+  but a syntax tree that a Lean user builds can. -/
+  | emptyKeyList
   /-- {lit}`must have at least one non-generated column`: a table whose columns are all
   generated. -/
   | onlyGeneratedColumns

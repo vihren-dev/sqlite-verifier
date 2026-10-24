@@ -12,8 +12,7 @@ set_option doc.verso true
 TABLE ADD COLUMN). The prepare checks follow the order of SQLite 3.51.0's
 {lit}`sqlite3StartTable`, {lit}`sqlite3AddColumn`, {lit}`sqlite3AddPrimaryKey`,
 {lit}`sqlite3EndTable` and {lit}`sqlite3CreateIndex`, because SQLite reports the first error it finds.
-Model restrictions follow the prepare checks: a statement that SQLite refuses needs
-no model. -/
+Model restrictions follow the prepare checks: a statement that SQLite refuses needs no model. -/
 
 namespace Belay.Sqlite.Model
 
@@ -97,6 +96,7 @@ is deferred ({name}`CatalogTable.deferLast`). -/
 def addTableConstraints (tableName : Identifier) (table : CatalogTable) :
     List Syntax.TableConstraint → Except ExprError CatalogTable
   | [] => .ok table
+  | .primaryKey [] _ :: _ | .unique [] _ :: _ => throw .emptyKeyList
   | .primaryKey names algorithm :: rest => do
     if !table.primaryKey.isEmpty then throw (.multiplePrimaryKeys tableName)
     let positions ← keyPositions table.columns names

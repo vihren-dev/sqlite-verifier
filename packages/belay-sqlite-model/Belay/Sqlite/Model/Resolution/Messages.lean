@@ -44,6 +44,7 @@ def ExprError.message : ExprError → String
   | .defaultOnGenerated => "cannot use DEFAULT on a generated column"
   | .errorInGenerated name => s!"error in generated column \"{name}\""
   | .nondeterministicGenerated => "non-deterministic functions prohibited in generated columns"
+  | .emptyKeyList => "near \")\": syntax error"
   | .onlyGeneratedColumns => "must have at least one non-generated column"
   | .qualifiedGenerated => "the \".\" operator prohibited in generated columns"
   | .unknownDatatype table column type => s!"unknown datatype for {table}.{column}: \"{type}\""

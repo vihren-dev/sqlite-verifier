@@ -20,20 +20,6 @@ def Catalog.DropCondition (catalog : Catalog) (positions : List Nat) : Prop :=
   ∀ place object index, catalog[place]? = some object → object.entry = .index index → index.unique = true →
     place ∉ positions → index.table ∉ positions
 
-/-- For every catalog and positions, {name}`Catalog.drop` is the kept objects
-({name}`keptAfterDrop`), each with its entry after the drop ({name}`CatalogEntry.afterDrop`). Proof sketch: both are the
-same map of the same filter. -/
-theorem Catalog.drop_eq_keptAfterDrop (catalog : Catalog) (positions : List Nat) :
-    catalog.drop positions =
-      (keptAfterDrop positions catalog).map fun object => { object with entry := object.entry.afterDrop positions } := by
-  simp only [Catalog.drop, keptAfterDrop, List.map_map]
-  rfl
-
-/-- For every database and positions, the row lists after {name}`Database.drop` are the kept row
-lists ({name}`keptAfterDrop`). Proof sketch: the definition. -/
-theorem Database.drop_rows (database : Database) (positions : List Nat) :
-    (database.drop positions).rows = keptAfterDrop positions database.rows := rfl
-
 /-- For every database, positions, position and table: if the database after
 {name}`Database.drop` has the table at the position, the database has the same table, with its
 entry and rows, at an old position that the drop keeps and that {name}`keptBelow` moves to the

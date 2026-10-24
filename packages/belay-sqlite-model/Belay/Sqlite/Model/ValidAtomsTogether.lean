@@ -1,14 +1,13 @@
 import Belay.Sqlite.Model.ValidAtomsStatement
-import Belay.Sqlite.Model.KeysUniqueScriptRun
+import Belay.Sqlite.Model.KeysUniqueRuns
 
 set_option doc.verso true
 
 /-! The four constraint atoms of {lit}`Database.Valid` together (ADR 0022, D3, slice 3): the
 statement theorem and the run theorems for the conjunction of "not null", "types fit", "checks hold"
-and "keys unique", when each reached statement meets all their conditions. The ADR 0017 surface (S4)
-uses this form: a run of the bundled database over a database with the four atoms gives a database
-with the four atoms. The theorems are the instances of {lit}`RunHolds` and {lit}`ScriptRunHolds` for
-the conjunction, whose statement theorem is the four statement theorems. -/
+and "keys unique", when each reached statement meets all their conditions. The theorems are the
+instances of {lit}`RunHolds` for the conjunction, whose statement theorem is the four statement theorems.
+The run theorem for {lit}`runScriptFrom` is in {lit}`ScriptRunConstraints`. -/
 
 namespace Belay.Sqlite.Model
 
@@ -74,16 +73,6 @@ nothing of the rest of the script. -/
 abbrev AtomsRunConditions (position : Nat) (script : List (Resolved.Statement × List Value)) (state : SqlState) : Prop :=
   RunConditionsWith (fun statement database => statement.AtomsCondition database) position script state
 
-/-- For the given context, clock, index, connection and statements with their values, each statement
-that {name}`runScriptFrom` resolves meets the conditions of the four atoms
-({name}`Resolved.Statement.AtomsCondition`) on the database of the connection before it
-({name}`ScriptConditionsWith`). The empty list requires nothing. A statement that does not resolve
-requires no condition. A statement at which the run ends requires nothing of the rest of the
-statements; the conditions of the rest apply only when the run continues. -/
-abbrev AtomsScriptConditions (context : ResolveContext) (clock : Option Clock) (index : Nat) (connection : Connection)
-    (script : List (Syntax.Statement × List Value)) : Prop :=
-  ScriptConditionsWith (fun statement database => statement.AtomsCondition database) context clock index connection script
-
 /-- The run theorem of the four atoms for {name}`runSqlFrom`. For every position, script and state:
 if the state satisfies {name}`SqlState.Holds` for {name}`Database.ConstraintAtoms` (its database,
 and its snapshot when a transaction is open) and the script meets {name}`AtomsRunConditions` from the
@@ -105,19 +94,5 @@ theorem runSql_constraintAtoms (script : List (Resolved.Statement × List Value)
     (holds : database.ConstraintAtoms) (conditions : AtomsRunConditions 0 script { database }) :
     (runSql script database).Holds Database.ConstraintAtoms :=
   runSql_holds constraintAtoms_statementKeeps script holds conditions
-
-/-- The run theorem of the four atoms for {name}`runScriptFrom`. For every context, clock, index,
-connection and statements with their values: if the state of the connection satisfies
-{name}`SqlState.Holds` for {name}`Database.ConstraintAtoms` (its database, and its snapshot when a
-transaction is open) and the statements meet {name}`AtomsScriptConditions` from the index and the
-connection, the state of the connection of the run ({lit}`connection.state`) satisfies
-{name}`SqlState.Holds` for {name}`Database.ConstraintAtoms`. Proof sketch:
-{name}`runScriptFrom_holds` for {name}`constraintAtoms_statementKeeps`. -/
-theorem runScriptFrom_constraintAtoms (context : ResolveContext) (clock : Option Clock) (index : Nat)
-    {connection : Connection} (script : List (Syntax.Statement × List Value))
-    (holds : connection.state.Holds Database.ConstraintAtoms)
-    (conditions : AtomsScriptConditions context clock index connection script) :
-    (runScriptFrom context clock index connection script).connection.state.Holds Database.ConstraintAtoms :=
-  runScriptFrom_holds constraintAtoms_statementKeeps context clock index script holds conditions
 
 end Belay.Sqlite.Model

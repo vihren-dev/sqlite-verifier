@@ -111,4 +111,16 @@ def indexOnDropped : Database :=
 -- conflict on it.
 example : indexOnDropped.KeysUnique ∧ ¬(indexOnDropped.drop [0]).KeysUnique := by decide +kernel
 
+/-- {lit}`CREATE TABLE r(a, b, PRIMARY KEY (a, a))`: a key that names the column {lit}`a` twice, as
+SQLite allows (ADR 0022, owner decision 5 a)). -/
+def repeatedKeyTable : Database := built [.createTable (name! "r") [typed "a" none, typed "b" none] [.primaryKey [name! "a", name! "a"]]]
+
+-- The key has two terms. Two rows with equal `a` conflict on it, and two rows with different `a` do not,
+-- so the atom holds for the second pair and fails for the first.
+example : (repeatedKeyTable.catalog.uniqueKeys 0 ((repeatedKeyTable.table 0).getD { shape := { columns := [] }, rows := [] }).shape).map
+    (·.terms.length) = [2] := by decide +kernel
+example : (withRows repeatedKeyTable [stored 1 [.integer 1, .integer 1], stored 2 [.integer 2, .integer 1]]).KeysUnique ∧
+    ¬(withRows repeatedKeyTable [stored 1 [.integer 1, .integer 1], stored 2 [.integer 1, .integer 2]]).KeysUnique := by
+  decide +kernel
+
 end Belay.Sqlite.Model.KeysUniqueExamples

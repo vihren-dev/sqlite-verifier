@@ -1,0 +1,102 @@
+{
+  "caller": "claude",
+  "commit": "ca024f7ebf87d4fc829eb9d33d3054ae329a8e99",
+  "date": "2026-10-24T07:00:27+00:00",
+  "exit": 1,
+  "files": [
+    "packages/belay/Belay/Sqlite/ProgramRun.lean",
+    "packages/belay-sqlite-model/Belay/Sqlite/Model/AdmittedRunsConditionExamples.lean",
+    "packages/belay-sqlite-model/Belay/Sqlite/Model/AdmittedRunsExamples.lean",
+    "packages/belay-sqlite-model/Belay/Sqlite/Model/AdmittedSqlRunsCatalog.lean",
+    "packages/belay-sqlite-model/Belay/Sqlite/Model/AdmittedSqlRunsRows.lean",
+    "packages/belay-sqlite-model/Belay/Sqlite/Model/AdmittedStatementKeeps.lean",
+    "packages/belay-sqlite-model/Belay/Sqlite/Model/AtomsConditionsOfLink.lean",
+    "packages/belay-sqlite-model/Belay/Sqlite/Model/KeysUniqueScriptRun.lean",
+    "packages/belay-sqlite-model/Belay/Sqlite/Model/ResolveStatementApplied.lean",
+    "packages/belay-sqlite-model/Belay/Sqlite/Model/ResolveStatementFacts.lean",
+    "packages/belay-sqlite-model/Belay/Sqlite/Model/ResolveStatementForms.lean",
+    "packages/belay-sqlite-model/Belay/Sqlite/Model/ResolveStatementLink.lean",
+    "packages/belay-sqlite-model/Belay/Sqlite/Model/RunHoldsReady.lean",
+    "packages/belay-sqlite-model/Belay/Sqlite/Model/ScriptRunAdmittedCatalog.lean",
+    "packages/belay-sqlite-model/Belay/Sqlite/Model/ScriptRunAdmittedRows.lean",
+    "packages/belay-sqlite-model/Belay/Sqlite/Model/ScriptRunApplied.lean",
+    "packages/belay-sqlite-model/Belay/Sqlite/Model/ScriptRunConstraints.lean",
+    "packages/belay-sqlite-model/Belay/Sqlite/Model/ScriptRunDerived.lean",
+    "packages/belay-sqlite-model/Belay/Sqlite/Model/ScriptRunValid.lean",
+    "packages/belay-sqlite-model/Belay/Sqlite/Model/ValidAtomsRuns.lean",
+    "packages/belay-sqlite-model/Belay/Sqlite/Model/ValidAtomsTogether.lean",
+    "packages/belay-sqlite-model/Belay/Sqlite/Model.lean",
+    "packages/belay-sqlite-model/lakefile.toml",
+    "plans/20261023-admitted-atoms-theorems.status.md",
+    "reviews/20261024T063131Z-da1a8a76/review.json",
+    "tests/admitted_atoms_run_theorems_test.py",
+    "tests/keys_unique_theorems_test.py",
+    "tests/valid_atoms_theorems_test.py"
+  ],
+  "findings": [
+    {
+      "id": "20261024T070027Z-ca024f7e#1",
+      "line": 18,
+      "path": "packages/belay-sqlite-model/Belay/Sqlite/Model/RunHoldsReady.lean",
+      "rule": "R2",
+      "severity": "must",
+      "text": "The `StatementKeepsReady` docstring omits the vacuous error cases and uses unchecked declaration references. Fix: state that only success and `constraintFail` require the property, and use checked references with declarations in scope."
+    },
+    {
+      "id": "20261024T070027Z-ca024f7e#2",
+      "line": 67,
+      "path": "packages/belay-sqlite-model/Belay/Sqlite/Model/AdmittedRunsExamples.lean",
+      "rule": "R2",
+      "severity": "must",
+      "text": "The docstring claims preservation of every atom, but `mixedRun_rowsAliased` states only rows aliased and catalog supported for the final database and snapshot. Fix: restate those two properties and the snapshot condition."
+    },
+    {
+      "id": "20261024T070027Z-ca024f7e#3",
+      "line": 11,
+      "path": "packages/belay-sqlite-model/Belay/Sqlite/Model/ResolveStatementForms.lean",
+      "rule": "R9",
+      "severity": "must",
+      "text": "The module description and CREATE TRIGGER proof sketch exclude DROP results, but CREATE TRIGGER IF NOT EXISTS can resolve to `.drop []`. Fix: describe this case and its proof through `Catalog.DropClosed.nil`."
+    },
+    {
+      "id": "20261024T070027Z-ca024f7e#4",
+      "line": 70,
+      "path": "packages/belay-sqlite-model/Belay/Sqlite/Model/AdmittedRunsConditionExamples.lean",
+      "rule": "R9",
+      "severity": "should",
+      "text": "`pastLargest` has no docstring. Fix: convert its explanatory comment into a docstring that names its counterexample purpose."
+    },
+    {
+      "id": "20261024T070027Z-ca024f7e#5",
+      "line": 59,
+      "path": "packages/belay-sqlite-model/Belay/Sqlite/Model/ScriptRunConstraints.lean",
+      "rule": "R13",
+      "severity": "should",
+      "text": "This commit changes the script-run theorem hypotheses without updating their descriptions in ADR 0012 and ADR 0022. Fix: include dated amendments describing the new hypotheses and preservation theorems in the same commit."
+    }
+  ],
+  "id": "20261024T070027Z-ca024f7e",
+  "kind": "review",
+  "reviewer": "codex",
+  "revision": "@-",
+  "rules": {
+    "R1": "62d446279093",
+    "R10": "638d8cbd1df8",
+    "R11": "5de19cdbbbc1",
+    "R12": "99f66579f467",
+    "R13": "da0926dafb88",
+    "R15": "518eab58f8b5",
+    "R16": "892e77bd2a12",
+    "R17": "62b65b662f79",
+    "R18": "5159f20b166b",
+    "R19": "6a24b671568c",
+    "R2": "e5e78fb2a52a",
+    "R3": "4f9188eadd60",
+    "R4": "ea7ca17539eb",
+    "R5": "b8613a2d693b",
+    "R6": "8d1d4631e888",
+    "R7": "59a21b0bec7f",
+    "R9": "5a69196344d0"
+  },
+  "well_formed": true
+}

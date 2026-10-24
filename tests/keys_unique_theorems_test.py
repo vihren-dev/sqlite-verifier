@@ -38,11 +38,13 @@ example (position : Nat) (script : List (Resolved.Statement × List Value)) {sta
 example (script : List (Resolved.Statement × List Value)) {database : Database} (unique : database.KeysUnique)
     (conditions : RunConditions 0 script { database }) : (runSql script database).KeysUnique :=
   runSql_keysUnique script unique conditions
-example (context : ResolveContext) (clock : Option Clock) (index : Nat) {connection : Connection}
-    (script : List (Syntax.Statement × List Value)) (unique : connection.state.KeysUnique)
-    (conditions : ScriptConditions context clock index connection script) :
-    (runScriptFrom context clock index connection script).connection.state.KeysUnique :=
-  runScriptFrom_keysUnique context clock index script unique conditions
+example {profile : Profile} (context : ResolveContext) (clock : Option Clock) (index : Nat)
+    {connection : Connection} (script : List (Syntax.Statement × List Value))
+    (execution : context.mode = .execution) (same : context.profile.limits = profile.limits)
+    (holds : connection.state.Holds (Database.AdmittedWith profile Database.KeysUnique)) :
+    (runScriptFrom context clock index connection script).connection.state.Holds
+      (Database.AdmittedWith profile Database.KeysUnique) :=
+  runScriptFrom_keysUnique context clock index script execution same holds
 example {database : Database} (unique : database.KeysUnique) {position : Nat} {table : Table}
     (found : database.table position = some table) {key : UniqueKey}
     (member : key ∈ database.catalog.uniqueKeys position table.shape) (probe : Row) :

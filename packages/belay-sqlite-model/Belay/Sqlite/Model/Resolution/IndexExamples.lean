@@ -116,4 +116,12 @@ def bPresent : Expr := .isNull (.identifier (name! "b") .none) true
   | [_, .prepareError (.expression .conflictTargetMismatch)] => true
   | _ => false)
 
+-- A list of key terms with no term is SQLite's `near ")": syntax error`, as is an empty
+-- PRIMARY KEY or UNIQUE list of CREATE TABLE.
+#guard errorOf (indexD []) == some (.expression .emptyKeyList)
+#guard statements (schema [.createTable (name! "e") [column (name! "a")] [.primaryKey [] ]]) ==
+  [.prepareError (.expression .emptyKeyList)]
+#guard statements (schema [.createTable (name! "e") [column (name! "a")] [.unique []]]) ==
+  [.prepareError (.expression .emptyKeyList)]
+
 end Belay.Sqlite.Model.Resolution.IndexExamples

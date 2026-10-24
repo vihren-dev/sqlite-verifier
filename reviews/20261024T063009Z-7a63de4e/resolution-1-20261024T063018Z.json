@@ -1,0 +1,7 @@
+{
+  "date": "2026-10-24T06:30:18+00:00",
+  "finding": "20261024T063009Z-7a63de4e#1",
+  "kind": "resolution",
+  "outcome": "fixed",
+  "reason": "The progress entry no longer cites local verdict counts, prediction comparisons or mutant results; it names the tests and says that the Nix results are recorded when available."
+}

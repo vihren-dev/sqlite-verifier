@@ -37,6 +37,37 @@ def Sql.runFrom {α : Type} (clock : Option Clock) (index : Nat) (connection : C
       let later := (rest output).runFrom clock (index + 1) next
       { later with outputs := output :: later.outputs }
 
+/-- For every program, clock, index and connection: if the state of the connection satisfies
+{name}`Belay.Sqlite.Model.SqlState.Holds` for {name}`Database.Valid` under the pinned profile (its database, and
+its snapshot when a transaction is open), the state of the connection at the end of
+{name}`Sql.runFrom` satisfies it. It holds for every program of the surface, whatever its statements: the
+check of {lit}`Run.checked` never fails on the connection of a run from a valid start. Proof sketch: induction
+over the program; a statement that ends the run keeps the connection, and a statement that continues is
+one step of the model's run, which keeps the database valid
+({name}`Belay.Sqlite.Model.runScriptStep_valid`, for the context {name}`runContext`, in execution mode with the
+limits of the pinned profile). -/
+theorem Sql.runFrom_valid {α : Type} (clock : Option Clock) (program : Sql α) :
+    ∀ (index : Nat) {connection : Connection}, connection.state.Holds (Database.Valid Profile.pinned) →
+      (program.runFrom clock index connection).connection.state.Holds (Database.Valid Profile.pinned) := by
+  induction program with
+  | pure value => exact fun _ _ holds => holds
+  | exec statement values rest hypothesis =>
+    intro index connection holds
+    unfold Sql.runFrom
+    have step := fun output next => runScriptStep_valid (profile := Profile.pinned) runContext clock index statement values
+      rfl rfl holds (output := output) (next := next)
+    cases found : runScriptStep runContext clock index connection statement values with
+    | ended reason => exact holds
+    | continued output next => exact hypothesis output (index + 1) (step output next found)
+
+/-- For every program, database and environment: the database of the connection at the end of the run of
+{lit}`Sql.run`, before the check, is valid under the pinned profile. So the decision of {lit}`Run.checked` is
+always {lit}`true` here, and the run never ends with {lit}`invalidReason`. Proof sketch:
+{name}`Sql.runFrom_valid` from the idle connection, whose database is the valid database. -/
+theorem Sql.runFrom_database_valid {α : Type} (program : Sql α) (db : Database) (env : Env) :
+    (program.runFrom env.clock 0 (db.raw.connection env.counters)).connection.state.database.Valid Profile.pinned :=
+  (Sql.runFrom_valid env.clock program 0 ⟨db.valid, fun _ same => by simp [Database.Raw.connection] at same⟩).1
+
 /-- The result of a run of a program. -/
 structure Run (α : Type) where
   /-- The program's value: none when a statement ended the run with {name}`Output.unmodeled`,

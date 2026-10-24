@@ -59,20 +59,43 @@ position past the end of {lit}`rows` is unchanged. -/
 def Database.setRows (database : Database) (position : Nat) (rows : List Row) : Database :=
   { database with rows := database.rows.set position rows }
 
-/-- Whether a key is nonempty, names no column twice and names only positions below
-the width: {assert}`supportedKey 2 [1, 0] = true`. -/
+/-- Whether a key is nonempty and names only positions below the width. A key may name a
+column twice, as SQLite accepts {lit}`PRIMARY KEY(a, a)`:
+{assert}`supportedKey 2 [1, 0] = true`, {assert}`supportedKey 2 [1, 1] = true`. -/
 def supportedKey (width : Nat) (key : List Nat) : Bool :=
-  !key.isEmpty && key.eraseDups.length == key.length && key.all (· < width)
+  !key.isEmpty && key.all (· < width)
+
+/-- Whether the rowid alias of a table is as the resolver makes it: a table without an alias
+requires nothing. An alias is a position below the number of columns, whose column is not
+generated and has INTEGER affinity, and it is the whole primary key, in a table that is not
+{lit}`WITHOUT ROWID`. This is a rule of the model's catalog, not of SQLite: SQLite makes such an
+alias only from an INTEGER PRIMARY KEY, and the resolver does too, but a table that a Lean user
+builds can break the rule, and then the model does not describe the table. -/
+def CatalogTable.aliasSupported (table : CatalogTable) : Bool :=
+  match table.rowidAlias with
+  | none => true
+  | some position => table.primaryKey == [position] && !table.withoutRowid &&
+      (table.columns[position]?.any fun column => column.generated.isNone && column.affinity == .integer)
+
+/-- Whether every CHECK constraint of the table, of a column or of the table, reads only
+columns below the number of columns of the table ({name}`Resolved.Expr.readsBelow`). This is a
+rule of the model's catalog, not of SQLite: the resolver resolves each CHECK over the columns of
+its table, but a table that a Lean user builds can have a CHECK that reads a missing column, which
+reads NULL, and then the model does not describe the table. -/
+def CatalogTable.checksReadBelow (table : CatalogTable) : Bool :=
+  table.allChecks.all fun check => check.condition.readsBelow table.columns.length
 
 /-- Admit a table entry under the limits: at least one column and at most the
-column limit, no two columns with one folded name, no rowid column name, and keys that
-satisfy {name}`supportedKey`. A rowid alias is admitted (slice 5b). -/
+column limit, no two columns with one folded name, no rowid column name, keys that
+satisfy {name}`supportedKey`, a rowid alias as {name}`CatalogTable.aliasSupported` says, and
+CHECK constraints that read only columns of the table ({name}`CatalogTable.checksReadBelow`). -/
 def CatalogTable.supported (limits : Limits) (table : CatalogTable) : Bool :=
   !table.columns.isEmpty && table.columns.length ≤ limits.columns &&
     (table.columns.map (·.name.folded)).eraseDups.length == table.columns.length &&
     !table.columns.any (rowidName ·.name) &&
     (table.primaryKey.isEmpty || supportedKey table.columns.length table.primaryKey) &&
-    table.uniqueKeys.all (supportedKey table.columns.length)
+    table.uniqueKeys.all (supportedKey table.columns.length) &&
+    table.aliasSupported && table.checksReadBelow
 
 /-- Admit one catalog object. A table satisfies {lit}`CatalogTable.supported`, and
 a reserved name is allowed only for a statistics table with exactly its typeless

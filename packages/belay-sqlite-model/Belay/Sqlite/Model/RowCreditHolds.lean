@@ -9,17 +9,17 @@ does {lit}`NestedRun.credited` of a nested run that keeps it. -/
 
 namespace Belay.Sqlite.Model
 
-variable {fact : Catalog → Nat → Table → Prop}
+variable {invariant : Database → Prop}
 
-/-- For every fact, catalog, change of states and result of the row engine: if the change keeps the
+/-- For every invariant, catalog, change of states and result of the row engine: if the change keeps the
 rows of a state, and the result keeps the invariant of the row engine (a success satisfies
 {name}`KeyState.Holds` and a stop {name}`KeyStop.Holds`), then {name}`KeyResult.mapState` of the
 result keeps it. Proof sketch: a success and a stop that keeps its rows carry the state with the same
 rows ({name}`KeyState.holds_of_rows`), and a stop with an error or without a state requires nothing. -/
 theorem KeyResult.mapState_holds {catalog : Catalog} {change : KeyState → KeyState}
     (rowsKept : ∀ state, (change state).rows = state.rows) {result : Except KeyStop KeyState}
-    (holds : ResultHolds (KeyState.Holds fact catalog) (KeyStop.Holds fact catalog) result) :
-    ResultHolds (KeyState.Holds fact catalog) (KeyStop.Holds fact catalog) (KeyResult.mapState change result) := by
+    (holds : ResultHolds (KeyState.Holds invariant catalog) (KeyStop.Holds invariant catalog) result) :
+    ResultHolds (KeyState.Holds invariant catalog) (KeyStop.Holds invariant catalog) (KeyResult.mapState change result) := by
   cases result with
   | ok state => exact KeyState.holds_of_rows (rowsKept state) holds
   | error stop =>
@@ -28,12 +28,12 @@ theorem KeyResult.mapState_holds {catalog : Catalog} {change : KeyState → KeyS
     | stopped algorithm state => exact KeyState.holds_of_rows (rowsKept state) holds
     | undescribed => trivial
 
-/-- For every fact, catalog and nested run: if the nested run keeps the invariant
+/-- For every invariant, catalog and nested run: if the nested run keeps the invariant
 ({name}`NestedRun.Keeps`), so does {name}`NestedRun.credited` of it. Proof sketch: the counts of a
 state are no rows, so the nested run starts in a state with the rows of the state around it
 ({name}`KeyState.holds_of_rows`), and its result keeps them ({name}`KeyResult.mapState_holds`). -/
-theorem NestedRun.credited_keeps {catalog : Catalog} {nested : NestedRun} (keeps : nested.Keeps fact catalog) :
-    (NestedRun.credited nested).Keeps fact catalog := fun frame work state holds => by
+theorem NestedRun.credited_keeps {catalog : Catalog} {nested : NestedRun} (keeps : nested.Keeps invariant catalog) :
+    (NestedRun.credited nested).Keeps invariant catalog := fun frame work state holds => by
   have ran := keeps frame work { state with own := 0 } (KeyState.holds_of_rows rfl holds)
   unfold NestedRun.credited
   dsimp only

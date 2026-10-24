@@ -52,8 +52,8 @@ conjunction, keeps each check, and weakens the width bound by transitivity. -/
 theorem CatalogTable.supported_mono {table : CatalogTable} (supported : table.supported limits = true)
     (more : limits.columns ≤ other.columns) : table.supported other = true := by
   simp only [CatalogTable.supported, Bool.and_eq_true, decide_eq_true_eq] at supported ⊢
-  obtain ⟨⟨⟨⟨⟨nonempty, width⟩, names⟩, rowid⟩, primary⟩, unique⟩ := supported
-  exact ⟨⟨⟨⟨⟨nonempty, Nat.le_trans width more⟩, names⟩, rowid⟩, primary⟩, unique⟩
+  obtain ⟨⟨⟨⟨⟨⟨⟨nonempty, width⟩, names⟩, rowid⟩, primary⟩, unique⟩, alias⟩, checks⟩ := supported
+  exact ⟨⟨⟨⟨⟨⟨⟨nonempty, Nat.le_trans width more⟩, names⟩, rowid⟩, primary⟩, unique⟩, alias⟩, checks⟩
 
 /-- For every catalog and two limits, if the catalog is valid under the first and
 the second allows at least as many columns, it is valid under the second. Use it

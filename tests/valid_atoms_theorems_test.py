@@ -2,7 +2,10 @@
 their stated formulas and rest only on the standard axioms.
 
 The statement theorems, the run theorems of `runSqlFrom`, `runSql` and `runScriptFrom`, and the
-corollary for the four constraint atoms are in the root import of the model. The check file restates
+corollary for the four constraint atoms are in the root import of the model. The theorems of
+`runScriptFrom` have no hypothesis on the statements of the script (ADR 0022, slice 4, part 3): they
+assume `Database.AdmittedWith profile atom`, a context in execution mode with the limits of the
+profile, and the resolver gives the conditions. The check file restates
 each formula, so a change that weakens a formula fails here, and it refuses `sorryAx`,
 `ofReduceBool` and `_native` in the `#print axioms` output (`compile_checks`).
 """
@@ -41,11 +44,13 @@ example (position : Nat) (script : List (Resolved.Statement × List Value)) {sta
 example (script : List (Resolved.Statement × List Value)) {database : Database} (holds : Database.NotNull database)
     (conditions : NotNullRunConditions 0 script { database }) : (runSql script database).Holds Database.NotNull :=
   runSql_notNull script holds conditions
-example (context : ResolveContext) (clock : Option Clock) (index : Nat) {connection : Connection}
-    (script : List (Syntax.Statement × List Value)) (holds : connection.state.Holds Database.NotNull)
-    (conditions : NotNullScriptConditions context clock index connection script) :
-    (runScriptFrom context clock index connection script).connection.state.Holds Database.NotNull :=
-  runScriptFrom_notNull context clock index script holds conditions
+example {profile : Profile} (context : ResolveContext) (clock : Option Clock) (index : Nat)
+    {connection : Connection} (script : List (Syntax.Statement × List Value))
+    (execution : context.mode = .execution) (same : context.profile.limits = profile.limits)
+    (holds : connection.state.Holds (Database.AdmittedWith profile Database.NotNull)) :
+    (runScriptFrom context clock index connection script).connection.state.Holds
+      (Database.AdmittedWith profile Database.NotNull) :=
+  runScriptFrom_notNull context clock index script execution same holds
 example (clock : Int) (counters : Counters) (parameters : List Value) (statement : Resolved.Statement)
     {database : Database} (holds : Database.TypesFit database) (condition : statement.TypesFitCondition database) :
     (runStatement clock counters parameters statement database).effect.Satisfies Database.TypesFit :=
@@ -57,11 +62,13 @@ example (position : Nat) (script : List (Resolved.Statement × List Value)) {sta
 example (script : List (Resolved.Statement × List Value)) {database : Database} (holds : Database.TypesFit database)
     (conditions : TypesFitRunConditions 0 script { database }) : (runSql script database).Holds Database.TypesFit :=
   runSql_typesFit script holds conditions
-example (context : ResolveContext) (clock : Option Clock) (index : Nat) {connection : Connection}
-    (script : List (Syntax.Statement × List Value)) (holds : connection.state.Holds Database.TypesFit)
-    (conditions : TypesFitScriptConditions context clock index connection script) :
-    (runScriptFrom context clock index connection script).connection.state.Holds Database.TypesFit :=
-  runScriptFrom_typesFit context clock index script holds conditions
+example {profile : Profile} (context : ResolveContext) (clock : Option Clock) (index : Nat)
+    {connection : Connection} (script : List (Syntax.Statement × List Value))
+    (execution : context.mode = .execution) (same : context.profile.limits = profile.limits)
+    (holds : connection.state.Holds (Database.AdmittedWith profile Database.TypesFit)) :
+    (runScriptFrom context clock index connection script).connection.state.Holds
+      (Database.AdmittedWith profile Database.TypesFit) :=
+  runScriptFrom_typesFit context clock index script execution same holds
 example (clock : Int) (counters : Counters) (parameters : List Value) (statement : Resolved.Statement)
     {database : Database} (holds : Database.ChecksHold database) (condition : statement.ChecksHoldCondition database) :
     (runStatement clock counters parameters statement database).effect.Satisfies Database.ChecksHold :=
@@ -73,11 +80,13 @@ example (position : Nat) (script : List (Resolved.Statement × List Value)) {sta
 example (script : List (Resolved.Statement × List Value)) {database : Database} (holds : Database.ChecksHold database)
     (conditions : ChecksHoldRunConditions 0 script { database }) : (runSql script database).Holds Database.ChecksHold :=
   runSql_checksHold script holds conditions
-example (context : ResolveContext) (clock : Option Clock) (index : Nat) {connection : Connection}
-    (script : List (Syntax.Statement × List Value)) (holds : connection.state.Holds Database.ChecksHold)
-    (conditions : ChecksHoldScriptConditions context clock index connection script) :
-    (runScriptFrom context clock index connection script).connection.state.Holds Database.ChecksHold :=
-  runScriptFrom_checksHold context clock index script holds conditions
+example {profile : Profile} (context : ResolveContext) (clock : Option Clock) (index : Nat)
+    {connection : Connection} (script : List (Syntax.Statement × List Value))
+    (execution : context.mode = .execution) (same : context.profile.limits = profile.limits)
+    (holds : connection.state.Holds (Database.AdmittedWith profile Database.ChecksHold)) :
+    (runScriptFrom context clock index connection script).connection.state.Holds
+      (Database.AdmittedWith profile Database.ChecksHold) :=
+  runScriptFrom_checksHold context clock index script execution same holds
 example (position : Nat) (script : List (Resolved.Statement × List Value)) {state : SqlState}
     (holds : state.Holds Database.ConstraintAtoms) (conditions : AtomsRunConditions position script state) :
     (runSqlFrom position script state).Holds Database.ConstraintAtoms :=
@@ -86,11 +95,13 @@ example (script : List (Resolved.Statement × List Value)) {database : Database}
     (holds : database.ConstraintAtoms) (conditions : AtomsRunConditions 0 script { database }) :
     (runSql script database).Holds Database.ConstraintAtoms :=
   runSql_constraintAtoms script holds conditions
-example (context : ResolveContext) (clock : Option Clock) (index : Nat) {connection : Connection}
-    (script : List (Syntax.Statement × List Value)) (holds : connection.state.Holds Database.ConstraintAtoms)
-    (conditions : AtomsScriptConditions context clock index connection script) :
-    (runScriptFrom context clock index connection script).connection.state.Holds Database.ConstraintAtoms :=
-  runScriptFrom_constraintAtoms context clock index script holds conditions
+example {profile : Profile} (context : ResolveContext) (clock : Option Clock) (index : Nat)
+    {connection : Connection} (script : List (Syntax.Statement × List Value))
+    (execution : context.mode = .execution) (same : context.profile.limits = profile.limits)
+    (holds : connection.state.Holds (Database.AdmittedWith profile Database.ConstraintAtoms)) :
+    (runScriptFrom context clock index connection script).connection.state.Holds
+      (Database.AdmittedWith profile Database.ConstraintAtoms) :=
+  runScriptFrom_constraintAtoms context clock index script execution same holds
 """ + "".join(f"#print axioms {name}\n" for name in THEOREMS)
 
 

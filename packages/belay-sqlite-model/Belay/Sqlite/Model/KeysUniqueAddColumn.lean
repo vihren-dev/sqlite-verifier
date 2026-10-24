@@ -32,7 +32,9 @@ table, both hold:
 
 A position without a table requires nothing. The first is an atom of {lit}`Database.Admitted`,
 and the keys of a supported catalog ({name}`CatalogIndex.supported`, {name}`supportedKey`) read
-only columns below the width; this file does not prove either fact. -/
+only columns below the width. This file does not prove either fact.
+{lit}`Database.addColumnCondition_of_admitted` (file {lit}`AddColumnFromValid`) proves the
+condition for every admitted database. -/
 def Database.AddColumnCondition (database : Database) (target : Nat) : Prop :=
   ∀ table, database.table target = some table →
     table.RowsWide ∧ ∀ key ∈ database.keys target table, key.readsBelow table.shape.columns.length = true

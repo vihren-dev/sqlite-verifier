@@ -70,10 +70,11 @@ def indexTerm (dqs : Bool) (scope : Scope) (columns : List CatalogColumn) : Synt
 /-- The key terms of CREATE INDEX in order, with their sort orders and collations: an
 explicit {lit}`COLLATE`, else the column's, else {lit}`BINARY`
 ({name}`Syntax.Expr.collationIn`); the path of an issue of term {lit}`item` is
-{lit}`[item, 0]` within the term list. -/
+{lit}`[item, 0]` within the term list. A list with no term is SQLite's syntax error
+({name}`ExprError.emptyKeyList`); SQL text cannot give it, so only syntax built in Lean does. -/
 def indexKeys (dqs : Bool) (scope : Scope) (columns : List CatalogColumn) (terms : List Syntax.OrderTerm) :
     Except ValueIssue (List IndexKey) :=
-  terms.zipIdx.mapM fun (term, item) =>
+  if terms.isEmpty then .error (.prepare .emptyKeyList) else terms.zipIdx.mapM fun (term, item) =>
     ((fun resolved => { term := resolved, descending := term.descending,
                         collation := term.expression.collationIn scope }) <$>
       indexTerm dqs scope columns term.expression).mapError (·.under [item, 0])

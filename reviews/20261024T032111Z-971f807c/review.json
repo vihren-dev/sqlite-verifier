@@ -1,0 +1,54 @@
+{
+  "caller": "claude",
+  "commit": "971f807c02e107d37c276718875b707004574d59",
+  "date": "2026-10-24T03:21:11+00:00",
+  "exit": 1,
+  "files": [
+    "packages/belay-sqlite-model/Belay/Sqlite/Model/AdmittedAddColumnLaws.lean",
+    "packages/belay-sqlite-model/Belay/Sqlite/Model/AdmittedCellLaws.lean",
+    "packages/belay-sqlite-model/Belay/Sqlite/Model/AdmittedSchemaStatements.lean",
+    "packages/belay-sqlite-model/Belay/Sqlite/Model/DatabaseShapedLaws.lean",
+    "packages/belay-sqlite-model/Belay/Sqlite/Model/DropPositionLaws.lean",
+    "packages/belay-sqlite-model/Belay/Sqlite/Model/KeysUniqueDrop.lean",
+    "packages/belay-sqlite-model/Belay/Sqlite/Model/SchemaExtensionLaws.lean",
+    "packages/belay-sqlite-model/Belay/Sqlite/Model.lean",
+    "packages/belay-sqlite-model/lakefile.toml",
+    "plans/20261023-admitted-atoms-theorems.status.md",
+    "reviews/20261024T030632Z-32003b12/resolution-1-20261024T030651Z.json",
+    "reviews/20261024T030632Z-32003b12/review.json"
+  ],
+  "findings": [
+    {
+      "id": "20261024T032111Z-971f807c#1",
+      "line": 36,
+      "path": "packages/belay-sqlite-model/Belay/Sqlite/Model/DatabaseShapedLaws.lean",
+      "rule": "R2",
+      "severity": "must",
+      "text": "The docstring of `Database.RowsShaped.append` assumes an unchanged catalog, but the formula appends an object to the catalog and has no such assumption. Fix: state that appending any catalog object and an empty row list preserves `Database.RowsShaped`."
+    }
+  ],
+  "id": "20261024T032111Z-971f807c",
+  "kind": "review",
+  "reviewer": "codex",
+  "revision": "@-",
+  "rules": {
+    "R1": "62d446279093",
+    "R10": "638d8cbd1df8",
+    "R11": "5de19cdbbbc1",
+    "R12": "99f66579f467",
+    "R13": "da0926dafb88",
+    "R15": "518eab58f8b5",
+    "R16": "892e77bd2a12",
+    "R17": "62b65b662f79",
+    "R18": "5159f20b166b",
+    "R19": "6a24b671568c",
+    "R2": "e5e78fb2a52a",
+    "R3": "4f9188eadd60",
+    "R4": "ea7ca17539eb",
+    "R5": "b8613a2d693b",
+    "R6": "8d1d4631e888",
+    "R7": "59a21b0bec7f",
+    "R9": "5a69196344d0"
+  },
+  "well_formed": true
+}

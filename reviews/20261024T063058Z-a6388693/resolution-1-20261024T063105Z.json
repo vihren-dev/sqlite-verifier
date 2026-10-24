@@ -1,0 +1,7 @@
+{
+  "date": "2026-10-24T06:31:05+00:00",
+  "finding": "20261024T063058Z-a6388693#1",
+  "kind": "resolution",
+  "outcome": "fixed",
+  "reason": "The entry names the tests of the touched mutants and no longer claims a result."
+}

@@ -63,11 +63,11 @@ structure RowLocalAtom (atom : Table → Prop) : Prop where
 
 /-- A {name}`RowLocalAtom` gives the facts of {name}`TableFacts` for the fact that ignores the catalog
 and the position: the row engine keeps it. Proof sketch: the sublist and constraints facts of the
-atom. -/
+atom; a table that passed the check of a write with its rowids passed {name}`LiteralData.constraints`. -/
 theorem RowLocalAtom.facts {atom : Table → Prop} (rowLocal : RowLocalAtom atom) :
     TableFacts fun _ _ table => atom table where
   sublist _ _ table other holds same sub := rowLocal.sublist table other holds same sub
-  constraints _ _ table passed := rowLocal.constraints _ table passed
+  constraints _ _ table passed := rowLocal.constraints _ table (Bool.and_eq_true_iff.mp passed).1
 
 /-- "Not null" is a {name}`RowLocalAtom`. Proof sketch: no rows leave nothing to check; the frame
 lemma gives the sublist; {name}`Table.constraints_iff` gives the writes. -/

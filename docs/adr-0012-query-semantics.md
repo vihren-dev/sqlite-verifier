@@ -466,6 +466,16 @@ filter of 3b, its change count and its `RETURNING` rows. Items 4 to 6 do not cha
    `runSql` and `runScriptFrom` for each atom and for the four atoms together
    (`runSql_constraintAtoms`). No theorem of `Database.Admitted` (slice 4) or of "foreign keys
    hold" (slice 5) exists yet.
+
+   Amended 2026-10-24: ADR 0022, slice 4 gives the preservation theorems of the atoms of
+   `Database.Admitted`: `runStatement_rowidsDistinct`, `runStatement_rowsShaped`,
+   `runStatement_catalogSupported`, `runStatement_rowidsInRange`, `runStatement_rowsWide`,
+   `runStatement_rowsStored` and `runStatement_rowsAliased` for the statement step, and a run theorem of
+   `runSqlFrom`, `runSql` and `runScriptFrom` for each atom (`runSqlFrom_admitted` for the bundle). The
+   theorems of `runScriptFrom` of slices 2 and 3 no longer assume that the CREATE INDEX, ADD COLUMN and
+   DROP statements of the script meet a condition; they assume `Database.AdmittedWith profile atom` and the
+   limits of the profile, and `runScriptFrom_valid` states `Database.Valid` for the run of the surface. No
+   theorem of "foreign keys hold" (slice 5) exists yet.
 6. **`DELETE`.** Decided on 2026-10-14: its own slice, 3c, right after 3b. It
    reuses the filter of 3b, keeps 3b focused, and makes migrations that delete
    rows, where application data is lost, verifiable early.

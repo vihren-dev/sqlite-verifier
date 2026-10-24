@@ -1,4 +1,5 @@
 import Belay.Sqlite.Model.TriggerRun
+import Belay.Sqlite.Model.LiteralAdmittedRow
 
 set_option doc.verso true
 
@@ -50,7 +51,8 @@ def actionCells (child parent : CatalogTable) (link : ForeignKeyLink) (key : Par
 
 /-- The state after the new row of an UPDATE of a row is checked ({name}`LiteralData.checkedRow`
 over the table with the old row replaced): a rowid alias that is no integer is
-{lit}`datatype mismatch`, and a failed constraint fails as ABORT. -/
+{lit}`datatype mismatch`, a failed constraint fails as ABORT, and a new row that is not admitted
+({name}`LiteralData.rowAdmitted`) is not described. -/
 def checkedUpdate (catalog : Catalog) (state : KeyState) (position : Nat) (old new : Row) : Except KeyStop Unit :=
   match (state.database catalog).table position with
   | none => throw .undescribed
@@ -58,7 +60,7 @@ def checkedUpdate (catalog : Catalog) (state : KeyState) (position : Nat) (old n
     if LiteralData.aliasCellMismatch table.shape.rowidAlias new then throw (.error .datatypeMismatch state)
     else match LiteralData.checkedRow (catalog.uniqueKeys position table.shape)
         (LiteralData.replaceRow table old new) new with
-      | .ok _ => pure ()
+      | .ok _ => if LiteralData.rowAdmitted table.shape new then pure () else throw .undescribed
       | .error reason => throw (.error reason state)
 
 /-- The action of a link for the old row of the parent table at the position, with the new row

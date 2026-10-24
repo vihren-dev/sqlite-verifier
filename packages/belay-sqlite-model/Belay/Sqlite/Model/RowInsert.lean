@@ -52,7 +52,8 @@ described, a row that conflicts on REPLACE keys deletes the conflicting row with
 keys and actions, and with recursive triggers on with its DELETE programs, which inherit
 REPLACE, as SQLite's {lit}`sqlite3GenerateConstraintChecks` gives them; more than
 {name}`replacedRowsDescribed` such rows are not described; then {name}`newSteps` checks the row, scanning the child rows only for a write of
-several rows; then the row is inserted, and the {lit}`AFTER INSERT` programs run over its cells. -/
+several rows; then the row is inserted if it is admitted ({name}`LiteralData.rowAdmitted`, otherwise it is not described),
+and the {lit}`AFTER INSERT` programs run over its cells. -/
 def insertRow (catalog : Catalog) (links : List ForeignKeyLink) (nested : NestedRun) (frame : RowFrame) (target : Nat)
     (policy : Resolved.ConflictPolicy) (clauses : List Resolved.ConflictClause) (multiWrite record : Bool)
     (state : KeyState) (values : List Value) : Except KeyStop KeyState := do
@@ -86,6 +87,7 @@ def insertRow (catalog : Catalog) (links : List ForeignKeyLink) (nested : Nested
   match LiteralData.checkedRow keys { current with rows := current.rows ++ [proposed] } proposed with
   | .error reason => throw (.error reason state)
   | .ok (next, _) =>
+    if !LiteralData.rowAdmitted current.shape proposed then throw .undescribed
     let written := if record then state.written ++ [proposed] else state.written
     let inserted := if current.shape.withoutRowid then state.inserted else some proposed.rowid
     let state := { state.changeRows target fun _ => next.rows with written, own := state.own + 1, inserted }

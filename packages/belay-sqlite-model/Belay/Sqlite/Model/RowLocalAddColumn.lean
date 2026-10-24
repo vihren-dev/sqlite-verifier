@@ -26,8 +26,8 @@ def Database.RowsWideAt (database : Database) (target : Nat) : Prop :=
 /-- The condition of ADD COLUMN for "checks hold": if the target holds a table, each CHECK
 constraint of the table ({name}`CatalogTable.allChecks`) reads only columns below the width of the
 table ({name}`Resolved.Expr.readsBelow`). Without it a CHECK that reads a missing column, which
-reads NULL and passes, reads the new cell after ADD COLUMN. A resolver fact: the resolver resolves
-each CHECK over the columns of its table; {lit}`Catalog.Valid` does not give it. -/
+reads NULL and passes, reads the new cell after ADD COLUMN. A fact of the catalog: {name}`CatalogTable.supported`
+requires it of each table, so {name}`Catalog.Valid` gives it. -/
 def Database.ChecksReadBelowAt (database : Database) (target : Nat) : Prop :=
   ∀ table, database.table target = some table →
     ∀ check ∈ table.shape.allChecks, check.condition.readsBelow table.shape.columns.length = true
