@@ -48,8 +48,9 @@ let
   '';
   # The subject: the frontend, the model and its predict command, built from the same commit.
   subject = import ../build-support/default.nix { inherit system; };
+  # Python bytecode is generated during local runs and is not a source input.
   subjectSources = fs.toSource { inherit root; fileset = fs.unions
-    [ ../belay (fs.fileFilter (file: file.hasExt "py") ../conformance) ]; };
+    (map (fs.fileFilter (file: file.hasExt "py")) [ ../belay ../conformance ]); };
   inputs = checked (pkgs.runCommand "sqlite-verifier-judge-inputs" {} (judge "inputs" ''--out "$out"''));
   # The subject sees only its inputs: the corpora are not inputs of this build.
   predictions = pkgs.runCommand "sqlite-verifier-predictions" { nativeBuildInputs = [ pkgs.python3 ]; } ''

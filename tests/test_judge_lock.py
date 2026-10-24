@@ -1,9 +1,11 @@
-"""The judge lock (`integrity/judge.nix`, `integrity/judge.lock.json`), ADR 0011.
+"""The judge lock and prediction inputs (`integrity/judge.nix`), ADR 0011.
 
 The lock makes a change to the judge, its claims, a claimed corpus or the native SQLite
 oracle impossible without a change to the code-owned lock file. These tests change one byte
 of each part in a temporary copy of the repository, with corpus v1 as the only claim, and
 check that Nix evaluation stops and names that part, and passes again when it is restored.
+Prediction identity checks add minimal Python sources and a fixed runtime stub to that
+copy. They evaluate the production judge expression without building a runtime or predictions.
 """
 
 import json
@@ -90,3 +92,54 @@ def test_files_left_by_running_the_judge_do_not_change_the_lock(tree: Path) -> N
         assert evaluate(tree, "locked").returncode == 0
     finally:
         shutil.rmtree(cache.parent)
+
+
+@pytest.fixture
+def prediction_tree(tree: Path, tmp_path: Path) -> Path:
+    """Extend the small lock fixture with Python inputs and a runtime that is never executed."""
+    copy = tmp_path / "predictions"
+    shutil.copytree(tree, copy)
+    for relative, text in {
+        "belay/sqlite/profiles.py": "value = 1\n",
+        "conformance/predict.py": "value = 1\n",
+        "build-support/default.nix": '{ system }: { conformance = "/stub-runtime"; }\n',
+    }.items():
+        path = copy / relative
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text(text)
+    return copy
+
+
+def prediction_identity(tree: Path) -> str:
+    """Read the actual prediction derivation identity without building its inputs or output."""
+    result = evaluate(tree, "predictions.drvPath")
+    assert result.returncode == 0, result.stderr
+    identity = json.loads(result.stdout)
+    assert isinstance(identity, str) and identity.endswith(".drv"), identity
+    return identity
+
+
+def test_frontend_bytecode_does_not_change_predictions(prediction_tree: Path) -> None:
+    """The predictor's source filter ignores added, edited and removed frontend bytecode,
+    which previously rebuilt predictions after Python runs without source changes."""
+    before = prediction_identity(prediction_tree)
+    cache = prediction_tree / "belay/sqlite/__pycache__/profiles.cpython-314.pyc"
+    cache.parent.mkdir()
+    for content in (b"compiled", b"recompiled"):
+        cache.write_bytes(content)
+        assert prediction_identity(prediction_tree) == before
+    cache.unlink()
+    assert prediction_identity(prediction_tree) == before
+
+
+@pytest.mark.parametrize("relative", ["belay/sqlite/profiles.py", "conformance/predict.py"])
+def test_python_source_changes_predictions(prediction_tree: Path, relative: str) -> None:
+    """The predictor's source filter retains both Python components, so a real source edit
+    changes the derivation identity and restoring that source restores the identity."""
+    before = prediction_identity(prediction_tree)
+    source = prediction_tree / relative
+    original = source.read_bytes()
+    source.write_bytes(original + b"value = 2\n")
+    assert prediction_identity(prediction_tree) != before
+    source.write_bytes(original)
+    assert prediction_identity(prediction_tree) == before

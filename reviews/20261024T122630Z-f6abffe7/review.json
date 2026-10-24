@@ -1,0 +1,47 @@
+{
+  "caller": "codex",
+  "commit": "f6abffe76f940cffe845bb0d19ce9e3af921fd48",
+  "date": "2026-10-24T12:26:30+00:00",
+  "exit": 0,
+  "files": [
+    "plans/20261024-foreign-key-atoms.status.md",
+    "plans/20261024-prediction-source-filter.status.md",
+    "plans/20261024-prediction-source-filter.task.md",
+    "plans/20261024-query-sources.status.md",
+    "reviews/20261024T122324Z-cf7aa9a6/review.json"
+  ],
+  "findings": [
+    {
+      "id": "20261024T122630Z-f6abffe7#1",
+      "line": 40,
+      "path": "plans/20261024-prediction-source-filter.task.md",
+      "rule": "R19",
+      "severity": "should",
+      "text": "The task assumes the small fixture in `tests/test_judge_lock.py` can be extended to compare prediction derivation identities, but the fixture copies only `integrity/judge.nix`, `nix/`, `judge` and `conformance/corpus-v1`. The `predictions` attribute needs `build-support/default.nix` (the subject build), `belay` and `conformance`, and the spec also says not to copy the full checkout. Fix: say which extra paths the fixture must copy, or say that the identity test needs its own fixture that stubs `subject`."
+    }
+  ],
+  "id": "20261024T122630Z-f6abffe7",
+  "kind": "review",
+  "reviewer": "claude",
+  "revision": "@-",
+  "rules": {
+    "R1": "62d446279093",
+    "R10": "638d8cbd1df8",
+    "R11": "5de19cdbbbc1",
+    "R12": "99f66579f467",
+    "R13": "da0926dafb88",
+    "R15": "518eab58f8b5",
+    "R16": "892e77bd2a12",
+    "R17": "62b65b662f79",
+    "R18": "5159f20b166b",
+    "R19": "6a24b671568c",
+    "R2": "e5e78fb2a52a",
+    "R3": "4f9188eadd60",
+    "R4": "ea7ca17539eb",
+    "R5": "b8613a2d693b",
+    "R6": "8d1d4631e888",
+    "R7": "59a21b0bec7f",
+    "R9": "5a69196344d0"
+  },
+  "well_formed": true
+}
