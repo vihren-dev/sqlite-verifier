@@ -3,8 +3,8 @@ import VerifierConformance.Json
 /-! The subject's side of ADR 0011's judge: predict what SQLite observes, without seeing it.
 
 The input holds only the profile, the statement syntax of the starting schema and of the
-script, the starting rows by table name, and the clock values and the values bound to the
-parameters of each executed statement. The model resolves the syntax, runs the resolved script
+script, the starting rows by table name, the counters of the connection when the record has
+them, and the clock values and the values bound to the parameters of each executed statement. The model resolves the syntax, runs the resolved script
 with them, and reports each observed table in SQLite's catalog terms, the primary
 SQLite result code and error phase that it predicts, each statement output, and whether the case is in the
 model's scope. The judge, outside this repository's model code, compares the prediction
@@ -37,6 +37,10 @@ structure PredictInput where
   prediction comes from the model's run that continues ({name}`runPassFrom`); false for a
   recorder that stops at the first error. -/
   continues : Bool
+  /-- The counters of the connection just before the migration runs (native record version 7),
+  as the judge supplies them; none when the judge supplies none, so that the run starts with
+  unknown counters. -/
+  counters : Option Counters
   deriving FromJson
 
 /-- A catalog column as {lit}`PRAGMA table_xinfo` reports it. Defaults retain
@@ -146,7 +150,7 @@ def predictRun (p : PredictInput) : Json :=
   | .error (.schemaRestricted restriction) | .error (.scriptRestricted restriction) => restrictedJson restriction
   | .error (.schemaPrepareError ..) => refusedSchemaJson
   | .ok catalog =>
-    let connection := startConnection p.profile catalog (p.initial.map NamedRows.native)
+    let connection := startConnection p.profile catalog (p.initial.map NamedRows.native) p.counters
     let pass := runPassFrom { profile := p.profile, mode := .execution } (runClock p.clocks) 0 connection
       (bindValues p.script p.parameters)
     let observations := observeState connection.state :: pass.observations

@@ -17,8 +17,6 @@ UPDATES = SQLITE + "Resolution/Updates.lean"
 """The resolution of UPDATE, which stores each constant value."""
 EXECUTION = SQLITE + "StatementStep.lean"
 """The checked write of INSERT and UPDATE."""
-OUTPUTS = "belay-sqlite-model/Belay/Sqlite/Model/StatementOutput.lean"
-"""The outputs of statements, with the change count."""
 
 MUTANTS: dict[str, tuple[str, str, str]] = {
     "set_reads_new_row": (ROW_UPDATE,
@@ -37,7 +35,9 @@ MUTANTS: dict[str, tuple[str, str, str]] = {
         "  | .integer whole => .real (positiveZero (Float.ofInt whole).toBits)", "  | .integer whole => .integer whole"),
     "text_column_keeps_number": (STORE,
         "  | .text, .integer _ | .text, .real _ => .text value.textBytes", "  | .text, .integer _ | .text, .real _ => value"),
-    "change_count_every_row": (OUTPUTS, "        some chosen.length⟩", "        some table.rows.length⟩"),
+    "change_count_every_row": (EXECUTION,
+        "(LiteralData.changedCounts effect (table.scanRows.filter (LiteralData.selected context filter)).length)",
+        "(LiteralData.changedCounts effect table.scanRows.length)"),
 }
 """Each mutant: the file under `packages/`, the exact text it changes, and the
 replacement. The names follow the list of the amendment: SET values read the new row; a
@@ -64,7 +64,7 @@ GUARDS: dict[str, str] = {
     "no_store_affinity": "rule:assignFrom",
     "cast_as_store_affinity": "rule:Resolved.Cell.stored", "real_column_keeps_integer": "rule:realRead",
     "text_column_keeps_number": "rule:Value.store",
-    "change_count_every_row": "rule:statementOutput",
+    "change_count_every_row": "rule:runStatement",
 }
 """What each mutant guards: `rule:` and the Lean declaration of its file that the mutant
 changes. `conformance.mutant_guards` checks every entry."""

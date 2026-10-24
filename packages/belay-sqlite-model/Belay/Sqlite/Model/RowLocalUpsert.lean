@@ -105,7 +105,7 @@ theorem upsertSummary_rowLocal {atom : Table → Prop} (rowLocal : RowLocalAtom 
 
 end LiteralData
 
-/-- For every atom, clock value, parameter list, INSERT with {lit}`ON CONFLICT` clauses or a
+/-- For every atom, clock value, counters, parameter list, INSERT with {lit}`ON CONFLICT` clauses or a
 conflict algorithm without foreign key rules and trigger programs
 ({lean}`(none : Option Resolved.WriteRules)`), and database: if the atom is a
 {name}`RowLocalAtom` and every table of the database has it, every table of the database of the
@@ -115,20 +115,20 @@ statement stores the table of {name}`LiteralData.upsertSummary` at the target, w
 and the entry of the target ({name}`LiteralData.upsertSummary_rowLocal`), with
 {name}`Database.EachTable.setRows`. -/
 theorem runStatement_upsert_rowLocal {atom : Table → Prop} (rowLocal : RowLocalAtom atom) (clock : Int)
-    (parameters : List Value) (target : Nat) (rows : List (List Resolved.Cell))
+    (counters : Counters) (parameters : List Value) (target : Nat) (rows : List (List Resolved.Cell))
     (clauses : List Resolved.ConflictClause) (returning : List (Resolved.Expr × String))
     (algorithm : Option ConflictAlgorithm) (subqueries : List Resolved.Query) {database : Database}
     (every : database.EachTable atom) :
-    (effectDatabase (runStatement clock parameters
+    (effectDatabase (runStatement clock counters parameters
       (.upsert target rows clauses returning algorithm subqueries none) database).effect).EachTable atom := by
   simp only [runStatement, Option.map_none, StatementRun.withKeys]
   split
   · exact every
   · rename_i table found
     have summary := LiteralData.upsertSummary_rowLocal rowLocal
-      (Resolved.statementContext clock parameters database subqueries)
+      (Resolved.statementContext clock counters parameters database subqueries)
       (database.keys target table) (database.catalog.writePolicy target table.shape algorithm) clauses
-      (Resolved.rowsAt (Resolved.statementContext clock parameters database subqueries) table.shape.columns rows)
+      (Resolved.rowsAt (Resolved.statementContext clock counters parameters database subqueries) table.shape.columns rows)
       (every target table found)
     dsimp only
     split

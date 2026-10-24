@@ -35,6 +35,10 @@ structure Case where
   continues after an error too; false for a recorder that stops at the
   first error. -/
   continues : Bool := false
+  /-- The counters of the connection just before the migration runs (native record version 7),
+  as the recorder read them after the setup (ADR 0024, D1); none for a record without them, so
+  that the run starts with unknown counters. -/
+  counters : Option Counters := none
   deriving Repr
 
 /-- Unsupported cases cannot be mistaken for either agreement or a model bug. -/

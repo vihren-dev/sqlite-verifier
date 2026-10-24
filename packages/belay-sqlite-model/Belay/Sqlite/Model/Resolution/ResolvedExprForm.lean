@@ -5,6 +5,7 @@ import Belay.Sqlite.Model.Resolution.JsonFunction
 import Belay.Sqlite.Model.Resolution.DateFunction
 import Belay.Sqlite.Model.Resolution.ScalarFunction
 import Belay.Sqlite.Model.ClockText
+import Belay.Sqlite.Model.Counters
 
 set_option doc.verso true
 
@@ -50,6 +51,9 @@ inductive Expr where
   /-- Parameter {lit}`number` of the statement (ADR 0019, D1): item {lit}`number` of the values
   that evaluation is given, from 1, or NULL when there is no such item. -/
   | parameter (number : Nat)
+  /-- A call of {lit}`changes()`, {lit}`total_changes()` or {lit}`last_insert_rowid()` (ADR 0024,
+  D2): the counter of the connection before the statement, as an integer. -/
+  | counter (kind : CounterKind)
   /-- A call of a date and time function with its arguments in written order; {lit}`now`
   and a call without a time value read the clock value that evaluation is given. -/
   | date (function : DateFunction) (arguments : Arguments)

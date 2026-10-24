@@ -1,0 +1,77 @@
+{
+  "caller": "claude",
+  "commit": "815a2cbc2945ad44b0bd329072dd899a0db59fc4",
+  "date": "2026-10-23T22:50:11+00:00",
+  "exit": 1,
+  "files": [
+    "conformance/restriction_examples.py",
+    "docs/semantic-subset.md",
+    "packages/belay-sqlite-model/Belay/Sqlite/Model/Resolution/GeneratedColumns.lean",
+    "packages/belay-sqlite-model/Belay/Sqlite/Model/Resolution/IndexTerms.lean",
+    "packages/belay-sqlite-model/Belay/Sqlite/Model/Resolution/NondeterministicCalls.lean",
+    "packages/belay-sqlite-model/Belay/Sqlite/Model/Resolution/NondeterministicExamples.lean",
+    "packages/belay-sqlite-model/Belay/Sqlite/Model/Resolution/RestrictionRegistry.lean",
+    "packages/belay-sqlite-model/Belay/Sqlite/Model/Resolution/RestrictionText.lean",
+    "packages/belay-sqlite-model/Belay/Sqlite/Model/Resolution/Restrictions.lean",
+    "plans/20261023-connection-counters.status.md",
+    "reviews/20261023T224109Z-f8e26f86/review.json"
+  ],
+  "findings": [
+    {
+      "id": "20261023T225011Z-815a2cbc#1",
+      "line": 224,
+      "path": "docs/semantic-subset.md",
+      "rule": "R19",
+      "severity": "must",
+      "text": "The claim that a missing column always wins is false: SQLite 3.51.0 reports the non-deterministic-function error for `abs(nosuch) + changes()` in all three positions, while the new resolver reports `no such column`. Fix: limit missing-column precedence to verified expression forms and classify other combinations as `nondeterministic-error-order` in the resolver and documentation."
+    },
+    {
+      "id": "20261023T225011Z-815a2cbc#2",
+      "line": 208,
+      "path": "packages/belay-sqlite-model/Belay/Sqlite/Model/Resolution/Restrictions.lean",
+      "rule": "R12",
+      "severity": "must",
+      "text": "The added constructor extends this source file to 215 lines, exceeding the required limit of fewer than 200 lines. Fix: shorten the file below 200 lines while retaining the required documentation."
+    },
+    {
+      "id": "20261023T225011Z-815a2cbc#3",
+      "line": 140,
+      "path": "plans/20261023-connection-counters.status.md",
+      "rule": "R19",
+      "severity": "should",
+      "text": "The new entry records commit 4 as complete, but the current status at the top still says that commit 4 is next. Fix: update the top status to match the completed work."
+    },
+    {
+      "id": "20261023T225011Z-815a2cbc#4",
+      "line": 153,
+      "path": "plans/20261023-connection-counters.status.md",
+      "rule": "R19",
+      "severity": "should",
+      "text": "The new entry cites local verdict and test results, contrary to the governing instruction that status files cite only Nix check results. Fix: retain the test names and pending Nix status, and remove the local result claims."
+    }
+  ],
+  "id": "20261023T225011Z-815a2cbc",
+  "kind": "review",
+  "reviewer": "codex",
+  "revision": "@-",
+  "rules": {
+    "R1": "62d446279093",
+    "R10": "638d8cbd1df8",
+    "R11": "5de19cdbbbc1",
+    "R12": "99f66579f467",
+    "R13": "da0926dafb88",
+    "R15": "518eab58f8b5",
+    "R16": "892e77bd2a12",
+    "R17": "62b65b662f79",
+    "R18": "5159f20b166b",
+    "R19": "6a24b671568c",
+    "R2": "e5e78fb2a52a",
+    "R3": "4f9188eadd60",
+    "R4": "ea7ca17539eb",
+    "R5": "b8613a2d693b",
+    "R6": "8d1d4631e888",
+    "R7": "59a21b0bec7f",
+    "R9": "5a69196344d0"
+  },
+  "well_formed": true
+}

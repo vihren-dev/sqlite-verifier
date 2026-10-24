@@ -1,0 +1,54 @@
+{
+  "caller": "claude",
+  "commit": "583394e627c055ad1049ac90f84e70d26781c9cb",
+  "date": "2026-10-23T18:09:40+00:00",
+  "exit": 1,
+  "files": [
+    "plans/20261023-connection-counters.status.md",
+    "plans/20261023-connection-counters.task.md",
+    "reviews/20261023T180533Z-c32987c1/resolution-1-20261023T180756Z.json",
+    "reviews/20261023T180533Z-c32987c1/review.json"
+  ],
+  "findings": [
+    {
+      "id": "20261023T180940Z-583394e6#1",
+      "line": 56,
+      "path": "plans/20261023-connection-counters.task.md",
+      "rule": "R19",
+      "severity": "must",
+      "text": "The rule assumes every immediate foreign-key failure of a multi-row INSERT occurs at statement end, but `INSERT OR REPLACE` can fail during deletion through `ON DELETE RESTRICT`, before inserting the replacement row. Fix: limit this rule to missing-parent checks and distinguish failures from foreign-key actions."
+    },
+    {
+      "id": "20261023T180940Z-583394e6#2",
+      "line": 98,
+      "path": "plans/20261023-connection-counters.status.md",
+      "rule": "R19",
+      "severity": "must",
+      "text": "The new trigger probe records `0, 2, 60`, but pinned SQLite 3.51.0 returns `0, 3, 60` because the completed trigger insert increments `total_changes()` despite the outer failure. Fix: correct the recorded result to `0, 3, 60`."
+    }
+  ],
+  "id": "20261023T180940Z-583394e6",
+  "kind": "review",
+  "reviewer": "codex",
+  "revision": "zmqzonwo",
+  "rules": {
+    "R1": "62d446279093",
+    "R10": "638d8cbd1df8",
+    "R11": "5de19cdbbbc1",
+    "R12": "99f66579f467",
+    "R13": "da0926dafb88",
+    "R15": "518eab58f8b5",
+    "R16": "892e77bd2a12",
+    "R17": "62b65b662f79",
+    "R18": "5159f20b166b",
+    "R19": "6a24b671568c",
+    "R2": "e5e78fb2a52a",
+    "R3": "4f9188eadd60",
+    "R4": "ea7ca17539eb",
+    "R5": "b8613a2d693b",
+    "R6": "8d1d4631e888",
+    "R7": "59a21b0bec7f",
+    "R9": "5a69196344d0"
+  },
+  "well_formed": true
+}

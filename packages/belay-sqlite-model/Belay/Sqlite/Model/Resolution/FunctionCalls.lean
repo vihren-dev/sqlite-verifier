@@ -42,7 +42,8 @@ def Resolved.Arguments.first : Resolved.Arguments → Resolved.Expr
 affinity, as SQLite gives a function result none: {lit}`COALESCE` and {lit}`ifnull` are a
 chain of {name}`Resolved.Expr.coalesce`; {lit}`likely`, {lit}`unlikely` and {lit}`likelihood`
 are their first argument, and {lit}`likelihood` needs {name}`likelihoodConstant`; a JSON or
-date and time function keeps its form; the functions of ADR 0015 are
+date and time function keeps its form; {lit}`changes`, {lit}`total_changes` and
+{lit}`last_insert_rowid` are {name}`Resolved.Expr.counter` (ADR 0024, D2); the functions of ADR 0015 are
 {name}`Resolved.Expr.scalar`; any other function is {name}`unmodeledFunction`. -/
 def scalarCall (scope : Scope) (name : String) (written : List Syntax.Expr) (arguments : Resolved.Arguments) :
     Except ValueIssue Operand :=
@@ -53,6 +54,9 @@ def scalarCall (scope : Scope) (name : String) (written : List Syntax.Expr) (arg
   | "likelihood" =>
     if (written[1]?.map likelihoodConstant).getD false then .ok (arguments.first, none)
     else .error (.prepare .likelihoodArgument)
+  | "changes" => .ok (.counter .changes, none)
+  | "total_changes" => .ok (.counter .totalChanges, none)
+  | "last_insert_rowid" => .ok (.counter .lastInsertRowid, none)
   | "typeof" => scalar .typeof
   | "length" => scalar .length
   | "octet_length" => scalar .octetLength

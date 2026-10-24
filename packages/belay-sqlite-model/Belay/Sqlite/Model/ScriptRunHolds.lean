@@ -35,14 +35,14 @@ def ScriptConditionsWith (condition : Resolved.Statement → Database → Prop) 
 
 variable {property : Database → Prop} {condition : Resolved.Statement → Database → Prop}
 
-/-- For every property, connection, resolution state and transition: if the transition satisfies
+/-- For every property, connection, resolution state, counts and transition: if the transition satisfies
 {name}`SqlTransition.Holds`, the state of the connection after the transition
 ({name}`Connection.afterStep`) satisfies {name}`SqlState.Holds`. Proof sketch: a transition that
 continues gives its state; a success or a failure leaves the connection without a snapshot; a
 pending outcome keeps its persisted database as the snapshot. -/
-theorem Connection.afterStep_holds (connection : Connection) (after : ResolveState) :
+theorem Connection.afterStep_holds (connection : Connection) (after : ResolveState) (counts : Counts) :
     ∀ {transition : SqlTransition}, transition.Holds property →
-      (connection.afterStep after transition).state.Holds property
+      (connection.afterStep after counts transition).state.Holds property
   | .next _, holds => holds
   | .halt (.success _), holds | .halt (.failure ..), holds => ⟨holds, fun _ same => nomatch same⟩
   | .halt (.pending ..), holds => ⟨holds.2, fun _ same => Option.some.inj same ▸ holds.1⟩
@@ -53,7 +53,7 @@ if the statement theorem holds ({name}`StatementKeeps`), the state of the connec
 the condition on the database of the connection, and {name}`runScriptStep` continues with a next
 connection, then the state of the next connection satisfies {name}`SqlState.Holds`. Proof sketch:
 the step runs the resolved statement and advances with its effect ({name}`advanceWith_holds` of the
-statement theorem), then {name}`Connection.afterStep_holds`. -/
+statement theorem, {name}`SqlTransition.counted_holds`), then {name}`Connection.afterStep_holds`. -/
 theorem runScriptStep_holds (keeps : StatementKeeps property condition) (context : ResolveContext)
     (clock : Option Clock) (index : Nat) {connection : Connection} (holds : connection.state.Holds property)
     (statement : Syntax.Statement) (parameters : List Value)
@@ -69,16 +69,18 @@ theorem runScriptStep_holds (keeps : StatementKeeps property condition) (context
     split at continued
     · nomatch continued
     · rename_i value _
-      dsimp only at continued
       split at continued
       · nomatch continued
-      · split at continued
+      · dsimp only at continued
+        split at continued
         · nomatch continued
-        all_goals
-          injection continued with _ same
-          subst same
-          exact Connection.afterStep_holds connection _ (advanceWith_holds index resolved holds
-            (keeps value parameters resolved _ holds.1 (met resolved after resolvedEq)))
+        · split at continued
+          · nomatch continued
+          all_goals
+            injection continued with _ same
+            subst same
+            exact Connection.afterStep_holds connection _ _ (SqlTransition.counted_holds _ (advanceWith_holds index resolved holds
+              (keeps value _ parameters resolved _ holds.1 (met resolved after resolvedEq))))
 
 /-- The run theorem of {name}`runScriptFrom`, for every property and condition. For every context,
 clock, index, connection and statements with their values: if the statement theorem holds

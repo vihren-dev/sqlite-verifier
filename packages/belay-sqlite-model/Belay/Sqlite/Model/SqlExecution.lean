@@ -1,4 +1,4 @@
-import Belay.Sqlite.Model.StatementStep
+import Belay.Sqlite.Model.SqlAdvance
 
 set_option doc.verso true
 

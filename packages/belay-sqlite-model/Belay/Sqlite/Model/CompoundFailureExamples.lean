@@ -80,10 +80,10 @@ example : runOf (literals [.inQuery (int 1) 0 none .binary false]) [subqueryComp
 
 -- The model describes a compound statement whose term certainly fails
 -- ({name}`statementReady`): the compound describes the failures of its terms.
-example : statementReady 0 [] (.query (compound [.union] [.binary]) [literals [int 1], failingTerm]) (.ofTables []) =
+example : statementReady 0 {} [] (.query (compound [.union] [.binary]) [literals [int 1], failingTerm]) (.ofTables []) =
     true := by decide +kernel
 -- It does not describe a compound whose term names a subquery with a call that can fail.
-example : statementReady 0 [] (.query (compound [.union] [.binary])
+example : statementReady 0 {} [] (.query (compound [.union] [.binary])
     [literals [.subquery 2], literals [int 1], literals [failing]]) (.ofTables []) =
     false := by decide +kernel
 

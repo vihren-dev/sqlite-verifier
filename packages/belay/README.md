@@ -62,5 +62,18 @@ example : (start.run (env := clockAt "2026-10-20 12:00:00") do
   decide +kernel
 ```
 
-`Script.run_env` states that a run in which no statement reads the clock is the same in every
-environment.
+A connection also has three counters: the value of `changes()`, `total_changes()` and
+`last_insert_rowid()`. The environment gives them at the start of the run. `Env.default` knows
+none of them: a statement that calls a counter function before a write of the run has set that
+counter gives `Output.unmodeled`. `Env.newConnection` gives 0 to each counter, as a new SQLite
+connection does. A write sets the counters that it changes, so the next statement can read them.
+The fields are independent: `{ Env.newConnection with clock := some f }` has both.
+
+```lean
+example : (start.run (env := Env.newConnection) do
+    single (sql r"SELECT changes()")).value = some (some (0 : Value)) := by
+  decide +kernel
+```
+
+`Script.run_env` states that a run in which no statement reads the clock and no statement ends at
+a counter that the run does not know is the same in every environment.

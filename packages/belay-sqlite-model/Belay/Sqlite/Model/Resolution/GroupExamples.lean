@@ -49,7 +49,7 @@ inductive Answer where
 /-- The answer of a statement over the database ({name}`Answer`). -/
 def rowsOf (statement : Syntax.Statement) : Answer :=
   match (statements (migration database.catalog [statement])).head? with
-  | some (.query resolved subqueries) => match resolved.runOn 0 [] database subqueries with
+  | some (.query resolved subqueries) => match resolved.runOn 0 {} [] database subqueries with
     | some (_, run) => .rows run.rows
     | none => .restricted
   | some (.prepareError error) => .error error
@@ -82,13 +82,13 @@ def by_ (expression : Expr) : OrderTerm := { expression, descending := false }
 -- An aggregate in an expression over an empty group: SELECT count(*) + 1 FROM t WHERE 0 is 1.
 #guard match (statements (migration database.catalog [.select [written (.arithmetic .add count (.numeric "1"))]
     (some { table := Identifier.ofString "t", alias := none }) [] (some (.numeric "0")) [] [] none none])).head? with
-  | some (.query resolved _) => (resolved.runOn 0 [] database []).map (·.2.rows) == some [[.integer 1]]
+  | some (.query resolved _) => (resolved.runOn 0 {} [] database []).map (·.2.rows) == some [[.integer 1]]
   | _ => false
 -- SELECT DISTINCT g gives each group once; DISTINCT s is not described, as 'a' and 'A' are one row.
 #guard rowsOf (query [written (col "g")] [] none [by_ (col "g")] true) ==
   (.rows [[.integer 1], [.integer 2], [.integer 3]])
 #guard match (statements (migration database.catalog [query [written (col "s")] [] none [] true])).head? with
-  | some (.query resolved _) => (resolved.runOn 0 [] database []).map (·.2.fault) == some .may
+  | some (.query resolved _) => (resolved.runOn 0 {} [] database []).map (·.2.fault) == some .may
   | _ => false
 -- HAVING or an ORDER BY aggregate does not make a query an aggregate query: SQLite's prepare errors.
 #guard rowsOf (query [written (.numeric "1")] [] (some (.compare .gt count (.numeric "0")))) ==

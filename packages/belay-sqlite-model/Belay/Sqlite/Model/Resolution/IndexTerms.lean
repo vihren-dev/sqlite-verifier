@@ -1,5 +1,6 @@
 import Belay.Sqlite.Model.Resolution.QueryExprs
 import Belay.Sqlite.Model.Resolution.ParameterOrder
+import Belay.Sqlite.Model.Resolution.NondeterministicCalls
 
 set_option doc.verso true
 
@@ -23,12 +24,15 @@ def indexExpressionIssue (filter : Bool) (resolved : Resolved.Expr) : Option Val
 
 /-- A key term as an expression over the scope of the indexed table: a parameter is
 {name}`ExprError.parameterInIndex` in SQLite's order ({name}`prohibitParameter`); a qualified name is
-{name}`ExprError.qualifiedIndexTerm`; else the resolved operand
+{name}`ExprError.qualifiedIndexTerm`; a call of a function that is not deterministic is
+{name}`ExprError.nondeterministicIndex` where SQLite's walk finds no other error
+({name}`prohibitNondeterministic`); else the resolved operand
 ({name}`resolveOperand`, with aggregates as misuse) and its
 {name}`indexExpressionIssue`. -/
 def indexExpressionTerm (dqs : Bool) (scope : Scope) (expression : Syntax.Expr) : Except ValueIssue KeyTerm :=
   prohibitParameter dqs scope (.parameterInIndex false) expression >>= fun _ =>
   if expression.hasQualifiedName then .error (.prepare .qualifiedIndexTerm) else do
+    prohibitNondeterministic dqs scope (.nondeterministicIndex false) expression
     let (resolved, _) ← resolveOperand dqs scope {} true expression
     match indexExpressionIssue false resolved with
     | some issue => .error issue
@@ -76,11 +80,13 @@ def indexKeys (dqs : Bool) (scope : Scope) (columns : List CatalogColumn) (terms
 
 /-- The filter of a partial index as a condition over the scope of the indexed table, or
 none: a parameter is {name}`ExprError.parameterInIndex` with {lit}`filter` in SQLite's order, aggregates are
-misuse, and the resolved condition has its {name}`indexExpressionIssue`. -/
+misuse, a call of a function that is not deterministic is {name}`ExprError.nondeterministicIndex` with
+{lit}`filter` ({name}`prohibitNondeterministic`), and the resolved condition has its {name}`indexExpressionIssue`. -/
 def indexFilter (dqs : Bool) (scope : Scope) : Option Syntax.Expr → Except ValueIssue (Option Resolved.Expr)
   | none => .ok none
   | some term => do
     prohibitParameter dqs scope (.parameterInIndex true) term
+    prohibitNondeterministic dqs scope (.nondeterministicIndex true) term
     let resolved ← condition [] (resolveOperand dqs scope {} true term)
     match indexExpressionIssue true resolved with
     | some issue => .error issue

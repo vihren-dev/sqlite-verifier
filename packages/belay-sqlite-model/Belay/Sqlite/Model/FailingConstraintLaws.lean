@@ -8,7 +8,7 @@ fails with a constraint error. -/
 
 namespace Belay.Sqlite.Model
 
-/-- For every clock value, list of values, statement, database, error and database
+/-- For every clock value, counters, list of values, statement, database, error and database
 {lit}`reached`, if
 
 * the statement can fire no trigger and checks no foreign key
@@ -24,12 +24,12 @@ algorithms, the last row fails in {name}`LiteralData.upsertRow`
 ({name}`LiteralData.upsertSteps_error`, {name}`LiteralData.upsertRowFailure_isSome`); for
 UPDATE, the table after it fails ({name}`Catalog.updateReport_ne_nil`); CREATE INDEX names its
 index; every other statement fails with no constraint error. -/
-theorem failingConstraints_ne_nil {clock : Int} {parameters : List Value} {statement : Resolved.Statement}
+theorem failingConstraints_ne_nil {clock : Int} {counters : Counters} {parameters : List Value} {statement : Resolved.Statement}
     {database : Database}
     {reason : ExecutionError} {reached : Database} (plain : statement.writeRules = none)
-    (failed : (runStatement clock parameters statement database).effect = .error (reason, reached))
+    (failed : (runStatement clock counters parameters statement database).effect = .error (reason, reached))
     (constraint : reason.isConstraint = true) :
-    (failingConstraints clock parameters statement database).candidates ≠ [] := by
+    (failingConstraints clock counters parameters statement database).candidates ≠ [] := by
   unfold failingConstraints
   rw [failed]
   simp only [constraint, Bool.not_true, Bool.false_eq_true, ↓reduceIte]
@@ -99,7 +99,7 @@ theorem failingConstraints_ne_nil {clock : Int} {parameters : List Value} {state
          all_goals (try injection failed with failed; try injection failed with failed; try subst failed)
          all_goals simp_all [ExecutionError.isConstraint])
 
-/-- For every clock value, list of values, statement and database such that the statement can
+/-- For every clock value, counters, list of values, statement and database such that the statement can
 fire no trigger and checks no foreign key ({name}`Resolved.Statement.writeRules` is none): the
 candidates of {name}`failingConstraints` with the values are empty exactly when every error with
 which {name}`runStatement` with the values fails is not a constraint error ({name}`ExecutionError.isConstraint`). So the model names at
@@ -109,11 +109,11 @@ only the tests against the native {lit}`sqlite3` shell check. A statement that
 does not fail satisfies the right side. Proof sketch: from left to right by
 {name}`failingConstraints_ne_nil`; from right to left, {name}`failingConstraints` gives no
 candidate for a statement that does not fail with a constraint error. -/
-theorem failingConstraints_eq_nil_iff {clock : Int} {parameters : List Value} {statement : Resolved.Statement}
+theorem failingConstraints_eq_nil_iff {clock : Int} {counters : Counters} {parameters : List Value} {statement : Resolved.Statement}
     {database : Database}
     (plain : statement.writeRules = none) :
-    (failingConstraints clock parameters statement database).candidates = [] ↔
-      ∀ reason reached, (runStatement clock parameters statement database).effect = .error (reason, reached) →
+    (failingConstraints clock counters parameters statement database).candidates = [] ↔
+      ∀ reason reached, (runStatement clock counters parameters statement database).effect = .error (reason, reached) →
         reason.isConstraint = false := by
   constructor
   · intro empty reason reached failed
@@ -122,7 +122,7 @@ theorem failingConstraints_eq_nil_iff {clock : Int} {parameters : List Value} {s
     | true => exact absurd empty (failingConstraints_ne_nil plain failed constraint)
   · intro noConstraint
     unfold failingConstraints
-    cases effect : (runStatement clock parameters statement database).effect with
+    cases effect : (runStatement clock counters parameters statement database).effect with
     | ok _ => rfl
     | error pair =>
       obtain ⟨reason, reached⟩ := pair

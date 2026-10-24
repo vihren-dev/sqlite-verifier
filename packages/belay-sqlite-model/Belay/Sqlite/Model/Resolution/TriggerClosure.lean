@@ -103,7 +103,7 @@ def FireRequest.followUps (catalog : Catalog) (keys recursive : Bool) (request :
     request.replaceRequests catalog keys recursive
 
 /-- Resolve the program of the trigger at the position over the catalog, for a write: its
-condition over the trigger's rows, which may not name a subquery or call a function that can fail ({name}`RestrictionKind.triggerForm`), and its body statements in order
+condition over the trigger's rows, which may not name a subquery, call a function that can fail or call a connection counter ({name}`RestrictionKind.triggerForm`), and its body statements in order
 ({name}`resolveBodyStatement`); the first prepare error stops. -/
 def resolveProgram (context : ResolveContext) (catalog : Catalog) (position : Nat) (trigger : CatalogTrigger) :
     Except NodeRestriction (Except PrepareError Resolved.Program) := do
@@ -117,7 +117,8 @@ def resolveProgram (context : ResolveContext) (catalog : Catalog) (position : Na
         if error == .raiseOutsideTrigger then throw (triggerRestriction .raiseForm) else pure (.error (.expression error))
       | .error (.restriction path kind) => throw { path, kind }
       | .ok resolved =>
-        if resolved.any Resolved.Expr.isFallibleCall || resolved.any Resolved.Expr.namesSubquery then
+        if resolved.any Resolved.Expr.isFallibleCall || resolved.any Resolved.Expr.namesSubquery ||
+            resolved.any Resolved.Expr.isCounter then
           throw (triggerRestriction .triggerForm)
         else pure (.ok (some resolved))
   match condition with

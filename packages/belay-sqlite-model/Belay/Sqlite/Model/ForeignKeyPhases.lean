@@ -32,6 +32,16 @@ structure KeyState where
   /-- Whether a statement of a trigger's body with subqueries ran (ADR 0018, D5), whose
   subqueries read the tables while the write changes them. -/
   subqueried : Bool := false
+  /-- The rows that the write at the current level counted: the rows that it inserted, updated
+  or deleted, except the rows that REPLACE deletes (ADR 0024, D2). At the top level they are the
+  rows of {lit}`changes()`. -/
+  own : Nat := 0
+  /-- The rows of the nested writes of programs and actions that completed, which count for
+  {lit}`total_changes()` also when the statement fails later. -/
+  credited : Nat := 0
+  /-- The rowid of the last row that the statement itself inserted into a table with a rowid,
+  which {lit}`last_insert_rowid()` takes; none when it inserted none. -/
+  inserted : Option Int := none
 
 /-- The failure of a row that stops the statement and keeps the rows that it reached: the FAIL
 algorithm or the ROLLBACK algorithm of a failed constraint or of {lit}`RAISE`. -/
@@ -46,8 +56,9 @@ inductive StopAlgorithm where
 failure with the state that it reached, or a case that the model does not describe, such as
 writes nested deeper than the fuel. -/
 inductive KeyStop where
-  /-- The statement fails with the error and keeps nothing. -/
-  | error (reason : ExecutionError)
+  /-- The statement fails with the error and keeps nothing; the state is the state when it
+  failed, which gives its counts (ADR 0024, D2). -/
+  | error (reason : ExecutionError) (state : KeyState)
   /-- The statement stops with the algorithm and the state that it reached. -/
   | stopped (algorithm : StopAlgorithm) (state : KeyState)
   /-- The model does not describe the statement on the database. -/

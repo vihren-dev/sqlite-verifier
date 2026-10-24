@@ -80,16 +80,16 @@ theorem DatabaseExtends.add (database : Database) (position : Nat) (table : Tabl
   · exact ⟨old, (Database.table_addColumn_other database column value same).trans oldPresent,
       TableExtends.refl old⟩
 
-/-- For every clock value, list of values, database and statement that is not DROP (its
+/-- For every clock value, counters, list of values, database and statement that is not DROP (its
 {name}`Resolved.Statement.kind` is not {name}`Resolved.Statement.Kind.drop`), the database of
 the primitive {name}`step` effect ({name}`effectDatabase`) extends the input database. A DROP
 removes tables, so the theorem says nothing about it. CREATE/ADD extend existing tables or retain
 errors; other constructors return an unchanged error. This is a primitive schema
 fact, not a preservation law for literal SQL writes. The proof follows the
 primitive branches and table-update witnesses. -/
-theorem step_extends (clock : Int) (parameters : List Value) (statement : Resolved.Statement) (database : Database)
+theorem step_extends (clock : Int) (counters : Counters) (parameters : List Value) (statement : Resolved.Statement) (database : Database)
     (kept : statement.kind ≠ .drop) :
-    DatabaseExtends database (effectDatabase (step clock parameters statement database)) := by
+    DatabaseExtends database (effectDatabase (step clock counters parameters statement database)) := by
   cases statement with
   | drop _ _ => exact absurd rfl kept
   | createTable target name table =>
@@ -131,7 +131,7 @@ theorem step_extends (clock : Int) (parameters : List Value) (statement : Resolv
     · exact DatabaseExtends.append database _
     · exact DatabaseExtends.refl database
   | query query subqueries =>
-    have same : effectDatabase (step clock parameters (.query query subqueries) database) = database := by
+    have same : effectDatabase (step clock counters parameters (.query query subqueries) database) = database := by
       simp only [step, queryEffect]
       repeat' split
       all_goals rfl
@@ -163,8 +163,8 @@ theorem runSqlFrom_extends (guard : SchemaOnly (script.map (·.1))) :
       subst item
       exact guard statement (by simp)
     have tail : SchemaOnly (rest.map (·.1)) := fun item member => guard item (by simp_all)
-    have first := step_extends 0 parameters statement database (by rw [guard statement (by simp)]; decide)
-    cases h : step 0 parameters statement database with
+    have first := step_extends 0 {} parameters statement database (by rw [guard statement (by simp)]; decide)
+    cases h : step 0 {} parameters statement database with
     | error failure => simpa [runSqlFrom, advance_schemaOnly head, h, Outcome.database] using DatabaseExtends.refl database
     | ok result =>
       simp only [h, effectDatabase] at first

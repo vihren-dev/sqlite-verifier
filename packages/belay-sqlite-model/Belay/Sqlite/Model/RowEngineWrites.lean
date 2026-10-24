@@ -1,6 +1,7 @@
 import Belay.Sqlite.Model.RowEngineUpdate
 import Belay.Sqlite.Model.RowEngineInsert
 import Belay.Sqlite.Model.ForeignKeyWrites
+import Belay.Sqlite.Model.RowCreditHolds
 
 set_option doc.verso true
 
@@ -22,7 +23,7 @@ theorem runRows_holds (facts : TableFacts fact) (catalog : Catalog) (links : Lis
     ∀ fuel, NestedRun.Keeps fact catalog (runRows catalog links fuel)
   | 0 => fun _ _ _ _ => trivial
   | fuel + 1 => fun frame work state holds => by
-    have nested := runRows_holds facts catalog links fuel
+    have nested := NestedRun.credited_keeps (runRows_holds facts catalog links fuel)
     cases work with
     | delete position rowids record ignore fire =>
       simp only [runRows]

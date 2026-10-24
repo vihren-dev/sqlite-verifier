@@ -1,5 +1,6 @@
 import Belay.Sqlite.Model.RowEngineDelete
 import Belay.Sqlite.Model.RowInsert
+import Belay.Sqlite.Model.RowCreditHolds
 
 set_option doc.verso true
 
@@ -51,13 +52,27 @@ theorem insertWrite_holds (facts : TableFacts fact) {catalog : Catalog} {state e
   rw [← otherEntry] at checked
   exact facts.constraints catalog target _ checked
 
+/-- For every fact with {name}`TableFacts`, catalog, links, nested run, frame, target, state and
+row: if the nested run keeps the invariant ({name}`NestedRun.Keeps`) and the state satisfies
+{name}`KeyState.Holds`, the result of {name}`replaceDelete` keeps the invariant. Proof sketch:
+{name}`deleteRow_holds`, and the count of own rows that {name}`replaceDelete` restores is no row
+({name}`KeyResult.mapState_holds`). -/
+theorem replaceDelete_holds (facts : TableFacts fact) {catalog : Catalog} {links : List ForeignKeyLink}
+    {nested : NestedRun} (keeps : nested.Keeps fact catalog) (frame : RowFrame) (target : Nat) {state : KeyState}
+    (holds : state.Holds fact catalog) (row : Row) :
+    ResultHolds (KeyState.Holds fact catalog) (KeyStop.Holds fact catalog)
+      (replaceDelete catalog links nested frame target state row) :=
+  KeyResult.mapState_holds (change := fun deleted : KeyState => { deleted with own := state.own }) (fun _ => rfl)
+    (deleteRow_holds facts keeps { frame with algorithm := some .replace } target
+      false false frame.recursive holds row.rowid)
+
 /-- For every fact with {name}`TableFacts`, catalog, links, nested run, frame, target, policy, clauses, flags, state and
 values: if the nested run keeps the invariant ({name}`NestedRun.Keeps`) and the state
 satisfies {name}`KeyState.Holds`, the result of {name}`insertRow` keeps the invariant.
 Proof sketch: the join points of the definition are proved in turn, from the last: the programs
 keep the invariant ({name}`runPrograms_holds`), a failed constraint is
 {name}`failedRow_holds`, DO NOTHING keeps the state, the rows that REPLACE deletes are
-{name}`deleteRow_holds`, the foreign-key steps keep the rows ({name}`newSteps_rows`), and the
+{name}`replaceDelete_holds`, the foreign-key steps keep the rows ({name}`newSteps_rows`), and the
 write is {name}`insertWrite_holds`. -/
 theorem insertRow_holds (facts : TableFacts fact) {catalog : Catalog} {links : List ForeignKeyLink} {nested : NestedRun}
     (keeps : nested.Keeps fact catalog) (frame : RowFrame) (target : Nat) (policy : Resolved.ConflictPolicy)
@@ -86,19 +101,21 @@ theorem insertRow_holds (facts : TableFacts fact) {catalog : Catalog} {links : L
             intro _
             dsimp only [afterCount]
             refine ResultHolds.bind (ResultHolds.foldlM (good := KeyState.Holds fact catalog) (fun reached row held =>
-              deleteRow_holds facts keeps { frame with algorithm := some .replace } target false false frame.recursive held row.rowid) replaced _ good)
+              replaceDelete_holds facts keeps frame target held row) replaced _ good)
                 fun deleted deletedGood => ?_
             refine ResultHolds.bind ((newSteps_rows _ _ _ _ _ _ _ _ _).holds_of_rows deletedGood)
               fun checked checkedGood => ?_
             split
-            · rename_i inner innerFound
-              split
-              · trivial
-              · rename_i next written passed
-                exact ResultHolds.bind (runPrograms_holds keeps _ _ _ _ _
-                  (KeyState.holds_of_rows rfl (insertWrite_holds facts (KeyState.table_shape currentFound) checkedGood innerFound passed)))
-                  fun _ reached => reached
             · trivial
+            · split
+              · rename_i inner innerFound
+                split
+                · trivial
+                · rename_i next written passed
+                  exact ResultHolds.bind (runPrograms_holds keeps _ _ _ _ _
+                    (KeyState.holds_of_rows rfl (insertWrite_holds facts (KeyState.table_shape currentFound) checkedGood innerFound passed)))
+                    fun _ reached => reached
+              · trivial
           have afterClauseOk : ∀ resumed : Unit, ResultHolds (KeyState.Holds fact catalog) (KeyStop.Holds fact catalog)
               (afterClause resumed) := by
             intro _

@@ -1,4 +1,5 @@
 import Belay.Sqlite.Model.Resolution.TableChecks
+import Belay.Sqlite.Model.Resolution.NondeterministicCalls
 
 set_option doc.verso true
 
@@ -29,12 +30,14 @@ def Syntax.ColumnDefinition.generatedExpression (definition : Syntax.ColumnDefin
 
 /-- One generated expression over the scope: a parameter is
 {name}`ExprError.parameterInGenerated` in SQLite's order ({name}`prohibitParameter`); a qualified name is
-{name}`ExprError.qualifiedGenerated`; else the resolved operand and its
-{name}`generatedIssue`. -/
+{name}`ExprError.qualifiedGenerated`; a call of a function that is not deterministic is
+{name}`ExprError.nondeterministicGenerated` where SQLite's walk finds no other error
+({name}`prohibitNondeterministic`); else the resolved operand and its {name}`generatedIssue`. -/
 def resolveGeneratedExpression (dqs : Bool) (scope : Scope) (expression : Syntax.Expr) :
     Except ValueIssue Resolved.Expr := do
   prohibitParameter dqs scope .parameterInGenerated expression
   if expression.hasQualifiedName then throw (.prepare .qualifiedGenerated)
+  prohibitNondeterministic dqs scope .nondeterministicGenerated expression
   let (resolved, _) ← resolveOperand dqs scope {} true expression
   match generatedIssue resolved with
   | some issue => .error issue

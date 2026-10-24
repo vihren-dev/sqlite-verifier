@@ -1,3 +1,4 @@
+import Belay.Sqlite.Model.Counters
 import Belay.Sqlite.Model.RowEngine
 
 set_option doc.verso true
@@ -11,12 +12,15 @@ later row after a row without a parent is {lit}`FOREIGN KEY constraint failed`. 
 namespace Belay.Sqlite.Model
 
 /-- What a write that runs row by row gives: its effect, the rows that it wrote
-({name}`KeyState.written`), and whether the model describes it on the database. -/
+({name}`KeyState.written`), what it does to the counters of the connection, and whether the model
+describes it on the database. -/
 structure KeyRun where
   /-- The effect of the write. -/
   effect : Effect
-  /-- The rows that the statement wrote, for its {lit}`RETURNING` rows and its change count. -/
+  /-- The rows that the statement wrote, for its {lit}`RETURNING` rows. -/
   written : List Row
+  /-- What the write does to the counters of the connection ({name}`Counts`). -/
+  counts : Counts := {}
   /-- Whether the model describes the write: its rows are described ({name}`KeyStop.undescribed`
   does not occur), no subquery reads a table while an action or a trigger changes the tables,
   every table that an action or a trigger changed satisfies its constraints before the write,
@@ -32,23 +36,43 @@ def keyReady (input : Database) (target : Nat) (plain : Bool) (state : KeyState)
     (target :: state.acted).all fun position =>
       ((state.database input.catalog).rowsAt position).all (LiteralData.boundedInteger ·.rowid)
 
+/-- What a write that kept its own rows does to the counters (ADR 0024, D2): it changes the rows
+that it counted, adds them and the rows of its completed nested writes to the total, and takes the
+last row that it inserted. -/
+def KeyState.keptCounts (state : KeyState) : Counts :=
+  { changes := some state.own, total := state.own + state.credited, lastRowid := state.inserted }
+
+/-- What a write that failed and lost its own rows does to the counters (ADR 0024, D2): it changes
+no row, adds only the rows of its completed nested writes to the total, and takes the last row that
+it inserted before it failed, which the rollback of the statement does not take back. -/
+def KeyState.failedCounts (state : KeyState) : Counts :=
+  { changes := some 0, total := state.credited, lastRowid := state.inserted }
+
 /-- The end of a write that runs row by row over the input database, whose own subqueries are
 none when {lit}`plain` is set: a counter other than zero fails as ABORT, also after a FAIL
 failure; a FAIL failure keeps the rows that it reached, a ROLLBACK failure rolls them back with
-the transaction, and every other error keeps the input database. -/
+the transaction, and every other error keeps the input database. The counts are those of
+{name}`KeyState.keptCounts` for a success and a FAIL failure that keeps its rows, and those of
+{name}`KeyState.failedCounts` for every failure that loses them. -/
 def keyRun (input : Database) (target : Nat) (plain : Bool) : Except KeyStop KeyState → KeyRun
   | .error .undescribed => { effect := .error (.unmodeled, input), written := [], ready := false }
-  | .error (.error reason) => { effect := .error (reason, input), written := [], ready := true }
+  | .error (.error reason state) =>
+    { effect := .error (reason, input), written := [], counts := state.failedCounts, ready := true }
   | .error (.stopped .rollback state) =>
-    { effect := .error (.constraintRollback, state.database input.catalog), written := [], ready := keyReady input target plain state }
+    { effect := .error (.constraintRollback, state.database input.catalog), written := [],
+      counts := state.failedCounts, ready := keyReady input target plain state }
   | .error (.stopped .fail state) =>
-    if state.counter != 0 then { effect := .error (.constraintViolation, input), written := [], ready := keyReady input target plain state }
+    if state.counter != 0 then
+      { effect := .error (.constraintViolation, input), written := [], counts := state.failedCounts,
+        ready := keyReady input target plain state }
     else { effect := .error (.constraintFail, state.database input.catalog), written := state.written,
-           ready := keyReady input target plain state }
+           counts := state.keptCounts, ready := keyReady input target plain state }
   | .ok state =>
-    if state.counter != 0 then { effect := .error (.constraintViolation, input), written := [], ready := keyReady input target plain state }
-    else { effect := .ok (state.database input.catalog), written := state.written, ready := keyReady input target plain state }
-
+    if state.counter != 0 then
+      { effect := .error (.constraintViolation, input), written := [], counts := state.failedCounts,
+        ready := keyReady input target plain state }
+    else { effect := .ok (state.database input.catalog), written := state.written, counts := state.keptCounts,
+           ready := keyReady input target plain state }
 
 /-- The foreign-key links that a write with the rules checks: those of the catalog when the rules
 check keys, none otherwise. -/

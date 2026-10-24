@@ -135,7 +135,7 @@ def changes (script : List Syntax.Statement) : Option (List Row) :=
     let state := match runSqlFrom 0 (bindValues earlier.reverse []) { database := {} } with
       | .success database => database
       | .failure _ _ database | .pending database _ _ => database
-    (runStatement 0 [] last state).keyRows
+    (runStatement 0 {} [] last state).keyRows
   | [] => none
 
 -- The change count of a write counts its own rows only, not those of its triggers.

@@ -31,7 +31,7 @@ theorem rowsKeys_effect_keysUnique (rules : Resolved.WriteRules) (clock : Int) (
     (rowsKeys rules clock target work database plain algorithm).effect.KeysUnique :=
   Effect.keysUnique_of_effectDatabase (rowsKeys_keysUnique rules clock target work unique plain algorithm)
 
-/-- The statement theorem. For every clock value, parameter list, resolved statement and
+/-- The statement theorem. For every clock value, counters, parameter list, resolved statement and
 database: if the database satisfies {name}`Database.KeysUnique` and the statement meets its
 condition on the database ({name}`Resolved.Statement.KeysCondition`), the effect of
 {name}`runStatement` satisfies {name}`Effect.KeysUnique`: the database of a success, and the
@@ -41,30 +41,30 @@ database that an error with {name}`ExecutionError.constraintFail` carries, satis
 theorem of its form, a write with rules is a write of the row engine
 ({name}`rowsKeys_keysUnique`, {name}`dropKeys_keysUnique`), and a missing table keeps the
 database. -/
-theorem runStatement_keysUnique (clock : Int) (parameters : List Value) (statement : Resolved.Statement)
+theorem runStatement_keysUnique (clock : Int) (counters : Counters) (parameters : List Value) (statement : Resolved.Statement)
     {database : Database} (unique : database.KeysUnique) (condition : statement.KeysCondition database) :
-    (runStatement clock parameters statement database).effect.KeysUnique := by
+    (runStatement clock counters parameters statement database).effect.KeysUnique := by
   cases statement with
-  | createTable target name shape => exact runStatement_createTable_keysUnique clock parameters target name shape unique
-  | createIndex target name index => exact runStatement_createIndex_keysUnique clock parameters target name index unique
+  | createTable target name shape => exact runStatement_createTable_keysUnique clock counters parameters target name shape unique
+  | createIndex target name index => exact runStatement_createIndex_keysUnique clock counters parameters target name index unique
   | createTrigger target name trigger =>
-    exact runStatement_createTrigger_keysUnique clock parameters target name trigger unique
-  | addColumn target column => exact runStatement_addColumn_keysUnique clock parameters target column unique condition
+    exact runStatement_createTrigger_keysUnique clock counters parameters target name trigger unique
+  | addColumn target column => exact runStatement_addColumn_keysUnique clock counters parameters target column unique condition
   | drop positions rules =>
     cases rules with
-    | none => exact runStatement_drop_keysUnique clock parameters positions unique condition
+    | none => exact runStatement_drop_keysUnique clock counters parameters positions unique condition
     | some rules =>
       simp only [runStatement, Option.map_some, StatementRun.withKeys]
       exact Effect.keysUnique_of_effectDatabase (dropKeys_keysUnique rules clock positions unique condition)
-  | begin => exact runStatement_writesNone_keysUnique clock parameters unique _ (by simp)
-  | commit => exact runStatement_writesNone_keysUnique clock parameters unique _ (by simp)
-  | rollback => exact runStatement_writesNone_keysUnique clock parameters unique _ (by simp)
-  | prepareError error => exact runStatement_writesNone_keysUnique clock parameters unique _ (by simp)
-  | query query subqueries => exact runStatement_writesNone_keysUnique clock parameters unique _ (by simp)
-  | setting setting on => exact runStatement_writesNone_keysUnique clock parameters unique _ (by simp)
+  | begin => exact runStatement_writesNone_keysUnique clock counters parameters unique _ (by simp)
+  | commit => exact runStatement_writesNone_keysUnique clock counters parameters unique _ (by simp)
+  | rollback => exact runStatement_writesNone_keysUnique clock counters parameters unique _ (by simp)
+  | prepareError error => exact runStatement_writesNone_keysUnique clock counters parameters unique _ (by simp)
+  | query query subqueries => exact runStatement_writesNone_keysUnique clock counters parameters unique _ (by simp)
+  | setting setting on => exact runStatement_writesNone_keysUnique clock counters parameters unique _ (by simp)
   | insert target rows returning subqueries rules =>
     cases rules with
-    | none => exact runStatement_insert_keysUnique clock parameters target rows returning subqueries unique
+    | none => exact runStatement_insert_keysUnique clock counters parameters target rows returning subqueries unique
     | some rules =>
       simp only [runStatement, Option.map_some, StatementRun.withKeys]
       split
@@ -72,7 +72,7 @@ theorem runStatement_keysUnique (clock : Int) (parameters : List Value) (stateme
       · exact rowsKeys_effect_keysUnique rules clock target _ unique _ _
   | update target assignments filter returning subqueries rules =>
     cases rules with
-    | none => exact runStatement_update_keysUnique clock parameters target assignments filter returning subqueries unique
+    | none => exact runStatement_update_keysUnique clock counters parameters target assignments filter returning subqueries unique
     | some rules =>
       simp only [runStatement, Option.map_some, StatementRun.withKeys]
       split
@@ -82,7 +82,7 @@ theorem runStatement_keysUnique (clock : Int) (parameters : List Value) (stateme
     cases rules with
     | none =>
       exact Effect.keysUnique_of_effectDatabase
-        (runStatement_upsert_keysUnique clock parameters target rows clauses returning algorithm subqueries unique)
+        (runStatement_upsert_keysUnique clock counters parameters target rows clauses returning algorithm subqueries unique)
     | some rules =>
       simp only [runStatement, Option.map_some, StatementRun.withKeys]
       split
@@ -90,7 +90,7 @@ theorem runStatement_keysUnique (clock : Int) (parameters : List Value) (stateme
       · exact rowsKeys_effect_keysUnique rules clock target _ unique _ _
   | delete target filter returning subqueries rules =>
     cases rules with
-    | none => exact runStatement_delete_keysUnique clock parameters target filter returning subqueries unique
+    | none => exact runStatement_delete_keysUnique clock counters parameters target filter returning subqueries unique
     | some rules =>
       simp only [runStatement, Option.map_some, StatementRun.withKeys]
       split

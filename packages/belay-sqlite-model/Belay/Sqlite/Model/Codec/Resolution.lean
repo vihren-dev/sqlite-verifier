@@ -49,6 +49,7 @@ deriving instance Lean.ToExpr for ArithmeticOperator
 deriving instance Lean.ToExpr for CompoundOperator
 deriving instance Lean.ToExpr for Affinity
 deriving instance Lean.ToExpr for ConflictAlgorithm
+deriving instance Lean.ToExpr for CounterKind
 deriving instance Lean.ToExpr for Syntax.QuoteKind
 deriving instance Lean.ToExpr for Syntax.RaiseKind
 deriving instance Lean.ToExpr for Syntax.Expr

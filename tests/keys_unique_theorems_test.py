@@ -27,10 +27,10 @@ STANDARD_AXIOMS = {"propext", "Classical.choice", "Quot.sound"}
 CHECKS = """
 import Belay.Sqlite.Model
 open Belay.Sqlite.Model
-example (clock : Int) (parameters : List Value) (statement : Resolved.Statement) {database : Database}
-    (unique : database.KeysUnique) (condition : statement.KeysCondition database) :
-    (runStatement clock parameters statement database).effect.KeysUnique :=
-  runStatement_keysUnique clock parameters statement unique condition
+example (clock : Int) (counters : Counters) (parameters : List Value) (statement : Resolved.Statement)
+    {database : Database} (unique : database.KeysUnique) (condition : statement.KeysCondition database) :
+    (runStatement clock counters parameters statement database).effect.KeysUnique :=
+  runStatement_keysUnique clock counters parameters statement unique condition
 example (position : Nat) (script : List (Resolved.Statement × List Value)) {state : SqlState}
     (unique : state.KeysUnique) (conditions : RunConditions position script state) :
     (runSqlFrom position script state).KeysUnique :=

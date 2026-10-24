@@ -18,7 +18,8 @@ def test_guide_program_examples_hold(runtime_root: Path, tmp_path: Path) -> None
     (`Belay/Sqlite/Program.lean`, `ProgramQueries.lean`, `ProgramRun.lean`, `ProgramLaws.lean`,
     `Env.lean` and `ValueDisplay.lean` of `Belay/Sqlite`): `addCustomer` and its kernel example,
     `closeAndCount`, `demo` with the value that `#eval` shows, `main` (elaborated, not run), a run
-    under `clockAt`, a clock read under `Env.default`, and `Script.run_env`."""
+    under `clockAt`, a clock read under `Env.default`, a counter read under `Env.newConnection` and
+    under `Env.default`, and `Script.run_env`."""
     result = run_command(surface_command(runtime_root, FIXTURES / "GuidePrograms.lean", tmp_path), cwd=tmp_path,
                          timeout=60)
     assert result.returncode == 0, result.diagnostic()
@@ -30,8 +31,9 @@ def test_program_examples_hold(runtime_root: Path, tmp_path: Path) -> None:
     laws of `Belay/Sqlite/ProgramLaws.lean` and `Belay/Sqlite/RunLaws.lean`, the clock of
     `Belay/Sqlite/Env.lean`): `query` and `single` on each output kind; a clock read that ends a
     program; a value that depends on an earlier output; the run of `send s` as the model's run
-    of `s`; the clock's text under `clockAt` and `Output.unmodeled` without a clock; and the laws
-    applied to programs and scripts."""
+    of `s`; the clock's text under `clockAt` and `Output.unmodeled` without a clock; the counters
+    of `Env` (`Env.newConnection`, a write that sets a counter under `Env.default`, and a read of an
+    unknown counter); and the laws applied to programs and scripts (`Belay/Sqlite/ProgramEnvLaws.lean`)."""
     result = run_command(surface_command(runtime_root, FIXTURES / "ProgramExamples.lean", tmp_path), cwd=tmp_path,
                          timeout=60)
     assert result.returncode == 0, result.diagnostic()

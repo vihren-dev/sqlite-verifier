@@ -14,27 +14,27 @@ open Belay.Sqlite.Model (ExecutionError ValidityAtom LiteralData.tableFailures k
   triggerOrKeyConstraintMessage functionFailedMessage unmodeledHere)
 
 -- SQLite 3.51's texts, where the model keeps what the message says.
-#guard (ExecutionError.prepare (.expression (.noSuchColumn (name! "nmae")))).message 0 [] .commit {} ==
+#guard (ExecutionError.prepare (.expression (.noSuchColumn (name! "nmae")))).message 0 {} [] .commit {} ==
   "no such column: nmae"
-#guard ExecutionError.transactionAlreadyActive.message 0 [] .begin {} == "cannot start a transaction within a transaction"
-#guard ExecutionError.noActiveTransaction.message 0 [] .commit {} == "cannot commit - no transaction is active"
-#guard ExecutionError.noActiveTransaction.message 0 [] .rollback {} == "cannot rollback - no transaction is active"
-#guard ExecutionError.integerOverflow.message 0 [] .commit {} == "integer overflow"
-#guard ExecutionError.datatypeMismatch.message 0 [] .commit {} == "datatype mismatch"
-#guard ExecutionError.nullColumnDefault.message 0 [] .commit {} == "Cannot add a NOT NULL column with default value NULL"
-#guard ExecutionError.nonConstantColumnDefault.message 0 [] .commit {} == "Cannot add a column with non-constant default"
-#guard ExecutionError.checkColumnDefault.message 0 [] .commit {} == "CHECK constraint failed"
+#guard ExecutionError.transactionAlreadyActive.message 0 {} [] .begin {} == "cannot start a transaction within a transaction"
+#guard ExecutionError.noActiveTransaction.message 0 {} [] .commit {} == "cannot commit - no transaction is active"
+#guard ExecutionError.noActiveTransaction.message 0 {} [] .rollback {} == "cannot rollback - no transaction is active"
+#guard ExecutionError.integerOverflow.message 0 {} [] .commit {} == "integer overflow"
+#guard ExecutionError.datatypeMismatch.message 0 {} [] .commit {} == "datatype mismatch"
+#guard ExecutionError.nullColumnDefault.message 0 {} [] .commit {} == "Cannot add a NOT NULL column with default value NULL"
+#guard ExecutionError.nonConstantColumnDefault.message 0 {} [] .commit {} == "Cannot add a column with non-constant default"
+#guard ExecutionError.checkColumnDefault.message 0 {} [] .commit {} == "CHECK constraint failed"
 -- The texts that are not SQLite's message for the statement. A write with rules (a trigger or a
 -- foreign key) does not name the constraint; a statement that does not fail a constraint has no
 -- candidate, which names a defect.
-#guard ExecutionError.constraintViolation.message 0 [] (.insert 0 [] [] [] (some { depth := 0, keys := true })) {} ==
+#guard ExecutionError.constraintViolation.message 0 {} [] (.insert 0 [] [] [] (some { depth := 0, keys := true })) {} ==
   "constraint failed; the model does not name the constraint that fails in a write that can fire a trigger " ++
     "or that checks foreign keys. Run the statement in the sqlite3 shell to see SQLite's message"
-#guard ExecutionError.constraintFail.message 0 [] (.update 0 [] none [] [] (some { depth := 0, keys := true })) {} ==
+#guard ExecutionError.constraintFail.message 0 {} [] (.update 0 [] none [] [] (some { depth := 0, keys := true })) {} ==
   triggerOrKeyConstraintMessage
-#guard ExecutionError.constraintRollback.message 0 [] .commit {} == noCandidateMessage
-#guard ExecutionError.functionError.message 0 [] .commit {} == functionFailedMessage
-#guard ExecutionError.unmodeled.message 0 [] .commit {} == unmodeledHere
+#guard ExecutionError.constraintRollback.message 0 {} [] .commit {} == noCandidateMessage
+#guard ExecutionError.functionError.message 0 {} [] .commit {} == functionFailedMessage
+#guard ExecutionError.unmodeled.message 0 {} [] .commit {} == unmodeledHere
 
 /-- Whether the last statement of the script, resolved after the run of the statements before it
 on the empty database (`resolveStatement`), has rules (`Resolved.Statement.writeRules` of

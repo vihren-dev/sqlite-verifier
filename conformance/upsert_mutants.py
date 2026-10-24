@@ -12,8 +12,8 @@ UPSERT = SQLITE + "Upsert.lean"
 """The ON CONFLICT clauses of INSERT."""
 RUN = SQLITE + "UpsertRun.lean"
 """The rows of an INSERT with ON CONFLICT clauses."""
-OUTPUTS = "belay-sqlite-model/Belay/Sqlite/Model/StatementOutput.lean"
-"""The outputs of statements, with the change count."""
+COUNTS = SQLITE + "PlainCounts.lean"
+"""The counts of the changes of a write."""
 
 MUTANTS: dict[str, tuple[str, str, str]] = {
     "update_first_row": (RUN,
@@ -30,9 +30,9 @@ MUTANTS: dict[str, tuple[str, str, str]] = {
     "later_row_ignores_earlier": (RUN,
         "      | .ok (next, _) => upsertSteps context keys policy clauses next rest",
         "      | .ok _ => upsertSteps context keys policy clauses table rest"),
-    "skipped_row_counted": (OUTPUTS,
-        "      return ⟨names, returnedRows context returning (written.map (·.values)), some written.length⟩",
-        "      return ⟨names, returnedRows context returning (written.map (·.values)), some rows.length⟩"),
+    "skipped_row_counted": (COUNTS,
+        "then 0 else (upsertWritten steps).length",
+        "then 0 else steps.length"),
     "update_not_checked": (UPSERT, "  else checkedRow keys (replaceRow table existing changed) changed",
         "  else .ok (replaceRow table existing changed, some changed)"),
 }
@@ -55,7 +55,7 @@ TARGETS: dict[str, tuple[str, ...]] = {
 GUARDS: dict[str, str] = {
     "update_first_row": "rule:upsertRow", "excluded_reads_existing": "rule:updateExisting",
     "last_clause_handles": "rule:handlingClause", "target_checks_every_key": "rule:clauseKeys",
-    "later_row_ignores_earlier": "rule:upsertSteps", "skipped_row_counted": "rule:statementOutput",
+    "later_row_ignores_earlier": "rule:upsertSteps", "skipped_row_counted": "rule:upsertCounts",
     "update_not_checked": "rule:updateExisting",
 }
 """What each mutant guards: `rule:` and the Lean declaration of its file that the mutant

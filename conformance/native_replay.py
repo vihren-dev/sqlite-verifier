@@ -4,6 +4,7 @@ from conformance.record_parser import NO_PARSER_REASON, record_parser
 
 from conformance.case_format import CASE_VERSION, UNIX_EPOCH_JULIAN_MILLISECONDS, Json, row_wire
 from conformance.profile_scope import foreign_key_scope, modeled_profile
+from conformance.record_counters import counters_input
 from conformance.record_versions import CONTINUING, PROFILED, WITH_OUTPUTS
 from conformance.native_connection import SOURCE_ID
 from conformance import native_bindings
@@ -140,7 +141,7 @@ def model_case(record: dict[str, Json], translator: Translator) -> dict[str, Jso
             "outputs": outputs, "parameters": [event["parameters"] for event in trace] if outputs is not None else [],
             "clocks": [event["clockUnixMilliseconds"] + UNIX_EPOCH_JULIAN_MILLISECONDS for event in trace]
             if trace and all("clockUnixMilliseconds" in event for event in trace) else [],
-            "continues": continues}
+            "continues": continues, **counters_input(record)}
 
 
 def prepare(record: dict[str, Json], translator: Translator) -> tuple[dict[str, Json] | None, dict[str, Json]]:

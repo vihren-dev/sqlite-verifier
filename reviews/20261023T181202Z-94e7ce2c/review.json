@@ -1,0 +1,47 @@
+{
+  "caller": "claude",
+  "commit": "94e7ce2c4ec062937aedc54ccff76eb197ebc5ed",
+  "date": "2026-10-23T18:12:02+00:00",
+  "exit": 1,
+  "files": [
+    "plans/20261023-connection-counters.status.md",
+    "plans/20261023-connection-counters.task.md",
+    "reviews/20261023T180940Z-583394e6/resolution-1-20261023T181041Z.json",
+    "reviews/20261023T180940Z-583394e6/resolution-2-20261023T181041Z.json",
+    "reviews/20261023T180940Z-583394e6/review.json"
+  ],
+  "findings": [
+    {
+      "id": "20261023T181202Z-94e7ce2c#1",
+      "line": 37,
+      "path": "plans/20261023-connection-counters.status.md",
+      "rule": "R19",
+      "severity": "must",
+      "text": "The rejection treats two different connection histories as the same probe: the documented sequence includes successful row 50 and returns `0, 3, 60`, while the fresh-session rerun returns `0, 2, 60`. Fix: explicitly restart the documented trigger probe in a fresh session, or correct its expected result to `0, 3, 60`."
+    }
+  ],
+  "id": "20261023T181202Z-94e7ce2c",
+  "kind": "review",
+  "reviewer": "codex",
+  "revision": "wvqzwpuv",
+  "rules": {
+    "R1": "62d446279093",
+    "R10": "638d8cbd1df8",
+    "R11": "5de19cdbbbc1",
+    "R12": "99f66579f467",
+    "R13": "da0926dafb88",
+    "R15": "518eab58f8b5",
+    "R16": "892e77bd2a12",
+    "R17": "62b65b662f79",
+    "R18": "5159f20b166b",
+    "R19": "6a24b671568c",
+    "R2": "e5e78fb2a52a",
+    "R3": "4f9188eadd60",
+    "R4": "ea7ca17539eb",
+    "R5": "b8613a2d693b",
+    "R6": "8d1d4631e888",
+    "R7": "59a21b0bec7f",
+    "R9": "5a69196344d0"
+  },
+  "well_formed": true
+}

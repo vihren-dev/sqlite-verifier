@@ -96,4 +96,11 @@ example : (start.run (single (sql r"SELECT CURRENT_TIMESTAMP"))).outputs = [.unm
 -- environment.
 example (env : Env) : start.run (sql r"SELECT count(*) FROM customers") env =
     start.run (sql r"SELECT count(*) FROM customers") :=
-  Script.run_env _ start env (by decide +kernel)
+  Script.run_env _ start env (by decide +kernel) (by decide +kernel)
+
+-- A new connection knows each counter as 0; `Env.default` knows none, so a read ends the run.
+example : (start.run (env := Env.newConnection) do
+    single (sql r"SELECT changes()")).value = some (some (0 : Value)) := by
+  decide +kernel
+example : (start.run (single (sql r"SELECT changes()"))).outputs =
+    [.unmodeled (counterUnknownReason .changes)] := by decide +kernel

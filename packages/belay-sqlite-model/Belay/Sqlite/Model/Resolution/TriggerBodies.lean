@@ -16,12 +16,19 @@ namespace Belay.Sqlite.Model
 /-- A restriction of a trigger of the write, at the write's statement node. -/
 def triggerRestriction (kind : RestrictionKind) : NodeRestriction := { path := [], kind }
 
+/-- The step of a query of a body: a restriction of a trigger form when an expression of it calls
+a connection counter ({name}`Resolved.Expr.isCounter`), whose value inside a program the model
+does not describe (ADR 0024, D2). -/
+def queryStep (step : Resolved.Step) : Except NodeRestriction (Except PrepareError Resolved.Step) :=
+  if step.expressions.any (·.any Resolved.Expr.isCounter) then .error (triggerRestriction .triggerForm)
+  else .ok (.ok step)
+
 /-- The step of a write of a body: a restriction of a trigger form when an expression of it has a
 call that can fail ({name}`Resolved.Expr.isFallibleCall`), whose failure the row engine does not
-describe. -/
+describe, or a call of a connection counter, as for {name}`queryStep`. -/
 def writeStep (step : Resolved.Step) : Except NodeRestriction (Except PrepareError Resolved.Step) :=
   if step.expressions.any (·.any Resolved.Expr.isFallibleCall) then .error (triggerRestriction .triggerForm)
-  else .ok (.ok step)
+  else queryStep step
 
 /-- The step of a resolved body statement, its prepare error, or a restriction. -/
 def bodyStep : StatementResolution → Except NodeRestriction (Except PrepareError Resolved.Step)
@@ -32,7 +39,7 @@ def bodyStep : StatementResolution → Except NodeRestriction (Except PrepareErr
   | .ok (.upsert table rows clauses _ algorithm subqueries _, _) => writeStep (.insert table rows clauses algorithm subqueries)
   | .ok (.update table assignments filter _ subqueries _, _) => writeStep (.update table assignments filter subqueries)
   | .ok (.delete table filter _ subqueries _, _) => writeStep (.delete table filter subqueries)
-  | .ok (.query query subqueries, _) => .ok (.ok (.query query subqueries))
+  | .ok (.query query subqueries, _) => queryStep (.query query subqueries)
   | .ok (.createTable .., _) | .ok (.createIndex .., _) | .ok (.createTrigger .., _) | .ok (.addColumn .., _)
   | .ok (.drop .., _) | .ok (.begin, _) | .ok (.commit, _) | .ok (.rollback, _) | .ok (.setting .., _) =>
     .error (triggerRestriction .triggerForm)

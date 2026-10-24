@@ -85,8 +85,7 @@ theorem updateRow_holds (facts : TableFacts fact) {catalog : Catalog} {links : L
         (position := position) (change := fun rows => rows.filter (·.rowid != rowid)) fun rows => List.filter_sublist
       have stored := fun checked : KeyState => ResultHolds.foldlM (fun acted link good =>
           runAction_holds (keeps frame.action) link link.key.onUpdate position old (some new) good) parents _
-        (updateWrite_holds facts (other := ⟨before.rows, checked.counter, checked.acted,
-          if record = true then checked.written ++ [new] else checked.written, checked.subqueried⟩) good passed same
+        (updateWrite_holds facts (other := { checked with rows := before.rows, written := if record = true then checked.written ++ [new] else checked.written, own := checked.own + 1 }) good passed same
           oldRowid rfl)
       split
       · exact ResultHolds.bind ((newSteps_rows _ _ _ _ _ _ _ _ _).holds_of_rows removedOk) fun checked _ =>

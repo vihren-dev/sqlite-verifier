@@ -115,26 +115,26 @@ theorem upsertSummary_keysUnique (context : Resolved.EvalContext) (keys : List U
 
 end LiteralData
 
-/-- For every clock value, parameter list, INSERT with {lit}`ON CONFLICT` clauses or a conflict
+/-- For every clock value, counters, parameter list, INSERT with {lit}`ON CONFLICT` clauses or a conflict
 algorithm without foreign key rules and trigger programs ({lean}`(none : Option Resolved.WriteRules)`),
 and database: if the database satisfies {name}`Database.KeysUnique`, the database of the effect of
 {name}`runStatement` satisfies it too, on success and on every error, which is more than
 {name}`Effect.KeysUnique` asks. It assumes nothing about the support check. Proof sketch: the
 statement stores the table of {name}`LiteralData.upsertSummary` at the target, which satisfies
 the atom ({name}`LiteralData.upsertSummary_keysUnique`), with {name}`Database.KeysUnique.setRows`. -/
-theorem runStatement_upsert_keysUnique (clock : Int) (parameters : List Value) (target : Nat)
+theorem runStatement_upsert_keysUnique (clock : Int) (counters : Counters) (parameters : List Value) (target : Nat)
     (rows : List (List Resolved.Cell)) (clauses : List Resolved.ConflictClause) (returning : List (Resolved.Expr × String))
     (algorithm : Option ConflictAlgorithm) (subqueries : List Resolved.Query) {database : Database}
     (unique : database.KeysUnique) :
-    (effectDatabase (runStatement clock parameters
+    (effectDatabase (runStatement clock counters parameters
       (.upsert target rows clauses returning algorithm subqueries none) database).effect).KeysUnique := by
   simp only [runStatement, Option.map_none, StatementRun.withKeys]
   split
   · exact unique
   · rename_i table found
-    have summary := LiteralData.upsertSummary_keysUnique (Resolved.statementContext clock parameters database subqueries)
+    have summary := LiteralData.upsertSummary_keysUnique (Resolved.statementContext clock counters parameters database subqueries)
       (database.keys target table) (database.catalog.writePolicy target table.shape algorithm) clauses
-      (Resolved.rowsAt (Resolved.statementContext clock parameters database subqueries) table.shape.columns rows)
+      (Resolved.rowsAt (Resolved.statementContext clock counters parameters database subqueries) table.shape.columns rows)
       (unique target table found)
     dsimp only
     split

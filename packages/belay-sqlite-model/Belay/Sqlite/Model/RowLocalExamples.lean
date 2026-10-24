@@ -27,7 +27,7 @@ def minusOne : ColumnDefault := { form := .literal (.value (.integer (-1))) (.in
 
 /-- The effect of ADD COLUMN of the column at the table at position 0: the database after it. -/
 def afterAdd (database : Database) (column : CatalogColumn) : Database :=
-  effectDatabase (runStatement 0 [] (.addColumn 0 column) database).effect
+  effectDatabase (runStatement 0 {} [] (.addColumn 0 column) database).effect
 
 /-- The object that names the table {lit}`t` with the entry. -/
 def tableT (shape : CatalogTable) : CatalogObject := { name := name! "t", entry := .table shape }
@@ -39,7 +39,7 @@ def shortNotNull : Database :=
 
 -- Without wide rows, "not null" fails: ADD COLUMN {lit}`c` without a default puts NULL at the
 -- position of {lit}`b`.
-example : shortNotNull.NotNull ∧ ¬shortNotNull.RowsWide ∧ (runStatement 0 [] (.addColumn 0 (plain "c")) shortNotNull).ready = true ∧
+example : shortNotNull.NotNull ∧ ¬shortNotNull.RowsWide ∧ (runStatement 0 {} [] (.addColumn 0 (plain "c")) shortNotNull).ready = true ∧
     ¬(afterAdd shortNotNull (plain "c")).NotNull := by decide +kernel
 
 /-- A {lit}`STRICT` table {lit}`t(a INTEGER, b INTEGER)` with the row {lit}`[1]`. -/
@@ -58,7 +58,7 @@ def textColumn : CatalogColumn :=
 
 -- Without wide rows, "types fit" fails: the text default lands at the position of {lit}`b`.
 example : shortStrict.TypesFit ∧ ¬shortStrict.RowsWide ∧ strictDefaultFits textColumn = true ∧
-    (runStatement 0 [] (.addColumn 0 textColumn) shortStrict).ready = true ∧
+    (runStatement 0 {} [] (.addColumn 0 textColumn) shortStrict).ready = true ∧
     ¬(afterAdd shortStrict textColumn).TypesFit := by decide +kernel
 
 /-- {lit}`CREATE TABLE t(a, b CHECK (b > 0))` with the row {lit}`[1]`; the missing cell reads as
@@ -71,7 +71,7 @@ def shortCheck : Database :=
 def minusColumn : CatalogColumn := { (plain "c") with defaultValue := some minusOne }
 
 -- Without wide rows, "checks hold" fails: the default {lit}`-1` lands at the position of {lit}`b`.
-example : shortCheck.ChecksHold ∧ ¬shortCheck.RowsWide ∧ (runStatement 0 [] (.addColumn 0 minusColumn) shortCheck).ready = true ∧
+example : shortCheck.ChecksHold ∧ ¬shortCheck.RowsWide ∧ (runStatement 0 {} [] (.addColumn 0 minusColumn) shortCheck).ready = true ∧
     ¬(afterAdd shortCheck minusColumn).ChecksHold := by decide +kernel
 
 /-- {lit}`CREATE TABLE t(a)` with the row {lit}`[1]` and the CHECK {lit}`column1 > 0` of a column
@@ -84,7 +84,7 @@ def checkPastWidth : Database :=
 -- after ADD COLUMN {lit}`b DEFAULT -1` it reads -1.
 example : checkPastWidth.ChecksHold ∧ checkPastWidth.RowsWide ∧
     secondPositive.condition.readsBelow 1 = false ∧
-    (runStatement 0 [] (.addColumn 0 { minusColumn with name := Identifier.ofString "b" }) checkPastWidth).ready = true ∧
+    (runStatement 0 {} [] (.addColumn 0 { minusColumn with name := Identifier.ofString "b" }) checkPastWidth).ready = true ∧
     ¬(afterAdd checkPastWidth { minusColumn with name := Identifier.ofString "b" }).ChecksHold := by decide +kernel
 
 /-- A {lit}`STRICT` table {lit}`t(a INTEGER)` with the row {lit}`[1]`. -/
@@ -100,7 +100,7 @@ def integerText : CatalogColumn :=
 
 -- A default that does not fit the strict type, "types fit" fails: a TEXT cell in an INTEGER column.
 example : strictOne.TypesFit ∧ strictOne.RowsWide ∧ strictDefaultFits integerText = false ∧
-    (runStatement 0 [] (.addColumn 0 integerText) strictOne).ready = true ∧
+    (runStatement 0 {} [] (.addColumn 0 integerText) strictOne).ready = true ∧
     ¬(afterAdd strictOne integerText).TypesFit := by decide +kernel
 
 end Belay.Sqlite.Model.RowLocalExamples

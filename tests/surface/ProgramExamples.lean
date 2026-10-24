@@ -10,6 +10,9 @@ and of a clock (`Belay/Sqlite/Env.lean`). The kernel checks each example:
 - The run of `send s` is the model's run of `s`, and `p.run db = db.run p`.
 - `CURRENT_TIMESTAMP`, `date('now')` and a DEFAULT of `CURRENT_TIMESTAMP` under `clockAt` give
   SQLite's text, and `Output.unmodeled` under `Env.default`.
+- A statement that calls `changes()`, `total_changes()` or `last_insert_rowid()` reads the counter
+  of the connection: a write of the run sets it, `Env.newConnection` gives 0, and `Env.default`
+  ends the run at a read of a counter that no write set.
 - The laws of runs apply to programs and scripts. -/
 
 open Belay.Sqlite
@@ -84,14 +87,34 @@ example : (two.run (sql r"SELECT CURRENT_TIMESTAMP, date('now'); INSERT INTO sta
     [.unmodeled clockUnmodeled] := by decide +kernel
 example : (two.run (sql r"INSERT INTO stamps (id) VALUES (1)")).outputs = [.unmodeled clockUnmodeled] := by decide +kernel
 
+-- The counters: a write of the run sets them under `Env.default`, a read before any write ends
+-- the run, and a new connection knows each counter as 0.
+example : (two.run (sql r"INSERT INTO n VALUES (7); SELECT last_insert_rowid(), changes()")).outputs =
+    [.done 1, .rows [[1, 1]]] := by decide +kernel
+example : (two.run (sql r"SELECT changes()")).outputs = [.unmodeled (counterUnknownReason .changes)] := by
+  decide +kernel
+example : (two.run (env := Env.newConnection) (sql r"SELECT changes(), total_changes(), last_insert_rowid()")).outputs =
+    [.rows [[0, 0, 0]]] := by decide +kernel
+example : Env.newConnection.counters = Counters.newConnection ∧ Env.default.counters = {} := ⟨rfl, rfl⟩
+-- A clock and counters together: the fields of `Env` are independent.
+example : (two.run (env := { clockAt "2026-10-20 12:00:00" with counters := Counters.newConnection })
+      (sql r"SELECT changes(), CURRENT_TIMESTAMP")).outputs = [.rows [[0, ("2026-10-20 12:00:00" : String)]]] := by
+  decide +kernel
+
 -- The laws of runs: `Script.run_env` for a script without clock reads, `Sql.run_env` for a
 -- program, and the S2 laws over the new `Run`.
 example (env : Env) : two.run (sql r"SELECT a FROM t ORDER BY a") env = two.run (sql r"SELECT a FROM t ORDER BY a") :=
-  Script.run_env _ two env (by decide +kernel)
-example (env : Env) : insertWhenTwo.run two env = insertWhenTwo.run two := Sql.run_env _ two env (by decide +kernel)
+  Script.run_env _ two env (by decide +kernel) (by decide +kernel)
+example (env : Env) : insertWhenTwo.run two env = insertWhenTwo.run two :=
+  Sql.run_env _ two env (by decide +kernel) (by decide +kernel)
+example (env : Env) : two.run (sql r"INSERT INTO n VALUES (7); SELECT last_insert_rowid()") env =
+    two.run (sql r"INSERT INTO n VALUES (7); SELECT last_insert_rowid()") :=
+  Script.run_env _ two env (by decide +kernel) (by decide +kernel)
 example (p q : Script) : two.raw.run (p ++ q) = (two.raw.run p).andThen (q.runOn ·) := Database.Raw.run_append two.raw p q
-example (q : Script) : (two.run (sql r"DELETE FROM n" ++ q)).outputs =
+example (q : Script)
+    (modeledLater : ∀ output ∈ ((two.run (sql r"DELETE FROM n")).db.run q).outputs, output.endsRun = false) :
+    (two.run (sql r"DELETE FROM n" ++ q)).outputs =
     (two.run (sql r"DELETE FROM n")).outputs ++ ((two.run (sql r"DELETE FROM n")).db.run q).outputs :=
   Script.run_append two _ q (by decide +kernel) (by decide +kernel)
-    (by decide +kernel) (by decide +kernel)
+    (by decide +kernel) (by decide +kernel) modeledLater
 example : (failsSecond.runUntilError two).outputs = [.done 1, .error 19] := by decide +kernel

@@ -43,12 +43,12 @@ def database : Database := .ofTables [((name! "t"), QueryExamples.table)]
 
 /-- The result rows of a query statement over {name}`database` with the values, or none. -/
 def rowsOf (query : Query) (values : List Value) : Option (List (List Value)) :=
-  (query.runOn 0 values database []).map (·.2.rows)
+  (query.runOn 0 {} values database []).map (·.2.rows)
 
 /-- The error of a query statement over {name}`database` with the values, or none when it succeeds;
 the statement changes nothing in both cases. -/
 def errorOf (query : Query) (values : List Value) : Option ExecutionError :=
-  match step 0 values (.query query []) database with
+  match step 0 {} values (.query query []) database with
   | .ok _ => none
   | .error (error, _) => some error
 

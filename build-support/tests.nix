@@ -88,6 +88,7 @@ let
     (root + /tests/conformance_freeze_capture.py)
     (fs.fileFilter (file: file.hasExt "json") (root + /conformance/cases))
     (root + /packages/belay-sqlite-model/Belay/Sqlite/Model/StatementStep.lean)
+    (root + /packages/belay-sqlite-model/Belay/Sqlite/Model/SqlAdvance.lean)
     (root + /packages/belay-sqlite-model/Belay/Sqlite/Model/StatementRun.lean)
     (root + /packages/belay-sqlite-model/Belay/Sqlite/Model/SqlExecution.lean)
     (root + /packages/belay-sqlite-model/Belay/Sqlite/Model/Execution.lean) (root + /packages/belay-sqlite-model/Belay/Sqlite/Model/LiteralData.lean)
@@ -129,7 +130,7 @@ let
     "upstream_bindings" "upstream_binding_policy" "upstream_display" "upstream_evidence"
     "upstream_helpers"
     "native_fixture" "import_fixture" "schema" "predict" "predict_render" "replay_support"
-    "case_format" "native_connection" "native_library" "native_clock" "native_probe" "native_ordering" "query_window" "native_metadata" "native_record" "native_statements" "native_statement_end" "native_replay" "profile_scope" "record_versions" "record_parser" "sql_text" "upstream_pilot" "upstream_fidelity" "corpus" "generated_program" "mutation_check" "state_machine" "regressions" "progress" "measure_coverage" "native_trace" "pipeline"
+    "case_format" "native_connection" "native_library" "native_clock" "native_probe" "native_ordering" "query_window" "native_metadata" "native_record" "native_statements" "native_statement_end" "native_replay" "profile_scope" "record_versions" "record_counters" "record_parser" "sql_text" "upstream_pilot" "upstream_fidelity" "corpus" "generated_program" "mutation_check" "state_machine" "regressions" "progress" "measure_coverage" "native_trace" "pipeline"
   ];
   # Frozen corpora and retained reports: large, rarely changed, read only by the frozen suite.
   frozenData = [
@@ -171,7 +172,7 @@ let
     "execution_profile" "native_limits" "freeze_profiles" "freeze_validation" "model_assertions" "model_check"
     "native_acquisition" "native_binding_types" "native_binding_validation" "native_bindings"
     "native_call_recording" "native_clock" "native_connection" "native_library" "native_metadata"
-    "native_observation" "native_record" "native_replay" "profile_scope" "record_versions" "native_statements" "native_statement_end"
+    "native_observation" "native_record" "native_replay" "profile_scope" "record_versions" "record_counters" "native_statements" "native_statement_end"
     "native_storage"
     "native_trace" "native_workers" "locked_corpora" "query_window" "record_parser" "sql_text"
     "upstream_binding_policy" "upstream_bindings" "upstream_catalog" "upstream_helpers"
@@ -191,7 +192,7 @@ in {
     ] ++ map (name: root + "/conformance/${name}.py") [
       "replay_tiers" "native_workers" "corpus" "corpus_shards" "corpus_workers" "corpus_evidence" "corpus_acquisition" "locked_corpora" "case_format"
       "replay_support"
-      "workload" "workload_inputs" "execution_profile" "native_limits" "native_replay" "profile_scope" "record_versions" "record_parser" "sql_text" "model_check"
+      "workload" "workload_inputs" "execution_profile" "native_limits" "native_replay" "profile_scope" "record_versions" "record_counters" "record_parser" "sql_text" "model_check"
       "native_record" "native_observation" "native_acquisition" "native_connection" "native_library" "native_clock" "native_storage"
       "native_probe" "native_ordering" "query_window" "native_metadata" "native_statements" "native_statement_end"
       "native_bindings" "native_call_recording" "upstream_bindings" "upstream_binding_policy"

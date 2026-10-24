@@ -1,4 +1,5 @@
 import Belay.Sqlite.Model.Database
+import Belay.Sqlite.Model.Counters
 import Belay.Sqlite.Model.Resolution.QueryForm
 import Belay.Sqlite.Model.Comparison
 import Belay.Sqlite.Model.Json.JsonApply
@@ -147,7 +148,7 @@ structure SubqueryRun where
 /-- What the evaluation of an expression reads besides its row (ADR 0018, D1): the
 statement's clock value in Julian-day milliseconds, the results of the statement's
 subqueries, by index, for the row of the expression that reads them, and the values bound to
-the statement's parameters (ADR 0019, D1). Use {lit}`EvalContext.plain` for a statement
+the statement's parameters (ADR 0019, D1), and the counters of the connection (ADR 0024, D2). Use {lit}`EvalContext.plain` for a statement
 without subqueries and without values. -/
 structure EvalContext where
   /-- The statement's clock value. -/
@@ -160,6 +161,10 @@ structure EvalContext where
   /-- The values bound to the statement's parameters: item {lit}`n` from 1 is the value of
   parameter {lit}`n`. Empty for a statement that binds none, so that each parameter is NULL. -/
   parameters : List Value := []
+  /-- The counters of the connection before the statement (ADR 0024, D2), which
+  {lit}`changes()`, {lit}`total_changes()` and {lit}`last_insert_rowid()` read. A counter that
+  the context does not know reads as NULL, and the run of the statement is then not described. -/
+  counters : Counters := {}
 
 /-- The context of a statement without subqueries at a clock value: a subquery that it
 names gives no rows and no fault, which resolution never needs. -/

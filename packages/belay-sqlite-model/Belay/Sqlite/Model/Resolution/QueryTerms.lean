@@ -41,7 +41,7 @@ of such parts. A column outside the grouping terms, and a subquery, which can re
 bare: SQLite reads them from a row of the group that it chooses. -/
 def Resolved.Expr.grouped (terms : List Resolved.Expr) (expression : Resolved.Expr) : Bool :=
   terms.contains expression || match expression with
-  | .literal _ | .now _ | .aggregateValue _ | .parameter _ => true
+  | .literal _ | .now _ | .aggregateValue _ | .parameter _ | .counter _ => true
   | .column _ | .exists _ | .inQuery .. | .subquery _ => false
   | .compare _ _ left right _ | .and left right | .or left right | .arithmetic _ left right | .coalesce left right =>
     left.grouped terms && right.grouped terms

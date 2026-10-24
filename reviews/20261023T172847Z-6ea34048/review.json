@@ -1,0 +1,52 @@
+{
+  "caller": "claude",
+  "commit": "6ea34048877cee356834cc26279230a3c5dc13d8",
+  "date": "2026-10-23T17:28:47+00:00",
+  "exit": 1,
+  "files": [
+    "docs/adr-0024-connection-state-and-random-values.md",
+    "reviews/20261023T172648Z-d2c2f223/review.json"
+  ],
+  "findings": [
+    {
+      "id": "20261023T172847Z-6ea34048#1",
+      "line": 94,
+      "path": "docs/adr-0024-connection-state-and-random-values.md",
+      "rule": "R19",
+      "severity": "must",
+      "text": "The failed `DROP TABLE` rule says `total_changes()` stays unchanged, but SQLite 3.51.0 retains completed cascade counts: dropping a parent with two cascading child rows and another blocking reference increases the total from 4 to 6 despite rollback. Fix: include completed foreign-key action and trigger changes in the failed DROP rule."
+    },
+    {
+      "id": "20261023T172847Z-6ea34048#2",
+      "line": 223,
+      "path": "docs/adr-0024-connection-state-and-random-values.md",
+      "rule": "R19",
+      "severity": "must",
+      "text": "D4 now proposes an approximation, but the overview at lines 21–23 still requires exact semantics and rejects every form that cannot be described exactly. Fix: amend the overview to identify D4 as a proposed exception subject to owner decision 2."
+    }
+  ],
+  "id": "20261023T172847Z-6ea34048",
+  "kind": "review",
+  "reviewer": "codex",
+  "revision": "nptmkllo",
+  "rules": {
+    "R1": "62d446279093",
+    "R10": "638d8cbd1df8",
+    "R11": "5de19cdbbbc1",
+    "R12": "99f66579f467",
+    "R13": "da0926dafb88",
+    "R15": "518eab58f8b5",
+    "R16": "892e77bd2a12",
+    "R17": "62b65b662f79",
+    "R18": "5159f20b166b",
+    "R19": "6a24b671568c",
+    "R2": "e5e78fb2a52a",
+    "R3": "4f9188eadd60",
+    "R4": "ea7ca17539eb",
+    "R5": "b8613a2d693b",
+    "R6": "8d1d4631e888",
+    "R7": "59a21b0bec7f",
+    "R9": "5a69196344d0"
+  },
+  "well_formed": true
+}

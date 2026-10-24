@@ -40,7 +40,7 @@ def fromOther (result : Expr) (filter : Option Expr) : Query :=
 
 /-- The result rows of a query with its subqueries over the example database, at clock 0. -/
 def rowsOf (query : Query) (subqueries : List Query) : Option (List (List Value)) :=
-  (query.runOn 0 [] database subqueries).map (·.2.rows)
+  (query.runOn 0 {} [] database subqueries).map (·.2.rows)
 
 /-- {lit}`u.x = t.k` inside a subquery over {lit}`u` directly under {lit}`t`. -/
 def matchesKey : Expr := .compare .eq none (.column 2) (.column 0)
@@ -76,7 +76,7 @@ example : rowsOf (keysWhere (.exists 0))
 
 /-- The fault of a query's run with its subqueries over the example database, at clock 0. -/
 def faultOf (query : Query) (subqueries : List Query) : Option Fault :=
-  (query.runOn 0 [] database subqueries).map (·.2.fault)
+  (query.runOn 0 {} [] database subqueries).map (·.2.fault)
 
 /-- {lit}`SELECT (q) FROM t` for a scalar subquery {lit}`q`. -/
 def scalarOf : Query := { keysWhere (.literal (.integer 1)) with filter := none, columns := [.scalar (.subquery 0)] }

@@ -36,7 +36,7 @@ def Resolved.Statement.writeRules : Resolved.Statement → Option Resolved.Write
   | .prepareError _ | .query .. | .setting .. => none
 
 /-- The constraints that SQLite may name when the statement fails on the database at the clock
-value with the values bound to its parameters ({name}`runStatement`). A statement that does not fail with a constraint error
+value with the counters and the values bound to its parameters ({name}`runStatement`). A statement that does not fail with a constraint error
 ({name}`ExecutionError.isConstraint`) gives none. Otherwise:
 
 * a plain INSERT: {name}`LiteralData.insertFailure`;
@@ -46,9 +46,9 @@ value with the values bound to its parameters ({name}`runStatement`). A statemen
 * {lit}`CREATE UNIQUE INDEX`: the index;
 * a write that can fire a trigger or that checks a foreign key
   ({name}`Resolved.Statement.writeRules` is some), and every other statement: none. -/
-def failingConstraints (clock : Int) (parameters : List Value) (statement : Resolved.Statement) (database : Database) :
+def failingConstraints (clock : Int) (counters : Counters) (parameters : List Value) (statement : Resolved.Statement) (database : Database) :
     ConstraintReport :=
-  match (runStatement clock parameters statement database).effect with
+  match (runStatement clock counters parameters statement database).effect with
   | .ok _ => { candidates := [] }
   | .error (reason, _) => if !reason.isConstraint then { candidates := [] } else
   let ofTable (target : Nat) (failure : Option TableFailure) : List ConstraintFailure :=
@@ -57,12 +57,12 @@ def failingConstraints (clock : Int) (parameters : List Value) (statement : Reso
   | .insert target rows _ subqueries none => match database.table target with
     | none => { candidates := [] }
     | some table =>
-      let values := Resolved.rowsAt (Resolved.statementContext clock parameters database subqueries) table.shape.columns rows
+      let values := Resolved.rowsAt (Resolved.statementContext clock counters parameters database subqueries) table.shape.columns rows
       { candidates := ofTable target (LiteralData.insertFailure (database.keys target table) table values) }
   | .upsert target rows clauses _ algorithm subqueries none => match database.table target with
     | none => { candidates := [] }
     | some table =>
-      let context := Resolved.statementContext clock parameters database subqueries
+      let context := Resolved.statementContext clock counters parameters database subqueries
       let keys := database.keys target table
       let policy := database.catalog.writePolicy target table.shape algorithm
       match (LiteralData.upsertSteps context keys policy clauses table
@@ -73,7 +73,7 @@ def failingConstraints (clock : Int) (parameters : List Value) (statement : Reso
   | .update target assignments filter _ subqueries none => match database.table target with
     | none => { candidates := [] }
     | some table =>
-      let context := Resolved.statementContext clock parameters database subqueries
+      let context := Resolved.statementContext clock counters parameters database subqueries
       database.catalog.updateReport target (database.keys target table) (assignments.map (·.1))
         (LiteralData.selectedPositions context filter table) table
         (LiteralData.updated context table assignments filter)

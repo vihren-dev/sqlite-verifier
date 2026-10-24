@@ -55,11 +55,11 @@ def checkedUpdate (catalog : Catalog) (state : KeyState) (position : Nat) (old n
   match (state.database catalog).table position with
   | none => throw .undescribed
   | some table =>
-    if LiteralData.aliasCellMismatch table.shape.rowidAlias new then throw (.error .datatypeMismatch)
+    if LiteralData.aliasCellMismatch table.shape.rowidAlias new then throw (.error .datatypeMismatch state)
     else match LiteralData.checkedRow (catalog.uniqueKeys position table.shape)
         (LiteralData.replaceRow table old new) new with
       | .ok _ => pure ()
-      | .error reason => throw (.error reason)
+      | .error reason => throw (.error reason state)
 
 /-- The action of a link for the old row of the parent table at the position, with the new row
 of an update, where {lit}`run` runs the write of the action: nothing for {lit}`NO ACTION` or an
@@ -75,7 +75,7 @@ def runAction (catalog : Catalog) (run : RowWork → KeyState → Except KeyStop
     if new.any (keyUnchanged parent key old ·) then pure state else
     match action, new with
     | .noAction, _ => pure state
-    | .restrict, _ => if targets.isEmpty then pure state else throw (.error .constraintViolation)
+    | .restrict, _ => if targets.isEmpty then pure state else throw (.error .constraintViolation state)
     | .cascade, none => acted <$> run (.delete link.child targets false false true) state
     | .cascade, some _ | .setNull, _ | .setDefault, _ =>
       match actionCells child parent link key (new.getD old) action with
@@ -102,7 +102,7 @@ def deleteRow (catalog : Catalog) (links : List ForeignKeyLink) (nested : Nested
   let some row := ((state.database catalog).rowsAt position).find? (·.rowid == rowid) | pure state
   let state ← oldSteps catalog state position row (childLinks links position) (parentLinks links position) ignore
   let written := if record then state.written ++ [row] else state.written
-  let state := { state.changeRows position fun rows => rows.filter (·.rowid != rowid) with written }
+  let state := { state.changeRows position fun rows => rows.filter (·.rowid != rowid) with written, own := state.own + 1 }
   let state ← (parentLinks links position).foldlM (fun state link =>
     runAction catalog (nested frame.action) link link.key.onDelete position row none state) state
   if fire then return (← runPrograms catalog nested frame position .after .delete row.values state).1
@@ -124,9 +124,9 @@ def updateRow (catalog : Catalog) (links : List ForeignKeyLink) (nested : Nested
   | some old, some { name, entry := .table shape } => do
     let new := change old
     let event := Resolved.TriggerEvent.update (some assigned)
-    if LiteralData.aliasCellMismatch shape.rowidAlias new then throw (.error .datatypeMismatch)
+    if LiteralData.aliasCellMismatch shape.rowidAlias new then throw (.error .datatypeMismatch state)
     if !(frame.fired position .before event).isEmpty && !LiteralData.typesFit shape new then
-      throw (.error .constraintViolation)
+      throw (.error .constraintViolation state)
     let (state, ended) ← runPrograms catalog nested frame position .before event (new.values ++ old.values) state
     if ended then return state
     match checkedUpdate catalog state position old new with
@@ -143,7 +143,7 @@ def updateRow (catalog : Catalog) (links : List ForeignKeyLink) (nested : Nested
     let checked ← if level != 0 then newSteps catalog removed position new children parents true stale changed
       else pure removed
     let written := if record then checked.written ++ [new] else checked.written
-    let state := { checked with rows := before.rows, written }.changeRows position fun rows =>
+    let state := { checked with rows := before.rows, written, own := checked.own + 1 }.changeRows position fun rows =>
       rows.map fun (row : Row) => if row.rowid == rowid then new else row
     let state ← parents.foldlM (fun state link =>
       runAction catalog (nested frame.action) link link.key.onUpdate position old (some new) state) state

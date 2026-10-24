@@ -1,3 +1,4 @@
+import Belay.Sqlite.Model.Counters
 import Belay.Sqlite.Model.ForeignKeyWrites
 
 set_option doc.verso true
@@ -38,22 +39,26 @@ def insertOutcome (database : Database) (target : Nat) (keys : List UniqueKey) (
   | none => checkedWrite database target keys result
 
 /-- What running one statement on a database gives: its effect, whether the model
-describes it on the database (the support check), and for a write that checks foreign keys the
-rows that it wrote. All read the same computation of the write or the query. -/
+describes it on the database (the support check), what it does to the counters of its
+connection, and for a write that checks foreign keys the rows that it wrote. All read the same
+computation of the write or the query (ADR 0024, D2). -/
 structure StatementRun where
   /-- The effect of the statement ({lit}`literalStep`). -/
   effect : Effect
   /-- Whether the model describes the statement on the database ({lit}`statementReady`). -/
   ready : Bool
+  /-- What the statement does to the counters of the connection, for a success and for a failure
+  ({name}`Counts`); the default leaves all three, as every statement except a write does. -/
+  counts : Counts := {}
   /-- The rows that a write that checks foreign keys wrote ({name}`KeyRun.written`); none for
   every other statement. -/
   keyRows : Option (List Row) := none
 
-/-- The run of a write whose plain computation gives the effect and the support check: the same
-with foreign keys off, and with them on the run of the keys ({name}`KeyRun`), described when both
-are. -/
-def StatementRun.withKeys (effect : Effect) (ready : Bool) : Option KeyRun → StatementRun
-  | none => { effect, ready }
-  | some run => { effect := run.effect, ready := ready && run.ready, keyRows := some run.written }
+/-- The run of a write whose plain computation gives the effect, the support check and the
+counts: the same with foreign keys off, and with them on the run of the keys
+({name}`KeyRun`), described when both are. -/
+def StatementRun.withKeys (effect : Effect) (ready : Bool) (counts : Counts) : Option KeyRun → StatementRun
+  | none => { effect, ready, counts }
+  | some run => { effect := run.effect, ready := ready && run.ready, counts := run.counts, keyRows := some run.written }
 
 end Belay.Sqlite.Model

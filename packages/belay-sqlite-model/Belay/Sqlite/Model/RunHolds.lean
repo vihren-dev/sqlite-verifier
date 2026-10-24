@@ -11,16 +11,16 @@ statement theorem and the condition are parameters: the theorems of each atom ar
 namespace Belay.Sqlite.Model
 
 /-- For the given property of databases and condition of statements: the statement theorem
-holds. For every clock value, parameter list, resolved statement and database, if the database has
+holds. For every clock value, counters, parameter list, resolved statement and database, if the database has
 the property and the statement meets its condition on the database, the effect of
 {name}`runStatement` satisfies the property ({name}`Effect.Satisfies`): the database of a success,
 and the database that an error with {name}`ExecutionError.constraintFail` carries, have it. An error
 with any other reason requires nothing of its database: the run keeps the input database, or the
 snapshot of a ROLLBACK, for it. -/
 def StatementKeeps (property : Database → Prop) (condition : Resolved.Statement → Database → Prop) : Prop :=
-  ∀ (clock : Int) (parameters : List Value) (statement : Resolved.Statement) (database : Database),
+  ∀ (clock : Int) (counters : Counters) (parameters : List Value) (statement : Resolved.Statement) (database : Database),
     property database → condition statement database →
-      (runStatement clock parameters statement database).effect.Satisfies property
+      (runStatement clock counters parameters statement database).effect.Satisfies property
 
 /-- For the given condition of statements on a database, position, script and state, each
 statement that {name}`runSqlFrom` reaches meets the condition on the database of the state
@@ -63,11 +63,11 @@ variable {property : Database → Prop} {condition : Resolved.Statement → Data
 theorem holds ({name}`StatementKeeps`), the state satisfies {name}`SqlState.Holds` and the
 statement meets the condition on the database of the state, the transition of {name}`advance`
 satisfies {name}`SqlTransition.Holds`. Proof sketch: {name}`advanceWith_holds` of the effect of
-the statement theorem. -/
+the statement theorem, and {name}`SqlTransition.counted_holds`. -/
 theorem advance_holds (keeps : StatementKeeps property condition) (position : Nat) (statement : Resolved.Statement)
     (parameters : List Value) {state : SqlState} (holds : state.Holds property)
     (met : condition statement state.database) : (advance position statement parameters state).Holds property :=
-  advanceWith_holds position statement holds (keeps _ parameters statement _ holds.1 met)
+  SqlTransition.counted_holds _ (advanceWith_holds position statement holds (keeps _ _ parameters statement _ holds.1 met))
 
 /-- The run theorem of {name}`runSqlFrom`, for every property and condition. For every position,
 script and state: if the statement theorem holds ({name}`StatementKeeps`), the state satisfies

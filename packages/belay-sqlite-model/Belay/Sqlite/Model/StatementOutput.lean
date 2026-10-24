@@ -56,13 +56,6 @@ def ExecutionError.failsWrite : ExecutionError → Bool
   | .unmodeled | .prepare _ | .transactionAlreadyActive | .noActiveTransaction | .integerOverflow
   | .functionError | .nullColumnDefault | .nonConstantColumnDefault | .checkColumnDefault => false
 
-/-- The change count of a failed INSERT with clauses or algorithms: the rows written
-before the failing row for a FAIL failure, which keeps them, and zero for every other
-failure or a success. -/
-def keptCount : Except (ExecutionError × Table × List Row) (Table × List Row) → Nat
-  | .error (reason, _, written) => if reason = .constraintFail then written.length else 0
-  | .ok _ => 0
-
 /-- Output names of ADD COLUMN's empty-table check. SQLite's
 {lit}`sqlite3AlterFinishAddColumn` calls {lit}`sqlite3ErrorIfNotEmpty` for a column with a
 time default ({name}`CatalogColumn.clockDefault`), and for a NOT NULL column without a
@@ -85,14 +78,16 @@ def addColumnOutputNames (column : CatalogColumn) : List String :=
 /-- Observe the literal-DML domain of a statement with the values bound to its parameters;
 unsupported output capability is explicit.
 Transitions and failure status come from production advance, never a second
-evaluator. A successful INSERT changes one row per VALUES row and a successful
+evaluator. The change count of a write is {lit}`changes` of the counts of its run
+({name}`StatementRun.counts`), which the run of the statement computed together with its effect
+(ADR 0024, D2): a successful INSERT changes one row per VALUES row and a successful
 UPDATE changes each row that its filter selects; their {lit}`RETURNING` rows are
 {name}`returnedRows` of the cells of the inserted rows (with the rowid of a NULL rowid
 alias), or of the new values of the selected rows. A successful INSERT with
 {lit}`ON CONFLICT` clauses changes each row that it inserted or updated, and its
 {lit}`RETURNING` rows are {name}`returnedRows` of those rows in row order
 ({name}`LiteralData.upsertRun`); skipped and deleted rows are not counted, and a FAIL
-failure counts the rows before the failing one ({name}`keptCount`). A
+failure counts the rows before the failing one. A
 successful DELETE changes each row that its filter selects, and its {lit}`RETURNING` rows
 are {name}`returnedRows` of the old values of those rows. UPDATE and DELETE return their
 rows in scan order ({name}`Belay.Sqlite.Model.Table.scanRows`): rowid order, or key order for a
@@ -108,11 +103,12 @@ query whose JSON function fails, which has no {lit}`FROM` and so at most one row
 column names and no rows, and so has a query that fails with {lit}`datatype mismatch` because a
 value of its window is not an integer, which SQLite reads before the first row. A write that
 checks foreign keys (ADR 0018, D4) has the rows that its keys' run wrote
-({name}`StatementRun.keyRows`): its {lit}`RETURNING` rows and change count when it succeeds, and
-its {lit}`RETURNING` names, no rows and the rows that a FAIL failure kept when it fails a
-constraint. A setting pragma ({lit}`PRAGMA setting = value`) has no output columns. -/
+({name}`StatementRun.keyRows`) and the counts of its run: its {lit}`RETURNING` rows and change count
+when it succeeds, and its {lit}`RETURNING` names, no rows and the rows that a FAIL failure kept when
+it fails a constraint. A setting pragma ({lit}`PRAGMA setting = value`) has no output columns. -/
 def statementOutput (clock : Int) (parameters : List Value) (statement : Resolved.Statement) (before : SqlState)
-    (transition : SqlTransition) : Option StatementOutput :=
+    (run : StatementRun) (transition : SqlTransition) : Option StatementOutput :=
+  let counters := before.counters.view statement.counterReads
   let successful := match transition with | .next _ => true | .halt _ => false
   let constraintFailure := (haltError transition).any ExecutionError.failsWrite
   let overflow := haltError transition == some .integerOverflow
@@ -120,55 +116,55 @@ def statementOutput (clock : Int) (parameters : List Value) (statement : Resolve
   let mismatch := haltError transition == some .datatypeMismatch
   match statement with
   | .insert target rows returning subqueries none =>
-    let context := Resolved.statementContext clock parameters before.database subqueries
+    let context := Resolved.statementContext clock counters parameters before.database subqueries
     let names := returning.map (·.2)
     if successful then do
       let table ← before.database.table target
       let values := Resolved.rowsAt context table.shape.columns rows
       let written := ((LiteralData.inserted table values).rows.drop table.rows.length).map (·.values)
-      return ⟨names, returnedRows context returning written, some rows.length⟩
-    else if constraintFailure then some ⟨names, [], some 0⟩ else none
+      return ⟨names, returnedRows context returning written, some (run.counts.changes.getD 0)⟩
+    else if constraintFailure then some ⟨names, [], some (run.counts.changes.getD 0)⟩ else none
   | .upsert target rows clauses returning algorithm subqueries none =>
-    let context := Resolved.statementContext clock parameters before.database subqueries
+    let context := Resolved.statementContext clock counters parameters before.database subqueries
     let names := returning.map (·.2)
-    let run := (before.database.table target).map fun table =>
+    let rows := (before.database.table target).map fun table =>
       LiteralData.upsertRun context (before.database.keys target table)
         (before.database.catalog.writePolicy target table.shape algorithm) clauses table
         (Resolved.rowsAt context table.shape.columns rows)
     if successful then do
-      let (_, written) ← (← run).toOption
-      return ⟨names, returnedRows context returning (written.map (·.values)), some written.length⟩
-    else if constraintFailure then some ⟨names, [], some ((run.map keptCount).getD 0)⟩ else none
+      let (_, written) ← (← rows).toOption
+      return ⟨names, returnedRows context returning (written.map (·.values)), some (run.counts.changes.getD 0)⟩
+    else if constraintFailure then some ⟨names, [], some (run.counts.changes.getD 0)⟩ else none
   | .update target assignments filter returning subqueries none =>
-    let context := Resolved.statementContext clock parameters before.database subqueries
+    let context := Resolved.statementContext clock counters parameters before.database subqueries
     let names := returning.map (·.2)
     if successful then do
       let table ← before.database.table target
       let chosen := table.scanRows.filter (LiteralData.selected context filter)
       let written := chosen.map fun row => (LiteralData.assign context table.shape.columns assignments row).values
-      return ⟨names, returnedRows context returning written,
-        some chosen.length⟩
-    else if constraintFailure then some ⟨names, [], some 0⟩ else none
+      return ⟨names, returnedRows context returning written, some (run.counts.changes.getD 0)⟩
+    else if constraintFailure then some ⟨names, [], some (run.counts.changes.getD 0)⟩ else none
   | .delete target filter returning subqueries none =>
-    let context := Resolved.statementContext clock parameters before.database subqueries
+    let context := Resolved.statementContext clock counters parameters before.database subqueries
     let names := returning.map (·.2)
     if successful then do
       let table ← before.database.table target
       let chosen := table.scanRows.filter (LiteralData.selected context filter)
-      return ⟨names, returnedRows context returning (chosen.map (·.values)), some chosen.length⟩
+      return ⟨names, returnedRows context returning (chosen.map (·.values)), some (run.counts.changes.getD 0)⟩
     else none
   | .query query subqueries =>
-    let context := Resolved.statementContext clock parameters before.database subqueries
+    let context := Resolved.statementContext clock counters parameters before.database subqueries
     if successful then
       (query.source context before.database).map fun source => ⟨query.names, (query.run context source.rows).rows, none⟩
     else if (overflow && query.groupBy.isEmpty) || functionFailure || mismatch then some ⟨query.names, [], none⟩
     else none
   | .insert _ _ returning subqueries (some _) | .upsert _ _ _ returning _ subqueries (some _)
   | .update _ _ _ returning subqueries (some _) | .delete _ _ returning subqueries (some _) =>
-    let context := Resolved.statementContext clock parameters before.database subqueries
-    let written := ((runStatement clock parameters statement before.database).keyRows).getD []
-    if successful then some ⟨returning.map (·.2), returnedRows context returning (written.map (·.values)), some written.length⟩
-    else if constraintFailure then some ⟨returning.map (·.2), [], some written.length⟩ else none
+    let context := Resolved.statementContext clock counters parameters before.database subqueries
+    let written := run.keyRows.getD []
+    if successful then
+      some ⟨returning.map (·.2), returnedRows context returning (written.map (·.values)), some (run.counts.changes.getD 0)⟩
+    else if constraintFailure then some ⟨returning.map (·.2), [], some (run.counts.changes.getD 0)⟩ else none
   | .addColumn _ column => some ⟨addColumnOutputNames column, [], none⟩
   | .createTable .. | .createIndex .. | .createTrigger .. | .drop .. | .begin | .commit | .rollback | .prepareError _ | .setting .. =>
     some ⟨[], [], none⟩

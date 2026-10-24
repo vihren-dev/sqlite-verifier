@@ -5,7 +5,7 @@ set_option doc.verso true
 /-! The laws of the runs of programs ({lit}`ProgramRun.lean`): the run of {lit}`send s` is the
 model's run of script {lit}`s`, with the same outputs and connection, so the laws of the runs of
 scripts ({lit}`RunLaws.lean`) hold for {lit}`db.run s`; and a clock does not change a run in
-which no statement reads it ({lit}`Script.run_env`). -/
+which no statement reads it ({lit}`Sql.runFrom_env`). -/
 
 namespace Belay.Sqlite
 
@@ -64,12 +64,12 @@ theorem Sql.runFrom_send (clock : Option Clock) :
 
 /-- For every database, script and environment: {lit}`db.run s` is the checked run
 ({name}`Run.checked`) of the model's run of the script from the idle connection to the
-database, with the environment's clock ({name}`SqlRun.ofScript`). So the run of a script is
+database, with the environment's clock and counters ({name}`SqlRun.ofScript`). So the run of a script is
 the run of its program {name}`send`, with the outputs, the database and the connection of the
 model's run of the script. Proof sketch: {name}`Sql.runFrom_send`. -/
 theorem Database.run_script (db : Database) (script : Script) (env : Env) :
-    db.run script env = Run.checked db (SqlRun.ofScript (runScriptFrom runContext env.clock 0 db.raw.connection script.statements)) :=
-  congrArg (Run.checked db) (Sql.runFrom_send env.clock 0 db.raw.connection script.statements)
+    db.run script env = Run.checked db (SqlRun.ofScript (runScriptFrom runContext env.clock 0 (db.raw.connection env.counters) script.statements)) :=
+  congrArg (Run.checked db) (Sql.runFrom_send env.clock 0 (db.raw.connection env.counters) script.statements)
 
 /-- For every database and script: {lit}`db.run s` under {name}`Env.default` is the checked run
 ({name}`Run.checked`) of S2's run of the script ({name}`Database.Raw.run`,
@@ -102,38 +102,5 @@ theorem Sql.runFrom_env {α : Type} (program : Sql α) (clock : Option Clock) :
     · rename_i output next step
       rw [step] at clockFree
       rw [later output (index + 1) next (fun found => clockFree (List.mem_cons_of_mem _ found))]
-
-/-- For every program, database and environment: if no output of the run under
-{name}`Env.default` is {name}`Output.unmodeled` with the reason {name}`clockUnmodeled`, which
-a statement that reads the clock gives in a run without a clock, the run in the environment is
-the run under {name}`Env.default`: the same value, outputs, databases, transaction and
-setting. Proof sketch: the model's runs are equal ({name}`Sql.runFrom_env`), because the outputs
-of the checked run hold those of the model's run. -/
-theorem Sql.run_env {α : Type} (program : Sql α) (db : Database) (env : Env)
-    (clockFree : Output.unmodeled clockUnmodeled ∉ (program.run db).outputs) :
-    program.run db env = program.run db := by
-  unfold Sql.run at clockFree ⊢
-  rw [Sql.runFrom_env program env.clock 0 db.raw.connection]
-  · rfl
-  · intro found
-    apply clockFree
-    unfold Run.checked
-    split
-    · exact found
-    · split
-      · exact found
-      · exact List.mem_append_left _ found
-
-/-- {lit}`Script.run_env`: for every script, database and environment, if no output of the run
-of the script under {name}`Env.default` is {name}`Output.unmodeled` with the reason
-{name}`clockUnmodeled`, which a statement that reads the clock gives in a run without a clock,
-the run in the environment is the run under {name}`Env.default`. The hypothesis is about the
-run, because whether a statement reads the clock depends on its resolution: a date function of
-a column or of a parameter reads it. Proof sketch: {name}`Sql.run_env` of the program
-{name}`send`. -/
-theorem Script.run_env (script : Script) (db : Database) (env : Env)
-    (clockFree : Output.unmodeled clockUnmodeled ∉ (db.run script).outputs) :
-    db.run script env = db.run script :=
-  Sql.run_env (send script) db env clockFree
 
 end Belay.Sqlite

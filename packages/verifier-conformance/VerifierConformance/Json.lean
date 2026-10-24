@@ -89,7 +89,21 @@ instance : Lean.FromJson Conformance.NativeTable where
 deriving instance Lean.FromJson, Lean.ToJson for Conformance.NativeObservation
 deriving instance Lean.FromJson, Lean.ToJson for StatementOutput, Conformance.OutputGroup,
   Conformance.NativeOutput
+deriving instance Lean.FromJson, Lean.ToJson for Counters
 deriving instance Lean.FromJson, Lean.ToJson for Conformance.Case
+
+/-- Write a case without the field {lit}`counters` when the field is {lean}`none`, so that the
+case of a record of a version without counters has the form that it had before the counters. -/
+def Conformance.Case.toJsonOmittingUnknownCounters (c : Conformance.Case) : Lean.Json :=
+  match Lean.toJson c, c.counters with
+  | .obj fields, none => .obj (fields.erase "counters")
+  | .obj fields, some _ => .obj fields
+  | json@(.null ..), _ | json@(.bool ..), _ | json@(.num ..), _ | json@(.str ..), _ | json@(.arr ..), _ => json
+
+/-- Write a case with {name}`Conformance.Case.toJsonOmittingUnknownCounters`; it replaces the
+derived writer above for later uses. -/
+instance : Lean.ToJson Conformance.Case where
+  toJson := Conformance.Case.toJsonOmittingUnknownCounters
 
 namespace Conformance
 

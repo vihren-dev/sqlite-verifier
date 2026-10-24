@@ -19,15 +19,19 @@ def runClock (clocks : List Int) : Option Clock :=
 
 /-- The connection at the start of a run that continues: idle, on the database of the catalog
 with the native starting tables ({name}`databaseOf`), with foreign keys as the profile sets
-them. -/
-def startConnection (profile : Profile) (catalog : Catalog) (initial : List NativeTable) : Connection :=
-  { state := { database := databaseOf catalog initial }, foreignKeys := profile.foreignKeys }
+them, and with the counters that the record gives, or unknown counters for a record without
+them (ADR 0024, D1). -/
+def startConnection (profile : Profile) (catalog : Catalog) (initial : List NativeTable)
+    (counters : Option Counters) : Connection :=
+  { state := { database := databaseOf catalog initial, counters := counters.getD {} },
+    foreignKeys := profile.foreignKeys }
 
 /-- Classify a case whose recorder runs on after an SQL error: resolve the schema
 ({name}`resolveSchema`), then compare the pass of the run that continues ({name}`runPassFrom`)
 from {name}`startConnection` with {name}`classifyObserved`. Each statement resolves against the
 connection's state when it runs, with the values that the record binds to it
-({name}`bindValues`) and the clock of the record's clock values ({name}`runClock`). A statement
+({name}`bindValues`), the clock of the record's clock values ({name}`runClock`) and the counters
+of the record. A statement
 that ends the run makes the case unsupported. A schema restriction is unsupported; a schema that
 SQLite prepared but resolution refuses is a disagreement. -/
 def classifyRunCase (c : Case) : Verdict :=
@@ -35,7 +39,7 @@ def classifyRunCase (c : Case) : Verdict :=
   | .error (.schemaRestricted _) | .error (.scriptRestricted _) => .modelUnsupported
   | .error (.schemaPrepareError ..) => .disagree none
   | .ok catalog =>
-    let connection := startConnection c.profile catalog c.initial
+    let connection := startConnection c.profile catalog c.initial c.counters
     let pass := runPassFrom { profile := c.profile, mode := .execution } (runClock c.clocks) 0 connection
       (bindValues c.script c.parameters)
     classifyObserved c (observeState connection.state :: pass.observations) pass.outputs pass.possible pass.supported

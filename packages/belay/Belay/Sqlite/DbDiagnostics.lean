@@ -42,7 +42,7 @@ def failureAction (statement : Resolved.Statement) : ExecutionError → String
 {name}`Output.error` with the code: a prepare
 error at its name ({name}`prepareDiagnostic`), and every other error with its message
 ({name}`ExecutionError.message` at the clock value 0, which a statement that runs without a
-clock has, on the database of the connection, then {name}`failureAction`) at the statement. The
+clock has, with the counters that the statement reads, on the database of the connection, then {name}`failureAction`) at the statement. The
 error comes from {name}`runScriptStepFailure` without a clock, which runs the statement on the
 same clock value and database
 and gives an error of that code for each such output ({name}`runScriptStep_error_failure`); when
@@ -59,7 +59,7 @@ def failureDiagnostic (bytes : ByteArray) (index : Nat) (connection : Connection
   | some (statement, failure@.integerOverflow) | some (statement, failure@.datatypeMismatch)
   | some (statement, failure@.functionError) | some (statement, failure@.nullColumnDefault)
   | some (statement, failure@.nonConstantColumnDefault) | some (statement, failure@.checkColumnDefault) =>
-    { start, stop, message := failure.message 0 [] statement database ++ failureAction statement failure }
+    { start, stop, message := failure.message 0 (connection.state.counters.view statement.counterReads) [] statement database ++ failureAction statement failure }
   | none => { start, stop, message := missingFailureMessage code }
 
 /-- The errors of a statement with its output: {name}`failureDiagnostic` for

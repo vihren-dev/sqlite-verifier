@@ -13,24 +13,28 @@ RUN = "belay-sqlite-model/Belay/Sqlite/Model/ScriptRun.lean"
 MUTANTS: dict[str, tuple[str, str, str]] = {
     "error_closes_the_transaction": (RUN,
         "  | .pending persisted visible _ =>\n"
-        "    { state := { connection.state with database := visible, snapshot := some persisted },\n"
+        "    { state := { connection.state with\n"
+        "                 database := visible, snapshot := some persisted, counters := connection.state.counters.apply counts },\n"
         "      foreignKeys := after.foreignKeys, recursiveTriggers := after.recursiveTriggers }",
         "  | .pending persisted _ _ =>\n"
-        "    { state := { connection.state with database := persisted, snapshot := none },\n"
+        "    { state := { connection.state with\n"
+        "                 database := persisted, snapshot := none, counters := connection.state.counters.apply counts },\n"
         "      foreignKeys := after.foreignKeys, recursiveTriggers := after.recursiveTriggers }"),
     "rollback_keeps_the_transaction": (RUN,
         "  | .success database | .failure _ _ database =>\n"
-        "    { state := { connection.state with database, snapshot := none }, foreignKeys := after.foreignKeys,\n"
-        "      recursiveTriggers := after.recursiveTriggers }",
+        "    { state := { connection.state with\n"
+        "                 database := database, snapshot := none, counters := connection.state.counters.apply counts },\n"
+        "      foreignKeys := after.foreignKeys, recursiveTriggers := after.recursiveTriggers }",
         "  | .success database =>\n"
-        "    { state := { connection.state with database, snapshot := none }, foreignKeys := after.foreignKeys,\n"
-        "      recursiveTriggers := after.recursiveTriggers }\n"
+        "    { state := { connection.state with\n"
+        "                 database := database, snapshot := none, counters := connection.state.counters.apply counts },\n"
+        "      foreignKeys := after.foreignKeys, recursiveTriggers := after.recursiveTriggers }\n"
         "  | .failure _ _ database =>\n"
-        "    { state := { connection.state with database }, foreignKeys := after.foreignKeys,\n"
-        "      recursiveTriggers := after.recursiveTriggers }"),
+        "    { state := { connection.state with database, counters := connection.state.counters.apply counts },\n"
+        "      foreignKeys := after.foreignKeys, recursiveTriggers := after.recursiveTriggers }"),
     "failed_statement_changes_the_catalog": (RUN,
-        "      else ran resolved after value (advanceWith index resolved connection.state run.effect)",
-        "      else ran resolved after value (match advanceWith index resolved connection.state run.effect with\n"
+        "      else ran resolved after value run (advanceRun index resolved connection.state run)",
+        "      else ran resolved after value run (match advanceRun index resolved connection.state run with\n"
         "        | .halt (.failure position reason database) =>\n"
         "          .halt (.failure position reason { database with catalog := after.catalog })\n"
         "        | transition => transition)"),

@@ -1,0 +1,7 @@
+{
+  "date": "2026-10-23T22:39:59+00:00",
+  "finding": "20261023T222827Z-3286a6d2#1",
+  "kind": "resolution",
+  "outcome": "deferred",
+  "reason": "Commit 4 of this task (the next commit) gives SQLite's schema-position errors for all five functions and adds their regression tests; the task file orders it after the reads."
+}

@@ -25,17 +25,17 @@ structure Pass where
 
 /-- Run the script from a position and connection state once, each statement with the values
 bound to its parameters. Each statement runs once ({lit}`runStatement`), which gives its support check and its effect; it is advanced with
-that effect ({lit}`advanceWith`) and observed; a halt ends the pass with the observation of
+its run ({lit}`advanceRun`, which also applies the counts of the run to the counters) and observed; a halt ends the pass with the observation of
 its outcome. -/
 def passFrom (position : Nat) (script : List (Resolved.Statement × List Value)) (state : SqlState) : Pass :=
   match script with
   | [] => { observations := [observeState state], outputs := [], possible := [], supported := true }
   | (statement, parameters) :: rest =>
     let clock := state.clock position
-    let run := runStatement clock parameters statement state.database
+    let run := SqlState.statementRun state clock parameters statement
     let ready := run.ready
-    let transition := advanceWith position statement state run.effect
-    let output := statementOutput clock parameters statement state transition
+    let transition := advanceRun position statement state run
+    let output := statementOutput clock parameters statement state run transition
     let possible := possibleOutput clock parameters statement state transition
     match transition with
     | .next next =>
@@ -62,14 +62,14 @@ theorem passFrom_final (position : Nat) (script : List (Resolved.Statement × Li
   | nil => simp [passFrom, runSqlFrom, observeState]
   | cons entry rest ih =>
     obtain ⟨statement, parameters⟩ := entry
-    cases h : advanceWith position statement state
-        (runStatement (state.clock position) parameters statement state.database).effect with
+    cases h : advanceRun position statement state
+        (SqlState.statementRun state (state.clock position) parameters statement) with
     | next next =>
       have later := ih (position + 1) next
-      simp only [passFrom, runSqlFrom, advance, literalStep, h] at later ⊢
+      simp only [passFrom, runSqlFrom, advance, h] at later ⊢
       rw [List.getLast?_cons, later]
       rfl
-    | halt outcome => simp [passFrom, runSqlFrom, advance, literalStep, h]
+    | halt outcome => simp [passFrom, runSqlFrom, advance, h]
 
 /-- For every script of statements with values and starting database, the last observation of
 {name}`trace` is the
@@ -89,8 +89,8 @@ theorem passFrom_supported (position : Nat) (script : List (Resolved.Statement �
   | nil => rfl
   | cons entry rest ih =>
     obtain ⟨statement, parameters⟩ := entry
-    cases h : advanceWith position statement state
-        (runStatement (state.clock position) parameters statement state.database).effect with
+    cases h : advanceRun position statement state
+        (SqlState.statementRun state (state.clock position) parameters statement) with
     | next next => simp [passFrom, supportedSqlFrom, h, ih]
     | halt outcome => simp [passFrom, supportedSqlFrom, h]
 

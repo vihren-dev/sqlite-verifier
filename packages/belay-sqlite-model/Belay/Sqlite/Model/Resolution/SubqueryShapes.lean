@@ -91,7 +91,7 @@ mutual
 names ({name}`SubqueryShape.lowest`); none when it reads no cell. -/
 def Resolved.Expr.lowestRead (shapes : SubqueryShapes) : Resolved.Expr → Option Nat
   | .column position => some position
-  | .literal _ | .now _ | .aggregateValue _ | .parameter _ => none
+  | .literal _ | .now _ | .aggregateValue _ | .parameter _ | .counter _ => none
   | .exists index | .subquery index => (shapes.find index).bind (·.lowest)
   | .inQuery operand index .. => minPosition (operand.lowestRead shapes) ((shapes.find index).bind (·.lowest))
   | .compare _ _ left right _ | .and left right | .or left right | .arithmetic _ left right | .coalesce left right =>

@@ -50,7 +50,7 @@ theorem Effect.satisfies_and {first second third fourth : Database → Prop} {ef
   fun database kept => ⟨one database kept, two database kept, three database kept, four database kept⟩
 
 /-- The statement theorem of the four atoms together, in the form of {name}`StatementKeeps`, for the
-condition {name}`Resolved.Statement.AtomsCondition`. For every clock value, parameter list,
+condition {name}`Resolved.Statement.AtomsCondition`. For every clock value, counters, parameter list,
 resolved statement and database: if the database satisfies {name}`Database.ConstraintAtoms` and the
 statement meets its condition on the database, the effect of {name}`runStatement` satisfies
 {name}`Database.ConstraintAtoms` ({name}`Effect.Satisfies`): the database of a success, and the
@@ -60,11 +60,11 @@ any other reason requires nothing. Proof sketch: {name}`Effect.satisfies_and` of
 {name}`runStatement_keysUnique`. -/
 theorem constraintAtoms_statementKeeps :
     StatementKeeps Database.ConstraintAtoms fun statement database => statement.AtomsCondition database :=
-  fun clock parameters statement _ atoms condition =>
-    Effect.satisfies_and (runStatement_notNull clock parameters statement atoms.1 condition.2.1)
-      (runStatement_typesFit clock parameters statement atoms.2.1 condition.2.2.1)
-      (runStatement_checksHold clock parameters statement atoms.2.2.1 condition.2.2.2)
-      (runStatement_keysUnique clock parameters statement atoms.2.2.2
+  fun clock counters parameters statement _ atoms condition =>
+    Effect.satisfies_and (runStatement_notNull clock counters parameters statement atoms.1 condition.2.1)
+      (runStatement_typesFit clock counters parameters statement atoms.2.1 condition.2.2.1)
+      (runStatement_checksHold clock counters parameters statement atoms.2.2.1 condition.2.2.2)
+      (runStatement_keysUnique clock counters parameters statement atoms.2.2.2
         (Resolved.Statement.keysCondition_of_runCondition condition.1))
 
 /-- For the given position, script and state, each statement that {name}`runSqlFrom` reaches meets

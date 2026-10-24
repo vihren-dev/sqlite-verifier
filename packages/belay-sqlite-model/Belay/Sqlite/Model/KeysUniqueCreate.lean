@@ -87,13 +87,13 @@ theorem Database.KeysUnique.append {database : Database} (unique : database.Keys
     rw [empty]
     exact List.Pairwise.nil
 
-/-- For every clock value, parameter list, CREATE TABLE and database: if the database satisfies
+/-- For every clock value, counters, parameter list, CREATE TABLE and database: if the database satisfies
 {name}`Database.KeysUnique`, the effect of {name}`runStatement` satisfies
 {name}`Effect.KeysUnique`. The new table has no rows. Proof sketch:
 {name}`Database.KeysUnique.append` of a table entry, which is no index. -/
-theorem runStatement_createTable_keysUnique (clock : Int) (parameters : List Value) (target : Nat) (name : Identifier)
+theorem runStatement_createTable_keysUnique (clock : Int) (counters : Counters) (parameters : List Value) (target : Nat) (name : Identifier)
     (shape : CatalogTable) {database : Database} (unique : database.KeysUnique) :
-    (runStatement clock parameters (.createTable target name shape) database).effect.KeysUnique := by
+    (runStatement clock counters parameters (.createTable target name shape) database).effect.KeysUnique := by
   simp only [runStatement, step]
   split
   · rename_i fits
@@ -101,13 +101,13 @@ theorem runStatement_createTable_keysUnique (clock : Int) (parameters : List Val
     exact Effect.keysUnique_of_effectDatabase (unique.append fits.2 _ fun _ _ entry => by cases entry)
   · exact Effect.keysUnique_of_database unique rfl
 
-/-- For every clock value, parameter list, CREATE TRIGGER and database: if the database
+/-- For every clock value, counters, parameter list, CREATE TRIGGER and database: if the database
 satisfies {name}`Database.KeysUnique`, the effect of {name}`runStatement` satisfies
 {name}`Effect.KeysUnique`. A trigger has no key. Proof sketch:
 {name}`Database.KeysUnique.append` of a trigger entry, which is no index. -/
-theorem runStatement_createTrigger_keysUnique (clock : Int) (parameters : List Value) (target : Nat) (name : Identifier)
+theorem runStatement_createTrigger_keysUnique (clock : Int) (counters : Counters) (parameters : List Value) (target : Nat) (name : Identifier)
     (trigger : CatalogTrigger) {database : Database} (unique : database.KeysUnique) :
-    (runStatement clock parameters (.createTrigger target name trigger) database).effect.KeysUnique := by
+    (runStatement clock counters parameters (.createTrigger target name trigger) database).effect.KeysUnique := by
   simp only [runStatement, step]
   split
   · rename_i fits
@@ -115,14 +115,14 @@ theorem runStatement_createTrigger_keysUnique (clock : Int) (parameters : List V
     exact Effect.keysUnique_of_effectDatabase (unique.append fits.2 _ fun _ _ entry => by cases entry)
   · exact Effect.keysUnique_of_database unique rfl
 
-/-- For every clock value, parameter list, CREATE INDEX and database: if the database satisfies
+/-- For every clock value, counters, parameter list, CREATE INDEX and database: if the database satisfies
 {name}`Database.KeysUnique`, the effect of {name}`runStatement` satisfies
 {name}`Effect.KeysUnique`. A unique index is created only when no two rows of its table conflict
 on its key ({name}`LiteralData.uniqueRows`). Proof sketch: {name}`Database.KeysUnique.append`,
 with {name}`uniqueRows_iff` for the key of the new index. -/
-theorem runStatement_createIndex_keysUnique (clock : Int) (parameters : List Value) (target : Nat) (name : Identifier)
+theorem runStatement_createIndex_keysUnique (clock : Int) (counters : Counters) (parameters : List Value) (target : Nat) (name : Identifier)
     (index : CatalogIndex) {database : Database} (unique : database.KeysUnique) :
-    (runStatement clock parameters (.createIndex target name index) database).effect.KeysUnique := by
+    (runStatement clock counters parameters (.createIndex target name index) database).effect.KeysUnique := by
   simp only [runStatement, step]
   split
   · rename_i fits

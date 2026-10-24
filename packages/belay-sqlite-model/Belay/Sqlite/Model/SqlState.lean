@@ -1,14 +1,15 @@
+import Belay.Sqlite.Model.Counters
 import Belay.Sqlite.Model.Execution
 
 set_option doc.verso true
 
 /-! The connection state of script-directed SQL execution: the visible database, the
-snapshot of an open transaction and the clock assignment, the transitions of one
+snapshot of an open transaction, the clock assignment and the counters, the transitions of one
 statement, and the one path that publishes a statement's effect (ADR 0013, D8). -/
 
 namespace Belay.Sqlite.Model
 
-/-- The current connection view, optional transaction snapshot and clock assignment.
+/-- The current connection view, optional transaction snapshot, clock assignment and counters.
 Supply a database and omit the snapshot for an idle connection. -/
 structure SqlState where
   /-- Current connection-visible storage. -/
@@ -18,6 +19,10 @@ structure SqlState where
   /-- The clock value of the statement at each zero-based position, in SQLite's Julian-day
   milliseconds; 0 at every position by default, for a script that reads no clock. -/
   clock : Nat → Int := fun _ => 0
+  /-- The counters that {lit}`changes()`, {lit}`total_changes()` and {lit}`last_insert_rowid()`
+  read ({name}`Counters`); unknown by default. A rollback restores the database and leaves
+  them. -/
+  counters : Counters := {}
 
 /-- Attach an open transaction to a terminal result. A success becomes pending
 without an error; a failure becomes pending with its position/error. An existing

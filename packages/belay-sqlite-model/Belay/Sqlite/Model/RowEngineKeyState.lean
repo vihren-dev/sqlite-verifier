@@ -19,10 +19,12 @@ def KeyState.Holds (fact : Catalog → Nat → Table → Prop) (catalog : Catalo
 
 /-- For the given fact, catalog and stop of the row engine: a stop with the FAIL or ROLLBACK
 algorithm carries a state that satisfies {name}`KeyState.Holds`. A stop with an error of
-the statement and an undescribed stop require nothing: they keep no state. -/
+the statement and an undescribed stop require nothing. The error stop carries the state of the
+failure for its counts (ADR 0024, D2), but it keeps no rows, so the invariant does not constrain
+that state. -/
 def KeyStop.Holds (fact : Catalog → Nat → Table → Prop) (catalog : Catalog) : KeyStop → Prop
   | .stopped _ state => state.Holds fact catalog
-  | .error _ | .undescribed => True
+  | .error _ _ | .undescribed => True
 
 /-- For the given properties of values and of stops, and a result: a success has a value with
 the first property, and a stop has the second. -/

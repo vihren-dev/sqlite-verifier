@@ -1,4 +1,5 @@
 import Belay.Sqlite.Model.SqlLaws
+import Belay.Sqlite.Model.ScriptLaws
 import Belay.Sqlite.Model.SqlExecution
 import Belay.Sqlite.Model.DatabaseLaws
 
@@ -10,42 +11,52 @@ set_option maxHeartbeats 2000000
 namespace Belay.Sqlite.Model.Conformance
 
 /-- Each statement in the body is non-control and succeeds at its position, at the clock
-value of the clock assignment for that position and with the values bound to its parameters,
-as {name}`advance` runs it. The remaining
-body starts from its resulting database. An empty body requires nothing of the database.
-Use this predicate to state successful-body laws. -/
-inductive SuccessfulBody (clock : Nat → Int) : Nat → List (Resolved.Statement × List Value) → Database → Prop where
-  /-- Every position and database admit an empty successful body; no statement premise is required. -/
-  | nil : SuccessfulBody clock position [] database
+value of the clock assignment for that position, with the counters of the connection that it reads
+({name}`Counters.view`) and with the values bound to its parameters, as {name}`advance` runs it. The
+remaining body starts from its resulting database and from the counters after the counts of the
+statement ({name}`Counters.apply`). An empty body requires nothing of the database. Use this
+predicate to state successful-body laws. -/
+inductive SuccessfulBody (clock : Nat → Int) :
+    Counters → Nat → List (Resolved.Statement × List Value) → Database → Prop where
+  /-- Every counters, position and database admit an empty successful body; no statement premise is
+  required. -/
+  | nil : SuccessfulBody clock counters position [] database
   /-- A non-control statement that succeeds, followed by a successful tail, forms a successful body. -/
   | cons (ordinary : statement.isControl = false)
-      (success : literalStep (clock position) parameters statement database = .ok next)
-      (tail : SuccessfulBody clock (position + 1) rest next) :
-      SuccessfulBody clock position ((statement, parameters) :: rest) database
+      (success : (runStatement (clock position) (counters.view statement.counterReads) parameters statement
+        database).effect = .ok next)
+      (tail : SuccessfulBody clock
+        (counters.apply (runStatement (clock position) (counters.view statement.counterReads) parameters statement
+          database).counts) (position + 1) rest next) :
+      SuccessfulBody clock counters position ((statement, parameters) :: rest) database
 
-/-- For any clock assignment, position, body, current database, original snapshot and values of
+/-- For any clock assignment, counters, position, body, current database, original snapshot and values of
 the ROLLBACK, if {name}`SuccessfulBody` holds, running the body followed by ROLLBACK with that
-snapshot and clock assignment returns success with exactly the original database.
+snapshot, clock assignment and counters returns success with exactly the original database.
 
 The proof inducts over the successful body. Each non-control step preserves
 the snapshot; the final ROLLBACK restores it. -/
-theorem body_rollback (success : SuccessfulBody clock position body database) :
-    runSqlFrom position (body ++ [(.rollback, rollbackValues)]) { database, snapshot := some original, clock } =
-      .success original := by
+theorem body_rollback (success : SuccessfulBody clock counters position body database) :
+    runSqlFrom position (body ++ [(.rollback, rollbackValues)])
+      { database, snapshot := some original, clock, counters } = .success original := by
   induction success with
-  | nil => simp [runSqlFrom, advance, advanceWith, SqlState.finish]
-  | @cons position parameters statement database next rest ordinary success tail ih =>
-    cases statement <;> simp_all [Resolved.Statement.isControl, runSqlFrom, advance, advanceWith, SqlState.publish]
+  | nil =>
+    simp [runSqlFrom, advance, advanceRun, advanceWith, SqlState.statementRun, runStatement, SqlState.finish,
+      SqlTransition.counted]
+  | cons ordinary success tail ih =>
+    rw [List.cons_append, runSqlFrom_cons, advance_effect _ _ _ _ ordinary]
+    simp only [SqlState.statementRun, success, SqlState.publish, SqlTransition.counted]
+    exact ih
 
 /-- For any body, database and values of the BEGIN and the ROLLBACK, if
-{name}`SuccessfulBody` holds at position 1 at the clock value 0, BEGIN followed by the body and
+{name}`SuccessfulBody` holds at position 1 at the clock value 0 and unknown counters, BEGIN followed by the body and
 ROLLBACK returns success with that database.
 
 The proof unfolds BEGIN and applies {name}`body_rollback` with the initial
 database as the transaction snapshot. -/
-theorem rollback (success : SuccessfulBody (fun _ => 0) 1 body database) :
+theorem rollback (success : SuccessfulBody (fun _ => 0) {} 1 body database) :
     runSql ((.begin, beginValues) :: body ++ [(.rollback, rollbackValues)]) database = .success database := by
-  simpa [runSql, runSqlFrom, advance, advanceWith] using body_rollback (original := database) success
+  simpa [runSql, runSqlFrom, advance, advanceRun, advanceWith, SqlState.statementRun, runStatement, SqlTransition.counted] using body_rollback (original := database) (counters := {}) success
 
 /-- For every state, position, effect and outcome: if {name}`SqlState.publish` of the
 effect halts with the outcome, the effect is an error with some reason and reached
@@ -87,7 +98,7 @@ theorem statement_atomicity (halted : advance position statement parameters stat
     (atomic : outcome.error? ≠ some .constraintFail ∧ outcome.error? ≠ some .constraintRollback) :
     outcome.database = state.database ∧
     outcome.persistedDatabase = state.snapshot.getD state.database := by
-  cases statement <;> simp only [advance, advanceWith] at halted
+  cases statement <;> simp only [advance, advanceRun, SqlTransition.counted_eq_halt, advanceWith] at halted
   all_goals try (solve | (clear atomic; cases h : state.snapshot <;> simp_all [SqlState.finish,
     Outcome.database, Outcome.persistedDatabase, Option.getD]))
   all_goals first
@@ -96,7 +107,7 @@ theorem statement_atomicity (halted : advance position statement parameters stat
          fun failed => atomic.1 (by subst failed; exact SqlState.failed_error _ _ _ _)
        have notRollback : reason ≠ .constraintRollback :=
          fun rolled => atomic.2 (by subst rolled; exact SqlState.failed_error _ _ _ _)
-       simp only [notFail, if_false]
+       simp only [notFail, ite_false]
        exact SqlState.failed_database _ _ _ _ notRollback)
     | (clear atomic; cases hs : state.snapshot <;>
        simp_all [SqlState.finish, Outcome.database, Outcome.persistedDatabase, Option.getD] <;>
@@ -113,7 +124,7 @@ theorem constraint_rollback (halted : advance position statement parameters stat
     (rolled : outcome.error? = some .constraintRollback) :
     outcome.database = state.snapshot.getD state.database ∧
     outcome.persistedDatabase = state.snapshot.getD state.database := by
-  cases statement <;> simp only [advance, advanceWith] at halted
+  cases statement <;> simp only [advance, advanceRun, SqlTransition.counted_eq_halt, advanceWith] at halted
   all_goals try (solve | cases h : state.snapshot <;> simp_all [SqlState.finish,
     Outcome.database, Outcome.persistedDatabase, Option.getD, Outcome.error?])
   all_goals first
@@ -143,7 +154,8 @@ theorem add_column_shape (constant : column.clockDefault = false)
       (table.appendColumns [(column, value)]).rows.map Row.rowid = table.rows.map Row.rowid ∧
       (table.appendColumns [(column, value)]).rows.map Row.values =
         table.rows.map (fun row => row.values ++ [Value.store column.affinity value]) := by
-  simp only [advance, advanceWith, literalStep, runStatement, step, SqlState.publish] at success
+  rw [advance_addColumn] at success
+  simp only [SqlState.statementRun, runStatement, step, SqlState.publish] at success
   repeat (split at * <;> simp_all)
   all_goals subst_vars
   all_goals simp_all [Database.table_addColumn, Table.appendColumns, Row.appendValues, List.map_map]

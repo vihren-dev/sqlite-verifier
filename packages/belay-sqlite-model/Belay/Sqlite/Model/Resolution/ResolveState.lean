@@ -1,5 +1,6 @@
 import Belay.Sqlite.Model.Resolution.TriggerRules
 import Belay.Sqlite.Model.Resolution.StatementCatalog
+import Belay.Sqlite.Model.StatementCounterReads
 
 set_option doc.verso true
 
@@ -46,12 +47,22 @@ def ResolveState.withCatalog (state : ResolveState) (result : StatementResolutio
     Except NodeRestriction (Resolved.Statement × ResolveState) :=
   result.map fun (statement, catalog) => (statement, { state with catalog := catalog })
 
+/-- Whether a write reads a counter that the model does not describe in it
+({name}`RestrictionKind.connectionCounterRead`): {lit}`last_insert_rowid()` in an INSERT or an
+upsert, or {lit}`total_changes()` in a write that runs a trigger program or the action of a
+foreign key. -/
+def Resolved.Statement.readsCounterInWrite (statement : Resolved.Statement) (runsOtherRows : Bool) : Bool :=
+  let reads := statement.counterReads
+  (reads.contains .lastInsertRowid && statement matches .insert .. | .upsert ..) ||
+    (reads.contains .totalChanges && runsOtherRows)
+
 /-- The state after a write ({name}`ResolveState.withCatalog`): with
 foreign keys on, the write checks its keys ({name}`foreignKeyCheck`); it gets the programs of the
 triggers that it may fire ({name}`triggerPrograms`) with the settings, whose writes check their
 keys with foreign keys on; and with a key to check or a program, the rules that it runs row by
 row ({name}`Resolved.Statement.withRules`), with the profile's trigger depth limit and the
-settings. A prepare error of its keys or of a program leaves the state as it was. -/
+settings. A prepare error of its keys or of a program leaves the state as it was. A counter read that
+the model does not describe in the write is a restriction ({name}`Resolved.Statement.readsCounterInWrite`). -/
 def ResolveState.withWrite (context : ResolveContext) (state : ResolveState)
     (result : StatementResolution) : Except NodeRestriction (Resolved.Statement × ResolveState) := do
   let (statement, next) ← state.withCatalog result
@@ -62,7 +73,12 @@ def ResolveState.withWrite (context : ResolveContext) (state : ResolveState)
     match ← triggerPrograms context state.catalog state.foreignKeys state.recursiveTriggers statement with
     | .error error => return (.prepareError error, state)
     | .ok programs =>
-      if keys || !programs.isEmpty then
+      let actions := if state.foreignKeys then
+        ((statement.fireRequest true).map fun request => request.keyRequests state.catalog state.catalog.foreignKeyLinks).getD []
+        else []
+      if statement.readsCounterInWrite (!programs.isEmpty || !actions.isEmpty) then
+        throw { path := [], kind := .connectionCounterRead }
+      else if keys || !programs.isEmpty then
         let rules : Resolved.WriteRules :=
           { depth := context.profile.limits.triggerDepth, keys := state.foreignKeys,
             recursive := state.recursiveTriggers, programs }

@@ -32,10 +32,10 @@ def errorOf : Effect → Option ExecutionError
   | .ok _ => none
 
 /-- INSERT of the rows into the table. -/
-def insert (rows : List (List Value)) : Effect := literalStep 0 [] (.insert 0 (rows.map (·.map .value)) []) database
+def insert (rows : List (List Value)) : Effect := literalStep 0 {} [] (.insert 0 (rows.map (·.map .value)) []) database
 
 /-- UPDATE of the alias to the value. -/
-def update (value : Value) : Effect := literalStep 0 [] (.update 0 [(0, .literal value)] none []) database
+def update (value : Value) : Effect := literalStep 0 {} [] (.update 0 [(0, .literal value)] none []) database
 
 -- A NULL alias takes the next rowid, also into its cell; an integer alias is the rowid.
 #guard rowsAfter (insert [[.null, .text [98]], [.integer (-3), .text [99]]]) ==

@@ -52,13 +52,13 @@ def runPassFrom (context : ResolveContext) (clock : Option Clock) (index : Nat) 
     List (Syntax.Statement × List Value) → RunPass
   | [] => { observations := [], outputs := [], possible := [], results := [], supported := true }
   | (statement, parameters) :: rest =>
-    runScriptStepWith RunPass.ended (fun resolved foreignKeys value transition =>
-      match ranScriptStep parameters connection resolved foreignKeys value transition with
+    runScriptStepWith RunPass.ended (fun resolved foreignKeys value run transition =>
+      match ranScriptStep parameters connection resolved foreignKeys value run transition with
       | .ended reason => RunPass.ended reason
       | .continued output next =>
         let later := runPassFrom context clock (index + 1) next rest
         { observations := observeStep index next transition :: later.observations,
-          outputs := statementOutput value parameters resolved connection.state transition :: later.outputs,
+          outputs := statementOutput value parameters resolved connection.state run transition :: later.outputs,
           possible := possibleOutput value parameters resolved connection.state transition :: later.possible,
           results := output :: later.results, supported := later.supported })
       context clock index connection statement parameters

@@ -27,8 +27,8 @@ MUTANTS: dict[str, tuple[str, str, str]] = {
         "  stored.zipIdx.map fun ((column, position), cid) => tableInfoRow table cid position column",
         "  stored.map fun (column, position) => tableInfoRow table position position column"),
     "replace_delete_fires_nothing": (INSERT,
-        "target false false frame.recursive state row.rowid)",
-        "target false false false state row.rowid)"),
+        "target false false frame.recursive state row.rowid",
+        "target false false false state row.rowid"),
 }
 """Each mutant: the file under `packages/`, the exact text it changes, and the replacement.
 The names follow the list of the task: `fkid` in declaration order, `foreign_key_check` that
@@ -47,7 +47,7 @@ GUARDS: dict[str, str] = {
     "fkid_declaration_order": "rule:Database.keyCheckRows",
     "missing_parent_skipped": "rule:ForeignKeyLink.satisfied",
     "cid_counts_generated": "rule:CatalogTable.infoRows",
-    "replace_delete_fires_nothing": "rule:insertRow",
+    "replace_delete_fires_nothing": "rule:replaceDelete",
 }
 """What each mutant guards: `rule:` and the Lean declaration of its file that the mutant
 changes. `conformance.mutant_guards` checks every entry."""

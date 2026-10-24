@@ -56,11 +56,11 @@ example : (shop.run (closeZero ++ openInvoices)).outputs = [.done 1, .rows [[1, 
   decide +kernel
 
 -- "Scripts": `Script.run_append` for `shop`. `closeZero` ends outside a transaction, leaves
--- foreign keys and recursive triggers off, and has no `Output.unmodeled`, so `openInvoices` runs on its database.
+-- foreign keys and recursive triggers off, and has no `Output.unmodeled`, and `openInvoices` has none on its database.
 example : (shop.run (closeZero ++ openInvoices)).outputs =
     (shop.run closeZero).outputs ++ ((shop.run closeZero).db.run openInvoices).outputs :=
   Script.run_append shop closeZero openInvoices (by decide +kernel) (by decide +kernel)
-    (by decide +kernel) (by decide +kernel)
+    (by decide +kernel) (by decide +kernel) (by decide +kernel)
 
 /-- An INSERT that succeeds, an INSERT that fails on the PRIMARY KEY, and a query. -/
 def failsSecond : Script := sql r"

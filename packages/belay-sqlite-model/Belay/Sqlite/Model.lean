@@ -59,6 +59,12 @@ import Belay.Sqlite.Model.PossibleOutput
 import Belay.Sqlite.Model.ScriptRunLaws
 import Belay.Sqlite.Model.ScriptRunStates
 import Belay.Sqlite.Model.ScriptRunAppend
+import Belay.Sqlite.Model.StatementCountersLaws
+import Belay.Sqlite.Model.ScriptRunCounters
+import Belay.Sqlite.Model.Counters
+import Belay.Sqlite.Model.PlainCounts
+import Belay.Sqlite.Model.SqlCounted
+import Belay.Sqlite.Model.SqlAdvance
 import Belay.Sqlite.Model.ScriptRunFailure
 import Belay.Sqlite.Model.FailingConstraintLaws
 import Belay.Sqlite.Model.ExecutionMessages

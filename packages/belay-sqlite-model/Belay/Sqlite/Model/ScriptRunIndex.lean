@@ -56,27 +56,42 @@ theorem SqlTransition.atPosition_of_haltError (position : Nat) {transition : Sql
     | failure _ _ _ => simp [haltError] at none
     | pending _ _ error => cases error <;> simp_all [haltError, SqlTransition.atPosition, Outcome.atPosition]
 
-/-- For every clock value, list of values, statement, state, position and transition, the
+/-- For every clock value, list of values, statement, state, run, position and transition, the
 output of the step ({name}`Output.ofStep`) is the same with the failure positions set to the position. Proof sketch:
 with a halt error, the output reads only the error ({name}`haltError_atPosition`); without one,
 the transition has no failure position ({name}`SqlTransition.atPosition_of_haltError`). -/
 @[simp] theorem Output.ofStep_atPosition (clock : Int) (parameters : List Value) (statement : Resolved.Statement)
-    (before : SqlState) (position : Nat) (transition : SqlTransition) :
-    Output.ofStep clock parameters statement before (transition.atPosition position) =
-      Output.ofStep clock parameters statement before transition := by
+    (before : SqlState) (run : StatementRun) (position : Nat) (transition : SqlTransition) :
+    Output.ofStep clock parameters statement before run (transition.atPosition position) =
+      Output.ofStep clock parameters statement before run transition := by
   cases error : haltError transition with
   | none => rw [SqlTransition.atPosition_of_haltError position error]
   | some failure => simp only [Output.ofStep, haltError_atPosition, error]; cases failure <;> rfl
 
-/-- For every connection, resolution state, position and transition, the connection after the step
+/-- For every connection, resolution state, counts, position and transition, the connection after the step
 ({name}`Connection.afterStep`) is the same with the failure positions set to the position: it
 reads no failure position. -/
-@[simp] theorem Connection.afterStep_atPosition (connection : Connection) (after : ResolveState) (position : Nat)
-    (transition : SqlTransition) :
-    connection.afterStep after (transition.atPosition position) = connection.afterStep after transition := by
+@[simp] theorem Connection.afterStep_atPosition (connection : Connection) (after : ResolveState) (counts : Counts)
+    (position : Nat) (transition : SqlTransition) :
+    connection.afterStep after counts (transition.atPosition position) = connection.afterStep after counts transition := by
   cases transition with
   | next _ => rfl
   | halt outcome => cases outcome <;> rfl
+
+/-- For every counts, position and transition, applying the counts and setting the failure
+positions to the position commute. Proof sketch: case analysis on the transition. -/
+theorem SqlTransition.counted_atPosition (counts : Counts) (position : Nat) (transition : SqlTransition) :
+    (transition.atPosition position).counted counts = (transition.counted counts).atPosition position := by
+  cases transition <;> rfl
+
+/-- For all positions, a statement, a state and a run: the transition after the run at the second
+position is the transition at the first position with its failure positions set to the second.
+Proof sketch: {name}`advanceWith_atPosition`, and the counts commute with the failure positions
+({name}`SqlTransition.counted_atPosition`). -/
+theorem advanceRun_atPosition (first second : Nat) (statement : Resolved.Statement) (state : SqlState)
+    (run : StatementRun) :
+    advanceRun second statement state run = (advanceRun first statement state run).atPosition second := by
+  simp only [advanceRun, advanceWith_atPosition first second, SqlTransition.counted_atPosition]
 
 /-- For every optional clock, two indexes and resolved statement: if the clock, when the run
 has one, gives the same value at both indexes, the statement's clock value
@@ -98,7 +113,7 @@ theorem runScriptStep_index (context : ResolveContext) (clock : Option Clock) (f
     (same : ∀ assignment ∈ clock, assignment first = assignment second) :
     runScriptStep context clock first connection statement parameters =
       runScriptStep context clock second connection statement parameters := by
-  simp only [runScriptStep, runScriptStepWith, ranScriptStep, statementClock_index same, advanceWith_atPosition second first, Output.ofStep_atPosition,
+  simp only [runScriptStep, runScriptStepWith, ranScriptStep, statementClock_index same, advanceRun_atPosition second first, Output.ofStep_atPosition,
     Connection.afterStep_atPosition]
 
 /-- For every state, position, effect and next state: if the effect's transition
@@ -121,16 +136,30 @@ theorem advanceWith_clock {position : Nat} {statement : Resolved.Statement} {sta
     | exact SqlState.publish_clock continued
     | (cases snapshot : state.snapshot <;> simp [advanceWith, snapshot] at continued <;> subst continued <;> rfl)
 
-/-- For every connection, resolution state, position, statement and effect, the connection after the
+/-- For every position, statement, values, state and next state: if {name}`advance` continues
+with the next state, the next state has the clock of the state. Proof sketch: the transition
+before the counts continues with a state ({name}`advance_eq_next`), which has the clock
+({name}`advanceWith_clock`); the counts change only the counters. -/
+theorem advance_clock {position : Nat} {statement : Resolved.Statement} {parameters : List Value}
+    {state next : SqlState} (continued : advance position statement parameters state = .next next) :
+    next.clock = state.clock := by
+  obtain ⟨transitioned, reached, same⟩ := advance_eq_next continued
+  have clock := advanceWith_clock reached
+  rw [same]
+  exact clock
+
+/-- For every connection, resolution state, position, statement and run, the connection after the
 statement's transition ({name}`Connection.afterStep`) has the clock of the connection. Proof
-sketch: a transition that continues keeps the clock ({name}`advanceWith_clock`); after a halt,
-{name}`Connection.afterError` builds the state with the connection's clock. -/
+sketch: a transition that continues keeps the clock ({name}`advanceWith_clock`), also with the
+counts applied; after a halt, {name}`Connection.afterError` builds the state with the connection's
+clock. -/
 theorem Connection.afterStep_clock (connection : Connection) (after : ResolveState) (position : Nat)
-    (statement : Resolved.Statement) (effect : Effect) :
-    (connection.afterStep after (advanceWith position statement connection.state effect)).state.clock =
+    (statement : Resolved.Statement) (run : StatementRun) :
+    (connection.afterStep after run.counts (advanceRun position statement connection.state run)).state.clock =
       connection.state.clock := by
-  cases transition : advanceWith position statement connection.state effect with
-  | next state => exact advanceWith_clock transition
+  unfold advanceRun
+  cases transition : advanceWith position statement connection.state run.effect with
+  | next state => simpa [SqlTransition.counted, Connection.afterStep] using advanceWith_clock transition
   | halt outcome => cases outcome <;> rfl
 
 /-- For every context, optional clock, index, connection, statement and list of values: if the
@@ -148,9 +177,11 @@ theorem runScriptStep_continued {context : ResolveContext} {clock : Option Clock
   · cases continued
   · split at continued
     · cases continued
-    · dsimp only at continued
-      split at continued
+    · split at continued
       · cases continued
-      · split at continued <;> cases continued <;> exact ⟨Connection.afterStep_clock .., rfl⟩
+      · dsimp only at continued
+        split at continued
+        · cases continued
+        · split at continued <;> cases continued <;> exact ⟨Connection.afterStep_clock .., rfl⟩
 
 end Belay.Sqlite.Model

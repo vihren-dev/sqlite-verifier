@@ -38,7 +38,7 @@ def compound (operators : List CompoundOperator) (collations : List Collation) :
 with the values of its parameters, over an empty database at clock 0. -/
 def runOf (query : Query) (terms : List Query) (parameters : List Value := []) :
     Option (List (List Value) × Fault × Bool × Bool) :=
-  (query.runOn 0 parameters (.ofTables []) terms).map fun (_, run) => (run.rows, run.fault, run.overflow, run.mismatch)
+  (query.runOn 0 {} parameters (.ofTables []) terms).map fun (_, run) => (run.rows, run.fault, run.overflow, run.mismatch)
 
 -- SELECT 1 UNION SELECT 2 INTERSECT SELECT 2: the operators apply from left to right.
 example : runOf (compound [.union, .intersect] [.binary]) [literals [int 1], literals [int 2], literals [int 2]] =

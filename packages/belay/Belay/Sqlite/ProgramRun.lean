@@ -80,10 +80,11 @@ def Run.checked {α : Type} (start : Database) (result : SqlRun α) : Run α :=
 
 /-- Run the program on the database in the environment, from the idle connection to the
 database, with the check of the database at the end ({name}`Run.checked` of
-{name}`Sql.runFrom`). Use {name}`Env.default`, the value when {lit}`env` is not given, when no
-statement reads the clock. -/
+{name}`Sql.runFrom`), from the counters of the environment. Use {name}`Env.default`, the value when
+{lit}`env` is not given, when no statement reads the clock or a counter that the program does not
+set first. -/
 def Sql.run {α : Type} (program : Sql α) (db : Database) (env : Env := Env.default) : Run α :=
-  Run.checked db (program.runFrom env.clock 0 db.raw.connection)
+  Run.checked db (program.runFrom env.clock 0 (db.raw.connection env.counters))
 
 /-- The things that {lit}`db.run` runs: a program of type {lit}`Sql α` itself (the default
 instance, so that a {lit}`do` block is a program), and a script, which is the program

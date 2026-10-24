@@ -108,15 +108,15 @@ theorem Database.KeysUnique.drop {database : Database} (unique : database.KeysUn
         exact List.mem_filterMap.mpr ⟨_, List.mem_of_getElem? atPlace, by simp [sameTable, onTable.2]; rfl⟩
       · simp at gives
 
-/-- For every clock value, parameter list, DROP without foreign key rules and trigger programs
+/-- For every clock value, counters, parameter list, DROP without foreign key rules and trigger programs
 ({lean}`(none : Option Resolved.WriteRules)`) and database: if the database satisfies
 {name}`Database.KeysUnique` and its catalog meets the condition of DROP at the positions
 ({name}`Catalog.DropCondition`), the effect of {name}`runStatement` satisfies
 {name}`Effect.KeysUnique`. Proof sketch: the effect is the database after
 {name}`Database.drop` ({name}`Database.KeysUnique.drop`). -/
-theorem runStatement_drop_keysUnique (clock : Int) (parameters : List Value) (positions : List Nat)
+theorem runStatement_drop_keysUnique (clock : Int) (counters : Counters) (parameters : List Value) (positions : List Nat)
     {database : Database} (unique : database.KeysUnique) (condition : database.catalog.DropCondition positions) :
-    (runStatement clock parameters (.drop positions none) database).effect.KeysUnique := by
+    (runStatement clock counters parameters (.drop positions none) database).effect.KeysUnique := by
   simp only [runStatement, Option.map_none, StatementRun.withKeys, step]
   exact Effect.keysUnique_of_effectDatabase (unique.drop condition)
 

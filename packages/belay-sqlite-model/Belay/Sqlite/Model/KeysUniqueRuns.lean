@@ -34,7 +34,7 @@ theorem RunConditions.of_unconditioned (position : Nat) (script : List (Resolved
     state all
 
 /-- The statement theorem of "keys unique" in the form of {name}`StatementKeeps`, for the run
-condition of a statement. For every clock value, parameter list, resolved statement and database:
+condition of a statement. For every clock value, counters, parameter list, resolved statement and database:
 if the database satisfies {name}`Database.KeysUnique` and the statement meets its run condition
 ({name}`Resolved.Statement.RunCondition`) on the database, the effect of {name}`runStatement`
 satisfies {name}`Database.KeysUnique` ({name}`Effect.Satisfies`): the database of a success, and
@@ -43,8 +43,8 @@ with any other reason requires nothing. Proof sketch: {name}`runStatement_keysUn
 {name}`Resolved.Statement.keysCondition_of_runCondition`. -/
 theorem keysUnique_statementKeeps :
     StatementKeeps Database.KeysUnique fun statement database => statement.RunCondition database :=
-  fun clock parameters statement _ unique condition =>
-    runStatement_keysUnique clock parameters statement unique
+  fun clock counters parameters statement _ unique condition =>
+    runStatement_keysUnique clock counters parameters statement unique
       (Resolved.Statement.keysCondition_of_runCondition condition)
 
 /-- The run theorem of {name}`runSqlFrom`. For every position, script and state: if the state

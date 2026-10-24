@@ -81,7 +81,7 @@ def rowsOf (statement : Syntax.Statement) : Option (List (List Value)) :=
   match migration tables (filled ++ [statement]) with
   | .resolved resolved _ =>
     match resolved.getLast?, runSql (bindValues resolved.dropLast []) tables.emptyDatabase with
-    | some (.query query subqueries), .success database => (query.runOn 0 [] database subqueries).map (·.2.rows)
+    | some (.query query subqueries), .success database => (query.runOn 0 {} [] database subqueries).map (·.2.rows)
     | some (.query ..), .failure .. | some (.query ..), .pending .. => none
     | some (.createTable ..), _ | some (.createIndex ..), _ | some (.createTrigger ..), _ | some (.addColumn ..), _
     | some (.drop ..), _ | some (.setting ..), _ | some .begin, _ | some .commit, _ | some .rollback, _

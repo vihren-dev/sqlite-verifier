@@ -37,7 +37,7 @@ def Resolved.Statement.ChecksHoldCondition (database : Database) : Resolved.Stat
   | .createTable .. | .createIndex .. | .createTrigger .. | .drop .. | .begin | .commit | .rollback | .insert ..
   | .update .. | .upsert .. | .delete .. | .prepareError _ | .query .. | .setting _ _ => True
 
-/-- The statement theorem of "not null". For every clock value, parameter list, resolved statement
+/-- The statement theorem of "not null". For every clock value, counters, parameter list, resolved statement
 and database: if the database satisfies {name}`Database.NotNull` and the statement meets its
 condition on the database ({name}`Resolved.Statement.NotNullCondition`), the effect of
 {name}`runStatement` satisfies {name}`Database.NotNull` ({name}`Effect.Satisfies`): the database of
@@ -45,15 +45,15 @@ a success, and the database that an error with {name}`ExecutionError.constraintF
 satisfy it. An error with any other reason requires nothing. It assumes nothing about the
 connection, the support check ({lit}`ready`), the clock or the other atoms. Proof sketch: {name}`runStatement_rowLocal` for {name}`Table.notNullAtom`, with
 {name}`Table.NotNull.appendColumn` for ADD COLUMN. -/
-theorem runStatement_notNull (clock : Int) (parameters : List Value) (statement : Resolved.Statement)
+theorem runStatement_notNull (clock : Int) (counters : Counters) (parameters : List Value) (statement : Resolved.Statement)
     {database : Database} (notNull : database.NotNull) (condition : statement.NotNullCondition database) :
-    (runStatement clock parameters statement database).effect.Satisfies Database.NotNull :=
-  runStatement_rowLocal Table.notNullAtom clock parameters statement notNull
+    (runStatement clock counters parameters statement database).effect.Satisfies Database.NotNull :=
+  runStatement_rowLocal Table.notNullAtom clock counters parameters statement notNull
     fun _ column same table _ found added => by
       subst same
       exact (notNull _ table found).appendColumn (condition table found) added
 
-/-- The statement theorem of "types fit". For every clock value, parameter list, resolved statement
+/-- The statement theorem of "types fit". For every clock value, counters, parameter list, resolved statement
 and database: if the database satisfies {name}`Database.TypesFit` and the statement meets its
 condition on the database ({name}`Resolved.Statement.TypesFitCondition`), the effect of
 {name}`runStatement` satisfies {name}`Database.TypesFit` ({name}`Effect.Satisfies`): the database of
@@ -61,15 +61,15 @@ a success, and the database that an error with {name}`ExecutionError.constraintF
 satisfy it. An error with any other reason requires nothing. It assumes nothing about the
 connection, the support check ({lit}`ready`), the clock or the other atoms. Proof sketch: {name}`runStatement_rowLocal` for {name}`Table.typesFitAtom`, with
 {name}`Table.TypesFit.appendColumn` for ADD COLUMN. -/
-theorem runStatement_typesFit (clock : Int) (parameters : List Value) (statement : Resolved.Statement)
+theorem runStatement_typesFit (clock : Int) (counters : Counters) (parameters : List Value) (statement : Resolved.Statement)
     {database : Database} (fits : database.TypesFit) (condition : statement.TypesFitCondition database) :
-    (runStatement clock parameters statement database).effect.Satisfies Database.TypesFit :=
-  runStatement_rowLocal Table.typesFitAtom clock parameters statement fits
+    (runStatement clock counters parameters statement database).effect.Satisfies Database.TypesFit :=
+  runStatement_rowLocal Table.typesFitAtom clock counters parameters statement fits
     fun _ column same table _ found added => by
       subst same
       exact (fits _ table found).appendColumn (condition.1 table found) (condition.2 table found) added
 
-/-- The statement theorem of "checks hold". For every clock value, parameter list, resolved
+/-- The statement theorem of "checks hold". For every clock value, counters, parameter list, resolved
 statement and database: if the database satisfies {name}`Database.ChecksHold` and the statement
 meets its condition on the database ({name}`Resolved.Statement.ChecksHoldCondition`), the effect of
 {name}`runStatement` satisfies {name}`Database.ChecksHold` ({name}`Effect.Satisfies`): the database
@@ -77,10 +77,10 @@ of a success, and the database that an error with {name}`ExecutionError.constrai
 satisfy it. An error with any other reason requires nothing. It assumes nothing about the
 connection, the support check ({lit}`ready`), the clock or the other atoms. Proof sketch: {name}`runStatement_rowLocal` for {name}`Table.checksHoldAtom`, with
 {name}`Table.ChecksHold.appendColumn` for ADD COLUMN. -/
-theorem runStatement_checksHold (clock : Int) (parameters : List Value) (statement : Resolved.Statement)
+theorem runStatement_checksHold (clock : Int) (counters : Counters) (parameters : List Value) (statement : Resolved.Statement)
     {database : Database} (holds : database.ChecksHold) (condition : statement.ChecksHoldCondition database) :
-    (runStatement clock parameters statement database).effect.Satisfies Database.ChecksHold :=
-  runStatement_rowLocal Table.checksHoldAtom clock parameters statement holds
+    (runStatement clock counters parameters statement database).effect.Satisfies Database.ChecksHold :=
+  runStatement_rowLocal Table.checksHoldAtom clock counters parameters statement holds
     fun _ column same table _ found added => by
       subst same
       exact (holds _ table found).appendColumn (condition.1 table found) (condition.2 table found) added

@@ -1,0 +1,7 @@
+{
+  "date": "2026-10-23T23:20:54+00:00",
+  "finding": "20261023T231946Z-c2ec70f3#3",
+  "kind": "resolution",
+  "outcome": "deferred",
+  "reason": "The format documents describe what the recorder writes. Version 7 first exists when the recorder writes it, in the judge-change commits (PR B), which update docs/native-corpus-format.md and docs/conformance-format-v2.md with the field and its rules."
+}

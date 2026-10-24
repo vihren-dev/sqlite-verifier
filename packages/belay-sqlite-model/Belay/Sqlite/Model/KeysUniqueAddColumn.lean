@@ -170,15 +170,15 @@ theorem Database.KeysUnique.addColumn {database : Database} (unique : database.K
     simp only [Database.addColumn, Catalog.uniqueKeys_addColumn]
     exact kept
 
-/-- For every clock value, parameter list, ADD COLUMN and database: if the database satisfies
+/-- For every clock value, counters, parameter list, ADD COLUMN and database: if the database satisfies
 {name}`Database.KeysUnique` and meets the condition of ADD COLUMN at the target
 ({name}`Database.AddColumnCondition`), the effect of {name}`runStatement` satisfies
 {name}`Effect.KeysUnique`. It assumes nothing about the support check. Proof sketch: every error
 keeps the database, and a success is {name}`Database.KeysUnique.addColumn`. -/
-theorem runStatement_addColumn_keysUnique (clock : Int) (parameters : List Value) (target : Nat)
+theorem runStatement_addColumn_keysUnique (clock : Int) (counters : Counters) (parameters : List Value) (target : Nat)
     (column : CatalogColumn) {database : Database} (unique : database.KeysUnique)
     (condition : database.AddColumnCondition target) :
-    (runStatement clock parameters (.addColumn target column) database).effect.KeysUnique := by
+    (runStatement clock counters parameters (.addColumn target column) database).effect.KeysUnique := by
   simp only [runStatement, step]
   repeat' split
   all_goals first

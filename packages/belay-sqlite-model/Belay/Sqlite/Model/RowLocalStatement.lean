@@ -28,7 +28,7 @@ theorem rowsKeys_rowLocal {atom : Table → Prop} (rowLocal : RowLocalAtom atom)
   Effect.satisfies_of_effectDatabase
     (rowsKeys_holds rowLocal.facts rules clock target work (fact := fun _ _ table => atom table) every plain algorithm)
 
-/-- The statement theorem for every atom. For every atom, clock value, parameter list, resolved
+/-- The statement theorem for every atom. For every atom, clock value, counters, parameter list, resolved
 statement and database: if the atom is a {name}`RowLocalAtom`, every table of the database has it,
 and, when the statement is ADD COLUMN at a target with a column, the table at the target with the
 column and every added cell ({name}`AddedCell`) appended has the atom, the effect of
@@ -40,36 +40,36 @@ from part 1, a write with rules is a write of the row engine ({name}`rowsKeys_ro
 {name}`dropKeys_holds`), ADD COLUMN is {name}`runStatement_addColumn_rowLocal`, and a missing
 table keeps the database. -/
 theorem runStatement_rowLocal {atom : Table → Prop} (rowLocal : RowLocalAtom atom) (clock : Int)
-    (parameters : List Value) (statement : Resolved.Statement) {database : Database}
+    (counters : Counters) (parameters : List Value) (statement : Resolved.Statement) {database : Database}
     (every : database.EachTable atom)
     (appended : ∀ target column, statement = .addColumn target column → ∀ table value,
       database.table target = some table → AddedCell table column value →
         atom (table.appendColumns [(column, value)])) :
-    (runStatement clock parameters statement database).effect.Satisfies fun after => after.EachTable atom := by
+    (runStatement clock counters parameters statement database).effect.Satisfies fun after => after.EachTable atom := by
   cases statement with
-  | createTable target name shape => exact runStatement_createTable_rowLocal rowLocal clock parameters target name shape every
-  | createIndex target name index => exact runStatement_createIndex_rowLocal rowLocal clock parameters target name index every
+  | createTable target name shape => exact runStatement_createTable_rowLocal rowLocal clock counters parameters target name shape every
+  | createIndex target name index => exact runStatement_createIndex_rowLocal rowLocal clock counters parameters target name index every
   | createTrigger target name trigger =>
-    exact runStatement_createTrigger_rowLocal rowLocal clock parameters target name trigger every
+    exact runStatement_createTrigger_rowLocal rowLocal clock counters parameters target name trigger every
   | addColumn target column =>
-    exact runStatement_addColumn_rowLocal clock parameters target column every (appended target column rfl)
+    exact runStatement_addColumn_rowLocal clock counters parameters target column every (appended target column rfl)
   | drop positions rules =>
     cases rules with
-    | none => exact runStatement_drop_rowLocal clock parameters positions every
+    | none => exact runStatement_drop_rowLocal clock counters parameters positions every
     | some rules =>
       simp only [runStatement, Option.map_some, StatementRun.withKeys]
       exact Effect.satisfies_of_effectDatabase
         (dropKeys_holds rowLocal.facts rules clock positions (fact := fun _ _ table => atom table) every
           fun _ _ kept => Database.EachTable.drop kept positions)
-  | begin => exact runStatement_writesNone_rowLocal clock parameters every _ (by simp)
-  | commit => exact runStatement_writesNone_rowLocal clock parameters every _ (by simp)
-  | rollback => exact runStatement_writesNone_rowLocal clock parameters every _ (by simp)
-  | prepareError error => exact runStatement_writesNone_rowLocal clock parameters every _ (by simp)
-  | query query subqueries => exact runStatement_writesNone_rowLocal clock parameters every _ (by simp)
-  | setting setting on => exact runStatement_writesNone_rowLocal clock parameters every _ (by simp)
+  | begin => exact runStatement_writesNone_rowLocal clock counters parameters every _ (by simp)
+  | commit => exact runStatement_writesNone_rowLocal clock counters parameters every _ (by simp)
+  | rollback => exact runStatement_writesNone_rowLocal clock counters parameters every _ (by simp)
+  | prepareError error => exact runStatement_writesNone_rowLocal clock counters parameters every _ (by simp)
+  | query query subqueries => exact runStatement_writesNone_rowLocal clock counters parameters every _ (by simp)
+  | setting setting on => exact runStatement_writesNone_rowLocal clock counters parameters every _ (by simp)
   | insert target rows returning subqueries rules =>
     cases rules with
-    | none => exact runStatement_insert_rowLocal rowLocal clock parameters target rows returning subqueries every
+    | none => exact runStatement_insert_rowLocal rowLocal clock counters parameters target rows returning subqueries every
     | some rules =>
       simp only [runStatement, Option.map_some, StatementRun.withKeys]
       split
@@ -78,7 +78,7 @@ theorem runStatement_rowLocal {atom : Table → Prop} (rowLocal : RowLocalAtom a
   | update target assignments filter returning subqueries rules =>
     cases rules with
     | none =>
-      exact runStatement_update_rowLocal rowLocal clock parameters target assignments filter returning subqueries every
+      exact runStatement_update_rowLocal rowLocal clock counters parameters target assignments filter returning subqueries every
     | some rules =>
       simp only [runStatement, Option.map_some, StatementRun.withKeys]
       split
@@ -88,7 +88,7 @@ theorem runStatement_rowLocal {atom : Table → Prop} (rowLocal : RowLocalAtom a
     cases rules with
     | none =>
       exact Effect.satisfies_of_effectDatabase
-        (runStatement_upsert_rowLocal rowLocal clock parameters target rows clauses returning algorithm subqueries every)
+        (runStatement_upsert_rowLocal rowLocal clock counters parameters target rows clauses returning algorithm subqueries every)
     | some rules =>
       simp only [runStatement, Option.map_some, StatementRun.withKeys]
       split
@@ -96,7 +96,7 @@ theorem runStatement_rowLocal {atom : Table → Prop} (rowLocal : RowLocalAtom a
       · exact rowsKeys_rowLocal rowLocal rules clock target _ every _ _
   | delete target filter returning subqueries rules =>
     cases rules with
-    | none => exact runStatement_delete_rowLocal rowLocal clock parameters target filter returning subqueries every
+    | none => exact runStatement_delete_rowLocal rowLocal clock counters parameters target filter returning subqueries every
     | some rules =>
       simp only [runStatement, Option.map_some, StatementRun.withKeys]
       split

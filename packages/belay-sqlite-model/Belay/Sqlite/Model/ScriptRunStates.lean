@@ -35,12 +35,12 @@ theorem sqlStatesFrom_head (position : Nat) (script : List (Resolved.Statement �
     simp only [sqlStatesFrom]
     split <;> rfl
 
-/-- For every connection, resolution state and outcome: the database of the connection after the
+/-- For every connection, resolution state, counts and outcome: the database of the connection after the
 outcome ({name}`Connection.afterError`) is the outcome's database ({name}`Outcome.database`).
 Proof sketch: for each constructor of the outcome, both sides are the same database by
 definition. -/
-theorem Connection.afterError_database (connection : Connection) (after : ResolveState) (outcome : Outcome) :
-    (connection.afterError after outcome).state.database = outcome.database := by
+theorem Connection.afterError_database (connection : Connection) (after : ResolveState) (counts : Counts)
+    (outcome : Outcome) : (connection.afterError after counts outcome).state.database = outcome.database := by
   cases outcome <;> rfl
 
 /-- For every context, optional clock, script of statements with values, index, connection,
@@ -98,7 +98,7 @@ theorem runScriptFrom_states (context : ResolveContext) (clock : Option Clock) :
             rw [show nextState = next.state by rw [nextIs]] at found
             rw [Bool.and_eq_true] at running
             have restFits : ClockFits clock (index + 1) later.1 next.state.clock := by
-              rw [nextIs]; exact (advanceWith_clock advanced).symm ▸ fits.tail
+              rw [nextIs]; exact (advance_clock advanced).symm ▸ fits.tail
             exact runScriptFrom_states context clock rest (index + 1) next later.1 later.2 count state restOk
               restFits running.2 found
 
@@ -149,7 +149,7 @@ theorem runScriptFrom_halt_database (context : ResolveContext) (clock : Option C
             subst halted
             simp only [List.length_singleton, List.take_succ_cons, List.take_zero, runScriptFrom, continued]
             rw [afterStep, advanced]
-            exact Connection.afterError_database _ _ _
+            exact Connection.afterError_database _ _ _ _
           | next nextState =>
             have nextIs : next = { state := nextState, foreignKeys := headState.foreignKeys, recursiveTriggers := headState.recursiveTriggers } := by
               rw [afterStep, advanced]; rfl
@@ -159,7 +159,7 @@ theorem runScriptFrom_halt_database (context : ResolveContext) (clock : Option C
               Bool.and_eq_true] at running ⊢
             rw [show nextState = next.state by rw [nextIs]] at halted running ⊢
             have restFits : ClockFits clock (index + 1) later.1 next.state.clock := by
-              rw [nextIs]; exact (advanceWith_clock advanced).symm ▸ fits.tail
+              rw [nextIs]; exact (advance_clock advanced).symm ▸ fits.tail
             exact runScriptFrom_halt_database context clock rest (index + 1) next later.1 later.2 outcome restOk
               restFits halted running.2
 

@@ -24,7 +24,7 @@ def numericAffinity : Affinity → Bool
 def Resolved.Expr.literal? : Resolved.Expr → Option Value
   | .literal value => some value
   | .column _ | .compare .. | .and .. | .or .. | .not _ | .isNull .. | .arithmetic .. | .cast .. | .coalesce ..
-  | .json .. | .now _ | .date .. | .scalar .. | .exists .. | .inQuery .. | .subquery _ | .inList .. | .aggregateValue _ | .parameter _ => none
+  | .json .. | .now _ | .date .. | .scalar .. | .exists .. | .inQuery .. | .subquery _ | .inList .. | .aggregateValue _ | .parameter _ | .counter _ => none
 
 /-- The affinity of a comparison of two operands with the given affinities, as SQLite's
 {lit}`sqlite3CompareAffinity` gives it: when both have one, NUMERIC if either is INTEGER,

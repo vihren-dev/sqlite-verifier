@@ -217,7 +217,13 @@ migration builds the index over the existing rows; a unique index over rows that
 conflict fails with SQLite's constraint error and leaves the catalog unchanged. An
 `ON CONFLICT` target names only a key of columns without a filter. SQLite's prepare
 errors apply: a qualified name in a term, `CURRENT_TIME`, `CURRENT_DATE` and
-`CURRENT_TIMESTAMP` in a term or the filter, and an aggregate. A string literal as a
+`CURRENT_TIMESTAMP` in a term or the filter, and an aggregate. The same error applies
+to a call of `changes()`, `total_changes()`, `last_insert_rowid()`, `random()` or
+`randomblob(n)` in a term or the filter, and in a generated column: SQLite gives
+`non-deterministic functions prohibited in ...`. When the expression has another error,
+for example a missing column or an aggregate, SQLite reports one of the two errors by the
+order of its walk of names, which the model does not follow, so the restriction
+`nondeterministic-error-order` applies. A string literal as a
 term, a date and time function, a JSON function and a rowid name in the filter are
 model restrictions.
 
@@ -236,8 +242,8 @@ keys. A CHECK fails when its condition is false, read as a number; NULL passes. 
 is SQLite's constraint error with the statement's `OR` algorithm, else ABORT: IGNORE skips
 the row, REPLACE acts as ABORT, and SQLite ignores the conflict clause of a table CHECK.
 ADD COLUMN with a CHECK checks the existing rows with the new default and fails with
-result code 1 when one fails. A time keyword, a date and time function or a JSON function
-in a CHECK is the restriction `check-function`, and a CHECK of ADD COLUMN that SQLite
+result code 1 when one fails. A time keyword, a date and time function, a call of `changes()`, `total_changes()` or
+`last_insert_rowid()`, or a JSON function in a CHECK is the restriction `check-function`, and a CHECK of ADD COLUMN that SQLite
 cannot resolve is `add-column-check-error`, as SQLite reports it while the statement runs.
 The catalog keeps each `REFERENCES` clause and `FOREIGN KEY` constraint with its `ON DELETE`
 and `ON UPDATE` actions, as `PRAGMA foreign_key_list` reports it, and whether it is
@@ -372,7 +378,7 @@ them has the collation of its column and, as in SQLite, no affinity: in a trigge
 trigger is modeled as the one result column of a `SELECT` without `FROM`, alone or as a result
 of its `CASE` (`raise-form` elsewhere); `ON CONFLICT DO UPDATE` in a body, a function that can fail in a write of a body that no
 earlier rule restricts (in the `VALUES` of an `INSERT` it is `constant-function-error`, as in a
-statement), and a `WHEN` with a subquery or a function that can fail are `trigger-form`; a `BEFORE UPDATE` or `BEFORE DELETE`
+statement), a call of `changes()`, `total_changes()` or `last_insert_rowid()` in a body or a `WHEN`, and a `WHEN` with a subquery or a function that can fail are `trigger-form`; a `BEFORE UPDATE` or `BEFORE DELETE`
 trigger that writes its own table is `trigger-writes-own-table`; and two triggers of one table,
 time and event in the starting schema are `schema-trigger-order`.
 
@@ -486,7 +492,7 @@ should shrink.
 | `index-string-term` | A string literal as a key term of CREATE INDEX, also a double-quoted name that is no column, is not modeled | ADR 0014, slice 1 |
 | `index-date-function` | A date and time function in a key term or the filter of CREATE INDEX is not modeled | ADR 0014, slice 1 |
 | `index-json-function` | A JSON function in a key term or the filter of CREATE INDEX is not modeled | ADR 0014, slice 1 |
-| `check-function` | A time keyword, a date and time function or a JSON function in a CHECK constraint is not modeled | ADR 0014, slice 4 |
+| `check-function` | A time keyword, a date and time function, `changes()`, `total_changes()`, `last_insert_rowid()` or a JSON function in a CHECK constraint is not modeled | ADR 0014, slice 4 |
 | `add-column-check-error` | A CHECK of ADD COLUMN that SQLite cannot resolve is not modeled, because SQLite reports it while the statement runs | ADR 0014, slice 4 |
 | `generated-function` | A date and time function or a JSON function in a generated column is not modeled | ADR 0014, slice 5 |
 | `generated-loop` | Generated columns that read each other in a loop are not modeled, because SQLite reports the loop while CREATE TABLE runs | ADR 0014, slice 5 |
@@ -519,9 +525,11 @@ should shrink.
 | `deferred-foreign-key` | With foreign keys on, a write that checks a `DEFERRABLE INITIALLY DEFERRED` foreign key is not modeled, because SQLite counts its violations until `COMMIT` | ADR 0018, slice 4 |
 | `foreign-key-upsert` | With foreign keys on, `INSERT` with `ON CONFLICT DO UPDATE` on a table with a foreign key to check is not modeled | ADR 0018, slice 4 |
 | `raise-form` | `RAISE` in a trigger outside the one result column of a `SELECT` without `FROM`, alone or as a result of its `CASE`, or with a message that can fail, is not modeled | ADR 0018, slice 5 |
-| `trigger-form` | A trigger with `ON CONFLICT DO UPDATE` in its body, with a function that can fail in a write of its body that no other restriction covers, with a `WHEN` condition that has a function that can fail or a subquery, or with too many triggers that fire each other, and `ON CONFLICT DO UPDATE` on a table with a trigger, are not modeled | ADR 0018, slice 5 |
+| `trigger-form` | A trigger with `ON CONFLICT DO UPDATE` in its body, with a function that can fail in a write of its body that no other restriction covers, with `changes()`, `total_changes()` or `last_insert_rowid()` in its body or `WHEN` condition, with a `WHEN` condition that has a function that can fail or a subquery, or with too many triggers that fire each other, and `ON CONFLICT DO UPDATE` on a table with a trigger, are not modeled | ADR 0018, slice 5 |
 | `compound-subquery-column` | `x IN (q)` and a scalar subquery `(q)` over a compound `SELECT` with an operator other than `UNION ALL` and an `ORDER BY` term with `COLLATE` are not modeled, because SQLite then reads the column of a derived table | ADR 0019, D3 |
 | `compound-order-by-term` | An `ORDER BY` term of a compound `SELECT` that the model cannot match with a result column as SQLite does, such as an aggregate, or a `COLLATE` term after which SQLite names a result column at random, is not modeled | ADR 0019, D3 |
+| `connection-counter-read` | `last_insert_rowid()` in an `INSERT` or an upsert, and `total_changes()` in a write that runs trigger programs or foreign-key actions, are not modeled, because the counter changes while the statement runs | ADR 0024, D2 |
+| `nondeterministic-error-order` | A call of `changes()`, `total_changes()`, `last_insert_rowid()`, `random()` or `randomblob(n)` in a generated column, an index expression or an index filter, in an expression with another error of its walk of names, is not modeled, because the error that SQLite reports depends on the order of the walk | ADR 0024, D5 |
 
 #### Undecided
 
@@ -586,7 +594,17 @@ functions read the time value `now`, written or read from a column, as the state
 clock value, and give SQLite's value for every other time value, NULL for one that SQLite
 cannot read (slice 6f). They apply their modifiers from left to right as SQLite does;
 `localtime` and `utc` use UTC, the time zone of every execution profile (slice 6g). The clock values are inputs of the
-execution: the model fixes no clock. Literal writes
+execution: the model fixes no clock. The connection keeps three counters (ADR 0024, slice 1):
+the changes of the last write (`changes()`), the total of changed rows (`total_changes()`) and
+the rowid of the last inserted row (`last_insert_rowid()`). A statement reads their values from
+before the statement. The model follows SQLite's rules for each write, including the rows of
+trigger programs and foreign-key actions, which count for the total only, and the rows that
+`REPLACE` deletes, which count for none. A counter that the run does not know ends the run at a
+statement that reads it. The environment of the surface gives the counters at the start of a run:
+`Env.default` knows none, so a statement reads a counter only after a write of the run has set it,
+and `Env.newConnection` gives 0 to each counter. The reads
+that the model does not describe are the restrictions `connection-counter-read`,
+`check-function`, `unmodeled-default` and `trigger-form`. Literal writes
 have checked data-domain obligations: existing key cells and filter cells must
 be integers or NULL, existing constraints must hold, and the random-search branch
 at the maximum rowid is outside the admitted domain. New NOT NULL and uniqueness

@@ -88,7 +88,7 @@ def raisedKind (context : Resolved.EvalContext) (cells : List Value) (filter : O
 the statement as a constraint failure, and FAIL and ROLLBACK stop it with their algorithm. -/
 def raiseEffect (state : KeyState) : Syntax.RaiseKind → Except KeyStop (KeyState × Bool)
   | .ignore => pure (state, true)
-  | .abort => throw (.error .constraintViolation)
+  | .abort => throw (.error .constraintViolation state)
   | .fail => throw (.stopped .fail state)
   | .rollback => throw (.stopped .rollback state)
 
@@ -107,7 +107,7 @@ def runStep (catalog : Catalog) (nested : NestedRun) (frame : RowFrame) (cells :
   | .insert table rows clauses own subqueries => do
     let database := state.database catalog
     let some target := database.table table | throw .undescribed
-    let context := Resolved.statementContext frame.clock [] database subqueries
+    let context := Resolved.statementContext frame.clock {} [] database subqueries
     let algorithm := frame.algorithm <|> own
     let values := rowsWith context cells target.shape.columns rows
     let work := RowWork.insert table values (catalog.writePolicy table target.shape algorithm) clauses true false
@@ -115,7 +115,7 @@ def runStep (catalog : Catalog) (nested : NestedRun) (frame : RowFrame) (cells :
   | .update table assignments filter subqueries => do
     let database := state.database catalog
     let some target := database.table table | throw .undescribed
-    let context := Resolved.statementContext frame.clock [] database subqueries
+    let context := Resolved.statementContext frame.clock {} [] database subqueries
     let change (row : Row) := LiteralData.movedRowid target.shape.rowidAlias
       (LiteralData.assignFrom context target.shape.columns assignments (row.values ++ cells) row)
     let assigned := assignments.map (·.1)
@@ -125,18 +125,18 @@ def runStep (catalog : Catalog) (nested : NestedRun) (frame : RowFrame) (cells :
   | .delete table filter subqueries => do
     let database := state.database catalog
     let some target := database.table table | throw .undescribed
-    let context := Resolved.statementContext frame.clock [] database subqueries
+    let context := Resolved.statementContext frame.clock {} [] database subqueries
     let work := RowWork.delete table (selectedRowids context cells target filter) false false true
     return ((← nested frame work state).afterStep table subqueries, false)
   | .query query subqueries => do
     let database := state.database catalog
-    let context := Resolved.statementContext frame.clock [] database subqueries
+    let context := Resolved.statementContext frame.clock {} [] database subqueries
     let some source := query.sourceAfter context cells database | throw .undescribed
     let run := query.run context source.rows
     if source.fault == .may || run.fault == .may || !Resolved.subqueriesPlain subqueries then throw .undescribed
-    if run.mismatch then throw (.error .datatypeMismatch)
-    if run.overflow then throw (.error .integerOverflow)
-    if run.fault == .must then throw (.error .functionError)
+    if run.mismatch then throw (.error .datatypeMismatch state)
+    if run.overflow then throw (.error .integerOverflow state)
+    if run.fault == .must then throw (.error .functionError state)
     return ({ state with subqueried := state.subqueried || !subqueries.isEmpty }, false)
   | .raise filter arms otherwise =>
     match raisedKind (.plain frame.clock) cells filter arms otherwise with

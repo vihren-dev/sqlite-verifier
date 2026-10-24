@@ -28,7 +28,7 @@ SQLite evaluates a constant. The value is not yet stored with the column's affin
 def constantCell (dqs : Bool) (shapes : SubqueryShapes) (expression : Syntax.Expr) (scope : Scope := []) :
     Except ValueIssue Resolved.Cell :=
   resolveOperand dqs scope shapes true expression >>= fun operand =>
-    if operand.1.readsClock || operand.1.readsParameter || operand.1.any Resolved.Expr.namesSubquery ||
+    if operand.1.readsClock || operand.1.readsRunValue || operand.1.any Resolved.Expr.namesSubquery ||
         mentionsColumn scope expression then
       if operand.1.any Resolved.Expr.isFallibleCall then .error (.restriction [] .constantFunctionError)
       else .ok (.expression operand.1)

@@ -37,27 +37,27 @@ def empty : Database :=
 #guard selected.eval (.plain 0) [] == .integer 1 && malformed.eval (.plain 0) [] == .null
 -- SQLite certainly reports the failure of a result column without FROM, and the step
 -- fails with it.
-#guard fromless.mustFail (.plain 0) [[]] && statementReady 0 [] (.query fromless []) empty
-#guard match step 0 [] (.query fromless []) empty with
+#guard fromless.mustFail (.plain 0) [[]] && statementReady 0 {} [] (.query fromless []) empty
+#guard match step 0 {} [] (.query fromless []) empty with
   | .error (reason, _) => reason == .functionError
   | .ok _ => false
 -- Under LIMIT 0 SQLite evaluates nothing; OFFSET 1 skips the result column; WHERE 0
 -- leaves no row. The model does not describe the first two, and the third succeeds.
-#guard !{ fromless with limit := some 0 }.mustFail (.plain 0) [[]] && !statementReady 0 [] (.query { fromless with limit := some 0 } []) empty
-#guard !{ fromless with offset := 1 }.mustFail (.plain 0) [[]] && !statementReady 0 [] (.query { fromless with offset := 1 } []) empty
+#guard !{ fromless with limit := some 0 }.mustFail (.plain 0) [[]] && !statementReady 0 {} [] (.query { fromless with limit := some 0 } []) empty
+#guard !{ fromless with offset := 1 }.mustFail (.plain 0) [[]] && !statementReady 0 {} [] (.query { fromless with offset := 1 } []) empty
 #guard !{ fromless with filter := some (.literal (.integer 0)) }.mayFail (.plain 0) [[]]
 -- An aggregate operand fails also under OFFSET.
 #guard { fromless with aggregate := true, columns := [.aggregate (.count malformed)], offset := 1 }.mustFail (.plain 0) [[]]
 -- SQLite may skip an operand of AND, so a failure under AND is not certain.
-#guard !statementReady 0 [] (.query { fromless with columns := [.scalar (.and (.literal (.integer 0)) malformed)] } []) empty
+#guard !statementReady 0 {} [] (.query { fromless with columns := [.scalar (.and (.literal (.integer 0)) malformed)] } []) empty
 -- A constant WHERE term is evaluated once before the rows, also over an empty table;
 -- a result column is not.
-#guard !statementReady 0 [] (.query { fromless with sources := [.first 0], filter := some malformed, columns := [] } []) empty
-#guard statementReady 0 [] (.query { fromless with sources := [.first 0] } []) empty
+#guard !statementReady 0 {} [] (.query { fromless with sources := [.first 0], filter := some malformed, columns := [] } []) empty
+#guard statementReady 0 {} [] (.query { fromless with sources := [.first 0] } []) empty
 -- An aggregate query evaluates its result row over NULL cells when no row passes WHERE.
 #guard
   let columns : List Output := [.scalar malformed, .aggregate .countRows]
-  !statementReady 0 [] (.query { fromless with sources := [.first 0], aggregate := true, columns := columns } []) empty
+  !statementReady 0 {} [] (.query { fromless with sources := [.first 0], aggregate := true, columns := columns } []) empty
 -- A JSON aggregate writes its operand as json_array does: JSONB that the model does not
 -- describe (a header longer than needed) is a possible failure, and a failing operand stays
 -- certain.

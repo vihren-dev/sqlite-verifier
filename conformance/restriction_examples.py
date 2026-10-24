@@ -95,6 +95,9 @@ EXAMPLES: dict[str, tuple[str, str]] = {
     "foreign-key-mismatch-order": ("CREATE TABLE p(x); CREATE TABLE c1(a REFERENCES p(x)); "
                                    "CREATE TABLE c2(a REFERENCES p(x));",
                                    "PRAGMA foreign_key_check;"),
+    "connection-counter-read": ("CREATE TABLE t(a INTEGER);", "INSERT INTO t VALUES (last_insert_rowid());"),
+    "nondeterministic-error-order": ("CREATE TABLE t(a INTEGER);",
+                                     "CREATE TABLE u(a INTEGER, b AS (changes() + count(a)));"),
 }
 """For each restriction id: a schema and a migration that the resolver refuses with it."""
 

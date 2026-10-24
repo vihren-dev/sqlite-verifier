@@ -30,10 +30,10 @@ STANDARD_AXIOMS = {"propext", "Classical.choice", "Quot.sound"}
 CHECKS = """
 import Belay.Sqlite.Model
 open Belay.Sqlite.Model
-example (clock : Int) (parameters : List Value) (statement : Resolved.Statement) {database : Database}
-    (holds : Database.NotNull database) (condition : statement.NotNullCondition database) :
-    (runStatement clock parameters statement database).effect.Satisfies Database.NotNull :=
-  runStatement_notNull clock parameters statement holds condition
+example (clock : Int) (counters : Counters) (parameters : List Value) (statement : Resolved.Statement)
+    {database : Database} (holds : Database.NotNull database) (condition : statement.NotNullCondition database) :
+    (runStatement clock counters parameters statement database).effect.Satisfies Database.NotNull :=
+  runStatement_notNull clock counters parameters statement holds condition
 example (position : Nat) (script : List (Resolved.Statement × List Value)) {state : SqlState}
     (holds : state.Holds Database.NotNull) (conditions : NotNullRunConditions position script state) :
     (runSqlFrom position script state).Holds Database.NotNull :=
@@ -46,10 +46,10 @@ example (context : ResolveContext) (clock : Option Clock) (index : Nat) {connect
     (conditions : NotNullScriptConditions context clock index connection script) :
     (runScriptFrom context clock index connection script).connection.state.Holds Database.NotNull :=
   runScriptFrom_notNull context clock index script holds conditions
-example (clock : Int) (parameters : List Value) (statement : Resolved.Statement) {database : Database}
-    (holds : Database.TypesFit database) (condition : statement.TypesFitCondition database) :
-    (runStatement clock parameters statement database).effect.Satisfies Database.TypesFit :=
-  runStatement_typesFit clock parameters statement holds condition
+example (clock : Int) (counters : Counters) (parameters : List Value) (statement : Resolved.Statement)
+    {database : Database} (holds : Database.TypesFit database) (condition : statement.TypesFitCondition database) :
+    (runStatement clock counters parameters statement database).effect.Satisfies Database.TypesFit :=
+  runStatement_typesFit clock counters parameters statement holds condition
 example (position : Nat) (script : List (Resolved.Statement × List Value)) {state : SqlState}
     (holds : state.Holds Database.TypesFit) (conditions : TypesFitRunConditions position script state) :
     (runSqlFrom position script state).Holds Database.TypesFit :=
@@ -62,10 +62,10 @@ example (context : ResolveContext) (clock : Option Clock) (index : Nat) {connect
     (conditions : TypesFitScriptConditions context clock index connection script) :
     (runScriptFrom context clock index connection script).connection.state.Holds Database.TypesFit :=
   runScriptFrom_typesFit context clock index script holds conditions
-example (clock : Int) (parameters : List Value) (statement : Resolved.Statement) {database : Database}
-    (holds : Database.ChecksHold database) (condition : statement.ChecksHoldCondition database) :
-    (runStatement clock parameters statement database).effect.Satisfies Database.ChecksHold :=
-  runStatement_checksHold clock parameters statement holds condition
+example (clock : Int) (counters : Counters) (parameters : List Value) (statement : Resolved.Statement)
+    {database : Database} (holds : Database.ChecksHold database) (condition : statement.ChecksHoldCondition database) :
+    (runStatement clock counters parameters statement database).effect.Satisfies Database.ChecksHold :=
+  runStatement_checksHold clock counters parameters statement holds condition
 example (position : Nat) (script : List (Resolved.Statement × List Value)) {state : SqlState}
     (holds : state.Holds Database.ChecksHold) (conditions : ChecksHoldRunConditions position script state) :
     (runSqlFrom position script state).Holds Database.ChecksHold :=

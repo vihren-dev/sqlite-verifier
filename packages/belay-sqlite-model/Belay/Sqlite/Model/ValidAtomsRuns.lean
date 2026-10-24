@@ -14,14 +14,14 @@ the hypothesis from the theorems of {lit}`runScriptFrom`. -/
 namespace Belay.Sqlite.Model
 
 /-- The statement theorem of "not null" in the form of {name}`StatementKeeps`, for the condition of
-{name}`Resolved.Statement.NotNullCondition`. For every clock value, parameter list, resolved statement
+{name}`Resolved.Statement.NotNullCondition`. For every clock value, counters, parameter list, resolved statement
 and database: if the database satisfies {name}`Database.NotNull` and the statement meets its condition
 on the database, the effect of {name}`runStatement` satisfies {name}`Database.NotNull`
 ({name}`Effect.Satisfies`): the database of a success, and the database that an error with
 {name}`ExecutionError.constraintFail` carries, satisfy it. An error with any other reason requires
 nothing. Proof sketch: {name}`runStatement_notNull`. -/
 theorem notNull_statementKeeps : StatementKeeps Database.NotNull fun statement database => statement.NotNullCondition database :=
-  fun clock parameters statement _ holds condition => runStatement_notNull clock parameters statement holds condition
+  fun clock counters parameters statement _ holds condition => runStatement_notNull clock counters parameters statement holds condition
 
 /-- For the given position, script and state, each statement that {name}`runSqlFrom` reaches meets
 its condition for "not null" ({name}`Resolved.Statement.NotNullCondition`) on the database of the state
@@ -75,14 +75,14 @@ theorem runScriptFrom_notNull (context : ResolveContext) (clock : Option Clock) 
   runScriptFrom_holds notNull_statementKeeps context clock index script holds conditions
 
 /-- The statement theorem of "types fit" in the form of {name}`StatementKeeps`, for the condition of
-{name}`Resolved.Statement.TypesFitCondition`. For every clock value, parameter list, resolved statement
+{name}`Resolved.Statement.TypesFitCondition`. For every clock value, counters, parameter list, resolved statement
 and database: if the database satisfies {name}`Database.TypesFit` and the statement meets its condition
 on the database, the effect of {name}`runStatement` satisfies {name}`Database.TypesFit`
 ({name}`Effect.Satisfies`): the database of a success, and the database that an error with
 {name}`ExecutionError.constraintFail` carries, satisfy it. An error with any other reason requires
 nothing. Proof sketch: {name}`runStatement_typesFit`. -/
 theorem typesFit_statementKeeps : StatementKeeps Database.TypesFit fun statement database => statement.TypesFitCondition database :=
-  fun clock parameters statement _ holds condition => runStatement_typesFit clock parameters statement holds condition
+  fun clock counters parameters statement _ holds condition => runStatement_typesFit clock counters parameters statement holds condition
 
 /-- For the given position, script and state, each statement that {name}`runSqlFrom` reaches meets
 its condition for "types fit" ({name}`Resolved.Statement.TypesFitCondition`) on the database of the state
@@ -136,14 +136,14 @@ theorem runScriptFrom_typesFit (context : ResolveContext) (clock : Option Clock)
   runScriptFrom_holds typesFit_statementKeeps context clock index script holds conditions
 
 /-- The statement theorem of "checks hold" in the form of {name}`StatementKeeps`, for the condition of
-{name}`Resolved.Statement.ChecksHoldCondition`. For every clock value, parameter list, resolved statement
+{name}`Resolved.Statement.ChecksHoldCondition`. For every clock value, counters, parameter list, resolved statement
 and database: if the database satisfies {name}`Database.ChecksHold` and the statement meets its condition
 on the database, the effect of {name}`runStatement` satisfies {name}`Database.ChecksHold`
 ({name}`Effect.Satisfies`): the database of a success, and the database that an error with
 {name}`ExecutionError.constraintFail` carries, satisfy it. An error with any other reason requires
 nothing. Proof sketch: {name}`runStatement_checksHold`. -/
 theorem checksHold_statementKeeps : StatementKeeps Database.ChecksHold fun statement database => statement.ChecksHoldCondition database :=
-  fun clock parameters statement _ holds condition => runStatement_checksHold clock parameters statement holds condition
+  fun clock counters parameters statement _ holds condition => runStatement_checksHold clock counters parameters statement holds condition
 
 /-- For the given position, script and state, each statement that {name}`runSqlFrom` reaches meets
 its condition for "checks hold" ({name}`Resolved.Statement.ChecksHoldCondition`) on the database of the state

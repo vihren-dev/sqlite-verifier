@@ -27,8 +27,11 @@ def Script.runOn (connection : Connection) (script : Script) : ScriptRun :=
 
 /-- The idle connection to the plain database: no open transaction, foreign keys off, as a new
 SQLite connection, and the clock assignment of 0 at every position, which the run carries
-without a change. -/
-def Database.Raw.connection (raw : Database.Raw) : Connection := { state := { database := raw } }
+without a change. Its counters are the given ones, and unknown when none are given: a statement
+that calls {lit}`changes()`, {lit}`total_changes()` or {lit}`last_insert_rowid()` ends the run
+at a counter that is unknown (ADR 0024). -/
+def Database.Raw.connection (raw : Database.Raw) (counters : Belay.Sqlite.Model.Counters := {}) : Connection :=
+  { state := { database := raw, counters } }
 
 /-- Run the script on the plain database ({name}`Script.runOn` of
 {name}`Database.Raw.connection`): the model's result that the run reached, without the check

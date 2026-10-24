@@ -57,6 +57,7 @@
     "tests/conformance_authored_transactions_test.py",
     "tests/conformance_predict_test.py",
     "tests/conformance_continuing_case_test.py",
+    "tests/conformance_counters_test.py",
     "tests/conformance_run_on_test.py"
   ],
   "sample": [

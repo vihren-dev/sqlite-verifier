@@ -24,12 +24,12 @@ structure SqlTrace where
   final : Option SqlState
 
 /-- The trace of {name}`runSqlFrom`: each statement advances with its values at its position
-with {name}`advance` and gives {name}`Output.ofStep` of its transition; a halt ends the trace. -/
+with {name}`advance` and gives {name}`Output.ofStep` of its run and its transition; a halt ends the trace. -/
 def sqlTraceFrom (position : Nat) : List (Resolved.Statement × List Value) → SqlState → SqlTrace
   | [], state => { outputs := [], final := some state }
   | (statement, parameters) :: rest, state =>
     let output := Output.ofStep (state.clock position) parameters statement state
-      (advance position statement parameters state)
+      (state.statementRun (state.clock position) parameters statement) (advance position statement parameters state)
     match advance position statement parameters state with
     | .halt _ => { outputs := [output], final := none }
     | .next next =>
@@ -73,8 +73,8 @@ statement and resolution state: if the statement resolves against the connection
 state, and the connection's clock assignment gives the statement's clock value
 ({name}`statementClock`) at the index when it has one, then the step of the run with the clock
 and the values either ends, or continues with the output of {name}`Output.ofStep` with the
-values of the transition of {name}`advance` with the values, and the next connection is
-{name}`Connection.afterStep` of that transition with the resolution state. Proof
+values of the run and the transition of {name}`advance` with the values, and the next connection is
+{name}`Connection.afterStep` of that transition with the resolution state and the counts of the run. Proof
 sketch: unfold the step with the resolution; a statement without a clock value, the support
 check and an {name}`Output.unmodeled` end it; otherwise the clock value is the assignment's, so
 the step's transition is {name}`advance` by definition, and its output and its next connection
@@ -87,8 +87,10 @@ theorem runScriptStep_resolved {context : ResolveContext} {clock : Option Clock}
     (∃ reason, runScriptStep context clock index connection statement parameters = .ended reason) ∨
     ∃ next, runScriptStep context clock index connection statement parameters = .continued
         (Output.ofStep (connection.state.clock index) parameters resolved connection.state
+          (connection.state.statementRun (connection.state.clock index) parameters resolved)
           (advance index resolved parameters connection.state)) next ∧
-      next = connection.afterStep after (advance index resolved parameters connection.state) := by
+      next = connection.afterStep after (connection.state.statementRun (connection.state.clock index) parameters resolved).counts
+        (advance index resolved parameters connection.state) := by
   simp only [runScriptStep, runScriptStepWith, ranScriptStep, ok]
   split
   · exact .inl ⟨_, rfl⟩
@@ -98,12 +100,14 @@ theorem runScriptStep_resolved {context : ResolveContext} {clock : Option Clock}
     · exact .inl ⟨_, rfl⟩
     · split
       · exact .inl ⟨_, rfl⟩
-      all_goals
-        rename_i stepped
-        have unfolded : advance index resolved parameters connection.state = advanceWith index resolved connection.state
-            (runStatement (connection.state.clock index) parameters resolved connection.state.database).effect := rfl
-        rw [unfolded, stepped]
-        exact .inr ⟨_, rfl, rfl⟩
+      · split
+        · exact .inl ⟨_, rfl⟩
+        all_goals
+          rename_i stepped
+          have unfolded : advance index resolved parameters connection.state = advanceRun index resolved connection.state
+              (connection.state.statementRun (connection.state.clock index) parameters resolved) := rfl
+          rw [unfolded, stepped]
+          exact .inr ⟨_, rfl, rfl⟩
 
 /-- For every context, connection, statement, list of values, resolved statement, resolution
 state and state: if the statement resolves against the connection's resolution state to the
@@ -142,7 +146,7 @@ assignment and the run without a clock ({name}`ClockFits.scriptClock`), so the t
 {name}`runSqlAt`. Proof sketch: induction on the script. Each step resolves against the
 connection's resolution state and runs at the assignment's clock value ({name}`ClockFits.head`);
 a step that continues keeps the states in agreement ({name}`advance_agrees`) and the clock
-assignment ({name}`advanceWith_clock`), so the next statement resolves against the state that
+assignment ({name}`advance_clock`), so the next statement resolves against the state that
 {name}`resolveFrom` gives ({name}`resolveStatement_after`) and the rest fits
 ({name}`ClockFits.tail`). -/
 theorem runScriptFrom_agrees (context : ResolveContext) (clock : Option Clock) :
@@ -186,7 +190,7 @@ theorem runScriptFrom_agrees (context : ResolveContext) (clock : Option Clock) :
             rw [← Connection.resolveState_after_next headOk advanced, ← nextState] at restOk
             rw [nextState] at restOk ⊢
             have restFits : ClockFits clock (index + 1) later.1 state.clock := by
-              rw [advanceWith_clock advanced]; exact fits.tail
+              rw [advance_clock advanced]; exact fits.tail
             rcases runScriptFrom_agrees context clock rest (index + 1) _ later.1 later.2 restOk restFits with
               ⟨before, reason, outputs, isPrefix⟩ | ⟨more, outputs, ending⟩
             · exact .inl ⟨_ :: before, reason, by simp [outputs], List.cons_prefix_cons.mpr ⟨rfl, isPrefix⟩⟩

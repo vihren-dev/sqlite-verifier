@@ -67,6 +67,8 @@ def RestrictionKind.id : RestrictionKind → String
   | .compoundSubqueryColumn => "compound-subquery-column"
   | .compoundOrderByTerm => "compound-order-by-term"
   | .foreignKeyMismatchOrder => "foreign-key-mismatch-order"
+  | .connectionCounterRead => "connection-counter-read"
+  | .nondeterministicErrorOrder => "nondeterministic-error-order"
 
 /-- The message of a restriction that users read: what the model does not describe,
 and what to write instead. -/
@@ -79,7 +81,7 @@ def RestrictionKind.message : RestrictionKind → String
   | .indexDateFunction => "a date and time function in an index key or WHERE clause is not modeled; index the column instead"
   | .indexJsonFunction => "a JSON function or another function that can fail, such as abs, like or unistr, in an index key or WHERE clause is not modeled; index the column instead"
   | .unknownCollation => "COLLATE with a name other than BINARY, NOCASE or RTRIM in an expression is not modeled; use one of these collations"
-  | .checkFunction => "a time keyword, a date and time function, a JSON function or another function that can fail, such as abs, like or unistr, in a CHECK constraint is not modeled; check the column values instead"
+  | .checkFunction => "a time keyword, a date and time function, changes(), total_changes() or last_insert_rowid(), a JSON function or another function that can fail, such as abs, like or unistr, in a CHECK constraint is not modeled; check the column values instead"
   | .addColumnCheckError => "a CHECK of ADD COLUMN that names no column of the table, or uses an aggregate, is not modeled; correct the CHECK"
   | .generatedFunction => "a date and time function, a JSON function or another function that can fail, such as abs, like or unistr, in a generated column is not modeled; compute the value in the write"
   | .generatedLoop => "generated columns that read each other in a loop are not modeled; SQLite refuses the table"
@@ -122,17 +124,19 @@ def RestrictionKind.message : RestrictionKind → String
   | .deferredForeignKey => "with foreign keys on, a write that checks a DEFERRABLE INITIALLY DEFERRED foreign key is not modeled, because SQLite checks such keys at COMMIT; declare the key without INITIALLY DEFERRED"
   | .foreignKeyUpsert => "with foreign keys on, INSERT with ON CONFLICT DO UPDATE on a table with foreign keys to check is not modeled; write the UPDATE as a separate statement"
   | .raiseForm => "RAISE in a trigger is modeled only as the one result column of a SELECT without FROM, alone or as a result of CASE, with a message that cannot fail; write SELECT RAISE(...) WHERE condition or SELECT CASE WHEN condition THEN RAISE(...) END"
-  | .triggerForm => "a trigger with ON CONFLICT DO UPDATE in its body, with a function that can fail in a write of its body, with a WHEN condition that has a function that can fail or a subquery, or with too many triggers that fire each other, and ON CONFLICT DO UPDATE on a table with a trigger, are not modeled; move the work into separate statements"
+  | .triggerForm => "a trigger with ON CONFLICT DO UPDATE in its body, with a function that can fail in a write of its body, with changes(), total_changes() or last_insert_rowid() in its body or its WHEN condition, with a WHEN condition that has a function that can fail or a subquery, or with too many triggers that fire each other, and ON CONFLICT DO UPDATE on a table with a trigger, are not modeled; move the work into separate statements"
   | .triggerWritesOwnTable => "a BEFORE UPDATE or BEFORE DELETE trigger that writes its own table is not modeled, because SQLite documents the result as undefined; use an AFTER trigger"
   | .schemaTriggerOrder => "two triggers of one table, time and event in the starting schema are not modeled, because the schema does not say which one SQLite runs first; create them in the script"
   | .compoundSubqueryColumn => "x IN (q) and a scalar subquery (q) are not modeled when q is a compound SELECT with an operator other than UNION ALL and an ORDER BY term with COLLATE, because SQLite then reads the column of a derived table; remove the COLLATE from the ORDER BY of q"
   | .compoundOrderByTerm => "this ORDER BY term of a compound SELECT is not modeled, because the model cannot match it with a result column as SQLite does, or SQLite then names a result column at random; order by a result column number or an AS alias, and give the columns different names"
+  | .connectionCounterRead => "last_insert_rowid() in INSERT, and total_changes() in a write that runs trigger programs or foreign-key actions, are not modeled, because the counter changes while the statement runs; read the value in a separate statement"
+  | .nondeterministicErrorOrder => "a call of changes(), total_changes(), last_insert_rowid(), random() or randomblob() in a generated column, an index expression or the filter of a partial index is not modeled when the expression has another error, because which error SQLite reports depends on the order of its walk; write the call alone, or remove the other error"
   | .foreignKeyMismatchOrder => "PRAGMA foreign_key_check without a table name is not modeled when two or more tables have a foreign key mismatch, because SQLite checks the tables in an internal order; name the table, for example PRAGMA foreign_key_check(t)"
 
 /-- Every restriction, in the order of the registry. -/
 def RestrictionKind.all : List RestrictionKind :=
   [.schemaStatement, .engineTable, .rowidColumnName, .unmodeledDefault, .indexStringTerm, .indexDateFunction, .indexJsonFunction, .unknownCollation, .checkFunction, .addColumnCheckError, .generatedFunction, .generatedLoop, .parameterErrorOrder, .upsertGenerated, .addColumnGenerated, .addColumnStrictType, .dropConstraintIndex, .addColumnConstraint, .rowDependentKey, .conflictWithoutTarget, .mixedConflictAlgorithms, .constraintAlgorithmUpdate, .replaceDefault, .insertColumnTwice, .updateColumnTwice, .rowidName, .joinOperator, .laterTableInOn, .systemTable, .unmodeledFunction, .aggregateInExpression, .aliasInExpression, .groupByTerm, .bareColumn, .aggregateOrderBy, .windowValue, .negativeOffset, .windowedGroupSum, .constantFunctionError, .tableFunction, .functionJoin, .laterSourceInArguments, .jsonSubtype, .subqueryHere, .outerAggregate, .subqueryFallibleCall, .subqueryReadsTarget, .distinctOrderBy, .deferredForeignKey, .foreignKeyUpsert, .raiseForm, .triggerForm, .triggerWritesOwnTable, .schemaTriggerOrder,
-    .compoundSubqueryColumn, .compoundOrderByTerm, .foreignKeyMismatchOrder]
+    .compoundSubqueryColumn, .compoundOrderByTerm, .foreignKeyMismatchOrder, .connectionCounterRead, .nondeterministicErrorOrder]
 
 /-- For every restriction, it is in {name}`RestrictionKind.all`. Proof sketch: case
 analysis on the restriction. -/

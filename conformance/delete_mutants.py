@@ -13,7 +13,9 @@ ROW_DELETE = SQLITE + "RowDelete.lean"
 LITERAL_DATA = SQLITE + "LiteralData.lean"
 """The rowid of an inserted row."""
 OUTPUTS = "belay-sqlite-model/Belay/Sqlite/Model/StatementOutput.lean"
-"""The outputs of statements, with the RETURNING rows and the change count."""
+"""The outputs of statements, with the RETURNING rows."""
+STEP = SQLITE + "StatementStep.lean"
+"""The run of a statement, with the counts of its changes."""
 
 MUTANTS: dict[str, tuple[str, str, str]] = {
     "null_filter_deletes": (ROW_DELETE,
@@ -24,12 +26,12 @@ MUTANTS: dict[str, tuple[str, str, str]] = {
         "  { table with rows := table.rows.filter fun row => !selected context filter row }",
         "  { table with rows := table.rows.filter fun row => selected context filter row }"),
     "delete_returning_kept_rows": (OUTPUTS,
-        "returnedRows context returning (chosen.map (·.values)), some chosen.length⟩",
+        "returnedRows context returning (chosen.map (·.values)), some (run.counts.changes.getD 0)⟩",
         "returnedRows context returning ((table.rows.filter (!LiteralData.selected context filter ·)).map (·.values)),\n"
-        "        some chosen.length⟩"),
-    "delete_change_count_every_row": (OUTPUTS,
-        "returnedRows context returning (chosen.map (·.values)), some chosen.length⟩",
-        "returnedRows context returning (chosen.map (·.values)), some table.rows.length⟩"),
+        "        some (run.counts.changes.getD 0)⟩"),
+    "delete_change_count_every_row": (STEP,
+        "(LiteralData.changedCounts (.ok database) (table.scanRows.filter (LiteralData.selected context filter)).length)",
+        "(LiteralData.changedCounts (.ok database) table.scanRows.length)"),
     "next_rowid_counts_rows": (LITERAL_DATA,
         "  | first :: rest => (rest.foldl (fun largest row => max largest row.rowid) first.rowid) + 1",
         "  | first :: rest => (rest.length : Int) + 2"),
@@ -49,7 +51,7 @@ TARGETS: dict[str, tuple[str, ...]] = {
 
 GUARDS: dict[str, str] = {
     "null_filter_deletes": "rule:deleted", "delete_keeps_selected_rows": "rule:deleted",
-    "delete_returning_kept_rows": "rule:statementOutput", "delete_change_count_every_row": "rule:statementOutput",
+    "delete_returning_kept_rows": "rule:statementOutput", "delete_change_count_every_row": "rule:runStatement",
     "next_rowid_counts_rows": "rule:nextRowid",
 }
 """What each mutant guards: `rule:` and the Lean declaration of its file that the mutant

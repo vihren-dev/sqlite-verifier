@@ -116,4 +116,11 @@ theorem advanceWith_holds (position : Nat) (statement : Resolved.Statement) {sta
   | createTable | createIndex | createTrigger | addColumn | drop | insert | upsert | update | delete
   | prepareError | query | setting => exact SqlState.publish_holds holds position kept
 
+/-- For every property, counts and transition that satisfies {name}`SqlTransition.Holds`, the
+transition with the counts applied ({name}`SqlTransition.counted`) satisfies it too. Proof sketch:
+the counters are no part of the database or the snapshot. -/
+theorem SqlTransition.counted_holds (counts : Counts) {transition : SqlTransition}
+    (holds : transition.Holds property) : (transition.counted counts).Holds property := by
+  cases transition <;> exact holds
+
 end Belay.Sqlite.Model

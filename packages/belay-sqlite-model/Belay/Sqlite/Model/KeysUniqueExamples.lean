@@ -93,10 +93,10 @@ def tableOnly : Database :=
 -- CREATE INDEX of the index of `filterPastWidth` as ready, and then ADD COLUMN with the
 -- default 5 as ready, and the keys are no longer unique. A theorem over every resolved statement
 -- needs a condition on the statements.
-example : (runStatement 0 [] (.createIndex 1 (name! "i") filterPastWidthIndex) tableOnly).ready = true ∧
-    effectDatabase (runStatement 0 [] (.createIndex 1 (name! "i") filterPastWidthIndex) tableOnly).effect =
-      filterPastWidth ∧ (runStatement 0 [] (.addColumn 0 columnFive) filterPastWidth).ready = true ∧
-    ¬(effectDatabase (runStatement 0 [] (.addColumn 0 columnFive) filterPastWidth).effect).KeysUnique := by
+example : (runStatement 0 {} [] (.createIndex 1 (name! "i") filterPastWidthIndex) tableOnly).ready = true ∧
+    effectDatabase (runStatement 0 {} [] (.createIndex 1 (name! "i") filterPastWidthIndex) tableOnly).effect =
+      filterPastWidth ∧ (runStatement 0 {} [] (.addColumn 0 columnFive) filterPastWidth).ready = true ∧
+    ¬(effectDatabase (runStatement 0 {} [] (.addColumn 0 columnFive) filterPastWidth).effect).KeysUnique := by
   decide +kernel
 
 /-- The catalog {lit}`[t0, t1, i]` with the unique index {lit}`i` on {lit}`t0`, one row in

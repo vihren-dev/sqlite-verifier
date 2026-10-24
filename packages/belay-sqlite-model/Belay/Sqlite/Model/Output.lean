@@ -69,8 +69,8 @@ def Resolved.Statement.returnsRows : Resolved.Statement → Bool
   | .createTable .. | .createIndex .. | .createTrigger .. | .addColumn .. | .drop .. | .begin | .commit | .rollback
   | .prepareError _ | .query .. | .setting .. => false
 
-/-- The output of a statement from its transition and from what the model computes for it with
-the values bound to its parameters
+/-- The output of a statement from its transition, from its run ({name}`StatementRun`) and from
+what the model computes for it with the values bound to its parameters
 ({name}`statementOutput`, {name}`possibleOutput`):
 
 * a statement that stops with an error gives {name}`Output.error` of its primary result code,
@@ -82,7 +82,7 @@ the values bound to its parameters
   when it has none;
 * a statement for which the model gives no output gives {name}`Output.unmodeled`. -/
 def Output.ofStep (clock : Int) (parameters : List Value) (statement : Resolved.Statement) (before : SqlState)
-    (transition : SqlTransition) : Output :=
+    (run : StatementRun) (transition : SqlTransition) : Output :=
   match haltError transition with
   | some .unmodeled => .unmodeled unmodeledHere
   | some failure@(.prepare _) | some failure@.transactionAlreadyActive | some failure@.noActiveTransaction
@@ -96,7 +96,7 @@ def Output.ofStep (clock : Int) (parameters : List Value) (statement : Resolved.
       | none => .unmodeled "the model gives no result for this query"
     | .createTable .. | .createIndex .. | .createTrigger .. | .addColumn .. | .drop .. | .begin | .commit
     | .rollback | .insert .. | .upsert .. | .update .. | .delete .. | .prepareError _ | .setting .. =>
-      match statementOutput clock parameters statement before transition with
+      match statementOutput clock parameters statement before run transition with
       | some output =>
         if statement.returnsRows then .rows (Resolved.normalForm output.rows) else .done (output.changes.getD 0)
       | none => .unmodeled "the model gives no output for this statement"

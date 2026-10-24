@@ -20,11 +20,14 @@ MUTANTS: dict[str, tuple[str, str, str]] = {
     "update_returning_every_row": (OUTPUTS,
         "      let written := chosen.map fun row =>", "      let written := table.rows.map fun row =>"),
     "returning_rows_on_failure": (OUTPUTS,
-        "      return ⟨names, returnedRows context returning written, some rows.length⟩\n"
-        "    else if constraintFailure then some ⟨names, [], some 0⟩ else none",
-        "      return ⟨names, returnedRows context returning written, some rows.length⟩\n"
+        "      let written := ((LiteralData.inserted table values).rows.drop table.rows.length).map (·.values)\n"
+        "      return ⟨names, returnedRows context returning written, some (run.counts.changes.getD 0)⟩\n"
+        "    else if constraintFailure then some ⟨names, [], some (run.counts.changes.getD 0)⟩ else none",
+        "      let written := ((LiteralData.inserted table values).rows.drop table.rows.length).map (·.values)\n"
+        "      return ⟨names, returnedRows context returning written, some (run.counts.changes.getD 0)⟩\n"
         "    else if constraintFailure then\n"
-        "      some ⟨names, returnedRows context returning (Resolved.rowsAt context [] rows), some 0⟩ else none"),
+        "      some ⟨names, returnedRows context returning (Resolved.rowsAt context [] rows),\n"
+        "        some (run.counts.changes.getD 0)⟩ else none"),
     "returning_names_ignore_definition": (RETURNING,
         "      .ok [(resolved, (alias.map (·.text)).getD ((definedName scope value).getD text))]",
         "      .ok [(resolved, (alias.map (·.text)).getD text)]"),
