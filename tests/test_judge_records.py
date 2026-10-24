@@ -96,3 +96,21 @@ def test_version_6_gives_parameters_for_each_statement(tmp_path: Path) -> None:
     assert given["parameters"] == [[], [{"integer": {"value": 1}}]]
     assert set(given) == {"name", "nativeVersion", "profile", "sourceId", "initialSchemaSql", "initialRows",
                           "migrationSql", "parameters"}
+
+
+@pytest.mark.unit
+def test_version_7_gives_the_counters_of_the_writer(tmp_path: Path) -> None:
+    """`subject_input`: a record of version 7 gives the subject the counters of the writer connection
+    at the start of the migration, as state from before the migration, and a record of version 6
+    gives no counters."""
+    counters = {"changes": 1, "totalChanges": 3, "lastInsertRowid": 9}
+    record = {**stored("continuing"), "nativeVersion": 7, "migrationSql": "x;", "counters": counters}
+    record["trace"] = [{**record["trace"][0], "parameters": []}]
+    older = {key: value for key, value in record.items() if key != "counters"}
+    shard(tmp_path / "shards/a.jsonl.gz", [record, {**older, "nativeVersion": 6}])
+    (tmp_path / "manifest.json").write_text(json.dumps({"shards": [{"path": "shards/a.jsonl.gz"}]}))
+    seven, six = (subject_input(record) for record in corpus_records(tmp_path))
+    assert seven["counters"] == counters and seven["parameters"] == [[]]
+    assert set(seven) == {"name", "nativeVersion", "profile", "sourceId", "initialSchemaSql", "initialRows",
+                          "migrationSql", "parameters", "counters"}
+    assert "counters" not in six

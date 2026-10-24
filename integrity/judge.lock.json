@@ -46,11 +46,12 @@
  "corpus corpus-v5": "/nix/store/6fs7vidhnk7pj9pp24bnzi02j2ap1lnc-source",
  "corpus corpus-v50": "/nix/store/a8yii7ggb3j9vmkmxnvj130v98fbjs9d-source",
  "corpus corpus-v51": "/nix/store/q2fignzlfc313bk7179k8cnfgr03m1y6-source",
+ "corpus corpus-v52": "/nix/store/c8fjxhbbksyk19fasaynfi3ba28wfrgl-source",
  "corpus corpus-v6": "/nix/store/jb5d1n1njh2g3wwfpzmqawp47ffc08hq-source",
  "corpus corpus-v7": "/nix/store/v5kk820nlciw834vgfbq1j7xsakj52kq-source",
  "corpus corpus-v8": "/nix/store/z1ldsnlp6wslz1gr57k5db4mah5xsmxs-source",
  "corpus corpus-v9": "/nix/store/kinavd8bnp1dhayvg93rpnzlm84h34xa-source",
  "corpus synthetic-workload": "/nix/store/s4qyby377gydlfyswyclc8qb2sl3cn8k-source",
- "judge": "/nix/store/hhgvyg1dcbwycl0xa737ysd86scmfhmm-source",
+ "judge": "/nix/store/p3j546h3g6nzwc94k8606803s0gkrqvg-source",
  "oracle": "/nix/store/r4sm4f8pa49g5kr78d2sk2xbnibp4v3w-source"
 }

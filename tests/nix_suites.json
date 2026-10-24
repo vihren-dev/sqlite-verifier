@@ -58,7 +58,8 @@
     "tests/conformance_predict_test.py",
     "tests/conformance_continuing_case_test.py",
     "tests/conformance_counters_test.py",
-    "tests/conformance_run_on_test.py"
+    "tests/conformance_run_on_test.py",
+    "tests/conformance_counters_record_test.py"
   ],
   "sample": [
     "tests/conformance_tiers_test.py",

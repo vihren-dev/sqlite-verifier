@@ -1,6 +1,6 @@
 # Status: the connection counters (ADR 0024, slice 1)
 
-Created 2026-10-23. Status: IN PROGRESS (the owner accepted the decisions; commits 1 to 6 are done; the judge-change commits (PR B) are next).
+Created 2026-10-23. Status: DONE (2026-10-24).
 Task file: [task](20261023-connection-counters.task.md).
 Specification: [ADR 0024](../docs/adr-0024-connection-state-and-random-values.md) (ACCEPTED
 2026-10-23), D1 to D3, D5, D6 slice 1.
@@ -199,8 +199,74 @@ Specification: [ADR 0024](../docs/adr-0024-connection-state-and-random-values.md
   of the suites that import `record_versions`, so `record_counters` (imported by `native_replay`
   and `predict`) is added to the three lists, and `tests/nix_suites.json` puts
   `tests/conformance_counters_test.py` in the `harness` suite with the test of the continuing
-  case. `tests/test_test_ownership.py` and `tests/test_ci_checks.py` pass. Nix evidence is
+  case. Tests: `tests/test_test_ownership.py` and `tests/test_ci_checks.py`. Nix evidence is
   pending.
+- 2026-10-23 (PR B, judge change): the recorder and the subject input, outcome 9.
+  `record_sql(..., counters=True)` (needs `run_on`) reads the three counters of the writer
+  connection just before the migration with `sqlite3_changes64`, `sqlite3_total_changes64` and
+  `sqlite3_last_insert_rowid` (`native_library.py`, `native_counters.py`), keeps them in the
+  field `counters` and gives the record version 7; a reopened connection gives 0 for each.
+  `corpus.native_replay` records a version 7 record again with the counters and compares them.
+  `judge/records.py` knows version 7 (`WITH_OUTPUTS`) and passes `counters` to the subject.
+  Tests: `tests/conformance_counters_record_test.py`, `tests/conformance_run_on_test.py`,
+  `tests/test_judge_records.py`, `tests/test_judge.py`. These files are in the lock
+  (`judge/`), so `integrity/judge.lock.json` must change (the lead runs `just judge-lock`). Nix
+  evidence is pending.
+- 2026-10-23 (PR B): refactor after the review of the recorder commit. The two format
+  documents (`docs/native-corpus-format.md`, `docs/conformance-format-v2.md`) describe version 7:
+  the field `counters`, when the recorder reads it, the reopen that gives 0, the replay check and
+  the start of the model run. The helper of `tests/conformance_counters_record_test.py` has full
+  types. Tests: `tests/conformance_counters_record_test.py`. Nix evidence is pending.
+- 2026-10-23 (PR B): the authored cases and corpus-v52 (the "Tests" section of the task file). `conformance/counter_sql.py`
+  has the shared SQL, `authored_counter_writes.py`, `authored_counter_reads.py` and
+  `authored_counter_failures.py` have 33 cases (writes that set the counters, reads of the counters in
+  expressions and queries, failures with trigger rows, `RAISE`, rollback and deferred keys), and
+  `authored_counters.py` records them natively with `run_on` and the counters (record version 7).
+  `counter_evidence.py` writes `conformance/corpus-v52`. `judge/claims.json` has the new claim
+  `corpus-v52` (no DISAGREE or HARNESS_ERROR, every case in `mustAgree`), and `mustAgree` of
+  corpus-v5 has the case `delete4:delete4-3.0.1:6`, which the counters now predict. The case
+  `insert-or-replace-with-foreign-keys` replaces a row through its UNIQUE column, so that the
+  key row engine deletes the replaced row. The query-coverage test and the writer test list the
+  new corpus. The claimed corpus and `judge/claims.json` are in the lock, so the lead must run
+  `just judge-lock`. Tests: `just dev-verdict` for the corpus, the kernel proofs of
+  `tests/conformance_query_coverage_test.py` for the new cases and
+  `tests/conformance_corpus_writers_test.py`. Nix evidence is pending.
+- 2026-10-23 (PR B): refactor after the review of the cases commit. The parent table of the
+  case `restrict-action-fails-during-replace` has a UNIQUE column, so the first multi-row REPLACE
+  inserts row 7 and then fails when the RESTRICT action of the replaced row runs (R11); the
+  corpus-v52 shard is recorded again and the case names did not change. The module docstring of
+  `conformance/authored_counter_failures.py` separates the failures with ABORT or ROLLBACK from
+  those with FAIL (R9). Tests: `just dev-verdict` for the corpus and the kernel proofs of
+  `tests/conformance_query_coverage_test.py` for the new cases. Nix evidence is pending.
+- 2026-10-23 (PR B): the mutants of the counter rules (the "Tests" section of the task file). `conformance/counter_mutants.py`
+  has seven mutants of the Lean sources, each with a `rule:` guard and a target case: REPLACE
+  deletes counted in `changes()`, trigger program rows counted in `changes()`, trigger program rows
+  left out of `total_changes()`, `DROP TABLE` that leaves `changes()`, `changes()` kept after a
+  failure, the rollback that takes back `last_insert_rowid()`, and a failure that loses the rows
+  of programs. `tests/conformance_table_mutants_test.py` has the new measurement,
+  `tests/mutant_guards_test.py` lists the table, and `build-support/tests.nix` lists the module.
+  Tests: the new mutant test by name (`-k counter`) and `tests/mutant_guards_test.py`. The
+  scheduled run of all mutants is for CI. Nix evidence is pending.
+- 2026-10-23 (PR B): the documents, outcome 10. ADR 0024 has a dated note: slice 1 is
+  implemented, with record version 7 and corpus-v52, and the extra hypothesis of
+  `Script.run_append`. ADR 0017 keeps only `random()` and `randomblob()` as deferred, for slice 2.
+  Tests: `tests/test_public_doc_inventory.py` and `tests/test_ci_checks.py`. Nix evidence is pending.
+- 2026-10-23 (PR B): refactor after the review of the documents commit (R19). The note in
+  ADR 0024 says that `last_insert_rowid()` after a failed plain INSERT is the rowid of the last
+  row that the statement inserted into a rowid table, and otherwise keeps its previous value
+  (which can be unknown). Tests: none (documents only). Nix evidence is pending.
+- 2026-10-24 (PR B): the judge lock (`integrity/judge.lock.json`) adds corpus-v52 and the new
+  judge source. Its review had no findings.
+- 2026-10-24 (PR A): `just test-full` failed to build `VerifierConformance.RunPassLaws`, and the
+  formula tests `tests/keys_unique_theorems_test.py` and `tests/valid_atoms_theorems_test.py`
+  failed: `runScriptStepWith` has a new case (a read of an unknown counter), and
+  `runStatement` takes the counters. `just dev-build` builds only the conformance runner, so the
+  law module did not build before. The fix commit at the end of PR A adds the case split and
+  the counters argument; its review had no findings.
+- 2026-10-24: `just test-full` passes, and `just verdict` passes (corpus-v52 AGREE 33,
+  corpus-v51 AGREE 21, corpus-v50 AGREE 17, corpus-v4 AGREE 673, corpus-v5 AGREE 2946). `just
+  test-nix` passes (67 tests), and `just test-scheduled-checks` passes (47 tests). The task is
+  DONE.
 
 ## Native probes (3.51.0, dev shell `sqlite3`, one statement per line)
 
@@ -331,4 +397,4 @@ flight". A fifth review, of the last fix of the status file, had no findings.
 
 ## Review records
 
-None yet.
+The records of each review and of each resolution of a finding are under `reviews/`.

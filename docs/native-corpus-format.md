@@ -21,6 +21,15 @@ statement that prepares must end at the same place as its prepare tail; the
 recorder refuses a case where the two differ. The native replay records a
 version 6 record again with `run_on`.
 
+Version 7 is version 6 recorded with `counters` (ADR 0024, D1). The record has the field
+`counters`: an object with the integers `changes`, `totalChanges` and `lastInsertRowid`,
+which are `sqlite3_changes64`, `sqlite3_total_changes64` and `sqlite3_last_insert_rowid` of the
+writer connection just before the migration runs. A new connection has 0 for each, so a setup
+that reopens the connection (also for a read-only profile) gives 0, and a setup that writes
+gives the counts and the rowid that it left. The counters need `run_on`. A record of another
+version has no field `counters`, and its run starts with unknown counters. The native replay
+records a version 7 record again with the counters and refuses a record whose counters differ.
+
 Snapshots contain all main-schema SQL objects, including views and triggers;
 `table_xinfo`, `index_list`, `index_xinfo`, foreign-key metadata, and typed rows.
 WITHOUT ROWID tables use their ordered primary key. Ordinary tables use an

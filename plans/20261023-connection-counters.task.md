@@ -1,6 +1,6 @@
 # The connection counters (ADR 0024, slice 1)
 
-Created 2026-10-23. Status: OPEN (not started). This file says what must be true when the task
+Created 2026-10-23. Status: DONE (2026-10-24). This file says what must be true when the task
 is done. Status file: [status](20261023-connection-counters.status.md).
 Specification: [ADR 0024](../docs/adr-0024-connection-state-and-random-values.md) (ACCEPTED
 2026-10-23), D1 to D3, D5 for the connection functions, D6 slice 1; owner decisions 1, 3 and 5

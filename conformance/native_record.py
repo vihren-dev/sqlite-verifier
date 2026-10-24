@@ -8,6 +8,7 @@ from tempfile import TemporaryDirectory
 from conformance.case_format import Json
 from conformance.native_statements import execute
 from conformance.native_connection import Cell, Connection, library_path, load_library
+from conformance.native_counters import read_counters
 from conformance import native_observation
 from conformance.execution_profile import ExecutionProfile
 from conformance.native_clock import NativeClock, utc_timezone
@@ -31,13 +32,16 @@ def record_sql(setup: str | list[str | dict[str, Json]], migration: str, *, name
                setup_call_indices: list[int] | None = None,
                source_setup_commands: list[str | dict[str, Json]] | None = None,
                temporary_root: Path | None = None, fixture_paths: list[Path] | None = None,
-               run_on: bool = False) -> dict[str, Json]:
+               run_on: bool = False, counters: bool = False) -> dict[str, Json]:
     """Keep exact call inputs and native evidence with fixed or per-statement clocks.
 
     An explicit root places ordinary file fixtures there; an optional path list
     records their actual database paths without adding them to native evidence.
     With `run_on`, the migration runs on after an SQL error, so that every statement gives an
-    event; such a record has version 6 and needs a measured profile.
+    event; such a record has version 6 and needs a measured profile. With `counters` (and `run_on`),
+    the record also holds the three counters of the writer connection just before the migration
+    (`changes`, `totalChanges`, `lastInsertRowid`), which a reopened connection resets to 0; such a
+    record has version 7.
     """
     if parameters is not None and not outputs:
         raise ValueError("Bound parameters require output recording")
@@ -60,6 +64,8 @@ def record_sql(setup: str | list[str | dict[str, Json]], migration: str, *, name
     if run_on and not measured:
         raise ValueError(f"A recording that runs on after an error needs a measured profile: {name}; "
                          "give a profile of format 3")
+    if counters and not run_on:
+        raise ValueError(f"A recording with counters needs run_on: {name}; version 7 is version 6 with counters")
     if controlled != (setup_clock is not None and clock_values is not None):
         raise ValueError("Controlled profile requires setup and statement clock inputs")
     if not controlled and (setup_clock is not None or clock_values is not None):
@@ -156,16 +162,18 @@ def record_sql(setup: str | list[str | dict[str, Json]], migration: str, *, name
                     "transactionOpen": writer.transaction_open}
 
         initial = snapshot()
+        start_counters = read_counters(writer) if counters else None
         trace = [{**event, **snapshot()} for event in execute(writer, migration, outputs=outputs,
             parameters=parameters, clock=clock, clock_values=clock_values,
             transaction_mode=profile.transaction_mode if profile else None, select_only=migration_readonly,
             readonly_spans=migration_readonly_spans, committed_reads=auxiliary_replay,
             record_bindings=recording is not None, parameter_names=parameter_names,
             tcl_calls=tcl_calls["assertion"] if tcl_calls is not None else None, phases=measured, run_on=run_on)]
-    result = {"nativeVersion": 6 if run_on else 5 if measured else 4 if profile is not None else 3 if outputs else 2 if isinstance(setup, list) and any(isinstance(item, dict) for item in setup) else 1, "name": name, "setupSql": setup if isinstance(setup, str) else "\n".join(item for item in setup if isinstance(item, str)),
+    result = {"nativeVersion": 7 if counters else 6 if run_on else 5 if measured else 4 if profile is not None else 3 if outputs else 2 if isinstance(setup, list) and any(isinstance(item, dict) for item in setup) else 1, "name": name, "setupSql": setup if isinstance(setup, str) else "\n".join(item for item in setup if isinstance(item, str)),
             "setupCommands": [setup] if isinstance(setup, str) else setup, "setupOutcomes": setup_outcomes,
             "setupResults": setup_results, "setupErrors": setup_errors, "migrationSql": migration,
             "sourceId": engine.sqlite3_sourceid().decode(), "requirements": requirements or [], "initial": initial, "trace": trace,
-            **({"profile": profile.to_wire(), "setupClockUnixMilliseconds": setup_clock} if profile else {}), **(recording or {})}
+            **({"profile": profile.to_wire(), "setupClockUnixMilliseconds": setup_clock} if profile else {}),
+            **({"counters": start_counters} if start_counters is not None else {}), **(recording or {})}
     validate_recording(result)
     return result

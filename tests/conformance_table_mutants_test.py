@@ -1,5 +1,5 @@
 """Each mutant of the write, row-write, DELETE, join, index, `WITHOUT ROWID`, collation, CHECK,
-generated-column, `STRICT`, DROP and after-error mutant tables changes the verdict of an authored
+generated-column, `STRICT`, DROP, after-error and connection-counter mutant tables changes the verdict of an authored
 case.
 
 These measurements were in `tests/conformance_query_mutants_test.py`. The Nix suite of that
@@ -8,7 +8,7 @@ their own suite, `tableMutants`. The cases are the authored cases of
 `conformance.authored_writes`, `authored_row_writes`, `authored_deletes`, `authored_joins`,
 `authored_using`, `authored_right`, `authored_merged`, `authored_indexes`,
 `authored_without_rowid`, `authored_collations`, `authored_checks`, `authored_generated`,
-`authored_strict`, `authored_drops` and `authored_after_error`, recorded natively with their
+`authored_strict`, `authored_drops`, `authored_after_error` and `authored_counters`, recorded natively with their
 outputs. Each test builds one base copy for its mutants with `measure_set`, and each mutant copy classifies the
 case that the mutant names as its target. The writes and the joins are separate measurements of
 at most 22 mutants, so that each test stays far within its limit of 300 seconds while the
@@ -20,6 +20,7 @@ from pathlib import Path
 import pytest
 
 from conformance import (after_error_mutants, authored_after_error, authored_checks, authored_collations,
+                         authored_counters, counter_mutants,
                          authored_deletes, authored_drops, authored_generated,
                          authored_indexes, authored_joins, authored_merged, authored_right, authored_row_writes,
                          authored_strict, authored_using, authored_without_rowid, authored_writes, check_mutants,
@@ -104,3 +105,12 @@ def test_every_after_error_mutant_changes_a_verdict(runtime_root: Path) -> None:
     that continues (`conformance.after_error_mutants`): an error that closes the transaction, an
     `OR ROLLBACK` that keeps it open, and a failed statement that changes the catalog."""
     measure_set(runtime_root, [authored_after_error], [(after_error_mutants.MUTANTS, after_error_mutants.TARGETS)])
+
+
+def test_every_counter_mutant_changes_a_verdict(runtime_root: Path) -> None:
+    """The authored cases of the connection counters notice every changed rule of the counts
+    (`conformance.counter_mutants`): the rows that REPLACE deletes counted, the rows of trigger
+    programs counted in `changes()` or left out of `total_changes()`, a `DROP TABLE` that does not
+    set `changes()`, `changes()` kept after a failure, `last_insert_rowid()` taken back by the
+    rollback, and the changes before a failure left out of `total_changes()`."""
+    measure_set(runtime_root, [authored_counters], [(counter_mutants.MUTANTS, counter_mutants.TARGETS)])

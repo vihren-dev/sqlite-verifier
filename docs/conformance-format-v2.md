@@ -88,6 +88,12 @@ model's run that continues after an error (`runPassFrom`): each statement resolv
 against the state of the connection when it runs. The prediction of such a record comes
 from the same run. Every other case has `continues: false` and keeps the pass that stops
 at the first error.
+Acquisition `nativeVersion: 7` is version 6 with the field `counters`: the integers `changes`,
+`totalChanges` and `lastInsertRowid` of the writer connection just before the migration
+(`conformance/record_counters.py` checks them). The judge gives the field to the subject with the
+other inputs, because it is state from before the migration. The model case has the same field
+`counters`, and the run starts from it; a case without the field starts with unknown counters, and
+a statement that reads an unknown counter ends the run (ADR 0024, D2).
 Manifests declare `executionProfiles`, an array of these complete profile records.
 Every v4 record must match a declaration exactly; duplicate name/version identities
 and missing or conflicting declarations are refused. Legacy corpora retain their

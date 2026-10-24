@@ -272,6 +272,27 @@ unknown counter), the run is the same under every environment.
 | 1 | D1 to D3, and D5 for the connection functions: the counters, their reads, the errors of the five functions in schema positions, and the counters of `Env` | the row engine of ADR 0018 D4 and D5, which counts the rows of trigger programs and foreign-key actions; owner decisions 1 and 3 | ADR 0017 S6, whose `≈` must account for state that a later statement reads (guide open question 2); the 8 corpus cases that call `changes()` |
 | 2 | D4, and D5 for random values | slice 1's resolved forms of the five functions; owner decisions 2 and 4 | no slice of ADR 0017 today; a guide example or a measurement that needs random values |
 
+Amended 2026-10-23 (slice 1 is implemented, task `plans/20261023-connection-counters.task.md`):
+
+- **The counters.** `SqlState` holds the three counters, and `runStatement` gives the counts with
+  the effect (D1). After a failed plain INSERT, `last_insert_rowid()` is the rowid of the last
+  row that the statement inserted into a rowid table before the failure. When the first row
+  fails, or the table is `WITHOUT ROWID`, the counter keeps its previous value, which can be
+  unknown.
+- **Reads and the unknown counter (D2, D3).** The reads and the restrictions are as D2 says. A
+  statement that reads an unknown counter ends the run with `Output.unmodeled`, and its support
+  check is false. `Script.run_env` has a second hypothesis for this end, and `Script.run_append`
+  has the hypothesis that no output of the run of the second script on the database of the first
+  ends the run, because the second script starts from unknown counters.
+- **Schema positions.** Resolution gives SQLite's error where the call is the only error of the
+  walk of the expression. SQLite keeps the last error of its walk, so any other prepare error of
+  the same expression is the restriction `nondeterministic-error-order`.
+- **The recorder (owner decision 3, A).** Native record version 7 is version 6 with the field
+  `counters`, the three counters of the writer connection just before the migration.
+  Corpus-v52 holds the authored cases of this slice as version 7 records. The recorder refuses
+  `random()` and `randomblob()`, so the errors of these two in schema positions have kernel
+  examples only.
+
 Each slice works as in ADR 0015: an authored corpus with kernel proofs where SQLite can check
 it, mutants for the rules that are easy to get wrong, the verdict of every corpus, and
 `just test-full` at the slice's end.

@@ -2,7 +2,8 @@
 
 The subject input holds only what exists before the migration runs: the profile and the
 SQLite source id that select the SQL dialect, the initial schema SQL and rows, the migration SQL,
-the statement parameters and, under a controlled clock, the clock value of each statement. Every later
+the statement parameters, the counters of the writer connection (version 7) and, under a controlled
+clock, the clock value of each statement. Every later
 observation stays with the judge, so the subject cannot copy the answer.
 """
 
@@ -15,9 +16,10 @@ from judge.cells import Json, text
 
 CASES_FILE = "cases.jsonl.gz"
 """Corpora v1 to v3 store one record per line in this file; later corpora use shards."""
-WITH_OUTPUTS = (3, 4, 5, 6)
+WITH_OUTPUTS = (3, 4, 5, 6, 7)
 """Native record versions that carry statement parameters and outputs. Version 6 runs on after an
-SQL error, so its trace has one event for each statement of the migration."""
+SQL error, so its trace has one event for each statement of the migration. Version 7 is version 6
+with the counters of the writer connection at the start of the migration."""
 
 
 def expanded(record: Json, where: str) -> dict[str, Json]:
@@ -95,6 +97,11 @@ def subject_input(record: dict[str, Json]) -> dict[str, Json]:
         # which tells the subject how far SQLite got (up to version 5, SQLite stops at the first
         # error; version 6 runs every statement); records before version 3 have none.
         given["parameters"] = [event["parameters"] for event in trace]
+    if "counters" in record:
+        # The counters of the writer connection at the start of the migration (changes, total changes
+        # and last insert rowid) are state from before the migration, so they are a statement input
+        # too. Records of versions before 7 have none, and their run starts with unknown counters.
+        given["counters"] = record["counters"]
     if trace and all("clockUnixMilliseconds" in event for event in trace):
         # The recorder's controlled clock is a statement input too: the Unix milliseconds that
         # each executed statement saw. Records without a controlled clock have none.
