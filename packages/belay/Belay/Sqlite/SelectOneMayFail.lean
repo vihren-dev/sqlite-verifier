@@ -16,14 +16,15 @@ database has the table {lit}`t` and {lit}`p` resolves to a condition that reads 
 some part of the condition may fail ({name}`Resolved.Expr.mayFailOn`) on the empty row or on a row of the table
 in the context of the values, none of {lit}`Holds`, {lit}`Empty` and {lit}`Fails` holds of the script on the
 database. The condition may be true for a row or for no
-row. Proof sketch: {name}`Script.outputOn_selectOne` and {name}`resolvedStepOutput_simpleTable_unmodeled`. -/
+row. The source reference has no indexed query.
+Proof sketch: {name}`Script.outputOn_selectOne` and {name}`resolvedStepOutput_simpleTable_unmodeled`. -/
 theorem Script.not_claims_selectOne_of_mayFail
     {script : Script} {db : Database} {isQuery : script.isQuery = true} {reference : Syntax.TableReference}
     {filter : Option Syntax.Expr} {parameters : List Value} {rest : List (Syntax.Statement × List Value)}
     {position : Nat} {table : CatalogTable} {condition : Option Resolved.Expr}
     (head : script.statements = (.select [.expression (.numeric "1") none "1"] (some reference) [] filter [] [] none none []
       none false none, parameters) :: rest)
-    (arguments : reference.arguments = none) (found : db.raw.catalog.findTable reference.table = some (position, table))
+    (namedSource : reference.query = none) (arguments : reference.arguments = none) (found : db.raw.catalog.findTable reference.table = some (position, table))
     (resolves : FilterResolves runContext.profile.dqsDml (tableScope db.raw.catalog reference position table) [] filter
       condition)
     (quiet : ∀ expression ∈ condition.toList, expression.Quiet)
@@ -36,7 +37,7 @@ theorem Script.not_claims_selectOne_of_mayFail
     (Database.table_of_findTable db.raw _ position table found) (Resolved.Statement.Quiet.selectOne position condition quiet)
     member inCondition fails
   unfold Holds Empty Fails
-  rw [Script.outputOn_selectOne head arguments found resolves, Option.any_some, Option.any_some, Option.any_some,
+  rw [Script.outputOn_selectOne head namedSource arguments found resolves, Option.any_some, Option.any_some, Option.any_some,
     output.1, output.2.1, output.2.2]
   simp
 

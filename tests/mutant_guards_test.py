@@ -17,7 +17,7 @@ from conformance import (after_error_mutants, algorithm_mutants, counter_mutants
                          check_mutants, collation_mutants, generated_mutants, json_each_mutants,
                          without_rowid_mutants,
                          json_function_mutants, json_mutants, key_mutants, merged_mutants, number_mutants,
-                         obligation_mutants, query_mutants, resolve_mutants, right_mutants, row_write_mutants,
+                         obligation_mutants, query_mutants, query_source_mutants, resolve_mutants, right_mutants, row_write_mutants,
                          drop_mutants, function_mutants, json_edit_mutants, aggregate_mutants, printf_mutants, jsonb_mutants, numeric_function_mutants, strict_mutants, subquery_mutants, expression_form_mutants, distinct_having_mutants, foreign_key_mutants, trigger_mutants, possible_result_mutants, parameter_mutants, compound_mutants, pragma_mutants, upsert_mutants, using_mutants,
                          write_mutants)
 from conformance.mutant_guards import guard_problems, obligation_problems
@@ -38,7 +38,7 @@ ROOT = Path(__file__).resolve().parents[1]
                                    printf_mutants, subquery_mutants, expression_form_mutants,
                                    distinct_having_mutants, foreign_key_mutants, trigger_mutants,
                                    possible_result_mutants, parameter_mutants, compound_mutants, pragma_mutants,
-                                   after_error_mutants, counter_mutants],
+                                   after_error_mutants, counter_mutants, query_source_mutants],
                          ids=lambda table: table.__name__.rsplit(".", 1)[1])
 def test_every_mutant_names_what_it_guards(table: ModuleType) -> None:
     """Every mutant of the table has a guard, and every guard names something that exists."""

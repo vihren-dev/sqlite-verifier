@@ -66,7 +66,7 @@ theorem resolveOperand_identifier_single {name : Identifier} {quote : Syntax.Quo
     resolveOperand dqs (Scope.single source columns hasRowid) shapes misuse (.identifier name quote) =
       .ok (.column index, columns[index]?.map CatalogColumn.affinity) := by
   simp only [resolveOperand, resolveName_one_source found]
-  simp [Scope.nameRead, Scope.nameOperand, Scope.single, Scope.argumentCell, Scope.triggerCell, Scope.columns]
+  simp [Scope.nameRead, Scope.nameOperand, Scope.affinityAt, Scope.single, Scope.argumentCell, Scope.triggerCell, Scope.columns]
 
 /-- A name of a column of the table at a catalog position resolves to the column at its position,
 with its affinity. The law covers a name that the table has; the resolver gives an issue for a name that it

@@ -44,7 +44,8 @@ MUTANTS: dict[str, tuple[str, str, str]] = {
         "  let collations := compoundCollations (terms.map fun term => optionalCollations term.scope term.written.columns) width\n",
         "  let collations := (List.range width).map fun _ => Collation.binary\n"),
     "in_compound_collation": (RESOLUTION,
-        "      explicitCollation := last.shape.explicitCollation, columnCollation := last.shape.columnCollation,\n",
+        "      explicitCollation := if derived then none else last.shape.explicitCollation,\n"
+        "      columnCollation := if derived then sourceColumns.head?.map (·.collation) else last.shape.columnCollation,\n",
         "      explicitCollation := none, columnCollation := collations.head?,\n"),
     "except_runs_right_on_empty": (RUN,
         "    | .except | .intersect => if left.isEmpty then .done else right.ending.intoTable\n",

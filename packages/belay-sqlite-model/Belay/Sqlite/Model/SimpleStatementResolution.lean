@@ -52,12 +52,13 @@ theorem resolveStatement_select_simple (context : ResolveContext) (state : Resol
 /-- For every {lit}`SELECT` of one table (no joins, no table-function arguments), whose table the
 catalog does not have and whose name is neither a table of SQLite itself ({name}`reservedName`) nor a
 table-valued function ({name}`eponymousName`), the statement resolves to the prepare error
-{lit}`no such table`, for any clauses after {lit}`FROM`, and leaves the state as it is. Proof sketch:
+{lit}`no such table`, for any clauses after {lit}`FROM`, and leaves the state as it is. The source reference has no indexed query.
+Proof sketch:
 the lookup of the first table fails with that error, which the resolver of the statement turns
 into the prepare error. -/
 theorem resolveStatement_select_missing_table (context : ResolveContext) (state : ResolveState) (query : Syntax.Subquery)
     (reference : Syntax.TableReference) (source : query.source = some reference) (noJoins : query.joins = [])
-    (arguments : reference.arguments = none) (missing : state.catalog.findTable reference.table = none)
+    (namedSource : reference.query = none) (arguments : reference.arguments = none) (missing : state.catalog.findTable reference.table = none)
     (notReserved : reservedName reference.table = false) (notFunction : eponymousName reference.table = false) :
     resolveStatement context state (.select query.columns query.source query.joins query.filter query.groupBy
         query.orderBy query.limit query.offset [] query.having query.distinct query.compound) =
@@ -67,8 +68,8 @@ theorem resolveStatement_select_missing_table (context : ResolveContext) (state 
       state.withCatalog (resolveSelect context state.catalog { query with parent := none } []) := rfl
   rw [unfolded]
   unfold resolveSelect
-  simp [source, noJoins, resolveSources, resolveReference, arguments, resolveTableReference, missing, notReserved,
-    notFunction, maximumJoinTables, prepareError, ResolveState.withCatalog, Bind.bind, Except.bind, Functor.map, Except.map]
+  simp [source, noJoins, resolveSources, resolveReference, namedSource, arguments, resolveTableReference, missing, notReserved,
+    notFunction, Except.mapError, SourceIssue.under, maximumJoinTables, prepareError, ResolveState.withCatalog, Bind.bind, Except.bind, Functor.map, Except.map]
 
 /-- For every SELECT without subqueries, joins, compound or a parent, whose sources resolve,
 whose result columns pass the star check, and whose body reports a prepare error, the statement

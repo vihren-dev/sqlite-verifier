@@ -30,6 +30,13 @@ structure ScopeSource where
   name : Identifier
   /-- The columns of the source's table. -/
   columns : List CatalogColumn
+  /-- Expression affinities for a derived source, including no affinity; none uses each
+  catalog column's declared type. For example, the column of {lit}`SELECT 1` has none. -/
+  affinities : Option (List (Option Affinity)) := none
+  /-- The indexed query that supplies this source; none for catalog tables and functions. -/
+  queryIndex : Option Nat := none
+  /-- Whether a qualifier can name the source; false for an anonymous derived table. -/
+  qualified : Bool := true
   /-- The position in the joined row of the source's first cell: the number of cells of
   the sources before it ({lit}`Scope.place`). 0 for the first source and for the table of a
   write. -/
@@ -96,6 +103,21 @@ def Scope.argumentCell (scope : Scope) (position : Nat) : Bool :=
 
 /-- The columns of all sources, in the order of the concatenated row. -/
 def Scope.columns (scope : Scope) : List CatalogColumn := scope.flatMap (·.columns)
+
+/-- The affinity of a source column: its expression affinity for a derived source, otherwise
+its declared affinity. An out-of-range position has no affinity. -/
+def ScopeSource.columnAffinity (source : ScopeSource) (index : Nat) : Option Affinity :=
+  match source.affinities with
+  | some affinities => affinities[index]?.join
+  | none => source.columns[index]?.map CatalogColumn.affinity
+
+/-- The affinity of a cell in the concatenated scope, including a derived column without
+an affinity. Use this instead of a catalog column's declared type for query expressions. -/
+def Scope.affinityAt (scope : Scope) (position : Nat) : Option Affinity :=
+  match scope.find? fun source => source.affinities.isSome && source.offset ≤ position &&
+      position < source.offset + source.columns.length with
+  | some source => source.columnAffinity (position - source.offset)
+  | none => scope.columns[position]?.map CatalogColumn.affinity
 
 /-- The number of cells before the source at {lit}`index` of the query's own sources
 ({name}`Scope.inner`): its offset, or the number of cells of the whole scope for an index past

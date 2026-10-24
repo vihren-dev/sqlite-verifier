@@ -144,3 +144,11 @@ def test_no_from_scalar_calls_preserve_function_faults(runtime_root: Path, tmp_p
     reports = [line for line in result.stdout.splitlines() if "depends on axioms" in line]
     assert len(reports) == 3, result.stdout
     assert all(name not in result.stdout for name in ("sorryAx", "ofReduceBool", "_native")), result.stdout
+
+
+def test_derived_sources_reach_public_query_predicates(runtime_root: Path, tmp_path: Path) -> None:
+    """SQL quotations resolve derived tables into the existing query evaluator: metadata,
+    compound columns, enclosing scope, empty sources, prepare errors and uncertain membership."""
+    result = run_command(surface_command(runtime_root, FIXTURES / "ClaimsDerived.lean", tmp_path), cwd=tmp_path,
+                         timeout=60)
+    assert result.returncode == 0, result.diagnostic()

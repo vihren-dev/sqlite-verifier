@@ -11,15 +11,14 @@ from conformance.resolve_mutants import SQLITE
 QUERY_JOINS = SQLITE + "QueryJoins.lean"
 """The rows of joins."""
 
-ADDED = "    | .right | .full => (unmatchedRight context left join candidates).map (List.replicate leftWidth .null ++ ·)\n"
+ADDED = ("    | .right | .full => (unmatchedRight context left join candidates).map\n"
+         "        ((outer ++ List.replicate (leftWidth - outer.length) .null) ++ ·)\n")
 """The added rows of a right or full join."""
 
 MUTANTS: dict[str, tuple[str, str, str]] = {
     "right_drops_unmatched": (QUERY_JOINS, ADDED + "    | .inner | .left => []",
-        "    | .full => (unmatchedRight context left join candidates).map (List.replicate leftWidth .null ++ ·)\n"
-        "    | .right | .inner | .left => []"),
-    "right_pads_own_width": (QUERY_JOINS, ADDED,
-        "    | .right | .full => (unmatchedRight context left join candidates).map (List.replicate width .null ++ ·)\n"),
+        ADDED.replace("| .right | .full =>", "| .full =>") + "    | .right | .inner | .left => []"),
+    "right_pads_own_width": (QUERY_JOINS, ADDED, ADDED.replace("(leftWidth - outer.length)", "width")),
     "unmatched_per_left_row": (QUERY_JOINS,
         "  candidates.filter fun cells => !left.any fun row => join.matches context (row ++ cells)",
         "  candidates.filter fun cells => !left.all fun row => join.matches context (row ++ cells)"),

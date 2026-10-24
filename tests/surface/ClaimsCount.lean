@@ -36,9 +36,9 @@ theorem invoices_has_n_rows (db : Database) (position : Nat) (table : CatalogTab
       (result := (.compare .eq none (.subquery 0) (.parameter 1) .binary, none)) (by simp [namesAlias]) (by
       simp [sql_simp, countShape]; rfl)
   have subResolves : FilterResolves runContext.profile.dqsDml
-      (tableScope db.raw.catalog ⟨name! "invoices", none, none⟩ position table) [] none none { current := some 0 } :=
+      (tableScope db.raw.catalog { table := name! "invoices", alias := none } position table) [] none none { current := some 0 } :=
     .inl ⟨rfl, rfl⟩
-  refine Iff.trans (Holds.iff_selectOne_count (head := rfl) (count := by decide) (arguments := rfl) found subResolves
+  refine Iff.trans (Holds.iff_selectOne_count (namedSource := rfl) (head := rfl) (count := by decide) (arguments := rfl) found subResolves
     mainResolves (by simp [sql_simp]) (by simp)) ?_
   simp [sql_simp, Resolved.comparisonOperands, boundValue, Resolved.SubqueryRun.count, Value.isNull,
     Comparison.holds]
@@ -77,11 +77,11 @@ theorem invoices_with_negative_amount_are_n (db : Database) (position index : Na
       (result := (.compare .eq none (.subquery 0) (.parameter 1) .binary, none)) (by simp [namesAlias]) (by
       simp [sql_simp, countShape]; rfl)
   have subResolves := FilterResolves.of_term (dqs := runContext.profile.dqsDml)
-    (scope := tableScope db.raw.catalog ⟨name! "invoices", none, none⟩ position table) (aliases := [])
+    (scope := tableScope db.raw.catalog { table := name! "invoices", alias := none } position table) (aliases := [])
     (shapes := { current := some 0 })
     (term := .compare .lt (.identifier (name! "amount") .none) (.numeric "0")) (by simp [namesAlias])
     (by simp [sql_simp, column]; rfl)
-  refine Iff.trans (Holds.iff_selectOne_count (head := rfl) (count := by decide) (arguments := rfl) found subResolves
+  refine Iff.trans (Holds.iff_selectOne_count (namedSource := rfl) (head := rfl) (count := by decide) (arguments := rfl) found subResolves
     mainResolves (by simp [sql_simp]) (by simp [sql_simp])) ?_
   simp [sql_simp, Resolved.comparisonOperands, boundValue, Resolved.SubqueryRun.count, Value.isNull,
     Comparison.holds]
@@ -114,13 +114,13 @@ theorem invoice_count_empty_and_safe (db : Database) (position : Nat) (table : C
       (result := (.compare .eq none (.subquery 0) (.parameter 1) .binary, none)) (by simp [namesAlias]) (by
       simp [sql_simp, countShape]; rfl)
   have subResolves : FilterResolves runContext.profile.dqsDml
-      (tableScope db.raw.catalog ⟨name! "invoices", none, none⟩ position table) [] none none { current := some 0 } :=
+      (tableScope db.raw.catalog { table := name! "invoices", alias := none } position table) [] none none { current := some 0 } :=
     .inl ⟨rfl, rfl⟩
   constructor
-  · refine Iff.trans (Empty.iff_selectOne_count (head := rfl) (count := by decide) (arguments := rfl) found subResolves
+  · refine Iff.trans (Empty.iff_selectOne_count (namedSource := rfl) (head := rfl) (count := by decide) (arguments := rfl) found subResolves
       mainResolves (by simp [sql_simp]) (by simp)) ?_
     simp [sql_simp, Resolved.comparisonOperands, boundValue, Resolved.SubqueryRun.count, Value.isNull, Comparison.holds]
-  · exact Fails.not_selectOne_count (head := rfl) (count := by decide) (arguments := rfl) found subResolves
+  · exact Fails.not_selectOne_count (namedSource := rfl) (head := rfl) (count := by decide) (arguments := rfl) found subResolves
       mainResolves (by simp [sql_simp]) (by simp)
 
 example (n : Int64) (isThree : n = 3) : Empty (sql r"SELECT 1 WHERE (SELECT count(*) FROM invoices) = $n") shop :=

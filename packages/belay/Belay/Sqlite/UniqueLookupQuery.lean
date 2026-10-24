@@ -20,6 +20,7 @@ column at {lit}`index` under that same collation, the script holds on the databa
 has a cell equal to the value after the affinity of the column, so the number of rows is at most one.
 The statement needs the collation of the comparison to be the collation of the key: with a column {lit}`COLLATE NOCASE` and a
 unique index {lit}`COLLATE BINARY` a table can hold {lit}`'a'` and {lit}`'A'`, and {lit}`c = 'a'` then matches both rows.
+The source reference has no indexed query.
 Proof sketch: {name}`Holds.iff_selectOne_count` turns the claim into the truth of the condition {lit}`n <= 1` for the number of
 rows ({name}`Resolved.truthy_count_le_one`); the unique lookup bounds that number
 ({name}`Table.KeysUnique.countMatching_le_one`) with the unique keys and the stored cells of the valid database. -/
@@ -33,7 +34,7 @@ theorem Holds.selectOne_count_unique_lookup
       [Syntax.Subquery.mk [.expression (.callStar name) none text] (some reference) [] (some subFilter) [] [] none none none none
         false none] none false none, parameters) :: rest)
     (count : normalizeIdentifier name = "count")
-    (arguments : reference.arguments = none) (found : db.raw.catalog.findTable reference.table = some (position, table))
+    (namedSource : reference.query = none) (arguments : reference.arguments = none) (found : db.raw.catalog.findTable reference.table = some (position, table))
     (subResolves : FilterResolves runContext.profile.dqsDml (tableScope db.raw.catalog reference position table) []
       (some subFilter) (some (.compare .eq (some column.affinity) (.column index) (.parameter slot) collation))
       { current := some 0 })
@@ -45,7 +46,7 @@ theorem Holds.selectOne_count_unique_lookup
     (oneTerm : key.terms = [{ term := .column index, descending, collation }]) :
     Holds script db isQuery := by
   have present := Database.table_of_findTable db.raw _ position table found
-  refine (Holds.iff_selectOne_count head count arguments found subResolves mainResolves (by simp [sql_simp])
+  refine (Holds.iff_selectOne_count head count namedSource arguments found subResolves mainResolves (by simp [sql_simp])
     (by simp [sql_simp])).2 ?_
   rw [Resolved.truthy_count_le_one]
   simpa using Table.KeysUnique.countMatching_le_one (db.valid.unique position _ present)

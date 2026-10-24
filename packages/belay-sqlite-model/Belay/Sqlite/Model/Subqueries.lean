@@ -18,13 +18,16 @@ subquery's own cells keep their positions. With no outer cells this is {name}`Qu
 def Query.sourceAfter (context : EvalContext) (outer : List Value) (query : Query) (database : Database) :
     Option SourceRows :=
   let cells := outer ++ List.replicate (query.outer - outer.length) .null
-  query.sources.foldlM (QuerySource.join context database) { rows := [cells], width := cells.length, fault := .none }
+  query.sources.foldlM (QuerySource.join context database)
+    { rows := [cells], width := cells.length, fault := .none, outer := cells }
 
 /-- Whether SQLite gives the same first values on both sides of a cut before {lit}`position` of
 the sorted records, in every order that the {lit}`ORDER BY` terms allow: the cut is at the start
 or after the end, or the records around it are not tied, or every record tied with the one
-after the cut has the same first value. -/
-def certainCut (directions : List (Bool × Collation)) (sorted : List Record) (position : Nat) : Bool :=
+after the cut has the same first value. With {lit}`wholeRows`, compare all result cells instead;
+use it for a derived source, whose consumer can read any column. -/
+def certainCut (directions : List (Bool × Collation)) (sorted : List Record) (position : Nat)
+    (wholeRows : Bool := false) : Bool :=
   match position, sorted[position]? with
   | 0, _ | _, none => true
   | before + 1, some after =>
@@ -32,19 +35,23 @@ def certainCut (directions : List (Bool × Collation)) (sorted : List Record) (p
     | none => true
     | some previous =>
       compareSort directions previous.2 after.2 != .eq ||
-        (sorted.filter (compareSort directions ·.2 after.2 == .eq)).all (·.1.head? == after.1.head?)
+        (sorted.filter (compareSort directions ·.2 after.2 == .eq)).all
+          (fun record => if wholeRows then record.1 == after.1 else record.1.head? == after.1.head?)
 
 /-- Whether the first values of a subquery's window are the same in every order that its
 {lit}`ORDER BY` terms allow, for a window of at most {lit}`limit` rows after its
 {lit}`OFFSET`: no rows, or both cuts of the window are certain ({name}`certainCut`). Without
-{lit}`ORDER BY` every record is tied, as SQLite may read the rows in any order. -/
-def Query.windowCertain (context : EvalContext) (query : Query) (rows : List (List Value)) (limit : Option Nat) :
+{lit}`ORDER BY` every record is tied, as SQLite may read the rows in any order. With
+{lit}`wholeRows`, each cut compares complete result rows instead of their first values. -/
+def Query.windowCertain (context : EvalContext) (query : Query) (rows : List (List Value)) (limit : Option Nat)
+    (wholeRows : Bool := false) :
     Bool :=
   limit == some 0 ||
     let directions := query.orderBy.map fun term => (term.descending, term.collation)
     let sorted := stableSort (fun a b => (compareSort directions a.2 b.2).isLE)
       (query.uniqueRecords context rows)
-    certainCut directions sorted query.offset && limit.all (certainCut directions sorted <| query.offset + ·)
+    certainCut directions sorted query.offset wholeRows &&
+      limit.all (fun count => certainCut directions sorted (query.offset + count) wholeRows)
 
 /-- The run of a subquery for an outer row: the rows of {name}`Query.run` over its source rows
 ({name}`Query.sourceAfter`), with the fault of the sources and of the run softened to
@@ -53,7 +60,8 @@ table, an integer overflow and a value of its window that is not an integer
 ({name}`Query.bindWindow`), which the model does not describe inside a subquery, are
 {lean}`Fault.may` too; the window is bound to the values of the context when the subquery
 runs. Its first row is certain when the window of one row is ({name}`Query.windowCertain`),
-and its rows when its own window is. Its end ({name}`RunEnd`) keeps the failure of the run
+and its first-column multiset when its own window is. Its complete rows are certain when that
+window compares every output cell. Its end ({name}`RunEnd`) keeps the failure of the run
 without the softening, for a compound that reads it for its terms. -/
 def Query.subqueryRun (context : EvalContext) (database : Database) (outer : List Value) (query : Query) :
     SubqueryRun :=
@@ -66,6 +74,7 @@ def Query.subqueryRun (context : EvalContext) (database : Database) (outer : Lis
       { rows := run.rows, fault := if run.overflow then .may else (source.fault.join run.fault).soften,
         firstCertain := bound.windowCertain context source.rows (some (min 1 (bound.limit.getD 1))),
         rowsCertain := bound.windowCertain context source.rows bound.limit,
+        sourceCertain := bound.windowCertain context source.rows bound.limit true,
         ending := if run.mismatch then .mismatch else if run.overflow then .overflow !bound.groupBy.isEmpty
           else match source.fault.join run.fault with
             | .none => .done

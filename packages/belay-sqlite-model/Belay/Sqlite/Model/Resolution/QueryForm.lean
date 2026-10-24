@@ -35,9 +35,9 @@ inductive Source where
   /-- {lit}`json_each` with its JSON argument and optional path, over the row before it
   (ADR 0012, amendment 5, slice 6d). -/
   | each (json : Expr) (path : Option Expr)
-  /-- A subquery. Resolution does not give it yet (ADR 0013, amendment 2); its payload
-  comes with the subquery ADR, and execution treats it as unmodeled. -/
-  | subquery
+  /-- The result rows of query {lit}`index` in the statement's indexed query list, with
+  {lit}`width` result columns. It reads the enclosing query's outer cells, not sibling sources. -/
+  | subquery (index width : Nat)
   /-- The rows of a pragma ({name}`PragmaRows`), as {lit}`PRAGMA table_info(t)` or
   {lit}`pragma_table_info('t')` gives them. -/
   | pragma (rows : PragmaRows)
@@ -46,7 +46,7 @@ inductive Source where
 /-- Whether the source is {lit}`json_each`. -/
 def Source.isEach : Source → Bool
   | .each .. => true
-  | .table _ | .subquery | .pragma _ => false
+  | .table _ | .subquery .. | .pragma _ => false
 
 /-- One source of {lit}`FROM` in written order: how it joins the row so far, the source,
 and its {lit}`ON` condition over the row so far and its cells; {lean}`(none : Option Expr)`

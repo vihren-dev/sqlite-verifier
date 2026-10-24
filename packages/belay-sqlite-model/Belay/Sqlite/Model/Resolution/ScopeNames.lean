@@ -60,7 +60,7 @@ def Scope.resolveName (scope : Scope) (name : Identifier) : NameResolution :=
 
 /-- Whether the source has the folded name. -/
 def ScopeSource.named (source : ScopeSource) (name : Identifier) : Bool :=
-  source.name.sameName name
+  source.qualified && source.name.sameName name
 
 /-- Whether a source of the query's own sources ({name}`Scope.inner`) that is no trigger's row
 has the folded name. -/

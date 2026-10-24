@@ -55,12 +55,12 @@ def query_groups(connection: Connection, sql: str, parameters: tuple[Cell, ...],
     from conformance.query_window import ASCII_UPPER, projected_order, tokens, window
     if not tokens(sql) or tokens(sql)[0].text.translate(ASCII_UPPER) not in {"SELECT", "WITH"}:
         return None
-    if any(token.depth > 0 and token.text.translate(ASCII_UPPER) == "LIMIT" for token in tokens(sql)):
-        raise ValueError("tie structure not observable: nested window")
     uncut, ordering, limit, offset = window(sql)
     has_limit = any(token.depth == 0 and token.text.translate(ASCII_UPPER) == "LIMIT" for token in tokens(sql))
     if not ordering and not has_limit:
         return None
+    if any(token.depth > 0 and token.text.translate(ASCII_UPPER) == "LIMIT" for token in tokens(sql)):
+        raise ValueError("tie structure not observable: nested window")
     keys = projected_order(ordering, columns, uncut) if ordering else ""
     guard = f" WHERE ?{len(parameters)} IS ?{len(parameters)}" if parameters else ""
     bounds = connection.query_result(f"SELECT CAST(({limit}) AS INTEGER), CAST(({offset}) AS INTEGER){guard};",
@@ -105,6 +105,8 @@ def check_write_window(connection: Connection, sql: str, parameters: tuple[Cell,
                 (token.text.translate(ASCII_UPPER) == "RETURNING" or
                  token.text.translate(ASCII_UPPER) == "ON" and following.text.translate(ASCII_UPPER) == "CONFLICT")), len(sql))
     query = sql[select.start:end]
+    if any(token.depth > 0 and token.text.translate(ASCII_UPPER) == "LIMIT" for token in tokens(query)):
+        raise ValueError("tie structure not observable: nested window")
     guard = f" WHERE ?{len(parameters)} IS ?{len(parameters)}" if parameters else ""
     selected = connection.query_result(f"SELECT * FROM ({query}){guard};", parameters, readonly=True)
     groups = query_groups(connection, query, parameters, list(selected.columns), selected.rows)

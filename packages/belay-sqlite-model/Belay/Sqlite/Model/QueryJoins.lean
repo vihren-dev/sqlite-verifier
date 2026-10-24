@@ -43,11 +43,13 @@ def unmatchedRight (context : EvalContext) (left : List (List Value)) (join : Qu
 /-- The rows of a join of a table, whose rows are {lit}`candidates` with {lit}`width` cells,
 after the rows so far, which have {lit}`leftWidth` cells: the rows of {name}`joinRow` for
 each left row, in order; for a right or full join, then each row of {name}`unmatchedRight`
-with NULL in the {lit}`leftWidth` cells of the left input (R-15753-04279, R-18902-30764). -/
+with NULL in the cells of the left input after the enclosing query's {lit}`outer` cells
+(R-15753-04279, R-18902-30764). Use {lean}`([] : List Value)` outside a subquery. -/
 def joinRows (context : EvalContext) (leftWidth : Nat) (left : List (List Value)) (join : QuerySource) (width : Nat)
-    (candidates : List (List Value)) : List (List Value) :=
+    (candidates : List (List Value)) (outer : List Value := []) : List (List Value) :=
   left.flatMap (joinRow context join width candidates) ++ match join.kind with
-    | .right | .full => (unmatchedRight context left join candidates).map (List.replicate leftWidth .null ++ ·)
+    | .right | .full => (unmatchedRight context left join candidates).map
+        ((outer ++ List.replicate (leftWidth - outer.length) .null) ++ ·)
     | .inner | .left => []
 
 end Belay.Sqlite.Model.Resolved

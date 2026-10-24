@@ -90,7 +90,7 @@ def test_version_two_outputs(runtime_root: Path, tmp_path: Path) -> None:
     assert compiled(wrong, runtime_root)["verdict"] == "DISAGREE"
     wrong["outputs"].pop()
     assert compiled(wrong, runtime_root)["verdict"] == "HARNESS_ERROR"
-    unsupported = record_sql("CREATE TABLE t(id INTEGER,v BLOB);", "SELECT a FROM (SELECT 1 AS a);",
+    unsupported = record_sql("CREATE TABLE t(id INTEGER,v BLOB);", "EXPLAIN SELECT 1;",
                              name="unsupported-output", outputs=True)
     assert prepare(unsupported, runtime_translator(runtime_root))[1]["verdict"] == "MODEL_UNSUPPORTED"
     # The translation numbers the parameters, and the model binds the case's values (ADR 0019).

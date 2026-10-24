@@ -84,11 +84,11 @@ def resultAliases (scope : Scope) (results : List Syntax.ResultColumn) : List (O
 
 /-- The explicit collation and the column collation of the first result column, as
 {name}`inCollation` needs them for a subquery: those of its expression, or the collation of
-the first column of {lit}`*` or {lit}`x.*`. -/
+the first expanded operand of {lit}`*` or {lit}`x.*`. -/
 def firstCollations (scope : Scope) : List Syntax.ResultColumn → Option Collation × Option Collation
   | .expression value _ _ :: _ => (value.explicitCollation, value.columnCollation scope)
-  | .star :: _ => (none, (scope.visible.head?.map (·.2.collation)))
-  | .sourceStar name :: _ => (none, ((scope.starColumns? name).bind (·.head?)).map (·.2.collation))
+  | .star :: _ => (none, (scope.visible.head?.bind fun (position, column) => scope.starCollation position column))
+  | .sourceStar name :: _ => (none, ((scope.starColumns? name).bind (·.head?)).bind fun (position, column) => scope.starCollation position column)
   | [] => (none, none)
 
 /-- Resolve the clauses of a query over its scope ({lit}`resolveSources`, enclosed by the

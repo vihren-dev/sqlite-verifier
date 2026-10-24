@@ -174,14 +174,13 @@ inductive RestrictionKind where
   /-- Two triggers of one table, time and event in the starting schema are not modeled: the case record lists the
   schema in name order, so it does not say which trigger SQLite created last and runs first (ADR 0018, slice 5). -/
   | schemaTriggerOrder
-  /-- {lit}`x IN (q)` and a scalar {lit}`(q)` over a compound {lit}`SELECT` that SQLite sorts as
-  {lit}`SELECT * FROM (compound)`, because an operator is not {lit}`UNION ALL` and an {lit}`ORDER BY` term has
-  {lit}`COLLATE`, are not modeled: they read the column of that derived table (ADR 0019, D3). -/
-  | compoundSubqueryColumn
   /-- An {lit}`ORDER BY` term of a compound {lit}`SELECT` that the model cannot match with a result column as SQLite
   does is not modeled: an aggregate, an expression that is a result expression of a term after resolution but not as
   written, or a {lit}`COLLATE` term after which SQLite gives a result column a random name (ADR 0019, D3). -/
   | compoundOrderByTerm
+  /-- A derived source whose duplicate output names need SQLite's random suffix is not modeled.
+  Give these columns distinct aliases (ADR 0019, D5). -/
+  | sourceColumnName
   /-- {lit}`PRAGMA foreign_key_check` without a table name when two or more tables have a mismatch: SQLite reports the
   first one in the order of its schema hash table (ADR 0019, D2). -/
   | foreignKeyMismatchOrder

@@ -119,3 +119,17 @@ def test_nested_windows_are_not_silently_ordered() -> None:
                 "INSERT INTO t SELECT k FROM (SELECT k FROM t LIMIT 1);"):
         with pytest.raises(ValueError, match="tie structure not observable"):
             record_sql(setup, sql, name="nested-window", outputs=True)
+
+
+def test_unranked_derived_windows_record_only_the_observed_rows() -> None:
+    """The native recorder captures an unranked source LIMIT without inventing tie groups.
+    Model admission must separately decide whether the source membership is certain."""
+    from conformance.native_record import record_sql
+    from conformance.corpus import native_replay
+    setup = "CREATE TABLE t(k); INSERT INTO t VALUES(1),(2),(3);"
+    for sql in ("SELECT * FROM (SELECT k FROM t ORDER BY k LIMIT 1 OFFSET 1);",
+                "SELECT * FROM (SELECT k FROM t LIMIT 0);",
+                "SELECT * FROM (SELECT k FROM t LIMIT 1);"):
+        record = record_sql(setup, sql, name="unranked-derived-window", outputs=True)
+        assert record["trace"][0]["groups"] is None
+        native_replay([record])

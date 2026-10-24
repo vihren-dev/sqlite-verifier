@@ -32,6 +32,11 @@ inductive SourceIssue where
   | noSuchTable (name : Identifier)
   deriving Repr, DecidableEq
 
+/-- Prefix a model restriction's path; a missing table and a prepare error keep their names. -/
+def SourceIssue.under (path : List Nat) : SourceIssue → SourceIssue
+  | .value issue => .value (issue.under path)
+  | .noSuchTable name => .noSuchTable name
+
 /-- A value issue is a source issue ({name}`SourceIssue.value`), so the resolution of the
 sources can use the functions that give value issues. -/
 instance : MonadLift (Except ValueIssue) (Except SourceIssue) := ⟨Except.mapError .value⟩

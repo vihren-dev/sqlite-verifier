@@ -52,13 +52,13 @@ def starIssue (scope : Scope) (columns : List Syntax.ResultColumn) : Option Valu
     | .expression .. => none) <|> issue) none
 
 /-- The collation of each result column of a term in the sense of {lit}`sqlite3ExprCollSeq`,
-in the order of its outputs: a column of {lit}`*` or {lit}`x.*` has its column's collation, an
+in the order of its outputs: a column of {lit}`*` or {lit}`x.*` has its expanded operand's collation, an
 expression its explicit collation, else its column's ({name}`Syntax.Expr.columnCollation`),
 else none. -/
 def optionalCollations (scope : Scope) (results : List Syntax.ResultColumn) : List (Option Collation) :=
   results.flatMap fun
-    | .star => scope.visible.map fun (_, column) => some column.collation
-    | .sourceStar name => ((scope.starColumns? name).map (·.map fun (_, column) => some column.collation)).getD []
+    | .star => scope.visible.map fun (position, column) => scope.starCollation position column
+    | .sourceStar name => ((scope.starColumns? name).map (·.map fun (position, column) => scope.starCollation position column)).getD []
     | .expression value _ _ => [value.explicitCollation <|> value.columnCollation scope]
 
 /-- The collation of each of the {lit}`width` columns of a compound, from the collations of its

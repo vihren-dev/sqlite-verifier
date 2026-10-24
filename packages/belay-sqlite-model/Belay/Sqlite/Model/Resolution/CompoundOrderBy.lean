@@ -22,6 +22,8 @@ structure CompoundTerm where
   query : Resolved.Query
   /-- The shape of the resolved term. -/
   shape : SubqueryShape
+  /-- Shapes of the term's expression subqueries, needed for derived-column affinity. -/
+  shapes : SubqueryShapes := {}
 
 /-- The column number of an {lit}`ORDER BY` term of a compound ({lit}`sqlite3ExprIsInteger`): an
 integer literal from 0 to 2147483647, also in hexadecimal, under unary plus and minus, which

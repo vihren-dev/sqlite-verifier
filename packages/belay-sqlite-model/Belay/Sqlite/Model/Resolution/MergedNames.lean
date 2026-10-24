@@ -25,7 +25,7 @@ def coalesceColumns : List Nat → Resolved.Expr
 (ADR 0018, D5); or the coalesce of several with no affinity. -/
 def Scope.nameOperand (scope : Scope) : List Nat → Operand
   | [position] => (.column position,
-      if scope.triggerCell position then none else scope.columns[position]?.map CatalogColumn.affinity)
+      if scope.triggerCell position then none else scope.affinityAt position)
   | reads => (coalesceColumns reads, none)
 
 /-- The operand of a name in an expression that reads the columns at the positions

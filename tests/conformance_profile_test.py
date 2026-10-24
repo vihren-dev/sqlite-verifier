@@ -128,7 +128,7 @@ def test_recorded_profile_clock_and_fresh_replay(tmp_path: Path, runtime_root: P
 
 @pytest.mark.requires_native("sqlite3-3.46.0")
 def test_profile_selects_its_pinned_engine(tmp_path: Path, runtime_root: Path) -> None:
-    """An explicit profile can select the older pin without relabelling its evidence."""
+    """Profile recording and replay select the older pin; EXPLAIN stays a frontend refusal."""
     from conformance.corpus import native_replay
     from conformance.native_record import record_sql
     from conformance.native_replay import prepare
@@ -138,7 +138,7 @@ def test_profile_selects_its_pinned_engine(tmp_path: Path, runtime_root: Path) -
         profile = measured_profile(connection, name="older-native")
     finally:
         connection.close()
-    record = record_sql("", "SELECT a FROM (SELECT 1 AS a);", name="older-pin", outputs=True, profile=profile)
+    record = record_sql("", "EXPLAIN SELECT 1;", name="older-pin", outputs=True, profile=profile)
     assert record["sourceId"] == profile.source_id
     native_replay([record], profile=profile)
     assert prepare(record, runtime_translator(runtime_root))[1]["verdict"] == "MODEL_UNSUPPORTED"

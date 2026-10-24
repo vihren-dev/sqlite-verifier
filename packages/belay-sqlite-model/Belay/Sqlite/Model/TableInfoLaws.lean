@@ -126,7 +126,7 @@ theorem resolveOperand_tableInfo_name (dqs : Bool) (reference : Syntax.TableRefe
     resolveOperand dqs (tableInfoScope reference argument rows) shapes misuse (.identifier (name! "name") quote) =
       .ok (.column 1, some .blob) := by
   simp only [resolveOperand, tableInfoScope_resolveName_name]
-  simp [Scope.nameRead, Scope.nameOperand, tableInfoScope, pragmaSource, Scope.place, Scope.argumentCell,
+  simp [Scope.nameRead, Scope.nameOperand, Scope.affinityAt, tableInfoScope, pragmaSource, Scope.place, Scope.argumentCell,
     Scope.triggerCell, Scope.columns, tableInfoNames, CatalogColumn.affinity, affinityOf]
 
 /-- For every reference, argument and rows, the collation of cell 1 of the pragma {lit}`pragma_table_info`, which holds the

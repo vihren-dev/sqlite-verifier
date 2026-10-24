@@ -180,10 +180,10 @@ example : rowsOf (inCompound (.string [65]) [.union]
 example : rowsOf (inCompound (.string [65]) [.union]
     [term [shown (ref (name! "m"))] "u" (some 0) (some (num "0")), term [shown (ref (name! "n"))] "t" (some 0)]) =
     some [[.integer 1]] := by decide +kernel
--- After the COLLATE rewrite, IN over the compound is a restriction; EXISTS takes it.
-example : reason (migration tables [inCompound (.string [65]) [.union]
+-- After the COLLATE rewrite, IN reads the derived column collation; EXISTS takes it too.
+example : rowsOf (inCompound (.string [65]) [.union]
     [term [shown (.collate (.string [97]) (name! "NOCASE"))] none (some 0), term [shown (.string [98])] none (some 0)]
-    [ascending (.collate (num "1") (name! "BINARY"))]]) = RestrictionKind.compoundSubqueryColumn.message := by decide +kernel
+    [ascending (.collate (num "1") (name! "BINARY"))]) = some [[.integer 1]] := by decide +kernel
 example : rowsOf (.select [shown (.exists 0)] none [] none [] [] none none
     [compoundSubquery [.union] [ascending (.collate (num "1") (name! "BINARY"))],
      term [shown (.string [97])] none (some 0), term [shown (.string [98])] none (some 0)]) =

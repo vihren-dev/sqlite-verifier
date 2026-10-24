@@ -129,16 +129,20 @@ inductive ResultColumn where
   deriving Repr, BEq
 
 /-- A table in {lit}`FROM`, or a table-valued function such as {lit}`json_each(json)`: its
-name and its optional alias, both as written, and the arguments of a function. Use
+name and its optional alias, both as written, and the arguments of a function; or an
+indexed query with its optional alias. Use
 {lean}`(none : Option Identifier)` for no alias, and {lean}`(none : Option (List Expr))` for a
 table. -/
 structure TableReference where
-  /-- The table name, or the function name. -/
+  /-- The table or function name; ignored when {lit}`query` names a derived source. -/
   table : Identifier
   /-- The alias of {lit}`table AS alias` or {lit}`table alias`. -/
   alias : Option Identifier
-  /-- The arguments of a table-valued function in written order; none for a table. -/
+  /-- The arguments of a table-valued function in written order; none for a table or SELECT. -/
   arguments : Option (List Expr) := none
+  /-- The indexed SELECT supplying this source. Use none for a named table or function;
+  a derived source has no function arguments and uses its optional alias for qualification. -/
+  query : Option Nat := none
   deriving Repr, BEq
 
 /-- One join of {lit}`FROM` after the first table: the keywords of its operator, the

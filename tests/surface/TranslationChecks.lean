@@ -47,6 +47,10 @@ def expectText (text : String) (item : Located Syntax.Statement) (path : List Na
   let #[selected] ← translated inner | throw <| IO.userError "expected one statement"
   expectText inner selected [8, 0, 5, 0, 0] "a COLLATE nocase"
   expectText inner selected [8, 2, 0, 0, 0] "a"
+  let source := "SELECT d.x FROM (SELECT 1 AS x) AS d;"
+  let #[selected] ← translated source | throw <| IO.userError "expected one statement"
+  expectText source selected [1, 3] "SELECT 1 AS x"
+  expectText source selected [8, 0, 0, 0, 0] "1"
 
 #guard ["\"a\"\"b\"", "[a]]", "`x`", "'it''s'", "\"Some\" Type", "plain"].map dequote ==
   ["a\"b", "a]", "x", "it's", "Some", "plain"]

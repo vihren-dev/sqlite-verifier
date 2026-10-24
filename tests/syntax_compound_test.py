@@ -39,7 +39,7 @@ def test_each_operator_names_its_terms(parse_sql: Callable[..., Translation], ke
     assert (select["limit"], select["offset"]) == (literal("2"), literal("1"))
     first, second = select["subqueries"]
     assert [first["parent"], second["parent"]] == [None, None]
-    assert second["source"] == {"table": "t", "alias": None, "arguments": None}
+    assert second["source"] == {"table": "t", "alias": None, "arguments": None, "query": None}
     assert (second["orderBy"], second["limit"], second["offset"]) == ([], None, None)
     assert first["compound"] is None and second["compound"] is None
 

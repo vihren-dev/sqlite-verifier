@@ -38,7 +38,7 @@ def test_forms_name_subqueries_in_text_order(parse_sql: Callable[..., Translatio
                                                 "alias": None, "text": "max(b)"}}]
     assert second["filter"] == {"compare": {"operator": "eq", "left": {"qualified": {"source": "u", "column": "b"}},
                                             "right": {"qualified": {"source": "t", "column": "a"}}}}
-    assert third["source"] == {"table": "u", "alias": None, "arguments": None}
+    assert third["source"] == {"table": "u", "alias": None, "arguments": None, "query": None}
     assert [item["parent"] for item in (first, second, third)] == [None, None, None]
 
 
@@ -85,3 +85,35 @@ def test_subqueries_outside_their_clauses_are_refused(parse_sql: Callable[..., T
         parse_sql(sql).statements()
     assert raised.value.status == "UNSUPPORTED"
     assert sql.encode()[raised.value.start:raised.value.end].decode() == refused
+
+
+def test_derived_sources_share_the_indexed_query_list(parse_sql: Callable[..., Translation]) -> None:
+    """Sources.lean lifts FROM SELECTs through the expression-subquery index and parent machinery.
+    SQL order of joins is preserved even though the source-list walker allocates from the right."""
+    [statement] = [item.value for item in parse_sql(
+        "SELECT (SELECT d.x) FROM (SELECT 1 AS x) d JOIN (SELECT (SELECT 2) AS y) e ON d.x = e.y;"
+    ).statements()]
+    select = statement["select"]
+    queries = select["subqueries"]
+    first = select["source"]
+    second = select["joins"][0]["source"]
+    assert first["table"] == second["table"] == ""
+    assert (first["alias"], second["alias"]) == ("d", "e")
+    assert first["arguments"] is second["arguments"] is None
+    assert queries[first["query"]]["columns"][0]["expression"]["alias"] == "x"
+    nested = queries[second["query"]]["columns"][0]["expression"]["value"]["subquery"]["index"]
+    assert queries[nested]["parent"] == second["query"]
+    assert queries[first["query"]]["parent"] is queries[second["query"]]["parent"] is None
+
+
+def test_derived_source_parameter_numbers_remain_textual(parse_sql: Callable[..., Translation]) -> None:
+    """Derived SELECT translation reuses parser parameter numbers despite the source walk order."""
+    [statement] = [item.value for item in parse_sql(
+        "SELECT ? FROM (SELECT ? AS x) d JOIN (SELECT ? AS y) e ON d.x = e.y;"
+    ).statements()]
+    select = statement["select"]
+    queries = select["subqueries"]
+    sources = [select["source"], select["joins"][0]["source"]]
+    values = [select["columns"][0]["expression"]["value"]] + [
+        queries[source["query"]]["columns"][0]["expression"]["value"] for source in sources]
+    assert values == [{"parameter": {"number": index}} for index in (1, 2, 3)]

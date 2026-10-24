@@ -54,7 +54,7 @@ theorem every_email_is_unique (db : Database) (position index : Nat) (table : Ca
     (column : columnPosition table.columns (name! "email") = some index) :
     Holds (sql r"SELECT 1 WHERE NOT EXISTS (SELECT 1 FROM users GROUP BY email HAVING count(*) > 1)") db ↔
       ∀ group ∈ emailGroups db position index table, group.length ≤ 1 :=
-  Holds.iff_selectOne_noDuplicateKeys (head := rfl) (reference := ⟨name! "users", none, none⟩) (by decide) rfl found
+  Holds.iff_selectOne_noDuplicateKeys (namedSource := rfl) (head := rfl) (reference := { table := name! "users", alias := none }) (by decide) rfl found
     (GroupTermResolves.identifier_table column) (Resolved.Expr.calm_column index)
 
 /-- Over every database as in `every_email_is_unique`, the query is empty exactly when some group has more than one
@@ -64,7 +64,7 @@ theorem some_email_is_repeated (db : Database) (position index : Nat) (table : C
     (column : columnPosition table.columns (name! "email") = some index) :
     Empty (sql r"SELECT 1 WHERE NOT EXISTS (SELECT 1 FROM users GROUP BY email HAVING count(*) > 1)") db ↔
       ∃ group ∈ emailGroups db position index table, 1 < group.length :=
-  Empty.iff_selectOne_noDuplicateKeys (head := rfl) (reference := ⟨name! "users", none, none⟩) (by decide) rfl found
+  Empty.iff_selectOne_noDuplicateKeys (namedSource := rfl) (head := rfl) (reference := { table := name! "users", alias := none }) (by decide) rfl found
     (GroupTermResolves.identifier_table column) (Resolved.Expr.calm_column index)
 
 /-- Over every database as in `every_email_is_unique`, the query does not fail. -/
@@ -72,7 +72,7 @@ theorem email_check_does_not_fail (db : Database) (position index : Nat) (table 
     (found : db.raw.catalog.findTable (name! "users") = some (position, table))
     (column : columnPosition table.columns (name! "email") = some index) :
     ¬ Fails (sql r"SELECT 1 WHERE NOT EXISTS (SELECT 1 FROM users GROUP BY email HAVING count(*) > 1)") db :=
-  Fails.not_selectOne_noDuplicateKeys (head := rfl) (reference := ⟨name! "users", none, none⟩) (by decide) rfl found
+  Fails.not_selectOne_noDuplicateKeys (namedSource := rfl) (head := rfl) (reference := { table := name! "users", alias := none }) (by decide) rfl found
     (GroupTermResolves.identifier_table column) (Resolved.Expr.calm_column index)
 
 /-- The guide's claim, over every database that has a table `users` with a column `email` at position `index`: the query
@@ -86,7 +86,7 @@ theorem no_two_users_share_an_email (db : Database) (position index : Nat) (tabl
       (Resolved.sourceRows { shape := table, rows := db.raw.rows.getD position [] }).Pairwise
         fun (earlier later : List Value) => ((table.columns[index]?.map CatalogColumn.collation).getD .binary).compare
           (later.getD index .null) (earlier.getD index .null) ≠ Ordering.eq := by
-  refine Iff.trans (Holds.iff_selectOne_noDuplicateKeys_pairwise (head := rfl) (reference := ⟨name! "users", none, none⟩)
+  refine Iff.trans (Holds.iff_selectOne_noDuplicateKeys_pairwise (namedSource := rfl) (head := rfl) (reference := { table := name! "users", alias := none })
     (by decide) rfl found (GroupTermResolves.identifier_table column) (Resolved.Expr.calm_column index)) ?_
   simp [Resolved.Expr.eval_column]
 
@@ -100,7 +100,7 @@ theorem two_users_share_an_email (db : Database) (position index : Nat) (table :
       ¬ (Resolved.sourceRows { shape := table, rows := db.raw.rows.getD position [] }).Pairwise
         fun (earlier later : List Value) => ((table.columns[index]?.map CatalogColumn.collation).getD .binary).compare
           (later.getD index .null) (earlier.getD index .null) ≠ Ordering.eq := by
-  refine Iff.trans (Empty.iff_selectOne_noDuplicateKeys_repeated (head := rfl) (reference := ⟨name! "users", none, none⟩)
+  refine Iff.trans (Empty.iff_selectOne_noDuplicateKeys_repeated (namedSource := rfl) (head := rfl) (reference := { table := name! "users", alias := none })
     (by decide) rfl found (GroupTermResolves.identifier_table column) (Resolved.Expr.calm_column index)) ?_
   simp [Resolved.Expr.eval_column]
 

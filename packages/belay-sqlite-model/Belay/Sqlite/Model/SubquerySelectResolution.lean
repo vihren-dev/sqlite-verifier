@@ -40,10 +40,14 @@ theorem resolveSelect_noFrom_one_subquery (context : ResolveContext) (catalog : 
   have noFallible : (mainQuery.sources.isEmpty && mainQuery.expressions.any (·.any Resolved.Expr.isFallibleCall)) = false := by
     simp only [List.all_eq_true, Bool.not_eq_true'] at plain
     simp [List.any_eq_false.mpr fun expression member => by simpa using plain expression member]
+  have noMain : resolveSources catalog none [] 0 (sourceExpansion catalog 8 [sub] none) = .ok ([], []) := rfl
+  have unique : ([0] : List Nat).eraseDups = [0] := rfl
+  have noSource : (subqueryShape inner { current := some 0 } sub subQuery affinity).source = none := rfl
   subst shapeIs
   unfold resolveSelect
-  simp [compoundColumnsIssue, resolveSources_none, mainNoFrom, mainNoJoins, mainNoCompound, mainNoStar, subqueryScopes, order, subqueryScope,
-    parentless, Scope.columns, Scope.enclose, subSources, subNoStar, resolveSubqueryBodies, subNoCompound, subBody,
+  simp [compoundColumnsIssue, noMain, mainNoFrom, mainNoJoins, mainNoCompound, mainNoStar, subqueryScopes, order, subqueryScope,
+    parentless, Scope.columns, Scope.enclose, subSources, subNoStar, resolveSubqueryBodies, subqueryBodyOrder, QueryScope.sourceIndexes, QueryScope.refresh, Scope.refreshSources,
+    unique, noSource, subNoCompound, subBody,
     mainBody, noFallible, Bind.bind, Except.bind, Except.mapError, Pure.pure, Except.pure, compoundOf]
 
 /-- For every {lit}`SELECT` statement of a query without parent and a list of subqueries, whose resolution of

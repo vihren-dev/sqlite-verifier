@@ -57,7 +57,7 @@ theorem sum_of_cents_overflows (db : Database) (position index : Nat) (table : C
     Fails (sql r"SELECT sum(cents) FROM ledger") db ↔
       (Resolved.Aggregate.sum (.column index)).fails (Resolved.EvalContext.bound [])
         (Resolved.sourceRows { shape := table, rows := db.raw.rows.getD position [] }) = true := by
-  refine Iff.trans (Fails.iff_selectAggregate (head := rfl) (reference := ⟨name! "ledger", none, none⟩) (build := .sum) (name := "sum")
+  refine Iff.trans (Fails.iff_selectAggregate (namedSource := rfl) (head := rfl) (reference := { table := name! "ledger", alias := none }) (build := .sum) (name := "sum")
     (resolved := .column index) (condition := none) (aggregate := .sum (.column index)) rfl rfl found
     (resolveOperand_identifier_table column) rfl (.inl ⟨rfl, rfl⟩) rfl (by simp)
     (by simp [Resolved.Output.operands, Resolved.Expr.calm_column])) ?_
@@ -71,7 +71,7 @@ theorem sum_of_cents_returns_a_row (db : Database) (position index : Nat) (table
     Holds (sql r"SELECT sum(cents) FROM ledger") db ↔
       (Resolved.Aggregate.sum (.column index)).fails (Resolved.EvalContext.bound [])
         (Resolved.sourceRows { shape := table, rows := db.raw.rows.getD position [] }) = false := by
-  refine Iff.trans (Holds.iff_selectAggregate (head := rfl) (reference := ⟨name! "ledger", none, none⟩) (build := .sum) (name := "sum")
+  refine Iff.trans (Holds.iff_selectAggregate (namedSource := rfl) (head := rfl) (reference := { table := name! "ledger", alias := none }) (build := .sum) (name := "sum")
     (resolved := .column index) (condition := none) (aggregate := .sum (.column index)) rfl rfl found
     (resolveOperand_identifier_table column) rfl (.inl ⟨rfl, rfl⟩) rfl (by simp)
     (by simp [Resolved.Output.operands, Resolved.Expr.calm_column])) ?_
@@ -105,7 +105,7 @@ theorem sum_of_cents_is_never_empty (db : Database) (position index : Nat) (tabl
     (found : db.raw.catalog.findTable (name! "ledger") = some (position, table))
     (column : columnPosition table.columns (name! "cents") = some index) :
     ¬ Empty (sql r"SELECT sum(cents) FROM ledger") db :=
-  Empty.not_selectAggregate (head := rfl) (reference := ⟨name! "ledger", none, none⟩) (build := .sum) (name := "sum")
+  Empty.not_selectAggregate (namedSource := rfl) (head := rfl) (reference := { table := name! "ledger", alias := none }) (build := .sum) (name := "sum")
     (resolved := .column index) (condition := none) (aggregate := .sum (.column index)) rfl rfl found
     (resolveOperand_identifier_table column) rfl (.inl ⟨rfl, rfl⟩) rfl (by simp)
     (by simp [Resolved.Output.operands, Resolved.Expr.calm_column])

@@ -20,12 +20,17 @@ def resolveSelect (context : ResolveContext) (catalog : Catalog) (query : Syntax
     (subqueries : List Syntax.Subquery) : StatementResolution :=
   let dqs := context.profile.dqsDml
   let resolved : Except SourceIssue (Resolved.Query × List Resolved.Query) := do
-    let (pending, scope) ← resolveSources catalog query.source query.joins
+    let (pending, scope) ← resolveSources catalog query.source query.joins 0
+      (sourceExpansion catalog 8 subqueries none)
     if let some issue := starIssue scope query.columns then throw (.value issue)
     let main : QueryScope := { scope, pending, outer := 0, outerAliases := [],
                                aliases := (resultAliases scope query.columns).filterMap id }
     let scopes ← subqueryScopes catalog 8 main query.compound subqueries
-    let (resolvedSubqueries, shapes) ← (resolveSubqueryBodies dqs 8 query.compound scopes subqueries).mapError .value
+    let (resolvedSubqueries, shapes) ← (resolveSubqueryBodies dqs catalog 8 main query.compound scopes subqueries).mapError .value
+    let main ← (main.refresh catalog shapes query).mapError .value
+    let scope := main.scope
+    let pending := main.pending
+    let scopes := scopes.map fun scope => { scope with scope := scope.scope.refreshSources shapes }
     let body : Except ValueIssue (Resolved.Query × List Resolved.Query) := match query.compound with
       | some compound => do
         let terms ← compoundTerms 0 none compound (scopes.map QueryScope.scope) subqueries resolvedSubqueries shapes

@@ -31,7 +31,7 @@ theorem table_has_a_stored_column_named {script : Script} {isQuery : script.isQu
     (argument bytes : List UInt8) (position : Nat) (table : CatalogTable) {parameters : List Value}
     {rest : List (Syntax.Statement × List Value)}
     (head : script.statements = (.select [.expression (.numeric "1") none "1"]
-      (some ⟨name! "pragma_table_info", none, some [.string argument]⟩) []
+      (some { table := name! "pragma_table_info", alias := none, arguments := some [.string argument] }) []
       (some (.compare .eq (.identifier (name! "name") .none) (.string bytes))) [] [] none none [] none false none,
       parameters) :: rest)
     (found : db.raw.catalog.findTable ⟨argument⟩ = some (position, table))
@@ -40,13 +40,13 @@ theorem table_has_a_stored_column_named {script : Script} {isQuery : script.isQu
       ∃ column ∈ table.columns, column.generated.isNone = true ∧ column.name.bytes = bytes := by
   have info := Catalog.tableInfoRows_of_findTable _ _ _ _ found
   have resolves : FilterResolves runContext.profile.dqsDml
-      (tableInfoScope ⟨name! "pragma_table_info", none, some [.string argument]⟩ argument table.infoRows) []
+      (tableInfoScope { table := name! "pragma_table_info", alias := none, arguments := some [.string argument] } argument table.infoRows) []
       (some (.compare .eq (.identifier (name! "name") .none) (.string bytes)))
       (some (.compare .eq (comparisonAffinity (some .blob) none) (.column 1) (.literal (.text bytes)))) :=
     FilterResolves.of_term (result := (.compare .eq (comparisonAffinity (some .blob) none) (.column 1)
       (.literal (.text bytes)) .binary, none))
       (by simp [namesAlias]) (by simp [sql_simp])
-  refine Iff.trans (Holds.iff_selectOne_tableInfo head rfl (by simp [Identifier.isKeyword, equalsKeyword]; decide +kernel) notFunction info resolves
+  refine Iff.trans (Holds.iff_selectOne_tableInfo (namedSource := rfl) head rfl (by simp [Identifier.isKeyword, equalsKeyword]; decide +kernel) notFunction info resolves
     (by simp [sql_simp])) (Iff.trans ?_ (Iff.trans (CatalogTable.exists_pragmaRow_name table argument
       (fun cell => cell = Value.text bytes)) ?_))
   · refine exists_congr fun row => and_congr_right fun _ => ?_
@@ -116,15 +116,15 @@ theorem status_column_empty_and_safe (db : Database) (position : Nat) (table : C
     ¬ Fails (sql r"SELECT 1 FROM pragma_table_info('invoices') WHERE name = 'status'") db := by
   have info := Catalog.tableInfoRows_of_findTable _ _ _ _ found
   have resolves : FilterResolves runContext.profile.dqsDml
-      (tableInfoScope ⟨name! "pragma_table_info", none, some [.string (bytes! "invoices")]⟩ (bytes! "invoices") table.infoRows) []
+      (tableInfoScope { table := name! "pragma_table_info", alias := none, arguments := some [.string (bytes! "invoices")] } (bytes! "invoices") table.infoRows) []
       (some (.compare .eq (.identifier (name! "name") .none) (.string (bytes! "status"))))
       (some (.compare .eq (comparisonAffinity (some .blob) none) (.column 1) (.literal (.text (bytes! "status"))))) :=
     FilterResolves.of_term (result := (.compare .eq (comparisonAffinity (some .blob) none) (.column 1)
       (.literal (.text (bytes! "status"))) .binary, none)) (by simp [namesAlias]) (by simp [sql_simp])
   constructor
-  · simpa using Empty.iff_selectOne_tableInfo (head := rfl) rfl
+  · simpa using Empty.iff_selectOne_tableInfo (namedSource := rfl) (head := rfl) rfl
       (by simp [Identifier.isKeyword, equalsKeyword]; decide +kernel) notFunction info resolves (by simp [sql_simp])
-  · exact Fails.not_selectOne_tableInfo (head := rfl) rfl
+  · exact Fails.not_selectOne_tableInfo (namedSource := rfl) (head := rfl) rfl
       (by simp [Identifier.isKeyword, equalsKeyword]; decide +kernel) notFunction info resolves (by simp [sql_simp])
 
 /-- An existing table whose schema has no status column. The pragma query succeeds with no matching row. -/

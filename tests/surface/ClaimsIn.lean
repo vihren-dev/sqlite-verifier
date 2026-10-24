@@ -44,11 +44,11 @@ theorem x_is_an_invoice_id (db : Database) (x : Int64) (position col : Nat) (tab
           (Resolved.comparisonOperands (comparisonAffinity none (table.columns[col]?.map CatalogColumn.affinity))
             (.integer x.toInt) (row.values.getD col .null)).2 = Ordering.eq := by
   have operand : resolveOperand runContext.profile.dqsDml
-      (tableScope db.raw.catalog ⟨name! "invoices", none, none⟩ position table) { current := some 0 } false
+      (tableScope db.raw.catalog { table := name! "invoices", alias := none } position table) { current := some 0 } false
       (.identifier (name! "id") .none) = .ok (.column col, table.columns[col]?.map CatalogColumn.affinity) :=
     resolveOperand_identifier_table column
   have subResolves : FilterResolves runContext.profile.dqsDml
-      (tableScope db.raw.catalog ⟨name! "invoices", none, none⟩ position table) [] none none { current := some 0 } :=
+      (tableScope db.raw.catalog { table := name! "invoices", alias := none } position table) [] none none { current := some 0 } :=
     .inl ⟨rfl, rfl⟩
   have mainResolves : ∀ lowest, FilterResolves runContext.profile.dqsDml [] []
       (some (.inQuery (.parameter 1) 0 false))
@@ -60,9 +60,9 @@ theorem x_is_an_invoice_id (db : Database) (x : Int64) (position col : Nat) (tab
       (result := (.inQuery (.parameter 1) 0 (comparisonAffinity none (table.columns[col]?.map CatalogColumn.affinity))
         ((table.columns[col]?.map (·.collation)).getD .binary) false, none))
       (by simp [namesAlias]) (by simp [sql_simp, scalarShape, inCollation])
-  rw [← Syntax.Expr.columnCollation_identifier_table (catalog := db.raw.catalog) (reference := ⟨name! "invoices", none, none⟩)
+  rw [← Syntax.Expr.columnCollation_identifier_table (catalog := db.raw.catalog) (reference := { table := name! "invoices", alias := none })
     (position := position) column] at mainResolves
-  refine Iff.trans (Holds.iff_selectOne_column (head := rfl) (reference := ⟨name! "invoices", none, none⟩)
+  refine Iff.trans (Holds.iff_selectOne_column (namedSource := rfl) (head := rfl) (reference := { table := name! "invoices", alias := none })
     (by decide) (by decide) rfl found operand (by simp [Resolved.Expr.any, Resolved.Expr.isFallibleCall]) subResolves
     mainResolves (by simp [Resolved.Expr.any]) (by simp [sql_simp]) (by simp)
     (by simp [sql_simp])) ?_
@@ -110,11 +110,11 @@ theorem invoice_membership_empty_and_safe (db : Database) (x : Int64) (position 
             { shape := table, rows := db.raw.rows.getD position [] })]) []) = false) ∧
     ¬ Fails (sql r"SELECT 1 WHERE $x IN (SELECT id FROM invoices)") db := by
   have operand : resolveOperand runContext.profile.dqsDml
-      (tableScope db.raw.catalog ⟨name! "invoices", none, none⟩ position table) { current := some 0 } false
+      (tableScope db.raw.catalog { table := name! "invoices", alias := none } position table) { current := some 0 } false
       (.identifier (name! "id") .none) = .ok (.column col, table.columns[col]?.map CatalogColumn.affinity) :=
     resolveOperand_identifier_table column
   have subResolves : FilterResolves runContext.profile.dqsDml
-      (tableScope db.raw.catalog ⟨name! "invoices", none, none⟩ position table) [] none none { current := some 0 } :=
+      (tableScope db.raw.catalog { table := name! "invoices", alias := none } position table) [] none none { current := some 0 } :=
     .inl ⟨rfl, rfl⟩
   have mainResolves : ∀ lowest, FilterResolves runContext.profile.dqsDml [] []
       (some (.inQuery (.parameter 1) 0 false))
@@ -126,15 +126,15 @@ theorem invoice_membership_empty_and_safe (db : Database) (x : Int64) (position 
       (result := (.inQuery (.parameter 1) 0 (comparisonAffinity none (table.columns[col]?.map CatalogColumn.affinity))
         ((table.columns[col]?.map (·.collation)).getD .binary) false, none))
       (by simp [namesAlias]) (by simp [sql_simp, scalarShape, inCollation])
-  rw [← Syntax.Expr.columnCollation_identifier_table (catalog := db.raw.catalog) (reference := ⟨name! "invoices", none, none⟩)
+  rw [← Syntax.Expr.columnCollation_identifier_table (catalog := db.raw.catalog) (reference := { table := name! "invoices", alias := none })
     (position := position) column] at mainResolves
   constructor
-  · refine Iff.trans (Empty.iff_selectOne_column (head := rfl) (reference := ⟨name! "invoices", none, none⟩)
+  · refine Iff.trans (Empty.iff_selectOne_column (namedSource := rfl) (head := rfl) (reference := { table := name! "invoices", alias := none })
       (by decide) (by decide) rfl found operand (by simp [Resolved.Expr.any, Resolved.Expr.isFallibleCall]) subResolves
       mainResolves (by simp [Resolved.Expr.any]) (by simp [sql_simp]) (by simp) (by simp [sql_simp])) ?_
     rw [Syntax.Expr.columnCollation_identifier_table column]
     rfl
-  · exact Fails.not_selectOne_column (head := rfl) (reference := ⟨name! "invoices", none, none⟩)
+  · exact Fails.not_selectOne_column (namedSource := rfl) (head := rfl) (reference := { table := name! "invoices", alias := none })
       (by decide) (by decide) rfl found operand (by simp [Resolved.Expr.any, Resolved.Expr.isFallibleCall]) subResolves
       mainResolves (by simp [Resolved.Expr.any]) (by simp [sql_simp]) (by simp) (by simp [sql_simp])
 

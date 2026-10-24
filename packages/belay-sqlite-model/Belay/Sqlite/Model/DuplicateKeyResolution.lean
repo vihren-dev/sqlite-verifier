@@ -113,7 +113,8 @@ theorem resolveQueryBody_duplicateKeys (dqs : Bool) (scope : Scope) (current : O
 the catalog of the state has at a position, without table-function arguments, where {lit}`k` resolves in the scope
 of the table to a key under a collation ({name}`GroupTermResolves`), resolution gives the simple query without source
 and with the condition {lit}`NOT EXISTS` of subquery 0, and the duplicate-key query of the first source of the table as
-its one subquery, and leaves the state as it is. Proof sketch: {name}`resolveStatement_select_of_resolveSelect` and
+its one subquery, and leaves the state as it is. The source reference has no indexed query.
+Proof sketch: {name}`resolveStatement_select_of_resolveSelect` and
 {name}`resolveSelect_noFrom_one_subquery`; the subquery resolves by {name}`resolveQueryBody_duplicateKeys` in the scope
 of its table ({name}`resolveSources_table`, {name}`resolvePendingSources_table`), and the statement's query by
 {name}`resolveQueryBody_simple` in the empty scope with the shape of the subquery, as for the other forms of
@@ -121,7 +122,7 @@ of its table ({name}`resolveSources_table`, {name}`resolvePendingSources_table`)
 theorem resolveStatement_selectOne_notExists_duplicateKeys (context : ResolveContext) (state : ResolveState)
     (reference : Syntax.TableReference) (term : Syntax.Expr) (name : String) (count : normalizeIdentifier name = "count")
     (position : Nat) (table : CatalogTable) (key : Resolved.Expr) (collation : Collation)
-    (arguments : reference.arguments = none) (found : state.catalog.findTable reference.table = some (position, table))
+    (namedSource : reference.query = none) (arguments : reference.arguments = none) (found : state.catalog.findTable reference.table = some (position, table))
     (groupResolves : GroupTermResolves context.profile.dqsDml (tableScope state.catalog reference position table)
       { current := some 0, aggregates := [.callStar name] } term key collation) :
     resolveStatement context state (.select [.expression (.numeric "1") none "1"] none [] (some (.not (.exists 0))) [] []
@@ -155,7 +156,7 @@ theorem resolveStatement_selectOne_notExists_duplicateKeys (context : ResolveCon
     (Syntax.Subquery.mk [.expression (.numeric "1") none "1"] none [] (some (.not (.exists 0))) [] [] none none none none false none)
     _ rfl _ ?_
   refine resolveSelect_noFrom_one_subquery context state.catalog _ _ rfl rfl rfl (by simp [starIssue]) rfl rfl _ _
-    (resolveSources_table state.catalog reference position table arguments found) (by simp [starIssue]) _ _
+    (resolveSources_table state.catalog reference position table namedSource arguments found) (by simp [starIssue]) _ _
     (by simpa [resultAliases] using subBody) _ rfl _ _ (by simpa using mainBody _ rfl) ?_
   simp [Resolved.Query.expressions, Resolved.Query.keptExpressions, Resolved.Query.simple, Resolved.Output.scalars,
     Resolved.Output.operands, Resolved.Expr.any, Resolved.Expr.isFallibleCall]

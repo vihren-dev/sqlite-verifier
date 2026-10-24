@@ -73,8 +73,7 @@ def mergedCondition (coalesced : Bool) (left : Scope) (right : ScopeSource) (nam
   let equalities := names.filterMap fun name => do
     let (leftSide, affinity) ← mergedLeft coalesced left name
     let index ← columnPosition right.columns name
-    let joined ← right.columns[index]?
-    some (Resolved.Expr.compare .eq (comparisonAffinity affinity (some joined.affinity)) leftSide
+    some (Resolved.Expr.compare .eq (comparisonAffinity affinity (right.columnAffinity index)) leftSide
       (.column (right.offset + index)) (left.namedCollation name))
   match equalities with
   | [] => none

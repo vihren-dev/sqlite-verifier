@@ -1,5 +1,5 @@
 import Belay.Sqlite.Model.Resolution.CompoundOrderBy
-import Belay.Sqlite.Model.Resolution.CompoundNames
+import Belay.Sqlite.Model.Resolution.DerivedColumns
 
 set_option doc.verso true
 
@@ -31,8 +31,15 @@ def compoundTerms (base : Nat) (parent : Option Nat) (compound : Syntax.Compound
   compound.terms.mapM fun index =>
     let term : Option CompoundTerm := do
       let written ← subqueries[index]?
-      if base ≤ index && written.parent == parent then
-        pure { scope := ← scopes[index]?, written, query := ← queries[index - base]?, shape := ← shapes[index - base]? }
+      if base ≤ index && written.parent == parent &&
+          (shapes[index - base]?.map (·.parent)) == some parent then
+        let query ← queries[index - base]?
+        pure {
+          scope := ← scopes[index]?
+          written
+          query
+          shape := ← shapes[index - base]?
+          shapes := { current := some index, later := shapes.drop (index + 1 - base), outer := query.outer } }
       else none
     match term with
     | some term => .ok term
@@ -58,7 +65,9 @@ the derived table's columns ({name}`derivedNames`) when SQLite sorts it as
 column collations of {name}`compoundCollations`, the {lit}`ORDER BY` of
 {name}`resolveCompoundOrderBy` and the window of a single {lit}`SELECT`; and its shape as a
 subquery. The shape has the number of columns, the affinity and the collations of the first
-column of the right-most term, which {lit}`IN` and a scalar subquery read, and the lowest cell
+column of the right-most term, or of the derived table when {name}`sortsAsDerived` holds.
+The derived column has its column collation and no explicit collation; a scalar subquery
+still supplies no collation to its containing expression. The shape also has the lowest cell
 that a term reads. A compound with another clause of its own, or without terms, is
 {name}`RestrictionKind.subqueryHere`, which the frontend never gives. -/
 def resolveCompoundBody (dqs : Bool) (outer : Nat) (query : Syntax.Subquery) (compound : Syntax.Compound)
@@ -83,9 +92,13 @@ def resolveCompoundBody (dqs : Bool) (outer : Nat) (query : Syntax.Subquery) (co
       limit := limitValue.bind fun value => if value < 0 then none else some value.toNat,
       limitParameter, offsetParameter, outer,
       compound := some { first := compound.first, rest := compound.rest, collations } }
+  let sourceColumns := compoundSourceColumns (terms.map fun term =>
+    resultSourceColumns term.scope term.shapes term.written.columns term.query.names)
   let shape : SubqueryShape :=
-    { parent := query.parent, columns := width, affinity := last.shape.affinity,
-      explicitCollation := last.shape.explicitCollation, columnCollation := last.shape.columnCollation,
+    { parent := query.parent, columns := width,
+      affinity := if derived then sourceColumns.head?.bind (·.affinity) else last.shape.affinity,
+      explicitCollation := if derived then none else last.shape.explicitCollation,
+      columnCollation := if derived then sourceColumns.head?.map (·.collation) else last.shape.columnCollation,
       lowest := terms.foldl (fun lowest term => minPosition lowest term.shape.lowest) none, derived }
   pure (resolved, shape)
 

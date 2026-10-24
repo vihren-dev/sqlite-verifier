@@ -54,7 +54,7 @@ and the {lit}`ON` condition. -/
 def QuerySource.expressions (join : QuerySource) : List Expr :=
   (match join.source with
     | .each json path => json :: path.toList
-    | .table _ | .subquery | .pragma _ => []) ++ join.condition.toList
+    | .table _ | .subquery .. | .pragma _ => []) ++ join.condition.toList
 
 /-- Whether the query joins sources: it has more than one, or a {lit}`json_each` source. -/
 def Query.joined (query : Query) : Bool :=

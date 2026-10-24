@@ -197,11 +197,19 @@ What the code has today, after slice 1 of ADR 0018:
 ### D5. Queries as sources
 
 - A subquery in `FROM` (a derived table), a view (`CREATE VIEW`, `DROP VIEW`, and a view in
-  `FROM`) and a common table expression of `WITH` without `RECURSIVE` are one form: a
+  `FROM`) and a nonrecursive common table expression of `WITH` without `RECURSIVE` are one form: a
   resolved query as a source, which fills the `Source.subquery` placeholder.
 - The rows of a source query are its result rows. When SQLite's plan can change them (a
   `LIMIT` that cuts ties, ADR 0018 slice 1), the statement is not described.
-- `WITH RECURSIVE`, `INSTEAD OF` triggers and `MATERIALIZED` hints stay out of scope.
+- Recursive CTEs, the `RECURSIVE` keyword, `INSTEAD OF` triggers and
+  `MATERIALIZED` hints stay out of scope.
+
+Amended 2026-10-24 by owner decision: the recursion restriction is semantic,
+not only lexical. SQLite accepts a recursive CTE without the `RECURSIVE`
+keyword. Slice 4 refuses actual recursion regardless of spelling and also
+continues to refuse the keyword when the CTE itself is nonrecursive. Ordinary
+forward references and nested nonrecursive CTEs remain in scope.
+See [the slice-4 task](../plans/20261024-query-sources.task.md).
 
 ### D6. Bitwise operators
 
@@ -260,9 +268,24 @@ mode, the page size, the cache). They stay out until a measurement shows a gain.
 
 ## Not decided here
 
-- `WITH RECURSIVE`, window functions, `ORDER BY` inside an aggregate call and `FILTER`.
+- Recursive CTEs, the `RECURSIVE` keyword, window functions, `ORDER BY` inside an
+  aggregate call and `FILTER`.
 - Pragmas other than those of D2, and `ATTACH`.
 - The details of each slice: its task file decides them from SQLite's code.
+
+## Implementation record
+
+2026-10-24, slice 4 part 1 complete: resolved sources can read an indexed query
+through the statement's evaluation context. Complete-row certainty is separate from
+first-column certainty. Column metadata now distinguishes absent expression affinity
+from BLOB affinity and combines every column of compound terms. D3's ORDER BY COLLATE
+exception is implemented for IN and scalar subqueries. Derived SELECT sources now pass
+through SQL translation, indexed source resolution and the same evaluator. Source expansion
+precedes expression resolution; derived bodies follow FROM order and preserve enclosing
+versus sibling binding. Part 1 passed native, full-suite and verdict acceptance at
+`c8db1a54`; draft corpus v53 remains separate from the subject publication and needs
+owner approval before merge. The publication checkpoint has its own final gates.
+Ordinary CTEs and views remain for parts 2 and 3. This does not complete D5 or slice 4.
 
 ## Owner decisions
 

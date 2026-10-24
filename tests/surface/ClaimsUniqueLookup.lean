@@ -24,12 +24,12 @@ theorem an_email_matches_at_most_one_user (db : Database) (v : String) (position
       (result := (.compare .le none (.subquery 0) (.literal (.integer 1)) .binary, none)) (by simp [namesAlias]) (by
       simp [sql_simp, countShape]; rfl)
   have subResolves := FilterResolves.of_term (dqs := runContext.profile.dqsDml)
-    (scope := tableScope db.raw.catalog ⟨name! "users", none, none⟩ position table) (aliases := [])
+    (scope := tableScope db.raw.catalog { table := name! "users", alias := none } position table) (aliases := [])
     (shapes := { current := some 0 })
     (term := .compare .eq (.identifier (name! "email") .none) (.parameter 1)) (by simp [namesAlias])
     (result := (.compare .eq (some cell.affinity) (.column col) (.parameter 1) cell.collation, none))
     (by simp [sql_simp, column, columnAt]; rfl)
-  exact Holds.selectOne_count_unique_lookup (head := rfl) (count := by decide) (arguments := rfl) found subResolves
+  exact Holds.selectOne_count_unique_lookup (namedSource := rfl) (head := rfl) (count := by decide) (arguments := rfl) found subResolves
     mainResolves (key := UniqueKey.ofColumns table.columns [col]) (descending := false)
     (Catalog.ofColumns_mem_uniqueKeys_of_unique _ _ _ declaredUnique) columnAt rfl (by simp [UniqueKey.ofColumns, columnAt])
 
@@ -48,12 +48,12 @@ theorem an_id_matches_at_most_one_user (db : Database) (v : Int64) (position col
       (result := (.compare .le none (.subquery 0) (.literal (.integer 1)) .binary, none)) (by simp [namesAlias]) (by
       simp [sql_simp, countShape]; rfl)
   have subResolves := FilterResolves.of_term (dqs := runContext.profile.dqsDml)
-    (scope := tableScope db.raw.catalog ⟨name! "users", none, none⟩ position table) (aliases := [])
+    (scope := tableScope db.raw.catalog { table := name! "users", alias := none } position table) (aliases := [])
     (shapes := { current := some 0 })
     (term := .compare .eq (.identifier (name! "id") .none) (.parameter 1)) (by simp [namesAlias])
     (result := (.compare .eq (some cell.affinity) (.column col) (.parameter 1) cell.collation, none))
     (by simp [sql_simp, column, columnAt]; rfl)
-  refine Holds.selectOne_count_unique_lookup (head := rfl) (count := by decide) (arguments := rfl) found subResolves
+  refine Holds.selectOne_count_unique_lookup (namedSource := rfl) (head := rfl) (count := by decide) (arguments := rfl) found subResolves
     mainResolves (key := UniqueKey.ofColumns table.columns table.primaryKey) (descending := false)
     (Catalog.ofColumns_mem_uniqueKeys_of_primaryKey _ _ _ (by simp [primary])) columnAt rfl ?_
   simp [UniqueKey.ofColumns, primary, columnAt]

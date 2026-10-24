@@ -17,7 +17,8 @@ open Belay.Sqlite.Model
 count(*) > 1)`, where the catalog of the database has the table {lit}`t` at a position and {lit}`k` resolves in the
 scope of the table to a key under a collation ({name}`GroupTermResolves`), the output of the script is the output of
 the step of the simple query without source whose condition is {lit}`NOT EXISTS` of subquery 0, with the duplicate-key
-query of that table as its one subquery. Proof sketch: {name}`Script.outputOn_query` with the resolution of
+query of that table as its one subquery. The source reference has no indexed query.
+Proof sketch: {name}`Script.outputOn_query` with the resolution of
 {name}`resolveStatement_selectOne_notExists_duplicateKeys`. -/
 theorem Script.outputOn_selectOne_noDuplicateKeys
     {script : Script} {db : Database} {reference : Syntax.TableReference} {term : Syntax.Expr}
@@ -27,7 +28,7 @@ theorem Script.outputOn_selectOne_noDuplicateKeys
       none [Syntax.Subquery.mk [.expression (.numeric "1") none "1"] (some reference) [] none [term] [] none none none
         (some (.compare .gt (.callStar name) (.numeric "1"))) false none] none false none, parameters) :: rest)
     (count : normalizeIdentifier name = "count")
-    (arguments : reference.arguments = none) (found : db.raw.catalog.findTable reference.table = some (position, table))
+    (namedSource : reference.query = none) (arguments : reference.arguments = none) (found : db.raw.catalog.findTable reference.table = some (position, table))
     (groupResolves : GroupTermResolves runContext.profile.dqsDml (tableScope db.raw.catalog reference position table)
       { current := some 0, aggregates := [.callStar name] } term key collation) :
     script.outputOn db = some (resolvedStepOutput none 0 db.raw.connection parameters
@@ -35,13 +36,14 @@ theorem Script.outputOn_selectOne_noDuplicateKeys
         [Resolved.Query.duplicateKeys [Resolved.QuerySource.first position] key collation])) :=
   Script.outputOn_query script db _ parameters rest _ _ _ head
     (resolveStatement_selectOne_notExists_duplicateKeys runContext db.raw.connection.resolveState reference term name count
-      position table key collation arguments found groupResolves)
+      position table key collation namedSource arguments found groupResolves)
 
 /-- For every script that is one read-only statement and is as in {name}`Script.outputOn_selectOne_noDuplicateKeys`,
 where the key is calm: {name}`Holds` of the script on the database means that no group of the rows of the table in
 scan order, grouped by the key under the collation ({name}`Resolved.groups`), has more than one row. Two rows are in
 one group when their keys compare equal under the collation, and two NULL keys compare equal. An empty table has no
-group. Proof sketch: {name}`Script.outputOn_selectOne_noDuplicateKeys` and
+group. The source reference has no indexed query.
+Proof sketch: {name}`Script.outputOn_selectOne_noDuplicateKeys` and
 {name}`resolvedStepOutput_notExists_duplicateKeys_hasRows`. -/
 theorem Holds.iff_selectOne_noDuplicateKeys
     {script : Script} {db : Database} {isQuery : script.isQuery = true} {reference : Syntax.TableReference}
@@ -51,7 +53,7 @@ theorem Holds.iff_selectOne_noDuplicateKeys
       none [Syntax.Subquery.mk [.expression (.numeric "1") none "1"] (some reference) [] none [term] [] none none none
         (some (.compare .gt (.callStar name) (.numeric "1"))) false none] none false none, parameters) :: rest)
     (count : normalizeIdentifier name = "count")
-    (arguments : reference.arguments = none) (found : db.raw.catalog.findTable reference.table = some (position, table))
+    (namedSource : reference.query = none) (arguments : reference.arguments = none) (found : db.raw.catalog.findTable reference.table = some (position, table))
     (groupResolves : GroupTermResolves runContext.profile.dqsDml (tableScope db.raw.catalog reference position table)
       { current := some 0, aggregates := [.callStar name] } term key collation)
     (keyCalm : key.Calm) :
@@ -59,7 +61,7 @@ theorem Holds.iff_selectOne_noDuplicateKeys
       ∀ group ∈ Resolved.groups (Resolved.EvalContext.bound parameters) [(key, collation)]
         (Resolved.sourceRows { shape := table, rows := db.raw.rows.getD position [] }), group.length ≤ 1 := by
   unfold Holds
-  rw [Script.outputOn_selectOne_noDuplicateKeys head count arguments found groupResolves, Option.any_some]
+  rw [Script.outputOn_selectOne_noDuplicateKeys head count namedSource arguments found groupResolves, Option.any_some]
   exact resolvedStepOutput_notExists_duplicateKeys_hasRows 0 position db.raw.connection parameters
     { shape := table, rows := db.raw.rows.getD position [] } key collation (Database.table_of_findTable db.raw _ position table found)
     (Resolved.Statement.Calm.selectOne_duplicateKeys position _ key collation ((Resolved.Expr.calm_not _).2 (Resolved.Expr.calm_exists 0)) keyCalm)
@@ -68,7 +70,7 @@ theorem Holds.iff_selectOne_noDuplicateKeys
 means that some group of the rows of the table in scan order, grouped by the key under the collation, has more than
 one row: two rows of the table have keys that compare equal under the collation (two NULL keys compare equal). Proof
 sketch: {name}`Script.outputOn_selectOne_noDuplicateKeys` and
-{name}`resolvedStepOutput_notExists_duplicateKeys_hasNoRows`. -/
+{name}`resolvedStepOutput_notExists_duplicateKeys_hasNoRows`. The source reference has no indexed query. -/
 theorem Empty.iff_selectOne_noDuplicateKeys
     {script : Script} {db : Database} {isQuery : script.isQuery = true} {reference : Syntax.TableReference}
     {term : Syntax.Expr} {parameters : List Value} {rest : List (Syntax.Statement × List Value)} {position : Nat}
@@ -77,7 +79,7 @@ theorem Empty.iff_selectOne_noDuplicateKeys
       none [Syntax.Subquery.mk [.expression (.numeric "1") none "1"] (some reference) [] none [term] [] none none none
         (some (.compare .gt (.callStar name) (.numeric "1"))) false none] none false none, parameters) :: rest)
     (count : normalizeIdentifier name = "count")
-    (arguments : reference.arguments = none) (found : db.raw.catalog.findTable reference.table = some (position, table))
+    (namedSource : reference.query = none) (arguments : reference.arguments = none) (found : db.raw.catalog.findTable reference.table = some (position, table))
     (groupResolves : GroupTermResolves runContext.profile.dqsDml (tableScope db.raw.catalog reference position table)
       { current := some 0, aggregates := [.callStar name] } term key collation)
     (keyCalm : key.Calm) :
@@ -85,13 +87,14 @@ theorem Empty.iff_selectOne_noDuplicateKeys
       ∃ group ∈ Resolved.groups (Resolved.EvalContext.bound parameters) [(key, collation)]
         (Resolved.sourceRows { shape := table, rows := db.raw.rows.getD position [] }), 1 < group.length := by
   unfold Empty
-  rw [Script.outputOn_selectOne_noDuplicateKeys head count arguments found groupResolves, Option.any_some]
+  rw [Script.outputOn_selectOne_noDuplicateKeys head count namedSource arguments found groupResolves, Option.any_some]
   exact resolvedStepOutput_notExists_duplicateKeys_hasNoRows 0 position db.raw.connection parameters
     { shape := table, rows := db.raw.rows.getD position [] } key collation (Database.table_of_findTable db.raw _ position table found)
     (Resolved.Statement.Calm.selectOne_duplicateKeys position _ key collation ((Resolved.Expr.calm_not _).2 (Resolved.Expr.calm_exists 0)) keyCalm)
 
 /-- For every script as in {name}`Holds.iff_selectOne_noDuplicateKeys`, {name}`Fails` of the script on the database
-does not hold: a calm query of a table that exists neither fails to resolve nor fails to run. Proof sketch:
+does not hold: a calm query of a table that exists neither fails to resolve nor fails to run. The source reference has no indexed query.
+Proof sketch:
 {name}`Script.outputOn_selectOne_noDuplicateKeys` and {name}`resolvedStepOutput_notExists_duplicateKeys_not_isError`. -/
 theorem Fails.not_selectOne_noDuplicateKeys
     {script : Script} {db : Database} {isQuery : script.isQuery = true} {reference : Syntax.TableReference}
@@ -101,13 +104,13 @@ theorem Fails.not_selectOne_noDuplicateKeys
       none [Syntax.Subquery.mk [.expression (.numeric "1") none "1"] (some reference) [] none [term] [] none none none
         (some (.compare .gt (.callStar name) (.numeric "1"))) false none] none false none, parameters) :: rest)
     (count : normalizeIdentifier name = "count")
-    (arguments : reference.arguments = none) (found : db.raw.catalog.findTable reference.table = some (position, table))
+    (namedSource : reference.query = none) (arguments : reference.arguments = none) (found : db.raw.catalog.findTable reference.table = some (position, table))
     (groupResolves : GroupTermResolves runContext.profile.dqsDml (tableScope db.raw.catalog reference position table)
       { current := some 0, aggregates := [.callStar name] } term key collation)
     (keyCalm : key.Calm) :
     ¬ Fails script db isQuery := by
   unfold Fails
-  rw [Script.outputOn_selectOne_noDuplicateKeys head count arguments found groupResolves, Option.any_some,
+  rw [Script.outputOn_selectOne_noDuplicateKeys head count namedSource arguments found groupResolves, Option.any_some,
     resolvedStepOutput_notExists_duplicateKeys_not_isError 0 position db.raw.connection parameters
     { shape := table, rows := db.raw.rows.getD position [] } key collation (Database.table_of_findTable db.raw _ position table found)
     (Resolved.Statement.Calm.selectOne_duplicateKeys position _ key collation ((Resolved.Expr.calm_not _).2 (Resolved.Expr.calm_exists 0)) keyCalm)]
@@ -117,7 +120,8 @@ theorem Fails.not_selectOne_noDuplicateKeys
 means that no row of the table in scan order has a key that compares as equal, under the collation, to the key of a
 row before it. In words: no two rows of the table have keys that compare as equal under the collation, and two NULL
 keys compare as equal. Rows are compared with the rows before them; the test is symmetric because the comparison of
-a collation is. Proof sketch: {name}`Holds.iff_selectOne_noDuplicateKeys` and {name}`Resolved.groups_short_iff_pairwise`
+a collation is. The source reference has no indexed query.
+Proof sketch: {name}`Holds.iff_selectOne_noDuplicateKeys` and {name}`Resolved.groups_short_iff_pairwise`
 with {name}`Resolved.sameGroup_single`. -/
 theorem Holds.iff_selectOne_noDuplicateKeys_pairwise
     {script : Script} {db : Database} {isQuery : script.isQuery = true} {reference : Syntax.TableReference}
@@ -127,7 +131,7 @@ theorem Holds.iff_selectOne_noDuplicateKeys_pairwise
       none [Syntax.Subquery.mk [.expression (.numeric "1") none "1"] (some reference) [] none [term] [] none none none
         (some (.compare .gt (.callStar name) (.numeric "1"))) false none] none false none, parameters) :: rest)
     (count : normalizeIdentifier name = "count")
-    (arguments : reference.arguments = none) (found : db.raw.catalog.findTable reference.table = some (position, table))
+    (namedSource : reference.query = none) (arguments : reference.arguments = none) (found : db.raw.catalog.findTable reference.table = some (position, table))
     (groupResolves : GroupTermResolves runContext.profile.dqsDml (tableScope db.raw.catalog reference position table)
       { current := some 0, aggregates := [.callStar name] } term key collation)
     (keyCalm : key.Calm) :
@@ -135,13 +139,14 @@ theorem Holds.iff_selectOne_noDuplicateKeys_pairwise
       (Resolved.sourceRows { shape := table, rows := db.raw.rows.getD position [] }).Pairwise
         fun earlier later => collation.compare (key.eval (Resolved.EvalContext.bound parameters) later)
           (key.eval (Resolved.EvalContext.bound parameters) earlier) ≠ Ordering.eq := by
-  rw [Holds.iff_selectOne_noDuplicateKeys head count arguments found groupResolves keyCalm,
+  rw [Holds.iff_selectOne_noDuplicateKeys head count namedSource arguments found groupResolves keyCalm,
     Resolved.groups_short_iff_pairwise]
   simp only [Resolved.sameGroup_single, beq_eq_false_iff_ne]
 
 /-- For every script as in {name}`Holds.iff_selectOne_noDuplicateKeys`: {name}`Empty` of the script on the database
 means that some row of the table has a key that compares as equal, under the collation, to the key of a row before
-it. Proof sketch: {name}`Empty.iff_selectOne_noDuplicateKeys` and {name}`Resolved.groups_long_iff_repeated` with
+it. The source reference has no indexed query.
+Proof sketch: {name}`Empty.iff_selectOne_noDuplicateKeys` and {name}`Resolved.groups_long_iff_repeated` with
 {name}`Resolved.sameGroup_single`. -/
 theorem Empty.iff_selectOne_noDuplicateKeys_repeated
     {script : Script} {db : Database} {isQuery : script.isQuery = true} {reference : Syntax.TableReference}
@@ -151,7 +156,7 @@ theorem Empty.iff_selectOne_noDuplicateKeys_repeated
       none [Syntax.Subquery.mk [.expression (.numeric "1") none "1"] (some reference) [] none [term] [] none none none
         (some (.compare .gt (.callStar name) (.numeric "1"))) false none] none false none, parameters) :: rest)
     (count : normalizeIdentifier name = "count")
-    (arguments : reference.arguments = none) (found : db.raw.catalog.findTable reference.table = some (position, table))
+    (namedSource : reference.query = none) (arguments : reference.arguments = none) (found : db.raw.catalog.findTable reference.table = some (position, table))
     (groupResolves : GroupTermResolves runContext.profile.dqsDml (tableScope db.raw.catalog reference position table)
       { current := some 0, aggregates := [.callStar name] } term key collation)
     (keyCalm : key.Calm) :
@@ -159,7 +164,7 @@ theorem Empty.iff_selectOne_noDuplicateKeys_repeated
       ¬ (Resolved.sourceRows { shape := table, rows := db.raw.rows.getD position [] }).Pairwise
         fun earlier later => collation.compare (key.eval (Resolved.EvalContext.bound parameters) later)
           (key.eval (Resolved.EvalContext.bound parameters) earlier) ≠ Ordering.eq := by
-  rw [Empty.iff_selectOne_noDuplicateKeys head count arguments found groupResolves keyCalm,
+  rw [Empty.iff_selectOne_noDuplicateKeys head count namedSource arguments found groupResolves keyCalm,
     Resolved.groups_long_iff_repeated]
   simp only [Resolved.sameGroup_single, beq_eq_false_iff_ne]
 

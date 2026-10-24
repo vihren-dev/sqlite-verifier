@@ -20,12 +20,13 @@ def tableScope (catalog : Catalog) (reference : Syntax.TableReference) (position
 when the catalog has the table: it gives one inner source on the catalog position of the table, and one
 scope of the table ({name}`tableScope`). The catalog may be any catalog.
 
-Proof sketch: unfold {name}`resolveSources` and the table lookup, and rewrite with the two hypotheses. -/
+The source reference has no indexed query.
+Proof sketch: unfold {name}`resolveSources` and the table lookup, and rewrite with the hypotheses. -/
 theorem resolveSources_table (catalog : Catalog) (reference : Syntax.TableReference) (position : Nat) (table : CatalogTable)
-    (arguments : reference.arguments = none) (found : catalog.findTable reference.table = some (position, table)) :
+    (namedSource : reference.query = none) (arguments : reference.arguments = none) (found : catalog.findTable reference.table = some (position, table)) :
     resolveSources catalog (some reference) [] = .ok ([{ item := .table position, kind := .inner, condition := .none }],
       tableScope catalog reference position table) := by
-  simp [resolveSources, resolveReference, arguments, resolveTableReference, found, maximumJoinTables, Scope.place, mergeJoins, resolveAll, resolveAllFrom, Bind.bind, Except.bind, liftM, monadLift, MonadLift.monadLift, Except.mapError, joinOperator, Scope.single, tableScope, Functor.map, Except.map]
+  simp [resolveSources, resolveReference, namedSource, arguments, resolveTableReference, found, maximumJoinTables, Scope.place, mergeJoins, resolveAll, resolveAllFrom, Bind.bind, Except.bind, liftM, monadLift, MonadLift.monadLift, Except.mapError, joinOperator, Scope.single, tableScope, Functor.map, Except.map]
 
 /-- No pending source resolves to no source, for any scope and quote setting. Proof sketch: there is no
 condition and no argument to resolve. -/

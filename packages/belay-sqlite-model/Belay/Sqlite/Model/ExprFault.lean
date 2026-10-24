@@ -129,7 +129,8 @@ inductive RunEnd where
 
 /-- The rows that a subquery gives for one outer row, with the fault of its evaluation
 (ADR 0018, D1), and whether SQLite's plan can change the rows that a scalar subquery or
-{lit}`IN` reads. Use {lean}`true` for both flags when the rows are certain. -/
+{lit}`IN` reads, and whether its complete rows are certain for a source of {lit}`FROM`.
+Use {lean}`true` for the certainty flags when the respective values are certain. -/
 structure SubqueryRun where
   /-- The result rows, in the order of the subquery. -/
   rows : List (List Value)
@@ -141,6 +142,9 @@ structure SubqueryRun where
   /-- Whether the first values of the rows are the same in every order in which SQLite may
   give the rows, as a multiset; {lit}`IN` reads them. -/
   rowsCertain : Bool := true
+  /-- Whether the complete result rows are the same multiset in every permitted order.
+  A derived source reads every column, so certainty of only the first column is insufficient. -/
+  sourceCertain : Bool := true
   /-- How the run ended without the softened fault ({name}`RunEnd`), which a compound
   {lit}`SELECT` reads for its terms. -/
   ending : RunEnd := .done

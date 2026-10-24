@@ -87,8 +87,8 @@ def test_exact_storage_and_wide_rows(runtime_root: Path) -> None:
 
 
 def test_fail_closed_transport(runtime_root: Path) -> None:
-    """Unsupported frontend SQL, malformed bytes and versions cannot become agreement."""
-    case, answer = evaluate(Fixture("", "SELECT a FROM (SELECT 1 AS a);", {}, "unsupported"), runtime_root)
+    """Pipeline transport refuses EXPLAIN, malformed bytes and versions instead of agreement."""
+    case, answer = evaluate(Fixture("", "EXPLAIN SELECT 1;", {}, "unsupported"), runtime_root)
     assert case is None and answer["verdict"] == "MODEL_UNSUPPORTED"
     case = record(fixtures()[0], default_parser(runtime_root))
     wrong = deepcopy(case)

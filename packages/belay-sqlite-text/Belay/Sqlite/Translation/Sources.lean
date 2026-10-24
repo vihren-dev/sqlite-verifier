@@ -26,33 +26,41 @@ structure SourceParts where
   constraint : ParseNode
   /-- The arguments of a table-valued function. -/
   arguments : Option (Located (List Syntax.Expr))
+  /-- The indexed SELECT of a derived table, or none for a named table or function. -/
+  query : Option (Located Nat) := none
   deriving Inhabited
 
-/-- The parts of one source; a subquery or {lit}`INDEXED BY` is refused. Like the Python
+/-- The parts of one source; {lit}`INDEXED BY` is refused. A SELECT is added to the indexed query list. Like the Python
 translation, the function arguments are mapped while the list is walked from its end. -/
 def sourceParts (mappers : Mappers) (tree : SqlTree) (node : ParseNode) : TranslateM SourceParts := do
   let parts := tree.children node
   match tree.symbols node with
   | ["stl_prefix", "nm", "dbnm", "as", "on_using"] =>
-    return ⟨parts[0]!, parts[1]!, parts[2]!, parts[3]!, parts[4]!, none⟩
+    return ⟨parts[0]!, parts[1]!, parts[2]!, parts[3]!, parts[4]!, none, none⟩
   | ["stl_prefix", "nm", "dbnm", "LP", "exprlist", "RP", "as", "on_using"] =>
     let listed := parts[4]!
     let items ← if listed.children.isEmpty then pure #[] else
       leftList tree (tree.children listed)[0]! [(1, ["expr"]), (3, ["nexprlist", "COMMA", "expr"])]
     let arguments ← items.mapM fun item => mappers.expression tree (last item)
     return ⟨parts[0]!, parts[1]!, parts[2]!, parts[6]!, parts[7]!,
-      some (sequence arguments listed.start parts[5]!.start)⟩
-  | _ => unsupported node ("Only tables and table-valued functions, with optional aliases, are modeled in " ++
-      "FROM; write table names and joins")
+      some (sequence arguments listed.start parts[5]!.start), none⟩
+  | ["stl_prefix", "LP", "select", "RP", "as", "on_using"] =>
+    let select := parts[2]!
+    let index ← lift mappers tree select
+    return { joined := parts[0]!, table := select, schema := default, aliasNode := parts[4]!,
+             constraint := parts[5]!, arguments := none, query := some (leaf index select.start select.stop) }
+  | _ => unsupported node ("This FROM source is not modeled; use a table, table-valued function or SELECT")
 
-/-- A table or table-valued function with its optional alias; a schema name is refused. -/
+/-- A named table, function or indexed query with its optional alias; a schema name is refused. -/
 def tableReference (tree : SqlTree) (source : SourceParts) : TranslateM (Located Syntax.TableReference) := do
   absent source.schema "A schema name"
-  let table ← identifierName tree source.table
+  let table ← if source.query.isSome then pure (leaf (name! "") source.table.start source.table.stop)
+    else identifierName tree source.table
   let named ← alias tree source.aliasNode
   let arguments := (source.arguments.map (·.present)).getD (missing source.table.start source.table.stop)
-  return composite { table := table.value, alias := named.value, arguments := arguments.value } source.table.start
-    (max source.table.stop source.aliasNode.stop) #[table.span, named.span, arguments.span]
+  let query := (source.query.map (·.present)).getD (missing source.table.start source.table.stop)
+  return composite { table := table.value, alias := named.value, arguments := arguments.value, query := query.value } source.table.start
+    (max source.table.stop source.aliasNode.stop) #[table.span, named.span, arguments.span, query.span]
 
 /-- The keywords of a {lit}`joinop` before {lit}`JOIN`, as written; none for {lit}`,` and a plain
 {lit}`JOIN`. -/

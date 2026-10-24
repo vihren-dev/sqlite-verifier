@@ -59,8 +59,11 @@ theorem resolveSelect_no_subqueries (context : ResolveContext) (catalog : Catalo
     (noStar : starIssue scope query.columns = none)
     (body : resolveQueryBody context.profile.dqsDml scope { later := [] } [] pending query = .ok (q, affinity)) :
     resolveSelect context catalog query [] = .ok (.query q [], catalog) := by
+  have noSources : sourceExpansion catalog 8 [] none =
+      (fun _ => .error (.value (.restriction [] .subqueryHere))) := by funext index; rfl
   unfold resolveSelect
-  simp [noJoins, sourcesOk, subqueryScopes, scopeOrder, resolveSubqueryBodies, noStar, noCompound, body, Bind.bind,
+  rw [noSources]
+  simp [noJoins, sourcesOk, subqueryScopes, scopeOrder, resolveSubqueryBodies, subqueryBodyOrder, QueryScope.refresh, Scope.refreshSources, noStar, noCompound, body, Bind.bind,
     Except.bind, Except.mapError, Pure.pure, Except.pure]
 
 /-- For every simple query ({name}`Syntax.Subquery.Simple`) whose pending sources, result columns and
@@ -168,8 +171,11 @@ theorem resolveSelect_no_subqueries_prepareError (context : ResolveContext) (cat
     (noStar : starIssue scope query.columns = none)
     (body : resolveQueryBody context.profile.dqsDml scope { later := [] } [] pending query = .error (.prepare error)) :
     resolveSelect context catalog query [] = .ok (.prepareError (.expression error), catalog) := by
+  have noSources : sourceExpansion catalog 8 [] none =
+      (fun _ => .error (.value (.restriction [] .subqueryHere))) := by funext index; rfl
   unfold resolveSelect
-  simp [noJoins, sourcesOk, subqueryScopes, scopeOrder, resolveSubqueryBodies, noStar, noCompound, body,
+  rw [noSources]
+  simp [noJoins, sourcesOk, subqueryScopes, scopeOrder, resolveSubqueryBodies, subqueryBodyOrder, QueryScope.refresh, Scope.refreshSources, noStar, noCompound, body,
     issueResolution, prepareError, Bind.bind, Except.bind, Except.mapError, Pure.pure, Except.pure]
 
 end Belay.Sqlite.Model

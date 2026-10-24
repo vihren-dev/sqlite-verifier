@@ -14,13 +14,14 @@ namespace Belay.Sqlite.Model
 catalog of the state has at a position, without table-function arguments, whose condition resolves
 in the scope of the table to a condition ({name}`FilterResolves`), resolution gives the simple query
 of the first source of the table, the literal one named {lit}`"1"`, and that condition, with no
-subquery, and leaves the state as it is. Proof sketch: {name}`resolveStatement_select_simple` with
+subquery, and leaves the state as it is. The source reference has no indexed query.
+Proof sketch: {name}`resolveStatement_select_simple` with
 the source of {name}`resolveSources_table`, the pending source of
 {name}`resolvePendingSources_table` and the column of {name}`resolveColumns_one`; the only column
 is not a star and calls no aggregate. -/
 theorem resolveStatement_select_one_from (context : ResolveContext) (state : ResolveState)
     (reference : Syntax.TableReference) (filter : Option Syntax.Expr) (position : Nat) (table : CatalogTable)
-    (condition : Option Resolved.Expr) (arguments : reference.arguments = none)
+    (condition : Option Resolved.Expr) (namedSource : reference.query = none) (arguments : reference.arguments = none)
     (found : state.catalog.findTable reference.table = some (position, table))
     (resolves : FilterResolves context.profile.dqsDml
       (tableScope state.catalog reference position table) [] filter condition) :
@@ -34,7 +35,7 @@ theorem resolveStatement_select_one_from (context : ResolveContext) (state : Res
     ⟨rfl, rfl, rfl, rfl, rfl, rfl, rfl, rfl, rfl⟩
   have result := resolveStatement_select_simple context state
     (Syntax.Subquery.mk [.expression (.numeric "1") none "1"] (some reference) [] filter [] [] none none none none false none)
-    simple rfl _ _ _ condition _ (resolveSources_table state.catalog reference position table arguments found)
+    simple rfl _ _ _ condition _ (resolveSources_table state.catalog reference position table namedSource arguments found)
     (by simp [starIssue]) columns (by simpa [resultAliases] using resolves)
     (resolvePendingSources_table context.profile.dqsDml _ position)
     (by simp [Resolved.Expr.any, Resolved.Expr.isFallibleCall])

@@ -1,4 +1,4 @@
-import Belay.Sqlite.Model.Resolution.ScopeNames
+import Belay.Sqlite.Model.Resolution.MergedNames
 
 set_option doc.verso true
 
@@ -36,16 +36,16 @@ def Syntax.Expr.firstExplicitCollation : List Syntax.Expr → Option Collation
   | argument :: rest => argument.explicitCollation <|> Syntax.Expr.firstExplicitCollation rest
 end
 
-/-- The collation of a column reference over the scope: the collation of the first
-column that the name reads, under unary plus and {lit}`CAST`; none for any other
-expression and for a name that reads no column. -/
+/-- The collation of a column reference over the scope, also under unary plus and CAST.
+A name that reads one column has that column's collation, including the right column after
+a RIGHT JOIN. A coalesce of columns after a FULL JOIN has none, as does any other expression. -/
 def Syntax.Expr.columnCollation (scope : Scope) : Syntax.Expr → Option Collation
   | .identifier name _ => match scope.resolveName name with
-    | .found first _ => scope.columns[first]?.map (·.collation)
-    | .missing | .ambiguous => none
+    | .found _ [position] => scope.columns[position]?.map (·.collation)
+    | .found _ _ | .missing | .ambiguous => none
   | .qualified source column => match scope.resolveQualified source column with
-    | .found first _ => scope.columns[first]?.map (·.collation)
-    | .missing | .ambiguous => none
+    | .found _ [position] => scope.columns[position]?.map (·.collation)
+    | .found _ _ | .missing | .ambiguous => none
   | .positive operand | .cast operand _ | .collate operand _ => operand.columnCollation scope
   | .null | .numeric _ | .string _ | .blob _ | .parameter _ | .currentTime _ | .negate _ | .compare .. | .and .. | .or ..
   | .not _ | .isNull .. | .callStar _ | .call .. | .arithmetic .. | .exists _ | .inQuery .. | .subquery _
@@ -83,14 +83,22 @@ def comparisonCollation (scope : Scope) (left right : Syntax.Expr) : Collation :
   (left.explicitCollation <|> right.explicitCollation <|> left.columnCollation scope <|>
     right.columnCollation scope).getD .binary
 
+/-- The collation of the expression that a star expands to. A right join can select a
+later column; a full join can produce a coalesce with no column collation. This reads the
+same expansion as {name}`Scope.starOperand`. -/
+def Scope.starCollation (scope : Scope) (position : Nat) (column : CatalogColumn) : Option Collation :=
+  match scope.starOperand position column with
+  | .ok (.column index, _) => scope.columns[index]?.map (·.collation)
+  | .ok _ | .error _ => none
+
 /-- The collation of each result column of a {lit}`SELECT`, in the order of its outputs: a
-column of {lit}`*` or {lit}`x.*` has its column's collation, and an expression its
+column of {lit}`*` or {lit}`x.*` has its expanded operand's collation (BINARY when it has none), and an expression its
 {name}`Syntax.Expr.collationIn`. An {lit}`ORDER BY` or {lit}`GROUP BY` term that names a
 result column has that column's collation. -/
 def resultCollations (scope : Scope) (results : List Syntax.ResultColumn) : List Collation :=
   results.flatMap fun
-    | .star => scope.visible.map fun (_, column) => column.collation
-    | .sourceStar name => ((scope.starColumns? name).map (·.map fun (_, column) => column.collation)).getD []
+    | .star => scope.visible.map fun (position, column) => (scope.starCollation position column).getD .binary
+    | .sourceStar name => ((scope.starColumns? name).map (·.map fun (position, column) => (scope.starCollation position column).getD .binary)).getD []
     | .expression value _ _ => [value.collationIn scope]
 
 /-- An aggregate under the collation of its operand: {lit}`min` and {lit}`max` compare

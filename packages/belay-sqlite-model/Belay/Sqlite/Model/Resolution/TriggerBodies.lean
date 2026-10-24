@@ -51,11 +51,13 @@ def resolveBodySelect (context : ResolveContext) (catalog : Catalog) (row : Trig
   let dqs := context.profile.dqsDml
   let resolved : Except SourceIssue (Resolved.Query × List Resolved.Query) := do
     let (pending, inner) ← resolveSources catalog query.source query.joins row.width
+      (sourceExpansion catalog 8 subqueries none)
     let scope := Scope.enclose (row.scope 0) inner
     let main : QueryScope := { scope, pending, outer := row.width, outerAliases := [],
                                aliases := (resultAliases scope query.columns).filterMap id }
     let (resolvedSubqueries, shapes) ← resolveSubqueries dqs catalog 8 main subqueries
-    let (resolvedQuery, _) ← (resolveQueryBody dqs scope { later := shapes, outer := row.width } [] pending query).mapError .value
+    let main ← (main.refresh catalog shapes query).mapError .value
+    let (resolvedQuery, _) ← (resolveQueryBody dqs main.scope { later := shapes, outer := row.width } [] main.pending query).mapError .value
     pure (resolvedQuery, resolvedSubqueries)
   match resolved with
   | .ok (resolvedQuery, resolvedSubqueries) => .ok (.query resolvedQuery resolvedSubqueries, catalog)
