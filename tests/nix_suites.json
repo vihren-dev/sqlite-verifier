@@ -14,6 +14,7 @@
     "tests/conformance_authored_resolution_test.py",
     "tests/conformance_query_coverage_test.py",
     "tests/shared_table_shape_test.py",
+    "tests/query_claims_theorems_test.py",
     "tests/column_default_resolution_test.py",
     "tests/column_default_value_test.py",
     "tests/column_default_admission_test.py",
@@ -111,6 +112,8 @@
   ],
   "surface": [
     "tests/surface_guide_test.py",
+    "tests/surface_claims_test.py",
+    "tests/surface_schema_claims_test.py",
     "tests/surface_parameters_test.py",
     "tests/surface_programs_test.py",
     "tests/surface_parser_test.py",

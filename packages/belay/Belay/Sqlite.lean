@@ -21,7 +21,24 @@ import Belay.Sqlite.DbBang
 import Belay.Sqlite.RunLaws
 import Belay.Sqlite.Queries
 import Belay.Sqlite.QueryLaws
+import Belay.Sqlite.QueryBridge
+import Belay.Sqlite.QueryCases
 import Belay.Sqlite.SqlCommand
+import Belay.Sqlite.SelectOneFrom
+import Belay.Sqlite.SqlSimp
+import Belay.Sqlite.SqlSimpLaws
+import Belay.Sqlite.ExistsQuery
+import Belay.Sqlite.NotExistsQuery
+import Belay.Sqlite.SelectOneMayFail
+import Belay.Sqlite.ExistsMayFail
+import Belay.Sqlite.ScalarNoFrom
+import Belay.Sqlite.SelectNoFrom
+import Belay.Sqlite.CountQuery
+import Belay.Sqlite.ColumnQuery
+import Belay.Sqlite.TableInfoQuery
+import Belay.Sqlite.DuplicateKeyQuery
+import Belay.Sqlite.AggregateQuery
+import Belay.Sqlite.UniqueLookupQuery
 
 /-! The SQLite surface. It reads SQL text while a Lean file elaborates, with the SQLite parser
 library in the Lean process, and translates the parse tree to the model's statement syntax with

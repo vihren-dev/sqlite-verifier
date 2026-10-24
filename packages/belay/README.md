@@ -77,3 +77,36 @@ example : (start.run (env := Env.newConnection) do
 
 `Script.run_env` states that a run in which no statement reads the clock and no statement ends at
 a counter that the run does not know is the same in every environment.
+
+## Claims about every database
+
+`Holds q db` says that every possible result of the query has a row. `Empty q db` says that
+all its possible results have no rows. `Fails q db` says that the query gives an error.
+An unmodeled query satisfies none of these claims. Use the query-form lemmas, such as
+`Holds.iff_selectOne_count`, to express a claim in terms of the catalog and stored rows.
+A free database cannot be evaluated with `decide`; supply its schema facts and use the laws.
+
+The `sql_simp` simp set resolves and evaluates common expressions, including parameters,
+comparisons, Boolean operators, `BETWEEN`, `COLLATE`, `count(*)` and `sum`. For example,
+`simp [sql_simp]` turns a resolved `count(*)` into the length of its group. The aggregate
+equations also have `grind` attributes. For a conditional law, use
+`simp (disch := assumption) [sql_simp]` when its hypotheses are already available.
+
+For integer and NULL inputs, `sumOf_fails_iff` describes overflow by the first integer
+prefix sum outside the 64-bit range. Later integer cancellation does not clear that overflow.
+When every prefix fits, `sumOf_value_of_fits` gives NULL for no integer inputs and the exact
+integer sum otherwise. These laws require integer or NULL inputs; text and REAL inputs use
+the general aggregate equations and SQLite's conversion rules.
+
+`Holds.iff_step`, `Empty.iff_step` and `Fails.iff_step` expose every resolution branch for
+any query. `Fails.of_prepareError` covers a missing table or column, and
+`Fails.select_body_prepareError` lifts an expression-resolution error without repeating the
+statement interpreter. `Script.not_claims_query_of_undescribed` covers a query that may fail
+or has an unsupported subquery. Keep those cases in proofs: a row satisfying a filter does
+not imply `Holds` if another row can make evaluation fail.
+
+For a scalar call without `FROM`, `resolveStatement_selectNoFrom_columns` admits a resolved
+scalar column, including a fallible function. `Holds.iff_noFrom_scalar`,
+`Empty.iff_noFrom_scalar` and `Fails.iff_noFrom_scalar` retain the run's fault and the filter.
+Thus `SELECT abs(1)` holds, `SELECT abs(-9223372036854775808)` fails, and adding `WHERE 0`
+skips that failing projection and makes the result empty, for every database.
